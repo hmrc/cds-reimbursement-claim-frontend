@@ -1,0 +1,10 @@
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
+
+@this(layout: Layout)
+
+@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+
+@layout(pageTitle = Some("cds-reimbursement-claim-frontend")) {
+    <h1 class="govuk-heading-xl">cds-reimbursement-claim-frontend</h1>
+    <p class="govuk-body">@{messages("service.text")}</p>
+}
