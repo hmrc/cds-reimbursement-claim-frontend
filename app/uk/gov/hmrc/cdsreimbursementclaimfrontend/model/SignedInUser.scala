@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
 
-@this(layout: Layout)
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
-
-@layout(pageTitle = Some("cds-reimbursement-claim-frontend")) {
-    <h1 class="govuk-heading-xl">cds-reimbursement-claim-frontend</h1>
-    <p class="govuk-body">@{messages("service.text")}</p>
-}
+case class SignedInUser(credentials: Option[Credentials],
+                        name: Option[Name],
+                        email: Option[String],
+                        eori: Eori
+)
