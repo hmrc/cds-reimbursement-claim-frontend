@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
 
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-import javax.inject.{Inject, Singleton}
-
-@Singleton
-class AppConfig @Inject() (val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
-  val appName: String              = servicesConfig.getString("appName")
-  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
-}
+final case class Eori(number: String) extends AnyVal

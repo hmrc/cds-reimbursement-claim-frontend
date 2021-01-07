@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
 
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 
-import javax.inject.{Inject, Singleton}
-
-@Singleton
-class AppConfig @Inject() (val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
-  val appName: String              = servicesConfig.getString("appName")
-  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
-}
+final case class SignedInUser(credentials: Option[Credentials], name: Option[Name], email: Option[String], eori: Eori)
