@@ -14,12 +14,13 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import play.api.mvc.Call
 
 @this()
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+@(link: Call)(implicit messages: Messages)
+
+<a id="back" class="link-back" href="@link">
+@messages("generic.back")
+</a>

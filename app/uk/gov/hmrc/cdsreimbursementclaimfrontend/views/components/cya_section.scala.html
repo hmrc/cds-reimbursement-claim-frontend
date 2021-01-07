@@ -18,8 +18,10 @@
 
 @this()
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+@(heading: Option[String] = None, classes: Option[String] = Some("cya-questions-long"))(rows: => Html)
+
+@heading.map(h => Html(s"""<h2 class="heading-medium">$h</h2>"""))
+
+<dl class="govuk-check-your-answers@{classes.map(c => s" $c")}">
+  @rows
+</dl>

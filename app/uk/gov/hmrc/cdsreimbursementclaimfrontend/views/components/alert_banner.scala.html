@@ -14,12 +14,17 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
+@import play.api.i18n.Messages
 
 @this()
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+@(alert: String)(implicit messages: Messages)
+
+<div class="hmcts-banner hmcts-banner--success" tabindex="-1" role="alert">
+  <svg class="hmcts-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25"><path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z"></path></svg>
+  <div class="hmcts-banner__message">
+    <span class="hmcts-banner__assistive">@messages("generic.success")</span>
+    @alert
+  </div>
+
+</div>

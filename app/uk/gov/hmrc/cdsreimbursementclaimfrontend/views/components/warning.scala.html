@@ -14,12 +14,17 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
+@import play.api.i18n.Messages
 
 @this()
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+@(warningText: String)(implicit messages: Messages)
+
+<div class="notice" style="margin: 30px 0;" id="single-warning">
+  <i class="icon icon-important">
+    <span class="visually-hidden">@messages("generic.warning")</span>
+  </i>
+  <strong class="bold-small" id="warning">
+    @warningText
+  </strong>
+</div>

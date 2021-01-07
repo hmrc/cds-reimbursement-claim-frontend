@@ -18,8 +18,10 @@
 
 @this()
 
-@(headBlock: Option[Html] = None)
-@headBlock
-<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->
+@(heading: String, caption: Option[String] = None, subtitle: Option[String] = None)
+
+ <h1 class="heading-xlarge">
+  @caption.map(c => Html(s"""<span class="heading-secondary">$c</span>"""))
+  @heading
+  @subtitle.map(s => Html(s"""<p class="sub-heading">$s</p>"""))
+ </h1>
