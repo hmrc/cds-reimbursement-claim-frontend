@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+@import play.twirl.api.Html
 
-final case class Eori(number: String) extends AnyVal
+@this()
+
+@(cancelLabel: String, cancelUrl: String, continueLabel: Option[String], continueUrl: Option[String])
+
+<div class="form-group">
+  @continueLabel.map(l =>
+   Html(s"""<a class="button" role="button" href="${continueUrl.getOrElse("")}" id="cancelOrContinue-continue">$l</a>""")
+  )
+  <a class="button--secondary" role="button" href="@{cancelUrl}" id="cancelOrContinue-cancel">@cancelLabel</a>
+</div>

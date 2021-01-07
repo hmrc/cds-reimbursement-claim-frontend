@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import javax.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-@Singleton
-class AppConfig @Inject()(val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
-  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
+import javax.inject.{Inject, Singleton}
 
+@Singleton
+class AppConfig @Inject() (val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
+  val appName: String              = servicesConfig.getString("appName")
+  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 }

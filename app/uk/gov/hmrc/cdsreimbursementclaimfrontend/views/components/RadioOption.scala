@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components
 
-final case class Eori(number: String) extends AnyVal
+import play.twirl.api.Html
+
+final case class RadioOption(
+  label: Html,
+  content: Option[Html],
+  optionHelpText: Option[Html]
+)
+
+object RadioOption {
+
+  def apply(
+    label: String,
+    content: Option[Html],
+    optionHelpText: Option[Html]
+  ): RadioOption =
+    RadioOption(Html(label), content, optionHelpText)
+
+}

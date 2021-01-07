@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+@import play.api.i18n.Messages
 
-final case class Eori(number: String) extends AnyVal
+@this()
+
+@(hintText: String, url: String, label: Option[String] = None)(implicit messages: Messages)
+
+<a href="@url">@{label.getOrElse(messages("cya.change"))}<span class="visuallyhidden"> @hintText</span></a>

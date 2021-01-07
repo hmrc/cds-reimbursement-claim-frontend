@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+@import play.twirl.api.Html
 
-final case class Eori(number: String) extends AnyVal
+@this()
+
+@(label: String, otherHtml: Option[Html] = None)
+<div class="form-group">
+  <button class="button" type="submit" id="submitButton">@label</button>
+  @otherHtml
+</div>

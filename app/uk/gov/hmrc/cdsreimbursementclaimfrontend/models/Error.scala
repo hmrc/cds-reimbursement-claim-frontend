@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-final case class Eori(number: String) extends AnyVal
+final case class Error(value: Either[String, Throwable]) extends AnyVal
+
+object Error {
+
+  def apply(message: String): Error = Error(Left(message))
+
+  def apply(error: Throwable): Error = Error(Right(error))
+
+}

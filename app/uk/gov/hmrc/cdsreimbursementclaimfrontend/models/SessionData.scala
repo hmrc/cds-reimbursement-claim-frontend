@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-final case class Eori(number: String) extends AnyVal
+import cats.Eq
+import play.api.libs.json.{Format, Json}
+
+final case class SessionData(
+  data: Option[String] // dummy field for now
+)
+
+object SessionData {
+
+  implicit val format: Format[SessionData] = Json.format
+
+  implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
+
+  val empty: SessionData = SessionData(None)
+
+}

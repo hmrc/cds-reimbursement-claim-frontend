@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.test
 
+import com.github.ghik.silencer.silent
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.{DefaultFileMimeTypes, FileMimeTypesConfiguration, HttpConfiguration}
@@ -32,11 +33,15 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.ExecutionContext
 
 trait ReimbursmentSpec extends AnyWordSpec with Matchers {
-  val env = Environment.simple()
+
+  @silent
+  implicit val ec: ExecutionContext
+
+  val env           = Environment.simple()
   val configuration = Configuration.load(env)
   val serviceConfig = new ServicesConfig(configuration)
 
-  implicit val appConfig = new AppConfig(configuration, env,serviceConfig)
+  implicit val appConfig = new AppConfig(configuration, env, serviceConfig)
 
   val langs = new DefaultLangs()
 
@@ -49,23 +54,20 @@ trait ReimbursmentSpec extends AnyWordSpec with Matchers {
 
   val messagesApi: MessagesApi = messagesApiProvider.get
 
-  implicit val mcc: MessagesControllerComponents = {
-    val executionContext = ExecutionContext.global
+  implicit val mcc: MessagesControllerComponents =
     DefaultMessagesControllerComponents(
-      messagesActionBuilder = new DefaultMessagesActionBuilderImpl(stubBodyParser(), messagesApi)(executionContext),
-      actionBuilder = DefaultActionBuilder(stubBodyParser())(ExecutionContext.global),
+      messagesActionBuilder = new DefaultMessagesActionBuilderImpl(stubBodyParser(), messagesApi)(ec),
+      actionBuilder = DefaultActionBuilder(stubBodyParser())(ec),
       parsers = stubPlayBodyParsers(NoMaterializer),
       messagesApi = messagesApi,
       langs = stubLangs(),
       fileMimeTypes = new DefaultFileMimeTypes(FileMimeTypesConfiguration(Map.empty)),
-      executionContext = executionContext
+      executionContext = ec
     )
-  }
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  val sessionId = SessionId("session_1234")
-  implicit val hc = HeaderCarrier(sessionId=Some(sessionId))
+  val sessionId   = SessionId("session_1234")
+  implicit val hc = HeaderCarrier(sessionId = Some(sessionId))
 
   val somePath = "/some/resource/path"
-  val req = FakeRequest("GET", somePath, Headers(("X-Session-ID", sessionId.value)), AnyContentAsEmpty)
+  val req      = FakeRequest("GET", somePath, Headers(("X-Session-ID", sessionId.value)), AnyContentAsEmpty)
 }

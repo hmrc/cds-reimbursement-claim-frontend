@@ -18,8 +18,4 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.model
 
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 
-case class SignedInUser(credentials: Option[Credentials],
-                        name: Option[Name],
-                        email: Option[String],
-                        eori: Eori
-)
+final case class SignedInUser(credentials: Option[Credentials], name: Option[Name], email: Option[String], eori: Eori)

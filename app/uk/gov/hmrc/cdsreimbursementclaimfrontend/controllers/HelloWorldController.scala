@@ -26,15 +26,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.HelloWorldPage
 import scala.concurrent.Future
 
 @Singleton
-class HelloWorldController @Inject()(
+class HelloWorldController @Inject() (
   appConfig: AppConfig,
   mcc: MessagesControllerComponents,
-  helloWorldPage: HelloWorldPage)
-    extends FrontendController(mcc) {
+  helloWorldPage: HelloWorldPage
+) extends FrontendController(mcc) {
 
   implicit val config: AppConfig = appConfig
 
-  val helloWorld: Action[AnyContent] = Action.async { implicit request =>
+  val helloWorld: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
     Future.successful(Ok(helloWorldPage()))
   }
 

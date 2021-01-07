@@ -35,7 +35,7 @@ class HelloWorldControllerSpec extends AnyWordSpec with Matchers with GuiceOneAp
   private val configuration = Configuration.load(env)
 
   private val serviceConfig = new ServicesConfig(configuration)
-  private val appConfig     = new AppConfig(configuration, env , serviceConfig)
+  private val appConfig     = new AppConfig(configuration, env, serviceConfig)
 
   val helloWorldPage: HelloWorldPage = app.injector.instanceOf[HelloWorldPage]
 
