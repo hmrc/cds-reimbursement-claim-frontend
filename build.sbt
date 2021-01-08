@@ -42,13 +42,11 @@ lazy val microservice = Project(appName, file("."))
     play.sbt.PlayScala,
     SbtAutoBuildPlugin,
     SbtGitVersioning,
-    SbtDistributablesPlugin,
-    SbtArtifactory
+    SbtDistributablesPlugin
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"))
   .settings(addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.full))
-  .settings(addCompilerPlugin("com.github.ghik" % "silencer-plugin" % "1.6.0" cross CrossVersion.full))
   .settings(addCompilerPlugin(scalafixSemanticdb))
   .settings(scalaVersion := "2.12.12")
   .settings(TwirlKeys.templateImports := Seq.empty)
