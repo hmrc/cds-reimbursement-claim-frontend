@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
-trait ReimbursmentSpec extends AnyWordSpec with Matchers {
+trait ReimbursementSpec extends AnyWordSpec with Matchers {
 
   @silent
   implicit val ec: ExecutionContext
