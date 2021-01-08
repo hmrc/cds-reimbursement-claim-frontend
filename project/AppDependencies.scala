@@ -26,6 +26,7 @@ object AppDependencies {
     "org.scalatest"              %% "scalatest"                 % "3.2.3"          % Test,
     "org.jsoup"                   % "jsoup"                     % "1.13.1"         % Test,
     "com.typesafe.play"          %% "play-test"                 % current          % Test,
+    "org.scalamock"              %% "scalamock"                 % "4.4.0"          % Test,
     "org.scalatestplus"          %% "mockito-3-4"               % "3.2.2.0"        % Test,
     "org.scalatestplus.play"     %% "scalatestplus-play"        % "4.0.3"          % "test, it",
     "org.scalamock"              %% "scalamock"                 % "4.4.0"          % "test",
