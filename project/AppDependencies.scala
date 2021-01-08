@@ -31,6 +31,7 @@ object AppDependencies {
     "org.scalamock"              %% "scalamock"                 % "4.4.0"          % "test",
     "uk.gov.hmrc"                %% "reactivemongo-test"        % "4.22.0-play-27" % "test",
     "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.3"          % "test",
-    "com.vladsch.flexmark"        % "flexmark-all"              % "0.36.8"         % "test, it"
+    "com.vladsch.flexmark"        % "flexmark-all"              % "0.36.8"         % "test, it",
+    "org.pegdown"                 % "pegdown"                   % "1.6.0"          % "test, it"
   )
 }
