@@ -42,8 +42,7 @@ lazy val microservice = Project(appName, file("."))
     play.sbt.PlayScala,
     SbtAutoBuildPlugin,
     SbtGitVersioning,
-    SbtDistributablesPlugin,
-    SbtArtifactory
+    SbtDistributablesPlugin
   )
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"))
