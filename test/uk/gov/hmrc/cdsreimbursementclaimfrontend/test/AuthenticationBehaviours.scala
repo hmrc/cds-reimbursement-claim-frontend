@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.test
 
 import java.net.URLEncoder
 
-import org.mockito.ArgumentMatcher
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.{BodyParsers, Request}
 import uk.gov.hmrc.auth.core._
@@ -34,12 +33,9 @@ import scala.util.Random
 trait AuthenticationBehaviours extends MockFactory {
   self: ReimbursementSpec =>
 
-  val EORI_LENGTH                                          = 12
-  val mockAuthConnector                                    = mock[AuthConnector]
-  val noBearerTokenMatcher: ArgumentMatcher[HeaderCarrier] = new ArgumentMatcher[HeaderCarrier] {
-    def matches(item: HeaderCarrier): Boolean = item != null && item.authorization.isEmpty
-  }
-  val mockAuthAction                                       = new AuthAction(mockAuthConnector, appConfig, BodyParsers.utils.empty)
+  val EORI_LENGTH       = 12
+  val mockAuthConnector = mock[AuthConnector]
+  val mockAuthAction    = new AuthAction(mockAuthConnector, appConfig, BodyParsers.utils.empty)
 
   def signedInScenario(test: SignedInUser => Any): Any =
     signedInScenario(newUser(randomEori))(test)
