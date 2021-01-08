@@ -25,4 +25,8 @@ import javax.inject.{Inject, Singleton}
 class AppConfig @Inject() (val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
   val appName: String              = servicesConfig.getString("appName")
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
+  lazy val registerCdsUrl          = config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsRegisterUrl")
+  lazy val subscribeCdsUrl         =
+    config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsSubscribeUrl")
+
 }

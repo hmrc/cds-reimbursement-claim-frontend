@@ -10,3 +10,13 @@ footer.termsConditions.text = Terms and conditions
 footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
+
+
+# Not subscribed to CDS
+cf.not-subscribed-to-cds.detail.title=Not registered with CDS
+cf.not-subscribed-to-cds.detail.heading=To view your customs financial accounts you need to get access to CDS
+cf.not-subscribed-to-cds.detail.info=CDS is the replacement for the Customs Handling Imports and Export Freight (CHIEF) system. You can use it to manage your customs interactions.
+cf.not-subscribed-to-cds.detail.eori-info=To get access to CDS, you''ll need an
+cf.not-subscribed-to-cds.detail.eori-link=Economic Operator and Registration Identification (EORI) number
+cf.not-subscribed-to-cds.detail.get-access-info=If you already have an EORI number, you can
+cf.not-subscribed-to-cds.detail.get-access-link=get access to CDS here
