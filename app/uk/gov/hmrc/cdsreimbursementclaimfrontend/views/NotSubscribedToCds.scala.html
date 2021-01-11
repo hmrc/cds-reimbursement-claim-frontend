@@ -17,34 +17,36 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 @import play.api.i18n.Messages
 
-@this(layout: Layout)
+@this(
+        layout: Layout,
+        insetPanel: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.inset_panel
+)
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
+@insetMessage: Any = @{messages("cf.not-subscribed-to-cds.detail.info")}
+    
 @layout(pageTitle = Some(messages("cf.not-subscribed-to-cds.detail.title"))) {
+
     <div id="content" class="column-two-thirds">
         <header>
             <h1 class="govuk-heading-xl">@messages("cf.not-subscribed-to-cds.detail.heading")</h1>
         </header>
-        <p class="govuk-body">
-        @messages("cf.not-subscribed-to-cds.detail.info")
-        </p>
 
         <p class="govuk-body">
-            @messages("cf.not-subscribed-to-cds.detail.eori-info")
+            @insetPanel(insetMessage)
+        </p>
+
+        <h3 class="govuk-heading-s">@messages("cf.not-subscribed-to-cds.detail.eori-info-heading")</h3>
+
+        <p class="govuk-body">
+            @messages("cf.not-subscribed-to-cds.detail.eori-info-p1")
             <a class="govuk-link" href=@(appConfig.registerCdsUrl)>
-            @messages("cf.not-subscribed-to-cds.detail.eori-link")
+                @messages("cf.not-subscribed-to-cds.detail.eori-link")
             </a>
-            .
+            @messages("cf.not-subscribed-to-cds.detail.eori-info-p2")
         </p>
 
-        <p class="govuk-body">
-            @messages("cf.not-subscribed-to-cds.detail.get-access-info")
-            <a class="govuk-link" href=@(appConfig.subscribeCdsUrl)>
-            @messages("cf.not-subscribed-to-cds.detail.get-access-link")
-            </a>
-            .
-        </p>
     </div>
 }
 
