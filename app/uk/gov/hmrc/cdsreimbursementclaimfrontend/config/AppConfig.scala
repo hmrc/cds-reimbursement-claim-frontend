@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
 import javax.inject.{Inject, Singleton}
+import cats.instances.string._
+import cats.kernel.Eq
+import cats.syntax.eq._
 
 @Singleton
 class AppConfig @Inject() (val config: Configuration, val environment: Environment, servicesConfig: ServicesConfig) {
@@ -29,4 +31,7 @@ class AppConfig @Inject() (val config: Configuration, val environment: Environme
   lazy val subscribeCdsUrl         =
     config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsSubscribeUrl")
 
+  val runMode: Option[String]                        = config.getOptional[String]("run.mode")
+  implicit private val modeEquals: Eq[play.api.Mode] = Eq.fromUniversalEquals
+  val isDevEnv: Boolean                              = if (environment.mode === Mode.Test) false else runMode.forall(_ === Mode.Dev.toString)
 }

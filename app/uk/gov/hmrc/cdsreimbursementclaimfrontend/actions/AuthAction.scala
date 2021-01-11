@@ -33,15 +33,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final case class AuthenticatedRequest[A](request: Request[A], user: SignedInUser) extends WrappedRequest[A](request)
 
-class AuthAction[B] @Inject() (val authConnector: AuthConnector, appConfig: AppConfig, val parser: BodyParser[B])(
-  implicit val executionContext: ExecutionContext
-) extends ActionBuilder[AuthenticatedRequest, B]
+class AuthAction[B] @Inject() (
+  val authConnector: AuthConnector,
+  appConfig: AppConfig,
+  mcc: MessagesControllerComponents
+)(implicit
+  val executionContext: ExecutionContext
+) extends ActionBuilder[AuthenticatedRequest, AnyContent]
     with ActionRefiner[Request, AuthenticatedRequest]
     with AuthorisedFunctions
     with AuthRedirects {
 
-  override lazy val config: Configuration = appConfig.config
-  override lazy val env: Environment      = appConfig.environment
+  override lazy val config: Configuration     = appConfig.config
+  override lazy val env: Environment          = appConfig.environment
+  override val parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
 
   override protected def refine[A](request: Request[A]): Future[Either[Result, AuthenticatedRequest[A]]] = {
     implicit val hc: HeaderCarrier =
@@ -62,6 +67,6 @@ class AuthAction[B] @Inject() (val authConnector: AuthConnector, appConfig: AppC
       Future.successful(authResult)
     }
   } recover { case _: NoActiveSession =>
-    Left(toGGLogin(continueUrl = request.path))
+    Left(toGGLogin(if (appConfig.isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}"))
   }
 }

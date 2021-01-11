@@ -19,14 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.test
 import java.net.URLEncoder
 
 import org.scalamock.scalatest.MockFactory
-import play.api.mvc.{BodyParsers, Request}
+import play.api.mvc.Request
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.actions.AuthAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.model.{Eori, SignedInUser}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
@@ -35,7 +36,7 @@ trait AuthenticationBehaviours extends MockFactory {
 
   val EORI_LENGTH       = 12
   val mockAuthConnector = mock[AuthConnector]
-  val mockAuthAction    = new AuthAction(mockAuthConnector, appConfig, BodyParsers.utils.empty)
+  val mockAuthAction    = new AuthAction(mockAuthConnector, appConfig, mcc)
 
   def signedInScenario(test: SignedInUser => Any): Any =
     signedInScenario(newUser(randomEori))(test)

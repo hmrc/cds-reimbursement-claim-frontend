@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.actions
 
 import com.google.inject.Inject
-import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.mvc.Http.Status
 import uk.gov.hmrc.auth.core.authorise.Predicate
@@ -36,7 +36,7 @@ with ReimbursementSpec with AuthenticationBehaviours {
   val authAction = new AuthAction[AnyContent](
     authConnector = mockAuthConnector,
     appConfig = appConfig,
-    stubBodyParser(AnyContentAsEmpty)
+    mcc = mcc
   )
 
   val controller = new MyFakeController(authAction)
