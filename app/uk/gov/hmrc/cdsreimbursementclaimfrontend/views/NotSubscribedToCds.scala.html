@@ -16,15 +16,14 @@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 
 @this(
         layout: Layout,
-        insetPanel: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.inset_panel
+        insetPanel: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inset_panel
 )
 
 @()(implicit messages: Messages, appConfig: AppConfig)
-
-@insetMessage: Any = @{messages("cf.not-subscribed-to-cds.detail.info")}
     
 @layout(pageTitle = Some(messages("cf.not-subscribed-to-cds.detail.title"))) {
 
@@ -34,7 +33,7 @@
         </header>
 
         <p class="govuk-body">
-            @insetPanel(insetMessage)
+            @insetPanel(Html(messages("cf.not-subscribed-to-cds.detail.info")))
         </p>
 
         <h3 class="govuk-heading-s">@messages("cf.not-subscribed-to-cds.detail.eori-info-heading")</h3>
