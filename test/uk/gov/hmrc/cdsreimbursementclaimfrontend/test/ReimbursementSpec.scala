@@ -22,8 +22,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.{DefaultFileMimeTypes, FileMimeTypesConfiguration, HttpConfiguration}
 import play.api.i18n.{DefaultLangs, DefaultMessagesApiProvider, MessagesApi}
 import play.api.mvc._
-import play.api.test.Helpers._
 import play.api.test.{FakeRequest, NoMaterializer}
+import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
