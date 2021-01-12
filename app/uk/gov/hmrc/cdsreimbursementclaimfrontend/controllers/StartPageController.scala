@@ -16,26 +16,27 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import javax.inject.{Inject, Singleton}
-
-import play.api.mvc._
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.actions.{AuthAction, AuthenticatedRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.HelloWorldPage
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.StartPage
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-@Singleton
-class HelloWorldController @Inject() (
+class StartPageController @Inject() (
   appConfig: AppConfig,
+  authAction: AuthAction[AnyContent],
   mcc: MessagesControllerComponents,
-  helloWorldPage: HelloWorldPage
-) extends FrontendController(mcc) {
-
+  startPage: StartPage
+) extends FrontendController(mcc)
+    with I18nSupport {
   implicit val config: AppConfig = appConfig
 
-  val helloWorld: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    Future.successful(Ok(helloWorldPage()))
+  val onPageLoad: Action[AnyContent] = authAction async { implicit req: AuthenticatedRequest[AnyContent] =>
+    Future.successful(Ok(startPage(req.user)))
   }
 
 }

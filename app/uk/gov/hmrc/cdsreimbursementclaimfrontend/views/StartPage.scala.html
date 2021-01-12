@@ -15,14 +15,14 @@
  *@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.model.SignedInUser
 @import play.api.i18n.Messages
 
 @this(layout: Layout)
 
-@()(implicit messages: Messages, appConfig: AppConfig)
+@(user:SignedInUser)(implicit messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = Some("cds-reimbursement-claim-frontend")) {
-    <h1 class="govuk-heading-xl">cds-reimbursement-claim-frontend</h1>
-    <p class="govuk-body">@{messages("service.text")}</p>
-    <p>App name is: @appConfig.appName</p>
+<h1 class="govuk-heading-xl">Welcome @{user.name.map(_.name.getOrElse("Unknown")).getOrElse("User without a name")}</h1>
+<h3>Your EORI number is: @{user.eori.number}</h3>
 }
