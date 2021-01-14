@@ -31,6 +31,11 @@ class AppConfig @Inject() (val config: Configuration, val environment: Environme
   lazy val subscribeCdsUrl         =
     config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsSubscribeUrl")
 
+  val claimsEndpoint: String = servicesConfig.baseUrl("cds-reimbursement-claim") + servicesConfig.getConfString(
+    "cds-reimbursement-claim.claims-url",
+    "Undefined"
+  )
+
   val runMode: Option[String]                        = config.getOptional[String]("run.mode")
   implicit private val modeEquals: Eq[play.api.Mode] = Eq.fromUniversalEquals
   val isDevEnv: Boolean                              = if (environment.mode === Mode.Test) false else runMode.forall(_ === Mode.Dev.toString)
