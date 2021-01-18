@@ -17,42 +17,39 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits._
-import javax.inject.Inject
-import play.api.Logging
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Results}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HttpClient, HttpResponse}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging.LoggerOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import cats.data.EitherT._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PostNewClaimController @Inject() (implicit
+@Singleton
+class PostNewClaimController @Inject() (eisService: SubmitClaimService)(implicit
   mcc: MessagesControllerComponents,
-  appConfig: AppConfig,
-  httpClient: HttpClient,
   ec: ExecutionContext
 ) extends FrontendController(mcc)
     with Logging {
 
-  type ErrorMessage = String
-
   val claim: Action[AnyContent] = Action.async { implicit request =>
     (request.method match {
-      case "GET"  => testRequestBody.asRight[ErrorMessage]
-      case "POST" => Either.fromOption[ErrorMessage, JsValue](request.body.asJson, "Request Body is not Json!")
-    }).map { body =>
-      httpClient
-        .POST[JsValue, HttpResponse](appConfig.claimsEndpoint, body)
-        .map { response =>
-          if (!is2xx(response.status))
-            logger.warn(s"Downstream error,response status: ${response.status}, body: ${response.body}")
-          Results.Status(response.status)(response.body)
-        }
-    }.leftMap(error => Future.successful(BadRequest(error)))
-      .merge
+      case "GET"  => rightT[Future, Error](testRequestBody)
+      case "POST" => fromOption[Future](request.body.asJson, Error("Request Body is not Json!"))
+    })
+      .flatMap(eisService.submitClaim)
+      .fold(
+        e => {
+          logger.warn(s"could not submit claim", e)
+          InternalServerError
+        },
+        response => Ok(response)
+      )
+
   }
 
   val testRequestBody: JsValue = Json.parse("""{

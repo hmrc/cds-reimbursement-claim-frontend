@@ -31,7 +31,8 @@ class AppConfig @Inject() (val config: Configuration, val environment: Environme
   lazy val subscribeCdsUrl         =
     config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsSubscribeUrl")
 
-  val claimsEndpoint: String = servicesConfig.baseUrl("cds-reimbursement-claim") + servicesConfig.getConfString(
+  val cdsReimbursmentBackend: String = servicesConfig.baseUrl("cds-reimbursement-claim")
+  val newClaimEndpoint: String       = cdsReimbursmentBackend + servicesConfig.getConfString(
     "cds-reimbursement-claim.claims-url",
     "Undefined"
   )

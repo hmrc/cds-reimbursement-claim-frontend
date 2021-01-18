@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.model.{Eori, SignedInUser}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class AuthenticatedRequest[A](request: Request[A], user: SignedInUser) extends WrappedRequest[A](request)
@@ -59,7 +59,8 @@ class AuthAction[B] @Inject() (
         case Some(eori) =>
           val cdsLoggedInUser = SignedInUser(credentials, name, email, Eori(eori.value))
           Right(AuthenticatedRequest(request, cdsLoggedInUser))
-        case None       => Left(Redirect(routes.UnauthorisedController.onPageLoad()))
+        //case None       => Left(Redirect(routes.UnauthorisedController.onPageLoad())) //TODO Why does this not work
+        case None       => Left(Redirect("/claim-for-reimbursement-of-import-duties/not-subscribed-for-cds"))
       }
       Future.successful(authResult)
     }

@@ -16,63 +16,48 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.data.EitherT._
 import org.scalamock.matchers.ArgCapture.CaptureOne
 import org.scalamock.scalatest.MockFactory
 import play.api.http.Status
 import play.api.libs.json._
 import play.api.test.Helpers._
 import play.api.test._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.test.ReimbursementSpec
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class PostNewClaimControllerSpec extends {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 } with ReimbursementSpec with MockFactory with DefaultAwaitTimeout {
 
-  implicit val httpClient   = mock[HttpClient]
-  implicit val materialiser = NoMaterializer
-  private val controller    = new PostNewClaimController
+  val submitClaimService = mock[SubmitClaimService]
+  private val controller = new PostNewClaimController(submitClaimService)
 
   "POST" should {
     "return 200 on GET Request" in {
       val response            = JsObject(Seq("hello" -> JsString("word")))
-      val capturedRequestBody = CaptureOne[JsValue]()
-      (
-        httpClient
-          .POST[JsValue, HttpResponse](_: String, _: JsValue, _: Seq[(String, String)])(
-            _: Writes[JsValue],
-            _: HttpReads[HttpResponse],
-            _: HeaderCarrier,
-            _: ExecutionContext
-          )
-        )
-        .expects(*, capture(capturedRequestBody), *, *, *, *, *)
-        .returning(Future.successful(HttpResponse(OK, Json.stringify(response))))
-        .atLeastOnce()
+      val capturedRequestBody = CaptureOne[JsObject]()
+      (submitClaimService
+        .submitClaim(_: JsValue)(_: HeaderCarrier))
+        .expects(capture(capturedRequestBody), *)
+        .returning(rightT(response))
 
       val fakeRequest = FakeRequest("GET", "/")
       val result      = controller.claim()(fakeRequest)
-      capturedRequestBody.value.toString().length shouldBe >(500)
-      status(result)                              shouldBe Status.OK
-      contentAsJson(result)                       shouldBe response
+      status(result)        shouldBe Status.OK
+      contentAsJson(result) shouldBe response
     }
 
     "return 200 on POST Request with valid JSON body" in {
       val response = JsObject(Seq("hello" -> JsString("word")))
-      (
-        httpClient
-          .POST[JsValue, HttpResponse](_: String, _: JsValue, _: Seq[(String, String)])(
-            _: Writes[JsValue],
-            _: HttpReads[HttpResponse],
-            _: HeaderCarrier,
-            _: ExecutionContext
-          )
-        )
-        .expects(*, *, *, *, *, *, *)
-        .returning(Future.successful(HttpResponse(OK, Json.stringify(response))))
-        .atLeastOnce()
+      (submitClaimService
+        .submitClaim(_: JsValue)(_: HeaderCarrier))
+        .expects(*, *)
+        .returning(rightT(response))
 
       val fakeRequest = FakeRequest("POST", "/").withJsonBody(JsString("Shakti"))
       val result      = controller.claim()(fakeRequest)
@@ -80,32 +65,21 @@ class PostNewClaimControllerSpec extends {
       contentAsJson(result) shouldBe response
     }
 
-    "return 400 on POST Request with invalid JSON body" in {
+    "return 500 on POST Request with invalid JSON body" in {
       val fakeRequest = FakeRequest("POST", "/").withTextBody("""{"a"-"b"}""")
       val result      = controller.claim()(fakeRequest)
-      status(result)          shouldBe BAD_REQUEST
-      contentAsString(result) shouldBe "Request Body is not Json!"
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return the same status code when downstream fails on POST Request" in {
-      val response = JsString("Ganesha")
-      (
-        httpClient
-          .POST[JsValue, HttpResponse](_: String, _: JsValue, _: Seq[(String, String)])(
-            _: Writes[JsValue],
-            _: HttpReads[HttpResponse],
-            _: HeaderCarrier,
-            _: ExecutionContext
-          )
-        )
-        .expects(*, *, *, *, *, *, *)
-        .returning(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, response, Map[String, Seq[String]]().empty)))
-        .atLeastOnce()
+      (submitClaimService
+        .submitClaim(_: JsValue)(_: HeaderCarrier))
+        .expects(*, *)
+        .returning(leftT(Error("Oh No")))
 
       val fakeRequest = FakeRequest("POST", "/").withJsonBody(JsString("Shakti"))
       val result      = controller.claim()(fakeRequest)
-      status(result)        shouldBe INTERNAL_SERVER_ERROR
-      contentAsJson(result) shouldBe response
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }
