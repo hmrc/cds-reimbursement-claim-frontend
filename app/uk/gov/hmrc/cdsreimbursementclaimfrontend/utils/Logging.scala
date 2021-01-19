@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaim.utils
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.{IdKey, IdValue}
+import play.api.Logger
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 
-final case class Error(message: String, throwable: Option[Throwable], identifiers: Map[IdKey, IdValue])
+trait Logging {
 
-object Error {
+  val logger: Logger = Logger(this.getClass)
 
-  type IdKey   = String
-  type IdValue = String
+}
 
-  def apply(message: String, identifiers: (IdKey, IdValue)*): Error = Error(message, None, identifiers.toMap)
+object Logging {
 
-  def apply(error: Throwable, identifiers: (IdKey, IdValue)*): Error =
-    Error(error.getMessage, Some(error), identifiers.toMap)
+  implicit class LoggerOps(private val l: Logger) extends AnyVal {
+    def warn(msg: => String, error: => Error): Unit = {
+      val idString = error.identifiers.map { case (k, v) => s"[$k: $v]" }.mkString(" ")
+      error.throwable.fold(l.warn(s"$idString $msg"))(e => l.warn(s"$idString $msg", e))
+    }
+
+  }
 
 }

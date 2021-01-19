@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import javax.inject.Inject
-import play.api.i18n.{I18nSupport}
+import javax.inject.{Inject, Singleton}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, AuthorisedFunctions}
@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class UnauthorisedController @Inject() (
   val authConnector: AuthConnector,
   authRedirect: AuthRedirectSupport,
@@ -37,7 +38,7 @@ class UnauthorisedController @Inject() (
     with I18nSupport
     with AuthorisedFunctions {
 
-  def onPageLoad: Action[AnyContent] = Action async { implicit request =>
+  val onPageLoad: Action[AnyContent] = Action async { implicit request =>
     authorised(AuthProviders(GovernmentGateway)) {
       Future.successful(Ok(notSubscribedToCds()))
     } recover authRedirect.withAuthRecovery
