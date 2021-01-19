@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaim.connectors
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
@@ -22,8 +22,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.JsString
 import play.api.test.Helpers.{await, _}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.cdsreimbursementclaim.connectors.HttpSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DefaultSubmitClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -44,11 +44,13 @@ class SubmitClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactor
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
+    val backEndUrl = "http://localhost:7501/cds-reimbursement-claim/claim"
+
     "handling request to submit claim" must {
 
       "do a post http call and get the TPI-05 API response" in {
         val httpResponse = HttpResponse(200, "The Response")
-        mockPost("http://localhost:7501/claim", Seq.empty, *)(Right(httpResponse))
+        mockPost(backEndUrl, Seq.empty, *)(Right(httpResponse))
         val response     = await(connector.submitClaim(JsString("The Request")).value)
         response shouldBe Right(httpResponse)
       }
@@ -57,7 +59,7 @@ class SubmitClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactor
     "return an error" when {
       "the call fails" in {
         val error    = new Exception("Socket connection error")
-        mockPost("http://localhost:7501/claim", Seq.empty, *)(Left(error))
+        mockPost(backEndUrl, Seq.empty, *)(Left(error))
         val response = await(connector.submitClaim(JsString("The Request")).value)
         response shouldBe Left(Error(error))
       }
