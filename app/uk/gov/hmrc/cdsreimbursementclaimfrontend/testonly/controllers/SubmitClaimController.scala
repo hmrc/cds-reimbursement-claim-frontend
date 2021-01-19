@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
+import cats.data.EitherT._
 import cats.implicits._
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
@@ -25,12 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging.LoggerOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import cats.data.EitherT._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PostNewClaimController @Inject() (eisService: SubmitClaimService)(implicit
+class SubmitClaimController @Inject() (eisService: SubmitClaimService)(implicit
   mcc: MessagesControllerComponents,
   ec: ExecutionContext
 ) extends FrontendController(mcc)

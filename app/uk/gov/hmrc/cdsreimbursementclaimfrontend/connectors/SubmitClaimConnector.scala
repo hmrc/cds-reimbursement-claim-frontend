@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.ImplementedBy
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -32,6 +32,7 @@ trait SubmitClaimConnector {
   def submitClaim(claimData: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 }
 
+@Singleton
 class DefaultSubmitClaimConnector @Inject() (http: HttpClient, val appConfig: AppConfig)(implicit ec: ExecutionContext)
     extends SubmitClaimConnector {
 

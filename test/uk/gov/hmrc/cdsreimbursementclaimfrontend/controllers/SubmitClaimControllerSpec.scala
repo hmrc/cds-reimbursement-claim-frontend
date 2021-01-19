@@ -26,43 +26,43 @@ import play.api.test._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.test.ReimbursementSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SubmitClaimController
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
-class PostNewClaimControllerSpec extends {
+class SubmitClaimControllerSpec extends {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 } with ReimbursementSpec with MockFactory with DefaultAwaitTimeout {
 
-  val submitClaimService = mock[SubmitClaimService]
-  private val controller = new PostNewClaimController(submitClaimService)
+  val submitClaimService  = mock[SubmitClaimService]
+  private val controller  = new SubmitClaimController(submitClaimService)
+  val exampleJsonResponse = JsObject(Seq("hello" -> JsString("word")))
 
   "POST" should {
     "return 200 on GET Request" in {
-      val response            = JsObject(Seq("hello" -> JsString("word")))
       val capturedRequestBody = CaptureOne[JsObject]()
       (submitClaimService
         .submitClaim(_: JsValue)(_: HeaderCarrier))
         .expects(capture(capturedRequestBody), *)
-        .returning(rightT(response))
+        .returning(rightT(exampleJsonResponse))
 
       val fakeRequest = FakeRequest("GET", "/")
       val result      = controller.claim()(fakeRequest)
       status(result)        shouldBe Status.OK
-      contentAsJson(result) shouldBe response
+      contentAsJson(result) shouldBe exampleJsonResponse
     }
 
     "return 200 on POST Request with valid JSON body" in {
-      val response = JsObject(Seq("hello" -> JsString("word")))
       (submitClaimService
         .submitClaim(_: JsValue)(_: HeaderCarrier))
         .expects(*, *)
-        .returning(rightT(response))
+        .returning(rightT(exampleJsonResponse))
 
       val fakeRequest = FakeRequest("POST", "/").withJsonBody(JsString("Shakti"))
       val result      = controller.claim()(fakeRequest)
       status(result)        shouldBe Status.OK
-      contentAsJson(result) shouldBe response
+      contentAsJson(result) shouldBe exampleJsonResponse
     }
 
     "return 500 on POST Request with invalid JSON body" in {
