@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
 import cats.data.EitherT._
 import cats.implicits._
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging
@@ -27,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -52,172 +52,271 @@ class SubmitClaimController @Inject() (eisService: SubmitClaimService)(implicit
 
   }
 
-  val testRequestBody: JsValue = Json.parse("""{
-                                     |  "PostNewClaims": {
-                                     |    "RequestCommon": {
-                                     |      "OriginatingSystem": "CDSF",
-                                     |      "ReceiptDate": "2010-06-19T11:52:12Z",
-                                     |      "AcknowledgementReference": "ACK0701HPRER-21"
-                                     |    },
-                                     |    "RequestDetail": {
-                                     |      "CDFPayService": "NDRC",
-                                     |      "ClaimType": "C285",
-                                     |      "CaseType": "Bulk",
-                                     |      "DeclarationID": "07MKKKKKKKKKKKKKK1",
-                                     |      "CustomDeclarationType": "MRN",
-                                     |      "DeclarationMode": "Parent Declaration",
-                                     |      "ClaimDate": "20201207",
-                                     |      "ClaimAmountTotal": "250000.00",
-                                     |      "Claimant": "Importer",
-                                     |      "PayeeIndicator": "Importer",
-                                     |      "EORIsDetails": {
-                                     |        "AgentEORIDetails": {
-                                     |          "EORINumber": "GB070144444440921",
-                                     |          "CDSFullName": "PART 575456994000 LTD",
-                                     |          "LegalEntityType": "0001",
-                                     |          "CDSEstablishmentAddress": {
-                                     |            "City": "MALMESBURY",
-                                     |            "CountryCode": "GB",
-                                     |            "PostalCode": "SN17 5RP",
-                                     |            "Street": "TURY HOUSE, WILTSHIRE"
-                                     |          },
-                                     |          "ContactInformation": {
-                                     |            "City": "MALMESBURY",
-                                     |            "ContactPerson": "PART 575456994000 LTD",
-                                     |            "CountryCode": "GB",
-                                     |            "PostalCode": "SN17 5RP",
-                                     |            "Street": "TURY HOUSE, WILTSHIRE"
-                                     |          },
-                                     |          "VATIDsDetails": [
-                                     |            {
-                                     |              "CountryCode": "GB",
-                                     |              "VATID": "2588684"
-                                     |            }
-                                     |          ]
-                                     |        },
-                                     |        "ImporterEORIDetails": {
-                                     |          "EORINumber": "GB333333333333333",
-                                     |          "CDSFullName": "PART 575456994000 LTD",
-                                     |          "LegalEntityType": "0001",
-                                     |          "CDSEstablishmentAddress": {
-                                     |            "City": "MALMESBURY",
-                                     |            "CountryCode": "GB",
-                                     |            "PostalCode": "SN17 5RP",
-                                     |            "Street": "TURY HOUSE, WILTSHIRE"
-                                     |          },
-                                     |          "ContactInformation": {
-                                     |            "City": "MALMESBURY",
-                                     |            "ContactPerson": "PART 575456994000 LTD",
-                                     |            "CountryCode": "GB",
-                                     |            "PostalCode": "SN17 5RP",
-                                     |            "Street": "TURY HOUSE, WILTSHIRE"
-                                     |          },
-                                     |          "VATIDsDetails": [
-                                     |            {
-                                     |              "CountryCode": "GB",
-                                     |              "VATID": "2588684"
-                                     |            }
-                                     |          ]
-                                     |        }
-                                     |      },
-                                     |      "MRNDetails": [
-                                     |        {
-                                     |          "DeclarationID": "21LLLLLLLLLLLLLLL9",
-                                     |          "AcceptanceDate": "20201208",
-                                     |          "DeclarantReferenceNumber": "XFGLKJDSE5GDPOIJEW985T",
-                                     |          "MainDeclarationReference": "true",
-                                     |          "ProcedureCode": "71",
-                                     |          "BankDetails": {
-                                     |            "ConsigneeBankDetails": {
-                                     |              "AccountHolderName": "D Hodgson Ltd",
-                                     |              "AccountNumber": "99478523",
-                                     |              "SortCode": "995841"
-                                     |            },
-                                     |            "DeclarantBankDetails": {
-                                     |              "AccountHolderName": "Angola Ltd",
-                                     |              "AccountNumber": "32578523",
-                                     |              "SortCode": "125822"
-                                     |            }
-                                     |          },
-                                     |          "DeclarantDetails": {
-                                     |            "EORI": "GB786958767675555",
-                                     |            "LegalName": "Primitive Transport Co Ltd",
-                                     |            "EstablishmentAddress": {
-                                     |              "AddressLine1": "9 Strickland Drive",
-                                     |              "AddressLine2": "Bare",
-                                     |              "AddressLine3": "Morecambe",
-                                     |              "CountryCode": "GB",
-                                     |              "PostalCode": "LA4 6JU"
-                                     |            },
-                                     |            "ContactDetails": {
-                                     |              "AddressLine1": "Jones Shipping Ltd",
-                                     |              "AddressLine2": "Warehouse 22",
-                                     |              "AddressLine3": "Aberdeen Docks",
-                                     |              "ContactName": "Angela Jones",
-                                     |              "CountryCode": "GB",
-                                     |              "EmailAddress": "angelajbjones@bloggs.com",
-                                     |              "PostalCode": "ABC 2DF",
-                                     |              "Telephone": "017127012476"
-                                     |            }
-                                     |          },
-                                     |          "ConsigneeDetails": {
-                                     |            "EORI": "GB786958767678888",
-                                     |            "LegalName": "Unique Trading Ltd",
-                                     |            "EstablishmentAddress": {
-                                     |              "AddressLine1": "10 Stuart Ave",
-                                     |              "AddressLine2": "Bare",
-                                     |              "AddressLine3": "Morecambe",
-                                     |              "CountryCode": "GB",
-                                     |              "PostalCode": "LA4 1RH"
-                                     |            },
-                                     |            "ContactDetails": {
-                                     |              "AddressLine1": "Smith Transportation Ltd",
-                                     |              "AddressLine2": "Smithfield",
-                                     |              "AddressLine3": "London",
-                                     |              "ContactName": "Rachel Smith",
-                                     |              "CountryCode": "GB",
-                                     |              "EmailAddress": "rachelsmith@smithtransportation.com",
-                                     |              "PostalCode": "E17 2DF",
-                                     |              "Telephone": "012701123476"
-                                     |            }
-                                     |          },
-                                     |          "AccountDetails": [
-                                     |            {
-                                     |              "AccountType": "DAN",
-                                     |              "AccountNumber": "123456781234567891",
-                                     |              "EORI": "GB123456",
-                                     |              "LegalName": "Unique Trading Ltd",
-                                     |              "ContactDetails": {
-                                     |                "ContactName": "Manikanth",
-                                     |                "AddressLine1": "Smith Transportation Ltd",
-                                     |                "AddressLine2": "Smithfield",
-                                     |                "AddressLine3": "London",
-                                     |                "PostalCode": "E27 2DF",
-                                     |                "CountryCode": "AD",
-                                     |                "Telephone": "012701333476",
-                                     |                "EmailAddress": "klm@gmail.com"
-                                     |              }
-                                     |            }
-                                     |          ],
-                                     |          "NDRCDetails": [
-                                     |            {
-                                     |              "Amount": "15000.15",
-                                     |              "CMAEligible": "0",
-                                     |              "PaymentMethod": "001",
-                                     |              "PaymentReference": "4J54KF55D5G KFJ559",
-                                     |              "TaxType": "A50"
-                                     |            },
-                                     |            {
-                                     |              "Amount": "10000.85",
-                                     |              "CMAEligible": "1",
-                                     |              "PaymentMethod": "001",
-                                     |              "PaymentReference": "4J54KF55D5G KFJ578",
-                                     |              "TaxType": "A70"
-                                     |            }
-                                     |          ]
-                                     |        }
-                                     |      ]
-                                     |    }
-                                     |  }
-                                     |}""".stripMargin)
+  val testRequestBody: JsValue = Json.parse(
+    """
+      |{
+      |  "postNewClaimsRequest": {
+      |    "requestCommon": {
+      |      "originatingSystem": "ABCDEFGHIJKLMNOPQRST",
+      |      "receiptDate": "1374-89-42T57:57:33Z",
+      |      "acknowledgementReference": "ABCDEFGHIJKL"
+      |    },
+      |    "requestDetail": {
+      |      "CDFPayService": "NDRC",
+      |      "dateReceived": "86842966",
+      |      "claimType": "C285",
+      |      "caseType": "CMA",
+      |      "customDeclarationType": "Entry",
+      |      "declarationMode": "Parent Declaration",
+      |      "claimDate": "39198584",
+      |      "claimAmountTotal": "-3.5",
+      |      "disposalMethod": "Donation to Charity",
+      |      "reimbursementMethod": "Bank Transfer",
+      |      "basisOfClaim": "Incorrect CPC",
+      |      "claimant": "Representative",
+      |      "payeeIndicator": "Importer",
+      |      "newEORI": "NGTY",
+      |      "newDAN": "ABCD",
+      |      "authorityTypeProvided": "StndAuth",
+      |      "claimantEORI": "AB12345678901234Z",
+      |      "claimantEmailAddress": "ABCDEFGHI",
+      |      "goodsDetails": {
+      |        "placeOfImport": "ABCDEFGHIJKLMN",
+      |        "isPrivateImporter": "No",
+      |        "groundsForRepaymentApplication": "Duties no provided",
+      |        "descOfGoods": "ABCDEFGHIJKLMNOPQRSTUVWXYZA"
+      |      },
+      |      "EORIDetails": {
+      |        "agentEORIDetails": {
+      |          "EORINumber": "API",
+      |          "CDSEstablishmentAddress": {
+      |            "contactPerson": "ABCDE",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRSTU",
+      |            "addressline2": "ABCDEFGHIJKLMNOPQRST",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "street": "ABCDEFGHIJKLMNOP",
+      |            "city": "ABCDEFGHIJKLMNOPQ",
+      |            "countryCode": "CD",
+      |            "postalCode": "ABCD",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRSTUVWXYZA",
+      |            "emailAddress": "ABCDEFGHI"
+      |          },
+      |          "CDSFullName": "ABCDEFGHIJKLM",
+      |          "legalEntityType": "ABCDEFGHIJKLMNOPQRSTUVW",
+      |          "EORIStartDate": "58833441",
+      |          "EORIEndDate": "73234980",
+      |          "contactInformation": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+      |            "addressline1": "ABCDEFGH",
+      |            "addressline2": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "street": "ABCDEFGHI",
+      |            "city": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "countryCode": "UN",
+      |            "postalCode": "ABCDE",
+      |            "telephoneNumber": "ABCDEFGHIJKLMNOPQRSTUVWXYZABC",
+      |            "faxNumber": "ABCDEFGHIJKLM",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB"
+      |          },
+      |          "VATDetails": []
+      |        },
+      |        "importerEORIDetails": {
+      |          "EORINumber": "ZO5",
+      |          "CDSEstablishmentAddress": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQ",
+      |            "addressline2": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUVWXYZA",
+      |            "street": "ABCDEFGHIJKLMNOPQRSTUVWX",
+      |            "city": "ABCDEFGHIJKLMNOPQRST",
+      |            "countryCode": "SX",
+      |            "postalCode": "ABCDEF",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRS",
+      |            "emailAddress": "ABCDEFG"
+      |          },
+      |          "CDSFullName": "ABCDEFGHIJKLMNOPQRSTU",
+      |          "legalEntityType": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+      |          "EORIStartDate": "58535854",
+      |          "EORIEndDate": "38347206",
+      |          "contactInformation": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQ",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRSTU",
+      |            "addressline2": "ABCDEFGHIJKLMNOPQRST",
+      |            "addressline3": "ABCDEFGHI",
+      |            "street": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "city": "ABCDEFGHIJKLM",
+      |            "countryCode": "FR",
+      |            "postalCode": "ABCDE",
+      |            "telephoneNumber": "ABCDEFGHIJKLM",
+      |            "faxNumber": "ABCDEF",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      |          },
+      |          "VATDetails": []
+      |        }
+      |      },
+      |      "MRNDetails": [],
+      |      "DuplicateMRNDetails": {
+      |        "MRNNumber": "ABCDEFGHIJKLM",
+      |        "acceptanceDate": "89755830",
+      |        "declarantReferenceNumber": "ABCDEFGHIJKLM",
+      |        "mainDeclarationReference": false,
+      |        "procedureCode": "A",
+      |        "declarantDetails": {
+      |          "EORI": "FM6UQW",
+      |          "legalName": "ABCDEFGHIJKLMNOPQRSTUVWXYZABC",
+      |          "establishmentAddress": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRSTUVWXYZABC",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRSTUV",
+      |            "addressline2": "ABCDEF",
+      |            "addressline3": "ABCDEF",
+      |            "street": "ABCD",
+      |            "city": "ABCDEFGHIJK",
+      |            "countryCode": "BL",
+      |            "postalCode": "ABCD",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRST",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWX"
+      |          },
+      |          "contactDetails": {
+      |            "contactPerson": "ABCDEFGHIJKLMNO",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRST",
+      |            "addressline2": "ABCDEFGHIJ",
+      |            "addressline3": "ABCDEFGHI",
+      |            "street": "ABCDEFGH",
+      |            "city": "ABCDEFGHIJKLMNOPQRSTUVWX",
+      |            "countryCode": "GS",
+      |            "postalCode": "ABCDEF",
+      |            "telephoneNumber": "ABCDEFGHIJKLMNOPQRSTUVW",
+      |            "faxNumber": "ABCDEFGH",
+      |            "emailAddress": "ABCDEF"
+      |          }
+      |        },
+      |        "accountDetails": [],
+      |        "consigneeDetails": {
+      |          "EORI": "QJY",
+      |          "legalName": "ABCDEFGH",
+      |          "establishmentAddress": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "addressline1": "ABCDEFGHIJKLMNOP",
+      |            "addressline2": "ABCDEFGHIJKLM",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "street": "ABCDEFGHIJKLMNO",
+      |            "city": "ABCDEFGHIJKLMNOPQRSTUVWX",
+      |            "countryCode": "PS",
+      |            "postalCode": "ABCDEFG",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRSTUVWX",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB"
+      |          },
+      |          "contactDetails": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRSTUVW",
+      |            "addressline1": "ABCDEFGHIJK",
+      |            "addressline2": "ABCDEFGHIJKLMNOP",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQR",
+      |            "street": "ABCDEFG",
+      |            "city": "ABCDEFGHIJKLMNOP",
+      |            "countryCode": "TH",
+      |            "postalCode": "ABCDEFGH",
+      |            "telephoneNumber": "ABCDEFGHI",
+      |            "faxNumber": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "emailAddress": "ABCDE"
+      |          }
+      |        },
+      |        "bankInfo": {
+      |          "consigneeBankDetails": {
+      |            "accountHolderName": "ABCDEFGHI",
+      |            "sortCode": "ABCD",
+      |            "accountNumber": "ABCDE"
+      |          },
+      |          "declarantBankDetails": {
+      |            "accountHolderName": "ABCDEFGHIJ",
+      |            "sortCode": "ABCDE",
+      |            "accountNumber": "ABCDEFG"
+      |          }
+      |        },
+      |        "NDRCDetails": []
+      |      },
+      |      "entryDetails": [],
+      |      "duplicateEntryDetails": {
+      |        "entryNumber": "ABCDEFGH",
+      |        "entryDate": "09151384",
+      |        "declarantReferenceNumber": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |        "mainDeclarationReference": false,
+      |        "declarantDetails": {
+      |          "EORI": "GGQG",
+      |          "legalName": "ABCDEFGHIJK",
+      |          "establishmentAddress": {
+      |            "contactPerson": "ABCDEFGHIJKLMNO",
+      |            "addressline1": "ABCDEFGHIJKL",
+      |            "addressline2": "ABCDEFGHIJKL",
+      |            "addressline3": "ABCD",
+      |            "street": "ABCDEFGHIJKLMNOPQR",
+      |            "city": "ABCDEFGHIJKLMNOPQR",
+      |            "countryCode": "FJ",
+      |            "postalCode": "ABCDEFG",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB"
+      |          },
+      |          "contactDetails": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRS",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRSTUVWXYZABC",
+      |            "addressline2": "ABCDEF",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUV",
+      |            "street": "ABCDEFGHIJKL",
+      |            "city": "ABCDEFG",
+      |            "countryCode": "GP",
+      |            "postalCode": "ABCDE",
+      |            "telephoneNumber": "ABCDEFGHIJKLMNOPQ",
+      |            "faxNumber": "ABCDEF",
+      |            "emailAddress": "ABCDEFGHIJKLMNOPQRSTUVWXYZA"
+      |          }
+      |        },
+      |        "accountDetails": [],
+      |        "consigneeDetails": {
+      |          "EORI": "QPY5W87",
+      |          "legalName": "ABCDEFGHIJKLMNOPQRS",
+      |          "establishmentAddress": {
+      |            "contactPerson": "ABCDEFGHIJKLMNOPQRS",
+      |            "addressline1": "ABCDEFGHIJKLMNOPQRSTUVWXYZA",
+      |            "addressline2": "ABCDEFGHIJKLMN",
+      |            "addressline3": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "street": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      |            "city": "ABCDEFGHI",
+      |            "countryCode": "KI",
+      |            "postalCode": "ABCDEFG",
+      |            "telephone": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "emailAddress": "ABCDEFGHIJKLM"
+      |          },
+      |          "contactDetails": {
+      |            "contactPerson": "ABCDEFGHIJ",
+      |            "addressline1": "ABCDEFGH",
+      |            "addressline2": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+      |            "addressline3": "ABCDEFGHI",
+      |            "street": "ABCDEFG",
+      |            "city": "ABCDE",
+      |            "countryCode": "US",
+      |            "postalCode": "ABCDEF",
+      |            "telephoneNumber": "ABCDEFGHIJKL",
+      |            "faxNumber": "ABCDEFGHIJKLMNOPQR",
+      |            "emailAddress": "ABCDEFGHIJ"
+      |          }
+      |        },
+      |        "bankInfo": {
+      |          "consigneeBankDetails": {
+      |            "accountHolderName": "ABCDEFGHIJKLMNOPQRS",
+      |            "sortCode": "ABCDE",
+      |            "accountNumber": "ABCDE"
+      |          },
+      |          "declarantBankDetails": {
+      |            "accountHolderName": "ABCDEFGHIJKLMNOPQRSTUVW",
+      |            "sortCode": "ABCDE",
+      |            "accountNumber": "ABCDEF"
+      |          }
+      |        },
+      |        "NDRCDetails": []
+      |      }
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
+
 }
