@@ -31,11 +31,13 @@ class AppConfig @Inject() (val config: Configuration, val environment: Environme
   lazy val subscribeCdsUrl         =
     config.get[String]("microservice.services.cds-reimbursement-claim-frontend.cdsSubscribeUrl")
 
-  val cdsReimbursmentBackend: String = servicesConfig.baseUrl("cds-reimbursement-claim")
-  val newClaimEndpoint: String       = cdsReimbursmentBackend + servicesConfig.getConfString(
+  val cdsReimbursmentBackend: String  = servicesConfig.baseUrl("cds-reimbursement-claim")
+  val newClaimEndpoint: String        = cdsReimbursmentBackend + servicesConfig.getConfString(
     "cds-reimbursement-claim.claims-url",
     "Undefined"
   )
+  val declarationInfoEndpoint: String =
+    cdsReimbursmentBackend + servicesConfig.getConfString("cds-reimbursement-claim.declaration-info-url", "Undefined")
 
   val runMode: Option[String]                        = config.getOptional[String]("run.mode")
   implicit private val modeEquals: Eq[play.api.Mode] = Eq.fromUniversalEquals
