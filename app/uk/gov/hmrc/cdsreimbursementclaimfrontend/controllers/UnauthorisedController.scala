@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, AuthorisedFunctions}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.actions.AuthRedirectSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.not_subscribed_to_cds_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.not_subscribed_to_cds
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UnauthorisedController @Inject() (
   val authConnector: AuthConnector,
   authRedirect: AuthRedirectSupport,
-  notSubscribedToCds: not_subscribed_to_cds_page
+  notSubscribedToCdsPage: not_subscribed_to_cds
 )(implicit val mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
     extends FrontendController(mcc)
     with I18nSupport
@@ -40,7 +40,7 @@ class UnauthorisedController @Inject() (
 
   val onPageLoad: Action[AnyContent] = Action async { implicit request =>
     authorised(AuthProviders(GovernmentGateway)) {
-      Future.successful(Ok(notSubscribedToCds()))
+      Future.successful(Ok(notSubscribedToCdsPage()))
     } recover authRedirect.withAuthRecovery
   }
 
