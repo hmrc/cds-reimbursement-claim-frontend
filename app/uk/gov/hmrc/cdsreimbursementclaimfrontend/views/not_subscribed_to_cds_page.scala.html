@@ -16,13 +16,9 @@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button
-
 @import play.api.i18n.Messages
 
-
-@this(layout: Layout, submit_button: submit_button)
-
+@this(layout: Layout)
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
@@ -51,7 +47,6 @@
             @messages(s"$key.eori-info-p2")
         </p>
 
-        @submit_button(label="continue")
 
     </div>
 }
