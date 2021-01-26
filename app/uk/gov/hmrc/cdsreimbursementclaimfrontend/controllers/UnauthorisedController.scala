@@ -19,18 +19,29 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, AuthorisedFunctions}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.actions.AuthRedirectSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.not_subscribed_to_cds_page
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-@Singleton
-class UnauthorisedController @Inject() (val notSubscribedToCdsPage: not_subscribed_to_cds_page)(implicit
-  val mcc: MessagesControllerComponents,
-  appConfig: AppConfig
-) extends FrontendController(mcc)
-    with I18nSupport {
+import scala.concurrent.{ExecutionContext, Future}
 
-  val onPageLoad: Action[AnyContent] = Action { implicit request =>
-    Ok(notSubscribedToCdsPage())
+@Singleton
+class UnauthorisedController @Inject() (
+  val authConnector: AuthConnector,
+  authRedirect: AuthRedirectSupport,
+  notSubscribedToCds: not_subscribed_to_cds_page
+)(implicit val mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with I18nSupport
+    with AuthorisedFunctions {
+
+  val onPageLoad: Action[AnyContent] = Action async { implicit request =>
+    authorised(AuthProviders(GovernmentGateway)) {
+      Future.successful(Ok(notSubscribedToCds()))
+    } recover authRedirect.withAuthRecovery
   }
+
 }
