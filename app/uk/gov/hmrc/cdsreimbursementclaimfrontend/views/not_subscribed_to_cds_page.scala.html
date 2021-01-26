@@ -15,13 +15,18 @@
  *@
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
+
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button
+
 @import play.api.i18n.Messages
 
-@this(layout: Layout)
+
+@this(layout: Layout, submit_button: submit_button)
+
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
-@key = @{"cf.not-subscribed-to-cds.detail"}
+@key = @{"not-subscribed-to-cds"}
 
 @layout(pageTitle = Some(messages(s"$key.title"))) {
 
@@ -45,6 +50,8 @@
             </a>
             @messages(s"$key.eori-info-p2")
         </p>
+
+        @submit_button(label="continue")
 
     </div>
 }
