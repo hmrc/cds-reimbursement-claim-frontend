@@ -21,3 +21,10 @@ cf.not-subscribed-to-cds.detail.eori-info-p1=You can
 cf.not-subscribed-to-cds.detail.eori-link=apply for an EORI number
 cf.not-subscribed-to-cds.detail.eori-info-p2=and return to the Government Gateway login page once your EORI number is associated with your login details.
 
+
+# Supporting Evidence: Holding Page
+supporting-evidence.holdingPage.title = Document check
+supporting-evidence.holdingPage.heading = Wait a few seconds then select 'continue'.
+supporting-evidence.holdingPage.p1 = We are checking your document.
+supporting-evidence.holdingPage.p2 = You'll need to keep selecting 'continue' every few seconds until the check is complete to go to the next page.
+supporting-evidence.holdingPage.button.continue = Continue
