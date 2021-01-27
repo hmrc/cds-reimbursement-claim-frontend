@@ -19,11 +19,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html._
 
-@this(layout: Layout, submit_button: submit_button)
+@this(layout: Layout, submitButton: submit_button)
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
-@key = @{"supporting-evidence.holdingPage"}
+@key = @{"supporting-evidence.scan-progress"}
 
 @layout(pageTitle = Some(messages(s"$key.title"))) {
 
@@ -42,7 +42,10 @@
     </div>
 
     <p>
-        @submit_button(label=messages(s"$key.button.continue"))
+        @submitButton(label = "continue")
+<!--        @submitButton(messages(s"button.continue"))-->
+<!--        @submit_button(messages(s"$key.button.continue"))-->
+<!--        @submit_button(label=messages(s"$key.button.continue"))-->
     </p>
 
 </div>

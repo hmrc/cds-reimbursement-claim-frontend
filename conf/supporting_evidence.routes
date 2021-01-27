@@ -1,1 +1,1 @@
-GET     /supporting-evidence  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.onHoldingPageLoad
+GET  /supporting-evidence/scan-progress      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgress

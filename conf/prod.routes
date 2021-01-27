@@ -2,6 +2,4 @@
 ->         /claim-for-reimbursement-of-import-duties             app.Routes
 ->         /claim-for-reimbursement-of-import-duties             supporting_evidence.Routes
 ->         /                          health.Routes
-
-
 GET        /admin/metrics             com.kenshoo.play.metrics.MetricsController.metrics

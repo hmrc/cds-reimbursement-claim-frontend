@@ -19,20 +19,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.supportingevidence.holding_page
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.supportingevidence.scan_progress
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class SupportingEvidenceController @Inject() (val holdingPage: holding_page)(implicit
+class SupportingEvidenceController @Inject() (scanProgressPage: scan_progress)(implicit
   val mcc: MessagesControllerComponents,
   appConfig: AppConfig
 ) extends FrontendController(mcc)
     with I18nSupport {
 
-  def onHoldingPageLoad: Action[AnyContent] = Action { implicit request =>
-    Ok(holdingPage())
+  def scanProgress: Action[AnyContent] = Action { implicit request =>
+    Ok(scanProgressPage())
   }
 
 }
