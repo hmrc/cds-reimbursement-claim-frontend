@@ -23,31 +23,27 @@
 
 @()(implicit messages: Messages, appConfig: AppConfig)
 
-@key = @{"supporting-evidence.scan-progress"}
+    @key = @{"supporting-evidence.scan-progress"}
 
-@layout(pageTitle = Some(messages(s"$key.title"))) {
+    @layout(pageTitle = Some(messages(s"$key.title"))) {
 
-<div id="content" class="column-two-thirds">
-    <header>
-        <h1 class="govuk-heading-xl">@messages(s"$key.heading")</h1>
-    </header>
+        <div id="content" class="column-two-thirds">
+            <header>
+                <h1 class="govuk-heading-xl">@messages(s"$key.heading")</h1>
+            </header>
 
-    <div class="govuk-inset-text">
-        <p class="govuk-body">
-            @messages(s"$key.p1")
-        </p>
-        <p class="govuk-body">
-            @messages(s"$key.p2")
-        </p>
-    </div>
+            <div class="govuk-inset-text">
+                <p class="govuk-body">
+                @messages(s"$key.p1")
+                </p>
+                <p class="govuk-body">
+                @messages(s"$key.p2")
+                </p>
+            </div>
 
-    <p>
-        @submitButton(label = "continue")
-<!--        @submitButton(messages(s"button.continue"))-->
-<!--        @submit_button(messages(s"$key.button.continue"))-->
-<!--        @submit_button(label=messages(s"$key.button.continue"))-->
-    </p>
+            <p>
+            @submitButton(messages(s"button.continue"))
+            </p>
 
-</div>
-}
-
+        </div>
+    }

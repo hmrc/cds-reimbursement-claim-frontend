@@ -11,7 +11,7 @@ footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
 
-#Global message
+#Global
 button.continue = Continue
 
 # Not subscribed to CDS
@@ -28,6 +28,7 @@ cf.not-subscribed-to-cds.detail.eori-info-p2=and return to the Government Gatewa
 supporting-evidence.scan-progress.title = Document check
 supporting-evidence.scan-progress.heading = Wait a few seconds then select ‘continue’.
 supporting-evidence.scan-progress.p1 = We are checking your document.
-supporting-evidence.scan-progress.p2 = You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+supporting-evidence.scan-progress.p2 = You‘ll need to keep selecting ‘continue‘ every few seconds until the check is complete to go to the next page.
+supporting-evidence.scan-progress.button.continue = Continue
 
 
