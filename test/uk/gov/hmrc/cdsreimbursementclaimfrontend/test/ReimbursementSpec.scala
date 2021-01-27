@@ -32,16 +32,19 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
 
-trait ReimbursementSpec extends AnyWordSpec with Matchers {
-
-  @silent
-  implicit val ec: ExecutionContext
-
+trait BaseSpec extends AnyWordSpec with Matchers {
   val env           = Environment.simple()
   val configuration = Configuration.load(env)
   val serviceConfig = new ServicesConfig(configuration)
 
   implicit val appConfig = new AppConfig(configuration, env, serviceConfig)
+
+}
+
+trait ReimbursementSpec extends BaseSpec {
+
+  @silent
+  implicit val ec: ExecutionContext
 
   val langs = new DefaultLangs()
 

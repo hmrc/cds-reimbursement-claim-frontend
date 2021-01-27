@@ -20,29 +20,25 @@ import cats.data.EitherT
 import cats.syntax.eq._
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status
-import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationInfoConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationInfoResponse._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarationInfoRequest, DeclarationInfoResponse, Error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.GetDeclarationConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, GetDeclarationResponse, MRN}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 @Singleton
-class DeclarationInfoService @Inject() (declarationInfoConnector: DeclarationInfoConnector)(implicit
+class GetDeclarationService @Inject() (declarationInfoConnector: GetDeclarationConnector)(implicit
   ec: ExecutionContext
 ) extends Logging {
 
-  def getDeclarationInfo(
-    declarationId: String
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, DeclarationInfoResponse] =
+  def getDeclarationInfo(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, GetDeclarationResponse] =
     declarationInfoConnector
-      .getDeclarationInfo(Json.toJson(DeclarationInfoRequest(declarationId)))
+      .getDeclarationInfo(mrn)
       .subflatMap { httpResponse =>
         if (httpResponse.status === Status.OK) {
-          Try(httpResponse.json.as[DeclarationInfoResponse]).fold(err => Left(Error(err)), js => Right(js))
+          Try(httpResponse.json.as[GetDeclarationResponse]).fold(err => Left(Error(err)), js => Right(js))
         } else {
           Left(
             Error(

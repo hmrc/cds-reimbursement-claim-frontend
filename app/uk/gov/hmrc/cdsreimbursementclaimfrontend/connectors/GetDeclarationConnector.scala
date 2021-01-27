@@ -18,23 +18,24 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.JsValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AppConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MRN}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DeclarationInfoConnector @Inject() (http: HttpClient, val appConfig: AppConfig)(implicit ec: ExecutionContext) {
+class GetDeclarationConnector @Inject() (http: HttpClient, val appConfig: AppConfig)(implicit ec: ExecutionContext) {
 
-  def getDeclarationInfo(declarationInfo: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
+  def getDeclarationInfo(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
+    val url = appConfig.declarationInfoEndpoint + "/" + mrn.value
     EitherT[Future, Error, HttpResponse](
       http
-        .POST[JsValue, HttpResponse](appConfig.declarationInfoEndpoint, declarationInfo)
+        .GET[HttpResponse](url)
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
+  }
 
 }

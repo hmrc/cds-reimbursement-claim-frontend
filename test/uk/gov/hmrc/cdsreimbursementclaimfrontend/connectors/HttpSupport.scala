@@ -28,6 +28,18 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   val mockHttp: HttpClient = mock[HttpClient]
 
+  def mockGet[A](url: String)(result: Either[Throwable, HttpResponse]) =
+    (mockHttp
+      .GET(_: String)(
+        _: HttpReads[HttpResponse],
+        _: HeaderCarrier,
+        _: ExecutionContext
+      ))
+      .expects(url, *, *, *)
+      .returning(
+        result.fold[Future[HttpResponse]](Future.failed, Future.successful)
+      )
+
   def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(result: Either[Throwable, HttpResponse]) =
     (mockHttp
       .POST(_: String, _: A, _: Seq[(String, String)])(

@@ -17,39 +17,39 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import org.scalamock.scalatest.MockFactory
-import play.api.libs.json.JsString
 import play.api.test.Helpers.{await, _}
 import uk.gov.hmrc.cdsreimbursementclaim.connectors.HttpSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.test.BaseSpec
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SubmitClaimConnectorSpec extends BaseSpec with MockFactory with HttpSupport {
+class GetDeclarationConnectorSpec extends BaseSpec with MockFactory with HttpSupport {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  //val (eisBearerToken, eisEnvironment) = "token" -> "environment"
-  val connector                  = new DefaultSubmitClaimConnector(mockHttp, appConfig)
-  val backEndUrl                 = "http://localhost:7501/cds-reimbursement-claim/claim"
 
-  "SubmitClaimConnectorSpec" when {
-    "handling request to submit claim" must {
+  val mrn        = MRN.parse("21GBIDMSXBLNR06016").getOrElse(fail)
+  val backEndUrl = s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}"
+  val connector  = new GetDeclarationConnector(mockHttp, appConfig)
 
-      "do a post http call and get the TPI-05 API response" in {
+  "DeclarationInfoConnector" when {
+
+    "handling request for declaration" must {
+      "do a post http call and get the ACC14 API response" in {
         val httpResponse = HttpResponse(200, "The Response")
-        mockPost(backEndUrl, Seq.empty, *)(Right(httpResponse))
-        val response     = await(connector.submitClaim(JsString("The Request")).value)
-        response shouldBe Right(httpResponse)
+        mockGet(backEndUrl)(Right(httpResponse))
+        val declaration  = await(connector.getDeclarationInfo(mrn).value)
+        declaration shouldBe Right(httpResponse)
       }
     }
 
     "return an error" when {
       "the call fails" in {
-        val error    = new Exception("Socket connection error")
-        mockPost(backEndUrl, Seq.empty, *)(Left(error))
-        val response = await(connector.submitClaim(JsString("The Request")).value)
-        response shouldBe Left(Error(error))
+        val error       = new Exception("Socket connection error")
+        mockGet(backEndUrl)(Left(error))
+        val declaration = await(connector.getDeclarationInfo(mrn).value)
+        declaration shouldBe Left(Error(error))
       }
     }
 

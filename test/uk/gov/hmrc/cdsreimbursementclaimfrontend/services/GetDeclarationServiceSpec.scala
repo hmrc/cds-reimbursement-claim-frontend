@@ -24,24 +24,23 @@ import play.api.libs.json._
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.DeclarationInfoConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarationInfoRequest, DeclarationInfoResponse, Error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.GetDeclarationConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, GetDeclarationResponse, MRN}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DeclarationInfoServiceSpec extends AnyWordSpec with Matchers with MockFactory {
+class GetDeclarationServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
-  val declarationInfoConnector = mock[DeclarationInfoConnector]
+  val getDeclarationConnector = mock[GetDeclarationConnector]
 
-  val declarationInfoService = new DeclarationInfoService(declarationInfoConnector)
+  val getDeclarationService = new GetDeclarationService(getDeclarationConnector)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val declarationId          = "GB349970632046"
-  val declarationRequest     = DeclarationInfoRequest(declarationId)
-  val declarationRequestJson = Json.toJson(declarationRequest)
+  val declarationId = "21GBIDMSXBLNR06016"
+  val mrn           = MRN.parse(declarationId).getOrElse(fail)
 
   implicit val request: Request[_] = FakeRequest()
   val emptyResponse: JsValue       = Json.parse(s"""{
@@ -201,10 +200,10 @@ class DeclarationInfoServiceSpec extends AnyWordSpec with Matchers with MockFact
                                                                    |    }
                                                                    |}""".stripMargin)
 
-  def mockDeclarationConnector(response: Either[Error, HttpResponse]) =
-    (declarationInfoConnector
-      .getDeclarationInfo(_: JsValue)(_: HeaderCarrier))
-      .expects(*, *)
+  def mockDeclarationConnector(mrn: MRN)(response: Either[Error, HttpResponse]) =
+    (getDeclarationConnector
+      .getDeclarationInfo(_: MRN)(_: HeaderCarrier))
+      .expects(mrn, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
 
@@ -212,16 +211,16 @@ class DeclarationInfoServiceSpec extends AnyWordSpec with Matchers with MockFact
     "handling a request returns" should {
       "handle successful submits" when {
         "there is a valid empty payload" in {
-          mockDeclarationConnector(Right(HttpResponse(200, emptyResponse, Map.empty[String, Seq[String]])))
-          await(declarationInfoService.getDeclarationInfo(declarationId).value) shouldBe Right(
-            emptyResponse.as[DeclarationInfoResponse]
+          mockDeclarationConnector(mrn)(Right(HttpResponse(200, emptyResponse, Map.empty[String, Seq[String]])))
+          await(getDeclarationService.getDeclarationInfo(mrn).value) shouldBe Right(
+            emptyResponse.as[GetDeclarationResponse]
           )
         }
 
         "there is a valid big payload" in {
-          mockDeclarationConnector(Right(HttpResponse(200, bigResponse, Map.empty[String, Seq[String]])))
-          await(declarationInfoService.getDeclarationInfo(declarationId).value) shouldBe Right(
-            bigResponse.as[DeclarationInfoResponse]
+          mockDeclarationConnector(mrn)(Right(HttpResponse(200, bigResponse, Map.empty[String, Seq[String]])))
+          await(getDeclarationService.getDeclarationInfo(mrn).value) shouldBe Right(
+            bigResponse.as[GetDeclarationResponse]
           )
         }
       }
@@ -229,21 +228,21 @@ class DeclarationInfoServiceSpec extends AnyWordSpec with Matchers with MockFact
       "handle unsuccesful submits" when {
         "400 response" in {
           val decInfoResponse = errorResponse("Invalid Request")
-          mockDeclarationConnector(Right(HttpResponse(400, decInfoResponse, Map.empty[String, Seq[String]])))
-          val response        = await(declarationInfoService.getDeclarationInfo(declarationId).value)
+          mockDeclarationConnector(mrn)(Right(HttpResponse(400, decInfoResponse, Map.empty[String, Seq[String]])))
+          val response        = await(getDeclarationService.getDeclarationInfo(mrn).value)
           response.fold(_.message should include("Invalid Request"), _ => fail())
         }
 
         "500 response" in {
           val decInfoResponse = errorResponse("invalid JSON format")
-          mockDeclarationConnector(Right(HttpResponse(500, decInfoResponse, Map.empty[String, Seq[String]])))
-          val response        = await(declarationInfoService.getDeclarationInfo(declarationId).value)
+          mockDeclarationConnector(mrn)(Right(HttpResponse(500, decInfoResponse, Map.empty[String, Seq[String]])))
+          val response        = await(getDeclarationService.getDeclarationInfo(mrn).value)
           response.fold(_.message should include("invalid JSON format"), _ => fail())
         }
 
         "Invalid Json response" in {
-          mockDeclarationConnector(Right(HttpResponse(200, """{"a"-"b"}""", Map.empty[String, Seq[String]])))
-          val response = await(declarationInfoService.getDeclarationInfo(declarationId).value)
+          mockDeclarationConnector(mrn)(Right(HttpResponse(200, """{"a"-"b"}""", Map.empty[String, Seq[String]])))
+          val response = await(getDeclarationService.getDeclarationInfo(mrn).value)
           response.fold(_.message should include("Unexpected character"), _ => fail())
         }
 
