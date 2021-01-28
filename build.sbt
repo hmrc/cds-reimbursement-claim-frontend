@@ -49,6 +49,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.full))
   .settings(addCompilerPlugin(scalafixSemanticdb))
   .settings(scalaVersion := "2.12.12")
+  .settings(routesImport := Seq.empty)
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     majorVersion := 0,
@@ -59,7 +60,9 @@ lazy val microservice = Project(appName, file("."))
       "-Yrangepos",
       "-language:postfixOps"
     ),
-    scalacOptions in Test --= Seq("-Ywarn-value-discard, -Ywarn-dead-code"),
+    scalacOptions in Test --= Seq(
+      "-Ywarn-dead-code",
+      "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
   .settings(publishingSettings: _*)

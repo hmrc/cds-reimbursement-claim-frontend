@@ -24,7 +24,7 @@ import play.api.libs.json._
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SubmitClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimServiceImpl
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -34,7 +34,7 @@ import scala.concurrent.Future
 
 class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
-  val submitClaimConnector = mock[SubmitClaimConnector]
+  val submitClaimConnector = mock[ClaimConnector]
 
   val submitClaimService = new SubmitClaimServiceImpl(submitClaimConnector)
 
@@ -62,7 +62,7 @@ class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory 
 
   def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
     (submitClaimConnector
-      .submitClaim(_: JsValue)(_: HeaderCarrier))
+      .submitC285Claim(_: JsValue)(_: HeaderCarrier))
       .expects(submitClaimData, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()

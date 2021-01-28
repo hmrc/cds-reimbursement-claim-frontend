@@ -22,9 +22,11 @@ import com.google.inject.ImplementedBy
 import play.api.http.Status
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.SubmitClaimConnector
+import play.api.i18n.Lang
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,17 +34,18 @@ import scala.util.Try
 
 @ImplementedBy(classOf[SubmitClaimServiceImpl])
 trait SubmitClaimService {
-  def submitClaim(body: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue]
+  def submitClaim(body: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue]
 }
 
 @Singleton
-class SubmitClaimServiceImpl @Inject() (submitClaimConnector: SubmitClaimConnector)(implicit ec: ExecutionContext)
-    extends SubmitClaimService
+class SubmitClaimServiceImpl @Inject() (submitClaimConnector: ClaimConnector)(implicit
+  ec: ExecutionContext
+) extends SubmitClaimService
     with Logging {
 
-  def submitClaim(claimData: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue] =
+  def submitClaim(claimData: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue] =
     submitClaimConnector
-      .submitClaim(claimData)
+      .submitC285Claim(claimData, lang)
       .subflatMap { httpResponse =>
         if (httpResponse.status === Status.OK)
           Try(httpResponse.json).fold(err => Left(Error(err)), js => Right(js))

@@ -17,19 +17,45 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import javax.inject.{Inject, Singleton}
-
-import play.api.i18n.MessagesApi
-import play.api.mvc.Request
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.Results.InternalServerError
+import play.api.mvc.{Request, Result}
 import play.twirl.api.Html
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.ErrorTemplate
 
 @Singleton
-class ErrorHandler @Inject() (errorTemplate: ErrorTemplate, val messagesApi: MessagesApi)(implicit appConfig: AppConfig)
-    extends FrontendErrorHandler {
+class ErrorHandler @Inject() (
+  val messagesApi: MessagesApi,
+  error_template: views.html.error_template
+)(implicit
+  val appConfig: ViewConfig
+) extends FrontendErrorHandler {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
+  override def standardErrorTemplate(
+    pageTitle: String,
+    heading: String,
+    message: String
+  )(implicit
     request: Request[_]
   ): Html =
-    errorTemplate(pageTitle, heading, message)
+    error_template(None, pageTitle, heading, message)
+
+  def errorResult[R <: Request[_]](
+    userType: Option[UserType]
+  )(implicit request: R): Result =
+    InternalServerError(
+      error_template(
+        userType,
+        Messages("global.error.InternalServerError500.title"),
+        Messages("global.error.InternalServerError500.heading"),
+        Messages("global.error.InternalServerError500.message")
+      )
+    )
+
+  def errorResult()(implicit request: RequestWithSessionData[_]): Result =
+    errorResult(request.userType)
+
 }
