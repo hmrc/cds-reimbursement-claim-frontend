@@ -15,13 +15,14 @@ footer.govukHelp.url = https://www.gov.uk/help
 button.continue = Continue
 
 # Not subscribed to CDS
-cf.not-subscribed-to-cds.detail.title=Not registered with CDS
-cf.not-subscribed-to-cds.detail.heading=You need a valid EORI number to use the Customs Declaration Service (CDS)
-cf.not-subscribed-to-cds.detail.info=Your subscription to CDS is not valid. To use this service, you must have a valid EORI number associated with your Government Gateway user ID and password.
-cf.not-subscribed-to-cds.detail.eori-info-heading=How to get an EORI number
-cf.not-subscribed-to-cds.detail.eori-info-p1=You can
-cf.not-subscribed-to-cds.detail.eori-link=apply for an EORI number
-cf.not-subscribed-to-cds.detail.eori-info-p2=and return to the Government Gateway login page once your EORI number is associated with your login details.
+not-subscribed-to-cds.title=Not registered with CDS
+not-subscribed-to-cds.heading=You need a valid EORI number to use the Customs Declaration Service (CDS)
+not-subscribed-to-cds.info=Your subscription to CDS is not valid. To use this service, you must have a valid EORI number associated with your Government Gateway user ID and password.
+not-subscribed-to-cds.eori-info-heading=How to get an EORI number
+not-subscribed-to-cds.eori-info-p1=You can
+not-subscribed-to-cds.eori-link=apply for an EORI number
+not-subscribed-to-cds.eori-info-p2=and return to the Government Gateway login page once your EORI number is associated with your login details.
+
 
 
 # Supporting Evidence: Holding Page

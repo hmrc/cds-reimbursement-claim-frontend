@@ -11,3 +11,6 @@
 
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
+
+GET        /claim-for-reimbursement-of-import-duties/test-only/claim            uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SubmitClaimController.claim
+POST       /claim-for-reimbursement-of-import-duties/test-only/claim            uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.SubmitClaimController.claim

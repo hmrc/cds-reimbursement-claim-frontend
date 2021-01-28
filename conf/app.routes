@@ -7,6 +7,3 @@ GET        /assets/*file            controllers.Assets.versioned(path = "/public
 GET        /start                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartPageController.onPageLoad
 
 GET        /not-subscribed-for-cds  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.onPageLoad
-
-
-
