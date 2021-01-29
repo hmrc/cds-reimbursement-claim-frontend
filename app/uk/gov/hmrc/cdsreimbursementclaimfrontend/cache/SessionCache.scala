@@ -27,8 +27,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[SessionStoreImpl])
-trait SessionStore {
+@ImplementedBy(classOf[DefaultSessionCache])
+trait SessionCache {
 
   def get()(implicit
     hc: HeaderCarrier
@@ -41,12 +41,12 @@ trait SessionStore {
 }
 
 @Singleton
-class SessionStoreImpl @Inject() (
+class DefaultSessionCache @Inject() (
   mongo: ReactiveMongoComponent,
   configuration: Configuration
 )(implicit
   ec: ExecutionContext
-) extends SessionStore
+) extends SessionCache
     with Cache {
 
   val cacheRepository: CacheMongoRepository = {

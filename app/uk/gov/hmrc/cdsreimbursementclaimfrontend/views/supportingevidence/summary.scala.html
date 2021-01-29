@@ -15,36 +15,19 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
 
 @this(
-    cyaSection: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_section,
-    cyaRow: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_row,
-    cyaChange: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_change
+    cyaSection: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_section
 )
 
 @(answers: CompleteSupportingEvidenceAnswers)(implicit messages: Messages)
 
     @key = @{"supporting-evidence.check-your-answers"}
 
-    @hasSupportingDocs = @{
-        answers.evidences.nonEmpty match {
-            case true => messages("generic.yes")
-            case false => messages("generic.no")
-        }
-    }
-
     @cyaSection(None, Some("cya-questions-short")) {
-
-        @cyaRow(
-            messages(s"$key.do-you-want-to-upload-evidence"),
-            Html(hasSupportingDocs),
-            Some(cyaChange(messages(s"$key.do-you-want-to-upload-evidence"), routes.SupportingEvidenceController.uploadSupportingEvidence().url)),
-            "do-you-want-to-upload-supporting-evidence-value"
-        )
 
     @for((document, fileIndex) <- answers.evidences.zipWithIndex) {
 

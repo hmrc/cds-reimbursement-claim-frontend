@@ -39,15 +39,17 @@ object SupportingEvidenceAnswers {
   }
 
   final case class IncompleteSupportingEvidenceAnswers(
+    evidenceType: Option[String],
     evidences: List[SupportingEvidence]
   ) extends SupportingEvidenceAnswers
 
   object IncompleteSupportingEvidenceAnswers {
     val empty: IncompleteSupportingEvidenceAnswers =
-      IncompleteSupportingEvidenceAnswers(List.empty)
+      IncompleteSupportingEvidenceAnswers(None, List.empty)
   }
 
   final case class CompleteSupportingEvidenceAnswers(
+    evidenceType: String,
     evidences: List[SupportingEvidence]
   ) extends SupportingEvidenceAnswers
 

@@ -21,7 +21,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +36,7 @@ final case class RequestWithSessionDataAndRetrievedData[A](
 
 @Singleton
 class SessionDataActionWithRetrievedData @Inject() (
-  val sessionStore: SessionStore,
+  val sessionStore: SessionCache,
   val errorHandler: ErrorHandler
 )(implicit
   val executionContext: ExecutionContext

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.upscan
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.typesafe.config.ConfigFactory
@@ -25,11 +25,10 @@ import play.api.Configuration
 import play.api.libs.json.JsString
 import play.api.mvc.Call
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.HttpSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpcanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanInitiateRequest, UpscanUpload}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -64,11 +63,11 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
     )
   )
 
-  val connector = new UpscanConnectorImpl(mockHttp, config, new ServicesConfig(config))
+  val connector = new DefaultUpscanConnector(mockHttp, config, new ServicesConfig(config))
 
   private val emptyJsonBody = "{}"
 
-  "UpscanConnectorSpec" when {
+  "Upscan Connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val reference                  = sample[UploadReference]
@@ -121,7 +120,7 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
     "do a get http call and return the result" in {
       List(
         HttpResponse(200, emptyJsonBody),
-        HttpResponse(200, JsString("hi"), Map[String, Seq[String]]().empty)
+        HttpResponse(200, JsString("upscan request"), Map[String, Seq[String]]().empty)
       ).foreach { httpResponse =>
         withClue(s"For http response [${httpResponse.toString}]") {
           mockResponse(Right(httpResponse))
@@ -131,7 +130,7 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
     }
 
     "return an error" when {
-      "Internal server error" in {
+      "internal server error" in {
         List(
           HttpResponse(500, emptyJsonBody)
         ).foreach { httpResponse =>

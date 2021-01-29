@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
+import com.typesafe.config.ConfigFactory
+import controllers.Assets.ACCEPT_LANGUAGE
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.Configuration
+import play.api.i18n.Lang
 import play.api.libs.json.JsString
 import play.api.test.Helpers.{await, _}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -31,36 +32,70 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpSupport {
 
-  val (eisBearerToken, eisEnvironment) = "token" -> "environment"
+  val config: Configuration = Configuration(
+    ConfigFactory.parseString(
+      """
+        | self {
+        |   url = host1.com
+        |  },
+        |  microservice {
+        |    services {
+        |      cds-reimbursement-claim {
+        |        protocol = http
+        |        host     = host3
+        |        port     = 123
+        |      }
+        |   }
+        |}
+        |""".stripMargin
+    )
+  )
 
-  val env            = Environment.simple()
-  val config         = Configuration.load(env)
-  val servicesConfig = new ServicesConfig(config)
-  val appConfig      = new ViewConfig(config, env, servicesConfig)
-  val connector      = new DefaultClaimConnector(mockHttp, appConfig)
+  val connector             = new DefaultClaimConnector(mockHttp, new ServicesConfig(config))
+  private val emptyJsonBody = "{}"
 
-  "SubmitClaimConnectorSpec" when {
+  "Claim Connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
+    val defaultLanguage            = Lang.defaultLang
 
-    val backEndUrl = "http://localhost:7501/cds-reimbursement-claim/claim"
+    val backEndUrl = "http://host3:123/cds-reimbursement-claim/claim"
 
     "handling request to submit claim" must {
 
       "do a post http call and get the TPI-05 API response" in {
-        val httpResponse = HttpResponse(200, "The Response")
-        mockPost(backEndUrl, Seq.empty, *)(Right(httpResponse))
-        val response     = await(connector.submitC285Claim(JsString("The Request")).value)
-        response shouldBe Right(httpResponse)
+        List(
+          HttpResponse(200, emptyJsonBody),
+          HttpResponse(200, JsString("claim response"), Map[String, Seq[String]]().empty)
+        ).foreach { httpResponse =>
+          withClue(s"For http response [${httpResponse.toString}]") {
+            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+              Right(httpResponse)
+            )
+            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value) shouldBe Right(httpResponse)
+          }
+        }
       }
     }
 
     "return an error" when {
-      "the call fails" in {
-        val error    = new Exception("Socket connection error")
-        mockPost(backEndUrl, Seq.empty, *)(Left(error))
-        val response = await(connector.submitC285Claim(JsString("The Request")).value)
-        response shouldBe Left(Error(error))
+      "internal server error" in {
+        List(
+          HttpResponse(500, emptyJsonBody)
+        ).foreach { httpResponse =>
+          withClue(s"For http response [${httpResponse.toString}]") {
+            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+              Right(httpResponse)
+            )
+            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value) shouldBe Right(httpResponse)
+          }
+        }
+      }
+      "the future fails" in {
+        mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+          Left(new Throwable("boom"))
+        )
+        await(connector.submitClaim(JsString("claim request"), defaultLanguage).value).isLeft shouldBe true
       }
     }
 

@@ -21,6 +21,7 @@ lazy val wartremoverSettings =
       Wart.Overloading,
       Wart.ToString
     ),
+    WartRemover.autoImport.wartremoverExcluded += baseDirectory.value / "app" / "uk" / "gov" / "hmrc" / "cdsreimbursementclaimfrontend" / "models" / "ui",
     WartRemover.autoImport.wartremoverExcluded += target.value,
     WartRemover.autoImport.wartremoverExcluded in (Compile, compile) ++=
       routes.in(Compile).value ++
@@ -60,9 +61,7 @@ lazy val microservice = Project(appName, file("."))
       "-Yrangepos",
       "-language:postfixOps"
     ),
-    scalacOptions in Test --= Seq(
-      "-Ywarn-dead-code",
-      "-Ywarn-value-discard"),
+    scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
   .settings(publishingSettings: _*)
@@ -73,3 +72,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(scalafmtOnCompile := true)
+
+val akkaVersion     = "2.6.5"
+val akkaHttpVersion = "10.1.13"
+
+dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-slf4j"     % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-actor"     % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion

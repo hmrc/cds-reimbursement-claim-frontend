@@ -21,7 +21,7 @@ import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -34,7 +34,7 @@ class AuthenticatedAction @Inject() (
   val authConnector: AuthConnector,
   val config: Configuration,
   val errorHandler: ErrorHandler,
-  val sessionStore: SessionStore
+  val sessionStore: SessionCache
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequest] {
 

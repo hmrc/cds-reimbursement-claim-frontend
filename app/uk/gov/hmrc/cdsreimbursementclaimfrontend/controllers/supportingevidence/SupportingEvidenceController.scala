@@ -22,8 +22,10 @@ import com.google.inject.{Inject, Singleton}
 import configs.ConfigReader
 import configs.syntax._
 import play.api.Configuration
+import play.api.data.Forms.{mapping, number}
+import play.api.data._
 import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
@@ -46,11 +48,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class SupportingEvidenceController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionStore,
+  val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   upscanService: UpscanService,
   cc: MessagesControllerComponents,
   val config: Configuration,
+  chooseDocumentTypePage: pages.choose_document_type,
   uploadPage: pages.upload,
   checkYourAnswersPage: pages.check_your_answers,
   scanProgressPage: pages.scan_progress,
@@ -91,6 +94,56 @@ class SupportingEvidenceController @Inject() (
         )(f(s, r, _))
 
       case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  def chooseSupportingEvidenceDocumentType(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
+        answers match {
+          case IncompleteSupportingEvidenceAnswers(evidenceType, _) =>
+            evidenceType match {
+              case Some(_) =>
+                Ok(
+                  chooseDocumentTypePage(
+                    SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
+                    routes.SupportingEvidenceController.checkYourAnswers()
+                  )
+                )
+              case None    =>
+                Ok(
+                  chooseDocumentTypePage(
+                    SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
+                    routes.SupportingEvidenceController.checkYourAnswers()
+                  )
+                )
+            }
+          case CompleteSupportingEvidenceAnswers(_, _)              =>
+            Ok(
+              chooseDocumentTypePage(
+                SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
+                routes.SupportingEvidenceController.checkYourAnswers()
+              )
+            )
+        }
+
+//        commonDisplayBehaviour(answers)(
+//          form = _.fold(
+//            _.doYouWantToUploadSupportingEvidence
+//              .fold(doYouWantToUploadForm)(doYouWantToUploadForm.fill),
+//            c => doYouWantToUploadForm.fill(c.doYouWantToUploadSupportingEvidence)
+//          )
+//        )(
+//          page = doYouWantToUploadPage(_, _, f.isAmendReturn)
+//        )(
+//          requiredPreviousAnswer = { _ => Some(()) },
+//          redirectToIfNoRequiredPreviousAnswer = controllers.returns.routes.TaskListController.taskList()
+//        )
+      }
+    }
+
+  def chooseSupportingEvidenceDocumentTypeSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData {
+      Ok("submitted")
     }
 
   def uploadSupportingEvidence(): Action[AnyContent] =
@@ -249,6 +302,7 @@ class SupportingEvidenceController @Inject() (
             val newEvidences = complete.evidences
               .filterNot(_.uploadReference === uploadReference)
             IncompleteSupportingEvidenceAnswers(
+              None, //FIXME
               newEvidences
             )
           }
@@ -296,15 +350,19 @@ class SupportingEvidenceController @Inject() (
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
         val updatedAnswers: SupportingEvidenceAnswers = answers match {
           case IncompleteSupportingEvidenceAnswers(
+                d, //FIXME
                 evidences
               ) =>
             CompleteSupportingEvidenceAnswers(
+              d.getOrElse(""), //FIXME
               evidences
             )
           case CompleteSupportingEvidenceAnswers(
+                a, //FIXME
                 evidences
               ) =>
             CompleteSupportingEvidenceAnswers(
+              a, //FIXME
               evidences
             )
         }
@@ -339,30 +397,89 @@ class SupportingEvidenceController @Inject() (
     answers match {
 
       case IncompleteSupportingEvidenceAnswers(
+            None, //FIXME
             supportingEvidences
           ) if supportingEvidences.isEmpty =>
         Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
       case IncompleteSupportingEvidenceAnswers(
+            None, //FIXME
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswers(supportingEvidences),
+            CompleteSupportingEvidenceAnswers("", supportingEvidences),
             maxUploads
           )
         )
 
       case CompleteSupportingEvidenceAnswers(
+            "", //FIXME
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
             CompleteSupportingEvidenceAnswers(
+              "", //FIXME
               supportingEvidences
             ),
             maxUploads
           )
         )
     }
+}
+
+object SupportingEvidenceController {
+
+  final case class ChooseSupportingEvidenceDocumentType(
+    supportingEvidenceDocumentType: SupportingEvidenceDocumentType
+  )
+
+  val chooseSupportEvidenceDocumentTypeForm: Form[ChooseSupportingEvidenceDocumentType] =
+    Form(
+      mapping(
+        "supporting-evidence.choose-document-type" -> number
+          .verifying(
+            "invalid supporting evidence document type",
+            documentType =>
+              documentType === 0 ||
+                documentType === 1 ||
+                documentType === 2 ||
+                documentType === 3 ||
+                documentType === 4 ||
+                documentType === 5 ||
+                documentType === 6 ||
+                documentType === 7 ||
+                documentType === 8 ||
+                documentType === 9
+          )
+          .transform[SupportingEvidenceDocumentType](
+            {
+              case 0 => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
+              case 1 => SupportingEvidenceDocumentType.AirWayBill
+              case 2 => SupportingEvidenceDocumentType.BillOfLading
+              case 3 => SupportingEvidenceDocumentType.C88E2
+              case 4 => SupportingEvidenceDocumentType.CommercialInvoice
+              case 5 => SupportingEvidenceDocumentType.CorrespondenceTrader
+              case 6 => SupportingEvidenceDocumentType.PackingList
+              case 7 => SupportingEvidenceDocumentType.ProofOfAuthority
+              case 8 => SupportingEvidenceDocumentType.SubstituteEntry
+              case 9 => SupportingEvidenceDocumentType.ScheduleOfMRNs
+            },
+            {
+              case SupportingEvidenceDocumentType.AdditionalSupportingDocuments => 0
+              case SupportingEvidenceDocumentType.AirWayBill                    => 1
+              case SupportingEvidenceDocumentType.BillOfLading                  => 2
+              case SupportingEvidenceDocumentType.C88E2                         => 3
+              case SupportingEvidenceDocumentType.CommercialInvoice             => 4
+              case SupportingEvidenceDocumentType.CorrespondenceTrader          => 5
+              case SupportingEvidenceDocumentType.PackingList                   => 6
+              case SupportingEvidenceDocumentType.ProofOfAuthority              => 7
+              case SupportingEvidenceDocumentType.SubstituteEntry               => 8
+              case SupportingEvidenceDocumentType.ScheduleOfMRNs                => 9
+            }
+          )
+      )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
+    )
+
 }

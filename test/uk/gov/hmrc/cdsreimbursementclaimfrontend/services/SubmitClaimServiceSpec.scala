@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaim.services
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
+import cats.instances.future._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json._
+import play.api.i18n.Lang
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.Request
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{await, _}
+import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimServiceImpl
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
-  val submitClaimConnector = mock[ClaimConnector]
-
-  val submitClaimService = new SubmitClaimServiceImpl(submitClaimConnector)
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
+  implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
-  val okResponse: JsValue          = Json.parse("""{
+
+  private val defaultLanguage      = Lang.defaultLang
+  private val submitClaimConnector = mock[ClaimConnector]
+  private val submitClaimService   = new SubmitClaimServiceImpl(submitClaimConnector)
+
+  val okResponse: JsValue = Json.parse("""{
       |    "PostNewClaimsResponse": {
       |        "ResponseCommon": {
       |            "Status": "OK",
@@ -62,8 +62,8 @@ class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory 
 
   def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
     (submitClaimConnector
-      .submitC285Claim(_: JsValue)(_: HeaderCarrier))
-      .expects(submitClaimData, *)
+      .submitClaim(_: JsValue, _: Lang)(_: HeaderCarrier))
+      .expects(submitClaimData, *, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
 
@@ -72,21 +72,21 @@ class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory 
       "handle successful submits" when {
         "there is a valid payload" in {
           mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, okResponse, Map.empty[String, Seq[String]])))
-          await(submitClaimService.submitClaim(JsString("Hello")).value) shouldBe Right(okResponse)
+          await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value) shouldBe Right(okResponse)
         }
       }
 
-      "handle unsuccesful submits" when {
+      "handle unsuccessful submits" when {
         "500 response" in {
           val eisResponse = errorResponse("invalid JSON format")
           mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(500, eisResponse, Map.empty[String, Seq[String]])))
-          val response    = await(submitClaimService.submitClaim(JsString("Hello")).value)
+          val response    = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
           response.fold(_.message should include("invalid JSON format"), _ => fail())
         }
 
         "Invalid Json response" in {
           mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, """{"a"-"b"}""", Map.empty[String, Seq[String]])))
-          val response = await(submitClaimService.submitClaim(JsString("Hello")).value)
+          val response = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
           response.fold(_.message should include("Unexpected character"), _ => fail())
         }
 

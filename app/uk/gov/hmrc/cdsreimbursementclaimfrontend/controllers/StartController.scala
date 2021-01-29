@@ -21,7 +21,7 @@ import cats.instances.future._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
@@ -39,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StartController @Inject() (
-  val sessionStore: SessionStore,
+  val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,

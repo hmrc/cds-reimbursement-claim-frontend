@@ -21,7 +21,7 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, MessagesRequest, Result}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,7 +31,7 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
   val authConnector: AuthConnector
   val config: Configuration
   val errorHandler: ErrorHandler
-  val sessionStore: SessionStore
+  val sessionStore: SessionCache
   implicit val executionContext: ExecutionContext
 
   def authorisedFunction[A](

@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.MessagesApi
 import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, UserType}
 
@@ -37,7 +37,7 @@ final case class RequestWithSessionData[A](
 
 @Singleton
 class SessionDataAction @Inject() (
-  val sessionStore: SessionStore,
+  val sessionStore: SessionCache,
   val errorHandler: ErrorHandler
 )(implicit
   val executionContext: ExecutionContext

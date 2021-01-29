@@ -17,21 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
-import com.google.inject.ImplementedBy
-import play.api.http.HeaderNames.ACCEPT_LANGUAGE
+import com.google.inject.{ImplementedBy, Inject, Singleton}
+import controllers.Assets.ACCEPT_LANGUAGE
 import play.api.i18n.Lang
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultClaimConnector])
 trait ClaimConnector {
-  def submitC285Claim(claimData: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  def submitClaim(claimData: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 }
 
 @Singleton
@@ -43,7 +42,7 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
 
   private val submitC285ClaimUrl: String = s"$baseUrl/claim"
 
-  override def submitC285Claim(claimData: JsValue, lang: Lang)(implicit
+  override def submitClaim(claimData: JsValue, lang: Lang)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](

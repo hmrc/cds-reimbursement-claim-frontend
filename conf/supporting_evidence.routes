@@ -1,3 +1,6 @@
+GET    /supporting-evidence/select-supporting-evidence-type              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentType()
+POST   /supporting-evidence/select-supporting-evidence-type              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit()
+
 GET    /supporting-evidence/upload-supporting-evidence                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.uploadSupportingEvidence()
 
 GET    /supporting-evidence/scan-progress/:id                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)

@@ -24,7 +24,7 @@ import cats.syntax.eq._
 import com.google.inject.{ImplementedBy, Singleton}
 import play.api.http.Status.OK
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.upscan.UpscanConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._

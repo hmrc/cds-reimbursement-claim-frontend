@@ -20,14 +20,14 @@ import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates.SessionProvider
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{RequestWithSessionData, RequestWithSessionDataAndRetrievedData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 trait SessionUpdates {
 
-  def updateSession[R](sessionStore: SessionStore, request: R)(
+  def updateSession[R](sessionStore: SessionCache, request: R)(
     update: SessionData => SessionData
   )(implicit
     sessionProvider: SessionProvider[R],

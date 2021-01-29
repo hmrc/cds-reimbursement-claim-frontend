@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
@@ -46,7 +46,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
   val authConnector: AuthConnector,
   val config: Configuration,
   val errorHandler: ErrorHandler,
-  val sessionStore: SessionStore
+  val sessionStore: SessionCache
 )(implicit val executionContext: ExecutionContext)
     extends AuthenticatedActionBase[AuthenticatedRequestWithRetrievedData] {
 

@@ -52,7 +52,7 @@ class ClaimServiceImpl @Inject() (
     lang: Lang
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
     //TODO: remove serialisation here
-    connector.submitC285Claim(Json.toJson(submitClaimRequest), lang).subflatMap { httpResponse =>
+    connector.submitClaim(Json.toJson(submitClaimRequest), lang).subflatMap { httpResponse =>
       if (httpResponse.status === OK)
         httpResponse
           .parseJSON[SubmitClaimResponse]()

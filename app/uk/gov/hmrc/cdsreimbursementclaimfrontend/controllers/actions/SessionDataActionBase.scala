@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import cats.syntax.either._
 import play.api.mvc.{ActionRefiner, Request, Result}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait SessionDataActionBase[R[_] <: Request[_], P[_] <: Request[_]] extends ActionRefiner[R, P] with Logging {
 
-  val sessionStore: SessionStore
+  val sessionStore: SessionCache
 
   val errorHandler: ErrorHandler
 

@@ -45,7 +45,7 @@ class SubmitClaimServiceImpl @Inject() (submitClaimConnector: ClaimConnector)(im
 
   def submitClaim(claimData: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue] =
     submitClaimConnector
-      .submitC285Claim(claimData, lang)
+      .submitClaim(claimData, lang)
       .subflatMap { httpResponse =>
         if (httpResponse.status === Status.OK)
           Try(httpResponse.json).fold(err => Left(Error(err)), js => Right(js))

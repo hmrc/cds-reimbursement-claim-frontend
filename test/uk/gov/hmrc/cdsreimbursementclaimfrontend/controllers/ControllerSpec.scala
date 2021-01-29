@@ -108,7 +108,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
           )
         ) ++ additionalConfig
       )
-      .disable[uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionStore]
+      .disable[uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache]
       .overrides(metricsBinding :: overrideBindings: _*)
       .overrides(bind[MessagesApi].toProvider[TestDefaultMessagesApiProvider])
       .build()

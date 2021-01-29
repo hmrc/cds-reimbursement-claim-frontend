@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.upscan
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject, Singleton}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[UpscanConnectorImpl])
+@ImplementedBy(classOf[DefaultUpscanConnector])
 trait UpscanConnector {
 
   def getUpscanUpload(
@@ -56,7 +56,7 @@ trait UpscanConnector {
 }
 
 @Singleton
-class UpscanConnectorImpl @Inject() (
+class DefaultUpscanConnector @Inject() (
   http: HttpClient,
   config: Configuration,
   servicesConfig: ServicesConfig

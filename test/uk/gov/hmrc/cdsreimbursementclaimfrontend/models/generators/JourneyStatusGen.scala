@@ -18,17 +18,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadRequest, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 
-object UpcanGen extends GenUtils {
+object JourneyStatusGen extends GenUtils {
 
-  implicit val uploadRequestGen: Gen[UploadRequest] = gen[UploadRequest]
+  implicit val fillingOutClaimGen: Gen[FillingOutClaim] =
+    gen[FillingOutClaim]
 
-  implicit val upscanUploadGen: Gen[UpscanUpload] = gen[UpscanUpload]
+  implicit val justSubmittedClaimGen: Gen[JustSubmittedClaim] =
+    gen[JustSubmittedClaim]
 
-  implicit val upscanSuccessGen: Gen[UpscanSuccess] = gen[UpscanSuccess]
+  implicit val submitReturnFailedGen: Gen[SubmitClaimFailed] =
+    gen[SubmitClaimFailed]
 
-  implicit val upscanFailureGen: Gen[UpscanFailure] = gen[UpscanFailure]
+  implicit val journeyStatusGen: Gen[JourneyStatus] = gen[JourneyStatus]
 
 }
