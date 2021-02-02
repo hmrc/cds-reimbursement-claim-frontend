@@ -23,24 +23,27 @@ import play.api.libs.json.OFormat
 import java.time.LocalDate
 import java.util.UUID
 
-sealed trait DraftClaim extends Product with Serializable {
-  val id: UUID
-  val lastUpdatedDate: LocalDate
-}
-
-final case class DraftC285Claim(
-  id: UUID,
-  supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
-  lastUpdatedDate: LocalDate
-) extends DraftClaim
-
-object DraftC285Claim {
-  implicit val eq: Eq[DraftC285Claim] = Eq.fromUniversalEquals[DraftC285Claim]
-
-  val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID(), None, LocalDate.now)
-}
+sealed trait DraftClaim extends Product with Serializable
 
 object DraftClaim {
+
+  final case class DraftC285Claim2(
+    id: UUID,
+    supportingEvidenceAnswers: SupportingEvidenceAnswers,
+    lastUpdatedDate: LocalDate
+  ) extends DraftClaim
+
+  final case class DraftC285Claim(
+    id: UUID,
+    supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
+    lastUpdatedDate: LocalDate
+  ) extends DraftClaim
+
+  object DraftC285Claim {
+    implicit val eq: Eq[DraftC285Claim] = Eq.fromUniversalEquals[DraftC285Claim]
+
+    val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID(), None, LocalDate.now)
+  }
 
   implicit class DraftClaimOps(private val draftClaim: DraftClaim) extends AnyVal {
     def fold[A](
@@ -48,6 +51,7 @@ object DraftClaim {
     ): A =
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
+        case _                 => sys.error("sould not be here")
       }
   }
 

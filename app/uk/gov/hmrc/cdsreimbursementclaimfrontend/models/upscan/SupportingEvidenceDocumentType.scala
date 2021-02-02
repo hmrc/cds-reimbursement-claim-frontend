@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
+import julienrf.json.derived
+import play.api.libs.json.OFormat
+
 sealed trait SupportingEvidenceDocumentType extends Product with Serializable
 
 object SupportingEvidenceDocumentType {
@@ -29,4 +32,6 @@ object SupportingEvidenceDocumentType {
   case object ProofOfAuthority extends SupportingEvidenceDocumentType
   case object CorrespondenceTrader extends SupportingEvidenceDocumentType
   case object AdditionalSupportingDocuments extends SupportingEvidenceDocumentType
+
+  implicit val format: OFormat[SupportingEvidenceDocumentType] = derived.oformat[SupportingEvidenceDocumentType]()
 }

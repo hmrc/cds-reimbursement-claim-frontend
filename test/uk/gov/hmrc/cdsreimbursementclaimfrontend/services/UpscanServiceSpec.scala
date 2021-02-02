@@ -16,24 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import cats.data.EitherT
 import cats.instances.future._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.libs.json.{JsString, Json}
-import play.api.mvc.Request
+import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.FileUploadGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

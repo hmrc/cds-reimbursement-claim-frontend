@@ -16,14 +16,13 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.ChooseSupportingEvidenceDocumentType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Select
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.SelectItem
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -31,20 +30,18 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- govukSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.select.govukSelect
+ inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
+ details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
 )
 
-@(form: Form[ChooseSupportingEvidenceDocumentType], backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@(form: Form[ChooseSupportingEvidenceDocumentType], uploadReference : UploadReference)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
  @key = @{"supporting-evidence.choose-document-type"}
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
  @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
-
-  @backLinkComponent(backLink)
 
   @if(hasErrors) {
    @errorSummary(form)
@@ -56,23 +53,87 @@
 
   @Html(messages(s"$key.help-text"))
 
-  @formWrapper(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(), 'novalidate -> "novalidate") {
+  <div class="space-document-type">
+      @details(messages(s"$key"),
+        Html(s"""|
+            |<p> ${messages(s"$key.details.l0")} </p>
+            |<p> ${messages(s"$key.details.l1")} </p>
+            |<p> ${messages(s"$key.details.l2")} </p>
+            |<p> ${messages(s"$key.details.l3")} </p>
+            |<p> ${messages(s"$key.details.l4")} </p>
+            |<p> ${messages(s"$key.details.l5")} </p>
+            |<p> ${messages(s"$key.details.l6")} </p>
+            |<p> ${messages(s"$key.details.l7")} </p>
+            |<p> ${messages(s"$key.details.l8")} </p>
+            |<p> ${messages(s"$key.details.l9")} </p>
+            |""".stripMargin
+      ))
+  </div>
+
+  @formWrapper(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(uploadReference), 'novalidate -> "novalidate") {
 
     <div class = "space-select">
         @inputSelect(
             form = form,
-            id = "country",
-            name = "country",
-            items = CountryService.getAllCountries.map(c => SelectItem(
-                value = Some(c.code),
-                text = messages(c.countryName),
-                selected = form("country").value.contains(c.code)
-            )),
-            label = messages(s"searchGoodsCountry.$declarationType.heading", goodsCategory),
-            isPageHeading = true,
-            hint = if(declarationType == Import) Some("searchGoodsCountry.hint") else None
+            id = key,
+            name = key,
+            items = Seq(
+                SelectItem(
+                    value = Some("0"),
+                    text  = messages(s"$key.document-type.d0"),
+                    selected = form(s"$key").value.contains("0")
+                ),
+                SelectItem(
+                    value = Some("1"),
+                    text  = messages(s"$key.document-type.d1"),
+                    selected = form(s"$key").value.contains("1")
+                ),
+                SelectItem(
+                    value = Some("2"),
+                    text  = messages(s"$key.document-type.d2"),
+                    selected = form(s"$key").value.contains("2")
+                ),
+                SelectItem(
+                    value = Some("3"),
+                    text  = messages(s"$key.document-type.d3"),
+                    selected = form(s"$key").value.contains("3")
+                ),
+                SelectItem(
+                    value = Some("4"),
+                    text  = messages(s"$key.document-type.d4"),
+                    selected = form(s"$key").value.contains("4")
+                ),
+                SelectItem(
+                    value = Some("5"),
+                    text  = messages(s"$key.document-type.d5"),
+                    selected = form(s"$key").value.contains("5")
+                ),
+                SelectItem(
+                    value = Some("6"),
+                    text  = messages(s"$key.document-type.d6"),
+                    selected = form(s"$key").value.contains("6")
+                ),
+                SelectItem(
+                    value = Some("7"),
+                    text  = messages(s"$key.document-type.d7"),
+                    selected = form(s"$key").value.contains("7")
+                ),
+                SelectItem(
+                    value = Some("8"),
+                    text  = messages(s"$key.document-type.d8"),
+                    selected = form(s"$key").value.contains("8")
+                ),
+                SelectItem(
+                    value = Some("9"),
+                    text  = messages(s"$key.document-type.d9"),
+                    selected = form(s"$key").value.contains("9")
+                ),
+            ),
+            label = "",
+            isPageHeading = true
         )
     </div>
+
 
     @submitButton(messages("button.saveAndContinue"))
 

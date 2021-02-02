@@ -31,13 +31,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers, SupportingEvidence}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -96,56 +97,6 @@ class SupportingEvidenceController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def chooseSupportingEvidenceDocumentType(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        answers match {
-          case IncompleteSupportingEvidenceAnswers(evidenceType, _) =>
-            evidenceType match {
-              case Some(_) =>
-                Ok(
-                  chooseDocumentTypePage(
-                    SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
-                    routes.SupportingEvidenceController.checkYourAnswers()
-                  )
-                )
-              case None    =>
-                Ok(
-                  chooseDocumentTypePage(
-                    SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
-                    routes.SupportingEvidenceController.checkYourAnswers()
-                  )
-                )
-            }
-          case CompleteSupportingEvidenceAnswers(_, _)              =>
-            Ok(
-              chooseDocumentTypePage(
-                SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
-                routes.SupportingEvidenceController.checkYourAnswers()
-              )
-            )
-        }
-
-//        commonDisplayBehaviour(answers)(
-//          form = _.fold(
-//            _.doYouWantToUploadSupportingEvidence
-//              .fold(doYouWantToUploadForm)(doYouWantToUploadForm.fill),
-//            c => doYouWantToUploadForm.fill(c.doYouWantToUploadSupportingEvidence)
-//          )
-//        )(
-//          page = doYouWantToUploadPage(_, _, f.isAmendReturn)
-//        )(
-//          requiredPreviousAnswer = { _ => Some(()) },
-//          redirectToIfNoRequiredPreviousAnswer = controllers.returns.routes.TaskListController.taskList()
-//        )
-      }
-    }
-
-  def chooseSupportingEvidenceDocumentTypeSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData {
-      Ok("submitted")
-    }
-
   def uploadSupportingEvidence(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
@@ -159,10 +110,10 @@ class SupportingEvidenceController @Inject() (
               routes.SupportingEvidenceController.scanProgress
             )
             .fold(
-              //FIXME
-              _ =>
-                //logger.warn("could not start upload supporting evidence", e)
-                errorHandler.errorResult(),
+              e => {
+                logger.warn("could not start upload supporting evidence", e)
+                errorHandler.errorResult()
+              },
               uploadUpscan =>
                 Ok(
                   uploadPage(
@@ -216,17 +167,13 @@ class SupportingEvidenceController @Inject() (
 
             result.fold(
               e => {
-                logger.warn(
-                  s"could not update the status of upscan upload to uploaded : $e"
-                )
+                logger.warn(s"could not update the status of upscan upload to uploaded : $e")
                 errorHandler.errorResult()
               },
               upscanUpload =>
                 upscanUpload.upscanCallBack match {
                   case Some(_: UpscanSuccess) =>
-                    Redirect(
-                      routes.SupportingEvidenceController.checkYourAnswers()
-                    )
+                    Redirect(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference))
                   case Some(_: UpscanFailure) =>
                     Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures())
                   case None                   =>
@@ -234,9 +181,7 @@ class SupportingEvidenceController @Inject() (
                 }
             )
         }
-
       }
-
     }
 
   def scanProgressSubmit(
@@ -267,7 +212,8 @@ class SupportingEvidenceController @Inject() (
               upscanUpload.upscanUploadMeta,
               upscanUpload.uploadedOn,
               success,
-              success.fileName
+              success.fileName,
+              None
             )
           answers.copy(evidences = supportingEvidence :: answers.evidences)
 
@@ -278,13 +224,90 @@ class SupportingEvidenceController @Inject() (
     )
     val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-    //TODO: determine if we need to store the claim at this point
     EitherT(
       updateSession(sessionStore, request)(
         _.copy(journeyStatus = Some(newJourney))
       )
     )
   }
+
+  def chooseSupportingEvidenceDocumentType(uploadReference: UploadReference): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
+        answers match {
+          case _: IncompleteSupportingEvidenceAnswers | _: CompleteSupportingEvidenceAnswers =>
+            Ok(
+              chooseDocumentTypePage(
+                SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
+                uploadReference
+              )
+            )
+        }
+      }
+    }
+
+  def chooseSupportingEvidenceDocumentTypeSubmit(uploadReference: UploadReference): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
+        SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors => BadRequest(chooseDocumentTypePage(requestFormWithErrors, uploadReference)),
+            documentType => {
+              val updatedAnswers = answers.fold(
+                incomplete => {
+                  val fu: List[SupportingEvidence] =
+                    incomplete.evidences.filter(p => p.uploadReference === uploadReference)
+                  val s: SupportingEvidence        = fu.headOption match {
+                    case Some(fileUpload) =>
+                      fileUpload.copy(documentType = Some(documentType.supportingEvidenceDocumentType))
+                    case None             =>
+                      sys.error("could not find file upload")
+                  }
+                  incomplete.copy(
+                    evidences = incomplete.evidences
+                      .filterNot(_.uploadReference === uploadReference) :+ s
+                  )
+                },
+                { complete =>
+                  val fu: List[SupportingEvidence] =
+                    complete.evidences.filter(p => p.uploadReference === uploadReference)
+                  val s: SupportingEvidence        = fu.headOption match {
+                    case Some(fileUpload) =>
+                      fileUpload.copy(documentType = Some(documentType.supportingEvidenceDocumentType))
+                    case None             =>
+                      sys.error(s"could not find file upload with reference: $uploadReference")
+                  }
+                  val newEvidences                 = complete.evidences.filterNot(_.uploadReference === uploadReference)
+                  IncompleteSupportingEvidenceAnswers(
+                    newEvidences :+ s
+                  )
+                }
+              )
+              val newDraftClaim  = fillingOutClaim.draftClaim.fold(
+                _.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+              )
+              val newJourney     = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = for {
+                _ <- EitherT(
+                       updateSession(sessionStore, request)(
+                         _.copy(journeyStatus = Some(newJourney))
+                       )
+                     )
+              } yield ()
+
+              result.fold(
+                e => {
+                  logger.warn("Could not update session", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers())
+              )
+            }
+          )
+      }
+    }
 
   def deleteSupportingEvidence(
     uploadReference: UploadReference,
@@ -302,7 +325,6 @@ class SupportingEvidenceController @Inject() (
             val newEvidences = complete.evidences
               .filterNot(_.uploadReference === uploadReference)
             IncompleteSupportingEvidenceAnswers(
-              None, //FIXME
               newEvidences
             )
           }
@@ -314,7 +336,6 @@ class SupportingEvidenceController @Inject() (
         val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
         val result = for {
-          //TODO: determine if we need to store the draft claim at this point
           _ <- EitherT(
                  updateSession(sessionStore, request)(
                    _.copy(journeyStatus = Some(newJourney))
@@ -323,10 +344,10 @@ class SupportingEvidenceController @Inject() (
         } yield ()
 
         result.fold(
-          //FIXME
-          _ =>
-            //logger.warn("Could not update session", e)
-            errorHandler.errorResult(),
+          e => {
+            logger.warn("Could not update session", e)
+            errorHandler.errorResult()
+          },
           _ =>
             if (addNew)
               Redirect(
@@ -350,19 +371,15 @@ class SupportingEvidenceController @Inject() (
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
         val updatedAnswers: SupportingEvidenceAnswers = answers match {
           case IncompleteSupportingEvidenceAnswers(
-                d, //FIXME
                 evidences
               ) =>
             CompleteSupportingEvidenceAnswers(
-              d.getOrElse(""), //FIXME
               evidences
             )
           case CompleteSupportingEvidenceAnswers(
-                a, //FIXME
                 evidences
               ) =>
             CompleteSupportingEvidenceAnswers(
-              a, //FIXME
               evidences
             )
         }
@@ -373,7 +390,6 @@ class SupportingEvidenceController @Inject() (
         val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
         val result = for {
-          //TODO: determine if we need to store the draft claim at this point
           _ <- EitherT(
                  updateSession(sessionStore, request)(
                    _.copy(journeyStatus = Some(newJourney))
@@ -382,10 +398,10 @@ class SupportingEvidenceController @Inject() (
         } yield ()
 
         result.fold(
-          //FIXME
-          _ =>
-            //logger.warn("Could not update session", e)
-            errorHandler.errorResult(),
+          e => {
+            logger.warn("Could not update session", e)
+            errorHandler.errorResult()
+          },
           _ => Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers())
         )
       }
@@ -397,30 +413,26 @@ class SupportingEvidenceController @Inject() (
     answers match {
 
       case IncompleteSupportingEvidenceAnswers(
-            None, //FIXME
             supportingEvidences
           ) if supportingEvidences.isEmpty =>
         Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
       case IncompleteSupportingEvidenceAnswers(
-            None, //FIXME
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswers("", supportingEvidences),
+            CompleteSupportingEvidenceAnswers(supportingEvidences),
             maxUploads
           )
         )
 
       case CompleteSupportingEvidenceAnswers(
-            "", //FIXME
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
             CompleteSupportingEvidenceAnswers(
-              "", //FIXME
               supportingEvidences
             ),
             maxUploads
@@ -455,28 +467,28 @@ object SupportingEvidenceController {
           )
           .transform[SupportingEvidenceDocumentType](
             {
-              case 0 => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
-              case 1 => SupportingEvidenceDocumentType.AirWayBill
-              case 2 => SupportingEvidenceDocumentType.BillOfLading
-              case 3 => SupportingEvidenceDocumentType.C88E2
-              case 4 => SupportingEvidenceDocumentType.CommercialInvoice
-              case 5 => SupportingEvidenceDocumentType.CorrespondenceTrader
-              case 6 => SupportingEvidenceDocumentType.PackingList
+              case 0 => SupportingEvidenceDocumentType.C88E2
+              case 1 => SupportingEvidenceDocumentType.CommercialInvoice
+              case 2 => SupportingEvidenceDocumentType.PackingList
+              case 3 => SupportingEvidenceDocumentType.AirWayBill
+              case 4 => SupportingEvidenceDocumentType.BillOfLading
+              case 5 => SupportingEvidenceDocumentType.SubstituteEntry
+              case 6 => SupportingEvidenceDocumentType.ScheduleOfMRNs
               case 7 => SupportingEvidenceDocumentType.ProofOfAuthority
-              case 8 => SupportingEvidenceDocumentType.SubstituteEntry
-              case 9 => SupportingEvidenceDocumentType.ScheduleOfMRNs
+              case 8 => SupportingEvidenceDocumentType.CorrespondenceTrader
+              case 9 => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
             },
             {
-              case SupportingEvidenceDocumentType.AdditionalSupportingDocuments => 0
-              case SupportingEvidenceDocumentType.AirWayBill                    => 1
-              case SupportingEvidenceDocumentType.BillOfLading                  => 2
-              case SupportingEvidenceDocumentType.C88E2                         => 3
-              case SupportingEvidenceDocumentType.CommercialInvoice             => 4
-              case SupportingEvidenceDocumentType.CorrespondenceTrader          => 5
-              case SupportingEvidenceDocumentType.PackingList                   => 6
+              case SupportingEvidenceDocumentType.C88E2                         => 0
+              case SupportingEvidenceDocumentType.CommercialInvoice             => 1
+              case SupportingEvidenceDocumentType.PackingList                   => 2
+              case SupportingEvidenceDocumentType.AirWayBill                    => 3
+              case SupportingEvidenceDocumentType.BillOfLading                  => 4
+              case SupportingEvidenceDocumentType.SubstituteEntry               => 5
+              case SupportingEvidenceDocumentType.ScheduleOfMRNs                => 6
               case SupportingEvidenceDocumentType.ProofOfAuthority              => 7
-              case SupportingEvidenceDocumentType.SubstituteEntry               => 8
-              case SupportingEvidenceDocumentType.ScheduleOfMRNs                => 9
+              case SupportingEvidenceDocumentType.CorrespondenceTrader          => 8
+              case SupportingEvidenceDocumentType.AdditionalSupportingDocuments => 9
             }
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)

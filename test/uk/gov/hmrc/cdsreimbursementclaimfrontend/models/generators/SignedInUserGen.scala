@@ -17,19 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.gen
 
-object JourneyStatusGen extends JourneyStatusLowerPriorityGen with GenUtils {
-  implicit val journeyStatusGen: Gen[JourneyStatus] = gen[JourneyStatus]
-}
-
-trait JourneyStatusLowerPriorityGen { this: GenUtils =>
-
-  implicit val fillingOutClaimGen: Gen[FillingOutClaim] = gen[FillingOutClaim]
-
-  implicit val justSubmittedClaimGen: Gen[JustSubmittedClaim] = gen[JustSubmittedClaim]
-
-  implicit val submitClaimFailedGen: Gen[SubmitClaimFailed] = gen[SubmitClaimFailed]
-
+object SignedInUserDetailsGen { this: GenUtils =>
+  implicit val emailGen: Gen[Email]                             = gen[Email]
+  implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
 }

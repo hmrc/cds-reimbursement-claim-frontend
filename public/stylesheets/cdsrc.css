@@ -1,6 +1,9 @@
 .space-select{
     margin-bottom: 25px;
-    margin-top: 25px;
+}
+
+.space-document-type{
+    margin-top:20px;
 }
 h1.heading-xlarge, h1 {
     margin-bottom: 50px;

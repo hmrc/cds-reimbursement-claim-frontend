@@ -60,10 +60,21 @@ footer.govukHelp.url = https://www.gov.uk/help
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START
 #===================================================
-supporting-evidence.choose-document-type.title=Choose the type of document you need to upload to support your claim
+supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
 supporting-evidence.choose-document-type.error.required=Choose a document type to support your claim
 supporting-evidence.choose-document-type.caption=Supporting evidence
-supporting-evidence.choose-document-type.help-text=Select from the list below the document you have received for the commodities you imported
+supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
+supporting-evidence.choose-document-type=Examples of document types:
+supporting-evidence.choose-document-type.details.l0=C88/E2 (proof to authorise imports from the country of origin)
+supporting-evidence.choose-document-type.details.l1=Commercial invoice (shows the value of the goods)
+supporting-evidence.choose-document-type.details.l2=Packing list (document that states packaging details in each shipment)
+supporting-evidence.choose-document-type.details.l3=Air waybill (in your cargo documents)
+supporting-evidence.choose-document-type.details.l4=Bill of lading (this is a receipt of shipped goods)
+supporting-evidence.choose-document-type.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
+supporting-evidence.choose-document-type.details.l6=Schedule of MRNs (a list of previous MRN numbers)
+supporting-evidence.choose-document-type.details.l7=Proof of authority (from importer for duty to be repaid)
+supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
+supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 
 supporting-evidence.check-your-answers.title=Check your answers
 supporting-evidence.check-your-answers.caption=Supporting evidence
@@ -80,17 +91,6 @@ supporting-evidence.upload.error.required=Upload a file containing your supporti
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
 file.error.required=Select a file containing your supporting evidence
-supporting-evidence.upload.document-types=Examples of document types:
-supporting-evidence.upload.document-types.details.l1=C88/E2 (proof to authorise imports from the country of origin)
-supporting-evidence.upload.document-types.details.l2=commercial invoice (shows the value of the goods)
-supporting-evidence.upload.document-types.details.l3=packing list (document that states packaging details in each shipment)
-supporting-evidence.upload.document-types.details.l4=air waybill (in your cargo documents)
-supporting-evidence.upload.document-types.details.l5=bill of lading (this is a receipt of shipped goods)
-supporting-evidence.upload.document-types.details.l6=substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-supporting-evidence.upload.document-types.details.l7=schedule of MRNs (a list of previous MRN numbers)
-supporting-evidence.upload.document-types.details.l8=proof of authority (from importer for duty to be repaid)
-supporting-evidence.upload.document-types.details.l9=correspondence trader (an email chain or letters between you and the trader)
-supporting-evidence.upload.document-types.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.caption=Supporting evidence
@@ -113,6 +113,17 @@ supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of document
 supporting-evidence.scan-failed.p2=We only accept these documents types  JPG, PNG, PDF, DOC, and XLS
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
+
+supporting-evidence.choose-document-type.document-type.d0=C88/E2
+supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
+supporting-evidence.choose-document-type.document-type.d2=Packing List
+supporting-evidence.choose-document-type.document-type.d3=Air Waybill
+supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
+supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
+supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
+supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
+supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
+supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - END

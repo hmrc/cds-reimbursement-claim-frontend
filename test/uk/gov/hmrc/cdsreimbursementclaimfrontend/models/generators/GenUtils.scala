@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.stringGen
 import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.stringGen
+
+import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
+import java.util.UUID
 
 trait GenUtils {
 
   def gen[A](implicit arb: Arbitrary[A]): Gen[A] = arb.arbitrary
 
-  // define our own Arbitrary instance for String to generate more legible strings
   implicit val stringArb: Arbitrary[String] = Arbitrary(stringGen)
 
   implicit val longArb: Arbitrary[Long] = Arbitrary(
@@ -48,5 +49,7 @@ trait GenUtils {
             .ofInstant(Instant.ofEpochMilli(l), ZoneId.systemDefault())
         )
     )
+
+  implicit val uuidArb: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
 }

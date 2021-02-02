@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 
-object IdGen extends GenUtils {
+import java.time.LocalDateTime
 
-  implicit val ggCredIdGen: Gen[GGCredId] = gen[GGCredId]
+final case class SupportingEvidence(
+  uploadReference: UploadReference,
+  upscanUploadMeta: UpscanUploadMeta,
+  uploadedOn: LocalDateTime,
+  upscanSuccess: UpscanSuccess,
+  fileName: String,
+  documentType: Option[SupportingEvidenceDocumentType]
+)
 
-  implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
-
-  implicit val eoriGen: Gen[Eori] = gen[Eori]
+object SupportingEvidence {
+  implicit val format: OFormat[SupportingEvidence] = Json.format
 }

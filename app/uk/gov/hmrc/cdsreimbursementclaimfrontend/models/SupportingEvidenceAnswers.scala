@@ -16,40 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import java.time.LocalDateTime
 import julienrf.json.derived
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUploadMeta}
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 
 sealed trait SupportingEvidenceAnswers extends Product with Serializable
 
 object SupportingEvidenceAnswers {
 
-  final case class SupportingEvidence(
-    uploadReference: UploadReference,
-    upscanUploadMeta: UpscanUploadMeta,
-    uploadedOn: LocalDateTime,
-    upscanSuccess: UpscanSuccess,
-    fileName: String
-  )
-
-  object SupportingEvidence {
-    implicit val format: OFormat[SupportingEvidence] = Json.format
-  }
-
   final case class IncompleteSupportingEvidenceAnswers(
-    evidenceType: Option[String],
     evidences: List[SupportingEvidence]
   ) extends SupportingEvidenceAnswers
 
   object IncompleteSupportingEvidenceAnswers {
     val empty: IncompleteSupportingEvidenceAnswers =
-      IncompleteSupportingEvidenceAnswers(None, List.empty)
+      IncompleteSupportingEvidenceAnswers(List.empty)
   }
 
   final case class CompleteSupportingEvidenceAnswers(
-    evidenceType: String,
     evidences: List[SupportingEvidence]
   ) extends SupportingEvidenceAnswers
 
@@ -65,10 +49,7 @@ object SupportingEvidenceAnswers {
         case i: IncompleteSupportingEvidenceAnswers => ifIncomplete(i)
         case c: CompleteSupportingEvidenceAnswers   => ifComplete(c)
       }
-
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
   implicit val format: OFormat[SupportingEvidenceAnswers] = derived.oformat()
-
 }

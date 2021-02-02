@@ -16,39 +16,34 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 
-import cats.data.EitherT
-import cats.instances.future._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.{Call, Result}
+import play.api.mvc.Result
+import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, RedirectToStartBehaviour, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftReturnGen.draftC285ClaimGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.IncompleteSupportingEvidenceAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftReturnGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.FileUploadGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen.fillingOutClaimGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.UUIDGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftC285Claim, Error, SessionData, SupportingEvidenceAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, UUIDGenerator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SupportingEvidenceControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks
-    with RedirectToStartBehaviour {
+    with ScalaCheckDrivenPropertyChecks {
 
   val mockUUIDGenerator = mock[UUIDGenerator]
 
@@ -58,7 +53,6 @@ class SupportingEvidenceControllerSpec
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionStore),
-      //     bind[ClaimService].toInstance(mockClaimService),
       bind[UpscanService].toInstance(mockUpscanService),
       bind[UUIDGenerator].toInstance(mockUUIDGenerator)
     )
@@ -69,55 +63,23 @@ class SupportingEvidenceControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  def mockUpscanInitiate(
-    errorRedirectCall: Call,
-    successRedirectCall: UploadReference => Call
-  )(
-    result: Either[Error, UpscanUpload]
-  ) =
-    (mockUpscanService
-      .initiate(_: Call, _: UploadReference => Call)(_: HeaderCarrier))
-      .expects(
-        where {
-          (
-            actualErrorRedirectCall: Call,
-            actualSuccessRedirectCall: UploadReference => Call,
-            _: HeaderCarrier
-          ) =>
-            val uploadReference = sample[UploadReference]
-            actualErrorRedirectCall shouldBe errorRedirectCall
-            actualSuccessRedirectCall(
-              uploadReference
-            )                       shouldBe successRedirectCall(uploadReference)
-            true
-        }
-      )
-      .returning(EitherT.fromEither(result))
-
-  def mockGetUpscanUpload(uploadReference: UploadReference)(
-    result: Either[Error, UpscanUpload]
-  ) =
-    (mockUpscanService
-      .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
-      .expects(uploadReference, *)
-      .returning(EitherT.fromEither[Future](result))
-
-  def redirectToStartBehaviour(performAction: () => Future[Result]) =
-    redirectToStartWhenInvalidJourney(
-      performAction,
-      {
-        case _: FillingOutClaim => true
-        case _                  => false
-      }
-    )
-
   def sessionWithClaimState(
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswers]
+    newSupportingEvidenceAnswers: Option[SupportingEvidenceAnswers]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftClaim = sample[DraftC285Claim].copy(
-      supportingEvidenceAnswers = supportingEvidenceAnswers
+
+    val _ = DraftC285Claim.newDraftC285Claim.copy(
+      supportingEvidenceAnswers = newSupportingEvidenceAnswers
     )
-    val journey    = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+    val ggCredId            = sample[GGCredId]
+    val signedInUserDetails = sample[SignedInUserDetails]
+    val draftClaim          = sample[DraftC285Claim]
+
+    val journey = FillingOutClaim(
+      ggCredId,
+      signedInUserDetails,
+      draftClaim
+    )
     (
       SessionData.empty.copy(
         journeyStatus = Some(journey)
@@ -127,37 +89,37 @@ class SupportingEvidenceControllerSpec
     )
   }
 
-  def testFormError(
-    data: (String, String)*
-  )(
-    expectedErrorMessageKey: String,
-    errorArgs: Seq[String] = Nil
-  )(pageTitleKey: String, titleArgs: String*)(
-    performAction: Seq[(String, String)] => Future[Result],
-    currentSession: SessionData = sessionWithClaimState(
-      Some(sample[CompleteSupportingEvidenceAnswers])
-    )._1
-  ): Unit = {
-    inSequence {
-      mockAuthWithNoRetrievals()
-      mockGetSession(currentSession)
-    }
-    checkPageIsDisplayed(
-      performAction(data),
-      messageFromMessageKey(pageTitleKey, titleArgs: _*),
-      { doc =>
-        doc
-          .select("#error-summary-display > ul > li > a")
-          .text() shouldBe messageFromMessageKey(
-          expectedErrorMessageKey,
-          errorArgs: _*
-        )
-        doc.title() should startWith("Error:")
-      },
-      BAD_REQUEST
-    )
-  }
+  "Supporting Evidence Controller" when {
 
-  "Supporting Evidence Controller" when {}
+    "handling requests to upload supporting evidence" must {
+
+      def performAction(): Future[Result] = controller.uploadSupportingEvidence()(FakeRequest())
+
+      "show check your answers page" when {
+
+        "the number of uploads have reached the maximum allowed" in {
+          val supportingEvidence = sample[SupportingEvidence]
+
+          val answers = IncompleteSupportingEvidenceAnswers(
+            evidences = List.fill(2)(supportingEvidence)
+          )
+
+          val (session, _, _) = sessionWithClaimState(Some(answers))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.SupportingEvidenceController.checkYourAnswers()
+          )
+        }
+      }
+
+    }
+
+  }
 
 }
