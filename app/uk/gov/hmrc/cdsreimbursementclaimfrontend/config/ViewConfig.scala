@@ -41,14 +41,14 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
     servicesConfig.getDuration("gg.countdown").toSeconds
 
   val ggKeepAliveUrl: String =
-    "/capital-gains-tax-uk-property" + routes.StartController.keepAlive().url
+    "/claim-for-reimbursement-of-import-duties" + routes.StartController.keepAlive().url
 
-  val ggTimedOutUrl: String = signOutUrl + "?continue=/capital-gains-tax-uk-property" + routes.StartController
+  val ggTimedOutUrl: String = signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
     .timedOut()
     .url
 
   val ggSignOut: String =
-    signOutUrl + "?continue=/capital-gains-tax-uk-property" + routes.StartController
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
       .start()
       .url
 
