@@ -18,7 +18,6 @@
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.SelectItem
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Select
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Label
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.HtmlContent
@@ -31,12 +30,8 @@
     id: String,
     name: String,
     items: Seq[SelectItem],
-    label: String,
-    isPageHeading: Boolean,
-    headingMessageArgs: Seq[String] = Seq(),
     hint: Option[String] = None,
     classes: Option[String] = None,
-    labelClasses: Option[String] = None,
     attributes: Map[String, String] = Map.empty
 )(implicit messages: Messages)
 
@@ -46,11 +41,6 @@
             id = id,
             name = name,
             items = Seq(SelectItem.defaultObject) ++ items,
-            label = Label(
-                content = Text(messages(label, headingMessageArgs:_*)),
-                isPageHeading = isPageHeading,
-                classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
-            ),
             hint = hint.map(hintKey => Hint(
                 content = HtmlContent(messages(hintKey))
             )),

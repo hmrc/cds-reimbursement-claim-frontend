@@ -18,16 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
-import org.scalacheck.ScalacheckShapeless._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 
-object IdGen extends GenUtils {
+object UserTypeGen extends GenUtils {
 
-  implicit val ggCredIdGen: Gen[GGCredId] = gen[GGCredId]
+  implicit val userTypeGen: Gen[UserType] = gen[UserType]
 
-  implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
-
-  implicit val eoriGen: Gen[Eori] = gen[Eori]
 }

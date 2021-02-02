@@ -57,27 +57,6 @@ class CheckYourAnswersAndSubmitController @Inject() (
       Ok("implement submission")
     }
 
-//  private def submitClaim(
-//    completeClaim: CompleteClaim,
-//    fillingOutClaim: FillingOutClaim,
-//    language: Lang
-//  )(implicit
-//    hc: HeaderCarrier
-//  ): Future[SubmitClaimResult] = {
-//    //FIXME: take out
-//    println(s"${fillingOutClaim.toString}")
-//    println(s"{language is:${language.toString}")
-//    submitClaimService
-//      .submitClaim(
-//        Json.toJson(completeClaim)
-//      )
-//      .bimap(
-//        SubmitClaimError,
-//        _ => SubmitClaimSuccess(SubmitClaimResponse("some case number", "some pay system", "some processing date"))
-//      )
-//      .merge
-//  }
-
   def submissionError(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSubmitClaimFailedOrSubscribed(request)(_ => Ok(submitClaimFailedPage()))

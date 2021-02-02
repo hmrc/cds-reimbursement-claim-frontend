@@ -92,7 +92,7 @@ class DefaultUpscanConnector @Inject() (
   ): EitherT[Future, Error, HttpResponse] = {
 
     val payload = UpscanInitiateRequest(
-      backEndBaseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}", //FIXME
+      backEndBaseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}",
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
@@ -133,7 +133,7 @@ class DefaultUpscanConnector @Inject() (
   ): EitherT[Future, Error, HttpResponse] = {
 
     val url =
-      backEndBaseUrl + s"/cds-reimbursement-claim/upscan/upload-reference/${uploadReference.value}" //FIXME
+      backEndBaseUrl + s"/cds-reimbursement-claim/upscan/upload-reference/${uploadReference.value}"
 
     EitherT[Future, Error, HttpResponse](
       http
@@ -155,7 +155,7 @@ class DefaultUpscanConnector @Inject() (
   override def saveUpscanUpload(
     upscanUpload: UpscanUpload
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
-    val url = backEndBaseUrl + s"/cds-reimbursement-claim/upscan" //FIXME
+    val url = backEndBaseUrl + s"/cds-reimbursement-claim/upscan"
 
     EitherT[Future, Error, HttpResponse](
       http

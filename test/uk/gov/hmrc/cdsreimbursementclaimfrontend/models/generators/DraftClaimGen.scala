@@ -20,6 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import org.scalacheck.ScalacheckShapeless._
 
 object DraftReturnGen extends HigherPriorityDraftReturnGen with GenUtils
 

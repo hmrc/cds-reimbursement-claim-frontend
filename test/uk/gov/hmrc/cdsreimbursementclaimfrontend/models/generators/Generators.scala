@@ -27,7 +27,8 @@ object Generators {
   implicit val longGen: Gen[Long] =
     Gen.choose(-5e13.toLong, 5e13.toLong)
 
-  implicit def listGen[A](g: Gen[A]): Gen[List[A]] = Gen.listOf(g)
+  implicit def listGen[A](g: Gen[A]): Gen[List[A]]   = Gen.listOf(g)
+  implicit def someGen[A](g: Gen[A]): Gen[Option[A]] = Gen.some(g)
 
   def sample[A](implicit gen: Gen[A]): A =
     gen.sample.getOrElse(sys.error(s"Could not generate instance with $gen"))

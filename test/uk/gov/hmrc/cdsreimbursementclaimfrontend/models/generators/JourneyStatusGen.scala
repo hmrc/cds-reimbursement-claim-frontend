@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
+import org.scalacheck.ScalacheckShapeless._
 
 object JourneyStatusGen extends JourneyStatusLowerPriorityGen with GenUtils {
   implicit val journeyStatusGen: Gen[JourneyStatus] = gen[JourneyStatus]

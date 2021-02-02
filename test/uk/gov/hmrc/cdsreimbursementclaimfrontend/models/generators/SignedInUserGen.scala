@@ -20,6 +20,7 @@ import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.gen
+import org.scalacheck.ScalacheckShapeless._
 
 object SignedInUserDetailsGen { this: GenUtils =>
   implicit val emailGen: Gen[Email]                             = gen[Email]

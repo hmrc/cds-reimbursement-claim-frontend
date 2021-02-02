@@ -178,6 +178,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     status(result)                             shouldBe expectedStatus
 
     val doc = Jsoup.parse(contentAsString(result))
+
     doc.select("h1").text should include(expectedTitle)
 
     val bodyText = doc.select("body").text

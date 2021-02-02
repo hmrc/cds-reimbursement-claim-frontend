@@ -22,17 +22,17 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "org.scalatest"              %% "scalatest"                      % "3.2.3"          % Test,
-    "org.jsoup"                   % "jsoup"                          % "1.13.1"         % Test,
-    "com.typesafe.play"          %% "play-test"                      % current          % Test,
-    "org.scalamock"              %% "scalamock"                      % "5.1.0"          % Test,
-    "org.scalatestplus"          %% "scalacheck-1-15"                % "3.2.3.0"        % Test,
-    "org.scalatestplus.play"     %% "scalatestplus-play"             % "4.0.3"          % Test,
-    "uk.gov.hmrc"                %% "reactivemongo-test"             % "4.22.0-play-27" % Test,
-    "com.github.alexarchambault" %% "scalacheck-shapeless_1.14"      % "1.2.5"          % Test,
-    "com.vladsch.flexmark"        % "flexmark-all"                   % "0.36.8"         % "test, it",
-    "org.pegdown"                 % "pegdown"                        % "1.6.0"          % "test, it",
-    "com.typesafe.akka"          %% "akka-testkit"                   % "2.6.5"          % Test
+    "org.scalatest"              %% "scalatest"                 % "3.2.3"          % Test,
+    "org.jsoup"                   % "jsoup"                     % "1.13.1"         % Test,
+    "com.typesafe.play"          %% "play-test"                 % current          % Test,
+    "org.scalamock"              %% "scalamock"                 % "5.1.0"          % Test,
+    "org.scalatestplus"          %% "scalacheck-1-14"           % "3.2.0.0"        % Test,
+    "org.scalatestplus.play"     %% "scalatestplus-play"        % "4.0.3"          % Test,
+    "uk.gov.hmrc"                %% "reactivemongo-test"        % "4.22.0-play-27" % Test,
+    "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"          % Test,
+    "com.vladsch.flexmark"        % "flexmark-all"              % "0.36.8"         % "test, it",
+    "org.pegdown"                 % "pegdown"                   % "1.6.0"          % "test, it",
+    "com.typesafe.akka"          %% "akka-testkit"              % "2.6.5"          % Test
   )
 
 }

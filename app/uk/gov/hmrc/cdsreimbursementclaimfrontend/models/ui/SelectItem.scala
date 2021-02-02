@@ -26,6 +26,9 @@ final case class SelectItem(
 
 object SelectItem {
 
-  def defaultObject: SelectItem = SelectItem()
+  def defaultObject: SelectItem = SelectItem(
+    Some("Select"),
+    "Select"
+  )
 
 }

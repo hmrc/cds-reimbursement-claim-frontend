@@ -58,9 +58,23 @@ footer.govukHelp.url = https://www.gov.uk/help
 #===================================================
 
 #===================================================
+#  BANK DETAILS - START
+#===================================================
+
+bank-details.title=Check these bank details are correct
+bank-details.caption=Bank Details
+bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
+
+#===================================================
+#  BANK DETAILS - END
+#===================================================
+
+
+#===================================================
 #  SUPPORTING EVIDENCE PAGES - START
 #===================================================
 supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
+supporting-evidence.choose-document-type.error.number=Choose a document type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a document type to support your claim
 supporting-evidence.choose-document-type.caption=Supporting evidence
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.

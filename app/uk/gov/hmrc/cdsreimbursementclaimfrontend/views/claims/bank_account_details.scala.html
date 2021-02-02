@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import org.scalacheck.ScalacheckShapeless._
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template
+)
 
-object EmailGen extends GenUtils {
-  implicit val emailGen: Gen[Email] = gen[Email]
+@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-}
+ @key = @{"bank-details"}
+ @title = @{messages(s"$key.title")}
+
+ @mainTemplate(title = title, userType = None){
+  <h1> Bank Details </h1>
+ }
