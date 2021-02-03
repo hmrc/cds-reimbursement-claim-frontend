@@ -43,9 +43,10 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
   val ggKeepAliveUrl: String =
     "/claim-for-reimbursement-of-import-duties" + routes.StartController.keepAlive().url
 
-  val ggTimedOutUrl: String = signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
-    .timedOut()
-    .url
+  val ggTimedOutUrl: String =
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
+      .timedOut()
+      .url
 
   val ggSignOut: String =
     signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController

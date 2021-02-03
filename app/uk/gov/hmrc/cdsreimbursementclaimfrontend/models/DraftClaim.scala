@@ -27,12 +27,6 @@ sealed trait DraftClaim extends Product with Serializable
 
 object DraftClaim {
 
-  final case class DraftC285Claim2(
-    id: UUID,
-    supportingEvidenceAnswers: SupportingEvidenceAnswers,
-    lastUpdatedDate: LocalDate
-  ) extends DraftClaim
-
   final case class DraftC285Claim(
     id: UUID,
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
