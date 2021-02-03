@@ -20,7 +20,8 @@ import cats.Eq
 import play.api.libs.json.{Format, Json}
 
 final case class SessionData(
-  data: Option[String] // dummy field for now
+  journeyStatus: Option[JourneyStatus],
+  userType: Option[UserType]
 )
 
 object SessionData {
@@ -29,6 +30,6 @@ object SessionData {
 
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
-  val empty: SessionData = SessionData(None)
+  val empty: SessionData = SessionData(None, None)
 
 }

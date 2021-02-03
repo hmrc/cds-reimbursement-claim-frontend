@@ -18,12 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
 import cats.data.EitherT._
 import cats.implicits._
+import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging.LoggerOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
@@ -41,7 +42,7 @@ class SubmitClaimController @Inject() (eisService: SubmitClaimService)(implicit
       case "GET"  => rightT[Future, Error](testRequestBody)
       case "POST" => fromOption[Future](request.body.asJson, Error("Request Body is not Json!"))
     })
-      .flatMap(eisService.submitClaim)
+      .flatMap(j => eisService.submitClaim(j, Lang.defaultLang))
       .fold(
         e => {
           logger.warn(s"could not submit claim", e)

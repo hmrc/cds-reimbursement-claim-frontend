@@ -20,7 +20,7 @@ import cats.data.EitherT
 import cats.syntax.eq._
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status
-import uk.gov.hmrc.cdsreimbursementclaim.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.GetDeclarationConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, GetDeclarationResponse, MRN}
 import uk.gov.hmrc.http.HeaderCarrier

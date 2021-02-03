@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import org.scalamock.scalatest.MockFactory
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.cdsreimbursementclaim.connectors.HttpSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.test.BaseSpec
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
