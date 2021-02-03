@@ -40,10 +40,6 @@ trait Implicits {
     def rtrim: Html =
       Html(html.toString.rtrim)
 
-    /** Based on the behaviour of [[https://mozilla.github.io/nunjucks/templating.html#indent]]
-      * @param n
-      * @param indentFirstLine
-      */
     def indent(n: Int, indentFirstLine: Boolean = false): Html =
       Html(html.toString.indent(n, indentFirstLine))
 
@@ -60,12 +56,6 @@ trait Implicits {
 
     def rtrim = s.replaceAll("\\s+$", "")
 
-    /** Indent a (multiline) string <code>n</code> spaces.
-      * @param n Number of spaces to indent the string. It can be a negative value, in which case it attempts to unindent
-      *          n spaces, as much as possible until it hits the margin.
-      * @param indentFirstLine
-      * @return
-      */
     def indent(n: Int, indentFirstLine: Boolean = false): String = {
       @scala.annotation.tailrec
       def recurse(m: Int, lines: Seq[String]): Seq[String] = m match {
@@ -93,22 +83,11 @@ trait Implicits {
       }
     }
 
-    /** Implements [[https://mozilla.github.io/nunjucks/templating.html#capitalize]].
-      * Unlike Scala's [[scala.collection.immutable.StringLike#capitalize()]] Nunjucks' capitalize converts the first
-      * letter to uppercase and the rest to lowercase.
-      *
-      * @return
-      */
     def nunjucksCapitalize: String =
       s.toLowerCase.capitalize
 
   }
 
-  /** Mapping, folding and getOrElse on Option[String] for non-empty strings.
-    * Commonly used in the Twirl components.
-    *
-    * @param optString
-    */
   implicit class RichOptionString(optString: Option[String]) {
     def mapNonEmpty[T](f: String => T): Option[T] =
       optString.filter(_.nonEmpty).map(f)
@@ -120,11 +99,6 @@ trait Implicits {
       optString.filter(_.nonEmpty).getOrElse(default)
   }
 
-  /** Extension methods to convert from [[FormError]] to other types used in components to display errors
-    *
-    * @param formErrors
-    * @param messages
-    */
   implicit class RichFormErrors(formErrors: Seq[FormError])(implicit messages: Messages) {
 
     def asHtmlErrorLinks: Seq[ErrorLink] =
