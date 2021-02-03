@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaim.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.api.Logger
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error

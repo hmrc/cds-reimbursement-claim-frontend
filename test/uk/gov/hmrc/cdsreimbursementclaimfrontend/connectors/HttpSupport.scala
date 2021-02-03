@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaim.connectors
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
+import org.scalamock.handlers.{CallHandler4, CallHandler7}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Writes
@@ -28,7 +29,36 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   val mockHttp: HttpClient = mock[HttpClient]
 
-  def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(result: Either[Throwable, HttpResponse]) =
+  def mockGet[A](
+    url: String
+  )(
+    response: Either[Throwable, A]
+  ): CallHandler4[String, HttpReads[A], HeaderCarrier, ExecutionContext, Future[A]] =
+    (mockHttp
+      .GET(_: String)( //TODO: make one for accepting only URL
+        _: HttpReads[A],
+        _: HeaderCarrier,
+        _: ExecutionContext
+      ))
+      .expects(where {
+        (
+          u: String,
+          _: HttpReads[A],
+          _: HeaderCarrier,
+          _: ExecutionContext
+        ) ⇒
+          u shouldBe url
+          true
+      })
+      .returning(
+        response.fold[Future[A]](Future.failed, Future.successful)
+      )
+
+  def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(
+    result: Either[Throwable, HttpResponse]
+  ): CallHandler7[String, A, Seq[(String, String)], Writes[A], HttpReads[
+    HttpResponse
+  ], HeaderCarrier, ExecutionContext, Future[HttpResponse]] =
     (mockHttp
       .POST(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],

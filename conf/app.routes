@@ -1,11 +1,13 @@
-# microservice specific routes
+GET /exit/cannot-check-details                                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
+GET /start                                                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
+GET /sign-out-and-register-for-gg                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
+GET /sign-out-and-log-in                                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()
+GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
+GET /keep-alive                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
-->         /govuk-frontend          govuk.Routes
-->         /hmrc-frontend           hmrcfrontend.Routes
-GET        /assets/*file            controllers.Assets.versioned(path = "/public", file: Asset)
+GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
+GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish
 
-GET        /start                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartPageController.onPageLoad
+GET /accessibility-statement                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
-GET        /not-subscribed-for-cds  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.onPageLoad
-
-
+GET /assets/*file                                                           controllers.Assets.at(path="/public", file)

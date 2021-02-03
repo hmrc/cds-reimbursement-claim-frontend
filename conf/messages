@@ -1,6 +1,48 @@
+lang=en
 service.name = cds-reimbursement-claim-frontend
-service.homePageUrl = /cds-reimbursement-claim-frontend
-service.text = This is your new service
+service.title=Claim for reimbursement of import duties
+service.signOut=Sign out
+hmrc_branding=HM Revenue & Customs
+exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
+
+#===================================================
+#  GLOBAL MESSAGES
+#===================================================
+
+button.continue=Continue
+button.saveAndContinue=Save and continue
+button.confirmAndContinue=Confirm and continue
+
+generic.back=Back
+
+cya.change=Change
+cya.delete=Delete
+cya.remove=Remove
+cya.add=Add
+
+language-switcher.english.hidden=Change the language to English
+language-switcher.english=English
+language-switcher.english.hover=Use this account in English
+language-switcher.welsh=Cymraeg
+language-switcher.welsh.hidden=Newid yr iaith i’r Gymraeg
+language-switcher.welsh.hover=Defnyddio’r cyfrif hwn yn Cymraeg
+language-switcher.nav=Language switcher
+
+error.summary.heading=There’s a problem
+
+signed-out.title=You’ve signed out
+signed-out.p1=You’ve signed out of your Capital Gains Tax on UK property account.
+signed-out.p2=You can <a href="{0}">sign in</a> to your account.
+signed-out.button=Go to GOV.UK
+
+timed-out.title=For your security, we signed you out
+timed-out.p1=This was because you were inactive for too long.
+timed-out.p2=To access your Capital Gains on UK property account, you’ll need to sign in.
+timed-out.button=Sign in
+
+recruitment-banner.message=Help improve GOV.UK
+recruitment-banner.dismiss=No thanks
+recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies
@@ -11,14 +53,131 @@ footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
 
+#===================================================
+#  MESSAGES FOR PAGES
+#===================================================
 
-# Not subscribed to CDS
-not-subscribed-to-cds.title=Not registered with CDS
-not-subscribed-to-cds.heading=You need a valid EORI number to use the Customs Declaration Service (CDS)
-not-subscribed-to-cds.info=Your subscription to CDS is not valid. To use this service, you must have a valid EORI number associated with your Government Gateway user ID and password.
-not-subscribed-to-cds.eori-info-heading=How to get an EORI number
-not-subscribed-to-cds.eori-info-p1=You can
-not-subscribed-to-cds.eori-link=apply for an EORI number
-not-subscribed-to-cds.eori-info-p2=and return to the Government Gateway login page once your EORI number is associated with your login details.
+#===================================================
+#  BANK DETAILS - START
+#===================================================
+
+bank-details.title=Check these bank details are correct
+bank-details.caption=Bank Details
+bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
+
+#===================================================
+#  BANK DETAILS - END
+#===================================================
 
 
+#===================================================
+#  SUPPORTING EVIDENCE PAGES - START
+#===================================================
+supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
+supporting-evidence.choose-document-type.error.number=Choose a document type to support your claim
+supporting-evidence.choose-document-type.error.required=Choose a document type to support your claim
+supporting-evidence.choose-document-type.caption=Supporting evidence
+supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
+supporting-evidence.choose-document-type=Examples of document types:
+supporting-evidence.choose-document-type.details.l0=C88/E2 (proof to authorise imports from the country of origin)
+supporting-evidence.choose-document-type.details.l1=Commercial invoice (shows the value of the goods)
+supporting-evidence.choose-document-type.details.l2=Packing list (document that states packaging details in each shipment)
+supporting-evidence.choose-document-type.details.l3=Air waybill (in your cargo documents)
+supporting-evidence.choose-document-type.details.l4=Bill of lading (this is a receipt of shipped goods)
+supporting-evidence.choose-document-type.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
+supporting-evidence.choose-document-type.details.l6=Schedule of MRNs (a list of previous MRN numbers)
+supporting-evidence.choose-document-type.details.l7=Proof of authority (from importer for duty to be repaid)
+supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
+supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+
+supporting-evidence.check-your-answers.title=Check your answers
+supporting-evidence.check-your-answers.caption=Supporting evidence
+supporting-evidence.check-your-answers.file-label=Document {0}
+supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
+supporting-evidence.check-your-answers.cya-change=Change
+supporting-evidence.check-your-answers.assistive=the file named {0}
+supporting-evidence.check-your-answers.cya-delete=Delete
+supporting-evidence.check-your-answers.add-another-file=Add another file
+
+supporting-evidence.upload.title=Upload a document with your supporting evidence
+supporting-evidence.upload.caption=Supporting evidence
+supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
+supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
+supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
+file.error.required=Select a file containing your supporting evidence
+
+supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
+supporting-evidence.scan-progress.caption=Supporting evidence
+supporting-evidence.scan-progress.p1=We are checking your document.
+supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+
+supporting-evidence.upload-failed.title=Sorry, there is a problem
+supporting-evidence.upload-failed.p1=We could not scan your document.
+supporting-evidence.upload-failed.p2=This could be because:
+supporting-evidence.upload-failed.bullet1=the service has a technical issue
+supporting-evidence.upload-failed.bullet2=your document was larger than 10MB
+supporting-evidence.upload-failed.p3=You’ll need to try again.
+supporting-evidence.upload-failed.button.tryAgain=Try again
+
+supporting-evidence.scan-failed.title=There is a problem with your document
+supporting-evidence.scan-failed.p1=The problem could be that:
+supporting-evidence.scan-failed.bullet1=the document had a virus or was corrupt
+supporting-evidence.scan-failed.bullet2=you did not select a document to upload
+supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of document
+supporting-evidence.scan-failed.p2=We only accept these documents types  JPG, PNG, PDF, DOC, and XLS
+supporting-evidence.scan-failed.p3=You’ll need to try again.
+supporting-evidence.scan-failed.button.tryAgain=Try again
+
+supporting-evidence.choose-document-type.document-type.d0=C88/E2
+supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
+supporting-evidence.choose-document-type.document-type.d2=Packing List
+supporting-evidence.choose-document-type.document-type.d3=Air Waybill
+supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
+supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
+supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
+supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
+supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
+supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
+
+#===================================================
+#  SUPPORTING EVIDENCE PAGES - END
+#===================================================
+
+#===================================================
+#  ACCESSIBILITY - START
+#===================================================
+
+accessibilityStatement.caption=Claim for reimbursement of import duties
+accessibilityStatement.title=Accessibility statement
+accessibilityStatement.p1=This accessibility statement explains how accessible this service is, what to do if you have difficulty using it, and how to report accessibility problems with the service.
+accessibilityStatement.p2=This service is part of the wider GOV.UK website. There is a separate <a href="{0}">accessibility statement</a> for the main GOV.UK website.
+accessibilityStatement.p3=This page only contains information about the Report and pay Capital Gains Tax on UK property service, available at {0}.
+accessibilityStatement.usingThisService.title=Using this service
+accessibilityStatement.usingThisService.p1=You can use this service to report the disposal of UK residential property or land (made from 6 April 2020). You can also view your previous and current returns.
+accessibilityStatement.usingThisService.p2=This service is run by HM Revenue and Customs (HMRC).
+accessibilityStatement.usingThisService.p3=We want as many people as possible to be able to use this service. This means you should be able to:
+accessibilityStatement.usingThisService.li1=change colours, contrast levels and fonts
+accessibilityStatement.usingThisService.li2=zoom in up to 300% without the text spilling off the screen
+accessibilityStatement.usingThisService.li3=get from the start of the service to the end using just a keyboard
+accessibilityStatement.usingThisService.li4=get from the start of the service to the end using speech recognition software
+accessibilityStatement.usingThisService.li5=listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
+accessibilityStatement.usingThisService.p4=We have also made the text in the service as simple as possible to understand.
+accessibilityStatement.usingThisService.p5=<a href="{0}">AbilityNet</a> has advice on making your device easier to use if you have a disability.
+accessibilityStatement.howAccessible.title=How accessible this service is
+accessibilityStatement.howAccessible.p1=HMRC is committed to making this service accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
+accessibilityStatement.howAccessible.p2=This service was tested on 15 May 2020 by the Digital Accessibility Centre. It was found to be compliant with the <a href="{0}">Web Content Accessibility Guidelines version 2.1 AAA standard</a>. Since then, it has been extended. We cannot be certain that it is fully compliant. The full service will be tested by HMRC within the next three months.
+accessibilityStatement.reportingProblems.title=Reporting accessibility problems with this service
+accessibilityStatement.reportingProblems.p1=We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, report the <a href="{0}" target="_blank">accessibility problem (opens in a new window or tab)</a>.
+accessibilityStatement.notHappy.title=What to do if you are not happy with how we respond to your complaint
+accessibilityStatement.notHappy.p1=The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint, <a href="{0}">contact the Equality Advisory and Support Service (EASS)</a>, or the <a href="{1}">Equality Commission for Northern Ireland (ECNI)</a> if you live in Northern Ireland.
+accessibilityStatement.contactingUs.title=Contacting us by phone or getting a visit from us in person
+accessibilityStatement.contactingUs.p1=We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
+accessibilityStatement.contactingUs.p2=We can provide a British Sign Language (BSL) interpreter, or you can arrange a visit from an HMRC advisor to help you complete the service.
+accessibilityStatement.contactingUs.p3=Find out how to <a href="{0}">contact us</a>.
+accessibilityStatement.howWeTested.title=How we tested this service
+accessibilityStatement.howWeTested.p1=The service was tested on 15 May 2020 and checked for compliance with WCAG 2.1 AAA. It was built using parts that were tested by the <a href="{0}">Digital Accessibility Centre</a>.
+accessibilityStatement.howWeTested.p2=This page was prepared on 6 April 2020. It was last updated on 14 September 2020.
+
+#===================================================
+#  ACCESSIBILITY - START
+#===================================================
