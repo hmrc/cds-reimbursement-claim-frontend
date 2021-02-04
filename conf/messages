@@ -31,7 +31,7 @@ language-switcher.nav=Language switcher
 error.summary.heading=There’s a problem
 
 signed-out.title=You’ve signed out
-signed-out.p1=You’ve signed out of your Capital Gains Tax on UK property account.
+signed-out.p1=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
 signed-out.p2=You can <a href="{0}">sign in</a> to your account.
 signed-out.button=Go to GOV.UK
 
