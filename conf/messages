@@ -108,7 +108,7 @@ file.error.required=Select a file containing your supporting evidence
 
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.caption=Supporting evidence
-supporting-evidence.scan-progress.p1=We are checking your document.
+supporting-evidence.scan-progress.p1=We are checking your file.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
 
 supporting-evidence.upload-failed.title=Sorry, there is a problem
