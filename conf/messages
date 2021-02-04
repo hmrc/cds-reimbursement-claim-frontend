@@ -112,11 +112,11 @@ supporting-evidence.scan-progress.caption=Supporting evidence
 supporting-evidence.scan-progress.p1=We are checking your file.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
 
-supporting-evidence.upload-failed.title=Sorry, there is a problem
-supporting-evidence.upload-failed.p1=We could not scan your document.
+supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
+supporting-evidence.upload-failed.p1=We could not scan your file.
 supporting-evidence.upload-failed.p2=This could be because:
-supporting-evidence.upload-failed.bullet1=the service has a technical issue
-supporting-evidence.upload-failed.bullet2=your document was larger than 10MB
+supporting-evidence.upload-failed.bullet1=the service has experienced technical issues
+supporting-evidence.upload-failed.bullet2=your file was larger than 10MB
 supporting-evidence.upload-failed.p3=You’ll need to try again.
 supporting-evidence.upload-failed.button.tryAgain=Try again
 
