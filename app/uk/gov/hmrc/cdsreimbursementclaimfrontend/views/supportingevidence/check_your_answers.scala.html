@@ -15,6 +15,7 @@
  *@
 
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
@@ -34,6 +35,8 @@
     @key = @{"supporting-evidence.check-your-answers"}
 
     @title = @{messages(s"$key.title")}
+
+    @Html(messages(s"$key.help-text"))
 
     @mainTemplate(title = title, userType = request.userType) {
 
