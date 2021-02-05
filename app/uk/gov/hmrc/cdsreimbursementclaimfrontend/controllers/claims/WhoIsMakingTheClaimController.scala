@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => uploadRoutes}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
@@ -53,7 +54,7 @@ class WhoIsMakingTheClaimController @Inject() (
   }
 
   def chooseDeclarantTypeSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+    Redirect(uploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
   }
 
 }
