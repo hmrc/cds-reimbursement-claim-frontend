@@ -68,4 +68,22 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
 
   val reportAProblemNonJSUrl: String =
     s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
+
+  val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
+
+  val abilityNetUrl: String = getString("external-url.ability-net")
+
+  val webStandardUrl: String = getString("external-url.web-standard")
+
+  val taxServiceUrl: String = getString("external-url.tax-service")
+
+  val equalityServiceUrl: String = getString("external-url.equality-service")
+
+  val equalityOrgUrl: String = getString("external-url.equality-org")
+
+  val contactUsUrl: String = getString("external-url.contact-us")
+
+  val accessibilityCentreUrl: String = getString("external-url.accessibility-centre")
+
+  val capitalGainsUrl: String = getString("external-url.capital-gains")
 }
