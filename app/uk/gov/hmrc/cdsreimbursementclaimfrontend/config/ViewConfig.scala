@@ -68,4 +68,6 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
 
   val reportAProblemNonJSUrl: String =
     s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
+
+  val mrnGuideUrl: String = getString("external-url.mrn-guide")
 }

@@ -195,7 +195,7 @@ class StartController @Inject() (
       },
       _ =>
         Redirect(
-          controllers.supportingevidence.routes.SupportingEvidenceController.uploadSupportingEvidence()
+          controllers.claims.routes.MovementReferenceNumberController.enterMrn()
         )
     )
   }
