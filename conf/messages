@@ -147,17 +147,15 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #  ACCESSIBILITY - START
 #===================================================
 
-accessibility-statement.title = Claim for reimbursement of import duties
+accessibility-statement.title = Accessibility statement
 accessibility-statement.caption = Claim for reimbursement of import duties
-accessibility-statement.heading1 = Accessibility statement
-accessibility-statement.heading2 = Accessibility statement
-accessibility-statement.heading3 = Using this service
-accessibility-statement.heading4 = How accessible this service is
-accessibility-statement.heading5 = Reporting accessibility problems with this service
-accessibility-statement.heading6 = What to do if you are not happy with how we respond to your complaint
-accessibility-statement.heading7 = Contacting us by phone or getting a visit from us in person
-accessibility-statement.heading8 = How we tested this service
-accessibility-statement.p1 = This accessibility statement explains how accessible this service is, what to do if you have difficulty using it and how to report accessibility problems with the service. This service is part of the wider GOV.UK website. There is a <a href="{0}">separate accessibility statement for the main GOV.UK website.</a>
+accessibility-statement.heading1 = Using this service
+accessibility-statement.heading2 = How accessible this service is
+accessibility-statement.heading3 = Reporting accessibility problems with this service
+accessibility-statement.heading4 = What to do if you are not happy with how we respond to your complaint
+accessibility-statement.heading5 = Contacting us by phone or getting a visit from us in person
+accessibility-statement.heading6 = How we tested this service
+accessibility-statement.p1 = This accessibility statement explains how accessible this service is, what to do if you have difficulty using it and how to report accessibility problems with the service. This service is part of the wider GOV.UK website. There is a separate <a href="{0}">accessibility statement </a>for the main GOV.UK website.
 accessibility-statement.p2 = Claimants can use the service to apply to claim reimbursements on overpayments for import charges, including Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties. They can use the service if the amount already paid in the import declaration is inaccurate or the import declaration was rejected so they need to claim back all or some of the amount already paid.
 accessibility-statement.p3 = This service is run by HM Revenue and Customs (HMRC).
 accessibility-statement.p4 = We want as many people as possible to be able to use this service. This means you should be able to:
