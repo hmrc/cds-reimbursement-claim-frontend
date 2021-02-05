@@ -58,7 +58,54 @@ footer.govukHelp.url = https://www.gov.uk/help
 #===================================================
 
 #===================================================
-#  BANK DETAILS - START
+#  ENTER MRN PAGE - START
+#===================================================
+
+enter-mrn.title=What is your Movement Reference Number (MRN)?
+enter-mrn.caption=Movement Reference Number
+enter-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017
+enter-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-mrn.invalid=Enter a valid MRN or Entry number linked to your EORI number
+enter-mrn.error.required=Enter a MRN number
+
+#===================================================
+#  ENTER MRN PAGE - END
+#===================================================
+
+#===================================================
+#  CHECK DECLARANT DETAILS PAGE - START
+#===================================================
+
+check-declaration-details.title=Check these details are correct
+check-declaration-details.caption=Declarant Details
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <b>{0}</b>. If these details are incorrect, you can change them by contacting the CDS team.
+
+#===================================================
+#  CHECK DECLARANT DETAILS PAGE - END
+#===================================================
+
+#===================================================
+#  CHOOSE DECLARANT TYPE - START
+#===================================================
+
+choose-who-is-making-the-claim.title=Who is making this claim?
+choose-who-is-making-the-claim.caption=Declarant Type
+choose-who-is-making-the-claim.importer=I am an importer person
+choose-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
+choose-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+choose-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
+choose-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
+choose-who-is-making-the-claim.details.label=What is an importer and an representative?
+choose-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
+choose-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+
+#===================================================
+#  CHOOSE DECLARANT TYPE - END
+#===================================================
+
+
+#===================================================
+#  BANK DETAILS PAGE - START
 #===================================================
 
 bank-details.title=Check these bank details are correct
@@ -66,9 +113,8 @@ bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 
 #===================================================
-#  BANK DETAILS - END
+#  BANK DETAILS PAGE - END
 #===================================================
-
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START

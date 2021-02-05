@@ -1,3 +1,13 @@
+GET         /enter-movement-reference-number            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrn()
+POST        /enter-movement-reference-number            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrnSubmit()
+
+GET         /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
+POST        /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()
+
+GET         /who-is-the-declarant                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.WhoIsMakingTheClaimController.chooseDeclarantType()
+POST        /who-is-the-declarant                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.WhoIsMakingTheClaimController.chooseDeclarantTypeSubmit()
+
+
 GET /check-bank-account-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
 GET   /check-answers-accept-send         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
@@ -7,4 +17,3 @@ GET   /claim-sent-confirmation          uk.gov.hmrc.cdsreimbursementclaimfronten
 
 GET   /check-if-claim-was-sent          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
 
-GET   /enter-movement-reference-number         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMovementReferenceNumber()

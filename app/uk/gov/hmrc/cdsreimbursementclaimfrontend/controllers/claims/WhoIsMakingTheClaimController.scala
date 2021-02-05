@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.{mapping, number}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -29,38 +30,60 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class MovementReferenceNumberController @Inject() (
+class WhoIsMakingTheClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterMRNPage: pages.enter_mrn
+  whoIsMakingTheClaimPage: pages.who_is_making_the_claim
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
-  def enterMrn(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterMRNPage(MovementReferenceNumberController.enterMrnForm))
+  def chooseDeclarantType(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Ok(
+      whoIsMakingTheClaimPage(
+        WhoIsMakingTheClaimController.chooseDeclarantTypeForm,
+        routes.CheckDeclarantDetailsController.checkDetails()
+      )
+    )
   }
 
-  def enterMrnSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+  def chooseDeclarantTypeSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(routes.CheckDeclarantDetailsController.checkDetails())
   }
 
 }
 
-object MovementReferenceNumberController {
+object WhoIsMakingTheClaimController {
 
-  final case class EnterMrn(
-    value: String
-  ) extends AnyVal
+  sealed trait DeclarantType extends Product with Serializable
 
-  val enterMrnForm: Form[EnterMrn] = Form(
-    mapping(
-      "enter-mrn" -> nonEmptyText
-    )(EnterMrn.apply)(EnterMrn.unapply)
-  )
+  object DeclarantType {
+    final case object Importer extends DeclarantType
+    final case object AssociateWithImporterCompany extends DeclarantType
+    final case object AssociatedWithRepresentativeCompany extends DeclarantType
+  }
+
+  val chooseDeclarantTypeForm: Form[DeclarantType] =
+    Form(
+      mapping(
+        "choose-who-is-making-the-claim" -> number
+          .verifying("invalid", a => a === 0 || a === 1 || a === 2)
+          .transform[DeclarantType](
+            value =>
+              if (value === 0) DeclarantType.Importer
+              else if (value === 1) DeclarantType.AssociateWithImporterCompany
+              else DeclarantType.AssociatedWithRepresentativeCompany,
+            {
+              case DeclarantType.Importer                            => 0
+              case DeclarantType.AssociateWithImporterCompany        => 1
+              case DeclarantType.AssociatedWithRepresentativeCompany => 2
+            }
+          )
+      )(identity)(Some(_))
+    )
 }
