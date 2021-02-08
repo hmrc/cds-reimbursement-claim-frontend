@@ -18,55 +18,38 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
-import controllers.Assets.ACCEPT_LANGUAGE
-import play.api.i18n.Lang
-import play.api.libs.json.JsValue
-import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpReads.Implicits._
+
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[DefaultClaimConnector])
-trait ClaimConnector {
-  def submitClaim(claimData: JsValue, lang: Lang)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+@ImplementedBy(classOf[DefaultCDSReimbursementClaimConnector])
+trait CDSReimbursementClaimConnector {
+  def getDeclarationDetails(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 }
 
 @Singleton
-class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
+class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, servicesConfig: ServicesConfig)(implicit
   ec: ExecutionContext
-) extends ClaimConnector
+) extends CDSReimbursementClaimConnector
     with Logging {
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  override def submitClaim(claimData: JsValue, lang: Lang)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, HttpResponse] = {
-
-    val submitClaimUrl: String = s"$baseUrl/cds-reimbursement-claim/claim"
+  override def getDeclarationDetails(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
+    val getDeclarationUrl = s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}"
 
     EitherT[Future, Error, HttpResponse](
       http
-        .POST[JsValue, HttpResponse](
-          submitClaimUrl,
-          claimData,
-          Seq(ACCEPT_LANGUAGE -> lang.language)
-        )
-        .map[Either[Error, HttpResponse]] { response =>
-          if (response.status != Status.OK) {
-            logger.warn(
-              s"could not submit claim upscan: received http " +
-                s"status ${response.status} and body ${response.body}"
-            )
-            Left(Error("could not submit claim"))
-          } else
-            Right(response)
-        }
+        .GET[HttpResponse](getDeclarationUrl)
+        .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
+
   }
 }

@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import play.api.libs.json.{Json, Writes}
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 
-final class MRN private[MRN] (val value: String) extends AnyVal
+final case class ContactDetails(
+  contactName: Option[String],
+  addressLine1: Option[String],
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  addressLine4: Option[String],
+  postalCode: Option[String],
+  countryCode: Option[String],
+  telephone: Option[String],
+  emailAddress: Option[String]
+)
 
-object MRN {
-
-  def parse(value: String): Option[MRN] =
-    if (isValid(value)) Some(new MRN(value)) else None
-
-  def isValid(in: String): Boolean = {
-    val regex = """\d{2}[a-zA-Z]{2}\w{13}\d""".r
-    in match {
-      case regex(_*) => true
-      case _         => false
-    }
-  }
-
-  implicit val mrnWrites: Writes[MRN] = Json.valueWrites
+object ContactDetails {
+  implicit val format: OFormat[ContactDetails] = derived.oformat[ContactDetails]()
 }

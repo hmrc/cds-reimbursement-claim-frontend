@@ -22,7 +22,7 @@ import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SubmitClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -31,7 +31,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubmitClaimController @Inject() (eisService: SubmitClaimService)(implicit
+class SubmitClaimController @Inject() (claimService: ClaimService)(implicit
   mcc: MessagesControllerComponents,
   ec: ExecutionContext
 ) extends FrontendController(mcc)
@@ -42,13 +42,13 @@ class SubmitClaimController @Inject() (eisService: SubmitClaimService)(implicit
       case "GET"  => rightT[Future, Error](testRequestBody)
       case "POST" => fromOption[Future](request.body.asJson, Error("Request Body is not Json!"))
     })
-      .flatMap(j => eisService.submitClaim(j, Lang.defaultLang))
+      .flatMap(j => claimService.submitClaim(j, Lang.defaultLang))
       .fold(
         e => {
           logger.warn(s"could not submit claim", e)
           InternalServerError
         },
-        response => Ok(response)
+        response => Ok(Json.toJson(response))
       )
 
   }

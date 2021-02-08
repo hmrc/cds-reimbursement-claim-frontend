@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MRN._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN._
 
 class MRNSpec extends AnyWordSpec with Matchers {
 

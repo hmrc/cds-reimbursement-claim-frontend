@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
@@ -257,13 +256,13 @@ class SupportingEvidenceController @Inject() (
             documentType => {
               val updatedAnswers = answers.fold(
                 incomplete => {
-                  val fu: List[SupportingEvidence] =
+                  val evidences: List[SupportingEvidence] =
                     incomplete.evidences.filter(p => p.uploadReference === uploadReference)
-                  val s: SupportingEvidence        = fu.headOption match {
+                  val s: SupportingEvidence               = evidences.headOption match {
                     case Some(fileUpload) =>
                       fileUpload.copy(documentType = Some(documentType.supportingEvidenceDocumentType))
                     case None             =>
-                      sys.error("could not find file upload")
+                      sys.error("could not find uploaded file")
                   }
                   incomplete.copy(
                     evidences = incomplete.evidences

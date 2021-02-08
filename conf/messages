@@ -9,6 +9,7 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 #  GLOBAL MESSAGES
 #===================================================
 
+button.tryAgain=Try again
 button.continue=Continue
 button.saveAndContinue=Save and continue
 button.confirmAndContinue=Confirm and continue
@@ -61,15 +62,28 @@ footer.govukHelp.url = https://www.gov.uk/help
 #  ENTER MRN PAGE - START
 #===================================================
 
-enter-mrn.title=What is your Movement Reference Number (MRN)?
-enter-mrn.caption=Movement Reference Number
-enter-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017
-enter-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
-enter-mrn.invalid=Enter a valid MRN or Entry number linked to your EORI number
-enter-mrn.error.required=Enter a MRN number
+enter-reference-number.title=What is your Movement Reference Number (MRN)?
+enter-reference-number.caption=Movement Reference Number
+enter-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017
+enter-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-reference-number.invalid.reference=Enter a valid MRN or entry number
+enter-reference-number.invalid=Enter a valid MRN or entry number
+enter-reference-number.error.required=Enter a valid MRN or entry number
 
 #===================================================
 #  ENTER MRN PAGE - END
+#===================================================
+
+#===================================================
+#  MRN DOES NOT MATCH EORI PAGE - START
+#===================================================
+
+mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
+mrn-not-linked-to-eori.caption=Movement Reference Number
+mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
+
+#===================================================
+#  MRN DOES NOT MATCH EORI PAGE - START
 #===================================================
 
 #===================================================
@@ -78,7 +92,7 @@ enter-mrn.error.required=Enter a MRN number
 
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <b>{0}</b>. If these details are incorrect, you can change them by contacting the CDS team.
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - END
