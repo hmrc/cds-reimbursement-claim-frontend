@@ -16,6 +16,8 @@
 
 @import play.api.i18n.Messages
 @import play.api.mvc.Request
+@import play.twirl.api.Html
+
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
@@ -27,7 +29,7 @@
 
 @()(implicit messages: Messages, viewConfig: ViewConfig, request: Request[_])
 
-    @key = @{ "accessibilityStatement" }
+    @key = @{ "accessibility-statement" }
     @title = @{messages(s"$key.title")}
 
     @mainTemplate(title = title, userType = None, withSignOutLink = false) {
@@ -36,6 +38,71 @@
 
     @pageHeading(title)
 
-    <h3>To be defined</h3>
+<div id="content" class="govuk-grid-row">
+
+    <div class="govuk-inset-text">
+        <p class="govuk-body">
+            @Html(messages(s"$key.p1", viewConfig.accessibilityStatementUrl))
+        </p>
+
+    <h1 class="govuk-heading-xl">@messages(s"$key.heading1")</h1>
+
+        <p class="govuk-body">
+            @messages(s"$key.p2")
+        </p>
+        <p class="govuk-body">
+            @messages(s"$key.p3")
+        </p>
+        <p class="govuk-body">
+            @messages(s"$key.p4")
+        </p>
+            <ul class="list-bullet">
+                <li>@messages(s"$key.li1")</li>
+                <li>@messages(s"$key.li2")</li>
+                <li>@messages(s"$key.li3")</li>
+                <li>@messages(s"$key.li4")</li>
+                <li>@messages(s"$key.li5")</li>
+            </ul>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p5", viewConfig.abilityNetUrl))
+        </p>
+    <h1 class="govuk-heading-l">@messages(s"$key.heading2")</h1>
+
+        <p class="govuk-body">
+            @Html(messages(s"$key.p6", viewConfig.webStandardUrl))
+        </p>
+    <h1 class="govuk-heading-l">@messages(s"$key.heading3")</h1>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p7", viewConfig.taxServiceUrl))
+        </p>
+    <h1 class="govuk-heading-l">@messages(s"$key.heading4")</h1>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p8", viewConfig.equalityServiceUrl))
+            @Html(messages(s"$key.p82", viewConfig.equalityOrgUrl))
+        </p>
+    <h1 class="govuk-heading-l">@messages(s"$key.heading5")</h1>
+        <p class="govuk-body">
+            @messages(s"$key.p9")
+        </p>
+        <p class="govuk-body">
+            @messages(s"$key.p10")
+        </p>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p11", viewConfig.contactUsUrl))
+        </p>
+    <h1 class="govuk-heading-l">@messages(s"$key.heading6")</h1>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p12", viewConfig.accessibilityCentreUrl))
+        </p>
+        <p class="govuk-body">
+            @messages(s"$key.p13")
+        </p>
+        <p class="govuk-body">
+            @Html(messages(s"$key.p14", viewConfig.capitalGainsUrl))
+        </p>
+    </div>
+
+
+</div>
 
 }
