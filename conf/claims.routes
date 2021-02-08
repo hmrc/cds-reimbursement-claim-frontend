@@ -1,5 +1,11 @@
-GET         /enter-movement-reference-number            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrn()
-POST        /enter-movement-reference-number            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrnSubmit()
+GET         /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrn()
+POST        /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrnSubmit()
+
+GET         /movement-reference-number-not-linked-to-eori       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.mrnNotLinkedToEori()
+
+GET         /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetails()
+POST         /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetailsSubmit()
+
 
 GET         /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
 POST        /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()

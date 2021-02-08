@@ -77,9 +77,9 @@ class DefaultUpscanConnector @Inject() (
     s"$protocol://$host:$port/upscan/v2/initiate"
   }
 
-  val backEndBaseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
+  private val backEndBaseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  val selfBaseUrl: String = config.underlying.get[String]("self.url").value
+  private val selfBaseUrl: String = config.underlying.get[String]("self.url").value
 
   private val maxFileSize: Long = getUpscanInitiateConfig[Long]("max-file-size")
 

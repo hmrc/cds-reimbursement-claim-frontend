@@ -87,7 +87,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
             mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
               Right(httpResponse)
             )
-            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value) shouldBe Right(httpResponse)
+            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value).isLeft shouldBe true
           }
         }
       }

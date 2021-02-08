@@ -16,21 +16,44 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
+import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.Configuration
 import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.test.BaseSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GetDeclarationConnectorSpec extends BaseSpec with MockFactory with HttpSupport {
+class CDSReimbursementClaimConnectorSpec extends AnyWordSpec with MockFactory with HttpSupport {
 
+  val config: Configuration      = Configuration(
+    ConfigFactory.parseString(
+      """
+        | self {
+        |   url = host1.com
+        |  },
+        |  microservice {
+        |    services {
+        |      cds-reimbursement-claim {
+        |        protocol = http
+        |        host     = localhost
+        |        port     = 7501
+        |      }
+        |   }
+        |}
+        |""".stripMargin
+    )
+  )
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val mrn        = MRN.parse("21GBIDMSXBLNR06016").getOrElse(fail)
+  val mrn        = MRN("21GBIDMSXBLNR06016")
   val backEndUrl = s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}"
-  val connector  = new GetDeclarationConnector(mockHttp, appConfig)
+  val connector  = new DefaultCDSReimbursementClaimConnector(mockHttp, new ServicesConfig(config))
 
   "DeclarationInfoConnector" when {
 
@@ -38,7 +61,7 @@ class GetDeclarationConnectorSpec extends BaseSpec with MockFactory with HttpSup
       "do a post http call and get the ACC14 API response" in {
         val httpResponse = HttpResponse(200, "The Response")
         mockGet(backEndUrl)(Right(httpResponse))
-        val declaration  = await(connector.getDeclarationInfo(mrn).value)
+        val declaration  = await(connector.getDeclarationDetails(mrn).value)
         declaration shouldBe Right(httpResponse)
       }
     }
@@ -47,7 +70,7 @@ class GetDeclarationConnectorSpec extends BaseSpec with MockFactory with HttpSup
       "the call fails" in {
         val error       = new Exception("Socket connection error")
         mockGet(backEndUrl)(Left(error))
-        val declaration = await(connector.getDeclarationInfo(mrn).value)
+        val declaration = await(connector.getDeclarationDetails(mrn).value)
         declaration shouldBe Left(Error(error))
       }
     }

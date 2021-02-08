@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 
 import java.time.LocalDate
 import java.util.UUID
@@ -29,14 +30,16 @@ object DraftClaim {
 
   final case class DraftC285Claim(
     id: UUID,
+    maybeDeclaration: Option[Declaration],
+    movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
     lastUpdatedDate: LocalDate
   ) extends DraftClaim
 
   object DraftC285Claim {
-    implicit val eq: Eq[DraftC285Claim] = Eq.fromUniversalEquals[DraftC285Claim]
-
-    val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID(), None, LocalDate.now)
+    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
+    val newDraftC285Claim: DraftC285Claim        = DraftC285Claim(UUID.randomUUID(), None, None, None, LocalDate.now)
+    implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 
   implicit class DraftClaimOps(private val draftClaim: DraftClaim) extends AnyVal {
@@ -45,7 +48,6 @@ object DraftClaim {
     ): A =
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
-        case _                 => sys.error("sould not be here")
       }
   }
 

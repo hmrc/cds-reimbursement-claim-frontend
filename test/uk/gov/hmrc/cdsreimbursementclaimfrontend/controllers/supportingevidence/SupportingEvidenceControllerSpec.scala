@@ -98,18 +98,18 @@ class SupportingEvidenceControllerSpec
   private def sessionWithClaimState(
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftReturn         = DraftC285Claim.newDraftC285Claim.copy(supportingEvidenceAnswers = supportingEvidenceAnswers)
+    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(supportingEvidenceAnswers = supportingEvidenceAnswers)
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
     val signedInUserDetails = SignedInUserDetails(Some(email), eori)
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftReturn)
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(
         journeyStatus = Some(journey)
       ),
       journey,
-      draftReturn
+      draftC285Claim
     )
   }
 

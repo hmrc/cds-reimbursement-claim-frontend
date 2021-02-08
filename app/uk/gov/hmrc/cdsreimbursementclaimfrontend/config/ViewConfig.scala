@@ -28,11 +28,7 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
 
-  private val basGatewayFrontendUrl: String = getString("bas-gateway-frontend.url")
-
-  private val signOutUri: String = getString("sign-out.uri")
-
-  val signOutUrl: String = s"$basGatewayFrontendUrl$signOutUri"
+  val signOutUrl: String = getString("bas-gateway.signOutUrl")
 
   val ggTimeoutSeconds: Long =
     servicesConfig.getDuration("gg.timeout").toSeconds

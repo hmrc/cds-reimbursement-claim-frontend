@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -30,7 +31,7 @@
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
-@(backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration : Declaration, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
  @key = @{"check-declaration-details"}
  @title = @{messages(s"$key.title")}
@@ -43,9 +44,51 @@
 
     @pageHeading(title)
 
-    @Html(messages(s"$key.help-text", "Get MRN from ACC-14 Response"))
+    @Html(messages(s"$key.help-text", declaration.declarantId))
 
     @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
+
+        <div class="space-details">
+                <table>
+                    <tr>
+                        <td><span style="font-weight:bold">MRN Number</span></td>
+                        <td>@declaration.declarantId</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Import Date</span></td>
+                        <td>@declaration.acceptanceDate</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Paid Charges</span></td>
+                        <td>£@declaration.totalPaidCharges</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Declarant Name</span></td>
+                        <td>@declaration.declarantDetails.legalName</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Declarant Email</span></td>
+                        <td>@declaration.declarantEmailAddress</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Declarant Telephone</span></td>
+                        <td>@declaration.declarantTelephoneNumber</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Declarant Contact Address</span></td>
+                        <td>@declaration.declarantContactAddress</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Company Name</span></td>
+                        <td>@declaration.companyName</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-weight:bold">Company Address</span></td>
+                        <td>@declaration.companyAddress</td>
+                    </tr>
+                </table>
+        </div>
+
      @submitButton(messages("button.continue"))
     }
 }

@@ -46,7 +46,7 @@ trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] wi
 
   private def getString(key: String): String = config.underlying.getString(key)
 
-  private val signInUrl: String = getString("bas-gateway.url")
+  private val signInUrl: String = getString("bas-gateway.signInUrl")
 
   private val origin: String = getString("gg.origin")
 

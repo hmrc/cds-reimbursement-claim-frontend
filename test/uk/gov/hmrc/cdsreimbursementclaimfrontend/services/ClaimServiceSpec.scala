@@ -26,20 +26,22 @@ import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
+class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
 
-  private val defaultLanguage      = Lang.defaultLang
-  private val submitClaimConnector = mock[ClaimConnector]
-  private val submitClaimService   = new SubmitClaimServiceImpl(submitClaimConnector)
+  private val defaultLanguage    = Lang.defaultLang
+  private val claimConnector     = mock[ClaimConnector]
+  private val backEndConnector   = mock[CDSReimbursementClaimConnector]
+  private val submitClaimService = new DefaultClaimService(claimConnector, backEndConnector)
 
   val okResponse: JsValue = Json.parse("""{
       |    "PostNewClaimsResponse": {
@@ -61,14 +63,14 @@ class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory 
       |}""".stripMargin)
 
   def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
-    (submitClaimConnector
+    (claimConnector
       .submitClaim(_: JsValue, _: Lang)(_: HeaderCarrier))
       .expects(submitClaimData, *, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
 
   "Submit Claim Service" when {
-    "handling submit claim returns" should {
+    "handling submit claim" should {
       "handle successful submits" when {
         "there is a valid payload" in {
           mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, okResponse, Map.empty[String, Seq[String]])))
@@ -78,10 +80,10 @@ class SubmitClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory 
 
       "handle unsuccessful submits" when {
         "500 response" in {
-          val eisResponse = errorResponse("invalid JSON format")
+          val eisResponse = errorResponse("call to get submit claim came back with status")
           mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(500, eisResponse, Map.empty[String, Seq[String]])))
           val response    = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
-          response.fold(_.message should include("invalid JSON format"), _ => fail())
+          response.fold(_.message should include("call to get submit claim came back with status"), _ => fail())
         }
 
         "Invalid Json response" in {

@@ -17,14 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import scala.concurrent.Future
 
 @Singleton
 class CheckDeclarantDetailsController @Inject() (
@@ -40,8 +46,31 @@ class CheckDeclarantDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(checkDeclarantDetailsPage(routes.MovementReferenceNumberController.enterMrn()))
+  private def withPossibleDeclaration(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      Option[Declaration]
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              s,
+              r @ FillingOutClaim(_, _, c: DraftClaim)
+            )
+          ) =>
+        val maybeDeclaration = c.fold(_.maybeDeclaration)
+        f(s, r, maybeDeclaration)
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withPossibleDeclaration { (_, _, maybeDeclaration) =>
+      maybeDeclaration.fold(Redirect(routes.EnterClaimantDetailsController.enterClaimantDetails()))(declaration =>
+        Ok(checkDeclarantDetailsPage(declaration, routes.MovementReferenceNumberController.enterMrn()))
+      )
+    }
   }
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
