@@ -17,8 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
-import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -29,38 +27,25 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class MovementReferenceNumberController @Inject() (
+class CheckDeclarantDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterMRNPage: pages.enter_mrn
+  checkDeclarantDetailsPage: pages.check_declarant_details
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
-  def enterMrn(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterMRNPage(MovementReferenceNumberController.enterMrnForm))
+  def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Ok(checkDeclarantDetailsPage(routes.MovementReferenceNumberController.enterMrn()))
   }
 
-  def enterMrnSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect(routes.WhoIsMakingTheClaimController.chooseDeclarantType())
   }
 
-}
-
-object MovementReferenceNumberController {
-
-  final case class EnterMrn(
-    value: String
-  ) extends AnyVal
-
-  val enterMrnForm: Form[EnterMrn] = Form(
-    mapping(
-      "enter-mrn" -> nonEmptyText
-    )(EnterMrn.apply)(EnterMrn.unapply)
-  )
 }

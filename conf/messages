@@ -31,13 +31,13 @@ language-switcher.nav=Language switcher
 error.summary.heading=There’s a problem
 
 signed-out.title=You’ve signed out
-signed-out.p1=You’ve signed out of your Capital Gains Tax on UK property account.
+signed-out.p1=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
 signed-out.p2=You can <a href="{0}">sign in</a> to your account.
 signed-out.button=Go to GOV.UK
 
 timed-out.title=For your security, we signed you out
 timed-out.p1=This was because you were inactive for too long.
-timed-out.p2=To access your Capital Gains on UK property account, you’ll need to sign in.
+timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
 timed-out.button=Sign in
 
 recruitment-banner.message=Help improve GOV.UK
@@ -58,7 +58,54 @@ footer.govukHelp.url = https://www.gov.uk/help
 #===================================================
 
 #===================================================
-#  BANK DETAILS - START
+#  ENTER MRN PAGE - START
+#===================================================
+
+enter-mrn.title=What is your Movement Reference Number (MRN)?
+enter-mrn.caption=Movement Reference Number
+enter-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017
+enter-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-mrn.invalid=Enter a valid MRN or Entry number linked to your EORI number
+enter-mrn.error.required=Enter a MRN number
+
+#===================================================
+#  ENTER MRN PAGE - END
+#===================================================
+
+#===================================================
+#  CHECK DECLARANT DETAILS PAGE - START
+#===================================================
+
+check-declaration-details.title=Check these details are correct
+check-declaration-details.caption=Declarant Details
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <b>{0}</b>. If these details are incorrect, you can change them by contacting the CDS team.
+
+#===================================================
+#  CHECK DECLARANT DETAILS PAGE - END
+#===================================================
+
+#===================================================
+#  CHOOSE DECLARANT TYPE - START
+#===================================================
+
+choose-who-is-making-the-claim.title=Who is making this claim?
+choose-who-is-making-the-claim.caption=Declarant Type
+choose-who-is-making-the-claim.importer=I am an importer person
+choose-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
+choose-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+choose-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
+choose-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
+choose-who-is-making-the-claim.details.label=What is an importer and an representative?
+choose-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
+choose-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+
+#===================================================
+#  CHOOSE DECLARANT TYPE - END
+#===================================================
+
+
+#===================================================
+#  BANK DETAILS PAGE - START
 #===================================================
 
 bank-details.title=Check these bank details are correct
@@ -66,9 +113,8 @@ bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 
 #===================================================
-#  BANK DETAILS - END
+#  BANK DETAILS PAGE - END
 #===================================================
-
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START
@@ -90,16 +136,16 @@ supporting-evidence.choose-document-type.details.l7=Proof of authority (from imp
 supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
 supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 
-supporting-evidence.check-your-answers.title=Check your answers
+supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.caption=Supporting evidence
 supporting-evidence.check-your-answers.file-label=Document {0}
+supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
 supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
 supporting-evidence.check-your-answers.cya-change=Change
 supporting-evidence.check-your-answers.assistive=the file named {0}
-supporting-evidence.check-your-answers.cya-delete=Delete
 supporting-evidence.check-your-answers.add-another-file=Add another file
 
-supporting-evidence.upload.title=Upload a document with your supporting evidence
+supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.caption=Supporting evidence
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
@@ -108,23 +154,24 @@ file.error.required=Select a file containing your supporting evidence
 
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.caption=Supporting evidence
-supporting-evidence.scan-progress.p1=We are checking your document.
+supporting-evidence.scan-progress.p1=We are checking your file.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
 
-supporting-evidence.upload-failed.title=Sorry, there is a problem
-supporting-evidence.upload-failed.p1=We could not scan your document.
+supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
+supporting-evidence.upload-failed.p1=We could not scan your file.
 supporting-evidence.upload-failed.p2=This could be because:
-supporting-evidence.upload-failed.bullet1=the service has a technical issue
-supporting-evidence.upload-failed.bullet2=your document was larger than 10MB
+supporting-evidence.upload-failed.bullet1=the service has experienced technical issues
+supporting-evidence.upload-failed.bullet2=your file was larger than 10MB
 supporting-evidence.upload-failed.p3=You’ll need to try again.
 supporting-evidence.upload-failed.button.tryAgain=Try again
 
-supporting-evidence.scan-failed.title=There is a problem with your document
+supporting-evidence.scan-failed.title=There is a problem with your file
 supporting-evidence.scan-failed.p1=The problem could be that:
-supporting-evidence.scan-failed.bullet1=the document had a virus or was corrupt
-supporting-evidence.scan-failed.bullet2=you did not select a document to upload
-supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of document
-supporting-evidence.scan-failed.p2=We only accept these documents types  JPG, PNG, PDF, DOC, and XLS
+supporting-evidence.scan-failed.bullet1=the file had a virus or was corrupt
+supporting-evidence.scan-failed.bullet2=you did not select a file to upload
+supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of file
+supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
+supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, PDF, DOC, and XLS
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
 
