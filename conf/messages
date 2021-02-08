@@ -86,6 +86,19 @@ mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI numb
 #  MRN DOES NOT MATCH EORI PAGE - START
 #===================================================
 
+
+#===================================================
+#  ENTER CLAIMANT DETAILS PAGE - START
+#===================================================
+
+enter-claimant-details.title=Enter Claimant Details
+enter-claimant-details.caption=Claimant Details
+enter-claimant-details.help-text=Please enter your details for the claim
+
+#===================================================
+#  ENTER CLAIMANT DETAILS PAGE - END
+#===================================================
+
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - START
 #===================================================
