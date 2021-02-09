@@ -86,7 +86,7 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
   val accessibilityCentreUrl: String = getString("external-url.accessibility-centre")
 
   val capitalGainsUrl: String = getString("external-url.capital-gains")
-  
+
   val mrnGuideUrl: String = getString("external-url.mrn-guide")
 
 }
