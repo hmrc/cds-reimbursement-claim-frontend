@@ -139,7 +139,7 @@ class SelectReasonForClaimController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not capture movement reference number", e)
+                  logger.warn("could not store reason for claim answer", e)
                   errorHandler.errorResult()
                 },
                 _ => Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
