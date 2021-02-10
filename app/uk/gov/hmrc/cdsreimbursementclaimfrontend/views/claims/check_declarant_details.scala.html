@@ -49,44 +49,46 @@
     @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
 
         <div class="space-details">
-                <table>
+            <table class="govuk-table">
+                <tbody>
                     <tr>
-                        <td><span style="font-weight:bold">MRN Number</span></td>
+                        <th scope="row" style="font-weight:bold">MRN Number</th>
                         <td>@declaration.declarantId</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Import Date</span></td>
+                        <th scope="row" style="font-weight:bold">Import Date</th>
                         <td>@declaration.acceptanceDate</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Paid Charges</span></td>
+                        <th scope="row" style="font-weight:bold">Paid Charges</th>
                         <td>£@declaration.totalPaidCharges</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Declarant Name</span></td>
+                        <th scope="row" style="font-weight:bold">Declarant Name</th>
                         <td>@declaration.declarantDetails.legalName</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Declarant Email</span></td>
+                        <th scope="row" style="font-weight:bold">Declarant Email</th>
                         <td>@declaration.declarantEmailAddress</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Declarant Telephone</span></td>
+                        <th scope="row" style="font-weight:bold">Declarant Telephone</th>
                         <td>@declaration.declarantTelephoneNumber</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Declarant Contact Address</span></td>
+                        <th scope="row" style="font-weight:bold">Declarant Contact Address</th>
                         <td>@declaration.declarantContactAddress</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Company Name</span></td>
+                        <th scope="row" style="font-weight:bold">Company Name</th>
                         <td>@declaration.companyName</td>
                     </tr>
                     <tr>
-                        <td><span style="font-weight:bold">Company Address</span></td>
+                        <th scope="row" style="font-weight:bold">Company Address</th>
                         <td>@declaration.companyAddress</td>
                     </tr>
-                </table>
+                </tbody>
+            </table>
         </div>
 
      @submitButton(messages("button.continue"))
