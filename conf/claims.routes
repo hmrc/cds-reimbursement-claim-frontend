@@ -4,11 +4,14 @@ POST        /enter-movement-reference-number                    uk.gov.hmrc.cdsr
 GET         /movement-reference-number-not-linked-to-eori       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.mrnNotLinkedToEori()
 
 GET         /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetails()
-POST         /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetailsSubmit()
+POST        /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetailsSubmit()
+
+GET         /declarant-details                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaim()
+POST        /declarant-details                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaimSubmit()
 
 
-GET         /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
-POST        /declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()
+GET         /check-declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
+POST        /check-declarant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()
 
 GET         /who-is-the-declarant                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.WhoIsMakingTheClaimController.chooseDeclarantType()
 POST        /who-is-the-declarant                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.WhoIsMakingTheClaimController.chooseDeclarantTypeSubmit()
