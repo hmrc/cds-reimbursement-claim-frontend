@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -48,7 +47,7 @@ class EnterClaimantDetailsController @Inject() (
   }
 
   def enterClaimantDetailsSubmit: Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+    Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
   }
 }
 
