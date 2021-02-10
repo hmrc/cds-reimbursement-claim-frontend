@@ -25,13 +25,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class ServiceUnavailableController @Inject() (
+class UnauthorisedController @Inject() (
   cc: MessagesControllerComponents,
-  serviceUnavailablePage: views.html.service_unavailable
+  unauthorisedPage: views.html.unauthorised
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc) {
 
-  def serviceUnavailable(): Action[AnyContent] =
-    Action(implicit request => Ok(serviceUnavailablePage()))
+  def unauthorised(): Action[AnyContent] =
+    Action(implicit request => Ok(unauthorisedPage()))
 
 }

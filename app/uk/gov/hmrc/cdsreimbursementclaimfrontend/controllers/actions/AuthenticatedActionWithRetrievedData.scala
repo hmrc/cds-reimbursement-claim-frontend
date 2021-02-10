@@ -109,11 +109,11 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     request: MessagesRequest[A]
   ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     hasEoriEnrolment(enrolments, request) map {
-      case Left(_)           => Left(Redirect(routes.ServiceUnavailableController.serviceUnavailable()))
+      case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
         handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, request)
       case Right(None)       =>
-        Left(Redirect(routes.ServiceUnavailableController.serviceUnavailable()))
+        Left(Redirect(routes.UnauthorisedController.unauthorised()))
     }
 
   private def hasEoriEnrolment[A](
