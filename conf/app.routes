@@ -5,6 +5,8 @@ GET /sign-out-and-log-in                                                    uk.g
 GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
 GET /keep-alive                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
+GET /service-unavailable                                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ServiceUnavailableController.serviceUnavailable()
+
 GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
 GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish
 
