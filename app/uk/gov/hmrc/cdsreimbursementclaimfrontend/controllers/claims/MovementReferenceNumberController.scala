@@ -111,16 +111,14 @@ class MovementReferenceNumberController @Inject() (
         MovementReferenceNumberController.enterReferenceNumberForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(requestFormWithErrors.errors)
+            requestFormWithErrors =>
               BadRequest(
                 enterReferenceNumberPage(
                   requestFormWithErrors.copy(errors =
                     Seq(MovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
                   )
                 )
-              )
-            },
+              ),
             referenceNumber => {
               val updatedAnswers = answers.fold(
                 incomplete =>
@@ -155,7 +153,10 @@ class MovementReferenceNumberController @Inject() (
                       logger.warn("could not capture movement reference number", e)
                       errorHandler.errorResult()
                     },
-                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                    _ => {
+                      logger.warn("\n\n\n\n I am here \n\n\n\n")
+                      Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                    }
                   )
               }
             }

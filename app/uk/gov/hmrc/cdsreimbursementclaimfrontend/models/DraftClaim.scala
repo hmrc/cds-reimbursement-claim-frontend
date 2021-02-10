@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
 
 import java.time.LocalDate
 import java.util.UUID
@@ -32,13 +33,14 @@ object DraftClaim {
     id: UUID,
     maybeDeclaration: Option[Declaration],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
+    reasonForClaim: Option[ReasonForClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
     lastUpdatedDate: LocalDate
   ) extends DraftClaim
 
   object DraftC285Claim {
     implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
-    val newDraftC285Claim: DraftC285Claim        = DraftC285Claim(UUID.randomUUID(), None, None, None, LocalDate.now)
+    val newDraftC285Claim: DraftC285Claim        = DraftC285Claim(UUID.randomUUID(), None, None, None, None, LocalDate.now)
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 

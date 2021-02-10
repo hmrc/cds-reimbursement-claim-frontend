@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
 
 import java.time.LocalDate
 import java.util.UUID
