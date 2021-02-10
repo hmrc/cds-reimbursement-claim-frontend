@@ -10,6 +10,6 @@ GET /service-unavailable                                                    uk.g
 GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
 GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish
 
-GET /accessibility-statement                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
+GET /accessibility-statement                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
 GET /assets/*file                                                           controllers.Assets.at(path="/public", file)

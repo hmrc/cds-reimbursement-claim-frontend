@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
@@ -114,7 +113,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       case Right(Some(eori)) =>
         handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, request)
       case Right(None)       =>
-        Left(errorHandler.errorResult(None)(request))
+        Left(Redirect(routes.ServiceUnavailableController.serviceUnavailable()))
     }
 
   private def hasEoriEnrolment[A](
