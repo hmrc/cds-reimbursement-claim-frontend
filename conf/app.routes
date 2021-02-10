@@ -5,9 +5,11 @@ GET /sign-out-and-log-in                                                    uk.g
 GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
 GET /keep-alive                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
+GET /unauthorised                                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
+
 GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
 GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish
 
-GET /accessibility-statement                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
+GET /accessibility-statement                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
 GET /assets/*file                                                           controllers.Assets.at(path="/public", file)

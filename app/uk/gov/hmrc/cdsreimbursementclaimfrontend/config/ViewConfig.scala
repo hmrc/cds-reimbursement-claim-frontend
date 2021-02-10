@@ -67,6 +67,8 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
 
   val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
 
+  val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
+
   val abilityNetUrl: String = getString("external-url.ability-net")
 
   val webStandardUrl: String = getString("external-url.web-standard")

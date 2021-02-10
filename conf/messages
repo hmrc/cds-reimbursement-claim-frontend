@@ -59,6 +59,18 @@ footer.govukHelp.url = https://www.gov.uk/help
 #===================================================
 
 #===================================================
+#  UNAUTHORISED PAGE - START
+#===================================================
+
+unauthorised.title=Sorry, this service is unavailable
+unauthorised.help=You must have an EORI number associated with your CDS enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
+unauthorised.help-text=Find out <a href="{0}">How to get an EORI number.</a>
+
+#===================================================
+#  UNAUTHORISED PAGE - END
+#===================================================
+
+#===================================================
 #  ENTER MRN PAGE - START
 #===================================================
 
