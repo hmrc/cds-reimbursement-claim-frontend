@@ -66,7 +66,7 @@ landing.help.p1=You can use this service to apply to claim reimbursements on ove
 landing.help.p2=In the near future, you will also be able to use this service to make multiple claims. Reimbursement via Current Month Adjustment (CMA) will also be available.
 landing.who.heading=Who can claim
 landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
-landing.who.p2=Find out more about an <a href="{0}" target="_blank">EORI number</a> (opens in new tab) and an MRN number <a href="{1}" target="_blank">MRN number</a> (opens in new tab).
+landing.who.p2=Find out <a href="{0}" target="_blank">more about an EORI number</a> (opens in new tab) and an <a href="{1}" target="_blank">MRN</a> (opens in new tab).
 landing.who.p3=As a claim declarant you can be an:
 landing.who.bullet1=importer or a representative of the importer
 landing.who.bullet2=agent, freight forwarder or accountant
