@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.api.i18n.Messages
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import java.util.Locale
 
-@this()
+object MoneyUtils {
 
-@(exitSurveyUrl: String)(implicit messages: Messages, viewConfig: ViewConfig)
+  private val currencyFormatter =
+    java.text.NumberFormat.getCurrencyInstance(Locale.UK)
 
-<p>
-  <a href="@{viewConfig.signOutUrl}?continue=@{exitSurveyUrl}">@messages("exit-survey.link-text")</a>
-</p>
+  def formatAmountOfMoneyWithPoundSign(d: BigDecimal): String =
+    currencyFormatter.format(d).stripSuffix(".00")
+}

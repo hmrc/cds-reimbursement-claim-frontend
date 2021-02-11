@@ -54,6 +54,8 @@ footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
 
+exit-survey.link-text=What did you think of this service?
+
 #===================================================
 #  MESSAGES FOR PAGES
 #===================================================
@@ -266,6 +268,27 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - END
 #===================================================
+
+#===================================================
+# CONFIRMATION PAGE - START
+#===================================================
+
+confirmation-of-submission.title=Claim submitted
+confirmation-of-submission.reimbursement-amount=Reimbursement amount
+confirmation-of-submission.claim-reference=Your claim reference number
+confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
+confirmation-of-submission.whatNext=What happens next?
+confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will email you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
+confirmation-of-submission.what-next.l2=ask for more information
+confirmation-of-submission.what-next.l3=explain why your claim was rejected
+confirmation-of-submission.what-next.p2=Print or save a copy of this page for your records.
+confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
+
+#===================================================
+# CONFIRMATION PAGE - END
+#===================================================
+
 
 #===================================================
 #  ACCESSIBILITY - START
