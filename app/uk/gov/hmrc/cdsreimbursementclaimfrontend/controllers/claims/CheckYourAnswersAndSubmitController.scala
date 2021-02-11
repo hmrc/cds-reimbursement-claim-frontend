@@ -23,12 +23,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, RetrievedUserType, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteC285Claim, Eori, Error, RetrievedUserType, SignedInUserDetails, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.time.{LocalDate, LocalDateTime}
+import java.util.UUID
 import scala.concurrent.Future
 
 @Singleton
@@ -69,11 +72,29 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   private def withJustSubmittedClaim(
     request: RequestWithSessionData[_]
-  )(f: JustSubmittedClaim => Future[Result]): Future[Result] =
+  )(f: JustSubmittedClaim => Future[Result]): Future[Result] = {
+    //FIXME: remove once the service has been designed and pages wired up - in place to allow QA and UI fixes
+    val j = JustSubmittedClaim(
+      GGCredId("some cred"),
+      SignedInUserDetails(None, Eori("eori")),
+      CompleteC285Claim(
+        UUID.randomUUID(),
+        None,
+        "200",
+        "ABC0000123456789",
+        LocalDate.now
+      ),
+      SubmitClaimResponse(
+        "ABC0000123456789",
+        "CDFPay",
+        LocalDateTime.now.toString
+      )
+    )
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(j: JustSubmittedClaim) => f(j)
-      case _                           => Redirect(baseRoutes.StartController.start())
+      case Some(_) => f(j)
+      case _       => Redirect(baseRoutes.StartController.start())
     }
+  }
 
   private def withSubmitClaimFailedOrSubscribed(
     request: RequestWithSessionData[_]
