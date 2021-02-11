@@ -61,12 +61,60 @@ exit-survey.link-text=What did you think of this service?
 #===================================================
 
 #===================================================
+#  LANDING PAGE - START
+#===================================================
+landing.title=Claim for reimbursement of import duties
+landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
+landing.help.p2=In the near future, you will also be able to use this service to make multiple claims. Reimbursement via Current Month Adjustment (CMA) will also be available.
+landing.who.heading=Who can claim
+landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
+landing.who.p2=Find out <a href="{0}" target="_blank">more about an EORI number</a> (opens in new tab) and an <a href="{1}" target="_blank">MRN</a> (opens in new tab).
+landing.who.p3=As a claim declarant you can be an:
+landing.who.l1=importer or a representative of the importer
+landing.who.l2=agent, freight forwarder or accountant
+landing.who.l3=private individual
+landing.who.p4=You must apply within 3 years of when the goods are cleared to enter the UK.
+landing.why.heading=Why claim
+landing.why.p1=You should claim if:
+landing.why.l1=the amount you already paid in the import declaration is inaccurate
+landing.why.l2=your import declaration was rejected so you need to claim back all or some of the amount you already paid
+landing.start-button=Start now
+landing.before.heading=Before you start
+landing.before.p1=To use this service, you will need:
+landing.before.l1=Government Gateway credentials
+landing.before.l2=to have your EORI number associated with your CDS enrolment
+landing.before.l3=a MRN or entry number
+landing.before.l4=to know the type of duty you want to claim reimbursement for
+landing.before.l5=the reason for overpayment
+landing.before.l6=details of the goods
+landing.before.l7=your bank details
+landing.before.l8=name and address details of the declarant
+landing.before.l9=duty or VAT amount due and paid to HMRC
+landing.details.heading=Examples of supporting documents
+landing.details.p1=You will need supporting evidence you have received relating to goods you have imported. You can scan copies in advance to make it easier to upload in this service. They can be any of these documents:
+landing.details.l1=C88/E2 (proof to authorise imports from the country of origin)
+landing.details.l2=commercial invoice (shows the value of the goods)
+landing.details.l3=packing list (document that states packaging details in each shipment)
+landing.details.l4=air waybill (in your cargo documents)
+landing.details.l5=bill of lading (this is a receipt of shipped goods)
+landing.details.l6=substitute entry (a form to declare a substitute when goods have been incorrectly declared)
+landing.details.l7=schedule of MRNs (a list of previous MRN numbers)
+landing.details.l8=proof of authority (from importer for duty to be repaid)
+landing.details.l9=correspondence trader or internal (an email chain or letters between you and the trader)
+landing.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+
+
+#===================================================
+#  LANDING PAGE - END
+#===================================================
+
+#===================================================
 #  UNAUTHORISED PAGE - START
 #===================================================
 
 unauthorised.title=Sorry, this service is unavailable
 unauthorised.help=You must have an EORI number associated with your CDS enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
-unauthorised.help-text=Find out <a href="{0}">How to get an EORI number.</a>
+unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI number.</a>
 
 #===================================================
 #  UNAUTHORISED PAGE - END
