@@ -16,22 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
+class LandingPageControllerSpec extends ControllerSpec {
 
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+  lazy val controller: LandingPageController = instanceOf[LandingPageController]
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
-@Singleton
-class LandingController @Inject() (
-  cc: MessagesControllerComponents,
-  landingPage: views.html.landing
-)(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
-
-  def landing(): Action[AnyContent] =
-    Action(implicit request => Ok(landingPage()))
+  "Landing Page Controller" must {
+    "display the landing page" when {
+      checkPageIsDisplayed(controller.landing()(FakeRequest()), messageFromMessageKey("landing.title"))
+    }
+  }
 
 }
