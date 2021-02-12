@@ -14,15 +14,160 @@
  * limitations under the License.
  *@
 
+@import play.api.mvc.Call
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 
 @this(
-mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ cyaChange : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_change,
+    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
-@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-@mainTemplate(title = "check", userType = None){
- <h1>Check Your Answers</h1>
-}
+@(completeClaim : CompleteClaim, backLink : Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+  @key = @{"check-your-answers"}
+  @title = @{messages(s"$key.title")}
+
+  @mainTemplate(title = title, userType = None){
+
+    @backLinkComponent(backLink)
+
+    @caption(messages(s"$key.caption"))
+
+    @pageHeading(title)
+
+    @formWrapper(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
+
+        <div class="space-details">
+            <table class="govuk-table">
+                <tbody>
+                <tr>
+                    <th scope="row" style="font-weight:bold">MRN reference number</th>
+                    <td>@completeClaim.mrn</td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Declaration details</th>
+                    <td>
+                        <ul class="list-bullet">
+                            <li>MRN number: @completeClaim.mrn</li>
+                            <li>Import date: @completeClaim.importDate</li>
+                            <li>Paid charges: £3200</li>
+                            <li>Declarant name: @completeClaim.declarantDetails.legalName</li>
+                            @completeClaim.declarantEmailAddress.map{ email =>
+                                <li>Declarant email: @email</li>
+                            }
+
+                            @completeClaim.declarantTelephone.map{ telephone =>
+                                <li>Declarant telephone: @telephone</li>
+                            }
+
+                            @completeClaim.declarantAddress.map{ telephone =>
+                                <li>Declarant contact address: @telephone</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Claimant’s details</th>
+                    <td>
+                        <ul class="list-bullet">
+                            <li>I work for the importer company</li>
+                            <li>Full name: John Smith</li>
+                            <li>Email address: johnsmith@@acmecorporation.com</li>
+                            <li>Phone number: +440234567890</li>
+                            <li>Contact address: 17 High Street, Green Park, Cheltenham, Gloucestershire, GL12ABC, United Kingdom</li>
+                        </ul>
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Claimant’s company details</th>
+                    <td>
+                        <ul class="list-bullet">
+                            <li>Company name: ACME Corporation</li>
+                            <li>Email address: contact@@acmecorporation.com</li>
+                            <li>Phone number: +440256789012</li>
+                            <li>Phone number: +440234567890</li>
+                            <li>Contact address: 17 High Street, Green Park, Cheltenham, Gloucestershire, GL12ABC, United Kingdom</li>
+                        </ul>
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Commodities details</th>
+                    <td>
+                        200 boxes of 1000 shoes boxes were damaged and I want to claim back the excess charges I have already paid.
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Claim calculation</th>
+                    <td>
+                        <ul class="list-bullet">
+                            <li>Amount of duty to reimburse claimed by you: £240</li>
+                            <li>Amount of VAT to reimburse claimed by you: £400</li>
+                            <li>Total claimed reimbursement: £640</li>
+                        </ul>
+
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Bank details</th>
+                    <td>
+                        <ul class="list-bullet">
+                            <li>Bank account name: ACME Corporation</li>
+                            <li>Type of bank account: Business</li>
+                            <li>Sort code: ****03</li>
+                            <li>Account number: ****5678</li>
+                        </ul>
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                <tr>
+                    <th scope="row" style="font-weight:bold">Attached documents</th>
+                    <td>
+                        <ul class="list-bullet">
+                            @for(file <- completeClaim.supportingEvidences){
+                            <li>@file.fileName</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>@cyaChange("change", claimRoutes.MovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <h1 class="govuk-fieldset__heading">
+                        @messages(s"$key.declaration-statement.h2")
+                    </h1>
+                </legend>
+                <div class="govuk-checkboxes">
+                    <div class="govuk-checkboxes__item">
+                        <input class="govuk-checkboxes__input" id="waste" name="waste" type="checkbox" value="carcasses">
+                        <label class="govuk-label govuk-checkboxes__label" for="waste">
+                            @messages(s"$key.declaration-statement", completeClaim.declarantDetails.legalName)
+                        </label>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        @submitButton(messages("button.confirm-and-submit-claim"))
+    }
+
+  }

@@ -16,40 +16,33 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
-import cats.data.EitherT._
-import cats.implicits._
-import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SubmitClaimController @Inject() (claimService: ClaimService)(implicit
-  mcc: MessagesControllerComponents,
-  ec: ExecutionContext
+class SubmitClaimController @Inject() ()(implicit
+  mcc: MessagesControllerComponents
 ) extends FrontendController(mcc)
     with Logging {
 
-  val claim: Action[AnyContent] = Action.async { implicit request =>
-    (request.method match {
-      case "GET"  => rightT[Future, Error](testRequestBody)
-      case "POST" => fromOption[Future](request.body.asJson, Error("Request Body is not Json!"))
-    })
-      .flatMap(j => claimService.submitClaim(j, Lang.defaultLang))
-      .fold(
-        e => {
-          logger.warn(s"could not submit claim", e)
-          InternalServerError
-        },
-        response => Ok(Json.toJson(response))
-      )
+  val claim: Action[AnyContent] = Action {
+    Ok("temporary solution")
+//    (request.method match {
+//      case "GET"  => rightT[Future, Error](testRequestBody)
+//      case "POST" => fromOption[Future](request.body.asJson, Error("Request Body is not Json!"))
+//    })
+//      .flatMap(j => claimService.submitClaim(Json.fromJson[Subj, Lang.defaultLang))
+//      .fold(
+//        e => {
+//          logger.warn(s"could not submit claim", e)
+//          InternalServerError
+//        },
+//        response => Ok(Json.toJson(response))
+//      )
 
   }
 

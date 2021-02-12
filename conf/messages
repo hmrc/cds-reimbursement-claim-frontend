@@ -12,7 +12,8 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 button.tryAgain=Try again
 button.continue=Continue
 button.saveAndContinue=Save and continue
-button.confirmAndContinue=Confirm and continue
+button.confirm-and-continue=Confirm and continue
+button.confirm-and-submit-claim=Confirm and submit claim
 
 generic.back=Back
 
@@ -267,6 +268,19 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - END
+#===================================================
+
+#===================================================
+# CHECK YOUR ANSWERS PAGE - START
+#===================================================
+
+check-your-answers.title=Review Your Claim
+check-your-answers.caption=Claim Details
+check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+check-your-answers.declaration-statement.h2=Declaration Statement
+check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
+#===================================================
+# CHECK YOUR ANSWERS PAGE - END
 #===================================================
 
 #===================================================

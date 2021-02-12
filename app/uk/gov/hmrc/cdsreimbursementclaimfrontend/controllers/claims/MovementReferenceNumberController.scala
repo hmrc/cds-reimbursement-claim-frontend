@@ -153,10 +153,7 @@ class MovementReferenceNumberController @Inject() (
                       logger.warn("could not capture movement reference number", e)
                       errorHandler.errorResult()
                     },
-                    _ => {
-                      logger.warn("\n\n\n\n I am here \n\n\n\n")
-                      Redirect(routes.CheckDeclarantDetailsController.checkDetails())
-                    }
+                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
                   )
               }
             }

@@ -25,7 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenc
 import java.time.LocalDate
 import java.util.UUID
 
-sealed trait DraftClaim extends Product with Serializable
+sealed trait DraftClaim extends Product with Serializable {
+  val id: UUID
+}
 
 object DraftClaim {
 
