@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.Logger
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Format
 
-trait Logging {
+import java.time.LocalDate
 
-  val logger: Logger = Logger(this.getClass)
+final case class DateOfImport(value: LocalDate) extends AnyVal
 
-}
+object DateOfImport {
 
-object Logging {
-
-  implicit class LoggerOps(private val l: Logger) extends AnyVal {
-    def warn(msg: => String, e: => Error): Unit =
-      e.value.fold(e => l.warn(s"$msg: $e"), e => l.warn(msg, e))
-
-  }
+  implicit val format: Format[DateOfImport] =
+    implicitly[Format[LocalDate]].inmap(DateOfImport(_), _.value)
 
 }

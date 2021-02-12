@@ -197,7 +197,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
         CompleteC285Claim
           .fromDraftClaim(draftClaim)
           .fold[Future[Result]](
-            Redirect(claimsRoutes.MovementReferenceNumberController.enterMrn())
+            Redirect(claimsRoutes.EnterMovementReferenceNumberController.enterMrn())
           )(f(s, r, _))
       case _ =>
         Redirect(baseRoutes.StartController.start())

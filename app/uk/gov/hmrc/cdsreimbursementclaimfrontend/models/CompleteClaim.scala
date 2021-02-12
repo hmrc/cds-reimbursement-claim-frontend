@@ -41,11 +41,13 @@ final case class CompleteC285Claim(
 
 object CompleteC285Claim {
 
+  //TODO: fix to bring the right data thru
   def fromDraftClaim(draftClaim: DraftClaim): Option[CompleteC285Claim] =
     draftClaim match {
       case DraftClaim.DraftC285Claim(
             id,
             Some(declaration),
+            _,
             _,
             _,
             Some(supportingEvidenceAnswers),

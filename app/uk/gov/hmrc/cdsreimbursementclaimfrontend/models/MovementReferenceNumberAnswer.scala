@@ -26,11 +26,10 @@ sealed trait MovementReferenceNumberAnswer extends Product with Serializable
 object MovementReferenceNumberAnswer {
 
   final case class IncompleteMovementReferenceNumberAnswer(
-    referenceNumber: Option[Either[EntryNumber, MRN]]
+    movementReferenceNumber: Option[Either[EntryNumber, MRN]]
   ) extends MovementReferenceNumberAnswer
 
   object IncompleteMovementReferenceNumberAnswer {
-
     val empty: IncompleteMovementReferenceNumberAnswer = IncompleteMovementReferenceNumberAnswer(None)
 
     implicit val format: OFormat[IncompleteMovementReferenceNumberAnswer] =
@@ -38,7 +37,7 @@ object MovementReferenceNumberAnswer {
   }
 
   final case class CompleteMovementReferenceNumberAnswer(
-    referenceNumber: Either[EntryNumber, MRN]
+    movementReferenceNumber: Either[EntryNumber, MRN]
   ) extends MovementReferenceNumberAnswer
 
   object CompleteMovementReferenceNumberAnswer {

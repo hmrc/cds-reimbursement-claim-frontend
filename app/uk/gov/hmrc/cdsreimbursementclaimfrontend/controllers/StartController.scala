@@ -195,7 +195,7 @@ class StartController @Inject() (
       },
       _ =>
         Redirect(
-          controllers.claims.routes.MovementReferenceNumberController.enterMrn()
+          controllers.claims.routes.EnterMovementReferenceNumberController.enterMrn()
         )
     )
   }

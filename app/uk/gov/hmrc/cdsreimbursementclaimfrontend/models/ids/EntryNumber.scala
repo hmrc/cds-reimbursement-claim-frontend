@@ -22,12 +22,9 @@ final case class EntryNumber(value: String) extends AnyVal
 
 object EntryNumber {
 
-  def isValid(in: String): Boolean = {
-    val regex = """\d{3}\d{6}[a-zA-Z]{1}\d{8}""".r
-    in match {
-      case regex(_*) => true
-      case _         => false
-    }
+  def isValid(maybeEntryNumber: String): Boolean = {
+    val entryNumberFormat = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
+    maybeEntryNumber.matches(entryNumberFormat)
   }
 
   implicit val format: OFormat[EntryNumber] = Json.format[EntryNumber]

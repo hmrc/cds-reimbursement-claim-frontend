@@ -22,12 +22,9 @@ final case class MRN(value: String)
 
 object MRN {
 
-  def isValid(in: String): Boolean = {
-    val regex = """\d{2}[a-zA-Z]{2}\w{13}\d""".r
-    in match {
-      case regex(_*) => true
-      case _         => false
-    }
+  def isValid(maybeMrn: String): Boolean = {
+    val regex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
+    maybeMrn.matches(regex)
   }
 
   implicit val format: OFormat[MRN] = Json.format[MRN]

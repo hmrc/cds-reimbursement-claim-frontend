@@ -1,10 +1,13 @@
-GET         /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrn()
-POST        /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.enterMrnSubmit()
+GET         /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrn()
+POST        /enter-movement-reference-number                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit()
 
-GET         /movement-reference-number-not-linked-to-eori       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MovementReferenceNumberController.mrnNotLinkedToEori()
+GET         /movement-reference-number-not-linked-to-eori       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.mrnNotLinkedToEori()
 
 GET         /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetails()
 POST        /enter-claimant-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.enterClaimantDetailsSubmit()
+
+GET         /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetails()
+POST        /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit()
 
 GET         /enter-reason-for-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaim()
 POST        /enter-reason-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaimSubmit()

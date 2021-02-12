@@ -29,7 +29,8 @@
   yearValue: Option[String],
   helpText: Option[Html],
   errorKey: Option[String],
-  hasErrors: Boolean
+  hasErrors: Boolean,
+  labelClass: Option[String] = None
 )(implicit messages: Messages)
 
 @classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
@@ -40,11 +41,13 @@
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
 @describedByKeys = @{
   List(hintIdWithHintText.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
+@classBuilder(s: Option[String]*) = @{s.toList.collect{case Some(s) => s}.mkString(" ")}
+@labelClasses = @{classBuilder(Some("form-label"), labelClass)}
 
 <div class="@classes">
   <fieldset id="@fieldId"@if(describedByKeys.nonEmpty) { aria-describedby="@describedByKeys" }>
     <legend>
-      @label
+        <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
     </legend>
     @if(helpText.isDefined) {
       <span id="@{fieldId}-form-hint" class="form-hint">

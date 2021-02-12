@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
 
 import java.time.LocalDate
@@ -35,6 +36,7 @@ object DraftClaim {
     id: UUID,
     maybeDeclaration: Option[Declaration],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
+    declarationDetailAnswers: Option[DeclarantDetailAnswers],
     reasonForClaim: Option[ReasonForClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
     lastUpdatedDate: LocalDate
@@ -42,7 +44,8 @@ object DraftClaim {
 
   object DraftC285Claim {
     implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
-    val newDraftC285Claim: DraftC285Claim        = DraftC285Claim(UUID.randomUUID(), None, None, None, None, LocalDate.now)
+    val newDraftC285Claim: DraftC285Claim        =
+      DraftC285Claim(UUID.randomUUID(), None, None, None, None, None, LocalDate.now)
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 
@@ -53,6 +56,28 @@ object DraftClaim {
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
       }
+
+    def movementReferenceNumber(): Option[Either[EntryNumber, MRN]] = draftClaim match {
+      case DraftC285Claim(
+            _,
+            _,
+            movementReferenceNumberAnswer,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        movementReferenceNumberAnswer match {
+          case Some(movementReferenceNumberAnswer) =>
+            movementReferenceNumberAnswer match {
+              case MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer(movementReferenceNumber) =>
+                movementReferenceNumber
+              case MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer(movementReferenceNumber)   =>
+                Some(movementReferenceNumber)
+            }
+          case None                                => None
+        }
+    }
   }
 
   implicit val eq: Eq[DraftClaim] = Eq.fromUniversalEquals
