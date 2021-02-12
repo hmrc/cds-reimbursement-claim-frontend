@@ -20,9 +20,11 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankAccount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -34,14 +36,19 @@ class BankAccountController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
+  checkBankAccountDetailsPage: views.html.claims.bank_account_details,
   val config: Configuration
-) extends FrontendController(cc)
+)(implicit viewConfig: ViewConfig)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
 
-  def checkBankAccountDetails(): Action[AnyContent] = Action {
-    Ok("bank account details - to be implemented")
+  def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Ok(checkBankAccountDetailsPage(MaskedBankAccount))
   }
 
+  def checkBankAccountDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect("uploadSupportingEvidence")
+  }
 }

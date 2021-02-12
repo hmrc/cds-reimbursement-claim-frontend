@@ -17,7 +17,8 @@ GET         /who-is-the-declarant                       uk.gov.hmrc.cdsreimburse
 POST        /who-is-the-declarant                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.WhoIsMakingTheClaimController.chooseDeclarantTypeSubmit()
 
 
-GET /check-bank-account-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+GET         /check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+POST        /check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetailsSubmit()
 
 GET   /check-answers-accept-send         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
 POST  /check-answers-accept-send         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
