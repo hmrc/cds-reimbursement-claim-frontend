@@ -118,7 +118,6 @@ enter-declaration-details.declarant-name.help=This is the name of the person who
 enter-declaration-details.declarant-email-address.label=Declarant email address
 enter-declaration-details.declarant-phone-number.label=Declarant phone number
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
-
 enter-declaration-details.error.required=Please enter your declaration details
 enter-declaration-details.error.tooFarInFuture=Please a date before today
 enter-declaration-details.date-of-import.error.required=Enter a date of import
@@ -132,9 +131,22 @@ enter-declaration-details.declarant-email-address.error.required=Enter a declara
 enter-declaration-details.declarant-phone-number.error.required=Enter a declarant phone number
 
 #===================================================
+#  SELECT DECLARANT TYPE - START
+#===================================================
+select-who-is-making-the-claim.title=Who is making this claim?
+select-who-is-making-the-claim.caption=Declarant Type
+select-who-is-making-the-claim.importer=I am an importer person
+select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
+select-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+select-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
+select-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
+select-who-is-making-the-claim.details.label=What is an importer and an representative?
+select-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
+select-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+
+#===================================================
 #  CHECK DECLARANT DETAILS PAGE - START
 #===================================================
-
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
 check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
@@ -143,24 +155,6 @@ check-declaration-details.help-text=These are the declaration details given by t
 #  CHECK DECLARANT DETAILS PAGE - END
 #===================================================
 
-#===================================================
-#  CHOOSE DECLARANT TYPE - START
-#===================================================
-
-choose-who-is-making-the-claim.title=Who is making this claim?
-choose-who-is-making-the-claim.caption=Declarant Type
-choose-who-is-making-the-claim.importer=I am an importer person
-choose-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-choose-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
-choose-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
-choose-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
-choose-who-is-making-the-claim.details.label=What is an importer and an representative?
-choose-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
-choose-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
-
-#===================================================
-#  CHOOSE DECLARANT TYPE - END
-#===================================================
 
 #===================================================
 #  SELECT REASON FOR CLAIM - START

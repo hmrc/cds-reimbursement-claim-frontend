@@ -37,6 +37,7 @@ object DraftClaim {
     maybeDeclaration: Option[Declaration],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     declarationDetailAnswers: Option[DeclarantDetailAnswers],
+    declarantTypeAnswer: Option[DeclarantTypeAnswer],
     reasonForClaim: Option[ReasonForClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
     lastUpdatedDate: LocalDate
@@ -45,7 +46,7 @@ object DraftClaim {
   object DraftC285Claim {
     implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     val newDraftC285Claim: DraftC285Claim        =
-      DraftC285Claim(UUID.randomUUID(), None, None, None, None, None, LocalDate.now)
+      DraftC285Claim(UUID.randomUUID(), None, None, None, None, None, None, LocalDate.now)
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 
@@ -57,11 +58,12 @@ object DraftClaim {
         case a: DraftC285Claim => draftC285Claim(a)
       }
 
-    def movementReferenceNumber(): Option[Either[EntryNumber, MRN]] = draftClaim match {
+    def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case DraftC285Claim(
             _,
             _,
             movementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,

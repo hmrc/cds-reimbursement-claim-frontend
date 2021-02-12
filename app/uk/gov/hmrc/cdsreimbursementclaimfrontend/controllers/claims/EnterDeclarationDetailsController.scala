@@ -82,8 +82,7 @@ class EnterDeclarationDetailsController @Inject() (
         ifIncomplete =>
           ifIncomplete.entryDeclaration match {
             case Some(reference) =>
-              fillingOutClaim.draftClaim
-                .movementReferenceNumber()
+              fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
                   case Left(value) =>
                     Ok(
@@ -96,8 +95,7 @@ class EnterDeclarationDetailsController @Inject() (
                   case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 }
             case None            =>
-              fillingOutClaim.draftClaim
-                .movementReferenceNumber()
+              fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
                   case Left(value) =>
                     Ok(
@@ -111,8 +109,7 @@ class EnterDeclarationDetailsController @Inject() (
                 }
           },
         ifComplete =>
-          fillingOutClaim.draftClaim
-            .movementReferenceNumber()
+          fillingOutClaim.draftClaim.movementReferenceNumber
             .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
               case Left(value) =>
                 Ok(
@@ -135,8 +132,7 @@ class EnterDeclarationDetailsController @Inject() (
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
-              fillingOutClaim.draftClaim
-                .movementReferenceNumber()
+              fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
                   case Left(value) =>
                     BadRequest(
@@ -170,7 +166,7 @@ class EnterDeclarationDetailsController @Inject() (
                   logger.warn("could not capture declaration details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.WhoIsMakingTheClaimController.chooseDeclarantType())
+                _ => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
               )
             }
           )

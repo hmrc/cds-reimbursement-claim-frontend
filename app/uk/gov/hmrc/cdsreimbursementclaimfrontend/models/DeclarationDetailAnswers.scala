@@ -44,7 +44,7 @@ object DeclarantDetailAnswers {
       derived.oformat[CompleteDeclarationDetailAnswer]()
   }
 
-  implicit class MovementReferenceNumberOps(
+  implicit class DeclarantDetailAnswersOps(
     private val a: DeclarantDetailAnswers
   ) extends AnyVal {
 

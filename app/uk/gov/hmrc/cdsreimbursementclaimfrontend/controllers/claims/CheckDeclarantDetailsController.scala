@@ -74,7 +74,7 @@ class CheckDeclarantDetailsController @Inject() (
   }
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.WhoIsMakingTheClaimController.chooseDeclarantType())
+    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
   }
 
 }
