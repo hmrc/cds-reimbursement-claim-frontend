@@ -14,11 +14,59 @@
  * limitations under the License.
  *@
 
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 
-@this()
-@(justSubmittedClaim : JustSubmittedClaim)
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template
+)
 
-<p>
- @justSubmittedClaim.ggCredId.value
-</p>
+@(justSubmittedClaim : JustSubmittedClaim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+  @key=@{"confirmation-of-submission"}
+  @title = @{ messages(s"$key.title") }
+
+  @mainTemplate(title = title, userType = request.userType) {
+
+      <div class="govuk-box-highlight">
+        <h1 class="heading-xlarge">@title</h1>
+          <p>
+              <span class="tax-owed-label">
+                 @messages(s"$key.reimbursement-amount")
+              </span>
+                  <span class="heading-xlarge">
+                 @{formatAmountOfMoneyWithPoundSign(justSubmittedClaim.completeClaim.totalClaim.toDouble)}
+              </span>
+          </p>
+          <p id="ref-id">
+              @messages(s"$key.claim-reference")
+              <span class="heading-large">
+              @justSubmittedClaim.submissionResponse.caseNumber
+        </span>
+          </p>
+      </div>
+
+    <p>@Html(messages(s"$key.email-sent"))</p>
+
+    <p><span class="heading-large">What happens next?</span></p>
+
+    <p>@Html(messages(s"$key.what-next.p1"))</p>
+
+    <ul class="list-bullet">
+        <li>@Html(messages(s"$key.what-next.l1"))</li>
+        <li>@Html(messages(s"$key.what-next.l2"))</li>
+        <li>@Html(messages(s"$key.what-next.l3"))</li>
+    </ul>
+
+    <p>@Html(messages(s"$key.what-next.p2"))</p>
+
+    <p><a href="@routes.StartController.start().url">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
+
+    <p><a href="@routes.FeedbackController.feedback().url">@messages(s"exit-survey.link-text")</a></p>
+
+}

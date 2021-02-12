@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.api.i18n.Messages
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import org.scalacheck.Gen
+import org.scalacheck.ScalacheckShapeless._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SubmitClaimResponse
 
-@this()
-
-@(exitSurveyUrl: String)(implicit messages: Messages, viewConfig: ViewConfig)
-
-<p>
-  <a href="@{viewConfig.signOutUrl}?continue=@{exitSurveyUrl}">@messages("exit-survey.link-text")</a>
-</p>
+object SubmissionResponseGen extends GenUtils {
+  implicit val submissionResponseGen: Gen[SubmitClaimResponse] = gen[SubmitClaimResponse]
+}

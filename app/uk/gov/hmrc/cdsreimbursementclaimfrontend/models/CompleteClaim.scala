@@ -32,6 +32,8 @@ sealed trait CompleteClaim extends Product with Serializable {
 final case class CompleteC285Claim(
   id: UUID,
   supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
+  totalClaim: String,
+  caseReference: String,
   lastUpdatedDate: LocalDate
 ) extends CompleteClaim
 
@@ -43,6 +45,12 @@ object CompleteC285Claim {
 }
 
 object CompleteClaim {
+
+  implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
+    def totalClaim: String = completeClaim match {
+      case CompleteC285Claim(_, _, totalClaim, _, _) => totalClaim
+    }
+  }
 
   implicit val eq: Eq[CompleteClaim] = Eq.fromUniversalEquals
 
