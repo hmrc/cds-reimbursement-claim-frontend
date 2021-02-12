@@ -45,7 +45,7 @@ class BankAccountController @Inject() (
     with SessionUpdates {
 
   def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(checkBankAccountDetailsPage(MaskedBankAccount))
+    Ok(checkBankAccountDetailsPage(MaskedBankAccount("Shiva", "45-45-45", "123456")))
   }
 
   def checkBankAccountDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
