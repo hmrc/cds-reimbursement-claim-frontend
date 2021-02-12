@@ -33,40 +33,65 @@
 
   @mainTemplate(title = title, userType = request.userType) {
 
-      <div class="govuk-box-highlight">
-        <h1 class="heading-xlarge">@title</h1>
-          <p>
-              <span class="tax-owed-label">
-                 @messages(s"$key.reimbursement-amount")
-              </span>
-                  <span class="heading-xlarge">
-                 @{formatAmountOfMoneyWithPoundSign(justSubmittedClaim.completeClaim.totalClaim.toDouble)}
-              </span>
-          </p>
-          <p id="ref-id">
-              @messages(s"$key.claim-reference")
-              <span class="heading-large">
-              @justSubmittedClaim.submissionResponse.caseNumber
-        </span>
-          </p>
-      </div>
 
-    <p>@Html(messages(s"$key.email-sent"))</p>
+@*
+* Temp code before switch to new frontend
+*@
 
-    <p><span class="heading-large">What happens next?</span></p>
+<link rel="stylesheet" href='/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css' />
 
-    <p>@Html(messages(s"$key.what-next.p1"))</p>
 
-    <ul class="list-bullet">
-        <li>@Html(messages(s"$key.what-next.l1"))</li>
-        <li>@Html(messages(s"$key.what-next.l2"))</li>
-        <li>@Html(messages(s"$key.what-next.l3"))</li>
-    </ul>
+<!--<main class="govuk-main-wrapper govuk-main-wrapper&#45;&#45;s" id="main-content" role="main">-->
 
-    <p>@Html(messages(s"$key.what-next.p2"))</p>
+    <div class="govuk-width-container">
 
-    <p><a href="@routes.StartController.start().url">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
+        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
 
-    <p><a href="@routes.FeedbackController.feedback().url">@messages(s"exit-survey.link-text")</a></p>
+            <!-- div class="govuk-grid-row" -->
+            <div>
+
+                <!-- div class="govuk-grid-column-two-thirds" -->
+                <div>
+
+                    <div class="govuk-panel govuk-panel--confirmation">
+                        <h1 class="govuk-panel__title">@title</h1>
+                        <div class="govuk-panel__body">
+                            @messages(s"$key.reimbursement-amount")<br>
+                            <strong>@{formatAmountOfMoneyWithPoundSign(justSubmittedClaim.completeClaim.totalClaim.toDouble)}</strong>
+                        </div>
+                        <br>
+                        <div class="govuk-panel__body">
+                            @messages(s"$key.claim-reference")<br>
+                            <strong>@justSubmittedClaim.submissionResponse.caseNumber</strong>
+                        </div>
+                    </div>
+
+                    <p style="padding: 0 0 0.5em 0;"></p>
+
+                    <p class="govuk-body">@Html(messages(s"$key.email-sent"))</p>
+
+                    <h2 class="govuk-heading-m">What happens next?</h2>
+
+                    <p class="govuk-body">@Html(messages(s"$key.what-next.p1"))</p>
+
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>@Html(messages(s"$key.what-next.l1"))</li>
+                        <li>@Html(messages(s"$key.what-next.l2"))</li>
+                        <li>@Html(messages(s"$key.what-next.l3"))</li>
+                    </ul>
+
+                    <p class="govuk-body">@Html(messages(s"$key.what-next.p2"))</p>
+
+                    <p class="govuk-body"><a href="@routes.StartController.start().url" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
+
+                </div>
+            </div>
+        </main>
+
+        <p style="margin-top:70px;"><a href="@routes.FeedbackController.feedback().url">@messages(s"exit-survey.link-text")</a></p>
+
+    </div>
+
+<!--</main>-->
 
 }
