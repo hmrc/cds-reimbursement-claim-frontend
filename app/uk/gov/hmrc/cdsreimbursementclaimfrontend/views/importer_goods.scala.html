@@ -1,0 +1,62 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.api.mvc.Request
+
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+
+@this(
+mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption
+)
+
+
+@()(implicit messages: Messages, viewConfig: ViewConfig, request: Request[_])
+
+@key = @{ "importer-goods" }
+@title = @{messages(s"$key.title")}
+
+@mainTemplate(title = title, userType = None, withSignOutLink = false) {
+
+@caption(messages(s"$key.caption"))
+
+@pageHeading(title)
+
+<div id="content" class="govuk-grid-row" xmlns="http://www.w3.org/1999/html">
+
+    <p class="govuk-inset-text">
+        @messages(s"$key.p1")
+    </p>
+
+    <h1 class="govuk-heading-s">@messages(s"$key.heading1")</h1>
+
+    <p class="govuk-body">
+        @messages(s"$key.p2")
+    </p>
+
+    <textarea class="govuk-textarea" id="more-detail" name="more-detail" rows="5" aria-describedby="more-detail-hint">
+
+    </textarea>
+
+    <p>
+        @submitButton(messages("button.continue"))
+    </p>
+</div>
+
+}

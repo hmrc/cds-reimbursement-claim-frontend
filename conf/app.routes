@@ -13,3 +13,5 @@ GET /switch-to-english-language                                             uk.g
 GET /accessibility-statement                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
 GET /assets/*file                                                           controllers.Assets.at(path="/public", file)
+
+GET /importer-goods                                                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ImporterGoodsController.importerGoods()

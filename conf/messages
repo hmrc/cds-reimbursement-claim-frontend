@@ -302,5 +302,18 @@ accessibility-statement.li5 = listen to the service using a screen reader (inclu
 
 
 #===================================================
-#  ACCESSIBILITY - START
+#  ACCESSIBILITY - END
+#===================================================
+
+#===================================================
+#  IMPORTER GOODS - START
+#===================================================
+importer-goods.caption = Importer Goods
+importer-goods.title = Enter details of the commodities you would like reimbursing for
+importer-goods.p1 = You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim.This will help reduce delays in your claim being processed.
+importer-goods.heading1 = Details for commodity
+importer-goods.p2 = Explain why you would like to be reimbursed and why you are entitled to this claim. Also include include the commodity code, type of product, quantity and unit.
+importer-goods.button.continue = continue
+#===================================================
+#  IMPORTER GOODS - END
 #===================================================
