@@ -104,41 +104,65 @@ enter-claimant-details-individual.importer-full-name.help=This must be your lega
 enter-claimant-details-individual.importer-full-name.error.required=Please enter your full name
 enter-claimant-details-individual.importer-email.label=Email address
 enter-claimant-details-individual.importer-email.error.required=Please enter your email
-
 enter-claimant-details-individual.importer-phone-number.error.required=Please enter your phone number
 enter-claimant-details-individual.importer-phone-number.label=Phone number
 enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
-
 enter-claimant-details-individual.importer-contact-address.label=Contact Address
-
 enter-claimant-details-individual.address.building.label=Building number or name
 enter-claimant-details-individual.nonUkAddress-building.error.required=Please enter your building number or name
-
 enter-claimant-details-individual.address.line1.label=Address Line 1
 enter-claimant-details-individual.address.line1.error.required=Please enter address line 1
 enter-claimant-details-individual.nonUkAddress-line1.error.required=Please enter line 1 of your address
-
 enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
-
 enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
-
 enter-claimant-details-individual.address.line4.label=Town or city
 enter-claimant-details-individual.nonUkAddress-line4.error.required=Please enter your town or city
-
 enter-claimant-details-individual.address.line5.label=County (Optional)
-
 enter-claimant-details-individual.address.line6.label=Postcode
 enter-claimant-details-individual.address.line6.error.required=Please enter your postcode
-
 enter-claimant-details-individual.address.line7.label=Country
 enter-claimant-details-individual.countryCode.error.required=Please enter your country
-
 enter-claimant-details-individual.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.required=Please choose if you want to add company details
-
 countryCode.enter-claimant-details-individual.error.required=Please enter your country
+
+#===================================================
+#  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
+#===================================================
+enter-claimant-details-importer-company.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-importer-company.title=Enter your claimant details as an importer company
+enter-claimant-details-importer-company.caption=Company Claimant Details
+enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
+enter-claimant-details-importer-company.importer-company-name.label=Company name
+enter-claimant-details-importer-company.importer-company-name.error.required=Please enter your company name
+enter-claimant-details-importer-company.importer-email.label=Email address
+enter-claimant-details-importer-company.importer-email.error.required=Please enter your email
+enter-claimant-details-importer-company.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-importer-company.importer-phone-number.label=Phone number
+enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
+enter-claimant-details-importer-company.importer-contact-address.label=Contact Address
+enter-claimant-details-importer-company.address.building.label=Building number or name
+enter-claimant-details-importer-company.nonUkAddress-building.error.required=Please enter your building number or name
+enter-claimant-details-importer-company.address.line1.label=Address Line 1
+enter-claimant-details-importer-company.address.line1.error.required=Please enter address line 1
+enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Please enter line 1 of your address
+enter-claimant-details-importer-company.address.line2.label=Address Line 2 (optional)
+enter-claimant-details-importer-company.address.line3.label=Address Line 3 (optional)
+enter-claimant-details-importer-company.address.line4.label=Town or city
+enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Please enter your town or city
+enter-claimant-details-importer-company.address.line5.label=County (Optional)
+enter-claimant-details-importer-company.address.line6.label=Postcode
+enter-claimant-details-importer-company.address.line6.error.required=Please enter your postcode
+enter-claimant-details-importer-company.address.line7.label=Country
+enter-claimant-details-importer-company.countryCode.error.required=Please enter your country
+enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
+enter-claimant-details-importer-company.add-company-details.no=No
+enter-claimant-details-importer-company.add-company-details.yes=Yes
+enter-claimant-details-importer-company.add-company-details.error.required=Please choose if you want to add company details
+countryCode.enter-claimant-details-importer-company.error.required=Please enter your country
+
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
@@ -392,8 +416,6 @@ accessibility-statement.li5 = listen to the service using a screen reader (inclu
 #  ACCESSIBILITY - START
 #===================================================
 
-
-
 #===================================================
 #  NON-UK ADDRESS - START
 #===================================================
@@ -401,6 +423,7 @@ nonUkAddress-building.error.required=Please enter your building name or number
 nonUkAddress-line1.error.required=Please enter the first line of your address
 nonUkAddress-line4.error.required=Please enter your town or city
 countryCode.error.required=Please enter your country
+
 #===================================================
 #  COUNTRIES - START
 #===================================================

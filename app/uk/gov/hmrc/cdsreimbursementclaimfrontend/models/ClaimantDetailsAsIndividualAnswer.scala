@@ -44,7 +44,7 @@ object ClaimantDetailsAsIndividualAnswer {
       derived.oformat[CompleteClaimantDetailsAsIndividualAnswer]()
   }
 
-  implicit class DeclarantTypeAnswerOps(
+  implicit class ClaimantDetailsAsIndividualAnswerOps(
     private val a: ClaimantDetailsAsIndividualAnswer
   ) extends AnyVal {
 
