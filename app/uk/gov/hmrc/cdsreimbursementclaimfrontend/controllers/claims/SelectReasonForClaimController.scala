@@ -86,14 +86,14 @@ class SelectReasonForClaimController @Inject() (
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
-                    routes.EnterClaimantDetailsController.enterClaimantDetails()
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
               case None                       =>
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm,
-                    routes.EnterClaimantDetailsController.enterClaimantDetails()
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
             },
@@ -103,7 +103,7 @@ class SelectReasonForClaimController @Inject() (
                 SelectReasonForClaimController.reasonForClaimForm.fill(
                   SelectReasonForClaim(ifComplete.reasonForClaimOption)
                 ),
-                routes.EnterClaimantDetailsController.enterClaimantDetails()
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
               )
             )
         )
@@ -120,7 +120,7 @@ class SelectReasonForClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimPage(
                   requestFormWithErrors,
-                  routes.EnterClaimantDetailsController.enterClaimantDetails()
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                 )
               ),
             reasonForClaim => {

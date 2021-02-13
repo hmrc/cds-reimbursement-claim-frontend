@@ -61,6 +61,8 @@ footer.govukHelp.url = https://www.gov.uk/help
 
 exit-survey.link-text=What did you think of this service?
 
+
+
 #===================================================
 #  MESSAGES FOR PAGES
 #===================================================
@@ -91,12 +93,52 @@ mrn-not-linked-to-eori.caption=Movement Reference Number
 mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
 
 #===================================================
-#  ENTER CLAIMANT DETAILS PAGE
+#  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
-enter-claimant-details.title=Enter Claimant Details
-enter-claimant-details.caption=Claimant Details
-enter-claimant-details.help-text=Please enter your details for the claim
+enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-individual.title=Enter your claimant details as an individual
+enter-claimant-details-individual.caption=Individual Claimant Details
+enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-individual.importer-full-name.label=Full name
+enter-claimant-details-individual.importer-full-name.help=This must be your legal name
+enter-claimant-details-individual.importer-full-name.error.required=Please enter your full name
+enter-claimant-details-individual.importer-email.label=Email address
+enter-claimant-details-individual.importer-email.error.required=Please enter your email
 
+enter-claimant-details-individual.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-individual.importer-phone-number.label=Phone number
+enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
+
+enter-claimant-details-individual.importer-contact-address.label=Contact Address
+
+enter-claimant-details-individual.address.building.label=Building number or name
+enter-claimant-details-individual.nonUkAddress-building.error.required=Please enter your building number or name
+
+enter-claimant-details-individual.address.line1.label=Address Line 1
+enter-claimant-details-individual.address.line1.error.required=Please enter address line 1
+enter-claimant-details-individual.nonUkAddress-line1.error.required=Please enter line 1 of your address
+
+enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
+
+enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
+
+enter-claimant-details-individual.address.line4.label=Town or city
+enter-claimant-details-individual.nonUkAddress-line4.error.required=Please enter your town or city
+
+enter-claimant-details-individual.address.line5.label=County (Optional)
+
+enter-claimant-details-individual.address.line6.label=Postcode
+enter-claimant-details-individual.address.line6.error.required=Please enter your postcode
+
+enter-claimant-details-individual.address.line7.label=Country
+enter-claimant-details-individual.countryCode.error.required=Please enter your country
+
+enter-claimant-details-individual.add-company-details.label=<h2>Do you want to add company details?</h2>
+enter-claimant-details-individual.add-company-details.no=No
+enter-claimant-details-individual.add-company-details.yes=Yes
+enter-claimant-details-individual.add-company-details.error.required=Please choose if you want to add company details
+
+countryCode.enter-claimant-details-individual.error.required=Please enter your country
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
@@ -105,7 +147,6 @@ enter-declaration-details.caption=Declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: {0}.
 enter-declaration-details.date-of-import.label=Date of Import
 enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
-enter-declaration-details.place-of-import.label=Place of import
 enter-declaration-details.place-of-import.label=Place of import
 enter-declaration-details.place-of-import.help=This is where the commodities arrived in the UK. You can find the location on import documents.
 enter-declaration-details.importer-name.label=Importer name
@@ -131,7 +172,7 @@ enter-declaration-details.declarant-email-address.error.required=Enter a declara
 enter-declaration-details.declarant-phone-number.error.required=Enter a declarant phone number
 
 #===================================================
-#  SELECT DECLARANT TYPE - START
+#  SELECT DECLARANT TYPE PAGE
 #===================================================
 select-who-is-making-the-claim.title=Who is making this claim?
 select-who-is-making-the-claim.caption=Declarant Type
@@ -154,7 +195,6 @@ check-declaration-details.help-text=These are the declaration details given by t
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE - END
 #===================================================
-
 
 #===================================================
 #  SELECT REASON FOR CLAIM - START
@@ -348,7 +388,269 @@ accessibility-statement.li3 = get from the start of the service to the end using
 accessibility-statement.li4 = get from the start of the service to the end using speech recognition software
 accessibility-statement.li5 = listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
 
-
 #===================================================
 #  ACCESSIBILITY - START
 #===================================================
+
+
+
+#===================================================
+#  NON-UK ADDRESS - START
+#===================================================
+nonUkAddress-building.error.required=Please enter your building name or number
+nonUkAddress-line1.error.required=Please enter the first line of your address
+nonUkAddress-line4.error.required=Please enter your town or city
+countryCode.error.required=Please enter your country
+#===================================================
+#  COUNTRIES - START
+#===================================================
+country.AD=Andorra
+country.AE=United Arab Emirates
+country.AF=Afghanistan
+country.AG=Antigua and Barbuda
+country.AI=Anguilla
+country.AL=Albania
+country.AM=Armenia
+country.AO=Angola
+country.AQ=Antarctica
+country.AR=Argentina
+country.AS=American Samoa
+country.AT=Austria
+country.AU=Australia
+country.AW=Aruba
+country.AX=Åland Islands
+country.AZ=Azerbaijan
+country.BA=Bosnia and Herzegovina
+country.BB=Barbados
+country.BD=Bangladesh
+country.BE=Belgium
+country.BF=Burkina Faso
+country.BG=Bulgaria
+country.BH=Bahrain
+country.BI=Burundi
+country.BJ=Benin
+country.BL=Saint Barthélemy
+country.BM=Bermuda
+country.BN=Brunei
+country.BO=Bolivia
+country.BQ=Bonaire, Sint Eustatius and Saba
+country.BR=Brazil
+country.BS=The Bahamas
+country.BT=Bhutan
+country.BV=Bouvet Island
+country.BW=Botswana
+country.BY=Belarus
+country.BZ=Belize
+country.CA=Canada
+country.CC=Cocos (Keeling) Islands
+country.CD=Congo (Democratic Republic)
+country.CF=Central African Republic
+country.CG=Congo
+country.CH=Switzerland
+country.CI=Ivory Coast
+country.CK=Cook Islands
+country.CL=Chile
+country.CM=Cameroon
+country.CN=China
+country.CO=Colombia
+country.CR=Costa Rica
+country.CS=Czechoslovakia
+country.CU=Cuba
+country.CV=Cape Verde
+country.CW=Curaçao
+country.CX=Christmas Island
+country.CY=Cyprus
+country.CZ=Czechia
+country.DE=Germany
+country.DJ=Djibouti
+country.DK=Denmark
+country.DM=Dominica
+country.DO=Dominican Republic
+country.DZ=Algeria
+country.EC=Ecuador
+country.EE=Estonia
+country.EG=Egypt
+country.EH=Western Sahara
+country.ER=Eritrea
+country.ES=Spain
+country.ET=Ethiopia
+country.FI=Finland
+country.FJ=Fiji
+country.FK=Falkland Islands
+country.FM=Micronesia
+country.FO=Faroe Islands
+country.FR=France
+country.GA=Gabon
+country.GD=Grenada
+country.GE=Georgia
+country.GF=French Guiana
+country.GG=Guernsey
+country.GH=Ghana
+country.GI=Gibraltar
+country.GL=Greenland
+country.GM=The Gambia
+country.GN=Guinea
+country.GP=Guadeloupe
+country.GQ=Equatorial Guinea
+country.GR=Greece
+country.GS=South Georgia and South Sandwich Islands
+country.GT=Guatemala
+country.GU=Guam
+country.GW=Guinea-Bissau
+country.GY=Guyana
+country.HK=Hong Kong
+country.HM=Heard Island and McDonald Islands
+country.HN=Honduras
+country.HR=Croatia
+country.HT=Haiti
+country.HU=Hungary
+country.ID=Indonesia
+country.IE=Ireland
+country.IL=Israel
+country.IM=Isle of Man
+country.IN=India
+country.IO=British Indian Ocean Territory
+country.IQ=Iraq
+country.IR=Iran
+country.IS=Iceland
+country.IT=Italy
+country.JE=Jersey
+country.JM=Jamaica
+country.JO=Jordan
+country.JP=Japan
+country.KE=Kenya
+country.KG=Kyrgyzstan
+country.KH=Cambodia
+country.KI=Kiribati
+country.KM=Comoros
+country.KN=St Kitts and Nevis
+country.KP=North Korea
+country.KR=South Korea
+country.KW=Kuwait
+country.KY=Cayman Islands
+country.KZ=Kazakhstan
+country.LA=Laos
+country.LB=Lebanon
+country.LC=St Lucia
+country.LI=Liechtenstein
+country.LK=Sri Lanka
+country.LR=Liberia
+country.LS=Lesotho
+country.LT=Lithuania
+country.LU=Luxembourg
+country.LV=Latvia
+country.LY=Libya
+country.MA=Morocco
+country.MC=Monaco
+country.MD=Moldova
+country.ME=Montenegro
+country.MF=Saint-Martin (French part)
+country.MG=Madagascar
+country.MH=Marshall Islands
+country.MK=North Macedonia
+country.ML=Mali
+country.MM=Myanmar (Burma)
+country.MN=Mongolia
+country.MO=Macao
+country.MP=Northern Mariana Islands
+country.MQ=Martinique
+country.MR=Mauritania
+country.MS=Montserrat
+country.MT=Malta
+country.MU=Mauritius
+country.MV=Maldives
+country.MW=Malawi
+country.MX=Mexico
+country.MY=Malaysia
+country.MZ=Mozambique
+country.NA=Namibia
+country.NC=New Caledonia
+country.NE=Niger
+country.NF=Norfolk Island
+country.NG=Nigeria
+country.NI=Nicaragua
+country.NL=Netherlands
+country.NO=Norway
+country.NP=Nepal
+country.NR=Nauru
+country.NU=Niue
+country.NZ=New Zealand
+country.OM=Oman
+country.PA=Panama
+country.PE=Peru
+country.PF=French Polynesia
+country.PG=Papua New Guinea
+country.PH=Philippines
+country.PK=Pakistan
+country.PL=Poland
+country.PM=Saint Pierre and Miquelon
+country.PN=Pitcairn, Henderson, Ducie and Oeno Islands
+country.PR=Puerto Rico
+country.PS=Occupied Palestinian Territories
+country.PT=Portugal
+country.PW=Palau
+country.PY=Paraguay
+country.QA=Qatar
+country.RE=Réunion
+country.RO=Romania
+country.RS=Serbia
+country.RU=Russia
+country.RW=Rwanda
+country.SA=Saudi Arabia
+country.SB=Solomon Islands
+country.SC=Seychelles
+country.SD=Sudan
+country.SE=Sweden
+country.SG=Singapore
+country.SH=Saint Helena, Ascension and Tristan da Cunha
+country.SI=Slovenia
+country.SJ=Svalbard and Jan Mayen
+country.SK=Slovakia
+country.SL=Sierra Leone
+country.SM=San Marino
+country.SN=Senegal
+country.SO=Somalia
+country.SR=Suriname
+country.SS=South Sudan
+country.ST=Sao Tome and Principe
+country.SV=El Salvador
+country.SX=Sint Maarten (Dutch part)
+country.SY=Syria
+country.SZ=Eswatini
+country.TC=Turks and Caicos Islands
+country.TD=Chad
+country.TF=French Southern Territories
+country.TG=Togo
+country.TH=Thailand
+country.TJ=Tajikistan
+country.TK=Tokelau
+country.TL=East Timor
+country.TM=Turkmenistan
+country.TN=Tunisia
+country.TO=Tonga
+country.TR=Turkey
+country.TT=Trinidad and Tobago
+country.TV=Tuvalu
+country.TW=Taiwan
+country.TZ=Tanzania
+country.UA=Ukraine
+country.UG=Uganda
+country.UK=United Kingdom
+country.UM=United States - Minor Outlying Islands (the)
+country.US=United States
+country.UY=Uruguay
+country.UZ=Uzbekistan
+country.VA=Vatican City
+country.VC=St Vincent
+country.VE=Venezuela
+country.VG=British Virgin Islands
+country.VI=United States Virgin Islands
+country.VN=Vietnam
+country.VU=Vanuatu
+country.WF=Wallis and Futuna
+country.WS=Samoa
+country.YE=Yemen
+country.YT=Mayotte
+country.ZA=South Africa
+country.ZM=Zambia
+country.ZW=Zimbabwe

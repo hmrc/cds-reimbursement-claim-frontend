@@ -204,7 +204,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   logger.warn("could not capture declarant type", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                _ => Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
               )
             }
           )
