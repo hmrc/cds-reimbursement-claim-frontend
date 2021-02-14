@@ -384,10 +384,10 @@ class SupportingEvidenceController @Inject() (
             )
         }
 
-        val newDraftClaim = fillingOutClaim.draftClaim.fold(
+        val newDraftClaim: DraftClaim.DraftC285Claim = fillingOutClaim.draftClaim.fold(
           _.copy(supportingEvidenceAnswers = Some(updatedAnswers))
         )
-        val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
+        val newJourney                               = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
         val result = for {
           _ <- EitherT(

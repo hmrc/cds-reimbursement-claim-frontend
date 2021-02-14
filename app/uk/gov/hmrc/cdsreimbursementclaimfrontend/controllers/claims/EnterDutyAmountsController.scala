@@ -119,14 +119,12 @@ class EnterDutyAmountsController @Inject() (
         EnterDutyAmountsController.enterClaimForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(s"${requestFormWithErrors.toString}")
+            requestFormWithErrors =>
               BadRequest(
                 enterUkPaidAndClaimAmountsPage(
                   requestFormWithErrors
                 )
-              )
-            },
+              ),
             enterClaim => {
               val updatedAnswers = answers.fold(
                 incomplete =>
@@ -351,9 +349,7 @@ object EnterDutyAmountsController {
       //means they do not want to add any eu tax
       if (enterClaim.dutyAmounts.nonEmpty) {
         // now make sure there are valid pairs
-        println(s"\n\n\n I am here : ${enterClaim.dutyAmounts.toString()}")
-        val f = enterClaim.dutyAmounts.filter(p => p.paid.isEmpty && p.claim.isEmpty)
-
+        val f = enterClaim.dutyAmounts.filterNot(p => p.paid.isEmpty && p.claim.isEmpty)
         if (f.nonEmpty) {
           f.forall(p => isValidPaidClaimEntry(p))
         } else {
@@ -364,10 +360,11 @@ object EnterDutyAmountsController {
     } else {
       // just ensure that there valid pairs if provided
       if (enterClaim.dutyAmounts.nonEmpty) {
-        if (enterClaim.dutyAmounts.forall(p => p.paid.isEmpty && p.claim.isEmpty)) {
+        val f = enterClaim.dutyAmounts.filterNot(p => p.paid.isEmpty && p.claim.isEmpty)
+        if (f.forall(p => p.paid.isEmpty && p.claim.isEmpty)) {
           true
         } else {
-          enterClaim.dutyAmounts.forall(p => isValidPaidClaimEntry(p))
+          f.forall(p => isValidPaidClaimEntry(p))
         }
       } else {
         true

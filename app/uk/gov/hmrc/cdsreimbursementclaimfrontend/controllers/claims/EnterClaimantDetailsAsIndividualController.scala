@@ -148,11 +148,13 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 },
                 _ =>
                   claimantDetailsAsIndividual.addCompanyDetails match {
-                    case YesNo.No  =>
+                    case YesNo.No =>
+                      Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+
+                    case YesNo.Yes =>
                       Redirect(
                         routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
                       )
-                    case YesNo.Yes => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                   }
               )
             }

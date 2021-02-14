@@ -33,7 +33,7 @@ sealed trait CompleteClaim extends Product with Serializable {
 
 final case class CompleteC285Claim(
   id: UUID,
-  declaration: Declaration,
+  declaration: Option[Declaration],
   supportingEvidenceAnswers: CompleteSupportingEvidenceAnswers,
   totalClaim: String,
   lastUpdatedDate: LocalDate
@@ -46,7 +46,7 @@ object CompleteC285Claim {
     draftClaim match {
       case DraftClaim.DraftC285Claim(
             id,
-            Some(declaration),
+            None,
             _,
             _,
             _,
@@ -68,14 +68,15 @@ object CompleteC285Claim {
             Some(
               CompleteC285Claim(
                 id = id,
-                declaration = declaration,
+                declaration = None,
                 supportingEvidenceAnswers = completeSupportingEvidenceAnswers,
                 totalClaim = "200",
                 lastUpdatedDate = lastUpdatedDate
               )
             )
         )
-      case _ => None
+      case _ =>
+        None
     }
 
   implicit val eq: Eq[CompleteC285Claim]          = Eq.fromUniversalEquals[CompleteC285Claim]
@@ -90,11 +91,31 @@ object CompleteClaim {
     }
 
     def importDate: String = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) => declaration.acceptanceDate
+      case CompleteC285Claim(_, declaration, _, _, _) =>
+        declaration match {
+          case Some(value) => value.acceptanceDate
+          case None        => "to be implemented"
+        }
     }
 
     def declarantDetails: declaration.DeclarantDetails = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) => declaration.declarantDetails
+      case CompleteC285Claim(_, declaration, _, _, _) =>
+        declaration match {
+          case Some(value) => value.declarantDetails
+          case None        => //FIXME
+            uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails(
+              "",
+              "",
+              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress(
+                "",
+                None,
+                None,
+                None,
+                ""
+              ),
+              None
+            )
+        }
     }
 
     def declarantEmailAddress: Option[String] = declarantDetails.contactDetails.flatMap { c =>
@@ -110,14 +131,23 @@ object CompleteClaim {
     }
 
     def mrn: String = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) => declaration.declarantId
+      case CompleteC285Claim(_, declaration, _, _, _) =>
+        declaration match {
+          case Some(value) => value.declarantId
+          case None        => "to be implemented"
+        }
     }
 
     def declarantAddress: Option[String] = completeClaim match {
       case CompleteC285Claim(_, declaration, _, _, _) =>
-        declaration.declarantDetails.contactDetails.map { c =>
-          s"${c.addressLine1.getOrElse("")}, ${c.addressLine2.getOrElse("")}, ${c.addressLine3
-            .getOrElse("")}, ${c.addressLine4.getOrElse("")}, ${c.postalCode.getOrElse("")}, ${c.countryCode.getOrElse("")}"
+        declaration match {
+          case Some(value) =>
+            value.declarantDetails.contactDetails.map { c =>
+              s"${c.addressLine1.getOrElse("")}, ${c.addressLine2.getOrElse("")}, ${c.addressLine3
+                .getOrElse("")}, ${c.addressLine4.getOrElse("")}, ${c.postalCode.getOrElse("")}, ${c.countryCode.getOrElse("")}"
+            }
+
+          case None => Some("") //FIXME
         }
     }
 

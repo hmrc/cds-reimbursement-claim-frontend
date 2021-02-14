@@ -112,14 +112,12 @@ class EnterCommoditiesDetailsController @Inject() (
         EnterCommoditiesDetailsController.commoditiesDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(requestFormWithErrors.toString)
+            requestFormWithErrors =>
               BadRequest(
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors
                 )
-              )
-            },
+              ),
             commodityDetails => {
               val updatedAnswers = answers.fold(
                 incomplete =>

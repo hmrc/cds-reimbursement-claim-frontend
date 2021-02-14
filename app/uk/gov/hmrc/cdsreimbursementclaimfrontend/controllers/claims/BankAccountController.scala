@@ -118,14 +118,12 @@ class BankAccountController @Inject() (
         BankAccountController.enterBankDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(requestFormWithErrors.toString)
+            requestFormWithErrors =>
               BadRequest(
                 enterBankAccountDetailsPage(
                   requestFormWithErrors
                 )
-              )
-            },
+              ),
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
                 incomplete =>
@@ -225,8 +223,7 @@ object BankAccountController {
     new Formatter[String] {
       def sortCodeFieldStringValues(
         data: Map[String, String]
-      ): Either[FormError, (String, String, String)] = {
-        println(s"\n\n\n\n\n key is $sortCode1Key and value is ${data.get(sortCode1Key)}")
+      ): Either[FormError, (String, String, String)] =
         List(sortCode1Key, sortCode2Key, sortCode3Key)
           .map(data.get(_).map(_.trim).filter(_.nonEmpty)) match {
           case Some(sc1) :: Some(sc2) :: Some(sc3) :: Nil =>
@@ -246,7 +243,6 @@ object BankAccountController {
           case _                                          =>
             Left(FormError(sortCode, "error.required"))
         }
-      }
 
       override def bind(
         key: String,
