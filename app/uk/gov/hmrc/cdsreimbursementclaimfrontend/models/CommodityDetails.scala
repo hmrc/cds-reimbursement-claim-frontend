@@ -18,16 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class Claim(
-  taxCode: TaxCode,
-  paidAmount: BigDecimal,
-  claimAmount: BigDecimal
-)
+final case class CommodityDetails(value: String) extends AnyVal
 
-object Claim {
-  implicit val format: OFormat[Claim] = Json.format[Claim]
-
-  implicit class ClaimOps(private val claims: List[Claim]) {
-    def total: Double = claims.map(c => c.claimAmount.toDouble).sum
-  }
+object CommodityDetails {
+  implicit val format: OFormat[CommodityDetails] = Json.format[CommodityDetails]
 }

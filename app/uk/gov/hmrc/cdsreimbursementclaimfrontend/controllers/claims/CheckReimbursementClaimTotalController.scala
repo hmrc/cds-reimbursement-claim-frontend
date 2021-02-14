@@ -23,9 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.IncompleteClaimAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.IncompleteEuDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimAnswers, DraftClaim, SessionData, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, SessionData, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -52,7 +53,7 @@ class CheckReimbursementClaimTotalController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      ClaimAnswers
+      List[Claim]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -62,26 +63,31 @@ class CheckReimbursementClaimTotalController @Inject() (
               fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
             )
           ) =>
-        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(
-          _.claimAnswers
+        val maybeUkDutyAnswers  = draftClaim.fold(
+          _.ukDutyAmountAnswers
         )
-        maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteClaimAnswers.empty)
-        )(f(sessionData, fillingOutClaim, _))
+        val maybeEuDutyAnswers  = draftClaim.fold(
+          _.euDutyAmountAnswers
+        )
+        val claims: List[Claim] = maybeEuDutyAnswers
+          .getOrElse(IncompleteEuDutyAmountAnswer.empty)
+          .dutyAmounts
+          .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))) ++
+          maybeUkDutyAnswers
+            .getOrElse(IncompleteUKDutyAmountAnswer.empty)
+            .dutyAmounts
+            .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0))))
+
+        f(sessionData, fillingOutClaim, claims)
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
   def checkReimbursementClaimTotal: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withReimbursementClaimTotals { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            Ok(checkReimbursementClaimTotalPage(ifIncomplete.claims :+ Claim("AF0", 2, 2))), //TODO: redirect if empty
-          ifComplete => Ok(checkReimbursementClaimTotalPage(ifComplete.claims))
-        )
+        Ok(checkReimbursementClaimTotalPage(answers))
       }
     }
-
 }
 
 object CheckReimbursementClaimTotalController {}

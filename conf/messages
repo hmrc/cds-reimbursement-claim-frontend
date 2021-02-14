@@ -252,6 +252,14 @@ select-reason-for-claim.reason.d9=Preference
 select-reason-for-claim.reason.d10=Proof of returns/refund given
 
 #===================================================
+#  ENTER COMMODITIES PAGE
+#===================================================
+enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
+enter-commodities-details.caption=Commodity Details
+enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.error.required=Please enter commodities details
+
+#===================================================
 #  ENTER DUTIES PAGE
 #===================================================
 enter-duty-and-claim-amounts.title=Enter UK Duty Amounts to Calculate Your Claim
@@ -260,7 +268,7 @@ enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties
 enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
 enter-duty-and-claim-amounts.help-text=HMRC does not refund agents' fees.
 enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid claim
-
+enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE

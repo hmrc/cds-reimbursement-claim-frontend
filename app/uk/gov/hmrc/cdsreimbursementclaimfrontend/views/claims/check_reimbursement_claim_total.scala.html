@@ -47,7 +47,7 @@
                 <tbody>
                 @for(claim <- claims){
                     <tr>
-                        <th scope="row" style="font-weight:bold">@claim.taxCode</th>
+                        <th scope="row" style="font-weight:bold">@claim.taxCode.description </th>
                         <td>@claim.claimAmount</td>
                     </tr>
                 }

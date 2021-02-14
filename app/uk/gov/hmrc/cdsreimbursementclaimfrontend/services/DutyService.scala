@@ -18,13 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import com.google.inject.{ImplementedBy, Inject}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.UKTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{EUTaxCode, UKTaxCode}
 
 import javax.inject.Singleton
 
 @ImplementedBy(classOf[DefaultDutyService])
 trait DutyService {
   def getListOfUKDuties: List[UKTaxCode]
+  def getListOfEuDuties: List[EUTaxCode]
 }
 
 @Singleton
@@ -38,6 +39,16 @@ class DefaultDutyService @Inject() () extends DutyService {
     TaxCode.UKTaxCode.A40,
     TaxCode.UKTaxCode.A45,
     TaxCode.UKTaxCode.B00
+  )
+
+  override def getListOfEuDuties: List[EUTaxCode] = List(
+    TaxCode.EUTaxCode.A50,
+    TaxCode.EUTaxCode.A70,
+    TaxCode.EUTaxCode.A80,
+    TaxCode.EUTaxCode.A85,
+    TaxCode.EUTaxCode.A90,
+    TaxCode.EUTaxCode.A95,
+    TaxCode.EUTaxCode.B05
   )
 
 }

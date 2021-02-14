@@ -18,25 +18,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.EnterClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{DutyAmount, EnterClaim}
 
 sealed trait UKDutyAmountAnswers extends Product with Serializable
 
 object UKDutyAmountAnswers {
 
   final case class IncompleteUKDutyAmountAnswer(
-    ukDutyAmounts: List[EnterClaim]
+    ukDutyAmounts: Option[EnterClaim]
   ) extends UKDutyAmountAnswers
 
   object IncompleteUKDutyAmountAnswer {
-    val empty: IncompleteUKDutyAmountAnswer = IncompleteUKDutyAmountAnswer(List.empty)
+    val empty: IncompleteUKDutyAmountAnswer = IncompleteUKDutyAmountAnswer(None)
 
     implicit val format: OFormat[IncompleteUKDutyAmountAnswer] =
       derived.oformat[IncompleteUKDutyAmountAnswer]()
   }
 
   final case class CompleteUKDutyAmountAnswer(
-    ukDutyAmounts: List[EnterClaim]
+    ukDutyAmounts: EnterClaim
   ) extends UKDutyAmountAnswers
 
   object CompleteMovementReferenceTypeAnswer {
@@ -44,7 +44,7 @@ object UKDutyAmountAnswers {
       derived.oformat[CompleteUKDutyAmountAnswer]()
   }
 
-  implicit class ClaimantDetailsAsImporterCompanyAnswerOps(
+  implicit class UKDutyAmountAnswersOps(
     private val a: UKDutyAmountAnswers
   ) extends AnyVal {
 
@@ -56,6 +56,15 @@ object UKDutyAmountAnswers {
         case i: IncompleteUKDutyAmountAnswer => ifIncomplete(i)
         case c: CompleteUKDutyAmountAnswer   => ifComplete(c)
       }
+
+    def dutyAmounts: List[DutyAmount] = a match {
+      case IncompleteUKDutyAmountAnswer(ukDutyAmounts) =>
+        ukDutyAmounts match {
+          case Some(value) => value.dutyAmounts
+          case None        => List.empty
+        }
+      case CompleteUKDutyAmountAnswer(ukDutyAmounts)   => ukDutyAmounts.dutyAmounts
+    }
   }
 
   implicit val format: OFormat[UKDutyAmountAnswers] =

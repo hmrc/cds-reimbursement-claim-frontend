@@ -38,3 +38,9 @@ GET         /check-reimbursement-claim-total                             uk.gov.
 
 GET         /enter-uk-duty-amounts                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmounts
 POST        /enter-uk-duty-amounts                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmountsSubmit
+
+GET         /enter-eu-duty-amounts                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmounts
+POST        /enter-eu-duty-amounts                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmountsSubmit
+
+GET         /enter-commodity-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
+POST        /enter-commodity-details                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit

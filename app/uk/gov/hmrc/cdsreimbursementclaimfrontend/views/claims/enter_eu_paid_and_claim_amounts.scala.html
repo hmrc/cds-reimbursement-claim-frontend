@@ -32,17 +32,16 @@
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  unitInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.unit_input,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- yesNo: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.yes_no,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  dutyService : uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DutyService
 )
 
-@(form : Form[EnterClaim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[EnterEuClaim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-  @key = @{"enter-duty-and-claim-amounts"}
+  @key = @{"enter-duty-and-claim-amounts-eu"}
   @title = @{messages(s"$key.title")}
   @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-  @taxCodes = @{dutyService.getListOfUKDuties}
+  @taxCodes = @{dutyService.getListOfEuDuties}
 
   @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
 
@@ -56,16 +55,17 @@
 
     @pageHeading(title)
 
-    @formWrapper(routes.EnterDutyAmountsController.enterUkDutyAmountsSubmit, 'novalidate -> "novalidate") {
+    @formWrapper(routes.EnterDutyAmountsController.enterEuDutyAmountsSubmit, 'novalidate -> "novalidate") {
 
         <table class="govuk-table">
             <tbody>
             <tr>
-                <th scope="row" style="font-weight:bold">UK Duty</th>
+                <th scope="row" style="font-weight:bold">EU Duty</th>
                 <th scope="row" style="font-weight:bold">Paid Amount</th>
                 <th scope="row" style="font-weight:bold">Claim Amount</th>
             </tr>
                 @for((taxCode, index) <- taxCodes.zipWithIndex){
+                <input id="enter-duty-and-claim-amounts-eu[@index].tax-code" name="enter-duty-and-claim-amounts-eu[@index].tax-code" type="hidden" value="@index">
                 <tr>
                     <td style="font-weight:bold">@taxCode.description</td>
                     <td>
@@ -105,17 +105,6 @@
             </tbody>
         </table>
 
-        <div class="space-details">
-            @yesNo(
-                fieldId = s"$key.make-eu-duty-claim",
-                label = Html(messages(s"$key.make-eu-duty-claim")),
-                errorKey = form.error(s"$key.make-eu-duty-claim").map(e => e.message),
-                hasErrors = form.error(s"$key.make-eu-duty-claim").nonEmpty,
-                selected = form.data.get(s"$key.make-eu-duty-claim").map(b => if(b == "true") true else false),
-                helpText = None,
-                yesContent = None
-            )
-        </div>
         @submitButton(messages("button.continue"))
 
     }
