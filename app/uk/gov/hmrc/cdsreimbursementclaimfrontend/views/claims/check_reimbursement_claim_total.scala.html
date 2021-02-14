@@ -1,0 +1,68 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+
+
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ buttonLink : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
+)
+
+@(claims : List[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+  @key = @{"check-your-reimbursement-claim-total"}
+  @title = @{messages(s"$key.title")}
+
+  @mainTemplate(title = title, userType = None){
+
+    @backLinkComponent(claimRoutes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal)
+
+    @caption(messages(s"$key.caption"))
+
+    @pageHeading(title)
+
+        <div class="space-details">
+            <table class="govuk-table">
+                <tbody>
+                @for(claim <- claims){
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@claim.taxCode</th>
+                        <td>@claim.claimAmount</td>
+                    </tr>
+                }
+                <tr>
+                    <th scope="row" style="font-weight:bold">Total Reimbursement</th>
+                    <td>@claims.total</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p id="update-calculation">
+            <a href="@claimRoutes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal().url">Update the calculation</a>
+        </p>
+
+        @buttonLink("Continue", claimRoutes.BankAccountController.enterBankAccountDetails().url)
+
+  }

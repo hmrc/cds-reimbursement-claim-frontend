@@ -11,7 +11,8 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 generic.day=Day
 generic.month=Month
 generic.year=Year
-
+generic.yes=Yes
+generic.no=No
 button.tryAgain=Try again
 button.continue=Continue
 button.saveAndContinue=Save and continue
@@ -249,6 +250,25 @@ select-reason-for-claim.reason.d7=Inward Processing Relief from Customs Duty
 select-reason-for-claim.reason.d8=Outward Processing Relief
 select-reason-for-claim.reason.d9=Preference
 select-reason-for-claim.reason.d10=Proof of returns/refund given
+
+#===================================================
+#  ENTER DUTIES PAGE
+#===================================================
+enter-duty-and-claim-amounts.title=Enter UK Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts.caption=Duties Paid and Claims
+enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties?</h2>
+enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
+enter-duty-and-claim-amounts.help-text=HMRC does not refund agents' fees.
+enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid claim
+
+
+#===================================================
+#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
+#===================================================
+check-your-reimbursement-claim-total.title=Your Reimbursement Claim Total
+check-your-reimbursement-claim-total.caption=Reimbursement Claim
+check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
+
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
