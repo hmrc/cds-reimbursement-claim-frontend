@@ -47,6 +47,7 @@ object DraftClaim {
     euDutyAmountAnswers: Option[EuDutyAmountAnswers],
     claimAnswers: Option[ClaimAnswers], //FIME: take this out I don't think we need it
     commoditiesDetailsAnswers: Option[CommoditiesDetailsAnswers],
+    reasonForBasisAndClaimAnswer: Option[ReasonForClaimAndBasisAnswer],
     lastUpdatedDate: LocalDate
   ) extends DraftClaim
 
@@ -55,6 +56,7 @@ object DraftClaim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,
@@ -86,6 +88,7 @@ object DraftClaim {
             _,
             _,
             movementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,

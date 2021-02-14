@@ -59,6 +59,7 @@ object CompleteC285Claim {
             _,
             _,
             _,
+            _,
             lastUpdatedDate
           ) =>
         supportingEvidenceAnswers.fold(

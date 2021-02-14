@@ -21,15 +21,14 @@ import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.SelectReasonForClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAnswer.IncompleteReasonForClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAndBasisAnswer.IncompleteReasonForClaimAndBasisAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -40,13 +39,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SelectReasonForClaimController @Inject() (
+class SelectReasonForBasisAndClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  selectReasonForClaimPage: pages.select_reason_for_claim
+  selectReasonForClaimAndBasisPage: pages.select_reason_and_basis_for_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -57,7 +56,7 @@ class SelectReasonForClaimController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      ReasonForClaimAnswer
+      ReasonForClaimAndBasisAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -68,40 +67,42 @@ class SelectReasonForClaimController @Inject() (
             )
           ) =>
         val maybeReasonForClaim = c.fold(
-          _.reasonForClaim
+          _.reasonForBasisAndClaimAnswer
         )
         maybeReasonForClaim.fold[Future[Result]](
-          f(s, r, IncompleteReasonForClaimAnswer.empty)
+          f(s, r, IncompleteReasonForClaimAndBasisAnswer.empty)
         )(f(s, r, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def selectReasonForClaim(): Action[AnyContent] =
+  def selectReasonForClaimAndBasis(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
-            ifIncomplete.reasonForClaimOption match {
-              case Some(reasonForClaimOption) =>
+            ifIncomplete.maybeSelectReasonForClaimAndBasis match {
+              case Some(selectReasonForClaimAndBasis) =>
                 Ok(
-                  selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                      selectReasonForClaimAndBasis
+                    ),
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
-              case None                       =>
+              case None                               =>
                 Ok(
-                  selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm,
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm,
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
             },
           ifComplete =>
             Ok(
-              selectReasonForClaimPage(
-                SelectReasonForClaimController.reasonForClaimForm.fill(
-                  SelectReasonForClaim(ifComplete.reasonForClaimOption)
+              selectReasonForClaimAndBasisPage(
+                SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                  ifComplete.selectReasonForBasisAndClaim
                 ),
                 routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
               )
@@ -110,26 +111,26 @@ class SelectReasonForClaimController @Inject() (
       }
     }
 
-  def selectReasonForClaimSubmit(): Action[AnyContent] =
+  def selectReasonForClaimAndBasisSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
-        SelectReasonForClaimController.reasonForClaimForm
+        SelectReasonForBasisAndClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                selectReasonForClaimPage(
+                selectReasonForClaimAndBasisPage(
                   requestFormWithErrors,
                   routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                 )
               ),
-            reasonForClaim => {
-              val updatedAnswers: ReasonForClaimAnswer = answers.fold(
-                incomplete => incomplete.copy(reasonForClaimOption = Some(reasonForClaim.reasonForClaimOption)),
-                complete => complete.copy(reasonForClaimOption = reasonForClaim.reasonForClaimOption)
+            reasonForClaimAndBasis => {
+              val updatedAnswers: ReasonForClaimAndBasisAnswer = answers.fold(
+                incomplete => incomplete.copy(maybeSelectReasonForClaimAndBasis = Some(reasonForClaimAndBasis)),
+                complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
               )
-              val newDraftClaim                        =
-                fillingOutClaim.draftClaim.fold(_.copy(reasonForClaim = Some(updatedAnswers)))
+              val newDraftClaim                                =
+                fillingOutClaim.draftClaim.fold(_.copy(reasonForBasisAndClaimAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -139,10 +140,10 @@ class SelectReasonForClaimController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not store reason for claim answer", e)
+                  logger.warn("could not store reason for reason and basis answer", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+                _ => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
               )
             }
           )
@@ -151,18 +152,23 @@ class SelectReasonForClaimController @Inject() (
     }
 }
 
-object SelectReasonForClaimController {
+object SelectReasonForBasisAndClaimController {
 
-  final case class SelectReasonForClaim(
-    reasonForClaimOption: BasisForClaim
+  final case class SelectReasonForClaimAndBasis(
+    basisForClaim: BasisForClaim,
+    reasonForClaim: ReasonForClaim
   )
 
-  val reasonForClaimForm: Form[SelectReasonForClaim] =
+  object SelectReasonForClaimAndBasis {
+    implicit val format: OFormat[SelectReasonForClaimAndBasis] = Json.format[SelectReasonForClaimAndBasis]
+  }
+
+  val reasonForClaimForm: Form[SelectReasonForClaimAndBasis] =
     Form(
       mapping(
-        "select-reason-for-claim" -> number
+        "select-reason-and-basis-for-claim.basis"  -> number
           .verifying(
-            "invalid reason for claim",
+            "invalid basis for claim",
             reason =>
               reason === 0 ||
                 reason === 1 ||
@@ -206,8 +212,29 @@ object SelectReasonForClaimController {
               case BasisForClaim.Preference                             => 9
               case BasisForClaim.ProofOfReturnRefundGiven               => 10
             }
+          ),
+        "select-reason-and-basis-for-claim.reason" -> number
+          .verifying(
+            "invalid basis for reason",
+            reason =>
+              reason === 0 ||
+                reason === 1 ||
+                reason === 2 ||
+                reason === 3
           )
-      )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)
+          .transform[ReasonForClaim](
+            {
+              case 0 => ReasonForClaim.MailForOrderGoods
+              case 1 => ReasonForClaim.Overpayment
+              case 2 => ReasonForClaim.SpecialGoods
+            },
+            {
+              case ReasonForClaim.MailForOrderGoods => 0
+              case ReasonForClaim.Overpayment       => 1
+              case ReasonForClaim.SpecialGoods      => 2
+            }
+          )
+      )(SelectReasonForClaimAndBasis.apply)(SelectReasonForClaimAndBasis.unapply)
     )
 
 }
