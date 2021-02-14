@@ -61,8 +61,6 @@ footer.govukHelp.url = https://www.gov.uk/help
 
 exit-survey.link-text=What did you think of this service?
 
-
-
 #===================================================
 #  MESSAGES FOR PAGES
 #===================================================
@@ -223,7 +221,6 @@ check-declaration-details.help-text=These are the declaration details given by t
 #===================================================
 #  SELECT REASON FOR CLAIM - START
 #===================================================
-
 select-reason-for-claim.title=Select the reason and or basis for claim
 select-reason-for-claim.error.number=Select the reason and or basis for claim
 select-reason-for-claim.error.required=Select the reason and or basis for claim
@@ -241,7 +238,6 @@ select-reason-for-claim.details.l7=inward processing relief from Customs Duty (I
 select-reason-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-reason-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-reason-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-
 select-reason-for-claim.reason.d0=Duplicate MRN or Entry
 select-reason-for-claim.reason.d1=Duty suspension
 select-reason-for-claim.reason.d2=End use relief
@@ -255,21 +251,30 @@ select-reason-for-claim.reason.d9=Preference
 select-reason-for-claim.reason.d10=Proof of returns/refund given
 
 #===================================================
-#  SELECT REASON FOR CLAIM - END
+#  ENTER BANK DETAILS PAGE
 #===================================================
-
+enter-bank-details.title=Enter bank account details
+enter-bank-details.caption=Bank Details
+enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, contact the CDS team.
+enter-bank-details.account-name.label=Bank account name
+enter-bank-details.account-name.help-text=The name registered within the account
+enter-bank-details.account-name.error.required=Please enter your account name
+enter-bank-details.account-number.label=Account number
+enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
+enter-bank-details.account-number.error.required=Please enter a valid account number
+enter-bank-details.account-number.invalid=Please enter a valid account number
+enter-bank-details.sort-code.label=Sort Code
+enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
+enter-bank-details.sort-code.error.required=Please enter a valid sort code
+enter-bank-details.is-business-account=This is a business bank account
 
 #===================================================
 #  BANK DETAILS PAGE - START
 #===================================================
-
 bank-details.title=Check these bank details are correct
 bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 
-#===================================================
-#  BANK DETAILS PAGE - END
-#===================================================
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START

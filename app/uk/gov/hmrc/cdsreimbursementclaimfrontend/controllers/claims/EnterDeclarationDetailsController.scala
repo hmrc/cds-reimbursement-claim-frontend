@@ -193,7 +193,7 @@ object EnterDeclarationDetailsController {
 
   val entryDeclarationDetailsForm: Form[EntryDeclarationDetails] = Form(
     mapping(
-      "enter-declaration-details.date-of-import"          -> acquisitionDateForm(LocalDate.now),
+      "enter-declaration-details.date-of-import"          -> dateOfImportMapping(LocalDate.now),
       "enter-declaration-details.place-of-import"         -> nonEmptyText,
       "enter-declaration-details.importer-name"           -> nonEmptyText,
       "enter-declaration-details.importer-email-address"  -> Email.mapping,
@@ -204,7 +204,7 @@ object EnterDeclarationDetailsController {
     )(EntryDeclarationDetails.apply)(EntryDeclarationDetails.unapply)
   )
 
-  def acquisitionDateForm(today: LocalDate): Mapping[DateOfImport] =
+  def dateOfImportMapping(today: LocalDate): Mapping[DateOfImport] =
     mapping(
       "" -> of(
         TimeUtils.dateFormatter(

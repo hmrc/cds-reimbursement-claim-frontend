@@ -21,7 +21,10 @@ POST        /enter-reason-for-claim                                 uk.gov.hmrc.
 GET         /check-declarant-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
 POST        /check-declarant-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()
 
-GET         /check-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+GET         /check-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails
+
+GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails
+POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit
 
 GET         /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
 POST        /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()

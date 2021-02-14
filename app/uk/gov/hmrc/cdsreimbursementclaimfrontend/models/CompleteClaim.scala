@@ -53,6 +53,7 @@ object CompleteC285Claim {
             _,
             _,
             _,
+            _,
             Some(supportingEvidenceAnswers),
             lastUpdatedDate
           ) =>
