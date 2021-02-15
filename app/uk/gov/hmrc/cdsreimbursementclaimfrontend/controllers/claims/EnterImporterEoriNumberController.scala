@@ -54,7 +54,7 @@ class EnterImporterEoriNumberController @Inject() (
     )
   }
 
-  def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
   }
 
