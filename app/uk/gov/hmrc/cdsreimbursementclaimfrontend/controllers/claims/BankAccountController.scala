@@ -51,17 +51,12 @@ class BankAccountController @Inject() (
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
-  checkBankAccountDetailsPage: views.html.claims.bank_account_details,
   enterBankAccountDetailsPage: pages.enter_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
-      
-  def checkBankAccountDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect("uploadSupportingEvidence")
 
   private def withBankAccountDetailsAnswers(
     f: (
@@ -86,8 +81,8 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def checkBankAccountDetails: Action[AnyContent] = Action {
-    Ok(checkBankAccountDetailsPage(MaskedBankAccount("Arthur Dent", "52-52-52", "123456")))
+  def checkBankAccountDetails(): Action[AnyContent] = Action {
+    Ok("checking bank account details")
   }
 
   def enterBankAccountDetails: Action[AnyContent] =
@@ -209,9 +204,11 @@ object BankAccountController {
   }
 
   final case class AccountNumber(value: String) extends AnyVal
+
   object AccountNumber {
     implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
   }
+
   val accountNumberRegex: Predicate[String] = "^\\d{6,8}$".r.pattern.asPredicate()
 
   val accountNumberMapping: Mapping[AccountNumber] =
