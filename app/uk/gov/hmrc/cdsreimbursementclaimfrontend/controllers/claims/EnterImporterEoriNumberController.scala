@@ -27,13 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
@@ -41,50 +38,49 @@ class EnterImporterEoriNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
-  claimService: ClaimService,
   cc: MessagesControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
   def enterImporterEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterImporterEoriNumberPage())
+    Ok(
+      enterImporterEoriNumberPage(
+        EnterImporterEoriNumberController.eoriNumberForm.fill(ImporterEoriNumber(Eori("12345678912345617")))
+      )
+    )
   }
 
   def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterImporterEoriNumberPage())
+    Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
   }
 
-  object EnterImporterEoriNumberController {
+}
 
-    final case class ImporterEoriNumber(value: Eori) extends AnyVal
+object EnterImporterEoriNumberController {
 
-    val eoriNumberMapping: Mapping[Eori] =
-      nonEmptyText
-        .verifying("invalid.number", str => Eori.isValid(str))
-        .transform[Eori](str =>
-          if (Eori.isValid(str)) {
-            Eori.value
+  final case class ImporterEoriNumber(value: Eori)
 
-          }
-        )
+  val eoriNumberMapping: Mapping[Eori] =
+    nonEmptyText
+      .verifying("invalid.number", str => Eori.isValid(str))
+      .transform[Eori](str => Eori(str), eori => eori.value)
 
-    val eoriNumberForm: Form[ImporterEoriNumber] = Form(
-      mapping(
-        "enter-importer-eori-number" -> eoriNumberMapping
-      )(ImporterEoriNumber.apply)(ImporterEoriNumber.unapply)
-    )
+  val eoriNumberForm: Form[ImporterEoriNumber] = Form(
+    mapping(
+      "enter-importer-eori-number" -> eoriNumberMapping
+    )(ImporterEoriNumber.apply)(ImporterEoriNumber.unapply)
+  )
 
-    def processFormErrors(errors: Seq[FormError]): FormError =
-      if (errors.exists(fe => fe.message === "error.required")) {
-        FormError("enter-importer-eori-number", List("error.required"))
-      } else if (errors.exists(fe => fe.message === "invalid.reference"))
-        FormError("enter-importer-eori-number", List("invalid.reference"))
-      else
-        FormError("enter-importer-eori-number", List("invalid"))
+  def processFormErrors(errors: Seq[FormError]): FormError =
+    if (errors.exists(fe => fe.message === "error.required")) {
+      FormError("enter-importer-eori-number", List("error.required"))
+    } else if (errors.exists(fe => fe.message === "invalid.reference"))
+      FormError("enter-importer-eori-number", List("invalid.reference"))
+    else
+      FormError("enter-importer-eori-number", List("invalid"))
 
-  }
 }
