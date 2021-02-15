@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
@@ -33,6 +34,7 @@ sealed trait CompleteClaim extends Product with Serializable {
 
 final case class CompleteC285Claim(
   id: UUID,
+  movementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer,
   declaration: Option[Declaration],
   supportingEvidenceAnswers: CompleteSupportingEvidenceAnswers,
   totalClaim: String,
@@ -47,14 +49,14 @@ object CompleteC285Claim {
       case DraftClaim.DraftC285Claim(
             id,
             None,
+            Some(m: CompleteMovementReferenceNumberAnswer),
             _,
             _,
             _,
             _,
             _,
             _,
-            _,
-            Some(supportingEvidenceAnswers),
+            Some(s: CompleteSupportingEvidenceAnswers),
             _,
             _,
             _,
@@ -62,18 +64,15 @@ object CompleteC285Claim {
             _,
             lastUpdatedDate
           ) =>
-        supportingEvidenceAnswers.fold(
-          _ => None,
-          completeSupportingEvidenceAnswers =>
-            Some(
-              CompleteC285Claim(
-                id = id,
-                declaration = None,
-                supportingEvidenceAnswers = completeSupportingEvidenceAnswers,
-                totalClaim = "200",
-                lastUpdatedDate = lastUpdatedDate
-              )
-            )
+        Some(
+          CompleteC285Claim(
+            id = id,
+            m,
+            declaration = None,
+            supportingEvidenceAnswers = s,
+            totalClaim = "200",
+            lastUpdatedDate = lastUpdatedDate
+          )
         )
       case _ =>
         None
@@ -87,11 +86,11 @@ object CompleteClaim {
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
     def totalClaim: String = completeClaim match {
-      case CompleteC285Claim(_, _, _, totalClaim, _) => totalClaim
+      case CompleteC285Claim(_, _, _, _, totalClaim, _) => totalClaim
     }
 
     def importDate: String = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) =>
+      case CompleteC285Claim(_, _, declaration, _, _, _) =>
         declaration match {
           case Some(value) => value.acceptanceDate
           case None        => "to be implemented"
@@ -99,7 +98,7 @@ object CompleteClaim {
     }
 
     def declarantDetails: declaration.DeclarantDetails = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) =>
+      case CompleteC285Claim(_, _, declaration, _, _, _) =>
         declaration match {
           case Some(value) => value.declarantDetails
           case None        => //FIXME
@@ -127,11 +126,11 @@ object CompleteClaim {
     }
 
     def supportingEvidences: List[SupportingEvidence] = completeClaim match {
-      case CompleteC285Claim(_, _, supportingEvidenceAnswers, _, _) => supportingEvidenceAnswers.evidences
+      case CompleteC285Claim(_, _, _, supportingEvidenceAnswers, _, _) => supportingEvidenceAnswers.evidences
     }
 
     def mrn: String = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) =>
+      case CompleteC285Claim(_, _, declaration, _, _, _) =>
         declaration match {
           case Some(value) => value.declarantId
           case None        => "to be implemented"
@@ -139,7 +138,7 @@ object CompleteClaim {
     }
 
     def declarantAddress: Option[String] = completeClaim match {
-      case CompleteC285Claim(_, declaration, _, _, _) =>
+      case CompleteC285Claim(_, _, declaration, _, _, _) =>
         declaration match {
           case Some(value) =>
             value.declarantDetails.contactDetails.map { c =>

@@ -15,11 +15,15 @@
  *@
 
 @import play.api.mvc.Call
+@import play.api.data.Form
+@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.Confirmation
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -28,17 +32,34 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  cyaChange : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.cya_change,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+ formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(completeClaim : CompleteClaim, backLink : Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[Confirmation], completeClaim : CompleteClaim, backLink : Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"check-your-answers"}
   @title = @{messages(s"$key.title")}
+  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @options = @{
+        List(
+            RadioOption(
+                label = Html(messages(s"$key.declaration-statement", "John Smith")),
+                content = None,
+                optionHelpText = None
+            )
+        )
+    }
 
   @mainTemplate(title = title, userType = None){
 
     @backLinkComponent(backLink)
+
+    @if(hasErrors) {
+        @errorSummary(form)
+    }
 
     @caption(messages(s"$key.caption"))
 
@@ -149,23 +170,15 @@
             </table>
         </div>
 
-        <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset" aria-describedby="waste-hint">
-                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                    <h1 class="govuk-fieldset__heading">
-                        @messages(s"$key.declaration-statement.h2")
-                    </h1>
-                </legend>
-                <div class="govuk-checkboxes">
-                    <div class="govuk-checkboxes__item">
-                        <input class="govuk-checkboxes__input" id="waste" name="waste" type="checkbox" value="carcasses">
-                        <label class="govuk-label govuk-checkboxes__label" for="waste">
-                            @messages(s"$key.declaration-statement", completeClaim.declarantDetails.legalName)
-                        </label>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
+        @checkboxGroup(
+            fieldId = s"$key.declaration",
+            options = options,
+            selected = form.data.get(s"$key.declaration[0]").toList.map(s => s.toInt),
+            helpText = None ,
+            label = Html(messages(s"$key.declaration-statement.h2")),
+            error = form.error(s"$key.declaration"),
+            customErrorKey = None
+        )
 
         @submitButton(messages("button.confirm-and-submit-claim"))
     }

@@ -24,5 +24,5 @@ object MoneyUtils {
     java.text.NumberFormat.getCurrencyInstance(Locale.UK)
 
   def formatAmountOfMoneyWithPoundSign(d: BigDecimal): String =
-    currencyFormatter.format(d).stripSuffix(".00")
+    currencyFormatter.format(d)
 }
