@@ -46,13 +46,17 @@ object Address {
   }
 
   final case class NonUkAddress(
+    buildingName: String,
     line1: String,
     line2: Option[String],
     line3: Option[String],
-    line4: Option[String],
+    line4: String,
+    line5: Option[String],
     postcode: Option[String],
     country: Country
   ) extends Address
+
+  implicit val nonUkAddressFormat: OFormat[NonUkAddress] = derived.oformat[NonUkAddress]()
 
   implicit val format: OFormat[Address] = derived.oformat()
 
@@ -94,14 +98,28 @@ object Address {
   val nonUkAddressForm: Form[NonUkAddress] =
     Form(
       formMapping(
-        "nonUkAddress-line1" -> addressLineMapping,
-        "nonUkAddress-line2" -> optional(addressLineMapping),
-        "nonUkAddress-line3" -> optional(addressLineMapping),
-        "nonUkAddress-line4" -> optional(addressLineMapping),
-        "postcode"           -> optional(text),
-        "countryCode"        -> of(Country.formatter)
+        "nonUkAddress-building" -> addressLineMapping,
+        "nonUkAddress-line1"    -> addressLineMapping,
+        "nonUkAddress-line2"    -> optional(addressLineMapping),
+        "nonUkAddress-line3"    -> optional(addressLineMapping),
+        "nonUkAddress-line4"    -> addressLineMapping,
+        "nonUkAddress-line5"    -> optional(addressLineMapping),
+        "postcode"              -> optional(text),
+        "countryCode"           -> of(Country.formatter)
       )(NonUkAddress.apply)(NonUkAddress.unapply)
     )
+
+  val nonUkAddressFormMapping: Mapping[NonUkAddress] =
+    formMapping(
+      "nonUkAddress-building" -> addressLineMapping,
+      "nonUkAddress-line1"    -> addressLineMapping,
+      "nonUkAddress-line2"    -> optional(addressLineMapping),
+      "nonUkAddress-line3"    -> optional(addressLineMapping),
+      "nonUkAddress-line4"    -> addressLineMapping,
+      "nonUkAddress-line5"    -> optional(addressLineMapping),
+      "postcode"              -> optional(text),
+      "countryCode"           -> of(Country.formatter)
+    )(NonUkAddress.apply)(NonUkAddress.unapply)
 
   val isUkForm: Form[Boolean] =
     Form(
@@ -115,7 +133,16 @@ object Address {
       val lines = a match {
         case u: UkAddress    => List(Some(u.line1), u.line2, u.town, u.county, Some(u.postcode.value))
         case n: NonUkAddress =>
-          List(Some(n.line1), n.line2, n.line3, n.line4, messages.translate(s"country.${n.country.code}", Seq.empty))
+          List(
+            Some(n.buildingName),
+            Some(n.line1),
+            n.line2,
+            n.line3,
+            Some(n.line4),
+            n.line5,
+            n.postcode,
+            messages.translate(s"country.${n.country.code}", Seq.empty)
+          )
       }
       lines.collect { case Some(s) => s }
     }

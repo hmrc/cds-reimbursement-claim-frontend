@@ -21,11 +21,11 @@ import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.http.Status.OK
 import play.api.i18n.Lang
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,10 +35,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
 
-  //TODO: replace with SubmitClaimRequest type
-  def submitClaim(submitClaimRequest: JsValue, lang: Lang)(implicit
+  def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, Error, JsValue]
+  ): EitherT[Future, Error, SubmitClaimResponse]
 
   def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Declaration]
 
@@ -54,13 +53,13 @@ class DefaultClaimService @Inject() (
     with Logging {
 
   def submitClaim(
-    submitClaimRequest: JsValue,
+    submitClaimRequest: SubmitClaimRequest,
     lang: Lang
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, JsValue] =
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
     claimConnector.submitClaim(Json.toJson(submitClaimRequest), lang).subflatMap { httpResponse =>
       if (httpResponse.status === OK)
         httpResponse
-          .parseJSON[JsValue]()
+          .parseJSON[SubmitClaimResponse]()
           .leftMap(Error(_))
       else
         Left(

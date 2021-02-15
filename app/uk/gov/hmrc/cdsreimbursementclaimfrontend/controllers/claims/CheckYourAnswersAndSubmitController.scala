@@ -16,20 +16,30 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
+import play.api.i18n.Lang
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, RetrievedUserType, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteC285Claim, CompleteClaim, Error, RetrievedUserType, SessionData, SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -38,24 +48,106 @@ class CheckYourAnswersAndSubmitController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
+  claimService: ClaimService,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: pages.confirmation_of_submission,
   submitClaimFailedPage: pages.submit_claim_error
-)(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
   def checkAllAnswers(): Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      Ok(checkYourAnswersPage())
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCompleteDraftClaim(request) { (_, _, completeClaim) =>
+        Ok(
+          checkYourAnswersPage(completeClaim, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers())
+        )
+      }
     }
 
   def checkAllAnswersSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData {
-      Ok("implement submission")
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
+        val result =
+          for {
+            response        <- EitherT.liftF(
+                                 submitClaim(
+                                   completeClaim,
+                                   fillingOutClaim,
+                                   request.authenticatedRequest.request.messages.lang
+                                 )
+                               )
+            newJourneyStatus = response match {
+                                 case _: SubmitClaimError =>
+                                   SubmitClaimFailed(
+                                     fillingOutClaim.ggCredId,
+                                     fillingOutClaim.signedInUserDetails
+                                   )
+                                 case SubmitClaimSuccess(
+                                       submitClaimResponse
+                                     ) =>
+                                   JustSubmittedClaim(
+                                     fillingOutClaim.ggCredId,
+                                     fillingOutClaim.signedInUserDetails,
+                                     completeClaim,
+                                     submitClaimResponse
+                                   )
+                               }
+            _               <- EitherT(
+                                 updateSession(sessionStore, request)(
+                                   _.copy(journeyStatus = Some(newJourneyStatus))
+                                 )
+                               )
+          } yield response
+
+        result.fold(
+          { e =>
+            logger.warn("Error while trying to update session", e)
+            errorHandler.errorResult()
+          },
+          {
+            case SubmitClaimError(e) =>
+              logger.warn(s"Could not submit return}", e)
+              Redirect(
+                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError()
+              )
+
+            case SubmitClaimSuccess(_) =>
+              logger.info(
+                s"Successfully submitted claim with claim id :${completeClaim.id}"
+              )
+              Redirect(
+                claimsRoutes.CheckYourAnswersAndSubmitController
+                  .confirmationOfSubmission()
+              )
+          }
+        )
+      }
+
     }
+
+  private def submitClaim(
+    completeClaim: CompleteClaim,
+    fillingOutClaim: FillingOutClaim,
+    language: Lang
+  )(implicit
+    hc: HeaderCarrier
+  ): Future[SubmitClaimResult] =
+    claimService
+      .submitClaim(
+        SubmitClaimRequest(
+          fillingOutClaim.draftClaim.id,
+          completeClaim
+        ),
+        language
+      )
+      .bimap(
+        CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError,
+        CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimSuccess
+      )
+      .merge
 
   def submissionError(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -84,6 +176,31 @@ class CheckYourAnswersAndSubmitController @Inject() (
       case Some(s: SubmitClaimFailed) => f(Left(s))
       // case Some(s: SignedInUser)      => f(Right(s))
       case _                          => Redirect(baseRoutes.StartController.start())
+    }
+
+  private def withCompleteDraftClaim(
+    request: RequestWithSessionData[_]
+  )(
+    f: (SessionData, FillingOutClaim, CompleteClaim) => Future[Result]
+  ): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              s,
+              r @ FillingOutClaim(
+                _,
+                _,
+                draftClaim: DraftC285Claim
+              )
+            )
+          ) =>
+        CompleteC285Claim
+          .fromDraftClaim(draftClaim)
+          .fold[Future[Result]](
+            Redirect(claimsRoutes.EnterMovementReferenceNumberController.enterMrn())
+          )(f(s, r, _))
+      case _ =>
+        Redirect(baseRoutes.StartController.start())
     }
 
 }

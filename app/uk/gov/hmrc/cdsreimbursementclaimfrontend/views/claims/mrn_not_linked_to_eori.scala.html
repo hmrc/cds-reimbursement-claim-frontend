@@ -45,7 +45,7 @@
 
     @Html(messages(s"$key.help-text"))
 
-   @formWrapper(routes.MovementReferenceNumberController.enterMrn(), 'novalidate -> "novalidate") {
+   @formWrapper(routes.EnterMovementReferenceNumberController.enterMrn(), 'novalidate -> "novalidate") {
      @submitButton(messages("button.tryAgain"))
    }
 

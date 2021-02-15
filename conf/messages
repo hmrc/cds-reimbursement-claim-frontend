@@ -8,13 +8,19 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 #===================================================
 #  GLOBAL MESSAGES
 #===================================================
-
+generic.day=Day
+generic.month=Month
+generic.year=Year
+generic.yes=Yes
+generic.no=No
 button.tryAgain=Try again
 button.continue=Continue
 button.saveAndContinue=Save and continue
-button.confirmAndContinue=Confirm and continue
+button.confirm-and-continue=Confirm and continue
+button.confirm-and-submit-claim=Confirm and submit claim
 
 generic.back=Back
+generic.errorPrefix=Error:
 
 cya.change=Change
 cya.delete=Delete
@@ -54,94 +60,334 @@ footer.termsConditions.url = /help/terms-and-conditions
 footer.govukHelp.text = Help using GOV.UK
 footer.govukHelp.url = https://www.gov.uk/help
 
+exit-survey.link-text=What did you think of this service?
+
 #===================================================
 #  MESSAGES FOR PAGES
 #===================================================
 
 #===================================================
-#  ENTER MRN PAGE - START
+#  LANDING PAGE
 #===================================================
+landing.title=Claim for reimbursement of import duties
+landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
+landing.help.p2=In the near future, you will also be able to use this service to make multiple claims. Reimbursement via Current Month Adjustment (CMA) will also be available.
+landing.who.heading=Who can claim
+landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
+landing.who.p2=Find out <a href="{0}" target="_blank">more about an EORI number</a> (opens in new tab) and an <a href="{1}" target="_blank">MRN</a> (opens in new tab).
+landing.who.p3=As a claim declarant you can be an:
+landing.who.l1=importer or a representative of the importer
+landing.who.l2=agent, freight forwarder or accountant
+landing.who.l3=private individual
+landing.who.p4=You must apply within 3 years of when the goods are cleared to enter the UK.
+landing.why.heading=Why claim
+landing.why.p1=You should claim if:
+landing.why.l1=the amount you already paid in the import declaration is inaccurate
+landing.why.l2=your import declaration was rejected so you need to claim back all or some of the amount you already paid
+landing.start-button=Start now
+landing.before.heading=Before you start
+landing.before.p1=To use this service, you will need:
+landing.before.l1=Government Gateway credentials
+landing.before.l2=to have your EORI number associated with your CDS enrolment
+landing.before.l3=a MRN or entry number
+landing.before.l4=to know the type of duty you want to claim reimbursement for
+landing.before.l5=the reason for overpayment
+landing.before.l6=details of the goods
+landing.before.l7=your bank details
+landing.before.l8=name and address details of the declarant
+landing.before.l9=duty or VAT amount due and paid to HMRC
+landing.details.heading=Examples of supporting documents
+landing.details.p1=You will need supporting evidence you have received relating to goods you have imported. You can scan copies in advance to make it easier to upload in this service. They can be any of these documents:
+landing.details.l1=C88/E2 (proof to authorise imports from the country of origin)
+landing.details.l2=commercial invoice (shows the value of the goods)
+landing.details.l3=packing list (document that states packaging details in each shipment)
+landing.details.l4=air waybill (in your cargo documents)
+landing.details.l5=bill of lading (this is a receipt of shipped goods)
+landing.details.l6=substitute entry (a form to declare a substitute when goods have been incorrectly declared)
+landing.details.l7=schedule of MRNs (a list of previous MRN numbers)
+landing.details.l8=proof of authority (from importer for duty to be repaid)
+landing.details.l9=correspondence trader or internal (an email chain or letters between you and the trader)
+landing.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 
-enter-reference-number.title=What is your Movement Reference Number (MRN)?
-enter-reference-number.caption=Movement Reference Number
-enter-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017
-enter-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
-enter-reference-number.invalid.reference=Enter a valid MRN or entry number
-enter-reference-number.invalid=Enter a valid MRN or entry number
-enter-reference-number.error.required=Enter a valid MRN or entry number
+#===================================================
+#  UNAUTHORISED PAGE
+#===================================================
+unauthorised.title=Sorry, this service is unavailable
+unauthorised.help=You must have an EORI number associated with your CDS enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
+unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI number.</a>
 
 #===================================================
-#  ENTER MRN PAGE - END
+#  ENTER MRN PAGE
 #===================================================
+enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
+enter-movement-reference-number.caption=Movement Reference Number
+enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
+enter-movement-reference-number.invalid=Enter a valid MRN or entry number
+enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 
 #===================================================
-#  MRN DOES NOT MATCH EORI PAGE - START
+#  MRN DOES NOT MATCH EORI PAGE
 #===================================================
-
 mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
 mrn-not-linked-to-eori.caption=Movement Reference Number
 mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
 
 #===================================================
-#  MRN DOES NOT MATCH EORI PAGE - START
+#  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
+enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-individual.title=Enter your claimant details as an individual
+enter-claimant-details-individual.caption=Individual Claimant Details
+enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-individual.importer-full-name.label=Full name
+enter-claimant-details-individual.importer-full-name.help=This must be your legal name
+enter-claimant-details-individual.importer-full-name.error.required=Please enter your full name
+enter-claimant-details-individual.importer-email.label=Email address
+enter-claimant-details-individual.importer-email.error.required=Please enter your email
+enter-claimant-details-individual.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-individual.importer-phone-number.label=Phone number
+enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
+enter-claimant-details-individual.importer-contact-address.label=Contact Address
+enter-claimant-details-individual.address.building.label=Building number or name
+enter-claimant-details-individual.nonUkAddress-building.error.required=Please enter your building number or name
+enter-claimant-details-individual.address.line1.label=Address Line 1
+enter-claimant-details-individual.address.line1.error.required=Please enter address line 1
+enter-claimant-details-individual.nonUkAddress-line1.error.required=Please enter line 1 of your address
+enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
+enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
+enter-claimant-details-individual.address.line4.label=Town or city
+enter-claimant-details-individual.nonUkAddress-line4.error.required=Please enter your town or city
+enter-claimant-details-individual.address.line5.label=County (Optional)
+enter-claimant-details-individual.address.line6.label=Postcode
+enter-claimant-details-individual.address.line6.error.required=Please enter your postcode
+enter-claimant-details-individual.address.line7.label=Country
+enter-claimant-details-individual.countryCode.error.required=Please enter your country
+enter-claimant-details-individual.add-company-details.label=<h2>Do you want to add company details?</h2>
+enter-claimant-details-individual.add-company-details.no=No
+enter-claimant-details-individual.add-company-details.yes=Yes
+enter-claimant-details-individual.add-company-details.error.required=Please choose if you want to add company details
+countryCode.enter-claimant-details-individual.error.required=Please enter your country
 
+#===================================================
+#  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
+#===================================================
+enter-claimant-details-importer-company.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-importer-company.title=Enter your claimant details as an importer company
+enter-claimant-details-importer-company.caption=Company Claimant Details
+enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
+enter-claimant-details-importer-company.importer-company-name.label=Company name
+enter-claimant-details-importer-company.importer-company-name.error.required=Please enter your company name
+enter-claimant-details-importer-company.importer-email.label=Email address
+enter-claimant-details-importer-company.importer-email.error.required=Please enter your email
+enter-claimant-details-importer-company.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-importer-company.importer-phone-number.label=Phone number
+enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
+enter-claimant-details-importer-company.importer-contact-address.label=Contact Address
+enter-claimant-details-importer-company.address.building.label=Building number or name
+enter-claimant-details-importer-company.nonUkAddress-building.error.required=Please enter your building number or name
+enter-claimant-details-importer-company.address.line1.label=Address Line 1
+enter-claimant-details-importer-company.address.line1.error.required=Please enter address line 1
+enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Please enter line 1 of your address
+enter-claimant-details-importer-company.address.line2.label=Address Line 2 (optional)
+enter-claimant-details-importer-company.address.line3.label=Address Line 3 (optional)
+enter-claimant-details-importer-company.address.line4.label=Town or city
+enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Please enter your town or city
+enter-claimant-details-importer-company.address.line5.label=County (Optional)
+enter-claimant-details-importer-company.address.line6.label=Postcode
+enter-claimant-details-importer-company.address.line6.error.required=Please enter your postcode
+enter-claimant-details-importer-company.address.line7.label=Country
+enter-claimant-details-importer-company.countryCode.error.required=Please enter your country
+enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
+enter-claimant-details-importer-company.add-company-details.no=No
+enter-claimant-details-importer-company.add-company-details.yes=Yes
+enter-claimant-details-importer-company.add-company-details.error.required=Please choose if you want to add company details
+countryCode.enter-claimant-details-importer-company.error.required=Please enter your country
 
 #===================================================
-#  ENTER CLAIMANT DETAILS PAGE - START
+#  ENTER DECLARATION DETAILS PAGE
 #===================================================
+enter-declaration-details.title=Enter Declaration Details
+enter-declaration-details.caption=Declaration details
+enter-declaration-details.help-text=These are the import date and place of import related to the entry number: {0}.
+enter-declaration-details.date-of-import.label=Date of Import
+enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
+enter-declaration-details.place-of-import.label=Place of import
+enter-declaration-details.place-of-import.help=This is where the commodities arrived in the UK. You can find the location on import documents.
+enter-declaration-details.importer-name.label=Importer name
+enter-declaration-details.importer-name.help=This is the legal name of the importer company or individual.
+enter-declaration-details.importer-email-address.label=Importer email address
+enter-declaration-details.importer-phone-number.label=Importer phone number
+enter-declaration-details.importer-phone-number.help=For international numbers include the country code.
+enter-declaration-details.declarant-name.label=Declarant name
+enter-declaration-details.declarant-name.help=This is the name of the person who made the declaration.
+enter-declaration-details.declarant-email-address.label=Declarant email address
+enter-declaration-details.declarant-phone-number.label=Declarant phone number
+enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
+enter-declaration-details.error.required=Please enter your declaration details
+enter-declaration-details.error.tooFarInFuture=Please a date before today
+enter-declaration-details.date-of-import.error.required=Enter a date of import
+enter-declaration-details-day.error.invalid=Enter a valid date of import
+enter-declaration-details.place-of-import.error.required=Enter a place of import
+enter-declaration-details.importer-name.error.required=Enter an importer name
+enter-declaration-details.importer-email-address.error.required=Enter an importer email address
+enter-declaration-details.importer-phone-number.error.required=Enter an importer phone number
+enter-declaration-details.declarant-name.error.required=Enter a declarant name
+enter-declaration-details.declarant-email-address.error.required=Enter a declarant email address
+enter-declaration-details.declarant-phone-number.error.required=Enter a declarant phone number
 
-enter-claimant-details.title=Enter Claimant Details
-enter-claimant-details.caption=Claimant Details
-enter-claimant-details.help-text=Please enter your details for the claim
+#===================================================
+#  SELECT DECLARANT TYPE PAGE
+#===================================================
+select-who-is-making-the-claim.title=Who is making this claim?
+select-who-is-making-the-claim.caption=Declarant Type
+select-who-is-making-the-claim.importer=I am an importer person
+select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
+select-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+select-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
+select-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
+select-who-is-making-the-claim.details.label=What is an importer and an representative?
+select-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
+select-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
-#  ENTER CLAIMANT DETAILS PAGE - END
+#  CHECK DECLARANT DETAILS PAGE
 #===================================================
-
-#===================================================
-#  CHECK DECLARANT DETAILS PAGE - START
-#===================================================
-
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
 check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
 
 #===================================================
-#  CHECK DECLARANT DETAILS PAGE - END
+#  SELECT REASON FOR CLAIM PAGE
 #===================================================
+select-reason-for-claim.title=Select the reason and or basis for claim
+select-reason-for-claim.error.number=Select the reason and or basis for claim
+select-reason-for-claim.error.required=Select the reason and or basis for claim
+select-reason-for-claim.caption=Reason for claim
+select-reason-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-reason-for-claim=Examples of basis of claims:
+select-reason-for-claim.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
+select-reason-for-claim.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
+select-reason-for-claim.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
+select-reason-for-claim.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
+select-reason-for-claim.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
+select-reason-for-claim.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
+select-reason-for-claim.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
+select-reason-for-claim.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
+select-reason-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+select-reason-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
+select-reason-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
+select-reason-for-claim.reason.d0=Duplicate MRN or Entry
+select-reason-for-claim.reason.d1=Duty suspension
+select-reason-for-claim.reason.d2=End use relief
+select-reason-for-claim.reason.d3=Incorrect commodity code
+select-reason-for-claim.reason.d4=Incorrect CPC
+select-reason-for-claim.reason.d5=Incorrect value
+select-reason-for-claim.reason.d6=Incorrect EORI and deferment account number
+select-reason-for-claim.reason.d7=Inward Processing Relief from Customs Duty
+select-reason-for-claim.reason.d8=Outward Processing Relief
+select-reason-for-claim.reason.d9=Preference
+select-reason-for-claim.reason.d10=Proof of returns/refund given
 
 #===================================================
-#  CHOOSE DECLARANT TYPE - START
+#  SELECT REASON AND BASIS FOR CLAIM PAGE
 #===================================================
+select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.caption=Reason for claim
+select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 
-choose-who-is-making-the-claim.title=Who is making this claim?
-choose-who-is-making-the-claim.caption=Declarant Type
-choose-who-is-making-the-claim.importer=I am an importer person
-choose-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-choose-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
-choose-who-is-making-the-claim.error.required=Select yes if you want to report a capital gain for a trust or estate
-choose-who-is-making-the-claim.invalid=Select yes if you want to report a capital gain for a trust or estate
-choose-who-is-making-the-claim.details.label=What is an importer and an representative?
-choose-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
-choose-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-reason-and-basis-for-claim.basis.label=Examples of basis of claims:
+select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
+select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
+select-reason-and-basis-for-claim.basis.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
+select-reason-and-basis-for-claim.basis.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
+select-reason-and-basis-for-claim.basis.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
+select-reason-and-basis-for-claim.basis.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
+select-reason-and-basis-for-claim.basis.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
+select-reason-and-basis-for-claim.basis.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
+select-reason-and-basis-for-claim.basis.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+select-reason-and-basis-for-claim.basis.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
+select-reason-and-basis-for-claim.basis.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
+select-reason-and-basis-for-claim.reason.label=Examples of reasons to claims:
+select-reason-and-basis-for-claim.basis.reason.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
+select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you paid duties that were not due)
+select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
+
+select-reason-and-basis-for-claim.basis.d0=Duplicate MRN or Entry
+select-reason-and-basis-for-claim.basis.d1=Duty suspension
+select-reason-and-basis-for-claim.basis.d2=End use relief
+select-reason-and-basis-for-claim.basis.d3=Incorrect commodity code
+select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
+select-reason-and-basis-for-claim.basis.d5=Incorrect value
+select-reason-and-basis-for-claim.basis.d6=Incorrect EORI and deferment account number
+select-reason-and-basis-for-claim.basis.d7=Inward Processing Relief from Customs Duty
+select-reason-and-basis-for-claim.basis.d8=Outward Processing Relief
+select-reason-and-basis-for-claim.basis.d9=Preference
+select-reason-and-basis-for-claim.basis.d10=Proof of returns/refund given
+select-reason-and-basis-for-claim.reason.d0=Mail order goods
+select-reason-and-basis-for-claim.reason.d1=Overpayment
+select-reason-and-basis-for-claim.reason.d2=Special circumstances
 
 #===================================================
-#  CHOOSE DECLARANT TYPE - END
+#  ENTER COMMODITIES PAGE
 #===================================================
+enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
+enter-commodities-details.caption=Commodity Details
+enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.error.required=Please enter commodities details
 
+#===================================================
+#  ENTER DUTIES PAGE
+#===================================================
+enter-duty-and-claim-amounts.title=Enter UK Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts.caption=Duties Paid and Claims
+enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties?</h2>
+enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
+enter-duty-and-claim-amounts.help-text=HMRC does not refund agents' fees.
+enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid claim
+enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
+
+enter-duty-and-claim-amounts-eu.title=Enter EU Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts-eu.caption=Duties Paid and Claims
+enter-duty-and-claim-amounts-eu.help-text=HMRC does not refund agents' fees.
+enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
+enter-duty-and-claim-amounts-eu-eu.invalid.claim=You must enter at least one valid claim
+
+#===================================================
+#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
+#===================================================
+check-your-reimbursement-claim-total.title=Your Reimbursement Claim Total
+check-your-reimbursement-claim-total.caption=Reimbursement Claim
+check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
+
+#===================================================
+#  ENTER BANK DETAILS PAGE
+#===================================================
+enter-bank-details.title=Enter bank account details
+enter-bank-details.caption=Bank Details
+enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, contact the CDS team.
+enter-bank-details.account-name.label=Bank account name
+enter-bank-details.account-name.help-text=The name registered within the account
+enter-bank-details.account-name.error.required=Please enter your account name
+enter-bank-details.account-number.label=Account number
+enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
+enter-bank-details.account-number.error.required=Please enter a valid account number
+enter-bank-details.account-number.invalid=Please enter a valid account number
+enter-bank-details.sort-code.label=Sort Code
+enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
+enter-bank-details.sort-code.error.required=Please enter a valid sort code
+enter-bank-details.is-business-account=This is a business bank account
 
 #===================================================
 #  BANK DETAILS PAGE - START
 #===================================================
-
 bank-details.title=Check these bank details are correct
 bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 
-#===================================================
-#  BANK DETAILS PAGE - END
-#===================================================
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START
@@ -218,6 +464,40 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #===================================================
 
 #===================================================
+# CHECK YOUR ANSWERS PAGE - START
+#===================================================
+
+check-your-answers.title=Review Your Claim
+check-your-answers.caption=Claim Details
+check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+check-your-answers.declaration-statement.h2=Declaration Statement
+check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
+#===================================================
+# CHECK YOUR ANSWERS PAGE - END
+#===================================================
+
+#===================================================
+# CONFIRMATION PAGE - START
+#===================================================
+
+confirmation-of-submission.title=Claim submitted
+confirmation-of-submission.reimbursement-amount=Reimbursement amount
+confirmation-of-submission.claim-reference=Your claim reference number
+confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
+confirmation-of-submission.whatNext=What happens next?
+confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will email you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
+confirmation-of-submission.what-next.l2=ask for more information
+confirmation-of-submission.what-next.l3=explain why your claim was rejected
+confirmation-of-submission.what-next.p2=Print or save a copy of this page for your records.
+confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
+
+#===================================================
+# CONFIRMATION PAGE - END
+#===================================================
+
+
+#===================================================
 #  ACCESSIBILITY - START
 #===================================================
 
@@ -235,7 +515,7 @@ accessibility-statement.p3 = This service is run by HM Revenue and Customs (HMRC
 accessibility-statement.p4 = We want as many people as possible to be able to use this service. This means you should be able to:
 accessibility-statement.p5 = We have also made the text in the service as simple as possible to understand. <a href="{0}"> AbilityNet has advice </a> on making your device easier to use if you have a disability.
 accessibility-statement.p6 = HMRC is committed to making these forms accessible in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. The service was tested on 1 March 2021 and found to be compliant with the<a href="{0}"> Web Content Accessibility Guidelines version 2.1 AAA standard.</a> Since then, it has been extended. We cannot be certain that it is fully compliant. The full service will be tested by HMRC within the next three months.
-accessibility-statement.p7 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements,<a href="{0}">report the accessibility problem (opens in a new tab).</a>
+accessibility-statement.p7 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, <a href="{0}">report the accessibility problem (opens in a new tab).</a>
 accessibility-statement.p8 = The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint,<a href="{0}">contact the Equality Advisory and Support Service (EASS)</a>, or
 accessibility-statement.p82 = the <a href="{0}">Equality Commission for Northern Ireland </a>(ECNI) if you live in Northern Ireland.
 accessibility-statement.p9 = We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
@@ -250,7 +530,268 @@ accessibility-statement.li3 = get from the start of the service to the end using
 accessibility-statement.li4 = get from the start of the service to the end using speech recognition software
 accessibility-statement.li5 = listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
 
-
 #===================================================
 #  ACCESSIBILITY - START
 #===================================================
+
+#===================================================
+#  NON-UK ADDRESS - START
+#===================================================
+nonUkAddress-building.error.required=Please enter your building name or number
+nonUkAddress-line1.error.required=Please enter the first line of your address
+nonUkAddress-line4.error.required=Please enter your town or city
+countryCode.error.required=Please enter your country
+
+#===================================================
+#  COUNTRIES - START
+#===================================================
+country.AD=Andorra
+country.AE=United Arab Emirates
+country.AF=Afghanistan
+country.AG=Antigua and Barbuda
+country.AI=Anguilla
+country.AL=Albania
+country.AM=Armenia
+country.AO=Angola
+country.AQ=Antarctica
+country.AR=Argentina
+country.AS=American Samoa
+country.AT=Austria
+country.AU=Australia
+country.AW=Aruba
+country.AX=Åland Islands
+country.AZ=Azerbaijan
+country.BA=Bosnia and Herzegovina
+country.BB=Barbados
+country.BD=Bangladesh
+country.BE=Belgium
+country.BF=Burkina Faso
+country.BG=Bulgaria
+country.BH=Bahrain
+country.BI=Burundi
+country.BJ=Benin
+country.BL=Saint Barthélemy
+country.BM=Bermuda
+country.BN=Brunei
+country.BO=Bolivia
+country.BQ=Bonaire, Sint Eustatius and Saba
+country.BR=Brazil
+country.BS=The Bahamas
+country.BT=Bhutan
+country.BV=Bouvet Island
+country.BW=Botswana
+country.BY=Belarus
+country.BZ=Belize
+country.CA=Canada
+country.CC=Cocos (Keeling) Islands
+country.CD=Congo (Democratic Republic)
+country.CF=Central African Republic
+country.CG=Congo
+country.CH=Switzerland
+country.CI=Ivory Coast
+country.CK=Cook Islands
+country.CL=Chile
+country.CM=Cameroon
+country.CN=China
+country.CO=Colombia
+country.CR=Costa Rica
+country.CS=Czechoslovakia
+country.CU=Cuba
+country.CV=Cape Verde
+country.CW=Curaçao
+country.CX=Christmas Island
+country.CY=Cyprus
+country.CZ=Czechia
+country.DE=Germany
+country.DJ=Djibouti
+country.DK=Denmark
+country.DM=Dominica
+country.DO=Dominican Republic
+country.DZ=Algeria
+country.EC=Ecuador
+country.EE=Estonia
+country.EG=Egypt
+country.EH=Western Sahara
+country.ER=Eritrea
+country.ES=Spain
+country.ET=Ethiopia
+country.FI=Finland
+country.FJ=Fiji
+country.FK=Falkland Islands
+country.FM=Micronesia
+country.FO=Faroe Islands
+country.FR=France
+country.GA=Gabon
+country.GD=Grenada
+country.GE=Georgia
+country.GF=French Guiana
+country.GG=Guernsey
+country.GH=Ghana
+country.GI=Gibraltar
+country.GL=Greenland
+country.GM=The Gambia
+country.GN=Guinea
+country.GP=Guadeloupe
+country.GQ=Equatorial Guinea
+country.GR=Greece
+country.GS=South Georgia and South Sandwich Islands
+country.GT=Guatemala
+country.GU=Guam
+country.GW=Guinea-Bissau
+country.GY=Guyana
+country.HK=Hong Kong
+country.HM=Heard Island and McDonald Islands
+country.HN=Honduras
+country.HR=Croatia
+country.HT=Haiti
+country.HU=Hungary
+country.ID=Indonesia
+country.IE=Ireland
+country.IL=Israel
+country.IM=Isle of Man
+country.IN=India
+country.IO=British Indian Ocean Territory
+country.IQ=Iraq
+country.IR=Iran
+country.IS=Iceland
+country.IT=Italy
+country.JE=Jersey
+country.JM=Jamaica
+country.JO=Jordan
+country.JP=Japan
+country.KE=Kenya
+country.KG=Kyrgyzstan
+country.KH=Cambodia
+country.KI=Kiribati
+country.KM=Comoros
+country.KN=St Kitts and Nevis
+country.KP=North Korea
+country.KR=South Korea
+country.KW=Kuwait
+country.KY=Cayman Islands
+country.KZ=Kazakhstan
+country.LA=Laos
+country.LB=Lebanon
+country.LC=St Lucia
+country.LI=Liechtenstein
+country.LK=Sri Lanka
+country.LR=Liberia
+country.LS=Lesotho
+country.LT=Lithuania
+country.LU=Luxembourg
+country.LV=Latvia
+country.LY=Libya
+country.MA=Morocco
+country.MC=Monaco
+country.MD=Moldova
+country.ME=Montenegro
+country.MF=Saint-Martin (French part)
+country.MG=Madagascar
+country.MH=Marshall Islands
+country.MK=North Macedonia
+country.ML=Mali
+country.MM=Myanmar (Burma)
+country.MN=Mongolia
+country.MO=Macao
+country.MP=Northern Mariana Islands
+country.MQ=Martinique
+country.MR=Mauritania
+country.MS=Montserrat
+country.MT=Malta
+country.MU=Mauritius
+country.MV=Maldives
+country.MW=Malawi
+country.MX=Mexico
+country.MY=Malaysia
+country.MZ=Mozambique
+country.NA=Namibia
+country.NC=New Caledonia
+country.NE=Niger
+country.NF=Norfolk Island
+country.NG=Nigeria
+country.NI=Nicaragua
+country.NL=Netherlands
+country.NO=Norway
+country.NP=Nepal
+country.NR=Nauru
+country.NU=Niue
+country.NZ=New Zealand
+country.OM=Oman
+country.PA=Panama
+country.PE=Peru
+country.PF=French Polynesia
+country.PG=Papua New Guinea
+country.PH=Philippines
+country.PK=Pakistan
+country.PL=Poland
+country.PM=Saint Pierre and Miquelon
+country.PN=Pitcairn, Henderson, Ducie and Oeno Islands
+country.PR=Puerto Rico
+country.PS=Occupied Palestinian Territories
+country.PT=Portugal
+country.PW=Palau
+country.PY=Paraguay
+country.QA=Qatar
+country.RE=Réunion
+country.RO=Romania
+country.RS=Serbia
+country.RU=Russia
+country.RW=Rwanda
+country.SA=Saudi Arabia
+country.SB=Solomon Islands
+country.SC=Seychelles
+country.SD=Sudan
+country.SE=Sweden
+country.SG=Singapore
+country.SH=Saint Helena, Ascension and Tristan da Cunha
+country.SI=Slovenia
+country.SJ=Svalbard and Jan Mayen
+country.SK=Slovakia
+country.SL=Sierra Leone
+country.SM=San Marino
+country.SN=Senegal
+country.SO=Somalia
+country.SR=Suriname
+country.SS=South Sudan
+country.ST=Sao Tome and Principe
+country.SV=El Salvador
+country.SX=Sint Maarten (Dutch part)
+country.SY=Syria
+country.SZ=Eswatini
+country.TC=Turks and Caicos Islands
+country.TD=Chad
+country.TF=French Southern Territories
+country.TG=Togo
+country.TH=Thailand
+country.TJ=Tajikistan
+country.TK=Tokelau
+country.TL=East Timor
+country.TM=Turkmenistan
+country.TN=Tunisia
+country.TO=Tonga
+country.TR=Turkey
+country.TT=Trinidad and Tobago
+country.TV=Tuvalu
+country.TW=Taiwan
+country.TZ=Tanzania
+country.UA=Ukraine
+country.UG=Uganda
+country.UK=United Kingdom
+country.UM=United States - Minor Outlying Islands (the)
+country.US=United States
+country.UY=Uruguay
+country.UZ=Uzbekistan
+country.VA=Vatican City
+country.VC=St Vincent
+country.VE=Venezuela
+country.VG=British Virgin Islands
+country.VI=United States Virgin Islands
+country.VN=Vietnam
+country.VU=Vanuatu
+country.WF=Wallis and Futuna
+country.WS=Samoa
+country.YE=Yemen
+country.YT=Mayotte
+country.ZA=South Africa
+country.ZM=Zambia
+country.ZW=Zimbabwe

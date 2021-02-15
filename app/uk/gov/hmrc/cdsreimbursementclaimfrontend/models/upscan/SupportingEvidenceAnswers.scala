@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import julienrf.json.derived
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import play.api.libs.json.{Json, OFormat}
 
 sealed trait SupportingEvidenceAnswers extends Product with Serializable
 
@@ -36,6 +35,10 @@ object SupportingEvidenceAnswers {
   final case class CompleteSupportingEvidenceAnswers(
     evidences: List[SupportingEvidence]
   ) extends SupportingEvidenceAnswers
+
+  object CompleteSupportingEvidenceAnswers {
+    implicit val format: OFormat[CompleteSupportingEvidenceAnswers] = Json.format[CompleteSupportingEvidenceAnswers]
+  }
 
   implicit class UploadSupportingDocumentsOps(
     private val a: SupportingEvidenceAnswers

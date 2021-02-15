@@ -62,7 +62,7 @@ List(hintIdWithHintText.map(_._1), errorIdWithError.map(_._1)).collect{ case Som
         @options.zipWithIndex.map{ case (option, index) =>
         <div class="multiple-choice"@if(option.content.nonEmpty){ data-target="@{fieldId}-@{index}-content" }>
             <input id="@{fieldId}-@{index}"
-                       name="@{fieldId}[]"
+                   name="@{fieldId}[]"
                    value="@index"
                    type="checkbox"
                    @if(selected.contains(index)) { checked="checked" }

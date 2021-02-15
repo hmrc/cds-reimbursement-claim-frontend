@@ -1,3 +1,4 @@
+GET /start/claim-for-reimbursement                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.landing()
 GET /exit/cannot-check-details                                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
 GET /start                                                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
 GET /sign-out-and-register-for-gg                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
@@ -5,9 +6,13 @@ GET /sign-out-and-log-in                                                    uk.g
 GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
 GET /keep-alive                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
+GET /feedback                                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.FeedbackController.feedback()
+
+GET /unauthorised                                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
+
 GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
 GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish
 
-GET /accessibility-statement                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
+GET /accessibility-statement                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
 GET /assets/*file                                                           controllers.Assets.at(path="/public", file)

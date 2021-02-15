@@ -19,13 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.mvc._
+import play.api.mvc.{MessagesRequest, Result, WrappedRequest}
+import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
@@ -107,11 +109,11 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     request: MessagesRequest[A]
   ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     hasEoriEnrolment(enrolments, request) map {
-      case Left(errorResult) => Left(errorResult)
+      case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
         handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, request)
       case Right(None)       =>
-        Left(errorHandler.errorResult(None)(request))
+        Left(Redirect(routes.UnauthorisedController.unauthorised()))
     }
 
   private def hasEoriEnrolment[A](

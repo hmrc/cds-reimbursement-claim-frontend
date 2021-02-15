@@ -1,0 +1,100 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.api.mvc.Request
+@import play.twirl.api.Html
+
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+
+@this(
+        mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
+)
+
+@()(implicit messages:Messages, viewConfig: ViewConfig, request: Request[_])
+
+@key = @{"landing"}
+@title = @{messages(s"$key.title")}
+
+@mainTemplate(title = title, userType = None) {
+
+    @pageHeading(title)
+
+    <p class="govuk-body">@messages(s"$key.help.p1")</p>
+    <p class="govuk-body">@messages(s"$key.help.p2")</p>
+
+    <h3>@messages(s"$key.who.heading")</h3>
+    <p class="govuk-body">@messages(s"$key.who.p1")</p>
+    <p class="govuk-body">@Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl))</p>
+    <p class="govuk-body">@messages(s"$key.who.p3")</p>
+
+    <ul class="list-bullet">
+     <li>@messages(s"$key.who.l1")</li>
+     <li>@messages(s"$key.who.l2")</li>
+     <li>@messages(s"$key.who.l3")</li>
+    </ul>
+
+    <p class="govuk-body">@messages(s"$key.who.p4")</p>
+
+    <h3>@messages(s"$key.why.heading")</h3>
+    <p>@messages(s"$key.why.p1")</p>
+
+    <ul class="list-bullet">
+     <li>@messages(s"$key.why.l1")</li>
+     <li>@messages(s"$key.why.l2")</li>
+    </ul>
+
+    <br>
+    <a href="@{routes.StartController.start()}" role="button" draggable="false" class="button button-start">@messages(s"$key.start-button")</a>
+    <br><br>
+
+    <h3>@messages(s"$key.before.heading")</h3>
+    <p>@messages(s"$key.before.p1")</p>
+
+    <ul class="list-bullet">
+     <li>@messages(s"$key.before.l1")</li>
+     <li>@messages(s"$key.before.l2")</li>
+     <li>@messages(s"$key.before.l3")</li>
+     <li>@messages(s"$key.before.l4")</li>
+     <li>@messages(s"$key.before.l5")</li>
+     <li>@messages(s"$key.before.l6")</li>
+     <li>@messages(s"$key.before.l7")</li>
+     <li>@messages(s"$key.before.l8")</li>
+     <li>@messages(s"$key.before.l9")</li>
+    </ul>
+
+
+    <div class="space-document-type">
+    @details(messages(s"$key.details.heading"),
+     Html(s"""|
+               |<li> ${messages(s"$key.details.l1")} </li>
+               |<li> ${messages(s"$key.details.l2")} </li>
+               |<li> ${messages(s"$key.details.l3")} </li>
+               |<li> ${messages(s"$key.details.l4")} </li>
+               |<li> ${messages(s"$key.details.l5")} </li>
+               |<li> ${messages(s"$key.details.l6")} </li>
+               |<li> ${messages(s"$key.details.l7")} </li>
+               |<li> ${messages(s"$key.details.l8")} </li>
+               |<li> ${messages(s"$key.details.l9")} </li>
+               |<li> ${messages(s"$key.details.l10")} </li>
+               |""".stripMargin
+     ))
+    </div>
+
+}

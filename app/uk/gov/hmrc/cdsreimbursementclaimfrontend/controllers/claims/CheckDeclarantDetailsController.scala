@@ -67,14 +67,16 @@ class CheckDeclarantDetailsController @Inject() (
 
   def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withPossibleDeclaration { (_, _, maybeDeclaration) =>
-      maybeDeclaration.fold(Redirect(routes.EnterClaimantDetailsController.enterClaimantDetails()))(declaration =>
-        Ok(checkDeclarantDetailsPage(declaration, routes.MovementReferenceNumberController.enterMrn()))
+      maybeDeclaration.fold(
+        Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual)
+      )(declaration =>
+        Ok(checkDeclarantDetailsPage(declaration, routes.EnterMovementReferenceNumberController.enterMrn()))
       )
     }
   }
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.WhoIsMakingTheClaimController.chooseDeclarantType())
+    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
   }
 
 }

@@ -16,16 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
+import cats.syntax.either._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import play.api.data.Forms._
+import play.api.data.format.Formatter
+import play.api.data.{Form, FormError, Forms, Mapping}
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.IncompleteBankAccountDetailAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import java.util.function.Predicate
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @Singleton
 class BankAccountController @Inject() (
@@ -34,14 +50,247 @@ class BankAccountController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  val config: Configuration
-) extends FrontendController(cc)
+  val config: Configuration,
+  enterBankAccountDetailsPage: pages.enter_bank_account_details
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
 
-  def checkBankAccountDetails(): Action[AnyContent] = Action {
+  private def withBankAccountDetailsAnswers(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      BankAccountDetailsAnswers
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              sessionData,
+              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            )
+          ) =>
+        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(
+          _.bankAccountDetailsAnswers
+        )
+        maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
+          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswers.empty)
+        )(f(sessionData, fillingOutClaim, _))
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  def checkBankAccountDetails: Action[AnyContent] = Action {
     Ok("bank account details - to be implemented")
   }
 
+  def enterBankAccountDetails: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withBankAccountDetailsAnswers { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.bankAccountDetails match {
+              case Some(bankAccountDetails) =>
+                Ok(enterBankAccountDetailsPage(BankAccountController.enterBankDetailsForm.fill(bankAccountDetails)))
+              case None                     =>
+                Ok(
+                  enterBankAccountDetailsPage(
+                    BankAccountController.enterBankDetailsForm
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterBankAccountDetailsPage(
+                BankAccountController.enterBankDetailsForm.fill(
+                  ifComplete.bankAccountDetails
+                )
+              )
+            )
+        )
+      }
+    }
+
+  def enterBankAccountDetailsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withBankAccountDetailsAnswers { (_, fillingOutClaim, answers) =>
+        BankAccountController.enterBankDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterBankAccountDetailsPage(
+                  requestFormWithErrors
+                )
+              ),
+            bankAccountDetails => {
+              val updatedAnswers = answers.fold(
+                incomplete =>
+                  incomplete.copy(
+                    bankAccountDetails = Some(bankAccountDetails)
+                  ),
+                complete => complete.copy(bankAccountDetails = bankAccountDetails)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not bank account details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+              )
+            }
+          )
+      }
+    }
+
+}
+
+object BankAccountController {
+
+  def readValue[T](
+    key: String,
+    data: Map[String, String],
+    f: String => T,
+    requiredErrorArgs: Seq[String] = Seq.empty
+  ): Either[FormError, T] =
+    data
+      .get(key)
+      .map(_.trim())
+      .filter(_.nonEmpty)
+      .fold[Either[FormError, T]](Left(FormError(key, "error.required", requiredErrorArgs))) { stringValue =>
+        Either
+          .fromTry(Try(f(stringValue)))
+          .leftMap(_ => FormError(key, "error.invalid"))
+      }
+
+  val isBusinessAccountMapping: Mapping[List[Int]] = {
+    val isBusinessAccountFormatter: Formatter[Int] =
+      new Formatter[Int] {
+
+        override def bind(
+          key: String,
+          data: Map[String, String]
+        ): Either[Seq[FormError], Int] =
+          readValue(key, data, identity)
+            .flatMap {
+              case "0" => Right(0)
+              case _   => Left(FormError(key, "error.invalid"))
+            }
+            .leftMap(Seq(_))
+
+        override def unbind(
+          key: String,
+          value: Int
+        ): Map[String, String] =
+          Map(key -> value.toString)
+      }
+
+    mapping(
+      "enter-bank-details.is-business-account" -> Forms
+        .list(of(isBusinessAccountFormatter))
+        .verifying("error.required", _.nonEmpty)
+    )(identity)(Some(_))
+
+  }
+
+  final case class AccountNumber(value: String) extends AnyVal
+  object AccountNumber {
+    implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
+  }
+  val accountNumberRegex: Predicate[String] = "^\\d{6,8}$".r.pattern.asPredicate()
+
+  val accountNumberMapping: Mapping[AccountNumber] =
+    nonEmptyText
+      .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
+      .verifying("invalid", e => accountNumberRegex.test(e.value))
+
+  def sortCodeFormatter(
+    sortCode1Key: String,
+    sortCode2Key: String,
+    sortCode3Key: String,
+    sortCode: String
+  ): Formatter[String] =
+    new Formatter[String] {
+      def sortCodeFieldStringValues(
+        data: Map[String, String]
+      ): Either[FormError, (String, String, String)] =
+        List(sortCode1Key, sortCode2Key, sortCode3Key)
+          .map(data.get(_).map(_.trim).filter(_.nonEmpty)) match {
+          case Some(sc1) :: Some(sc2) :: Some(sc3) :: Nil =>
+            Right((sc1, sc2, sc3))
+          case None :: Some(_) :: Some(_) :: Nil          =>
+            Left(FormError(sortCode1Key, "error.required"))
+          case Some(_) :: None :: Some(_) :: Nil          =>
+            Left(FormError(sortCode2Key, "error.required"))
+          case Some(_) :: Some(_) :: None :: Nil          =>
+            Left(FormError(sortCode3Key, "error.required"))
+          case Some(_) :: None :: None :: Nil             =>
+            Left(FormError(sortCode2Key, "error.sc1-and-sc1.required"))
+          case None :: Some(_) :: None :: Nil             =>
+            Left(FormError(sortCode1Key, "error.sc1-and-sc3.required"))
+          case None :: None :: Some(_) :: Nil             =>
+            Left(FormError(sortCode1Key, "error.sc1-and-sc2.required"))
+          case _                                          =>
+            Left(FormError(sortCode, "error.required"))
+        }
+
+      override def bind(
+        key: String,
+        data: Map[String, String]
+      ): Either[Seq[FormError], String] = {
+        val result = for {
+          scFields <- sortCodeFieldStringValues(data)
+        } yield scFields._1 + scFields._2 + scFields._3
+        result.leftMap(Seq(_))
+      }
+
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(
+          sortCode1Key -> value.substring(0, 2),
+          sortCode2Key -> value.substring(2, 4),
+          sortCode3Key -> value.substring(4, 6)
+        )
+    }
+
+  val sortCodeMapping: Mapping[SortCode] =
+    mapping(
+      "" -> of(
+        sortCodeFormatter(
+          "enter-bank-details-sort-code-1",
+          "enter-bank-details-sort-code-2",
+          "enter-bank-details-sort-code-3",
+          "enter-bank-details-sort-code"
+        )
+      )
+    )(SortCode(_))(d => Some(d.value))
+
+  val enterBankDetailsForm: Form[BankAccountDetails] = Form(
+    mapping(
+      "enter-bank-details.account-name"   -> nonEmptyText,
+      ""                                  -> isBusinessAccountMapping,
+      ""                                  -> sortCodeMapping,
+      "enter-bank-details.account-number" -> accountNumberMapping
+    )(BankAccountDetails.apply)(BankAccountDetails.unapply)
+  )
+
+  final case class BankAccountDetails(
+    accountName: String,
+    isBusinessAccount: List[Int],
+    sortCode: SortCode,
+    accountNumber: AccountNumber
+  )
+
+  object BankAccountDetails {
+    implicit val format: OFormat[BankAccountDetails] = Json.format[BankAccountDetails]
+  }
 }
