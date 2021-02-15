@@ -51,12 +51,17 @@ class BankAccountController @Inject() (
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
+  checkBankAccountDetailsPage: views.html.claims.bank_account_details,
   enterBankAccountDetailsPage: pages.enter_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
+      
+  def checkBankAccountDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect("uploadSupportingEvidence")
 
   private def withBankAccountDetailsAnswers(
     f: (
@@ -82,7 +87,7 @@ class BankAccountController @Inject() (
     }
 
   def checkBankAccountDetails: Action[AnyContent] = Action {
-    Ok("bank account details - to be implemented")
+    Ok(checkBankAccountDetailsPage(MaskedBankAccount("Arthur Dent", "52-52-52", "123456")))
   }
 
   def enterBankAccountDetails: Action[AnyContent] =

@@ -36,8 +36,10 @@ GET         /claim-submitted                                        uk.gov.hmrc.
 
 GET         /check-if-claim-was-sent                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
 
-GET         /check-reimbursement-claim-total                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal
+GET         /check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+POST        /check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetailsSubmit()
 
+GET         /check-reimbursement-claim-total                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal
 
 GET         /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmounts
 POST        /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmountsSubmit
