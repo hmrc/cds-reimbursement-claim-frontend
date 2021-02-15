@@ -228,6 +228,7 @@ TV
 TW
 TZ
 UA
+UK
 UG
 UM
 US

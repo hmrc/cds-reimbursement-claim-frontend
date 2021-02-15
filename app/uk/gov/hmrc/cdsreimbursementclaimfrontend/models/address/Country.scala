@@ -63,8 +63,7 @@ object Country {
         case None    => Left(Seq(FormError(key, "error.required")))
       }
 
-    override def unbind(key: String, value: Country): Map[String, String] =
-      Map(key -> value.code)
+    override def unbind(key: String, value: Country): Map[String, String] = Map(key -> value.code)
   }
 
 }

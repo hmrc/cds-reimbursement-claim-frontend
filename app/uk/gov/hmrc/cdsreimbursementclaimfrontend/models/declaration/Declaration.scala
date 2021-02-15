@@ -47,9 +47,9 @@ object Declaration {
 
     def declarantContactAddress: String = declaration.declarantDetails.contactDetails match {
       case Some(value) =>
-        s"${value.addressLine1.getOrElse("")} ${value.addressLine2.getOrElse("no line 1")} ${value.addressLine3
-          .getOrElse("no line 2")} ${value.addressLine4
-          .getOrElse("")} ${value.postalCode.getOrElse("")} ${value.countryCode.getOrElse("")}"
+        s"${value.addressLine1.getOrElse("")}, ${value.addressLine2.getOrElse("no line 1")}, ${value.addressLine3
+          .getOrElse("no line 2")}, ${value.addressLine4
+          .getOrElse("")}, ${value.postalCode.getOrElse("")}, ${value.countryCode.getOrElse("")}"
       case None        => "mp contact details"
     }
 

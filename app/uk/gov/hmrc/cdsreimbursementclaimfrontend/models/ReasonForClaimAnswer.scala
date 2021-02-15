@@ -24,7 +24,7 @@ sealed trait ReasonForClaimAnswer extends Product with Serializable
 object ReasonForClaimAnswer {
 
   final case class IncompleteReasonForClaimAnswer(
-    reasonForClaimOption: Option[ReasonForClaimOption]
+    reasonForClaimOption: Option[BasisForClaim]
   ) extends ReasonForClaimAnswer
 
   object IncompleteReasonForClaimAnswer {
@@ -33,7 +33,7 @@ object ReasonForClaimAnswer {
   }
 
   final case class CompleteReasonForClaimAnswer(
-    reasonForClaimOption: ReasonForClaimOption
+    reasonForClaimOption: BasisForClaim
   ) extends ReasonForClaimAnswer
 
   object CompleteReasonForClaimAnswer {
