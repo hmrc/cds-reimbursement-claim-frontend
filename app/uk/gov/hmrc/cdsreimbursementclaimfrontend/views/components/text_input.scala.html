@@ -31,6 +31,7 @@
   autoComplete: AutoCompleteType,
   helpText: Option[Html] = None,
   labelAsHeading: Boolean = false,
+  showLabel: Boolean = true,
   errorKey: Option[String],
   extraContent: Option[Html] = None,
   inputType: Option[String] = Some("text"),
@@ -59,12 +60,14 @@
   List(hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
 
 @fieldLabel = {
-  @if(labelAsHeading) {
-    <h1 class="govuk-label-wrapper">
-      <label for="@{fieldId}" class="heading-xlarge">@{label}</label>
-    </h1>
-  } else {
-    <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
+  @if(showLabel) {
+    @if(labelAsHeading) {
+      <h1 class="govuk-label-wrapper">
+        <label for="@{fieldId}" class="heading-xlarge">@{label}</label>
+      </h1>
+    } else {
+      <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
+    }
   }
 }
 

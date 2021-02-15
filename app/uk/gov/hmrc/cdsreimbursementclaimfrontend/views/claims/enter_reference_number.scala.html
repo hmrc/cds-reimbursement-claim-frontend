@@ -28,8 +28,6 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
 )
 
@@ -41,31 +39,52 @@
 
  @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
-  @if(hasErrors) {
-   @errorSummary(form)
-  }
+  @*
+  * Temp CSS before switch to new frontend
+  *@
 
-  @caption(messages(s"$key.caption"))
+  <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
 
-  @pageHeading(title)
+  <div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+      <div>
+        <div>
 
-  @Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl))
+          @if(hasErrors) {
+           @errorSummary(form)
+          }
 
-  @formWrapper(routes.MovementReferenceNumberController.enterMrnSubmit(), 'novalidate -> "novalidate") {
+          <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">
+            <label for="@key">
+              @title
+            </label>
+          </h1>
 
-    @textInput(
-     fieldId = key,
-     value = form.data.getOrElse(key, ""),
-     errorKey = form.error(key).map(e => e.message),
-     hasErrors = form.error(key).nonEmpty,
-     label = Html(""),
-     labelClass = Some("govuk-label--m"),
-     helpText = Some(Html(messages(s"$key.help"))),
-     autoComplete = AutoCompleteType.On
-    )
+          <div class="govuk-inset-text govuk-!-margin-bottom-8">
+            @Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl))
+          </div>
 
-    @submitButton(messages("button.continue"))
+          @formWrapper(routes.MovementReferenceNumberController.enterMrnSubmit(), 'novalidate -> "novalidate") {
 
-  }
+            @textInput(
+             fieldId = key,
+             value = form.data.getOrElse(key, ""),
+             errorKey = form.error(key).map(e => e.message),
+             hasErrors = form.error(key).nonEmpty,
+             label = Html(""),
+             labelClass = Some("govuk-label--m"),
+             helpText = Some(Html(messages(s"$key.help"))),
+             autoComplete = AutoCompleteType.On,
+             showLabel = false
+            )
+
+            @submitButton(messages("button.continue"))
+
+          }
+
+        </div>
+      </div>
+    </main>
+  </div>
 
 }
