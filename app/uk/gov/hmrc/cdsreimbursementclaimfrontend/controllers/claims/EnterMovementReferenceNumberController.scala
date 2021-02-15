@@ -85,15 +85,15 @@ class EnterMovementReferenceNumberController @Inject() (
         answers.fold(
           ifIncomplete =>
             ifIncomplete.movementReferenceNumber match {
-              case Some(reference) =>
+              case Some(movementReferenceNumber) =>
                 Ok(
                   enterMovementReferenceNumberPage(
                     EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-                      MovementReferenceNumber(reference)
+                      MovementReferenceNumber(movementReferenceNumber)
                     )
                   )
                 )
-              case None            =>
+              case None                          =>
                 Ok(enterMovementReferenceNumberPage(EnterMovementReferenceNumberController.movementReferenceNumberForm))
             },
           ifComplete =>
