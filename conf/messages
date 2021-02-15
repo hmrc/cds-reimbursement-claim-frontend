@@ -135,6 +135,17 @@ mrn-not-linked-to-eori.caption=Movement Reference Number
 mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
 
 #===================================================
+#  ENTER IMPORTER EORI NUMBER PAGE
+#===================================================
+enter-importer-eori-number.title=Enter the importer's EORI number
+enter-importer-eori-number.caption=Importer EORI number
+enter-importer-eori-number.help=You can get the EORI number from the importer, otherwise you will be unable to make a claim.
+enter-importer-eori-number.help-text=Must be 17 characters, for example 9GB03I52858027018
+enter-importer-eori-number.invalid.number=Enter a valid EORI number
+enter-importer-eori-number.invalid=Enter a valid EORI number
+enter-importer-eori-number.error.required=Enter a valid EORI number
+
+#===================================================
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.

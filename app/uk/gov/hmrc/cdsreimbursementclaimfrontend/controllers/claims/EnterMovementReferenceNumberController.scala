@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
