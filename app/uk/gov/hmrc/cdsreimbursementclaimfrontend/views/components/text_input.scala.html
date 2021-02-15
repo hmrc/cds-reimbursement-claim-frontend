@@ -33,6 +33,7 @@
   labelAsHeading: Boolean = false,
   errorKey: Option[String],
   extraContent: Option[Html] = None,
+  extraContentClass: Option[String] = None,
   inputType: Option[String] = Some("text"),
   inputClass: Option[String] = None,
   labelClass: Option[String] = None
@@ -54,6 +55,7 @@
 @extraContentIdWithContent = @{extraContent.map(extraContentKey -> _)}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
 @labelClasses = @{classBuilder(Some("form-label"), labelClass)}
+@extraContentClasses = @{classBuilder(extraContentClass)}
 
 @describedByKeys = @{
   List(hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
@@ -71,7 +73,7 @@
 <div class="@classes">
   @fieldLabel
   @extraContentIdWithContent.map { case (id, text) =>
-    <div id="@id">
+    <div id="@id" class="@extraContentClasses">
       @text
     </div>
   }

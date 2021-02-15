@@ -6,6 +6,11 @@ strong {
     font-weight:700;
 }
 
+h1 > label {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
 .govuk-link, .app-task-list__task-name > a, a, .app-step-nav-header__title, .app-step-nav-related__link {
   font-family: "GDS Transport", arial, sans-serif;
   -webkit-font-smoothing: antialiased;
