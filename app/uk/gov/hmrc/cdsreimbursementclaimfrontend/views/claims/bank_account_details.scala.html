@@ -18,51 +18,47 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankAccount
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 
 @this(
-        mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-        formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
 )
 
-@(account : MaskedBankAccount)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
  @key = @{"bank-details"}
  @title = @{messages(s"$key.title")}
 
  @mainTemplate(title = title, userType = request.userType){
 
- @pageHeading(title)
+    @pageHeading(title)
 
- <p class="govuk-body">@messages(s"$key.help-text")</p>
+    <p class="govuk-body">@messages(s"$key.help-text")</p>
 
-@formWrapper(routes.BankAccountController.checkBankAccountDetailsSubmit(), 'novalidate -> "novalidate") {
+     <div class="space-details">
+      <table class="govuk-table">
+       <tbody>
+        <tr>
+         <th scope="row" style="font-weight:bold">Account name</th>
+         <td>/td>
+        </tr>
+        <tr>
+         <th scope="row" style="font-weight:bold">Sort code</th>
+         <td></td>
+        </tr>
+        <tr>
+         <th scope="row" style="font-weight:bold">Account number</th>
+         <td></td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
 
-  <div class="space-details">
-   <table class="govuk-table">
-    <tbody>
-     <tr>
-      <th scope="row" style="font-weight:bold">Account name</th>
-      <td>@account.accountHolderName</td>
-     </tr>
-     <tr>
-      <th scope="row" style="font-weight:bold">Sort code</th>
-      <td>@account.sortCode</td>
-     </tr>
-     <tr>
-      <th scope="row" style="font-weight:bold">Account number</th>
-      <td>@account.accountNumber</td>
-     </tr>
-    </tbody>
-   </table>
-  </div>
+     <p>@Html(messages(s"$key.different-details-link"))</p>
 
- <p>@Html(messages(s"$key.different-details-link"))</p>
+     @buttonLink(messages("button.continue"), fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url)
 
-  @submitButton(messages("button.continue"))
- }
 
  }
