@@ -31,9 +31,9 @@
   autoComplete: AutoCompleteType,
   helpText: Option[Html] = None,
   labelAsHeading: Boolean = false,
-  showLabel: Boolean = true,
   errorKey: Option[String],
   extraContent: Option[Html] = None,
+  extraContentClass: Option[String] = None,
   inputType: Option[String] = Some("text"),
   inputClass: Option[String] = None,
   labelClass: Option[String] = None
@@ -55,26 +55,25 @@
 @extraContentIdWithContent = @{extraContent.map(extraContentKey -> _)}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
 @labelClasses = @{classBuilder(Some("form-label"), labelClass)}
+@extraContentClasses = @{classBuilder(extraContentClass)}
 
 @describedByKeys = @{
   List(hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
 
 @fieldLabel = {
-  @if(showLabel) {
-    @if(labelAsHeading) {
-      <h1 class="govuk-label-wrapper">
-        <label for="@{fieldId}" class="heading-xlarge">@{label}</label>
-      </h1>
-    } else {
-      <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
-    }
+  @if(labelAsHeading) {
+    <h1 class="govuk-label-wrapper">
+      <label for="@{fieldId}" class="heading-xlarge">@{label}</label>
+    </h1>
+  } else {
+    <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
   }
 }
 
 <div class="@classes">
   @fieldLabel
   @extraContentIdWithContent.map { case (id, text) =>
-    <div id="@id">
+    <div id="@id" class="@extraContentClasses">
       @text
     </div>
   }
