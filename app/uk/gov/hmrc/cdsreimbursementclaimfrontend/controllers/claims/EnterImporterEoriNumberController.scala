@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
+import cats.syntax.eq._
 
 import javax.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -26,9 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -52,25 +54,28 @@ class EnterImporterEoriNumberController @Inject() (
     Ok(enterImporterEoriNumberPage())
   }
 
+  def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Ok(enterImporterEoriNumberPage())
+  }
+
   object EnterImporterEoriNumberController {
 
-    final case class EoriNumber(value: Eori extends AnyVal
+    final case class ImporterEoriNumber(value: Eori) extends AnyVal
 
     val eoriNumberMapping: Mapping[Eori] =
       nonEmptyText
         .verifying("invalid.number", str => Eori.isValid(str))
-        .transform[Eori](
-          str => if (Eori.isValid(str))
-          {
-           eori.value
+        .transform[Eori](str =>
+          if (Eori.isValid(str)) {
+            Eori.value
 
           }
         )
 
-    val EoriNumberForm: Form[EoriNumber] = Form(
+    val eoriNumberForm: Form[ImporterEoriNumber] = Form(
       mapping(
         "enter-importer-eori-number" -> eoriNumberMapping
-      )(eori.apply)(EoriNumber.unapply)
+      )(ImporterEoriNumber.apply)(ImporterEoriNumber.unapply)
     )
 
     def processFormErrors(errors: Seq[FormError]): FormError =
