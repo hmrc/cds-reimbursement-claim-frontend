@@ -59,7 +59,7 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
         .map[Either[Error, HttpResponse]] { response =>
           if (response.status != Status.OK) {
             logger.warn(
-              s"could not submit claim upscan: received http " +
+              s"could not submit claim: received http " +
                 s"status ${response.status} and body ${response.body}"
             )
             Left(Error("could not submit claim"))

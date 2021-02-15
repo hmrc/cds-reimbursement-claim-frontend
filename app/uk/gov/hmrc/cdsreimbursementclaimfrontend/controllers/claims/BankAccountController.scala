@@ -81,8 +81,8 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def checkBankAccountDetails: Action[AnyContent] = Action {
-    Ok("bank account details - to be implemented")
+  def checkBankAccountDetails(): Action[AnyContent] = Action {
+    Ok("checking bank account details")
   }
 
   def enterBankAccountDetails: Action[AnyContent] =
@@ -204,9 +204,11 @@ object BankAccountController {
   }
 
   final case class AccountNumber(value: String) extends AnyVal
+
   object AccountNumber {
     implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
   }
+
   val accountNumberRegex: Predicate[String] = "^\\d{6,8}$".r.pattern.asPredicate()
 
   val accountNumberMapping: Mapping[AccountNumber] =

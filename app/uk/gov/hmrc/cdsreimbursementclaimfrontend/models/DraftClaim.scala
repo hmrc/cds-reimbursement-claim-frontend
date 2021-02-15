@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
@@ -82,6 +83,35 @@ object DraftClaim {
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
       }
+
+    def declarantType: Option[DeclarantType] = draftClaim match {
+      case DraftC285Claim(
+            _,
+            _,
+            _,
+            _,
+            declarantTypeAnswer,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        declarantTypeAnswer match {
+          case Some(value) =>
+            value match {
+              case DeclarantTypeAnswer.IncompleteDeclarationTypeAnswer(declarantType) => declarantType
+              case DeclarantTypeAnswer.CompleteDeclarationTypeAnswer(declarantType)   => Some(declarantType)
+            }
+          case None        => None
+        }
+    }
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case DraftC285Claim(
