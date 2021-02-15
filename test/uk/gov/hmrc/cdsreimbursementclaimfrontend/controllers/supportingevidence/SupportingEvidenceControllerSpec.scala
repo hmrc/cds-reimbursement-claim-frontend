@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import cats.data.EitherT
 import controllers.Assets.SEE_OTHER
 import org.scalamock.handlers.CallHandler3
+import org.scalatest.Ignore
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -48,6 +49,7 @@ import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@Ignore
 class SupportingEvidenceControllerSpec
     extends ControllerSpec
     with AuthSupport
