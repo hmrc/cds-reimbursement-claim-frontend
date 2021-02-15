@@ -103,11 +103,6 @@ landing.details.l8=proof of authority (from importer for duty to be repaid)
 landing.details.l9=correspondence trader or internal (an email chain or letters between you and the trader)
 landing.details.l10=additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 
-
-#===================================================
-#  LANDING PAGE - END
-#===================================================
-
 #===================================================
 #  UNAUTHORISED PAGE - START
 #===================================================
@@ -115,10 +110,6 @@ landing.details.l10=additional supporting documents (for example an import licen
 unauthorised.title=Sorry, this service is unavailable
 unauthorised.help=You must have an EORI number associated with your CDS enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
 unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI number.</a>
-
-#===================================================
-#  UNAUTHORISED PAGE - END
-#===================================================
 
 #===================================================
 #  ENTER MRN PAGE - START
@@ -131,10 +122,6 @@ enter-reference-number.help-text=The Movement Reference Number (MRN) will be iss
 enter-reference-number.invalid.reference=Enter a valid MRN or entry number
 enter-reference-number.invalid=Enter a valid MRN or entry number
 enter-reference-number.error.required=Enter a valid MRN or entry number
-
-#===================================================
-#  ENTER MRN PAGE - END
-#===================================================
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE - START
@@ -158,20 +145,12 @@ enter-claimant-details.caption=Claimant Details
 enter-claimant-details.help-text=Please enter your details for the claim
 
 #===================================================
-#  ENTER CLAIMANT DETAILS PAGE - END
-#===================================================
-
-#===================================================
 #  CHECK DECLARANT DETAILS PAGE - START
 #===================================================
 
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
 check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
-
-#===================================================
-#  CHECK DECLARANT DETAILS PAGE - END
-#===================================================
 
 #===================================================
 #  CHOOSE DECLARANT TYPE - START
@@ -187,10 +166,6 @@ choose-who-is-making-the-claim.invalid=Select yes if you want to report a capita
 choose-who-is-making-the-claim.details.label=What is an importer and an representative?
 choose-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
 choose-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
-
-#===================================================
-#  CHOOSE DECLARANT TYPE - END
-#===================================================
 
 #===================================================
 #  SELECT REASON FOR CLAIM - START
@@ -227,11 +202,6 @@ select-reason-for-claim.reason.d9=Preference
 select-reason-for-claim.reason.d10=Proof of returns/refund given
 
 #===================================================
-#  SELECT REASON FOR CLAIM - END
-#===================================================
-
-
-#===================================================
 #  CHECK BANK DETAILS PAGE - START
 #===================================================
 
@@ -239,10 +209,6 @@ bank-details.title=Check these bank details are correct
 bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 bank-details.different-details-link=Enter different bank details
-
-#===================================================
-#  CHECK BANK DETAILS PAGE - END
-#===================================================
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES - START
@@ -315,10 +281,6 @@ supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
 supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 
 #===================================================
-#  SUPPORTING EVIDENCE PAGES - END
-#===================================================
-
-#===================================================
 # CONFIRMATION PAGE - START
 #===================================================
 
@@ -333,11 +295,6 @@ confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.p2=Print or save a copy of this page for your records.
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
-
-#===================================================
-# CONFIRMATION PAGE - END
-#===================================================
-
 
 #===================================================
 #  ACCESSIBILITY - START
