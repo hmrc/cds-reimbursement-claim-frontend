@@ -86,14 +86,14 @@ class SelectReasonForClaimController @Inject() (
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
-                    routes.EnterClaimantDetailsController.enterClaimantDetails()
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
               case None                       =>
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm,
-                    routes.EnterClaimantDetailsController.enterClaimantDetails()
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                   )
                 )
             },
@@ -103,7 +103,7 @@ class SelectReasonForClaimController @Inject() (
                 SelectReasonForClaimController.reasonForClaimForm.fill(
                   SelectReasonForClaim(ifComplete.reasonForClaimOption)
                 ),
-                routes.EnterClaimantDetailsController.enterClaimantDetails()
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
               )
             )
         )
@@ -120,7 +120,7 @@ class SelectReasonForClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimPage(
                   requestFormWithErrors,
-                  routes.EnterClaimantDetailsController.enterClaimantDetails()
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
                 )
               ),
             reasonForClaim => {
@@ -154,7 +154,7 @@ class SelectReasonForClaimController @Inject() (
 object SelectReasonForClaimController {
 
   final case class SelectReasonForClaim(
-    reasonForClaimOption: ReasonForClaimOption
+    reasonForClaimOption: BasisForClaim
   )
 
   val reasonForClaimForm: Form[SelectReasonForClaim] =
@@ -179,32 +179,32 @@ object SelectReasonForClaimController {
                 reason === 12 ||
                 reason === 13
           )
-          .transform[ReasonForClaimOption](
+          .transform[BasisForClaim](
             {
-              case 0  => ReasonForClaimOption.DuplicateMrnEntry
-              case 1  => ReasonForClaimOption.DutySuspension
-              case 2  => ReasonForClaimOption.EndUseRelief
-              case 3  => ReasonForClaimOption.IncorrectCommodityCode
-              case 4  => ReasonForClaimOption.IncorrectCpc
-              case 5  => ReasonForClaimOption.IncorrectValue
-              case 6  => ReasonForClaimOption.IncorrectEoriAndDefermentAccountNumber
-              case 7  => ReasonForClaimOption.InwardProcessingReliefFromCustomsDuty
-              case 8  => ReasonForClaimOption.OutwardProcessingRelief
-              case 9  => ReasonForClaimOption.Preference
-              case 10 => ReasonForClaimOption.ProofOfReturnRefundGiven
+              case 0  => BasisForClaim.DuplicateMrnEntry
+              case 1  => BasisForClaim.DutySuspension
+              case 2  => BasisForClaim.EndUseRelief
+              case 3  => BasisForClaim.IncorrectCommodityCode
+              case 4  => BasisForClaim.IncorrectCpc
+              case 5  => BasisForClaim.IncorrectValue
+              case 6  => BasisForClaim.IncorrectEoriAndDefermentAccountNumber
+              case 7  => BasisForClaim.InwardProcessingReliefFromCustomsDuty
+              case 8  => BasisForClaim.OutwardProcessingRelief
+              case 9  => BasisForClaim.Preference
+              case 10 => BasisForClaim.ProofOfReturnRefundGiven
             },
             {
-              case ReasonForClaimOption.DuplicateMrnEntry                      => 0
-              case ReasonForClaimOption.DutySuspension                         => 1
-              case ReasonForClaimOption.EndUseRelief                           => 2
-              case ReasonForClaimOption.IncorrectCommodityCode                 => 3
-              case ReasonForClaimOption.IncorrectCpc                           => 4
-              case ReasonForClaimOption.IncorrectValue                         => 5
-              case ReasonForClaimOption.IncorrectEoriAndDefermentAccountNumber => 6
-              case ReasonForClaimOption.InwardProcessingReliefFromCustomsDuty  => 7
-              case ReasonForClaimOption.OutwardProcessingRelief                => 8
-              case ReasonForClaimOption.Preference                             => 9
-              case ReasonForClaimOption.ProofOfReturnRefundGiven               => 10
+              case BasisForClaim.DuplicateMrnEntry                      => 0
+              case BasisForClaim.DutySuspension                         => 1
+              case BasisForClaim.EndUseRelief                           => 2
+              case BasisForClaim.IncorrectCommodityCode                 => 3
+              case BasisForClaim.IncorrectCpc                           => 4
+              case BasisForClaim.IncorrectValue                         => 5
+              case BasisForClaim.IncorrectEoriAndDefermentAccountNumber => 6
+              case BasisForClaim.InwardProcessingReliefFromCustomsDuty  => 7
+              case BasisForClaim.OutwardProcessingRelief                => 8
+              case BasisForClaim.Preference                             => 9
+              case BasisForClaim.ProofOfReturnRefundGiven               => 10
             }
           )
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)

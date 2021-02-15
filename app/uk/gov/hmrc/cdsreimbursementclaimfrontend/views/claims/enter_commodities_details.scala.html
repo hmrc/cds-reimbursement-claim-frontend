@@ -1,0 +1,75 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+)
+
+@(form : Form[CommodityDetails])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+
+    @key = @{"enter-commodities-details"}
+    @title = @{messages(s"$key.title")}
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+
+        @backLinkComponent(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails)
+
+        @if(hasErrors) {
+            @errorSummary(form)
+        }
+
+        @caption(messages(s"$key.caption"))
+
+        @pageHeading(title)
+
+        @formWrapper(routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(), 'novalidate -> "novalidate") {
+
+
+            <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="500">
+                <div class="govuk-form-group">
+                    <h1 class="govuk-label-wrapper"><label class="govuk-label govuk-label--l" for="@key">
+                        <h2<Details for commodity</h2>
+                    </label>
+                    </h1>
+                    <div id="with-hint-hint" class="govuk-hint">
+                        Explain why you would like to be reimbursed and why you are entitled to this claim. Also include include the commodity code, type of product, quantity and unit.
+                    </div>
+                    <textarea class="govuk-textarea govuk-js-character-count" id=s"@key" name="@key" rows="5" aria-describedby="with-hint-info with-hint-hint"></textarea>
+                </div>
+
+                <div id="with-hint-info" class="govuk-hint govuk-character-count__message" aria-live="polite">
+                    You can enter up to 500 characters
+                </div>
+
+            </div>
+
+            @submitButton(messages("button.continue"))
+        }
+}

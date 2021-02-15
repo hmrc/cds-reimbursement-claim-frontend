@@ -1,3 +1,7 @@
+.declaration-paragraph{
+    margin-bottom: 50px;
+}
+
 .space-select{
     margin-bottom: 25px;
 }
@@ -43,6 +47,8 @@ ul+form legend>h2.heading-medium {
 .form-label.heading-medium {
     font-size: 24px;
 }
+
+
 
 /* clearing the floated language toggle */
 .content__body:before {

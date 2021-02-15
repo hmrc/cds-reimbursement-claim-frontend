@@ -20,8 +20,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsController.EnterClaimDetails
-
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -29,12 +29,13 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
+  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+  textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
 )
 
-@(form: Form[EnterClaimDetails])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"enter-claimant-details"}
+ @key = @{"enter-movement-reference-number"}
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -50,10 +51,18 @@
 
   @Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl))
 
-  @formWrapper(routes.EnterClaimantDetailsController.enterClaimantDetailsSubmit(), 'novalidate -> "novalidate") {
+  @formWrapper(routes.EnterMovementReferenceNumberController.enterMrnSubmit(), 'novalidate -> "novalidate") {
 
-    <h2>To be implemented</h2>
-
+    @textInput(
+     fieldId = key,
+     value = form.data.getOrElse(key, ""),
+     errorKey = form.error(key).map(e => e.message),
+     hasErrors = form.error(key).nonEmpty,
+     label = Html(""),
+     labelClass = Some("govuk-label--m"),
+     helpText = Some(Html(messages(s"$key.help"))),
+     autoComplete = AutoCompleteType.On
+    )
 
     @submitButton(messages("button.continue"))
 

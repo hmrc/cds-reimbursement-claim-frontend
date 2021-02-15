@@ -1,0 +1,122 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.BankAccountDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
+
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input,
+ checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
+ sortCodeInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sort_code_input,
+)
+
+@(form : Form[BankAccountDetails])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+
+    @key = @{"enter-bank-details"}
+    @title = @{messages(s"$key.title")}
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+    @errorKey = @{List(s"$key-sort-code-1", s"$key-sort-code-2", s"$key-sort-code-3", key).map(form.error).find(_.isDefined).flatten}
+
+    @options = @{
+        List(
+          RadioOption(
+            label = messages(s"$key.is-business-account"),
+            content = None,
+            optionHelpText = None
+          )
+        )
+    }
+
+    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+
+        @backLinkComponent(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual)
+
+        @if(hasErrors) {
+            @errorSummary(form)
+        }
+
+        @caption(messages(s"$key.caption"))
+
+        @pageHeading(title)
+
+        <p>
+            @messages(s"$key.help-text")
+        </p>
+
+        @formWrapper(routes.BankAccountController.enterBankAccountDetailsSubmit, 'novalidate -> "novalidate") {
+
+            @textInput(
+                fieldId = s"$key.account-name",
+                value = form.data.getOrElse(s"$key.account-name", ""),
+                errorKey = form.error(s"$key.account-name").map(e => e.message),
+                hasErrors = form.error(s"$key.account-name").nonEmpty,
+                label = Html(messages(s"$key.account-name.label")),
+                labelClass = Some("govuk-label--m"),
+                helpText =  Some(Html(messages(s"$key.account-name.help-text"))),
+                autoComplete = AutoCompleteType.On
+            )
+
+            @checkboxGroup(
+                fieldId = s"$key.is-business-account",
+                options = options,
+                selected = form.data.get(s"$key.is-business-account[0]").toList.map(s => s.toInt),
+                helpText = None,
+                label = Html(""),
+                error = form.error(s"$key.is-business-account"),
+                customErrorKey = None
+            )
+
+            @sortCodeInput(
+                fieldId = key,
+                label = Html(messages(s"$key.sort-code.label")),
+                sortCode1Value = form.data.get(s"$key-sort-code-1"),
+                sortCode2Value = form.data.get(s"$key-sort-code-2"),
+                sortCode3Value = form.data.get(s"$key-sort-code-3"),
+                helpText = Some(Html(messages(s"$key.sort-code.help"))),
+                errorKey = errorKey.map(e => s"${e.key}.${e.message}"),
+                hasErrors = form.error(s"$key-sort-code").nonEmpty,
+                labelClass = Some("govuk-label--m")
+            )
+
+            @textInput(
+                fieldId = s"$key.account-number",
+                value = form.data.getOrElse(s"$key.account-number", ""),
+                errorKey = form.error(s"$key.account-number").map(e => e.message),
+                hasErrors = form.error(s"$key.account-number").nonEmpty,
+                label = Html(messages(s"$key.account-number.label")),
+                labelClass = Some("govuk-label--m"),
+                helpText =  Some(Html(messages(s"$key.account-number.help-text"))),
+                autoComplete = AutoCompleteType.On
+            )
+
+            @submitButton(messages("button.continue"))
+
+        }
+}

@@ -18,7 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.util.UUID
+
 final case class SubmitClaimRequest(
+  id: UUID,
   completeClaim: CompleteClaim
 )
 
