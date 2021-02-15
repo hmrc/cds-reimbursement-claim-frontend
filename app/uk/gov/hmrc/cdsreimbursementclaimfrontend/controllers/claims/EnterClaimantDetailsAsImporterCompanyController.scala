@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -142,10 +143,19 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not capture company details", e)
+                  logger.warn("could not capture importer company details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                _ =>
+                  fillingOutClaim.draftClaim.declarantType match {
+                    case Some(value) =>
+                      value match {
+                        case DeclarantType.Importer =>
+                          Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                        case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                      }
+                    case None        => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  }
               )
             }
           )

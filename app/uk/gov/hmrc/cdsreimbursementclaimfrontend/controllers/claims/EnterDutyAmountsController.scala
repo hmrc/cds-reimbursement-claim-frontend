@@ -27,6 +27,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{removeZeroClaims, removeZeroEuClaims}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.IncompleteEuDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -129,9 +130,9 @@ class EnterDutyAmountsController @Inject() (
               val updatedAnswers = answers.fold(
                 incomplete =>
                   incomplete.copy(
-                    ukDutyAmounts = Some(enterClaim)
+                    ukDutyAmounts = Some(removeZeroClaims(enterClaim))
                   ),
-                complete => complete.copy(ukDutyAmounts = enterClaim)
+                complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
               )
               val newDraftClaim  =
                 fillingOutClaim.draftClaim.fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers)))
@@ -182,9 +183,9 @@ class EnterDutyAmountsController @Inject() (
               val updatedAnswers = answers.fold(
                 incomplete =>
                   incomplete.copy(
-                    euDutyAmounts = Some(enterClaim)
+                    euDutyAmounts = Some(removeZeroEuClaims(enterClaim))
                   ),
-                complete => complete.copy(euDutyAmounts = enterClaim)
+                complete => complete.copy(euDutyAmounts = removeZeroEuClaims(enterClaim))
               )
               val newDraftClaim  =
                 fillingOutClaim.draftClaim.fold(_.copy(euDutyAmountAnswers = Some(updatedAnswers)))
@@ -210,6 +211,15 @@ class EnterDutyAmountsController @Inject() (
 }
 
 object EnterDutyAmountsController {
+
+  def removeZeroEuClaims(enterEuClaim: EnterEuClaim): EnterEuClaim =
+    EnterEuClaim(enterEuClaim.dutyAmounts.filterNot(p => p.claim === Some(BigDecimal(0)) || p.claim.isEmpty))
+
+  def removeZeroClaims(enterClaim: EnterClaim): EnterClaim =
+    EnterClaim(
+      enterClaim.dutyAmounts.filterNot(p => p.claim === Some(BigDecimal(0)) || p.claim.isEmpty),
+      enterClaim.makeEuDutyClaim
+    )
 
   final case class EnterEuClaim(
     dutyAmounts: List[EuDutyAmount]
