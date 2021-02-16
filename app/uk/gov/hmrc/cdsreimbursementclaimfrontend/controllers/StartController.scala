@@ -70,6 +70,55 @@ class StartController @Inject() (
       }
     }
 
+  def startNewClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withJustSubmittedClaim { (sessionData, justSubmittedClaim) =>
+      val result = for {
+        _ <- EitherT(
+               updateSession(sessionStore, request)(
+                 _.copy(
+                   userType = sessionData.userType,
+                   journeyStatus = Some(
+                     FillingOutClaim(
+                       justSubmittedClaim.ggCredId,
+                       justSubmittedClaim.signedInUserDetails,
+                       DraftC285Claim.newDraftC285Claim
+                     )
+                   )
+                 )
+               )
+             )
+      } yield ()
+
+      result.fold(
+        { e =>
+          logger.warn("could not initiate claim journey", e)
+          errorHandler.errorResult(sessionData.userType)
+        },
+        _ =>
+          Redirect(
+            controllers.claims.routes.EnterMovementReferenceNumberController.enterMrn()
+          )
+      )
+    }
+  }
+
+  private def withJustSubmittedClaim(
+    f: (
+      SessionData,
+      JustSubmittedClaim
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              sessionData,
+              justSubmittedClaim: JustSubmittedClaim
+            )
+          ) =>
+        f(sessionData, justSubmittedClaim)
+      case _ => Redirect(routes.StartController.start())
+    }
+
   def weOnlySupportGG(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       request.sessionData.flatMap(_.journeyStatus) match {

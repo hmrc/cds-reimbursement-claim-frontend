@@ -143,32 +143,32 @@ enter-claimant-details-individual.caption=Individual Claimant Details
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.importer-full-name.label=Full name
 enter-claimant-details-individual.importer-full-name.help=This must be your legal name
-enter-claimant-details-individual.importer-full-name.error.required=Please enter your full name
+enter-claimant-details-individual.importer-full-name.error.required=Enter a full name
 enter-claimant-details-individual.importer-email.label=Email address
-enter-claimant-details-individual.importer-email.error.required=Please enter your email
-enter-claimant-details-individual.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-individual.importer-email.error.required=Enter a valid email address
+enter-claimant-details-individual.importer-phone-number.error.required=Enter a valid phone number
 enter-claimant-details-individual.importer-phone-number.label=Phone number
 enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
 enter-claimant-details-individual.importer-contact-address.label=Contact Address
 enter-claimant-details-individual.address.building.label=Building number or name
-enter-claimant-details-individual.nonUkAddress-building.error.required=Please enter your building number or name
+enter-claimant-details-individual.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-individual.address.line1.label=Address Line 1
-enter-claimant-details-individual.address.line1.error.required=Please enter address line 1
-enter-claimant-details-individual.nonUkAddress-line1.error.required=Please enter line 1 of your address
+enter-claimant-details-individual.address.line1.error.required=Enter a address line 1
+enter-claimant-details-individual.nonUkAddress-line1.error.required=Enter a address line 1
 enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
 enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
 enter-claimant-details-individual.address.line4.label=Town or city
-enter-claimant-details-individual.nonUkAddress-line4.error.required=Please enter your town or city
+enter-claimant-details-individual.nonUkAddress-line4.error.required=Enter a valid town or city
 enter-claimant-details-individual.address.line5.label=County (Optional)
 enter-claimant-details-individual.address.line6.label=Postcode
-enter-claimant-details-individual.address.line6.error.required=Please enter your postcode
+enter-claimant-details-individual.address.line6.error.required=Enter a valid postcode
 enter-claimant-details-individual.address.line7.label=Country
-enter-claimant-details-individual.countryCode.error.required=Please enter your country
+enter-claimant-details-individual.countryCode.error.required=Enter a country
 enter-claimant-details-individual.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
-enter-claimant-details-individual.add-company-details.error.required=Please choose if you want to add company details
-countryCode.enter-claimant-details-individual.error.required=Please enter your country
+enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
+countryCode.enter-claimant-details-individual.error.required=Enter a country
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
@@ -178,32 +178,32 @@ enter-claimant-details-importer-company.title=Enter your claimant details as an 
 enter-claimant-details-importer-company.caption=Company Claimant Details
 enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
 enter-claimant-details-importer-company.importer-company-name.label=Company name
-enter-claimant-details-importer-company.importer-company-name.error.required=Please enter your company name
+enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
 enter-claimant-details-importer-company.importer-email.label=Email address
-enter-claimant-details-importer-company.importer-email.error.required=Please enter your email
-enter-claimant-details-importer-company.importer-phone-number.error.required=Please enter your phone number
+enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
+enter-claimant-details-importer-company.importer-phone-number.error.required=Enter a valid phone number
 enter-claimant-details-importer-company.importer-phone-number.label=Phone number
 enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
 enter-claimant-details-importer-company.importer-contact-address.label=Contact Address
 enter-claimant-details-importer-company.address.building.label=Building number or name
-enter-claimant-details-importer-company.nonUkAddress-building.error.required=Please enter your building number or name
+enter-claimant-details-importer-company.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-importer-company.address.line1.label=Address Line 1
-enter-claimant-details-importer-company.address.line1.error.required=Please enter address line 1
-enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Please enter line 1 of your address
+enter-claimant-details-importer-company.address.line1.error.required=Enter address line 1
+enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Enter address line 1
 enter-claimant-details-importer-company.address.line2.label=Address Line 2 (optional)
 enter-claimant-details-importer-company.address.line3.label=Address Line 3 (optional)
 enter-claimant-details-importer-company.address.line4.label=Town or city
-enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Please enter your town or city
+enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Enter a town or city
 enter-claimant-details-importer-company.address.line5.label=County (Optional)
 enter-claimant-details-importer-company.address.line6.label=Postcode
-enter-claimant-details-importer-company.address.line6.error.required=Please enter your postcode
+enter-claimant-details-importer-company.address.line6.error.required=Enter a postcode
 enter-claimant-details-importer-company.address.line7.label=Country
-enter-claimant-details-importer-company.countryCode.error.required=Please enter your country
+enter-claimant-details-importer-company.countryCode.error.required=Enter a country
 enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-claimant-details-importer-company.add-company-details.no=No
 enter-claimant-details-importer-company.add-company-details.yes=Yes
-enter-claimant-details-importer-company.add-company-details.error.required=Please choose if you want to add company details
-countryCode.enter-claimant-details-importer-company.error.required=Please enter your country
+enter-claimant-details-importer-company.add-company-details.error.required=Choose if you want to add company details
+countryCode.enter-claimant-details-importer-company.error.required=Enter a country
 
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
@@ -225,7 +225,7 @@ enter-declaration-details.declarant-name.help=This is the name of the person who
 enter-declaration-details.declarant-email-address.label=Declarant email address
 enter-declaration-details.declarant-phone-number.label=Declarant phone number
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
-enter-declaration-details.error.required=Please enter your declaration details
+enter-declaration-details.error.required=Enter your declaration details
 enter-declaration-details.error.tooFarInFuture=Please a date before today
 enter-declaration-details.date-of-import.error.required=Enter a date of import
 enter-declaration-details-day.error.invalid=Enter a valid date of import
@@ -382,7 +382,7 @@ enter-bank-details.sort-code.error.required=Please enter a valid sort code
 enter-bank-details.is-business-account=This is a business bank account
 
 #===================================================
-#  BANK DETAILS PAGE - START
+#  BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
 bank-details.caption=Bank Details
@@ -390,7 +390,7 @@ bank-details.help-text=These are the details of where your reimbursements will b
 bank-details.different-details-link=Enter different bank details
 
 #===================================================
-#  SUPPORTING EVIDENCE PAGES - START
+#  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
 supporting-evidence.choose-document-type.error.number=Choose a document type to support your claim
@@ -408,7 +408,6 @@ supporting-evidence.choose-document-type.details.l6=Schedule of MRNs (a list of 
 supporting-evidence.choose-document-type.details.l7=Proof of authority (from importer for duty to be repaid)
 supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
 supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
-
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.caption=Supporting evidence
 supporting-evidence.check-your-answers.file-label=Document {0}
@@ -417,19 +416,16 @@ supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you wan
 supporting-evidence.check-your-answers.cya-change=Change
 supporting-evidence.check-your-answers.assistive=the file named {0}
 supporting-evidence.check-your-answers.add-another-file=Add another file
-
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.caption=Supporting evidence
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
 file.error.required=Select a file containing your supporting evidence
-
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.caption=Supporting evidence
 supporting-evidence.scan-progress.p1=We are checking your file.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
-
 supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
 supporting-evidence.upload-failed.p1=We could not scan your file.
 supporting-evidence.upload-failed.p2=This could be because:
@@ -437,7 +433,6 @@ supporting-evidence.upload-failed.bullet1=the service has experienced technical 
 supporting-evidence.upload-failed.bullet2=your file was larger than 10MB
 supporting-evidence.upload-failed.p3=You’ll need to try again.
 supporting-evidence.upload-failed.button.tryAgain=Try again
-
 supporting-evidence.scan-failed.title=There is a problem with your file
 supporting-evidence.scan-failed.p1=The problem could be that:
 supporting-evidence.scan-failed.bullet1=the file had a virus or was corrupt
@@ -447,7 +442,6 @@ supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
 supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, PDF, DOC, and XLS
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
-
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
 supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
 supporting-evidence.choose-document-type.document-type.d2=Packing List
@@ -460,26 +454,24 @@ supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
 supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 
 #===================================================
-#  SUPPORTING EVIDENCE PAGES - END
+# CHECK YOUR ANSWERS PAGE
 #===================================================
-
-#===================================================
-# CHECK YOUR ANSWERS PAGE - START
-#===================================================
-
 check-your-answers.title=Review Your Claim
 check-your-answers.caption=Claim Details
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
-#===================================================
-# CHECK YOUR ANSWERS PAGE - END
-#===================================================
 
 #===================================================
-# CONFIRMATION PAGE - START
+# SUBMISSION ERROR PAGE
 #===================================================
+submit-claim-error.title=Sorry, there is a problem with the service
+submit-claim-error.p1=Your claim might not have been sent to HMRC.
+submit-claim-error.p2=You’ll need to contact the CDS team to find out if your claim was successful.
 
+#===================================================
+# CONFIRMATION PAGE
+#===================================================
 confirmation-of-submission.title=Claim submitted
 confirmation-of-submission.reimbursement-amount=Reimbursement amount
 confirmation-of-submission.claim-reference=Your claim reference number
@@ -532,10 +524,10 @@ accessibility-statement.li5 = listen to the service using a screen reader (inclu
 #===================================================
 #  NON-UK ADDRESS - START
 #===================================================
-nonUkAddress-building.error.required=Please enter your building name or number
-nonUkAddress-line1.error.required=Please enter the first line of your address
-nonUkAddress-line4.error.required=Please enter your town or city
-countryCode.error.required=Please enter your country
+nonUkAddress-building.error.required=Enter a building name or number
+nonUkAddress-line1.error.required=Enter address line 1
+nonUkAddress-line4.error.required=Enter a town or city
+countryCode.error.required=Enter a country
 
 #===================================================
 #  COUNTRIES - START

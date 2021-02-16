@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -132,9 +133,16 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   ),
                 complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
               )
-              val newDraftClaim  =
+              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.No) {
+                fillingOutClaim.draftClaim.fold(
+                  _.copy(
+                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
+                    claimantDetailsAsImporterCompanyAnswers = None
+                  )
+                )
+              } else {
                 fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
-
+              }
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               val result = EitherT
@@ -148,9 +156,18 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 },
                 _ =>
                   claimantDetailsAsIndividual.addCompanyDetails match {
-                    case YesNo.No =>
-                      Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                    case YesNo.No  =>
+                      fillingOutClaim.draftClaim.declarantType match {
+                        case Some(declarantType) =>
+                          declarantType match {
+                            case DeclarantType.Importer =>
+                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                            case _                      =>
+                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
 
+                          }
+                        case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                      }
                     case YesNo.Yes =>
                       Redirect(
                         routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()

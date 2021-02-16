@@ -1,6 +1,7 @@
 GET /start/claim-for-reimbursement                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.landing()
 GET /exit/cannot-check-details                                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
 GET /start                                                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
+GET /start-new-return                                                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.startNewClaim()
 GET /sign-out-and-register-for-gg                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
 GET /sign-out-and-log-in                                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()
 GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()

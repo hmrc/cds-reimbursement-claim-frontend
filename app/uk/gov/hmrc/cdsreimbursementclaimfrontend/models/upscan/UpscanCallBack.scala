@@ -19,15 +19,29 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.Instant
+
 sealed trait UpscanCallBack extends Product with Serializable
 
 object UpscanCallBack {
+
+  final case class UploadDetails(
+    fileName: String,
+    fileMimeType: String,
+    uploadTimestamp: Instant,
+    checksum: String,
+    size: Long // bytes
+  )
+
+  object UploadDetails {
+    implicit val format: OFormat[UploadDetails] = Json.format[UploadDetails]
+  }
 
   final case class UpscanSuccess(
     reference: String,
     fileStatus: String,
     downloadUrl: String,
-    uploadDetails: Map[String, String]
+    uploadDetails: UploadDetails
   ) extends UpscanCallBack
 
   object UpscanSuccess {
@@ -45,12 +59,7 @@ object UpscanCallBack {
   }
 
   implicit class UpscanSuccessOps(private val u: UpscanSuccess) extends AnyVal {
-
-    def fileName: String =
-      u.uploadDetails.getOrElse(
-        "fileName",
-        sys.error(s"Could not find filename for reference ${u.reference}")
-      )
+    def fileName: String = u.uploadDetails.fileName
   }
 
   implicit val format: OFormat[UpscanCallBack] = derived.oformat()
