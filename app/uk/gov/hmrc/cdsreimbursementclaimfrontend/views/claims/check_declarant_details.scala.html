@@ -25,7 +25,6 @@
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
@@ -38,59 +37,76 @@
 
  @mainTemplate(title = title, userType = request.userType) {
 
-    @backLinkComponent(backLink)
+    @*
+    * Temp CSS before switch to new frontend
+    *@
 
-    @caption(messages(s"$key.caption"))
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+            <div>
+                <div>
+
+    @backLinkComponent(backLink)
 
     @pageHeading(title)
 
-    @Html(messages(s"$key.help-text", declaration.declarantId))
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text", declaration.declarantId))
+    </div>
 
     @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
 
         <div class="space-details">
             <table class="govuk-table">
-                <tbody>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">MRN Number</th>
-                        <td>@declaration.declarantId</td>
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">MRN Number</th>
+                        <td class="govuk-table__cell">@declaration.declarantId</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Import Date</th>
-                        <td>@declaration.acceptanceDate</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Import Date</th>
+                        <td class="govuk-table__cell">@declaration.acceptanceDate</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Paid Charges</th>
-                        <td>@declaration.totalPaidCharges</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Paid Charges</th>
+                        <td class="govuk-table__cell">@declaration.totalPaidCharges</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Declarant Name</th>
-                        <td>@declaration.declarantDetails.legalName</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Declarant Name</th>
+                        <td class="govuk-table__cell">@declaration.declarantDetails.legalName</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Declarant Email</th>
-                        <td>@declaration.declarantEmailAddress</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Declarant Email</th>
+                        <td class="govuk-table__cell">@declaration.declarantEmailAddress</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Declarant Telephone</th>
-                        <td>@declaration.declarantTelephoneNumber</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Declarant Telephone</th>
+                        <td class="govuk-table__cell">@declaration.declarantTelephoneNumber</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Declarant Contact Address</th>
-                        <td>@declaration.declarantContactAddress</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Declarant Contact Address</th>
+                        <td class="govuk-table__cell">@declaration.declarantContactAddress</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Company Name</th>
-                        <td>@declaration.companyName</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Company Name</th>
+                        <td class="govuk-table__cell">@declaration.companyName</td>
                     </tr>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">Company Address</th>
-                        <td>@declaration.companyAddress</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Company Address</th>
+                        <td class="govuk-table__cell">@declaration.companyAddress</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-     @submitButton(messages("button.continue"))
+        @submitButton(messages("button.continue"))
     }
+
+                </div>
+            </div>
+        </main>
+    </div>
+
 }
