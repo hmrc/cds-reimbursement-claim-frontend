@@ -66,9 +66,9 @@
 
         @pageHeading(title)
 
-        <p>
+        <div class="govuk-inset-text">
             @messages(s"$key.help-text")
-        </p>
+        </div>
 
         @formWrapper(routes.BankAccountController.enterBankAccountDetailsSubmit, 'novalidate -> "novalidate") {
 
