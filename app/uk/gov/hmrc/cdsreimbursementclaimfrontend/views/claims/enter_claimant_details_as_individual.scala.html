@@ -27,7 +27,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -71,19 +70,28 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
+    @*
+    * Temp CSS before switch to new frontend
+    *@
+
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+            <div>
+                <div>
+
         @backLinkComponent(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType)
 
         @if(hasErrors) {
             @errorSummary(form)
         }
 
-        @caption(messages(s"$key.caption"))
-
         @pageHeading(title)
 
-        <p>
+        <div class="govuk-inset-text">
             @messages(s"$key.help-text")
-        </p>
+        </div>
 
         @formWrapper(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividualSubmit, 'novalidate -> "novalidate") {
 
@@ -93,7 +101,7 @@
                 errorKey = form.error(s"$key.importer-full-name").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-full-name").nonEmpty,
                 label = Html(messages(s"$key.importer-full-name.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.importer-full-name.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -104,7 +112,7 @@
                 errorKey = form.error(s"$key.importer-email").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-email").nonEmpty,
                 label = Html(messages(s"$key.importer-email.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = None,
                 autoComplete = AutoCompleteType.On
             )
@@ -115,72 +123,72 @@
                 errorKey = form.error(s"$key.importer-phone-number").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-phone-number").nonEmpty,
                 label = Html(messages(s"$key.importer-phone-number.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.importer-phone-number.help"))),
                 autoComplete = AutoCompleteType.On
             )
 
             <fieldset id="@key">
-              <legend>
-                  <h2 style="font-weight: bold;">
-                  @messages(s"$key.importer-contact-address.label")
+                <legend>
+                  <h2>
+                    @messages(s"$key.importer-contact-address.label")
                   </h2>
-              </legend>
-              @textInput(
-                fieldId = line0Key,
-                label = Html(messages(s"$key.address.building.label")),
-                errorKey = form.error(line0Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line0Key, ""),
-                hasErrors = form.error(line0Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLine1
-              )
-              @textInput(
-                fieldId = line1Key,
-                label = Html(messages(s"$key.address.line1.label")),
-                errorKey = form.error(line1Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line1Key, ""),
-                hasErrors = form.error(line1Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLine2
-              )
-              @textInput(
-                fieldId = line2Key,
-                label = Html(messages(s"$key.address.line2.label")),
-                errorKey = form.error(line2Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line2Key, ""),
-                hasErrors = form.error(line2Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel2
-              )
-              @textInput(
-                fieldId = line3Key,
-                label = Html(messages(s"$key.address.line3.label")),
-                errorKey = form.error(line3Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line3Key, ""),
-                hasErrors = form.error(line3Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel1
-              )
-              @textInput(
-                fieldId = line4Key,
-                label = Html(messages(s"$key.address.line4.label")),
-                errorKey = form.error(line4Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line4Key, ""),
-                hasErrors = form.error(line4Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel2
-               )
+                </legend>
+                @textInput(
+                    fieldId = line0Key,
+                    label = Html(messages(s"$key.address.building.label")),
+                    errorKey = form.error(line0Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line0Key, ""),
+                    hasErrors = form.error(line0Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLine1
+                )
+                @textInput(
+                    fieldId = line1Key,
+                    label = Html(messages(s"$key.address.line1.label")),
+                    errorKey = form.error(line1Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line1Key, ""),
+                    hasErrors = form.error(line1Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLine2
+                )
+                @textInput(
+                    fieldId = line2Key,
+                    label = Html(messages(s"$key.address.line2.label")),
+                    errorKey = form.error(line2Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line2Key, ""),
+                    hasErrors = form.error(line2Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel2
+                )
+                @textInput(
+                    fieldId = line3Key,
+                    label = Html(messages(s"$key.address.line3.label")),
+                    errorKey = form.error(line3Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line3Key, ""),
+                    hasErrors = form.error(line3Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel1
+                )
+                @textInput(
+                    fieldId = line4Key,
+                    label = Html(messages(s"$key.address.line4.label")),
+                    errorKey = form.error(line4Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line4Key, ""),
+                    hasErrors = form.error(line4Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel2
+                )
 
-              @textInput(
-                fieldId = line5Key,
-                label = Html(messages(s"$key.address.line5.label")),
-                errorKey = form.error(line5Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line5Key, ""),
-                hasErrors = form.error(line5Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel1
-              )
+                @textInput(
+                    fieldId = line5Key,
+                    label = Html(messages(s"$key.address.line5.label")),
+                    errorKey = form.error(line5Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line5Key, ""),
+                    hasErrors = form.error(line5Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel1
+                )
 
                 @textInput(
                     fieldId = line6Key,
@@ -188,7 +196,7 @@
                     errorKey = form.error(line6Key).map(e => s"${e.message}"),
                     value = form.data.getOrElse(line6Key, ""),
                     hasErrors = form.error(line6Key).nonEmpty,
-                    inputClass = Some("form-control-3-4"),
+                    inputClass = Some("govuk-!-width-one-quarter"),
                     autoComplete = AutoCompleteType.AddressLevel1
                 )
 
@@ -210,10 +218,17 @@
                 label = Html(messages(s"$key.add-company-details.label")),
                 helpText =None,
                 errorKey = form.error(key).map(e => e.message),
-                hasErrors = hasErrors
+                hasErrors = hasErrors,
+                inlineRadios = true
             )
 
 
             @submitButton(messages("button.continue"))
         }
+
+                </div>
+            </div>
+        </main>
+    </div>
+
 }

@@ -242,14 +242,15 @@ enter-declaration-details.declarant-phone-number.error.required=Enter a declaran
 #===================================================
 select-who-is-making-the-claim.title=Who is making this claim?
 select-who-is-making-the-claim.caption=Declarant Type
-select-who-is-making-the-claim.importer=I am an importer person
+select-who-is-making-the-claim.help-text=This person is responsible for the claim. They are the point of contact if we have a query about the claim.
+select-who-is-making-the-claim.importer=I am a private individual importer
 select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-select-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+select-who-is-making-the-claim.associate-with-representative-company=I am associated with a representative company on behalf of the importer
 select-who-is-making-the-claim.error.required=Select a declaration type
 select-who-is-making-the-claim.invalid=Select a declaration type
-select-who-is-making-the-claim.details.label=What is an importer and an representative?
+select-who-is-making-the-claim.details.label=What is an importer and a representative?
 select-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
-select-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-who-is-making-the-claim.details.p1=A representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
@@ -456,7 +457,7 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
-check-your-answers.title=Review Your Claim
+check-your-answers.title=Review your claim
 check-your-answers.caption=Claim Details
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>

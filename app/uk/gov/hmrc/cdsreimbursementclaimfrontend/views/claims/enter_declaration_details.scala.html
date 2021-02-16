@@ -26,7 +26,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -44,17 +43,28 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
+        @*
+        * Temp CSS before switch to new frontend
+        *@
+
+        <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+        <div class="govuk-width-container">
+            <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+                <div>
+                    <div>
+
         @backLinkComponent(backLink)
 
         @if(hasErrors) {
             @errorSummary(form)
         }
 
-        @caption(messages(s"$key.caption"))
-
         @pageHeading(title)
 
-        <p class="declaration-paragraph">@Html(messages(s"$key.help-text", entryNumber.value))</p>
+        <div class="govuk-inset-text">
+            <p class="declaration-paragraph">@Html(messages(s"$key.help-text", entryNumber.value))</p>
+        </div>
 
         @formWrapper(routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit(), 'novalidate -> "novalidate") {
 
@@ -67,7 +77,7 @@
                 helpText = Some(Html(messages(s"$key.date-of-import.help"))),
                 errorKey = Some(""),
                 hasErrors = hasErrors,
-                labelClass = Some("govuk-label--m")
+                labelClass = Some("govuk-label--s")
             )
 
             @textInput(
@@ -76,7 +86,7 @@
                 errorKey = form.error(s"$key.place-of-import").map(e => e.message),
                 hasErrors = form.error(s"$key.place-of-import").nonEmpty,
                 label = Html(messages(s"$key.place-of-import.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.place-of-import.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -87,7 +97,7 @@
                 errorKey = form.error(s"$key.importer-name").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-name").nonEmpty,
                 label = Html(messages(s"$key.importer-name.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.importer-name.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -98,7 +108,7 @@
                 errorKey = form.error(s"$key.importer-email-address").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-email-address").nonEmpty,
                 label = Html(messages(s"$key.importer-email-address.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = None,
                 autoComplete = AutoCompleteType.On
             )
@@ -109,7 +119,7 @@
                 errorKey = form.error(s"$key.importer-phone-number").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-phone-number").nonEmpty,
                 label = Html(messages(s"$key.importer-phone-number.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.importer-phone-number.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -120,7 +130,7 @@
                 errorKey = form.error(s"$key.declarant-name").map(e => e.message),
                 hasErrors = form.error(s"$key.declarant-name").nonEmpty,
                 label = Html(messages(s"$key.declarant-name.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.declarant-name.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -131,7 +141,7 @@
                 errorKey = form.error(s"$key.declarant-email-address").map(e => e.message),
                 hasErrors = form.error(s"$key.declarant-email-address").nonEmpty,
                 label = Html(messages(s"$key.declarant-email-address.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = None,
                 autoComplete = AutoCompleteType.On
             )
@@ -142,11 +152,17 @@
                 errorKey = form.error(s"$key.declarant-phone-number").map(e => e.message),
                 hasErrors = form.error(s"$key.declarant-phone-number").nonEmpty,
                 label = Html(messages(s"$key.declarant-phone-number.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.declarant-phone-number.help"))),
                 autoComplete = AutoCompleteType.On
             )
 
             @submitButton(messages("button.continue"))
         }
+
+                </div>
+            </div>
+        </main>
+    </div>
+
 }
