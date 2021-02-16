@@ -75,7 +75,7 @@
 
                     <p class="govuk-body">@Html(messages(s"$key.what-next.p2"))</p>
 
-                    <p class="govuk-body"><a href="@routes.StartController.start().url" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
+                    <p class="govuk-body"><a href="@{routes.StartController.startNewClaim().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
                 </div>
             </div>

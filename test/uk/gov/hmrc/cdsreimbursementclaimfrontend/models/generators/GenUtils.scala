@@ -51,4 +51,11 @@ trait GenUtils {
 
   implicit val uuidArb: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
+  implicit val instantArb: Arbitrary[Instant] =
+    Arbitrary(
+      Gen
+        .chooseNum(0L, 10000L)
+        .map(Instant.ofEpochMilli)
+    )
+
 }

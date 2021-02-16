@@ -32,15 +32,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.FileUploadGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, UUIDGenerator}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -412,10 +412,11 @@ class SupportingEvidenceControllerSpec
             None
           )
 
+          val uploadDetails        = sample[UploadDetails].copy(fileName = supportingEvidence.fileName)
           val updatedUpscanSuccess =
-            upscanSuccess.copy(uploadDetails = Map("fileName" -> supportingEvidence.fileName))
+            upscanSuccess.copy(uploadDetails = uploadDetails)
 
-          val upscanUpload         = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
+          val upscanUpload = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
 
           val answers = IncompleteSupportingEvidenceAnswers(List(supportingEvidence))
 
@@ -563,10 +564,10 @@ class SupportingEvidenceControllerSpec
             sample[SupportingEvidence].copy(uploadReference = uploadReference)
 
           val upscanSuccess        = sample[UpscanSuccess]
-          val updatedUpscanSuccess =
-            upscanSuccess.copy(uploadDetails = Map("fileName" -> supportingEvidence.fileName))
+          val uploadDetails        = sample[UploadDetails].copy(fileName = supportingEvidence.fileName)
+          val updatedUpscanSuccess = upscanSuccess.copy(uploadDetails = uploadDetails)
 
-          val upscanUpload         =
+          val upscanUpload =
             sample[UpscanUpload].copy(
               uploadReference = uploadReference,
               upscanCallBack = Some(updatedUpscanSuccess)

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import org.scalacheck.ScalacheckShapeless._
 
-object FileUploadGen extends GenUtils {
+object UpscanGen extends GenUtils {
 
   implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
 
@@ -48,4 +48,5 @@ object FileUploadGen extends GenUtils {
 
   implicit val supportingDocumentTypeGen: Gen[SupportingEvidenceDocumentType] = gen[SupportingEvidenceDocumentType]
 
+  implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
 }

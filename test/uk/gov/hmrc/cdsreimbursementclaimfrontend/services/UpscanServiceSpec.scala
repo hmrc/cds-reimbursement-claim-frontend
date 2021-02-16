@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.FileUploadGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
