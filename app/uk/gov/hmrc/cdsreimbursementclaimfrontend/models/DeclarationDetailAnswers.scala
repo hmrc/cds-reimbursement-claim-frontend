@@ -25,18 +25,20 @@ sealed trait DeclarantDetailAnswers extends Product with Serializable
 object DeclarantDetailAnswers {
 
   final case class IncompleteDeclarationDetailAnswer(
-    entryDeclaration: Option[EntryDeclarationDetails]
+    entryDeclaration: Option[EntryDeclarationDetails],
+    duplicateDeclaration: Option[EntryDeclarationDetails]
   ) extends DeclarantDetailAnswers
 
   object IncompleteDeclarationDetailAnswer {
-    val empty: IncompleteDeclarationDetailAnswer = IncompleteDeclarationDetailAnswer(None)
+    val empty: IncompleteDeclarationDetailAnswer = IncompleteDeclarationDetailAnswer(None, None)
 
     implicit val format: OFormat[IncompleteDeclarationDetailAnswer] =
       derived.oformat[IncompleteDeclarationDetailAnswer]()
   }
 
   final case class CompleteDeclarationDetailAnswer(
-    entryDeclaration: EntryDeclarationDetails
+    entryDeclaration: EntryDeclarationDetails,
+    duplicateDeclaration: Option[EntryDeclarationDetails]
   ) extends DeclarantDetailAnswers
 
   object CompleteMovementReferenceNumberAnswer {

@@ -27,9 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantDetailAnswers.IncompleteDeclarationDetailAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarantDetailAnswers.{CompleteDuplicateDeclarationDetailAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, TimeUtils}
@@ -46,6 +47,7 @@ class EnterDeclarationDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
+  enterDuplicateDeclarationDetailsPage: pages.enter_duplicate_declaration_details,
   enterDeclarationDetailsPage: pages.enter_declaration_details
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends FrontendController(cc)
@@ -72,6 +74,29 @@ class EnterDeclarationDetailsController @Inject() (
         )
         maybeDeclarationAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteDeclarationDetailAnswer.empty)
+        )(f(sessionData, fillingOutClaim, _))
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  private def withDuplicateDeclarationDetails(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      DuplicateDeclarantDetailAnswers
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              sessionData,
+              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            )
+          ) =>
+        val maybeDuplicateDeclarantDetailAnswers = draftClaim.fold(
+          _.duplicateDeclarationDetailAnswers
+        )
+        maybeDuplicateDeclarantDetailAnswers.fold[Future[Result]](
+          f(sessionData, fillingOutClaim, IncompleteDuplicateDeclarationDetailAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -167,6 +192,115 @@ class EnterDeclarationDetailsController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+              )
+            }
+          )
+      }
+    }
+
+  def enterDuplicateDeclarationDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withDuplicateDeclarationDetails { (_, fillingOutClaim, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.duplicateDeclaration match {
+              case Some(reference) =>
+                fillingOutClaim.draftClaim.movementReferenceNumber
+                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                    case Left(value) =>
+                      Ok(
+                        enterDuplicateDeclarationDetailsPage(
+                          EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
+                          value,
+                          routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                        )
+                      )
+                    case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  }
+              case None            =>
+                fillingOutClaim.draftClaim.movementReferenceNumber
+                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                    case Left(value) =>
+                      Ok(
+                        enterDuplicateDeclarationDetailsPage(
+                          EnterDeclarationDetailsController.entryDeclarationDetailsForm,
+                          value,
+                          routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                        )
+                      )
+                    case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  }
+            },
+          ifComplete =>
+            fillingOutClaim.draftClaim.movementReferenceNumber
+              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                case Left(value) =>
+                  ifComplete.duplicateDeclaration.fold(
+                    Ok(
+                      enterDuplicateDeclarationDetailsPage(
+                        EnterDeclarationDetailsController.entryDeclarationDetailsForm,
+                        value,
+                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                      )
+                    )
+                  )(entryDeclarationDetails =>
+                    Ok(
+                      enterDuplicateDeclarationDetailsPage(
+                        EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(entryDeclarationDetails),
+                        value,
+                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                      )
+                    )
+                  )
+                case Right(_)    =>
+                  Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn()) //FIXME double check this
+              }
+        )
+      }
+  }
+
+  def enterDuplicateDeclarationDetailsSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withDuplicateDeclarationDetails { (_, fillingOutClaim, answers) =>
+        EnterDeclarationDetailsController.entryDeclarationDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              fillingOutClaim.draftClaim.movementReferenceNumber
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  case Left(value) =>
+                    BadRequest(
+                      enterDuplicateDeclarationDetailsPage(
+                        requestFormWithErrors,
+                        value,
+                        routes.EnterMovementReferenceNumberController.enterMrn()
+                      )
+                    )
+                  case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                },
+            declarantDetailAnswers => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteDuplicateDeclarationDetailAnswer(
+                    Some(declarantDetailAnswers)
+                  ),
+                complete => complete.copy(duplicateDeclaration = Some(declarantDetailAnswers))
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(duplicateDeclarationDetailAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not capture duplicate declaration details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
               )
             }
           )

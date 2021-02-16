@@ -87,14 +87,14 @@ class SelectReasonForBasisAndClaimController @Inject() (
                     SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                       selectReasonForClaimAndBasis
                     ),
-                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
               case None                               =>
                 Ok(
                   selectReasonForClaimAndBasisPage(
                     SelectReasonForBasisAndClaimController.reasonForClaimForm,
-                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
             },
@@ -104,7 +104,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                   ifComplete.selectReasonForBasisAndClaim
                 ),
-                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
               )
             )
         )
@@ -121,7 +121,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimAndBasisPage(
                   requestFormWithErrors,
-                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                 )
               ),
             reasonForClaimAndBasis => {
@@ -143,7 +143,12 @@ class SelectReasonForBasisAndClaimController @Inject() (
                   logger.warn("could not store reason for reason and basis answer", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                _ =>
+                  reasonForClaimAndBasis.basisForClaim match {
+                    case BasisForClaim.DuplicateMrnEntry =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                    case _                               => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                  }
               )
             }
           )

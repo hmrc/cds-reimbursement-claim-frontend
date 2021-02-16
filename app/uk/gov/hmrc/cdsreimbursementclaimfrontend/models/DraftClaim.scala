@@ -37,7 +37,9 @@ object DraftClaim {
     id: UUID,
     maybeDeclaration: Option[Declaration],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
+    duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
     declarationDetailAnswers: Option[DeclarantDetailAnswers],
+    duplicateDeclarationDetailAnswers: Option[DuplicateDeclarantDetailAnswers],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
     claimantDetailsAsImporterCompanyAnswers: Option[ClaimantDetailsAsImporterCompanyAnswer],
@@ -71,6 +73,8 @@ object DraftClaim {
         None,
         None,
         None,
+        None,
+        None,
         LocalDate.now
       )
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
@@ -86,6 +90,8 @@ object DraftClaim {
 
     def declarantType: Option[DeclarantType] = draftClaim match {
       case DraftC285Claim(
+            _,
+            _,
             _,
             _,
             _,
@@ -118,6 +124,8 @@ object DraftClaim {
             _,
             _,
             movementReferenceNumberAnswer,
+            _,
+            _,
             _,
             _,
             _,

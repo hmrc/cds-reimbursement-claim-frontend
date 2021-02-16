@@ -28,10 +28,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, MovementReferenceNumberAnswer, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -48,6 +49,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val errorHandler: ErrorHandler,
   claimService: ClaimService,
   cc: MessagesControllerComponents,
+  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number,
   mrnNotLinkedToEoriPage: pages.mrn_not_linked_to_eori
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
@@ -79,6 +81,29 @@ class EnterMovementReferenceNumberController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def withDuplicateMovementReferenceNumberAnswer(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      DuplicateMovementReferenceNumberAnswer
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              sessionData,
+              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            )
+          ) =>
+        val maybeDuplicateMovementReferenceNumberAnswer = draftClaim.fold(
+          _.duplicateMovementReferenceNumberAnswer
+        )
+        maybeDuplicateMovementReferenceNumberAnswer.fold[Future[Result]](
+          f(sessionData, fillingOutClaim, IncompleteDuplicateMovementReferenceNumberAnswer.empty)
+        )(f(sessionData, fillingOutClaim, _))
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
   def enterMrn(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withMovementReferenceNumberAnswer { (_, _, answers) =>
@@ -94,7 +119,11 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 )
               case None                          =>
-                Ok(enterMovementReferenceNumberPage(EnterMovementReferenceNumberController.movementReferenceNumberForm))
+                Ok(
+                  enterMovementReferenceNumberPage(
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm
+                  )
+                )
             },
           ifComplete =>
             Ok(
@@ -149,14 +178,14 @@ class EnterMovementReferenceNumberController @Inject() (
                     _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
                   )
                 case Right(mrn)        =>
-                  val updatedAnswers = answers.fold(
+                  val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
                     _ =>
                       CompleteMovementReferenceNumberAnswer(
                         Right(mrn)
                       ),
                     complete => complete.copy(movementReferenceNumber = Right(mrn))
                   )
-                  val newDraftClaim  =
+                  val newDraftClaim                                         =
                     fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumberAnswer = Some(updatedAnswers)))
 
                   val result: EitherT[Future, models.Error, Unit] = for {
@@ -168,7 +197,128 @@ class EnterMovementReferenceNumberController @Inject() (
                         )
                           newDraftClaim.copy(
                             maybeDeclaration = Some(declaration),
-                            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(mrn)))
+                            movementReferenceNumberAnswer = Some(updatedAnswers)
+                          )
+                        else newDraftClaim
+                      )
+                    _             <-
+                      EitherT
+                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .leftMap((_: Unit) => Error("could not update session"))
+                  } yield ()
+
+                  result.fold(
+                    e => {
+                      logger.warn("could not capture movement reference number", e)
+                      errorHandler.errorResult()
+                    },
+                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                  )
+              }
+          )
+      }
+    }
+
+  def enterDuplicateMrn(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withDuplicateMovementReferenceNumberAnswer { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.duplicateMovementReferenceNumber match {
+              case Some(duplicateMovementReferenceNumber) =>
+                Ok(
+                  enterDuplicateMovementReferenceNumberPage(
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
+                      MovementReferenceNumber(duplicateMovementReferenceNumber)
+                    )
+                  )
+                )
+              case None                                   =>
+                Ok(
+                  enterDuplicateMovementReferenceNumberPage(
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm
+                  )
+                )
+            },
+          ifComplete =>
+            ifComplete.duplicateMovementReferenceNumber.fold(
+              errorHandler.errorResult()
+            )(duplicateMovementReferenceNumber =>
+              Ok(
+                enterDuplicateMovementReferenceNumberPage(
+                  EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
+                    MovementReferenceNumber(duplicateMovementReferenceNumber)
+                  )
+                )
+              )
+            )
+        )
+      }
+    }
+
+  def enterDuplicateMrnSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withDuplicateMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+        EnterMovementReferenceNumberController.movementReferenceNumberForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterDuplicateMovementReferenceNumberPage(
+                  requestFormWithErrors.copy(errors =
+                    Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
+                  )
+                )
+              ),
+            movementReferenceNumber =>
+              movementReferenceNumber.value match {
+                case Left(entryNumber) =>
+                  val updatedAnswers = answers.fold(
+                    _ =>
+                      CompleteDuplicateMovementReferenceNumberAnswer(
+                        Some(Left(entryNumber))
+                      ),
+                    complete => complete.copy(duplicateMovementReferenceNumber = Some(Left(entryNumber)))
+                  )
+                  val newDraftClaim  =
+                    fillingOutClaim.draftClaim
+                      .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
+
+                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                  val result = EitherT
+                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                    .leftMap((_: Unit) => Error("could not update session"))
+
+                  result.fold(
+                    e => {
+                      logger.warn("could not capture entry number", e)
+                      errorHandler.errorResult()
+                    },
+                    _ => Redirect(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails())
+                  )
+                case Right(mrn)        =>
+                  val updatedAnswers = answers.fold(
+                    _ =>
+                      CompleteDuplicateMovementReferenceNumberAnswer(
+                        Some(Right(mrn))
+                      ),
+                    complete => complete.copy(duplicateMovementReferenceNumber = Some(Right(mrn)))
+                  )
+                  val newDraftClaim  =
+                    fillingOutClaim.draftClaim
+                      .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
+
+                  val result: EitherT[Future, models.Error, Unit] = for {
+                    declaration   <- claimService.getDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
+                    updatedJourney =
+                      fillingOutClaim.copy(draftClaim =
+                        if (
+                          declaration.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
+                        )
+                          newDraftClaim.copy(
+                            maybeDeclaration = Some(declaration),
+                            duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
                           )
                         else newDraftClaim
                       )
