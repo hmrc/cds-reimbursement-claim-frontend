@@ -52,6 +52,12 @@ object ReasonForClaimAnswer {
         case i: IncompleteReasonForClaimAnswer => ifIncomplete(i)
         case c: CompleteReasonForClaimAnswer   => ifComplete(c)
       }
+
+    def reason: Option[BasisForClaim] = a match {
+      case IncompleteReasonForClaimAnswer(reasonForClaimOption) => reasonForClaimOption
+      case CompleteReasonForClaimAnswer(reasonForClaimOption)   => Some(reasonForClaimOption)
+    }
+
   }
 
   implicit val format: OFormat[ReasonForClaimAnswer] = derived.oformat()

@@ -33,6 +33,9 @@ POST        /check-declarant-details                                uk.gov.hmrc.
 GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails
 POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit
 
+GET         /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails
+POST        /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit
+
 GET         /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
 POST        /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
 
@@ -43,6 +46,7 @@ GET         /check-if-claim-was-sent                                uk.gov.hmrc.
 GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
 GET         /check-reimbursement-claim-total                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal
+POST        /check-reimbursement-claim-total                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotalSubmit
 
 GET         /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmounts
 POST        /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmountsSubmit
@@ -50,5 +54,11 @@ POST        /enter-uk-duty-amounts                                  uk.gov.hmrc.
 GET         /enter-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmounts
 POST        /enter-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmountsSubmit
 
+GET         /change-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeEuDutyAmounts
+POST        /change-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeEuDutyAmountsSubmit
+
 GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
 POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
+
+GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails
+POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit

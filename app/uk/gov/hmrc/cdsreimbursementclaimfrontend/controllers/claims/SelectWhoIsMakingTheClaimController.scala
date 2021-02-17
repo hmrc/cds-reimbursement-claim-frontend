@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarationTypeAnswer, IncompleteDeclarationTypeAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarantTypeAnswer, IncompleteDeclarantTypeAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -71,7 +71,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
           _.declarantTypeAnswer
         )
         maybeDeclarantType.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDeclarationTypeAnswer.empty)
+          f(sessionData, fillingOutClaim, IncompleteDeclarantTypeAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -187,7 +187,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
               },
             declarantTypeAnswer => {
               val updatedAnswers = answers.fold(
-                _ => CompleteDeclarationTypeAnswer(declarantTypeAnswer),
+                _ => CompleteDeclarantTypeAnswer(declarantTypeAnswer),
                 complete => complete.copy(declarantType = declarantTypeAnswer)
               )
               val newDraftClaim  =
@@ -215,12 +215,20 @@ class SelectWhoIsMakingTheClaimController @Inject() (
 
 object SelectWhoIsMakingTheClaimController {
 
-  sealed trait DeclarantType extends Product with Serializable
+  sealed trait DeclarantType extends Product with Serializable {
+    def repr: String
+  }
 
   object DeclarantType {
-    final case object Importer extends DeclarantType
-    final case object AssociatedWithImporterCompany extends DeclarantType
-    final case object AssociatedWithRepresentativeCompany extends DeclarantType
+    final case object Importer extends DeclarantType {
+      override def repr = "Importer"
+    }
+    final case object AssociatedWithImporterCompany extends DeclarantType {
+      override def repr = "Associated with Importer Company"
+    }
+    final case object AssociatedWithRepresentativeCompany extends DeclarantType {
+      override def repr = "Associated Representative Company"
+    }
 
     implicit val format: OFormat[DeclarantType] = derived.oformat[DeclarantType]()
   }

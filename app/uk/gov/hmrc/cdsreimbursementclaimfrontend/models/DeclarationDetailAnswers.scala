@@ -20,34 +20,32 @@ import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 
-sealed trait DeclarantDetailAnswers extends Product with Serializable
+sealed trait DeclarationDetailAnswers extends Product with Serializable
 
-object DeclarantDetailAnswers {
+object DeclarationDetailAnswers {
 
   final case class IncompleteDeclarationDetailAnswer(
-    entryDeclaration: Option[EntryDeclarationDetails],
-    duplicateDeclaration: Option[EntryDeclarationDetails]
-  ) extends DeclarantDetailAnswers
+    declarationDetails: Option[EntryDeclarationDetails]
+  ) extends DeclarationDetailAnswers
 
   object IncompleteDeclarationDetailAnswer {
-    val empty: IncompleteDeclarationDetailAnswer = IncompleteDeclarationDetailAnswer(None, None)
+    val empty: IncompleteDeclarationDetailAnswer = IncompleteDeclarationDetailAnswer(None)
 
     implicit val format: OFormat[IncompleteDeclarationDetailAnswer] =
       derived.oformat[IncompleteDeclarationDetailAnswer]()
   }
 
   final case class CompleteDeclarationDetailAnswer(
-    entryDeclaration: EntryDeclarationDetails,
-    duplicateDeclaration: Option[EntryDeclarationDetails]
-  ) extends DeclarantDetailAnswers
+    declarationDetails: EntryDeclarationDetails
+  ) extends DeclarationDetailAnswers
 
-  object CompleteMovementReferenceNumberAnswer {
+  object CompleteDeclarationDetailAnswer {
     implicit val format: OFormat[CompleteDeclarationDetailAnswer] =
       derived.oformat[CompleteDeclarationDetailAnswer]()
   }
 
   implicit class DeclarantDetailAnswersOps(
-    private val a: DeclarantDetailAnswers
+    private val a: DeclarationDetailAnswers
   ) extends AnyVal {
 
     def fold[A](
@@ -60,5 +58,5 @@ object DeclarantDetailAnswers {
       }
   }
 
-  implicit val format: OFormat[DeclarantDetailAnswers] = derived.oformat[DeclarantDetailAnswers]()
+  implicit val format: OFormat[DeclarationDetailAnswers] = derived.oformat[DeclarationDetailAnswers]()
 }

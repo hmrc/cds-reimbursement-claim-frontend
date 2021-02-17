@@ -17,10 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.syntax.eq._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{EnterClaim, EnterEuClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.CompleteBankAccountDetailAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.CompleteClaimAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.CompleteCommodityDetailsAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailAnswers.CompleteDeclarationDetailAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
 
@@ -28,54 +43,85 @@ import java.time.LocalDate
 import java.util.UUID
 
 sealed trait CompleteClaim extends Product with Serializable {
-  val id: UUID
+  val claimId: UUID
   val lastUpdatedDate: LocalDate
 }
 
 final case class CompleteC285Claim(
-  id: UUID,
-  movementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer,
-  declaration: Option[Declaration],
+  claimId: UUID,
+  movementReferenceNumber: Either[EntryNumber, MRN],
+  duplicateMovementReferenceNumberAnswer: Option[Either[EntryNumber, MRN]],
+  declarationDetails: CompleteDeclarationDetailAnswer,
+  duplicateDeclarationDetails: Option[EntryDeclarationDetails],
+  declarantType: CompleteDeclarantTypeAnswer,
+  claimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer,
+  claimantDetailsAsImporterCompanyAnswer: Option[ClaimantDetailsAsImporterCompanyAnswer],
+  bankAccountDetails: CompleteBankAccountDetailAnswers,
   supportingEvidenceAnswers: CompleteSupportingEvidenceAnswers,
-  totalClaim: String,
+  maybeUKDuty: Option[EnterClaim],
+  maybeEUDuty: Option[EnterEuClaim],
+  claims: CompleteClaimAnswers,
+  commodityDetails: CompleteCommodityDetailsAnswers,
+  maybeReasonForClaimAndBasisAnswer: Option[SelectReasonForClaimAndBasis],
+  maybeReasonForClaim: Option[BasisForClaim],
+  declaration: Option[Declaration],
   lastUpdatedDate: LocalDate
 ) extends CompleteClaim
 
 object CompleteC285Claim {
 
-  //TODO: fix to bring the right data thru
   def fromDraftClaim(draftClaim: DraftClaim): Option[CompleteC285Claim] =
     draftClaim match {
       case DraftClaim.DraftC285Claim(
             id,
-            None,
-            Some(m: CompleteMovementReferenceNumberAnswer),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
+            Some(completeMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
+            duplicateMovementReferenceNumberAnswer,
+            Some(completeDeclarationDetailAnswer: CompleteDeclarationDetailAnswer),
+            duplicateDeclarationDetailAnswers,
+            Some(completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer),
+            Some(completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer),
+            claimantDetailsAsImporterCompanyAnswers,
+            Some(completeBankAccountDetailAnswers: CompleteBankAccountDetailAnswers),
+            reasonForClaim,
             Some(s: CompleteSupportingEvidenceAnswers),
-            _,
-            _,
-            _,
-            _,
-            _,
+            ukDutyAmountAnswers,
+            euDutyAmountAnswers,
+            Some(completeClaimAnswers: CompleteClaimAnswers),
+            Some(completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswers),
+            reasonForBasisAndClaimAnswer,
+            None,
             lastUpdatedDate
           ) =>
-        Some(
-          CompleteC285Claim(
-            id = id,
-            m,
-            declaration = None,
-            supportingEvidenceAnswers = s,
-            totalClaim = "200",
-            lastUpdatedDate = lastUpdatedDate
-          )
-        )
+        completeMovementReferenceNumberAnswer.movementReferenceNumber match {
+          case Left(entryNumber) =>
+            Some(
+              CompleteC285Claim(
+                claimId = id,
+                Left(entryNumber),
+                duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
+                  duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
+                ),
+                completeDeclarationDetailAnswer,
+                duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
+                  duplicateDeclarantDetailAnswers.duplicateDeclaration
+                ),
+                completeDeclarantTypeAnswer,
+                completeClaimantDetailsAsIndividualAnswer,
+                claimantDetailsAsImporterCompanyAnswers,
+                completeBankAccountDetailAnswers,
+                supportingEvidenceAnswers = s,
+                ukDutyAmountAnswers.flatMap(p => p.maybeUkDuty),
+                euDutyAmountAnswers.flatMap(p => p.maybeEuDuty),
+                completeClaimAnswers,
+                completeCommodityDetailsAnswers,
+                reasonForBasisAndClaimAnswer.flatMap(rcb => rcb.reasonForClaimAndBasis),
+                reasonForClaim.flatMap(p => p.reason),
+                declaration = None,
+                lastUpdatedDate = lastUpdatedDate
+              )
+            )
+          case Right(_)          => sys.error("invalid user data state")
+        }
       case _ =>
         None
     }
@@ -87,70 +133,408 @@ object CompleteC285Claim {
 object CompleteClaim {
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
-    def totalClaim: String = completeClaim match {
-      case CompleteC285Claim(_, _, _, _, totalClaim, _) => totalClaim
+
+    def duplicateEntryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            duplicateDeclarationDetails,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        duplicateDeclarationDetails
     }
 
-    def importDate: String = completeClaim match {
-      case CompleteC285Claim(_, _, declaration, _, _, _) =>
-        declaration match {
-          case Some(value) => value.acceptanceDate
-          case None        => "to be implemented"
+    def entryDeclarationDetails: EntryDeclarationDetails = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            declarationDetails,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        declarationDetails.declarationDetails
+    }
+
+    def declarantType: SelectWhoIsMakingTheClaimController.DeclarantType = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            declarantType,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        declarantType.declarantType
+    }
+
+    def reasonForClaim: Either[SelectReasonForClaimAndBasis, BasisForClaim] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            maybeReasonForClaimAndBasisAnswer,
+            maybeReasonForClaim,
+            _,
+            _
+          ) =>
+        (maybeReasonForClaimAndBasisAnswer, maybeReasonForClaim) match {
+          case (Some(rc), None) => Left(rc)
+          case (None, Some(r))  => Right(r)
+          case _                => sys.error("invalid state: cannot have both reason-for-claim-and-basis and reason-for-claim")
         }
     }
 
-    def declarantDetails: declaration.DeclarantDetails = completeClaim match {
-      case CompleteC285Claim(_, _, declaration, _, _, _) =>
-        declaration match {
-          case Some(value) => value.declarantDetails
-          case None        => //FIXME
-            uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails(
-              "",
-              "",
-              uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress(
-                "",
-                None,
-                None,
-                None,
-                ""
-              ),
-              None
-            )
+    def claimantDetailsAsImporterCompany: Option[ClaimantDetailsAsImporterCompany] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            claimantDetailsAsImporterCompanyAnswer,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        claimantDetailsAsImporterCompanyAnswer match {
+          case Some(value) =>
+            value match {
+              case ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer(
+                    claimantDetailsAsImporterCompany
+                  ) =>
+                claimantDetailsAsImporterCompany
+              case ClaimantDetailsAsImporterCompanyAnswer.CompleteClaimantDetailsAsImporterCompanyAnswer(
+                    claimantDetailsAsImporterCompany
+                  ) =>
+                Some(claimantDetailsAsImporterCompany)
+            }
+          case None        => None
         }
     }
 
-    def declarantEmailAddress: Option[String] = declarantDetails.contactDetails.flatMap { c =>
-      c.emailAddress
+    def claimantDetailsAsIndividual: ClaimantDetailsAsIndividual = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            claimantDetailsAsIndividualAnswer,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
     }
 
-    def declarantTelephone: Option[String] = declarantDetails.contactDetails.flatMap { c =>
-      c.telephone
+    def commodityDetails: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            commodityDetails,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        commodityDetails.commodityDetails.value
+    }
+
+    def bankDetails: BankAccountController.BankAccountDetails = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            bankAccountDetails,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        bankAccountDetails.bankAccountDetails
+    }
+
+    def bankAccountType: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            bankAccountDetails,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        bankAccountDetails.bankAccountDetails.isBusinessAccount.headOption match {
+          case Some(value) => if (value === 0) "Business Account" else "Non-Business Account"
+          case None        => ""
+        }
+    }
+
+    def totalUkDutyToClaim: BigDecimal = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            ukDuty,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        ukDuty match {
+          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
+          case None        => BigDecimal(0)
+        }
+    }
+
+    def totalEuDutyToClaim: BigDecimal = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            euDuty,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        euDuty match {
+          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
+          case None        => BigDecimal(0)
+        }
+    }
+
+    def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            movementReferenceNumber,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        movementReferenceNumber
+    }
+
+    def duplicateMovementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            duplicateMovementReferenceNumberAnswer,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        duplicateMovementReferenceNumberAnswer match {
+          case Some(value) => value
+          case None        => sys.error("could not find movement reference number")
+        }
     }
 
     def supportingEvidences: List[SupportingEvidence] = completeClaim match {
-      case CompleteC285Claim(_, _, _, supportingEvidenceAnswers, _, _) => supportingEvidenceAnswers.evidences
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            supportingEvidenceAnswers,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        supportingEvidenceAnswers.evidences
     }
 
-    def mrn: String = completeClaim match {
-      case CompleteC285Claim(_, _, declaration, _, _, _) =>
-        declaration match {
-          case Some(value) => value.declarantId
-          case None        => "to be implemented"
-        }
+    def declarantDetails: List[SupportingEvidence] = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            supportingEvidenceAnswers,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        supportingEvidenceAnswers.evidences
     }
 
-    def declarantAddress: Option[String] = completeClaim match {
-      case CompleteC285Claim(_, _, declaration, _, _, _) =>
-        declaration match {
-          case Some(value) =>
-            value.declarantDetails.contactDetails.map { c =>
-              s"${c.addressLine1.getOrElse("")}, ${c.addressLine2.getOrElse("")}, ${c.addressLine3
-                .getOrElse("")}, ${c.addressLine4.getOrElse("")}, ${c.postalCode.getOrElse("")}, ${c.countryCode.getOrElse("")}"
-            }
-
-          case None => Some("") //FIXME
-        }
-    }
+    //    def declarantAddress: Option[String] = completeClaim match {
+//      case CompleteC285Claim(_, _, declaration, _, _, _) =>
+//        declaration match {
+//          case Some(value) =>
+//            value.declarantDetails.contactDetails.map { c =>
+//              s"${c.addressLine1.getOrElse("")}, ${c.addressLine2.getOrElse("")}, ${c.addressLine3
+//                .getOrElse("")}, ${c.addressLine4.getOrElse("")}, ${c.postalCode.getOrElse("")}, ${c.countryCode.getOrElse("")}"
+//            }
+//
+//          case None => Some("") //FIXME
+//        }
+//    }
 
   }
 

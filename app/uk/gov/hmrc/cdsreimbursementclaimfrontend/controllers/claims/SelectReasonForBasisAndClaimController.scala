@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAndBasisAnswer.IncompleteReasonForClaimAndBasisAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAndBasisAnswer.{CompleteReasonForClaimAndBasisAnswer, IncompleteReasonForClaimAndBasisAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -126,7 +126,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               ),
             reasonForClaimAndBasis => {
               val updatedAnswers: ReasonForClaimAndBasisAnswer = answers.fold(
-                incomplete => incomplete.copy(maybeSelectReasonForClaimAndBasis = Some(reasonForClaimAndBasis)),
+                _ => CompleteReasonForClaimAndBasisAnswer(reasonForClaimAndBasis),
                 complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
               )
               val newDraftClaim                                =

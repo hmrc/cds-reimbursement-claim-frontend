@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.{CompleteClaimantDetailsAsImporterCompanyAnswer, IncompleteClaimantDetailsAsImporterCompanyAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address
@@ -126,9 +126,9 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
               ),
             claimantDetailsAsImporterCompany => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    claimantDetailsAsImporterCompany = Some(claimantDetailsAsImporterCompany)
+                _ =>
+                  CompleteClaimantDetailsAsImporterCompanyAnswer(
+                    claimantDetailsAsImporterCompany
                   ),
                 complete => complete.copy(claimantDetailsAsImporterCompany = claimantDetailsAsImporterCompany)
               )

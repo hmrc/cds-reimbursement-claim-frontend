@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
@@ -23,16 +24,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.CompleteClaimAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.IncompleteEuDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, SessionData, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, Error, SessionData, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckReimbursementClaimTotalController @Inject() (
@@ -43,7 +46,7 @@ class CheckReimbursementClaimTotalController @Inject() (
   cc: MessagesControllerComponents,
   val config: Configuration,
   checkReimbursementClaimTotalPage: pages.check_reimbursement_claim_total
-)(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
@@ -88,6 +91,30 @@ class CheckReimbursementClaimTotalController @Inject() (
         Ok(checkReimbursementClaimTotalPage(answers))
       }
     }
+
+  def checkReimbursementClaimTotalSubmit: Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withReimbursementClaimTotals { (_, fillingOutClaim, answers) =>
+        println("\n\n\n\n\n I am here \n\n\n\n\n")
+        val updatedAnswers = CompleteClaimAnswers(answers)
+
+        val newDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(claimAnswers = Some(updatedAnswers)))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+        val result = EitherT
+          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+          .leftMap((_: Unit) => Error("could not update session"))
+
+        result.fold(
+          e => {
+            logger.warn("could not claim amounts", e)
+            errorHandler.errorResult()
+          },
+          _ => Redirect(routes.BankAccountController.enterBankAccountDetails())
+        )
+      }
+  }
 }
 
 object CheckReimbursementClaimTotalController {}

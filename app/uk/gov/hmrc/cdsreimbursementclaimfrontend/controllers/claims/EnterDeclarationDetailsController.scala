@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantDetailAnswers.IncompleteDeclarationDetailAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailAnswers.{CompleteDeclarationDetailAnswer, IncompleteDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarantDetailAnswers.{CompleteDuplicateDeclarationDetailAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -59,7 +59,7 @@ class EnterDeclarationDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      DeclarantDetailAnswers
+      DeclarationDetailAnswers
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -105,46 +105,46 @@ class EnterDeclarationDetailsController @Inject() (
     withDeclarationDetails { (_, fillingOutClaim, answers) =>
       answers.fold(
         ifIncomplete =>
-          ifIncomplete.entryDeclaration match {
+          ifIncomplete.declarationDetails match {
             case Some(reference) =>
               fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                  case Left(value) =>
+                  case Left(entryNumber) =>
                     Ok(
                       enterDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
-                        value,
+                        entryNumber,
                         routes.EnterMovementReferenceNumberController.enterMrn()
                       )
                     )
-                  case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 }
             case None            =>
               fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                  case Left(value) =>
+                  case Left(entryNumber) =>
                     Ok(
                       enterDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                        value,
+                        entryNumber,
                         routes.EnterMovementReferenceNumberController.enterMrn()
                       )
                     )
-                  case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 }
           },
         ifComplete =>
           fillingOutClaim.draftClaim.movementReferenceNumber
             .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-              case Left(value) =>
+              case Left(entryNumber) =>
                 Ok(
                   enterDeclarationDetailsPage(
-                    EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(ifComplete.entryDeclaration),
-                    value,
+                    EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(ifComplete.declarationDetails),
+                    entryNumber,
                     routes.EnterMovementReferenceNumberController.enterMrn()
                   )
                 )
-              case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+              case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
             }
       )
     }
@@ -159,23 +159,23 @@ class EnterDeclarationDetailsController @Inject() (
             requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                  case Left(value) =>
+                  case Left(entryNumber) =>
                     BadRequest(
                       enterDeclarationDetailsPage(
                         requestFormWithErrors,
-                        value,
+                        entryNumber,
                         routes.EnterMovementReferenceNumberController.enterMrn()
                       )
                     )
-                  case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    entryDeclaration = Some(declarantDetailAnswers)
+                _ =>
+                  CompleteDeclarationDetailAnswer(
+                    declarantDetailAnswers
                   ),
-                complete => complete.copy(entryDeclaration = declarantDetailAnswers)
+                complete => complete.copy(declarationDetails = declarantDetailAnswers)
               )
               val newDraftClaim  =
                 fillingOutClaim.draftClaim.fold(_.copy(declarationDetailAnswers = Some(updatedAnswers)))
@@ -207,39 +207,39 @@ class EnterDeclarationDetailsController @Inject() (
               case Some(reference) =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
                   .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                    case Left(value) =>
+                    case Left(entryNumber) =>
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
                           EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
-                          value,
+                          entryNumber,
                           routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                         )
                       )
-                    case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }
               case None            =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
                   .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                    case Left(value) =>
+                    case Left(entryNumber) =>
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
                           EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                          value,
+                          entryNumber,
                           routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                         )
                       )
-                    case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }
             },
           ifComplete =>
             fillingOutClaim.draftClaim.movementReferenceNumber
               .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                case Left(value) =>
+                case Left(entryNumber) =>
                   ifComplete.duplicateDeclaration.fold(
                     Ok(
                       enterDuplicateDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                        value,
+                        entryNumber,
                         routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                       )
                     )
@@ -247,12 +247,12 @@ class EnterDeclarationDetailsController @Inject() (
                     Ok(
                       enterDuplicateDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(entryDeclarationDetails),
-                        value,
+                        entryNumber,
                         routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                       )
                     )
                   )
-                case Right(_)    =>
+                case Right(_)          =>
                   Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn()) //FIXME double check this
               }
         )
@@ -268,15 +268,15 @@ class EnterDeclarationDetailsController @Inject() (
             requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
-                  case Left(value) =>
+                  case Left(entryNumber) =>
                     BadRequest(
                       enterDuplicateDeclarationDetailsPage(
                         requestFormWithErrors,
-                        value,
+                        entryNumber,
                         routes.EnterMovementReferenceNumberController.enterMrn()
                       )
                     )
-                  case Right(_)    => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(

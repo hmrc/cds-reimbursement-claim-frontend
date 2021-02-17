@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address
@@ -127,9 +127,9 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
               ),
             claimantDetailsAsIndividual => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    claimantDetailsAsIndividual = Some(claimantDetailsAsIndividual)
+                _ =>
+                  CompleteClaimantDetailsAsIndividualAnswer(
+                    claimantDetailsAsIndividual
                   ),
                 complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
               )

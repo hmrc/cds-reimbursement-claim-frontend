@@ -36,12 +36,13 @@
  dutyService : uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DutyService
 )
 
-@(form : Form[EnterEuClaim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[EnterEuClaim], isAmend : Boolean = true)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"enter-duty-and-claim-amounts-eu"}
   @title = @{messages(s"$key.title")}
   @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
   @taxCodes = @{dutyService.getListOfEuDuties}
+
 
   @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
 

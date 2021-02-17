@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReason
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAnswer.IncompleteReasonForClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAnswer.{CompleteReasonForClaimAnswer, IncompleteReasonForClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -86,14 +86,14 @@ class SelectReasonForClaimController @Inject() (
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
-                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
               case None                       =>
                 Ok(
                   selectReasonForClaimPage(
                     SelectReasonForClaimController.reasonForClaimForm,
-                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
             },
@@ -103,7 +103,7 @@ class SelectReasonForClaimController @Inject() (
                 SelectReasonForClaimController.reasonForClaimForm.fill(
                   SelectReasonForClaim(ifComplete.reasonForClaimOption)
                 ),
-                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
               )
             )
         )
@@ -120,12 +120,12 @@ class SelectReasonForClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimPage(
                   requestFormWithErrors,
-                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                 )
               ),
             reasonForClaim => {
               val updatedAnswers: ReasonForClaimAnswer = answers.fold(
-                incomplete => incomplete.copy(reasonForClaimOption = Some(reasonForClaim.reasonForClaimOption)),
+                _ => CompleteReasonForClaimAnswer(reasonForClaim.reasonForClaimOption),
                 complete => complete.copy(reasonForClaimOption = reasonForClaim.reasonForClaimOption)
               )
               val newDraftClaim                        =

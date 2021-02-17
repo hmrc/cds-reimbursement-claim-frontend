@@ -37,16 +37,19 @@
  dutyService : uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DutyService
 )
 
-@(form : Form[EnterClaim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[EnterClaim], isAmend : Boolean = false)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"enter-duty-and-claim-amounts"}
   @title = @{messages(s"$key.title")}
   @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
   @taxCodes = @{dutyService.getListOfUKDuties}
 
+   @postAction = @{if(isAmend) routes.EnterDutyAmountsController.changeUkDutyAmountsSubmit else routes.BankAccountController.enterUkDutyAmountsSubmit}
+   @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
+
   @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
 
-    @backLinkComponent(claimRoutes.EnterDutyAmountsController.enterUkDutyAmounts)
+    @backLinkComponent(backLinkAction)
 
     @if(hasErrors) {
         @errorSummary(form)
@@ -56,7 +59,7 @@
 
     @pageHeading(title)
 
-    @formWrapper(routes.EnterDutyAmountsController.enterUkDutyAmountsSubmit, 'novalidate -> "novalidate") {
+    @formWrapper(postAction, 'novalidate -> "novalidate") {
 
         <table class="govuk-table">
             <tbody>

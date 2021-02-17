@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.IncompleteCommoditiesDetailsAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.{CompleteCommodityDetailsAnswers, IncompleteCommoditiesDetailsAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswers, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -120,9 +120,9 @@ class EnterCommoditiesDetailsController @Inject() (
               ),
             commodityDetails => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    commodityDetails = Some(commodityDetails)
+                _ =>
+                  CompleteCommodityDetailsAnswers(
+                    commodityDetails
                   ),
                 complete => complete.copy(commodityDetails = commodityDetails)
               )
