@@ -113,8 +113,7 @@ class EnterDeclarationDetailsController @Inject() (
                     Ok(
                       enterDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
-                        entryNumber,
-                        routes.EnterMovementReferenceNumberController.enterMrn()
+                        entryNumber
                       )
                     )
                   case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -126,8 +125,7 @@ class EnterDeclarationDetailsController @Inject() (
                     Ok(
                       enterDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                        entryNumber,
-                        routes.EnterMovementReferenceNumberController.enterMrn()
+                        entryNumber
                       )
                     )
                   case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -140,8 +138,7 @@ class EnterDeclarationDetailsController @Inject() (
                 Ok(
                   enterDeclarationDetailsPage(
                     EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(ifComplete.declarationDetails),
-                    entryNumber,
-                    routes.EnterMovementReferenceNumberController.enterMrn()
+                    entryNumber
                   )
                 )
               case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -163,8 +160,7 @@ class EnterDeclarationDetailsController @Inject() (
                     BadRequest(
                       enterDeclarationDetailsPage(
                         requestFormWithErrors,
-                        entryNumber,
-                        routes.EnterMovementReferenceNumberController.enterMrn()
+                        entryNumber
                       )
                     )
                   case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -192,6 +188,103 @@ class EnterDeclarationDetailsController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+              )
+            }
+          )
+      }
+    }
+
+  def changeDeclarationDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withDeclarationDetails { (_, fillingOutClaim, answers) =>
+      answers.fold(
+        ifIncomplete =>
+          ifIncomplete.declarationDetails match {
+            case Some(reference) =>
+              fillingOutClaim.draftClaim.movementReferenceNumber
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  case Left(entryNumber) =>
+                    Ok(
+                      enterDeclarationDetailsPage(
+                        EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
+                        entryNumber,
+                        isAmend = true
+                      )
+                    )
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                }
+            case None            =>
+              fillingOutClaim.draftClaim.movementReferenceNumber
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  case Left(entryNumber) =>
+                    Ok(
+                      enterDeclarationDetailsPage(
+                        EnterDeclarationDetailsController.entryDeclarationDetailsForm,
+                        entryNumber,
+                        isAmend = true
+                      )
+                    )
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                }
+          },
+        ifComplete =>
+          fillingOutClaim.draftClaim.movementReferenceNumber
+            .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+              case Left(entryNumber) =>
+                Ok(
+                  enterDeclarationDetailsPage(
+                    EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(ifComplete.declarationDetails),
+                    entryNumber,
+                    isAmend = true
+                  )
+                )
+              case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+            }
+      )
+    }
+  }
+
+  def changeDeclarationDetailsSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withDeclarationDetails { (_, fillingOutClaim, answers) =>
+        EnterDeclarationDetailsController.entryDeclarationDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              fillingOutClaim.draftClaim.movementReferenceNumber
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  case Left(entryNumber) =>
+                    BadRequest(
+                      enterDeclarationDetailsPage(
+                        requestFormWithErrors,
+                        entryNumber,
+                        isAmend = true
+                      )
+                    )
+                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                },
+            declarantDetailAnswers => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteDeclarationDetailAnswer(
+                    declarantDetailAnswers
+                  ),
+                complete => complete.copy(declarationDetails = declarantDetailAnswers)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(declarationDetailAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not capture declaration details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
               )
             }
           )

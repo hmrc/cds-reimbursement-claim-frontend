@@ -178,6 +178,108 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
           )
       }
     }
+
+  def changeClaimantDetailsAsIndividual: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withClaimantDetailsAsIndividualAnswers { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.claimantDetailsAsIndividual match {
+              case Some(claimantDetailsAsIndividual) =>
+                Ok(
+                  enterClaimantDetailAsIndividualPage(
+                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                      claimantDetailsAsIndividual
+                    ),
+                    isAmend = true
+                  )
+                )
+              case None                              =>
+                Ok(
+                  enterClaimantDetailAsIndividualPage(
+                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm,
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterClaimantDetailAsIndividualPage(
+                EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                  ifComplete.claimantDetailsAsIndividual
+                ),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeClaimantDetailsAsIndividualSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
+        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterClaimantDetailAsIndividualPage(
+                  requestFormWithErrors,
+                  isAmend = true
+                )
+              ),
+            claimantDetailsAsIndividual => {
+              val updatedAnswers = answers.fold(
+                _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
+                complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+              )
+              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.No) {
+                fillingOutClaim.draftClaim.fold(
+                  _.copy(
+                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
+                    claimantDetailsAsImporterCompanyAnswers = None
+                  )
+                )
+              } else {
+                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
+              }
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not capture claimant as individual details", e)
+                  errorHandler.errorResult()
+                },
+                _ =>
+
+                  claimantDetailsAsIndividual.addCompanyDetails match {
+                    case YesNo.No  =>
+                      fillingOutClaim.draftClaim.declarantType match {
+                        case Some(declarantType) =>
+                          declarantType match {
+                            case DeclarantType.Importer =>
+                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                            case _                      =>
+                              Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+
+                          }
+                        case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                      }
+                    case YesNo.Yes =>
+                      Redirect(
+                        routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
+                      )
+                  }
+                
+              )
+            }
+          )
+      }
+    }
 }
 
 object EnterClaimantDetailsAsIndividualController {

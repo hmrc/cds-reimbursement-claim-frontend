@@ -34,11 +34,14 @@
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
 )
 
-@(form: Form[DeclarantType], backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[DeclarantType], backLink: Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
  @key = @{"select-who-is-making-the-claim"}
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+ @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantType else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
+ @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
  @toMessage(declrantType: DeclarantType) = @{
     declrantType match {
@@ -61,17 +64,15 @@
     </div>
     }
 
-
  @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
-  @backLinkComponent(backLink)
+  @backLinkComponent(backAction)
 
   @if(hasErrors) {
    @errorSummary(form)
   }
 
-
-  @formWrapper(routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(), 'novalidate -> "novalidate") {
+  @formWrapper(postAction, 'novalidate -> "novalidate") {
 
     @radioGroup(
       fieldId = key,

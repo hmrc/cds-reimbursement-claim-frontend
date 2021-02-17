@@ -38,13 +38,16 @@
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code
 )
 
-@(form : Form[ClaimantDetailsAsIndividual])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-claimant-details-individual"}
     @nonUkAddressKey = @{"nonUkAddress"}
 
     @title = @{messages(s"$key.title")}
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividualSubmit else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividualSubmit}
+    @backLink = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
 
     @line0Key = @{s"$nonUkAddressKey-building"}
     @line1Key = @{s"$nonUkAddressKey-line1"}
@@ -71,7 +74,7 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
-        @backLinkComponent(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType)
+        @backLinkComponent(backLink)
 
         @if(hasErrors) {
             @errorSummary(form)
@@ -85,7 +88,7 @@
             @messages(s"$key.help-text")
         </p>
 
-        @formWrapper(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividualSubmit, 'novalidate -> "novalidate") {
+        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
             @textInput(
                 fieldId = s"$key.importer-full-name",
