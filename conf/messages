@@ -456,9 +456,16 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
-check-your-answers.title=Review Your Claim
+check-your-answers.title=Review your claim
 check-your-answers.caption=Claim Details
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+check-your-answers.entry-reference-number.label=Entry reference number
+check-your-answers.mrn.label=MRN
+check-your-answers.declaration-details.label=Declaration details
+check-your-answers.duplcate-declaration-details.label=Declaration details
+check-your-answers.declarent-type.label=Declarant Type
+check-your-answers.claiments-individual-details.label=Claiments individual details
+
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
 

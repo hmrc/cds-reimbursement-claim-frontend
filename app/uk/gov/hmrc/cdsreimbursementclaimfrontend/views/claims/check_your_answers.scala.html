@@ -73,14 +73,14 @@
             <table class="govuk-table">
                 <tbody>
                 <tr>
-                    <th scope="row" style="font-weight:bold">@completeClaim.movementReferenceNumber.fold(_ => "Entry reference number", _ => "MRN reference number")</th>
+                    <th scope="row" style="font-weight:bold">@completeClaim.movementReferenceNumber.fold(_ => messages(s"$key.entry-reference-number.label"), _ => messages(s"$key.mrn.label"))</th>
                     <td>@completeClaim.movementReferenceNumber.fold(e => e.value, m => m.value)</td>
                     <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.changeMrn().url, Some("Change"))</td>
                 </tr>
                 @completeClaim.movementReferenceNumber match{
                     case Left(_) =>{
                         <tr>
-                            <th scope="row" style="font-weight:bold">Declaration details</th>
+                            <th scope="row" style="font-weight:bold">@messages(s"$key.declaration-details.label")</th>
                             <td>
                                 <ul class="list-bullet">
                                     <li>Import date: @completeClaim.entryDeclarationDetails.dateOfImport.checkYourDetailsDisplayFormat</li>
@@ -98,7 +98,7 @@
                     }
                     case Right(_) =>{
                         <tr>
-                            <th scope="row" style="font-weight:bold">Declaration details</th>
+                            <th scope="row" style="font-weight:bold">@messages(s"$key.declaration-details.label")</th>
                             <td>
                                 <ul class="list-bullet">
                                     <li>Import date: completeClaim.declarationDetails.dateOfImport</li>
@@ -117,7 +117,7 @@
                     case Left(_) =>{
                         @completeClaim.duplicateEntryDeclarationDetails.map{details =>
                             <tr>
-                                <th scope="row" style="font-weight:bold">Duplicate Declaration details</th>
+                                <th scope="row" style="font-weight:bold">@messages(s"$key.duplicate-declaration-details.label")</th>
                                 <td>
                                     <ul class="list-bullet">
                                         <li>Duplicate Entry number: @completeClaim.duplicateMovementReferenceNumber.fold(e => e.value, s =>s.value)</li>
