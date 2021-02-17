@@ -456,9 +456,46 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
-check-your-answers.title=Review Your Claim
+check-your-answers.title=Review your claim
 check-your-answers.caption=Claim Details
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
+check-your-answers.entry-reference-number.label=Entry reference number
+check-your-answers.mrn.label=MRN
+check-your-answers.declaration-details.label=Declaration details
+check-your-answers.declaration-details.l0=Import date: 
+check-your-answers.declaration-details.l1=Place of import: 
+check-your-answers.declaration-details.l2=Importer name: 
+check-your-answers.declaration-details.l3=Importer email: 
+check-your-answers.declaration-details.l4=Import phone number: 
+check-your-answers.declaration-details.l5=Declarant name: 
+check-your-answers.declaration-details.l6=Declarant email: 
+check-your-answers.declaration-details.l7=Declarant phone number: 
+check-your-answers.declaration-details.l8=Paid charges:
+check-your-answers.declaration-details.l9=Declarant contact address:
+check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
+check-your-answers.duplicate-declaration-details.l0=Duplicate Entry number:
+check-your-answers.declarant-type.label=Declarant Type
+check-your-answers.claimant-individual-details.label=Claimant’s individual details
+check-your-answers.claimant-details.l0=Company name: 
+check-your-answers.claimant-details.l1=Email address: 
+check-your-answers.claimant-details.l2=Phone number: 
+check-your-answers.claimant-details.l3=Contact address: 
+check-your-answers.claimant-company-details.label=Claimant’s company details
+check-your-answers.reason-and-basis.label=Reason and basis for claim
+check-your-answers.reason-and-basis.l0=Reason: 
+check-your-answers.reason-and-basis.l1=Basis:
+check-your-answers.reason.label=Reason for claim
+check-your-answers.commodities-details.label=Commodities details
+check-your-answers.claim-calculation.label=Claim calculation
+check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you: 
+check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you: 
+check-your-answers.claim-calculation.l2=Total claimed reimbursement: 
+check-your-answers.bank-details.label=Bank details
+check-your-answers.bank-details.l0=Bank account name: 
+check-your-answers.bank-details.l1=Type of bank account: 
+check-your-answers.bank-details.l2=Sort code: 
+check-your-answers.bank-details.l3=Account number: 
+check-your-answers.attached-documents.label=Attached documents
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
 

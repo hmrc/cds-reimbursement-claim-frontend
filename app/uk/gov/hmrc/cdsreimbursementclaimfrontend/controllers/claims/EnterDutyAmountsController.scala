@@ -180,36 +180,57 @@ class EnterDutyAmountsController @Inject() (
                   isAmend = true
                 )
               ),
-            enterClaim => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteUKDutyAmountAnswer(
-                    enterClaim
-                  ),
-                complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers)))
+            enterClaim =>
+              if (enterClaim.makeEuDutyClaim) {
+                val updatedAnswers = answers.fold(
+                  _ =>
+                    CompleteUKDutyAmountAnswer(
+                      enterClaim
+                    ),
+                  complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
+                )
+                val newDraftClaim  =
+                  fillingOutClaim.draftClaim.fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers)))
 
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
+                val result = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
 
-              result.fold(
-                e => {
-                  logger.warn("could not get uk duty details", e)
-                  errorHandler.errorResult()
-                },
-                _ =>
-                  if (enterClaim.makeEuDutyClaim) Redirect(routes.EnterDutyAmountsController.changeEuDutyAmounts())
-                  else {
-                    //TODO: delete eu duty
-                    Redirect(routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal())
-                  }
-              )
-            }
+                result.fold(
+                  e => {
+                    logger.warn("could not get uk duty details", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(routes.EnterDutyAmountsController.changeEuDutyAmounts())
+                )
+              } else {
+                val updatedAnswers = answers.fold(
+                  _ =>
+                    CompleteUKDutyAmountAnswer(
+                      enterClaim
+                    ),
+                  complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
+                )
+                val newDraftClaim  =
+                  fillingOutClaim.draftClaim
+                    .fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers), euDutyAmountAnswers = None))
+
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                val result = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
+
+                result.fold(
+                  e => {
+                    logger.warn("could not get uk duty details", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                )
+              }
           )
       }
     }
