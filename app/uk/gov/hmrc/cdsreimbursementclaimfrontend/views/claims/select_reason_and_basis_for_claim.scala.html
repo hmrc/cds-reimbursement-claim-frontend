@@ -46,6 +46,17 @@
 
 @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
+@*
+* Temp CSS before switch to new frontend
+*@
+
+<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+        <div>
+            <div>
+
    @backLinkComponent(backLinkAction)
 
    @if(hasErrors) {
@@ -182,5 +193,10 @@
     @submitButton(messages("button.saveAndContinue"))
 
   }
+
+            </div>
+        </div>
+    </main>
+</div>
 
 }

@@ -25,7 +25,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -48,30 +47,45 @@
 
   @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
 
+@*
+* Temp CSS before switch to new frontend
+*@
+
+<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+        <div>
+            <div>
+
     @backLinkComponent(backLinkAction)
 
     @if(hasErrors) {
         @errorSummary(form)
     }
 
-    @caption(messages(s"$key.caption"))
-
     @pageHeading(title)
+
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text"))
+    </div>
 
     @formWrapper(postAction, 'novalidate -> "novalidate") {
 
         <table class="govuk-table">
-            <tbody>
-            <tr>
-                <th scope="row" style="font-weight:bold">UK Duty</th>
-                <th scope="row" style="font-weight:bold">Paid Amount</th>
-                <th scope="row" style="font-weight:bold">Claim Amount</th>
-            </tr>
+            <thead>
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">UK Duty</th>
+                    <th scope="col" class="govuk-table__header">Paid Amount</th>
+                    <th scope="col" class="govuk-table__header">Claim Amount</th>
+                </tr>
+            </thead>
                 @for((taxCode, index) <- taxCodes.zipWithIndex){
                 <input id="enter-duty-and-claim-amounts[@index].tax-code" name="enter-duty-and-claim-amounts[@index].tax-code" type="hidden" value="1">
-                <tr>
-                    <td style="font-weight:bold">@taxCode.description</td>
-                    <td>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header" style="vertical-align: middle;">@taxCode.description</th>
+                    <td class="govuk-table__cell">
                         @unitInput(
                             fieldId = s"$key[$index].paid",
                             value = form.data.get(s"$key[$index].paid").getOrElse(""),
@@ -87,7 +101,7 @@
                             assistiveText = messages("unit-input.assistive.pounds")
                         )
                     </td>
-                    <td>
+                    <td class="govuk-table__cell">
                         @unitInput(
                             fieldId = s"$key[$index].claim",
                             value = form.data.get(s"$key[$index].claim").getOrElse(""),
@@ -122,4 +136,11 @@
         @submitButton(messages("button.continue"))
 
     }
+
+
+            </div>
+        </div>
+    </main>
+</div>
+
   }
