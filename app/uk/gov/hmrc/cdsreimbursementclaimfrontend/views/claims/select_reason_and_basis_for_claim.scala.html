@@ -36,15 +36,18 @@
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
-@(form: Form[SelectReasonForClaimAndBasis], backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
  @key = @{"select-reason-and-basis-for-claim"}
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
- @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+ @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
+ @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-   @backLinkComponent(backLink)
+@mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+
+   @backLinkComponent(backLinkAction)
 
    @if(hasErrors) {
     @errorSummary(form)
@@ -74,7 +77,7 @@
       ))
   </div>
 
-  @formWrapper(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit(), 'novalidate -> "novalidate") {
+  @formWrapper(postAction, 'novalidate -> "novalidate") {
 
     <div class = "space-select">
         @inputSelect(

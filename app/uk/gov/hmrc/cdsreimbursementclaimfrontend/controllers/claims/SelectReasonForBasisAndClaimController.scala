@@ -155,6 +155,86 @@ class SelectReasonForBasisAndClaimController @Inject() (
       }
 
     }
+
+  def changeReasonForClaimAndBasis(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withSelectReasonForClaim { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.maybeSelectReasonForClaimAndBasis match {
+              case Some(selectReasonForClaimAndBasis) =>
+                Ok(
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                      selectReasonForClaimAndBasis
+                    ),
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                    isAmend = true
+                  )
+                )
+              case None                               =>
+                Ok(
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm,
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              selectReasonForClaimAndBasisPage(
+                SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                  ifComplete.selectReasonForBasisAndClaim
+                ),
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeReasonForClaimAndBasisSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
+        SelectReasonForBasisAndClaimController.reasonForClaimForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                selectReasonForClaimAndBasisPage(
+                  requestFormWithErrors,
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                  true
+                )
+              ),
+            reasonForClaimAndBasis => {
+              val updatedAnswers: ReasonForClaimAndBasisAnswer = answers.fold(
+                _ => CompleteReasonForClaimAndBasisAnswer(reasonForClaimAndBasis),
+                complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
+              )
+              val newDraftClaim                                =
+                fillingOutClaim.draftClaim.fold(_.copy(reasonForBasisAndClaimAnswer = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not store reason for reason and basis answer", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+              )
+            }
+          )
+      }
+
+    }
 }
 
 object SelectReasonForBasisAndClaimController {

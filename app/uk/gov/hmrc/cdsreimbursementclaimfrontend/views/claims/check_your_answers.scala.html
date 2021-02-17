@@ -214,7 +214,7 @@ article.content__body {
                                     <li>Basis: @reasonAndBasis.reasonForClaim.repr</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange("change", claimRoutes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis().url, Some("Change"))</td>
+                            <td>@cyaChange("change", claimRoutes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url, Some("Change"))</td>
                         </tr>
                     }
                     case Right(reason) =>{
@@ -225,7 +225,7 @@ article.content__body {
                                     <li>Reason: @reason.repr</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                            <td>@cyaChange("change", claimRoutes.SelectReasonForClaimController.changeReasonForClaimSubmit().url, Some("Change"))</td>
                         </tr>
                         }
                     }
@@ -235,7 +235,7 @@ article.content__body {
                     <td>
                         @completeClaim.commodityDetails
                     </td>
-                    <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                    <td>@cyaChange("change", claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetails().url, Some("Change"))</td>
                 </tr>
                 <tr>
                     <th scope="row" style="font-weight:bold">Claim calculation</th>
