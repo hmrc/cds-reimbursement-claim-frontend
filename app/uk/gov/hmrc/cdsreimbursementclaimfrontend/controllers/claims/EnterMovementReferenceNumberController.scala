@@ -32,12 +32,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -51,6 +54,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val errorHandler: ErrorHandler,
   claimService: ClaimService,
   cc: MessagesControllerComponents,
+  ineligiblePage: html.ineligible,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number,
   mrnNotLinkedToEoriPage: pages.mrn_not_linked_to_eori
@@ -190,32 +194,85 @@ class EnterMovementReferenceNumberController @Inject() (
                   val newDraftClaim                                         =
                     fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumberAnswer = Some(updatedAnswers)))
 
-                  val result: EitherT[Future, models.Error, Unit] = for {
-                    declaration   <- claimService.getDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
-                    updatedJourney =
-                      fillingOutClaim.copy(draftClaim =
-                        if (
-                          declaration.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
-                        )
-                          newDraftClaim.copy(
-                            maybeDeclaration = Some(declaration),
-                            movementReferenceNumberAnswer = Some(updatedAnswers)
-                          )
-                        else newDraftClaim
-                      )
-                    _             <-
-                      EitherT
-                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                        .leftMap((_: Unit) => Error("could not update session"))
-                  } yield ()
+                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                  val result = for {
+                    declaration    <- claimService
+                                        .getDeclaration(mrn)
+                                        .leftMap(_ => Error("could not get declaration"))
+                    _              <- EitherT
+                                        .liftF(
+                                          updateSession(sessionStore, request)(
+                                            _.copy(journeyStatus =
+                                              Some(
+                                                updatedJourney.copy(fillingOutClaim =
+                                                  updatedJourney.draftClaim.fold(_.copy(declaration = declaration))
+                                                )
+                                              )
+                                            )
+                                          )
+                                        )
+                                        .leftMap((_: Unit) => Error("could not update session"))
+                    mrnJourneyFlow <- EitherT.fromEither[Future](
+                                        evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, declaration)
+                                      )
+                  } yield mrnJourneyFlow
 
                   result.fold(
                     e => {
-                      logger.warn("could not capture movement reference number", e)
+                      logger.warn("could not determine correct MRN journey flow", e)
                       errorHandler.errorResult()
                     },
-                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                    {
+                      case Left(value) => Ok("to be built")
+                      case Right(j)    =>
+                        val newD           = newDraftClaim.copy(
+                          maybeDeclaration = Some(j.declaration),
+                          movementReferenceNumberAnswer = Some(updatedAnswers)
+                        )
+                        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                        val result2 = EitherT
+                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                          .leftMap((_: Unit) => Error("could not update session"))
+
+                        result2.fold(
+                          e => {
+                            logger.warn("could not start third party importer journey")
+                            errorHandler.errorResult()
+                          },
+                          _ => {}
+                        )
+
+                    }
                   )
+
+//                  val result: EitherT[Future, models.Error, Unit] = for {
+//                    declaration   <- claimService.getDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
+//                    updatedJourney =
+//                      fillingOutClaim.copy(draftClaim =
+//                        if (
+//                          declaration.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
+//                        )
+//                          newDraftClaim.copy(
+//                            maybeDeclaration = Some(declaration),
+//                            movementReferenceNumberAnswer = Some(updatedAnswers)
+//                          )
+//                        else newDraftClaim
+//                      )
+//                    _             <-
+//                      EitherT
+//                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+//                        .leftMap((_: Unit) => Error("could not update session"))
+//                  } yield ()
+//
+//                  result.fold(
+//                    e => {
+//                      logger.warn("could not capture movement reference number", e)
+//                      errorHandler.errorResult()
+//                    },
+//                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+//                  )
               }
           )
       }
@@ -464,6 +521,20 @@ class EnterMovementReferenceNumberController @Inject() (
   def mrnNotLinkedToEori(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     Ok(mrnNotLinkedToEoriPage(routes.EnterMovementReferenceNumberController.enterMrn()))
   }
+
+  private def evaluateMrnJourneyFlow(
+    signedInUserDetails: SignedInUserDetails,
+    declaration: Declaration
+  ): Either[Error, Either[MrnImporter, ThirdPartyImporter]] =
+    (declaration.consigneeDetails, Some(declaration.declarantDetails.declarantEORI)) match {
+      case (None, _)           => Right(Right(ThirdPartyImporter(declaration)))
+      case (Some(cd), Some(d)) =>
+        if (cd.consigneeEORI === signedInUserDetails.eori.value) Right(Left(MrnImporter(declaration)))
+        else if (cd.consigneeEORI =!= signedInUserDetails.eori.value || d =!= signedInUserDetails.eori.value)
+          Right(Right(ThirdPartyImporter(declaration)))
+        else Right(Right(ThirdPartyImporter(declaration)))
+      case _                   => Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
+    }
 
 }
 

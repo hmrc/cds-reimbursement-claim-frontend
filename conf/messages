@@ -117,6 +117,12 @@ unauthorised.help=You must have an EORI number associated with your CDS enrolmen
 unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI number.</a>
 
 #===================================================
+#  INELIGIBLE PAGE
+#===================================================
+ineligible.title=Sorry, you cannot make a claim.
+ineligible.help=You do not have any paid charges against this MRN.
+
+#===================================================
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?

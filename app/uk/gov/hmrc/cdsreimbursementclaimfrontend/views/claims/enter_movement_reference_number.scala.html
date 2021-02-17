@@ -66,7 +66,7 @@
              value = form.data.getOrElse(key, ""),
              errorKey = form.error(key).map(e => e.message),
              extraContent = Some(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl))),
-            extraContentClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
+             extraContentClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
              hasErrors = form.error(key).nonEmpty,
              labelAsHeading = true,
              label = Html(title),
