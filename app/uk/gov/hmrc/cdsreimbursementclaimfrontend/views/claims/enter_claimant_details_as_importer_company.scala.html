@@ -36,10 +36,13 @@
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code
 )
 
-@(form : Form[ClaimantDetailsAsImporterCompany])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[ClaimantDetailsAsImporterCompany], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-claimant-details-importer-company"}
     @nonUkAddressKey = @{"nonUkAddress"}
+
+    @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
+    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -55,7 +58,7 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
-        @backLinkComponent(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual)
+        @backLinkComponent(backLinkAction)
 
         @if(hasErrors) {
             @errorSummary(form)
@@ -69,7 +72,7 @@
             @messages(s"$key.help-text")
         </p>
 
-        @formWrapper(routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit, 'novalidate -> "novalidate") {
+        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
             @textInput(
                 fieldId = s"$key.importer-company-name",

@@ -229,73 +229,105 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 )
               ),
             claimantDetailsAsIndividual => {
-//              val currentAnswer = answers.fold(
-//                ifIncomplete =>
-//                  ifIncomplete.claimantDetailsAsIndividual match {
-//                    case Some(value) => Some(value.addCompanyDetails)
-//                    case None        => None
-//                  },
-//                ifComplete => Some(ifComplete.claimantDetailsAsIndividual.addCompanyDetails)
-//              )
-
-//              (currentAnswer, Some(claimantDetailsAsIndividual.addCompanyDetails)) match {
-//                case (Some(o), Some(n)) =>
-//                  if (o === n) {
-//                    // just update this page and move back to the CYA
-//                  } else if (o === YesNo.Yes) {
-//                    // this means
-//                  } else {}
-//              }
-
-              val updatedAnswers = answers.fold(
-                _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
-                complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+              val currentAnswer = answers.fold(
+                ifIncomplete =>
+                  ifIncomplete.claimantDetailsAsIndividual match {
+                    case Some(value) => Some(value.addCompanyDetails)
+                    case None        => None
+                  },
+                ifComplete => Some(ifComplete.claimantDetailsAsIndividual.addCompanyDetails)
               )
-              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.No) {
-                fillingOutClaim.draftClaim.fold(
-                  _.copy(
-                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
-                    claimantDetailsAsImporterCompanyAnswers = None
-                  )
-                )
-              } else {
-                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
-              }
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
+              (currentAnswer, Some(claimantDetailsAsIndividual.addCompanyDetails)) match {
+                case (Some(o), Some(n)) =>
+                  if (o === n) {
+                    // just update this page and move back to the CYA
+                    val updatedAnswers = answers.fold(
+                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
+                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                    )
+                    val newDraftClaim  = fillingOutClaim.draftClaim
+                      .fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
 
-              result.fold(
-                e => {
-                  logger.warn("could not capture claimant as individual details", e)
-                  errorHandler.errorResult()
-                },
-                _ =>
-                  claimantDetailsAsIndividual.addCompanyDetails match {
-                    case YesNo.No  =>
-                      fillingOutClaim.draftClaim.declarantType match {
-                        case Some(declarantType) =>
-                          declarantType match {
-                            case DeclarantType.Importer =>
-                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                            case _                      =>
-                              Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                    val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                          }
-                        case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                      }
-                    case YesNo.Yes =>
-                      Redirect(
-                        routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
+                    val result = EitherT
+                      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                      .leftMap((_: Unit) => Error("could not update session"))
+
+                    result.fold(
+                      e => {
+                        logger.warn("could not capture claimant as individual details", e)
+                        errorHandler.errorResult()
+                      },
+                      _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                    )
+                  } else if (o === YesNo.Yes) {
+                    // this means user doesn't want the importer company details so we trash that
+                    // and update the session
+                    // and send them back to the CYA page
+                    val updatedAnswers = answers.fold(
+                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
+                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                    )
+                    val newDraftClaim  = fillingOutClaim.draftClaim
+                      .fold(
+                        _.copy(
+                          claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
+                          claimantDetailsAsImporterCompanyAnswers = None
+                        )
                       )
+
+                    val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                    val result = EitherT
+                      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                      .leftMap((_: Unit) => Error("could not update session"))
+
+                    result.fold(
+                      e => {
+                        logger.warn("could not capture claimant as individual details", e)
+                        errorHandler.errorResult()
+                      },
+                      _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                    )
+
+                  } else {
+                    // this means that they do want to add importer company details now so send them to that page with change state
+                    val updatedAnswers = answers.fold(
+                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
+                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                    )
+                    val newDraftClaim  = fillingOutClaim.draftClaim
+                      .fold(
+                        _.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers))
+                      )
+
+                    val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                    val result = EitherT
+                      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                      .leftMap((_: Unit) => Error("could not update session"))
+
+                    result.fold(
+                      e => {
+                        logger.warn("could not capture claimant as individual details", e)
+                        errorHandler.errorResult()
+                      },
+                      _ =>
+                        Redirect(
+                          routes.EnterClaimantDetailsAsImporterCompanyController
+                            .changeClaimantDetailsAsImporterCompany()
+                        )
+                    )
                   }
-              )
+                case _                  => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+              }
             }
           )
       }
     }
+
 }
 
 object EnterClaimantDetailsAsIndividualController {

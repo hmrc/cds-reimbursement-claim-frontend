@@ -40,7 +40,7 @@
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
- @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantType else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
+ @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit else routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit}
  @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
  @toMessage(declrantType: DeclarantType) = @{
