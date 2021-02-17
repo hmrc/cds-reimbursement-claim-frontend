@@ -147,6 +147,78 @@ class EnterCommoditiesDetailsController @Inject() (
       }
     }
 
+  def changeCommoditiesDetails: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCommoditiesDetails { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.commodityDetails match {
+              case Some(commodityDetails) =>
+                Ok(
+                  enterCommoditiesDetailsPage(
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails)
+                  )
+                )
+              case None                   =>
+                Ok(
+                  enterCommoditiesDetailsPage(
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterCommoditiesDetailsPage(
+                EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
+                  ifComplete.commodityDetails
+                )
+              )
+            )
+        )
+      }
+    }
+
+  def changeCommoditiesDetailsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+        EnterCommoditiesDetailsController.commoditiesDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterCommoditiesDetailsPage(
+                  requestFormWithErrors
+                )
+              ),
+            commodityDetails => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteCommodityDetailsAnswers(
+                    commodityDetails
+                  ),
+                complete => complete.copy(commodityDetails = commodityDetails)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not get commodity details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.EnterDutyAmountsController.enterUkDutyAmounts())
+              )
+            }
+          )
+      }
+    }
+
 }
 
 object EnterCommoditiesDetailsController {

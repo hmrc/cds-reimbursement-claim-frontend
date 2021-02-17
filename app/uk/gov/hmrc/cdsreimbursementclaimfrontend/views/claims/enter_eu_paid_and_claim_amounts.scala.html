@@ -43,6 +43,7 @@
   @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
   @taxCodes = @{dutyService.getListOfEuDuties}
 
+    @isAmend
 
   @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
 

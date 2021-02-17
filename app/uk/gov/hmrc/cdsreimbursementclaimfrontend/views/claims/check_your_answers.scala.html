@@ -20,9 +20,9 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.Confirmation
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
@@ -75,7 +75,7 @@
                 <tr>
                     <th scope="row" style="font-weight:bold">@completeClaim.movementReferenceNumber.fold(_ => "Entry reference number", _ => "MRN reference number")</th>
                     <td>@completeClaim.movementReferenceNumber.fold(e => e.value, m => m.value)</td>
-                    <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                    <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.changeMrn().url, Some("Change"))</td>
                 </tr>
                 @completeClaim.movementReferenceNumber match{
                     case Left(_) =>{
