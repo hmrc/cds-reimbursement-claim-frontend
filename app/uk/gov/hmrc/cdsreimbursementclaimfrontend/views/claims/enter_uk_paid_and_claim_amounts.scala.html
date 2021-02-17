@@ -80,9 +80,9 @@
                     <th scope="col" class="govuk-table__header">Claim Amount</th>
                 </tr>
             </thead>
+            <tbody class="govuk-table__body">
                 @for((taxCode, index) <- taxCodes.zipWithIndex){
                 <input id="enter-duty-and-claim-amounts[@index].tax-code" name="enter-duty-and-claim-amounts[@index].tax-code" type="hidden" value="1">
-            <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header" style="vertical-align: middle;">@taxCode.description</th>
                     <td class="govuk-table__cell">
