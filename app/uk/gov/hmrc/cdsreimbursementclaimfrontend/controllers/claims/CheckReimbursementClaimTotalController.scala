@@ -95,7 +95,6 @@ class CheckReimbursementClaimTotalController @Inject() (
   def checkReimbursementClaimTotalSubmit: Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
       withReimbursementClaimTotals { (_, fillingOutClaim, answers) =>
-        println("\n\n\n\n\n I am here \n\n\n\n\n")
         val updatedAnswers = CompleteClaimAnswers(answers)
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(claimAnswers = Some(updatedAnswers)))
