@@ -29,7 +29,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -83,26 +82,24 @@ article.content__body {
         @errorSummary(form)
     }
 
-    @caption(messages(s"$key.caption"))
-
     @pageHeading(title)
 
     @formWrapper(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
 
         <div class="space-details">
             <table class="govuk-table">
-                <tbody>
-                <tr>
-                    <th scope="row" style="font-weight:bold">@completeClaim.movementReferenceNumber.fold(_ => messages(s"$key.entry-reference-number.label"), _ => messages(s"$key.mrn.label"))</th>
-                    <td>@completeClaim.movementReferenceNumber.fold(e => e.value, m => m.value)</td>
-                    <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.changeMrn().url, Some(messages(s"cya.change")))</td>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">@completeClaim.movementReferenceNumber.fold(_ => messages(s"$key.entry-reference-number.label"), _ => messages(s"$key.mrn.label"))</th>
+                    <td class="govuk-table__cell">@completeClaim.movementReferenceNumber.fold(e => e.value, m => m.value)</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.changeMrn().url, Some(messages(s"cya.change")))</td>
                 </tr>
                 @completeClaim.movementReferenceNumber match{
                     case Left(_) =>{
-                        <tr>
-                            <th scope="row" style="font-weight:bold">@messages(s"$key.declaration-details.label")</th>
-                            <td>
-                                <ul class="list-bullet">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">@messages(s"$key.declaration-details.label")</th>
+                            <td class="govuk-table__cell">
+                                <ul class="govuk-list govuk-list--bullet">
                                     <li>@messages(s"$key.declaration-details.l0") @completeClaim.entryDeclarationDetails.dateOfImport.checkYourDetailsDisplayFormat</li>
                                     <li>@messages(s"$key.declaration-details.l1") @completeClaim.entryDeclarationDetails.placeOfImport</li>
                                     <li>@messages(s"$key.declaration-details.l2") @completeClaim.entryDeclarationDetails.importerName</li>
@@ -113,14 +110,14 @@ article.content__body {
                                     <li>@messages(s"$key.declaration-details.l7") @completeClaim.entryDeclarationDetails.declarantPhoneNumber</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterDeclarationDetailsController.changeDeclarationDetails().url, Some(messages(s"cya.change")))</td>
+                            <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterDeclarationDetailsController.changeDeclarationDetails().url, Some(messages(s"cya.change")))</td>
                         </tr>
                     }
                     case Right(_) =>{
-                        <tr>
-                            <th scope="row" style="font-weight:bold">@messages(s"$key.declaration-details.label")</th>
-                            <td>
-                                <ul class="list-bullet">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">@messages(s"$key.declaration-details.label")</th>
+                            <td class="govuk-table__cell">
+                                <ul class="govuk-list govuk-list--bullet">
                                     <li>@messages(s"$key.declaration-details.l0") completeClaim.declarationDetails.dateOfImport</li>
                                     <li>@messages(s"$key.declaration-details.l8") 3200</li>
                                     <li>@messages(s"$key.declaration-details.l5") completeClaim.declarantDetails.legalName</li>
@@ -129,17 +126,17 @@ article.content__body {
                                     <li>@messages(s"$key.declaration-details.l9") telephone</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                            <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                         </tr>
                     }
                 }
                 @completeClaim.movementReferenceNumber match{
                     case Left(_) =>{
                         @completeClaim.duplicateEntryDeclarationDetails.map{details =>
-                            <tr>
-                                <th scope="row" style="font-weight:bold">@messages(s"$key.duplicate-declaration-details.label")</th>
-                                <td>
-                                    <ul class="list-bullet">
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__header">@messages(s"$key.duplicate-declaration-details.label")</th>
+                                <td class="govuk-table__cell">
+                                    <ul class="govuk-list govuk-list--bullet">
                                         <li>@messages(s"$key.duplicate-declaration-details.l0") @completeClaim.duplicateMovementReferenceNumber.fold(e => e.value, s =>s.value)</li>
                                         <li>@messages(s"$key.declaration-details.l0") @details.dateOfImport.checkYourDetailsDisplayFormat</li>
                                         <li>@messages(s"$key.declaration-details.l1") @details.placeOfImport</li>
@@ -151,15 +148,15 @@ article.content__body {
                                         <li>@messages(s"$key.declaration-details.l7") @details.declarantPhoneNumber</li>
                                     </ul>
                                 </td>
-                                <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                                <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                             </tr>
                         }
                     }
                     case Right(_) =>{
-                        <tr>
-                            <th scope="row" style="font-weight:bold">@messages(s"$key.duplicate-declaration-details.label")</th>
-                            <td>
-                                <ul class="list-bullet">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">@messages(s"$key.duplicate-declaration-details.label")</th>
+                            <td class="govuk-table__cell">
+                                <ul class="govuk-list govuk-list--bullet">
                                     <li>@messages(s"$key.declaration-details.l0") completeClaim.declarationDetails.dateOfImport</li>
                                     <li>@messages(s"$key.declaration-details.l8") 3200</li>
                                     <li>@messages(s"$key.declaration-details.l5") completeClaim.declarantDetails.legalName</li>
@@ -168,109 +165,109 @@ article.content__body {
                                     <li>@messages(s"$key.declaration-details.l9") telephone</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                            <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                         </tr>
                     }
                 }
 
-                <tr>
+                <tr class="govuk-table__row">
                     <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-type.label")</th>
-                    <td>@completeClaim.declarantType.repr</td>
-                    <td>@cyaChange(messages(s"cya.change"), claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@completeClaim.declarantType.repr</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some(messages(s"cya.change")))</td>
                 </tr>
-                <tr>
-                        <th scope="row" style="font-weight:bold">@messages(s"$key.claimant-individual-details.label")</th>
-                        <td>
-                            <ul class="list-bullet">
+                <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.claimant-individual-details.label")</th>
+                        <td class="govuk-table__cell">
+                            <ul class="govuk-list govuk-list--bullet">
                                 <li>@messages(s"$key.claimant-details.l0") @completeClaim.claimantDetailsAsIndividual.fullName</li>
                                 <li>@messages(s"$key.claimant-details.l1") @completeClaim.claimantDetailsAsIndividual.emailAddress.value</li>
                                 <li>@messages(s"$key.claimant-details.l2") @completeClaim.claimantDetailsAsIndividual.phoneNumber</li>
                                 <li>@messages(s"$key.claimant-details.l3") @completeClaim.claimantDetailsAsIndividual.contactAddress.getAddressLines.mkString(", ")
                             </ul>
                         </td>
-                        <td>@cyaChange(messages(s"cya.change"), claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some(messages(s"cya.change")))</td>
+                        <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some(messages(s"cya.change")))</td>
                 </tr>
                 @completeClaim.claimantDetailsAsImporterCompany.map{ details =>
-                    <tr>
-                        <th scope="row" style="font-weight:bold">@messages(s"$key.claimant--company-details.label")</th>
-                        <td>
-                            <ul class="list-bullet">
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.claimant--company-details.label")</th>
+                        <td class="govuk-table__cell">
+                            <ul class="govuk-list govuk-list--bullet">
                                 <li>@messages(s"$key.claimant-details.l0") @details.companyName</li>
                                 <li>@messages(s"$key.claimant-details.l1") @details.emailAddress.value</li>
                                 <li>@messages(s"$key.claimant-details.l2") @details.phoneNumber</li>
                                 <li>@messages(s"$key.claimant-details.l3") @details.contactAddress.getAddressLines.mkString(", ")
                             </ul>
                         </td>
-                        <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                        <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                     </tr>
                 }
                 @completeClaim.reasonForClaim match{
                     case Left(reasonAndBasis) =>{
-                        <tr>
-                            <th scope="row" style="font-weight:bold">@messages(s"$key.reason-and-basis.label")</th>
-                            <td>
-                                <ul class="list-bullet">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">@messages(s"$key.reason-and-basis.label")</th>
+                            <td class="govuk-table__cell">
+                                <ul class="govuk-list govuk-list--bullet">
                                     <li>@messages(s"$key.reason-and-basis.l0") @reasonAndBasis.basisForClaim.repr</li>
                                     <li>@messages(s"$key.reason-and-basis.l1") @reasonAndBasis.reasonForClaim.repr</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                            <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                         </tr>
                     }
                     case Right(reason) =>{
-                        <tr>
-                            <th scope="row" style="font-weight:bold">Reason for Claim</th>
-                            <td>
-                                <ul class="list-bullet">
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Reason for Claim</th>
+                            <td class="govuk-table__cell">
+                                <ul class="govuk-list govuk-list--bullet">
                                     <li>@messages(s"$key.reason-and-basis.l0") @reason.repr</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                            <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                         </tr>
                         }
                     }
-
-                <tr>
-                    <th scope="row" style="font-weight:bold">@messages(s"$key.commodities-details.label")</th>
-                    <td>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">@messages(s"$key.commodities-details.label")</th>
+                    <td class="govuk-table__cell">
                         @completeClaim.commodityDetails
                     </td>
-                    <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                 </tr>
-                <tr>
-                    <th scope="row" style="font-weight:bold">@messages(s"$key.claim-calculation.label")</th>
-                    <td>
-                        <ul class="list-bullet">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">@messages(s"$key.claim-calculation.label")</th>
+                    <td class="govuk-table__cell">
+                        <ul class="govuk-list govuk-list--bullet">
                             <li>Amount of UK Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim)</li>
                             <li>Amount of EU Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalEuDutyToClaim)</li>
                             <li>Total claimed reimbursement: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim + completeClaim.totalEuDutyToClaim)</li>
                         </ul>
 
                     </td>
-                    <td>@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some(messages(s"cya.change")))</td>
                 </tr>
-                <tr>
-                    <th scope="row" style="font-weight:bold">@messages(s"$key.bank-details.label")</th>
-                    <td>
-                        <ul class="list-bullet">
+                <tr lass="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">@messages(s"$key.bank-details.label")</th>
+                    <td class="govuk-table__cell">
+                        <ul class="govuk-list govuk-list--bullet">
                             <li>Bank account name: @completeClaim.bankDetails.accountName</li>
                             <li>Type of bank account: @completeClaim.bankAccountType</li>
                             <li>Sort code: @completeClaim.bankDetails.sortCode.value</li>
                             <li>Account number: @completeClaim.bankDetails.accountNumber.value</li>
                         </ul>
                     </td>
-                    <td>@cyaChange(messages(s"cya.change"), claimRoutes.BankAccountController.changeBankAccountDetails().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.BankAccountController.changeBankAccountDetails().url, Some(messages(s"cya.change")))</td>
                 </tr>
-                <tr>
-                    <th scope="row" style="font-weight:bold">@messages(s"$key.attached-documents.label")</th>
-                    <td>
-                        <ul class="list-bullet">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">@messages(s"$key.attached-documents.label")</th>
+                    <td class="govuk-table__cell">
+                        <ul class="govuk-list govuk-list--bullet">
                             @for(file <- completeClaim.supportingEvidences){
                                 <li>@file.fileName</li>
                             }
                         </ul>
                     </td>
-                    <td>@cyaChange(messages(s"cya.change"), fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url, Some(messages(s"cya.change")))</td>
+
                 </tr>
                 </tbody>
             </table>
