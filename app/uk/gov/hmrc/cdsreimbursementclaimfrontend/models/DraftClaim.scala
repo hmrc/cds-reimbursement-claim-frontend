@@ -35,10 +35,9 @@ object DraftClaim {
 
   final case class DraftC285Claim(
     id: UUID,
-    maybeDeclaration: Option[Declaration],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
-    declarationDetailAnswers: Option[DeclarantDetailAnswers],
+    declarationDetailAnswers: Option[DeclarationDetailAnswers],
     duplicateDeclarationDetailAnswers: Option[DuplicateDeclarantDetailAnswers],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
@@ -51,6 +50,7 @@ object DraftClaim {
     claimAnswers: Option[ClaimAnswers], //FIME: take this out I don't think we need it
     commoditiesDetailsAnswers: Option[CommoditiesDetailsAnswers],
     reasonForBasisAndClaimAnswer: Option[ReasonForClaimAndBasisAnswer],
+    maybeDeclaration: Option[Declaration], //Data that has come back from ACC-14
     lastUpdatedDate: LocalDate
   ) extends DraftClaim
 
@@ -95,8 +95,8 @@ object DraftClaim {
             _,
             _,
             _,
-            _,
             declarantTypeAnswer,
+            _,
             _,
             _,
             _,
@@ -112,8 +112,8 @@ object DraftClaim {
         declarantTypeAnswer match {
           case Some(value) =>
             value match {
-              case DeclarantTypeAnswer.IncompleteDeclarationTypeAnswer(declarantType) => declarantType
-              case DeclarantTypeAnswer.CompleteDeclarationTypeAnswer(declarantType)   => Some(declarantType)
+              case DeclarantTypeAnswer.IncompleteDeclarantTypeAnswer(declarantType) => declarantType
+              case DeclarantTypeAnswer.CompleteDeclarantTypeAnswer(declarantType)   => Some(declarantType)
             }
           case None        => None
         }
@@ -122,8 +122,8 @@ object DraftClaim {
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case DraftC285Claim(
             _,
-            _,
             movementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,

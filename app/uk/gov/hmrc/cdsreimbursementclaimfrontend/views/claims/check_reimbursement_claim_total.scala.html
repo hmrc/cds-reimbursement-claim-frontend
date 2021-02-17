@@ -18,15 +18,16 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
  caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- buttonLink : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
+ formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
 @(claims : List[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
@@ -34,14 +35,15 @@
   @key = @{"check-your-reimbursement-claim-total"}
   @title = @{messages(s"$key.title")}
 
-  @mainTemplate(title = title, userType = None){
+  @mainTemplate(title = title, userType = request.userType){
 
-    @backLinkComponent(claimRoutes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal)
+    @backLinkComponent(routes.EnterDutyAmountsController.enterUkDutyAmounts)
 
     @caption(messages(s"$key.caption"))
 
     @pageHeading(title)
 
+    @formWrapper(routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotalSubmit, 'novalidate -> "novalidate") {
         <div class="space-details">
             <table class="govuk-table">
                 <tbody>
@@ -59,10 +61,12 @@
             </table>
         </div>
 
+            @submitButton(messages("button.continue"))
+        }
+
         <p id="update-calculation">
-            <a href="@claimRoutes.EnterDutyAmountsController.enterUkDutyAmounts().url">Update the calculation</a>
+            <a href="@routes.EnterDutyAmountsController.enterUkDutyAmounts().url">Update the calculation</a>
         </p>
 
-        @buttonLink("Continue", claimRoutes.BankAccountController.enterBankAccountDetails().url)
 
   }

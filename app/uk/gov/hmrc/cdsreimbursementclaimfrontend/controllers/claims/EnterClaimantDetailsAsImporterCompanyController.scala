@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.{CompleteClaimantDetailsAsImporterCompanyAnswer, IncompleteClaimantDetailsAsImporterCompanyAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address
@@ -126,9 +126,9 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
               ),
             claimantDetailsAsImporterCompany => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    claimantDetailsAsImporterCompany = Some(claimantDetailsAsImporterCompany)
+                _ =>
+                  CompleteClaimantDetailsAsImporterCompanyAnswer(
+                    claimantDetailsAsImporterCompany
                   ),
                 complete => complete.copy(claimantDetailsAsImporterCompany = claimantDetailsAsImporterCompany)
               )
@@ -156,6 +156,83 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                       }
                     case None        => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }
+              )
+            }
+          )
+      }
+    }
+
+  def changeClaimantDetailsAsImporterCompany: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withClaimantDetailsAsImporterCompanyAnswers { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.claimantDetailsAsImporterCompany match {
+              case Some(claimantDetailsAsImporterCompany) =>
+                Ok(
+                  enterClaimantDetailAsImporterCompanyPage(
+                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
+                      claimantDetailsAsImporterCompany
+                    ),
+                    isAmend = true
+                  )
+                )
+              case None                                   =>
+                Ok(
+                  enterClaimantDetailAsImporterCompanyPage(
+                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm,
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterClaimantDetailAsImporterCompanyPage(
+                EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
+                  ifComplete.claimantDetailsAsImporterCompany
+                ),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeClaimantDetailsAsImporterCompanySubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withClaimantDetailsAsImporterCompanyAnswers { (_, fillingOutClaim, answers) =>
+        EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterClaimantDetailAsImporterCompanyPage(
+                  requestFormWithErrors
+                )
+              ),
+            claimantDetailsAsImporterCompany => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteClaimantDetailsAsImporterCompanyAnswer(
+                    claimantDetailsAsImporterCompany
+                  ),
+                complete => complete.copy(claimantDetailsAsImporterCompany = claimantDetailsAsImporterCompany)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsImporterCompanyAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not capture importer company details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
               )
             }
           )

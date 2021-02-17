@@ -19,20 +19,45 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait BasisForClaim extends Product with Serializable
+sealed trait BasisForClaim extends Product with Serializable {
+  def repr: String
+}
 
 object BasisForClaim {
-  case object DuplicateMrnEntry extends BasisForClaim
-  case object DutySuspension extends BasisForClaim
-  case object EndUseRelief extends BasisForClaim
-  case object IncorrectCommodityCode extends BasisForClaim
-  case object IncorrectCpc extends BasisForClaim
-  case object IncorrectValue extends BasisForClaim
-  case object IncorrectEoriAndDefermentAccountNumber extends BasisForClaim
-  case object InwardProcessingReliefFromCustomsDuty extends BasisForClaim
-  case object OutwardProcessingRelief extends BasisForClaim
-  case object Preference extends BasisForClaim
-  case object ProofOfReturnRefundGiven extends BasisForClaim
+  case object DuplicateMrnEntry extends BasisForClaim {
+    override def repr = "Duplicate Mrn or Entry number"
+  }
+  case object DutySuspension extends BasisForClaim {
+    override def repr = "Duty Suspension"
+  }
+  case object EndUseRelief extends BasisForClaim {
+    override def repr = "End Use Relief"
+  }
+  case object IncorrectCommodityCode extends BasisForClaim {
+    override def repr = "Incorrect Commodity Code"
+  }
+  case object IncorrectCpc extends BasisForClaim {
+    override def repr = "Incorrect Cpc"
+  }
+  case object IncorrectValue extends BasisForClaim {
+    override def repr = "Incorrect Value"
+  }
+  case object IncorrectEoriAndDefermentAccountNumber extends BasisForClaim {
+    override def repr = "Incorrect Eori and Deferment Account Number"
+  }
+
+  case object InwardProcessingReliefFromCustomsDuty extends BasisForClaim {
+    override def repr = "Inward Processing Relief from Customs Duty"
+  }
+  case object OutwardProcessingRelief extends BasisForClaim {
+    override def repr = "Outward Processing Relief"
+  }
+  case object Preference extends BasisForClaim {
+    override def repr = "Preference"
+  }
+  case object ProofOfReturnRefundGiven extends BasisForClaim {
+    override def repr = "Proof of Return and Refund Given"
+  }
 
   implicit val format: OFormat[BasisForClaim] = derived.oformat[BasisForClaim]()
 
