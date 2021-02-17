@@ -44,7 +44,7 @@
     @pageHeading(title)
 
     <div class="govuk-inset-text">
-        @messages(s"$key.help-text")
+        @Html(messages(s"$key.help-text"))
     </div>
 
    @formWrapper(routes.EnterMovementReferenceNumberController.enterMrn(), 'novalidate -> "novalidate") {

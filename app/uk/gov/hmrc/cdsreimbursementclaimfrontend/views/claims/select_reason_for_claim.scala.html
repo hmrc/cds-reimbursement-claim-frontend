@@ -54,9 +54,9 @@
 
    @pageHeading(title)
 
-    <div class="govuk-inset-text">
-        @messages(s"$key.help-text")
-    </div>
+<div class="govuk-inset-text">
+    @Html(messages(s"$key.help-text"))
+</div>
 
   <div class="space-document-type">
       @details(messages(s"$key"),
