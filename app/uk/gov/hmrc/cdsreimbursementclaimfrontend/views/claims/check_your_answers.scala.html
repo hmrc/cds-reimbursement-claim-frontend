@@ -159,7 +159,7 @@
                     <td>@cyaChange("change", claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some("Change"))</td>
                 </tr>
                 <tr>
-                        <th scope="row" style="font-weight:bold">Claimant’s individual details</th>
+                <th scope="row" style="font-weight:bold">Claimant’s individual details</th>
                         <td>
                             <ul class="list-bullet">
                                 <li>Company name: @completeClaim.claimantDetailsAsIndividual.fullName</li>
@@ -168,7 +168,7 @@
                                 <li>Contact address: @completeClaim.claimantDetailsAsIndividual.contactAddress.getAddressLines.mkString(", ")
                             </ul>
                         </td>
-                        <td>@cyaChange("change", claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some("Change"))</td>
+                        <td>@cyaChange("change", claimRoutes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url, Some("Change"))</td>
                 </tr>
                 @completeClaim.claimantDetailsAsImporterCompany.map{ details =>
                     <tr>
@@ -181,7 +181,7 @@
                                 <li>Contact address: @details.contactAddress.getAddressLines.mkString(", ")
                             </ul>
                         </td>
-                        <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                        <td>@cyaChange("change", claimRoutes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url, Some("Change"))</td>
                     </tr>
                 }
                 @completeClaim.reasonForClaim match{
@@ -194,7 +194,7 @@
                                     <li>Basis: @reasonAndBasis.reasonForClaim.repr</li>
                                 </ul>
                             </td>
-                            <td>@cyaChange("change", claimRoutes.EnterMovementReferenceNumberController.enterMrn().url, Some("Change"))</td>
+                            <td>@cyaChange("change", claimRoutes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis().url, Some("Change"))</td>
                         </tr>
                     }
                     case Right(reason) =>{

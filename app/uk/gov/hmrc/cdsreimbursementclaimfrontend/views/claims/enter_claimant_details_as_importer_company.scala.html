@@ -41,7 +41,7 @@
     @key = @{"enter-claimant-details-importer-company"}
     @nonUkAddressKey = @{"nonUkAddress"}
 
-    @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
+    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
     @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}

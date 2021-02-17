@@ -174,14 +174,14 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                     EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
                       claimantDetailsAsImporterCompany
                     ),
-                    true
+                    isAmend = true
                   )
                 )
               case None                                   =>
                 Ok(
                   enterClaimantDetailAsImporterCompanyPage(
                     EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm,
-                    true
+                    isAmend = true
                   )
                 )
             },
@@ -191,7 +191,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                 EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
                   ifComplete.claimantDetailsAsImporterCompany
                 ),
-                true
+                isAmend = true
               )
             )
         )
@@ -232,16 +232,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                   logger.warn("could not capture importer company details", e)
                   errorHandler.errorResult()
                 },
-                _ =>
-                  fillingOutClaim.draftClaim.declarantType match {
-                    case Some(value) =>
-                      value match {
-                        case DeclarantType.Importer =>
-                          Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                        case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
-                      }
-                    case None        => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-                  }
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
               )
             }
           )
