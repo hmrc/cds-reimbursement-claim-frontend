@@ -163,7 +163,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                             case DeclarantType.Importer =>
                               Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
                             case _                      =>
-                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                              Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
 
                           }
                         case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
@@ -229,6 +229,24 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 )
               ),
             claimantDetailsAsIndividual => {
+//              val currentAnswer = answers.fold(
+//                ifIncomplete =>
+//                  ifIncomplete.claimantDetailsAsIndividual match {
+//                    case Some(value) => Some(value.addCompanyDetails)
+//                    case None        => None
+//                  },
+//                ifComplete => Some(ifComplete.claimantDetailsAsIndividual.addCompanyDetails)
+//              )
+
+//              (currentAnswer, Some(claimantDetailsAsIndividual.addCompanyDetails)) match {
+//                case (Some(o), Some(n)) =>
+//                  if (o === n) {
+//                    // just update this page and move back to the CYA
+//                  } else if (o === YesNo.Yes) {
+//                    // this means
+//                  } else {}
+//              }
+
               val updatedAnswers = answers.fold(
                 _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
                 complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
@@ -255,7 +273,6 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ =>
-
                   claimantDetailsAsIndividual.addCompanyDetails match {
                     case YesNo.No  =>
                       fillingOutClaim.draftClaim.declarantType match {
@@ -274,7 +291,6 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                         routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
                       )
                   }
-                
               )
             }
           )
