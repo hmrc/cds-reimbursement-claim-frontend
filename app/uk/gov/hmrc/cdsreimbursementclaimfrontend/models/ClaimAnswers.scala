@@ -38,7 +38,7 @@ object ClaimAnswers {
     claims: List[Claim]
   ) extends ClaimAnswers
 
-  object CompleteMovementReferenceTypeAnswer {
+  object CompleteClaimAnswers {
     implicit val format: OFormat[CompleteClaimAnswers] =
       derived.oformat[CompleteClaimAnswers]()
   }

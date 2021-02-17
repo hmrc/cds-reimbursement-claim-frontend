@@ -29,10 +29,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{removeZeroClaims, removeZeroEuClaims}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.IncompleteEuDutyAmountAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.{CompleteEuDutyAmountAnswer, IncompleteEuDutyAmountAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{EUTaxCode, UKTaxCode}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.{CompleteUKDutyAmountAnswer, IncompleteUKDutyAmountAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BooleanFormatter, DraftClaim, Error, EuDutyAmountAnswers, SessionData, TaxCode, UKDutyAmountAnswers, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -128,9 +128,9 @@ class EnterDutyAmountsController @Inject() (
               ),
             enterClaim => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    ukDutyAmounts = Some(removeZeroClaims(enterClaim))
+                _ =>
+                  CompleteUKDutyAmountAnswer(
+                    enterClaim
                   ),
                 complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
               )
@@ -153,6 +153,84 @@ class EnterDutyAmountsController @Inject() (
                   else Redirect(routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal())
               )
             }
+          )
+      }
+    }
+
+  def changeUkDutyAmounts: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUkDutyAmountAnswers { (_, _, answers) =>
+        answers.fold(
+          _ => Ok(enterUkPaidAndClaimAmountsPage(EnterDutyAmountsController.enterClaimForm, isAmend = true)),
+          _ => Ok(enterUkPaidAndClaimAmountsPage(EnterDutyAmountsController.enterClaimForm, isAmend = true))
+        )
+      }
+    }
+
+  def changeUkDutyAmountsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUkDutyAmountAnswers { (_, fillingOutClaim, answers) =>
+        EnterDutyAmountsController.enterClaimForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterUkPaidAndClaimAmountsPage(
+                  requestFormWithErrors,
+                  isAmend = true
+                )
+              ),
+            enterClaim =>
+              if (enterClaim.makeEuDutyClaim) {
+                val updatedAnswers = answers.fold(
+                  _ =>
+                    CompleteUKDutyAmountAnswer(
+                      enterClaim
+                    ),
+                  complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
+                )
+                val newDraftClaim  =
+                  fillingOutClaim.draftClaim.fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers)))
+
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                val result = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
+
+                result.fold(
+                  e => {
+                    logger.warn("could not get uk duty details", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(routes.EnterDutyAmountsController.changeEuDutyAmounts())
+                )
+              } else {
+                val updatedAnswers = answers.fold(
+                  _ =>
+                    CompleteUKDutyAmountAnswer(
+                      enterClaim
+                    ),
+                  complete => complete.copy(ukDutyAmounts = removeZeroClaims(enterClaim))
+                )
+                val newDraftClaim  =
+                  fillingOutClaim.draftClaim
+                    .fold(_.copy(ukDutyAmountAnswers = Some(updatedAnswers), euDutyAmountAnswers = None))
+
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                val result = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
+
+                result.fold(
+                  e => {
+                    logger.warn("could not get uk duty details", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                )
+              }
           )
       }
     }
@@ -181,9 +259,9 @@ class EnterDutyAmountsController @Inject() (
               ),
             enterClaim => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    euDutyAmounts = Some(removeZeroEuClaims(enterClaim))
+                _ =>
+                  CompleteEuDutyAmountAnswer(
+                    enterClaim
                   ),
                 complete => complete.copy(euDutyAmounts = removeZeroEuClaims(enterClaim))
               )
@@ -202,6 +280,58 @@ class EnterDutyAmountsController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal())
+              )
+            }
+          )
+      }
+    }
+
+  def changeEuDutyAmounts: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withEuDutyAmountAnswers { (_, _, answers) =>
+        answers.fold(
+          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm, true)),
+          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm, true))
+        )
+      }
+    }
+
+  def changeEuDutyAmountsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withEuDutyAmountAnswers { (_, fillingOutClaim, answers) =>
+        EnterDutyAmountsController.enterEuClaimForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterEuPaidAndClaimAmountsPage(
+                  requestFormWithErrors,
+                  true
+                )
+              ),
+            enterClaim => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteEuDutyAmountAnswer(
+                    enterClaim
+                  ),
+                complete => complete.copy(euDutyAmounts = removeZeroEuClaims(enterClaim))
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(euDutyAmountAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not capture eu duty details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
               )
             }
           )

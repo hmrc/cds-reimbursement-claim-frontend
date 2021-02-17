@@ -126,7 +126,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
             case SubmitClaimSuccess(_) =>
               logger.info(
-                s"Successfully submitted claim with claim id :${completeClaim.id}"
+                s"Successfully submitted claim with claim id :${completeClaim.claimId}"
               )
               Redirect(
                 claimsRoutes.CheckYourAnswersAndSubmitController
@@ -206,9 +206,10 @@ class CheckYourAnswersAndSubmitController @Inject() (
           ) =>
         CompleteC285Claim
           .fromDraftClaim(draftClaim)
-          .fold[Future[Result]](
+          .fold[Future[Result]] {
+            logger.warn(s"could not make a complete claim ${draftClaim.toString}")
             Redirect(claimsRoutes.EnterMovementReferenceNumberController.enterMrn())
-          )(f(s, r, _))
+          }(f(s, r, _))
       case _ =>
         Redirect(baseRoutes.StartController.start())
     }

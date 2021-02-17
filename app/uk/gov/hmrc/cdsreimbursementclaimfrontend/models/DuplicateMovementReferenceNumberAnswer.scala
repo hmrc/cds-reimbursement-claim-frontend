@@ -58,6 +58,16 @@ object DuplicateMovementReferenceNumberAnswer {
         case i: IncompleteDuplicateMovementReferenceNumberAnswer => ifIncomplete(i)
         case c: CompleteDuplicateMovementReferenceNumberAnswer   => ifComplete(c)
       }
+
+    def maybeDuplicateMovementReferenceNumber: Option[Either[EntryNumber, MRN]] = a match {
+      case IncompleteDuplicateMovementReferenceNumberAnswer(duplicateMovementReferenceNumber) =>
+        duplicateMovementReferenceNumber match {
+          case Some(referenceNumber) => Some(referenceNumber)
+          case None                  => None
+        }
+      case CompleteDuplicateMovementReferenceNumberAnswer(duplicateMovementReferenceNumber)   =>
+        duplicateMovementReferenceNumber
+    }
   }
 
   implicit val format: OFormat[DuplicateMovementReferenceNumberAnswer] =

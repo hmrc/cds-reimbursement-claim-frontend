@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.IncompleteBankAccountDetailAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.{CompleteBankAccountDetailAnswers, IncompleteBankAccountDetailAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -126,9 +126,9 @@ class BankAccountController @Inject() (
               ),
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    bankAccountDetails = Some(bankAccountDetails)
+                _ =>
+                  CompleteBankAccountDetailAnswers(
+                    bankAccountDetails
                   ),
                 complete => complete.copy(bankAccountDetails = bankAccountDetails)
               )
@@ -147,6 +147,77 @@ class BankAccountController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ => Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+              )
+            }
+          )
+      }
+    }
+
+  def changeBankAccountDetails: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withBankAccountDetailsAnswers { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.bankAccountDetails match {
+              case Some(bankAccountDetails) =>
+                Ok(enterBankAccountDetailsPage(BankAccountController.enterBankDetailsForm.fill(bankAccountDetails)))
+              case None                     =>
+                Ok(
+                  enterBankAccountDetailsPage(
+                    BankAccountController.enterBankDetailsForm,
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterBankAccountDetailsPage(
+                BankAccountController.enterBankDetailsForm.fill(
+                  ifComplete.bankAccountDetails
+                ),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeBankAccountDetailsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withBankAccountDetailsAnswers { (_, fillingOutClaim, answers) =>
+        BankAccountController.enterBankDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterBankAccountDetailsPage(
+                  requestFormWithErrors,
+                  isAmend = true
+                )
+              ),
+            bankAccountDetails => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteBankAccountDetailAnswers(
+                    bankAccountDetails
+                  ),
+                complete => complete.copy(bankAccountDetails = bankAccountDetails)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not bank account details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
               )
             }
           )

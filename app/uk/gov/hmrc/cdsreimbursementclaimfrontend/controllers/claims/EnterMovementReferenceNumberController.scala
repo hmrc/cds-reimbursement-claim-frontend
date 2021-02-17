@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
@@ -210,6 +211,125 @@ class EnterMovementReferenceNumberController @Inject() (
                   result.fold(
                     e => {
                       logger.warn("could not capture movement reference number", e)
+                      errorHandler.errorResult()
+                    },
+                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                  )
+              }
+          )
+      }
+    }
+
+  def changeMrn(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withMovementReferenceNumberAnswer { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.movementReferenceNumber match {
+              case Some(movementReferenceNumber) =>
+                Ok(
+                  enterMovementReferenceNumberPage(
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
+                      MovementReferenceNumber(movementReferenceNumber)
+                    ),
+                    isAmend = true
+                  )
+                )
+              case None                          =>
+                Ok(
+                  enterMovementReferenceNumberPage(
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm,
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterMovementReferenceNumberPage(
+                EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
+                  MovementReferenceNumber(ifComplete.movementReferenceNumber)
+                ),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeMrnSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+        EnterMovementReferenceNumberController.movementReferenceNumberForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterMovementReferenceNumberPage(
+                  requestFormWithErrors.copy(errors =
+                    Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
+                  ),
+                  isAmend = true
+                )
+              ),
+            movementReferenceNumber =>
+              movementReferenceNumber.value match {
+                case Left(entryNumber) =>
+                  val updatedAnswers = answers.fold(
+                    _ =>
+                      CompleteMovementReferenceNumberAnswer(
+                        Left(entryNumber)
+                      ),
+                    complete => complete.copy(movementReferenceNumber = Left(entryNumber))
+                  )
+                  val newDraftClaim  =
+                    DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+
+                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                  val result = EitherT
+                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                    .leftMap((_: Unit) => Error("could not update session"))
+
+                  result.fold(
+                    e => {
+                      logger.warn("could not capture change in entry number", e)
+                      errorHandler.errorResult()
+                    },
+                    _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                  )
+                case Right(mrn)        =>
+                  val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
+                    _ =>
+                      CompleteMovementReferenceNumberAnswer(
+                        Right(mrn)
+                      ),
+                    complete => complete.copy(movementReferenceNumber = Right(mrn))
+                  )
+                  val newDraftClaim                                         =
+                    DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+
+                  val result: EitherT[Future, models.Error, Unit] = for {
+                    declaration   <- claimService.getDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
+                    updatedJourney =
+                      fillingOutClaim.copy(draftClaim =
+                        if (
+                          declaration.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
+                        )
+                          newDraftClaim.copy(
+                            maybeDeclaration = Some(declaration),
+                            movementReferenceNumberAnswer = Some(updatedAnswers)
+                          )
+                        else newDraftClaim
+                      )
+                    _             <-
+                      EitherT
+                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .leftMap((_: Unit) => Error("could not update session"))
+                  } yield ()
+
+                  result.fold(
+                    e => {
+                      logger.warn("could not capture change to mrn number", e)
                       errorHandler.errorResult()
                     },
                     _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())

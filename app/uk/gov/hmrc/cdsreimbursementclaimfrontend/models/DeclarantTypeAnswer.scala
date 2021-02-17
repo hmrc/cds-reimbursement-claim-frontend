@@ -24,23 +24,23 @@ sealed trait DeclarantTypeAnswer extends Product with Serializable
 
 object DeclarantTypeAnswer {
 
-  final case class IncompleteDeclarationTypeAnswer(
+  final case class IncompleteDeclarantTypeAnswer(
     declarantType: Option[DeclarantType]
   ) extends DeclarantTypeAnswer
 
-  object IncompleteDeclarationTypeAnswer {
-    val empty: IncompleteDeclarationTypeAnswer = IncompleteDeclarationTypeAnswer(None)
+  object IncompleteDeclarantTypeAnswer {
+    val empty: IncompleteDeclarantTypeAnswer = IncompleteDeclarantTypeAnswer(None)
 
-    implicit val format: OFormat[IncompleteDeclarationTypeAnswer] = derived.oformat[IncompleteDeclarationTypeAnswer]()
+    implicit val format: OFormat[IncompleteDeclarantTypeAnswer] = derived.oformat[IncompleteDeclarantTypeAnswer]()
   }
 
-  final case class CompleteDeclarationTypeAnswer(
+  final case class CompleteDeclarantTypeAnswer(
     declarantType: DeclarantType
   ) extends DeclarantTypeAnswer
 
-  object CompleteMovementReferenceTypeAnswer {
-    implicit val format: OFormat[CompleteDeclarationTypeAnswer] =
-      derived.oformat[CompleteDeclarationTypeAnswer]()
+  object CompleteDeclarantTypeAnswer {
+    implicit val format: OFormat[CompleteDeclarantTypeAnswer] =
+      derived.oformat[CompleteDeclarantTypeAnswer]()
   }
 
   implicit class DeclarantTypeAnswerOps(
@@ -48,12 +48,12 @@ object DeclarantTypeAnswer {
   ) extends AnyVal {
 
     def fold[A](
-      ifIncomplete: IncompleteDeclarationTypeAnswer => A,
-      ifComplete: CompleteDeclarationTypeAnswer => A
+      ifIncomplete: IncompleteDeclarantTypeAnswer => A,
+      ifComplete: CompleteDeclarantTypeAnswer => A
     ): A =
       a match {
-        case i: IncompleteDeclarationTypeAnswer => ifIncomplete(i)
-        case c: CompleteDeclarationTypeAnswer   => ifComplete(c)
+        case i: IncompleteDeclarantTypeAnswer => ifIncomplete(i)
+        case c: CompleteDeclarantTypeAnswer   => ifComplete(c)
       }
   }
 

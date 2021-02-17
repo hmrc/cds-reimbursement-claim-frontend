@@ -66,6 +66,10 @@ object EuDutyAmountAnswers {
         }
       case CompleteEuDutyAmountAnswer(euDutyAmounts)   => euDutyAmounts.dutyAmounts
     }
+    def maybeEuDuty: Option[EnterEuClaim]                          = a match {
+      case IncompleteEuDutyAmountAnswer(euDutyAmounts) => euDutyAmounts
+      case CompleteEuDutyAmountAnswer(euDutyAmounts)   => Some(euDutyAmounts)
+    }
   }
 
   implicit val format: OFormat[EuDutyAmountAnswers] =

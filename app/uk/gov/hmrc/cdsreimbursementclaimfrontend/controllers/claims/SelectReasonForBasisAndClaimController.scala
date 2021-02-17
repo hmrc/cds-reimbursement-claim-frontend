@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAndBasisAnswer.IncompleteReasonForClaimAndBasisAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAndBasisAnswer.{CompleteReasonForClaimAndBasisAnswer, IncompleteReasonForClaimAndBasisAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -126,7 +126,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               ),
             reasonForClaimAndBasis => {
               val updatedAnswers: ReasonForClaimAndBasisAnswer = answers.fold(
-                incomplete => incomplete.copy(maybeSelectReasonForClaimAndBasis = Some(reasonForClaimAndBasis)),
+                _ => CompleteReasonForClaimAndBasisAnswer(reasonForClaimAndBasis),
                 complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
               )
               val newDraftClaim                                =
@@ -149,6 +149,86 @@ class SelectReasonForBasisAndClaimController @Inject() (
                       Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
                     case _                               => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
                   }
+              )
+            }
+          )
+      }
+
+    }
+
+  def changeReasonForClaimAndBasis(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withSelectReasonForClaim { (_, _, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.maybeSelectReasonForClaimAndBasis match {
+              case Some(selectReasonForClaimAndBasis) =>
+                Ok(
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                      selectReasonForClaimAndBasis
+                    ),
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                    isAmend = true
+                  )
+                )
+              case None                               =>
+                Ok(
+                  selectReasonForClaimAndBasisPage(
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm,
+                    routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                    isAmend = true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              selectReasonForClaimAndBasisPage(
+                SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
+                  ifComplete.selectReasonForBasisAndClaim
+                ),
+                routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                isAmend = true
+              )
+            )
+        )
+      }
+    }
+
+  def changeReasonForClaimAndBasisSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
+        SelectReasonForBasisAndClaimController.reasonForClaimForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                selectReasonForClaimAndBasisPage(
+                  requestFormWithErrors,
+                  routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
+                  true
+                )
+              ),
+            reasonForClaimAndBasis => {
+              val updatedAnswers: ReasonForClaimAndBasisAnswer = answers.fold(
+                _ => CompleteReasonForClaimAndBasisAnswer(reasonForClaimAndBasis),
+                complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
+              )
+              val newDraftClaim                                =
+                fillingOutClaim.draftClaim.fold(_.copy(reasonForBasisAndClaimAnswer = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not store reason for reason and basis answer", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
               )
             }
           )

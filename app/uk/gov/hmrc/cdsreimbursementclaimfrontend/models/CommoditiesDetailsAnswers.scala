@@ -38,7 +38,7 @@ object CommoditiesDetailsAnswers {
     commodityDetails: CommodityDetails
   ) extends CommoditiesDetailsAnswers
 
-  object CompleteMovementReferenceTypeAnswer {
+  object CompleteCommodityDetailsAnswers {
     implicit val format: OFormat[CompleteCommodityDetailsAnswers] =
       derived.oformat[CompleteCommodityDetailsAnswers]()
   }

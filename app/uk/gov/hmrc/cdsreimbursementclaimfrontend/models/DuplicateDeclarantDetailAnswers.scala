@@ -56,6 +56,11 @@ object DuplicateDeclarantDetailAnswers {
         case i: IncompleteDuplicateDeclarationDetailAnswer => ifIncomplete(i)
         case c: CompleteDuplicateDeclarationDetailAnswer   => ifComplete(c)
       }
+
+    def duplicateDeclaration: Option[EntryDeclarationDetails] = a match {
+      case IncompleteDuplicateDeclarationDetailAnswer(duplicateDeclaration) => duplicateDeclaration
+      case CompleteDuplicateDeclarationDetailAnswer(duplicateDeclaration)   => duplicateDeclaration
+    }
   }
 
   implicit val format: OFormat[DuplicateDeclarantDetailAnswers] = derived.oformat[DuplicateDeclarantDetailAnswers]()

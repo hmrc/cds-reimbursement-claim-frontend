@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.IncompleteCommoditiesDetailsAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.{CompleteCommodityDetailsAnswers, IncompleteCommoditiesDetailsAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswers, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -75,22 +75,53 @@ class EnterCommoditiesDetailsController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
+    fillingOutClaim.draftClaim match {
+      case DraftClaim.DraftC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            reasonForClaim,
+            _,
+            _,
+            _,
+            _,
+            _,
+            reasonForBasisAndClaimAnswer,
+            _,
+            _
+          ) =>
+        (reasonForBasisAndClaimAnswer, reasonForClaim) match {
+          case (Some(_), None) => routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+          case (None, Some(_)) => routes.SelectReasonForClaimController.selectReasonForClaim()
+          case _               => sys.error("invalid data state: cannot have both reason and basis for claim and reason for claim")
+        }
+    }
+
   def enterCommoditiesDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, _, answers) =>
+      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
         answers.fold(
           ifIncomplete =>
             ifIncomplete.commodityDetails match {
               case Some(commodityDetails) =>
                 Ok(
                   enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails)
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
+                    handleBackLink(fillingOutClaim)
                   )
                 )
               case None                   =>
                 Ok(
                   enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm,
+                    handleBackLink(fillingOutClaim)
                   )
                 )
             },
@@ -99,7 +130,8 @@ class EnterCommoditiesDetailsController @Inject() (
               enterCommoditiesDetailsPage(
                 EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
                   ifComplete.commodityDetails
-                )
+                ),
+                handleBackLink(fillingOutClaim)
               )
             )
         )
@@ -115,14 +147,15 @@ class EnterCommoditiesDetailsController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterCommoditiesDetailsPage(
-                  requestFormWithErrors
+                  requestFormWithErrors,
+                  handleBackLink(fillingOutClaim)
                 )
               ),
             commodityDetails => {
               val updatedAnswers = answers.fold(
-                incomplete =>
-                  incomplete.copy(
-                    commodityDetails = Some(commodityDetails)
+                _ =>
+                  CompleteCommodityDetailsAnswers(
+                    commodityDetails
                   ),
                 complete => complete.copy(commodityDetails = commodityDetails)
               )
@@ -141,6 +174,86 @@ class EnterCommoditiesDetailsController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.EnterDutyAmountsController.enterUkDutyAmounts())
+              )
+            }
+          )
+      }
+    }
+
+  def changeCommoditiesDetails: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+        answers.fold(
+          ifIncomplete =>
+            ifIncomplete.commodityDetails match {
+              case Some(commodityDetails) =>
+                Ok(
+                  enterCommoditiesDetailsPage(
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
+                    handleBackLink(fillingOutClaim),
+                    true
+                  )
+                )
+              case None                   =>
+                Ok(
+                  enterCommoditiesDetailsPage(
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm,
+                    handleBackLink(fillingOutClaim),
+                    true
+                  )
+                )
+            },
+          ifComplete =>
+            Ok(
+              enterCommoditiesDetailsPage(
+                EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
+                  ifComplete.commodityDetails
+                ),
+                handleBackLink(fillingOutClaim),
+                true
+              )
+            )
+        )
+      }
+    }
+
+  def changeCommoditiesDetailsSubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+        EnterCommoditiesDetailsController.commoditiesDetailsForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterCommoditiesDetailsPage(
+                  requestFormWithErrors,
+                  handleBackLink(fillingOutClaim),
+                  true
+                )
+              ),
+            commodityDetails => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteCommodityDetailsAnswers(
+                    commodityDetails
+                  ),
+                complete => complete.copy(commodityDetails = commodityDetails)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswers = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not get commodity details", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
               )
             }
           )

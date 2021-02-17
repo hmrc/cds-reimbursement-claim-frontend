@@ -20,10 +20,23 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Format
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import scala.util.Try
 
 final case class DateOfImport(value: LocalDate) extends AnyVal
 
 object DateOfImport {
+
+  def displayFormat(date: String): Option[String] = {
+    val result = for {
+      t <- Try(LocalDate.parse(date, DateTimeFormatter.ofPattern("u-M-d")))
+      f <- Try(DateTimeFormatter.ofPattern("d MMMM u").format(t))
+    } yield f
+    result.toOption
+  }
+  implicit class DateOfImportOps(private val dateOfImport: DateOfImport) {
+    def checkYourDetailsDisplayFormat: String = displayFormat(dateOfImport.value.toString).getOrElse("")
+  }
 
   implicit val format: Format[DateOfImport] =
     implicitly[Format[LocalDate]].inmap(DateOfImport(_), _.value)
