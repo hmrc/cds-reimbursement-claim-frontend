@@ -216,6 +216,19 @@ object BankAccountController {
       .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => accountNumberRegex.test(e.value))
 
+  final case class AccountName(value: String) extends AnyVal
+
+  object AccountName {
+    implicit val format: OFormat[AccountName] = Json.format[AccountName]
+  }
+
+  val accountNameRegex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,150}$""".r.pattern.asPredicate()
+
+  val accountNameMapping: Mapping[AccountName] =
+    nonEmptyText
+      .transform[AccountName](s => AccountName(s.trim()), _.value)
+      .verifying("invalid", e => accountNameRegex.test(e.value))
+
   def sortCodeFormatter(
     sortCode1Key: String,
     sortCode2Key: String,
@@ -278,7 +291,7 @@ object BankAccountController {
 
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(
-      "enter-bank-details.account-name"   -> nonEmptyText,
+      "enter-bank-details.account-name"   -> accountNameMapping,
       ""                                  -> isBusinessAccountMapping,
       ""                                  -> sortCodeMapping,
       "enter-bank-details.account-number" -> accountNumberMapping
@@ -286,7 +299,7 @@ object BankAccountController {
   )
 
   final case class BankAccountDetails(
-    accountName: String,
+    accountName: AccountName,
     isBusinessAccount: List[Int],
     sortCode: SortCode,
     accountNumber: AccountNumber
