@@ -220,6 +220,7 @@ enter-declaration-details.importer-name.help=This is the legal name of the impor
 enter-declaration-details.importer-email-address.label=Importer email address
 enter-declaration-details.importer-phone-number.label=Importer phone number
 enter-declaration-details.importer-phone-number.help=For international numbers include the country code.
+enter-declaration-details.importer-email-address.invalid = Enter a valid importer email address
 enter-declaration-details.declarant-name.label=Declarant name
 enter-declaration-details.declarant-name.help=This is the name of the person who made the declaration.
 enter-declaration-details.declarant-email-address.label=Declarant email address
@@ -236,6 +237,7 @@ enter-declaration-details.importer-phone-number.error.required=Enter an importer
 enter-declaration-details.declarant-name.error.required=Enter a declarant name
 enter-declaration-details.declarant-email-address.error.required=Enter a declarant email address
 enter-declaration-details.declarant-phone-number.error.required=Enter a declarant phone number
+enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
