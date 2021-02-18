@@ -98,21 +98,40 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 )
               case None                              =>
                 fillingOutClaim.draftClaim.fold(_.maybeDeclaration) match {
-                  case Some(value) =>
-                    Ok(
-                      enterClaimantDetailAsIndividualPage(
-                        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
-                          toClaimantDetailsAsIndividual(value)
-                        )
-                      )
-                    )
-                  case None        =>
+                  case Some(declaration) =>
+                    fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
+                      case Some(declarantTypeAnswer) =>
+                        declarantTypeAnswer.declarantType match {
+                          case Some(declarantType) =>
+                            declarantType match {
+                              case DeclarantType.Importer =>
+                                Ok(
+                                  enterClaimantDetailAsIndividualPage(
+                                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+                                      .fill(
+                                        toClaimantDetailsAsIndividual(declaration)
+                                      )
+                                  )
+                                )
+                              case _                      =>
+                                Ok(
+                                  enterClaimantDetailAsIndividualPage(
+                                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+                                  )
+                                )
+                            }
+                          case None                =>
+                            Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                        }
+                      case None                      =>
+                        Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                    }
+                  case None              =>
                     Ok(
                       enterClaimantDetailAsIndividualPage(
                         EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
                       )
                     )
-
                 }
             },
           ifComplete =>
@@ -133,12 +152,14 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
         EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
               BadRequest(
                 enterClaimantDetailAsIndividualPage(
                   requestFormWithErrors
                 )
-              ),
+              )
+            },
             claimantDetailsAsIndividual => {
               val updatedAnswers = answers.fold(
                 _ =>
@@ -171,16 +192,24 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 _ =>
                   claimantDetailsAsIndividual.addCompanyDetails match {
                     case YesNo.No  =>
-                      fillingOutClaim.draftClaim.declarantType match {
-                        case Some(declarantType) =>
-                          declarantType match {
-                            case DeclarantType.Importer =>
-                              Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                            case _                      =>
-                              Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
-
+                      fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
+                        case Some(referenceNumber) =>
+                          referenceNumber match {
+                            case Left(_)  =>
+                              fillingOutClaim.draftClaim.declarantType match {
+                                case Some(declarantType) =>
+                                  declarantType match {
+                                    case DeclarantType.Importer =>
+                                      Redirect(
+                                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                                      )
+                                    case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                                  }
+                                case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                              }
+                            case Right(_) => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
                           }
-                        case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                        case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                       }
                     case YesNo.Yes =>
                       Redirect(
@@ -383,20 +412,20 @@ object EnterClaimantDetailsAsIndividualController {
 
   def toClaimantDetailsAsIndividual(declaration: Declaration): ClaimantDetailsAsIndividual = {
     val d = Declaration.DeclarationOps(declaration)
-    val a = declaration.consigneeDetails.map(p => p.establishmentAddress)
+    val a = declaration.consigneeDetails.flatMap(p => p.contactDetails)
     ClaimantDetailsAsIndividual(
       d.consigneeName.getOrElse(""),
       Email(d.consigneeEmail.getOrElse("")),
       d.consigneeTelephone.getOrElse(""),
       NonUkAddress(
-        a.map(s => s.addressLine1).getOrElse(""),
+        a.flatMap(s => s.addressLine1).getOrElse(""),
         a.flatMap(s => s.addressLine2).getOrElse(""),
-        None, //o
-        None, //o
-        a.flatMap(s => s.addressLine3).getOrElse(""),
-        Some(""),
+        None,
+        a.flatMap(s => s.addressLine3),
+        a.flatMap(s => s.addressLine4).getOrElse(""),
+        None,
         a.flatMap(s => s.postalCode),
-        Country(a.map(s => s.countryCode).getOrElse(""))
+        Country(a.flatMap(s => s.countryCode).getOrElse(""))
       ),
       YesNo.No
     )

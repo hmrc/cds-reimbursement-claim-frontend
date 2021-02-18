@@ -43,7 +43,9 @@
 
     @pageHeading(title)
 
-    @Html(messages(s"$key.help-text"))
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text"))
+    </div>
 
    @formWrapper(routes.EnterMovementReferenceNumberController.enterMrn(), 'novalidate -> "novalidate") {
      @submitButton(messages("button.tryAgain"))

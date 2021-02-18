@@ -271,14 +271,15 @@ enter-declaration-details.declarant-phone-number.error.required=Enter a declaran
 #===================================================
 select-who-is-making-the-claim.title=Who is making this claim?
 select-who-is-making-the-claim.caption=Declarant Type
-select-who-is-making-the-claim.importer=I am an importer person
+select-who-is-making-the-claim.help-text=This person is responsible for the claim. They are the point of contact if we have a query about the claim.
+select-who-is-making-the-claim.importer=I am a private individual importer
 select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-select-who-is-making-the-claim.associate-with-representative-company=I am associated with an representative company on behalf of the importer
+select-who-is-making-the-claim.associate-with-representative-company=I am associated with a representative company on behalf of the importer
 select-who-is-making-the-claim.error.required=Select a declaration type
 select-who-is-making-the-claim.invalid=Select a declaration type
-select-who-is-making-the-claim.details.label=What is an importer and an representative?
+select-who-is-making-the-claim.details.label=What is an importer and a representative?
 select-who-is-making-the-claim.details.p0=An importer can be a person or company bringing the goods into the country.
-select-who-is-making-the-claim.details.p1=An representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-who-is-making-the-claim.details.p1=A representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
@@ -301,9 +302,9 @@ check-declaration-details.declarant-contact-address.label=Declarant Contact Addr
 #===================================================
 #  SELECT REASON FOR CLAIM PAGE
 #===================================================
-select-reason-for-claim.title=Select the reason and or basis for claim
-select-reason-for-claim.error.number=Select the reason and or basis for claim
-select-reason-for-claim.error.required=Select the reason and or basis for claim
+select-reason-for-claim.title=Select the reason for claim
+select-reason-for-claim.error.number=Select the reason for claim
+select-reason-for-claim.error.required=Select the reason for claim
 select-reason-for-claim.caption=Reason for claim
 select-reason-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-reason-for-claim=Examples of basis of claims:

@@ -54,38 +54,54 @@
  @options = @{List(DeclarantType.Importer, DeclarantType.AssociatedWithImporterCompany, DeclarantType.AssociatedWithRepresentativeCompany).map(toMessage)}
 
     @detailsText = {
-    <div class="space-document-type">
         @details(messages(s"$key.details.label"),
         Html(s"""|
         |<p> ${messages(s"$key.details.p0")} </p>
         |<p> ${messages(s"$key.details.p1")} </p>
         |""".stripMargin
         ))
-    </div>
     }
 
  @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
-  @backLinkComponent(backAction)
+    @*
+    * Temp CSS before switch to new frontend
+    *@
 
-  @if(hasErrors) {
-   @errorSummary(form)
-  }
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
 
-  @formWrapper(postAction, 'novalidate -> "novalidate") {
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+            <div>
+                <div>
 
-    @radioGroup(
-      fieldId = key,
-      label = pageHeading(title, Some(messages(s"$key.caption"))),
-      helpText = Some(detailsText),
-      options = options,
-      errorKey = form.error(key).map(e => e.message),
-      hasErrors = hasErrors,
-      selected = form.value.map(entity => options.indexOf(toMessage(entity)))
-    )
+                    @backLinkComponent(backAction)
 
-    @submitButton(messages("button.continue"))
+                    @if(hasErrors) {
+                        @errorSummary(form)
+                    }
 
-  }
+                    @formWrapper(postAction, 'novalidate -> "novalidate") {
+
+                        @radioGroup(
+                          fieldId = key,
+                          label = pageHeading(title),
+                          helpText = Some(detailsText),
+                          extraContent = Some(Html(messages(s"$key.help-text"))),
+                          extraContentClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
+                          options = options,
+                          errorKey = form.error(key).map(e => e.message),
+                          hasErrors = hasErrors,
+                          selected = form.value.map(entity => options.indexOf(toMessage(entity)))
+                        )
+
+                        @submitButton(messages("button.continue"))
+
+                    }
+
+                </div>
+            </div>
+        </main>
+    </div>
 
 }

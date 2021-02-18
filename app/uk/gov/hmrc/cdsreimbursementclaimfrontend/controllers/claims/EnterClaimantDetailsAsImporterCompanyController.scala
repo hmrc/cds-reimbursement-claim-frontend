@@ -26,13 +26,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.toClaimantDetailsAsImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.{CompleteClaimantDetailsAsImporterCompanyAnswer, IncompleteClaimantDetailsAsImporterCompanyAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -81,7 +83,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
 
   def enterClaimantDetailsAsImporterCompany: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsImporterCompanyAnswers { (_, _, answers) =>
+      withClaimantDetailsAsImporterCompanyAnswers { (_, fillingOutClaim, answers) =>
         answers.fold(
           ifIncomplete =>
             ifIncomplete.claimantDetailsAsImporterCompany match {
@@ -94,11 +96,42 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                   )
                 )
               case None                                   =>
-                Ok(
-                  enterClaimantDetailAsImporterCompanyPage(
-                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
-                  )
-                )
+                fillingOutClaim.draftClaim.fold(_.maybeDeclaration) match {
+                  case Some(declaration) =>
+                    fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
+                      case Some(declarantTypeAnswer) =>
+                        declarantTypeAnswer.declarantType match {
+                          case Some(declarantType) =>
+                            declarantType match {
+                              case DeclarantType.Importer =>
+                                Ok(
+                                  enterClaimantDetailAsImporterCompanyPage(
+                                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+                                      .fill(
+                                        toClaimantDetailsAsImporter(declaration)
+                                      )
+                                  )
+                                )
+                              case _                      =>
+                                Ok(
+                                  enterClaimantDetailAsImporterCompanyPage(
+                                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+                                  )
+                                )
+                            }
+                          case None                =>
+                            Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                        }
+                      case None                      =>
+                        Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                    }
+                  case None              =>
+                    Ok(
+                      enterClaimantDetailAsImporterCompanyPage(
+                        EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+                      )
+                    )
+                }
             },
           ifComplete =>
             Ok(
@@ -147,14 +180,22 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ =>
-                  fillingOutClaim.draftClaim.declarantType match {
-                    case Some(value) =>
-                      value match {
-                        case DeclarantType.Importer =>
-                          Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                        case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                  fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
+                    case Some(referenceNumber) =>
+                      referenceNumber match {
+                        case Left(_)  =>
+                          fillingOutClaim.draftClaim.declarantType match {
+                            case Some(declarantType) =>
+                              declarantType match {
+                                case DeclarantType.Importer =>
+                                  Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
+                                case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                              }
+                            case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                          }
+                        case Right(_) => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
                       }
-                    case None        => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }
               )
             }
@@ -265,4 +306,23 @@ object EnterClaimantDetailsAsImporterCompanyController {
       ""                                                              -> Address.nonUkAddressFormMapping
     )(ClaimantDetailsAsImporterCompany.apply)(ClaimantDetailsAsImporterCompany.unapply)
   )
+
+  def toClaimantDetailsAsImporter(declaration: Declaration): ClaimantDetailsAsImporterCompany = {
+    val maybeAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
+    ClaimantDetailsAsImporterCompany(
+      "",
+      Email(""),
+      "",
+      NonUkAddress(
+        maybeAddress.map(s => s.addressLine1).getOrElse(""),
+        maybeAddress.flatMap(s => s.addressLine2).getOrElse(""),
+        None,
+        maybeAddress.flatMap(s => s.addressLine3),
+        "",
+        None,
+        maybeAddress.flatMap(s => s.postalCode),
+        Country(maybeAddress.map(s => s.countryCode).getOrElse(""))
+      )
+    )
+  }
 }

@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.CompleteCla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.CompleteCommodityDetailsAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailAnswers.CompleteDeclarationDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
@@ -53,7 +52,7 @@ final case class CompleteC285Claim(
   claimId: UUID,
   movementReferenceNumber: Either[EntryNumber, MRN],
   duplicateMovementReferenceNumberAnswer: Option[Either[EntryNumber, MRN]],
-  declarationDetails: CompleteDeclarationDetailAnswer,
+  declarationDetails: Option[DeclarationDetailAnswers],
   duplicateDeclarationDetails: Option[EntryDeclarationDetails],
   declarantType: CompleteDeclarantTypeAnswer,
   claimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer,
@@ -80,7 +79,7 @@ object CompleteC285Claim {
             id,
             Some(completeMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
             duplicateMovementReferenceNumberAnswer,
-            Some(completeDeclarationDetailAnswer: CompleteDeclarationDetailAnswer),
+            declarationDetailAnswers,
             duplicateDeclarationDetailAnswers,
             Some(completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer),
             Some(completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer),
@@ -107,7 +106,7 @@ object CompleteC285Claim {
                 duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
                   duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
                 ),
-                completeDeclarationDetailAnswer,
+                declarationDetailAnswers,
                 duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
                   duplicateDeclarantDetailAnswers.duplicateDeclaration
                 ),
@@ -136,7 +135,7 @@ object CompleteC285Claim {
                 duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
                   duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
                 ),
-                completeDeclarationDetailAnswer,
+                declarationDetailAnswers,
                 duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
                   duplicateDeclarantDetailAnswers.duplicateDeclaration
                 ),
@@ -195,12 +194,12 @@ object CompleteClaim {
         duplicateDeclarationDetails
     }
 
-    def entryDeclarationDetails: EntryDeclarationDetails = completeClaim match {
+    def entryDeclarationDetails: Option[DeclarationDetailAnswers] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
             _,
-            declarationDetails,
+            declarationDetailAnswers,
             _,
             _,
             _,
@@ -218,7 +217,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        declarationDetails.declarationDetails
+        declarationDetailAnswers
     }
 
     def declarantType: SelectWhoIsMakingTheClaimController.DeclarantType = completeClaim match {

@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -23,7 +24,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -37,25 +37,39 @@
 
   @mainTemplate(title = title, userType = request.userType){
 
-    @backLinkComponent(routes.EnterDutyAmountsController.enterUkDutyAmounts)
+@*
+* Temp CSS before switch to new frontend
+*@
 
-    @caption(messages(s"$key.caption"))
+<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+        <div>
+            <div>
+
+    @backLinkComponent(routes.EnterDutyAmountsController.enterUkDutyAmounts)
 
     @pageHeading(title)
 
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text"))
+    </div>
+
     @formWrapper(routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotalSubmit, 'novalidate -> "novalidate") {
+
         <div class="space-details">
             <table class="govuk-table">
-                <tbody>
+                <tbody class="govuk-table__body">
                 @for(claim <- claims){
-                    <tr>
-                        <th scope="row" style="font-weight:bold">@claim.taxCode.description </th>
-                        <td>@{formatAmountOfMoneyWithPoundSign(claim.claimAmount)}</td>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">@claim.taxCode.description </th>
+                        <td class="govuk-table__cell">@{formatAmountOfMoneyWithPoundSign(claim.claimAmount)}</td>
                     </tr>
                 }
-                <tr>
-                    <th scope="row" style="font-weight:bold">Total Reimbursement</th>
-                    <td>@{formatAmountOfMoneyWithPoundSign(claims.total)}</td>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">Total Reimbursement</th>
+                    <td class="govuk-table__cell">@{formatAmountOfMoneyWithPoundSign(claims.total)}</td>
                 </tr>
                 </tbody>
             </table>
@@ -68,5 +82,10 @@
             <a href="@routes.EnterDutyAmountsController.enterUkDutyAmounts().url">Update the calculation</a>
         </p>
 
+
+            </div>
+        </div>
+    </main>
+</div>
 
   }

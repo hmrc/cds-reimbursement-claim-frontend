@@ -55,6 +55,11 @@ object DeclarantTypeAnswer {
         case i: IncompleteDeclarantTypeAnswer => ifIncomplete(i)
         case c: CompleteDeclarantTypeAnswer   => ifComplete(c)
       }
+
+    def declarantType: Option[DeclarantType] = a match {
+      case IncompleteDeclarantTypeAnswer(declarantType) => declarantType
+      case CompleteDeclarantTypeAnswer(declarantType)   => Some(declarantType)
+    }
   }
 
   implicit val format: OFormat[DeclarantTypeAnswer] = derived.oformat[DeclarantTypeAnswer]()

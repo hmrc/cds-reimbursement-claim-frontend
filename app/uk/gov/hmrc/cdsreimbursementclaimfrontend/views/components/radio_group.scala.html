@@ -27,23 +27,40 @@
   options: List[Html],
   helpText: Option[Html] = None,
   errorKey: Option[String] = None,
+  extraContent: Option[Html] = None,
+  extraContentClass: Option[String] = None,
   hasErrors: Boolean = false,
+  inlineRadios: Boolean = false,
   selected: Option[Int] = None
 )(implicit messages: Messages)
 
+
+@classBuilder(s: Option[String]*) = @{s.toList.collect{case Some(s) => s}.mkString(" ")}
+
 @classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
 @hintTextKey = @{s"${{fieldId}}-form-hint"}
+@extraContentKey = @{s"${{fieldId}}-extra-content"}
 @errorId = @{s"${{fieldId}}-inline-error"}
 @hintIdWithHintText = @{helpText.map(hintTextKey -> _)}
+@extraContentIdWithContent = @{extraContent.map(extraContentKey -> _)}
+@extraContentClasses = @{classBuilder(extraContentClass)}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
 @describedByKeys = @{
-  List(hintIdWithHintText.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
+  List(hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
 
 <div class="@classes">
   <fieldset id="@fieldId" @if(describedByKeys.nonEmpty) { aria-describedby="@describedByKeys" }>
-    <legend>
-      @label
-    </legend>
+
+      <legend>
+          @label
+      </legend>
+
+      @extraContentIdWithContent.map { case (id, text) =>
+      <div id="@id" class="@extraContentClasses">
+          @text
+      </div>
+      }
+
     @hintIdWithHintText.map { case (id, text) =>
       <span id="@id" class="form-hint">
         @text
@@ -53,19 +70,27 @@
       @errorInline(id, messages(s"$fieldId.$key"))
     }
 
+    @if(inlineRadios) {
+      <div class="govuk-radios govuk-radios--inline">
+    } else {
+      <div class="govuk-radios govuk-radios--conditional">
+    }
+
     @options.zipWithIndex.map{ case (option, index) =>
-      <div class="multiple-choice">
-        <input id="@{fieldId}-@{index}"
+      <div class="govuk-radios__item">
+        <input class="govuk-radios__input" id="@{fieldId}-@{index}"
          name="@fieldId"
          value="@index"
          type="radio"
         @if(selected.contains(index)) { checked="checked" }
         />
-        <label for="@{fieldId}-@{index}">
+        <label for="@{fieldId}-@{index}" class="govuk-label govuk-radios__label">
           @option
         </label>
       </div>
     }
+
+</div>
 
   </fieldset>
 </div>
