@@ -30,6 +30,7 @@
         hasErrors: Boolean,
         errorKey: Option[String],
         helpText: Option[Html] = None,
+        helpTextClass: Option[String] = None,
         labelAsHeading: Boolean = false,
         extraContent: Option[Html] = None,
         inputClass: Option[String] = None,
@@ -53,6 +54,7 @@
 @extraContentIdWithContent = @{extraContent.map(extraContentKey -> _)}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
 @labelClasses = @{classBuilder(Some("form-label"), labelClass)}
+@helpTextClasses = @{classBuilder(helpTextClass)}
 
 @describedByKeys = @{
   List(hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
@@ -75,9 +77,9 @@
   </div>
   }
   @hintIdWithHintText.map { case (id, text) =>
-  <span id="@id" class="form-hint">
+  <div id="@id" class="@helpTextClasses">
   @text
-  </span>
+  </div>
   }
   @errorIdWithMessageKey.map { case (id, key) =>
     @errorInline(id, messages(s"$fieldId.$key"))

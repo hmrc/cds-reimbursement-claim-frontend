@@ -26,7 +26,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -58,19 +57,28 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
+@*
+* Temp CSS before switch to new frontend
+*@
+
+<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+        <div>
+            <div>
+
         @backLinkComponent(backLinkAction)
 
         @if(hasErrors) {
             @errorSummary(form)
         }
 
-        @caption(messages(s"$key.caption"))
-
         @pageHeading(title)
 
-        <p>
+        <div class="govuk-inset-text">
             @messages(s"$key.help-text")
-        </p>
+        </div>
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
@@ -80,7 +88,7 @@
                 errorKey = form.error(s"$key.importer-company-name").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-company-name").nonEmpty,
                 label = Html(messages(s"$key.importer-company-name.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = None,
                 autoComplete = AutoCompleteType.On
             )
@@ -91,7 +99,7 @@
                 errorKey = form.error(s"$key.importer-email").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-email").nonEmpty,
                 label = Html(messages(s"$key.importer-email.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = None,
                 autoComplete = AutoCompleteType.On
             )
@@ -102,7 +110,7 @@
                 errorKey = form.error(s"$key.importer-phone-number").map(e => e.message),
                 hasErrors = form.error(s"$key.importer-phone-number").nonEmpty,
                 label = Html(messages(s"$key.importer-phone-number.label")),
-                labelClass = Some("govuk-label--m"),
+                labelClass = Some("govuk-label--s"),
                 helpText = Some(Html(messages(s"$key.importer-phone-number.help"))),
                 autoComplete = AutoCompleteType.On
             )
@@ -175,7 +183,7 @@
                     errorKey = form.error(line6Key).map(e => s"${e.message}"),
                     value = form.data.getOrElse(line6Key, ""),
                     hasErrors = form.error(line6Key).nonEmpty,
-                    inputClass = Some("form-control-3-4"),
+                inputClass = Some("govuk-!-width-one-quarter"),
                     autoComplete = AutoCompleteType.AddressLevel1
                 )
 
@@ -192,4 +200,10 @@
 
             @submitButton(messages("button.continue"))
         }
+
+            </div>
+        </div>
+    </main>
+</div>
+
 }

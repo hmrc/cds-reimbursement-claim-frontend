@@ -26,7 +26,6 @@
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -59,19 +58,28 @@
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
 
+    @*
+    * Temp CSS before switch to new frontend
+    *@
+
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+            <div>
+                <div>
+
         @backLinkComponent(backLinkAction)
 
         @if(hasErrors) {
             @errorSummary(form)
         }
 
-        @caption(messages(s"$key.caption"))
-
         @pageHeading(title)
 
-        <p>
+        <div class="govuk-inset-text">
             @messages(s"$key.help-text")
-        </p>
+        </div>
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
@@ -122,4 +130,10 @@
             @submitButton(messages("button.continue"))
 
         }
+
+                </div>
+            </div>
+        </main>
+    </div>
+
 }
