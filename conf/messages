@@ -138,7 +138,7 @@ mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI numb
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
-enter-claimant-details-individual.title=Enter your claimant details as an individual
+enter-claimant-details-individual.title=Enter your claimant details
 enter-claimant-details-individual.caption=Individual Claimant Details
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.importer-full-name.label=Full name
