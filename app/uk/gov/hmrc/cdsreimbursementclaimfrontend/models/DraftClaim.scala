@@ -51,6 +51,7 @@ object DraftClaim {
     commoditiesDetailsAnswers: Option[CommoditiesDetailsAnswers],
     reasonForBasisAndClaimAnswer: Option[ReasonForClaimAndBasisAnswer],
     maybeDeclaration: Option[Declaration], //Data that has come back from ACC-14
+    maybeDuplicateDeclaration: Option[Declaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
     lastUpdatedDate: LocalDate
@@ -61,6 +62,7 @@ object DraftClaim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,
@@ -113,6 +115,7 @@ object DraftClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -146,6 +149,7 @@ object DraftClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         movementReferenceNumberAnswer match {
@@ -161,8 +165,7 @@ object DraftClaim {
     }
   }
 
-  implicit val eq: Eq[DraftClaim] = Eq.fromUniversalEquals
-
+  implicit val eq: Eq[DraftClaim]          = Eq.fromUniversalEquals
   implicit val format: OFormat[DraftClaim] = derived.oformat()
 
 }

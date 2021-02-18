@@ -65,9 +65,29 @@ class CheckDeclarantDetailsController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def withDuplicateDeclaration(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      Option[Declaration]
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              s,
+              r @ FillingOutClaim(_, _, c: DraftClaim)
+            )
+          ) =>
+        val maybeDeclaration = c.fold(_.maybeDuplicateDeclaration)
+        f(s, r, maybeDeclaration)
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
   private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
     fillingOutClaim.draftClaim match {
       case DraftClaim.DraftC285Claim(
+            _,
             _,
             _,
             _,
@@ -99,12 +119,40 @@ class CheckDeclarantDetailsController @Inject() (
     withPossibleDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
       maybeDeclaration.fold(
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
-      )(declaration => Ok(checkDeclarantDetailsPage(declaration, handleBackLink(fillingOutClaim))))
+      )(declaration =>
+        Ok(
+          checkDeclarantDetailsPage(
+            declaration,
+            routes.CheckDeclarantDetailsController.checkDetailsSubmit(),
+            handleBackLink(fillingOutClaim)
+          )
+        )
+      )
     }
   }
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+  }
+
+  def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withDuplicateDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
+      maybeDeclaration.fold(
+        Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
+      )(declaration =>
+        Ok(
+          checkDeclarantDetailsPage(
+            declaration,
+            routes.CheckDeclarantDetailsController.checkDuplicateDetailsSubmit(),
+            handleBackLink(fillingOutClaim)
+          )
+        )
+      )
+    }
+  }
+
+  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
   }
 
 }

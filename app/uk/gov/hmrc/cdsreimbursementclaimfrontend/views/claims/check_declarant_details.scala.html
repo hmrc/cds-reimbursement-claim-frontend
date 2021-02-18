@@ -17,7 +17,6 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
@@ -31,7 +30,7 @@
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
-@(declaration : Declaration, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration : Declaration, postAction : Call, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"check-declaration-details"}
     @title = @{messages(s"$key.title")}
@@ -57,7 +56,7 @@
                             @Html(messages(s"$key.help-text", declaration.declarantId))
                         </div>
 
-                        @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
+                        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
                             <div class="space-details">
                                 <table class="govuk-table">

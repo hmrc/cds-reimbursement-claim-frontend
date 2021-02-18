@@ -56,6 +56,11 @@ object DeclarationDetailAnswers {
         case i: IncompleteDeclarationDetailAnswer => ifIncomplete(i)
         case c: CompleteDeclarationDetailAnswer   => ifComplete(c)
       }
+
+    def declarationDetail: Option[EntryDeclarationDetails] = a match {
+      case IncompleteDeclarationDetailAnswer(declarationDetails) => declarationDetails
+      case CompleteDeclarationDetailAnswer(declarationDetails)   => Some(declarationDetails)
+    }
   }
 
   implicit val format: OFormat[DeclarationDetailAnswers] = derived.oformat[DeclarationDetailAnswers]()
