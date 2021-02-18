@@ -55,7 +55,7 @@
     @line3Key = @{s"$nonUkAddressKey-line3"}
     @line4Key = @{s"$nonUkAddressKey-line4"}
     @line5Key = @{s"$nonUkAddressKey-line5"}
-    @line6Key = @{s"$nonUkAddressKey-line6"}
+    @line6Key = @{"postcode"}
     @countryCodeKey = @{"countryCode"}
 
      @toMessage(yesNo: YesNo) = @{
@@ -189,7 +189,7 @@
                     fieldId = line6Key,
                     label = Html(messages(s"$key.address.line6.label")),
                     errorKey = form.error(line6Key).map(e => s"${e.message}"),
-                    value = form.data.getOrElse(line6Key, ""),
+                    value = form.data.getOrElse(line6Key, "fsdf"),
                     hasErrors = form.error(line6Key).nonEmpty,
                     inputClass = Some("form-control-3-4"),
                     autoComplete = AutoCompleteType.AddressLevel1

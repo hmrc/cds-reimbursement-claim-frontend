@@ -49,70 +49,71 @@
 
     @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
 
-    <div class="space-details">
-        <table class="govuk-table">
-            <tbody>
-            <tr>
-                <th scope="row" style="font-weight:bold">MRN Number</th>
-                <td>@declaration.declarantId</td>
-            </tr>
-            <tr>
-                <th scope="row" style="font-weight:bold">Import Date</th>
-                <td>@declaration.acceptanceDate</td>
-            </tr>
-            <tr>
-                <th scope="row" style="font-weight:bold">Paid Charges</th>
-                <td>@formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)</td>
-            </tr>
-            @declaration.consigneeName.map{name =>
+        <div class="space-details">
+            <table class="govuk-table">
+                <tbody>
                 <tr>
-                    <th scope="row" style="font-weight:bold">Importer Name</th>
-                    <td>@name</td>
+                    <th scope="row" style="font-weight:bold">@messages(s"$key.mrn-number.label")</th>
+                    <td>@declaration.declarantId</td>
                 </tr>
-            }
-            @declaration.consigneeEmail.map{ email =>
                 <tr>
-                    <th scope="row" style="font-weight:bold">Importer Email</th>
-                    <td>@email</td>
+                    <th scope="row" style="font-weight:bold">@messages(s"$key.import-date.label")</th>
+                    <td>@declaration.acceptanceDate</td>
                 </tr>
-            }
-            @declaration.consigneeTelephone.map{tel =>
                 <tr>
-                    <th scope="row" style="font-weight:bold">Importer Telephone</th>
-                    <td>@tel</td>
+                    <th scope="row" style="font-weight:bold">@messages(s"$key.paid-charges.label")</th>
+                    <td>@formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)</td>
                 </tr>
-            }
-            @declaration.consigneeAddress.map{address =>
+                @declaration.consigneeName.map{name =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.importer-name.label")</th>
+                        <td>@name</td>
+                    </tr>
+                }
+                @declaration.consigneeEmail.map{ email =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.importer-email.label")</th>
+                        <td>@email</td>
+                    </tr>
+                }
+                @declaration.consigneeTelephone.map{tel =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.importer-telephone.label")</th>
+                        <td>@tel</td>
+                    </tr>
+                }
+                @declaration.consigneeAddress.map{address =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.importer-contact-address.label")</th>
+                        <td>@address</td>
+                    </tr>
+                }
+
                 <tr>
-                    <th scope="row" style="font-weight:bold">Importer Contact Address</th>
-                    <td>@address</td>
-                </tr>
-            }
-                <tr>
-                    <th scope="row" style="font-weight:bold">Declarant Name</th>
+                    <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-name.label")</th>
                     <td>@declaration.declarantName</td>
                 </tr>
-            @declaration.declarantEmailAddress.map{email =>
-                <tr>
-                    <th scope="row" style="font-weight:bold">Declarant Email</th>
-                    <td>@email</td>
-                </tr>
-            }
-            @declaration.declarantTelephoneNumber.map{tel =>
-                <tr>
-                    <th scope="row" style="font-weight:bold">Declarant Telephone</th>
-                    <td>@tel</td>
-                </tr>
-            }
-            @declaration.declarantContactAddress.map{address =>
-                <tr>
-                    <th scope="row" style="font-weight:bold">Declarant Contact Address</th>
-                    <td>@address</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
+                @declaration.declarantEmailAddress.map{email =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-email.label")</th>
+                        <td>@email</td>
+                    </tr>
+                }
+                @declaration.declarantTelephoneNumber.map{tel =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-telephone.label")</th>
+                        <td>@tel</td>
+                    </tr>
+                }
+                @declaration.declarantContactAddress.map{address =>
+                    <tr>
+                        <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-contact-address.label")</th>
+                        <td>@address</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
 
         @submitButton(messages("button.continue"))
         }

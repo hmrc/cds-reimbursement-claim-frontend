@@ -389,11 +389,11 @@ object EnterClaimantDetailsAsIndividualController {
       Email(d.consigneeEmail.getOrElse("")),
       d.consigneeTelephone.getOrElse(""),
       NonUkAddress(
-        "",
         a.map(s => s.addressLine1).getOrElse(""),
-        a.flatMap(s => s.addressLine2),
-        a.flatMap(s => s.addressLine3),
-        "",
+        a.flatMap(s => s.addressLine2).getOrElse(""),
+        None, //o
+        None, //o
+        a.flatMap(s => s.addressLine3).getOrElse(""),
         Some(""),
         a.flatMap(s => s.postalCode),
         Country(a.map(s => s.countryCode).getOrElse(""))
