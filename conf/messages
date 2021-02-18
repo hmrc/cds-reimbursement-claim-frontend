@@ -166,7 +166,7 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
-enter-claimant-details-individual.title=Enter your claimant details as an individual
+enter-claimant-details-individual.title=Enter your claimant details
 enter-claimant-details-individual.caption=Individual Claimant Details
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.importer-full-name.label=Full name
@@ -248,23 +248,25 @@ enter-declaration-details.importer-name.help=This is the legal name of the impor
 enter-declaration-details.importer-email-address.label=Importer email address
 enter-declaration-details.importer-phone-number.label=Importer phone number
 enter-declaration-details.importer-phone-number.help=For international numbers include the country code.
+enter-declaration-details.importer-email-address.invalid = Enter a valid importer email address
 enter-declaration-details.declarant-name.label=Declarant name
 enter-declaration-details.declarant-name.help=This is the name of the person who made the declaration.
 enter-declaration-details.declarant-email-address.label=Declarant email address
 enter-declaration-details.declarant-phone-number.label=Declarant phone number
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
-enter-declaration-details.error.required=Enter your declaration details
+enter-declaration-details.error.required=Enter a valid import date
 enter-declaration-details.error.tooFarInFuture=Please a date before today
-enter-declaration-details.date-of-import.error.required=Enter a date of import
+enter-declaration-details.date-of-import.error.required=Enter a valid date of import
 enter-declaration-details-month.error.monthAndYearRequired = Enter a valid date of import
 enter-declaration-details-day.error.invalid=Enter a valid date of import
-enter-declaration-details.place-of-import.error.required=Enter a place of import
-enter-declaration-details.importer-name.error.required=Enter an importer name
-enter-declaration-details.importer-email-address.error.required=Enter an importer email address
-enter-declaration-details.importer-phone-number.error.required=Enter an importer phone number
-enter-declaration-details.declarant-name.error.required=Enter a declarant name
-enter-declaration-details.declarant-email-address.error.required=Enter a declarant email address
-enter-declaration-details.declarant-phone-number.error.required=Enter a declarant phone number
+enter-declaration-details.place-of-import.error.required=Enter a valid place of import
+enter-declaration-details.importer-name.error.required=Enter a valid importer name
+enter-declaration-details.importer-email-address.error.required=Enter a valid importer email address
+enter-declaration-details.importer-phone-number.error.required=Enter a valid importer phone number
+enter-declaration-details.declarant-name.error.required=Enter a valid declarant name
+enter-declaration-details.declarant-email-address.error.required=Enter a valid declarant email address
+enter-declaration-details.declarant-phone-number.error.required=Enter a valid declarant phone number
+enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
