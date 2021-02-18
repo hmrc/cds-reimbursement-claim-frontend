@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
@@ -52,6 +53,12 @@ class CheckReimbursementClaimTotalController @Inject() (
     with Logging
     with SessionUpdates {
 
+  def isClaimZero(claim: Option[BigDecimal]): Boolean =
+    claim match {
+      case Some(value) => value =!= BigDecimal(0)
+      case None        => true
+    }
+
   private def withReimbursementClaimTotals(
     f: (
       SessionData,
@@ -75,10 +82,12 @@ class CheckReimbursementClaimTotalController @Inject() (
         val claims: List[Claim] = maybeEuDutyAnswers
           .getOrElse(IncompleteEuDutyAmountAnswer.empty)
           .dutyAmounts
+          .filter(d => isClaimZero(d.claim))
           .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))) ++
           maybeUkDutyAnswers
             .getOrElse(IncompleteUKDutyAmountAnswer.empty)
             .dutyAmounts
+            .filter(d => isClaimZero(d.claim))
             .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0))))
 
         f(sessionData, fillingOutClaim, claims)

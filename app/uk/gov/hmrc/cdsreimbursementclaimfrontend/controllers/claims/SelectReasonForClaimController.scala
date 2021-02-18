@@ -141,7 +141,12 @@ class SelectReasonForClaimController @Inject() (
                   logger.warn("could not store reason for claim answer", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                _ =>
+                  reasonForClaim.reasonForClaimOption match {
+                    case BasisForClaim.DuplicateMrnEntry =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                    case _                               => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                  }
               )
             }
           )

@@ -17,10 +17,10 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
 @import play.twirl.api.Html
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -30,12 +30,12 @@
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
-@(declaration : Declaration, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration : Declaration, postAction : Call, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"check-declaration-details"}
- @title = @{messages(s"$key.title")}
+    @key = @{"check-declaration-details"}
+    @title = @{messages(s"$key.title")}
 
- @mainTemplate(title = title, userType = request.userType) {
+    @mainTemplate(title = title, userType = request.userType) {
 
     @*
     * Temp CSS before switch to new frontend
@@ -48,65 +48,86 @@
             <div>
                 <div>
 
-    @backLinkComponent(backLink)
+                        @backLinkComponent(backLink)
 
-    @pageHeading(title)
+                        @pageHeading(title)
 
-    <div class="govuk-inset-text">
-        @Html(messages(s"$key.help-text", declaration.declarantId))
-    </div>
+                        <div class="govuk-inset-text">
+                            @Html(messages(s"$key.help-text", declaration.declarantId))
+                        </div>
 
-    @formWrapper(routes.CheckDeclarantDetailsController.checkDetailsSubmit(), 'novalidate -> "novalidate") {
+                        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-        <div class="space-details">
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.mrn-number.label")</th>
-                        <td class="govuk-table__cell">@declaration.declarantId</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.import-date.label")</th>
-                        <td class="govuk-table__cell">@declaration.acceptanceDate</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.paid-charges.label")</th>
-                        <td class="govuk-table__cell">@declaration.totalPaidCharges</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-name.label")</th>
-                        <td class="govuk-table__cell">@declaration.declarantDetails.legalName</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-email.label")</th>
-                        <td class="govuk-table__cell">@declaration.declarantEmailAddress</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.delarant-telephone.label")</th>
-                        <td class="govuk-table__cell">@declaration.declarantTelephoneNumber</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-contact-address.label")</th>
-                        <td class="govuk-table__cell">@declaration.declarantContactAddress</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.company-name.label")</th>
-                        <td class="govuk-table__cell">@declaration.companyName</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.company-address.label")</th>
-                        <td class="govuk-table__cell">@declaration.companyAddress</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            <div class="space-details">
+                                <table class="govuk-table">
+                                    <tbody>
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">@messages(s"$key.mrn-number.label")</th>
+                                        <td class="govuk-table__cell">@declaration.declarantId</td>
+                                    </tr>
 
-        @submitButton(messages("button.continue"))
-    }
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">@messages(s"$key.import-date.label")</th>
+                                        <td class="govuk-table__cell">@declaration.acceptanceDate</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row" style="font-weight:bold">@messages(s"$key.paid-charges.label")</th>
+                                        <td>@formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)</td>
+                                    </tr>
+                                    @declaration.consigneeName.map{ name =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.importer-name.label")</th>
+                                            <td class="govuk-table__cell">@name</td>
+                                        </tr>
+                                    }
+                                    @declaration.consigneeEmail.map{ email =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.importer-email.label")</th>
+                                            <td class="govuk-table__cell">@email</td>
+                                        </tr>
+                                    }
+                                    @declaration.consigneeTelephone.map{tel =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.importer-telephone.label")</th>
+                                            <td class="govuk-table__cell">@tel</td>
+                                        </tr>
+                                    }
+                                    @declaration.consigneeAddress.map{address =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.importer-contact-address.label")</th>
+                                            <td class="govuk-table__cell">@address</td>
+                                        </tr>
+                                    }
+                                    <tr class="govuk-table__row">
+                                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-name.label")</th>
+                                        <td class="govuk-table__cell">@declaration.declarantName</td>
+                                    </tr>
+                                    @declaration.declarantEmailAddress.map{email =>
+                                        <tr>
+                                            <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-email.label")</th>
+                                            <td>@email</td>
+                                        </tr>
+                                    }
+                                    @declaration.declarantTelephoneNumber.map{tel =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-telephone.label")</th>
+                                            <td class="govuk-table__cell">@tel</td>
+                                        </tr>
+                                    }
+                                    @declaration.declarantContactAddress.map{address =>
+                                        <tr class="govuk-table__row">
+                                            <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-contact-address.label")</th>
+                                            <td class="govuk-table__cell">@address</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
 
+                            @submitButton(messages("button.continue"))
+                            }
                 </div>
             </div>
         </main>
     </div>
-
 }

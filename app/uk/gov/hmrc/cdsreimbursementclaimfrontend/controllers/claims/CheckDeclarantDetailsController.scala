@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
@@ -65,18 +65,94 @@ class CheckDeclarantDetailsController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def withDuplicateDeclaration(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      Option[Declaration]
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              s,
+              r @ FillingOutClaim(_, _, c: DraftClaim)
+            )
+          ) =>
+        val maybeDeclaration = c.fold(_.maybeDuplicateDeclaration)
+        f(s, r, maybeDeclaration)
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
+    fillingOutClaim.draftClaim match {
+      case DraftClaim.DraftC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            importerEoriNumberAnswer,
+            declarantEoriNumberAnswer,
+            _
+          ) =>
+        (importerEoriNumberAnswer, declarantEoriNumberAnswer) match {
+          case (Some(_), Some(_)) => routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+          case _                  => routes.EnterMovementReferenceNumberController.enterMrn()
+        }
+    }
+
   def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withPossibleDeclaration { (_, _, maybeDeclaration) =>
+    withPossibleDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
       maybeDeclaration.fold(
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
       )(declaration =>
-        Ok(checkDeclarantDetailsPage(declaration, routes.EnterMovementReferenceNumberController.enterMrn()))
+        Ok(
+          checkDeclarantDetailsPage(
+            declaration,
+            routes.CheckDeclarantDetailsController.checkDetailsSubmit(),
+            handleBackLink(fillingOutClaim)
+          )
+        )
       )
     }
   }
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+  }
+
+  def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withDuplicateDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
+      maybeDeclaration.fold(
+        Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
+      )(declaration =>
+        Ok(
+          checkDeclarantDetailsPage(
+            declaration,
+            routes.CheckDeclarantDetailsController.checkDuplicateDetailsSubmit(),
+            handleBackLink(fillingOutClaim)
+          )
+        )
+      )
+    }
+  }
+
+  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
   }
 
 }

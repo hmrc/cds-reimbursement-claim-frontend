@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+@import play.api.i18n.Messages
+@import play.api.mvc.Request
 
-import play.api.libs.functional.syntax.toInvariantFunctorOps
-import play.api.libs.json.Format
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
-final case class Eori(value: String) extends AnyVal
+@this(
+    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
+)
 
-object Eori {
+@()(implicit messages:Messages, viewConfig: ViewConfig, request: Request[_])
 
-  def isValid(maybeEori: String): Boolean = {
-    val regex = """\w{17}"""
-    maybeEori.matches(regex)
-  }
+@key = @{"ineligible"}
+@title = @{messages(s"$key.title")}
 
-  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+@mainTemplate(title = title, userType = None) {
+
+    @pageHeading(title)
+
+    <p class="govuk-body">@messages(s"$key.help")</p>
+
 }

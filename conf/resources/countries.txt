@@ -75,6 +75,7 @@ FM
 FO
 FR
 GA
+GB
 GD
 GE
 GF
@@ -228,7 +229,6 @@ TV
 TW
 TZ
 UA
-UK
 UG
 UM
 US

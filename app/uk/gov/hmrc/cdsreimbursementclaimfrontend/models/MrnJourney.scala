@@ -16,17 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.functional.syntax.toInvariantFunctorOps
-import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 
-final case class Eori(value: String) extends AnyVal
+sealed trait MrnJourney extends Product with Serializable
 
-object Eori {
-
-  def isValid(maybeEori: String): Boolean = {
-    val regex = """\w{17}"""
-    maybeEori.matches(regex)
-  }
-
-  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+object MrnJourney {
+  final case class MrnImporter(declaration: Declaration) extends MrnJourney
+  final case class ThirdPartyImporter(declaration: Declaration) extends MrnJourney
 }

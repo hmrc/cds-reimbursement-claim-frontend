@@ -10,6 +10,7 @@ GET /keep-alive                                                             uk.g
 GET /feedback                                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.FeedbackController.feedback()
 
 GET /unauthorised                                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
+GET /ineligible                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.IneligibleController.ineligible()
 
 GET /switch-to-welsh-language                                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToWelsh
 GET /switch-to-english-language                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.CustomLanguageController.switchToEnglish

@@ -54,7 +54,7 @@
     @line3Key = @{s"$nonUkAddressKey-line3"}
     @line4Key = @{s"$nonUkAddressKey-line4"}
     @line5Key = @{s"$nonUkAddressKey-line5"}
-    @line6Key = @{s"$nonUkAddressKey-line6"}
+    @line6Key = @{"postcode"}
     @countryCodeKey = @{"countryCode"}
 
      @toMessage(yesNo: YesNo) = @{
@@ -197,7 +197,7 @@
                     fieldId = line6Key,
                     label = Html(messages(s"$key.address.line6.label")),
                     errorKey = form.error(line6Key).map(e => s"${e.message}"),
-                    value = form.data.getOrElse(line6Key, ""),
+                    value = form.data.getOrElse(line6Key, "fsdf"),
                     hasErrors = form.error(line6Key).nonEmpty,
                     inputClass = Some("govuk-!-width-one-quarter"),
                     autoComplete = AutoCompleteType.AddressLevel1
@@ -215,16 +215,15 @@
             </fieldset>
 
             @radioGroup(
-                fieldId =  s"$key.add-company-details",
+                fieldId = s"$key.add-company-details",
                 options = options,
                 selected = form.value.map(c => optionIndex(c.addCompanyDetails)),
                 label = Html(messages(s"$key.add-company-details.label")),
-                helpText =None,
-                errorKey = form.error(key).map(e => e.message),
+                helpText = None,
+                errorKey = form.error(s"$key.add-company-details").map(e => e.message),
                 hasErrors = hasErrors,
                 inlineRadios = true
             )
-
 
             @submitButton(messages("button.continue"))
         }

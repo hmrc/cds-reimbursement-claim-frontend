@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import play.api.libs.functional.syntax.toInvariantFunctorOps
-import play.api.libs.json.Format
+import play.api.libs.json.{Json, OFormat}
 
-final case class Eori(value: String) extends AnyVal
+final case class NdrcDetails(
+  taxType: String,
+  amount: String,
+  paymentMethod: String,
+  paymentReference: String,
+  cmaEligible: Option[String]
+)
 
-object Eori {
-
-  def isValid(maybeEori: String): Boolean = {
-    val regex = """\w{17}"""
-    maybeEori.matches(regex)
-  }
-
-  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+object NdrcDetails {
+  implicit val format: OFormat[NdrcDetails] = Json.format[NdrcDetails]
 }

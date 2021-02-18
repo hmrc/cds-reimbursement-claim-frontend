@@ -290,8 +290,8 @@ class EnterDutyAmountsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withEuDutyAmountAnswers { (_, _, answers) =>
         answers.fold(
-          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm, true)),
-          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm, true))
+          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm)),
+          _ => Ok(enterEuPaidAndClaimAmountsPage(EnterDutyAmountsController.enterEuClaimForm))
         )
       }
     }
@@ -305,8 +305,7 @@ class EnterDutyAmountsController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterEuPaidAndClaimAmountsPage(
-                  requestFormWithErrors,
-                  true
+                  requestFormWithErrors
                 )
               ),
             enterClaim => {
