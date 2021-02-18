@@ -228,6 +228,7 @@ enter-declaration-details.declarant-phone-number.help=For international numbers 
 enter-declaration-details.error.required=Enter your declaration details
 enter-declaration-details.error.tooFarInFuture=Please a date before today
 enter-declaration-details.date-of-import.error.required=Enter a date of import
+enter-declaration-details-month.error.monthAndYearRequired = Enter a valid date of import
 enter-declaration-details-day.error.invalid=Enter a valid date of import
 enter-declaration-details.place-of-import.error.required=Enter a place of import
 enter-declaration-details.importer-name.error.required=Enter an importer name
@@ -258,6 +259,15 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
 check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
+check-declaration-details.mrn-number.label=MRN Number
+check-declaration-details.import-date.label=Import Date
+check-declaration-details.paid-charges.label=Paid Charges
+check-declaration-details.declarant-name.label=Declarant Name
+check-declaration-details.declarant-email.label=Declarant Email
+check-declaration-details.declarant-telephone.label=Declarant Telephone
+check-declaration-details.declarant-contact-address.label=Declarant Contact Address
+check-declaration-details.company-name.label=Company Name
+check-declaration-details.company-address.label=Company Address
 
 #===================================================
 #  SELECT REASON FOR CLAIM PAGE

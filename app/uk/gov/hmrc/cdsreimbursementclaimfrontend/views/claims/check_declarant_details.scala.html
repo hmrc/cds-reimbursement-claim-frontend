@@ -62,39 +62,39 @@
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">MRN Number</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.mrn-number.label")</th>
                         <td class="govuk-table__cell">@declaration.declarantId</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Import Date</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.import-date.label")</th>
                         <td class="govuk-table__cell">@declaration.acceptanceDate</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Paid Charges</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.paid-charges.label")</th>
                         <td class="govuk-table__cell">@declaration.totalPaidCharges</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Declarant Name</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-name.label")</th>
                         <td class="govuk-table__cell">@declaration.declarantDetails.legalName</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Declarant Email</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-email.label")</th>
                         <td class="govuk-table__cell">@declaration.declarantEmailAddress</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Declarant Telephone</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.delarant-telephone.label")</th>
                         <td class="govuk-table__cell">@declaration.declarantTelephoneNumber</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Declarant Contact Address</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.declarant-contact-address.label")</th>
                         <td class="govuk-table__cell">@declaration.declarantContactAddress</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Company Name</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.company-name.label")</th>
                         <td class="govuk-table__cell">@declaration.companyName</td>
                     </tr>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Company Address</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.company-address.label")</th>
                         <td class="govuk-table__cell">@declaration.companyAddress</td>
                     </tr>
                 </tbody>
