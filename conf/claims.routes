@@ -12,6 +12,9 @@ GET         /movement-reference-number-not-linked-to-eori           uk.gov.hmrc.
 GET         /importer-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber()
 POST        /importer-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit()
 
+GET         /declarant-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+POST        /declarant-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit()
+
 GET         /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetails()
 POST        /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit()
 

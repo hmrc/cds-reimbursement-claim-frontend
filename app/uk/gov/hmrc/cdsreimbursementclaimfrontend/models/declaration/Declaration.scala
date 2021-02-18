@@ -24,47 +24,63 @@ final case class Declaration(
   declarantDetails: DeclarantDetails,
   consigneeDetails: Option[ConsigneeDetails],
   maskedBankDetails: Option[MaskedBankDetails],
-  securityDetails: Option[List[SecurityDetails]]
+  securityDetails: Option[List[SecurityDetails]],
+  ndrcDetails: Option[List[NdrcDetails]]
 )
 
 object Declaration {
 
   implicit class DeclarationOps(declaration: Declaration) {
 
-    //TODO: make util to handle financial values
-    def totalPaidCharges: Double =
-      declaration.securityDetails.fold(0.0)(securityDetails => securityDetails.map(s => s.totalAmount.toDouble).sum)
+    def totalPaidCharges: BigDecimal =
+      BigDecimal(
+        declaration.ndrcDetails.fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+      )
 
-    def declarantEmailAddress: String = declaration.declarantDetails.contactDetails match {
-      case Some(value) => value.emailAddress.getOrElse("no email address")
-      case None        => "no contact details"
+    def consigneeName: Option[String] = declaration.consigneeDetails.map(details => details.legalName)
+
+    def consigneeEmail: Option[String] =
+      declaration.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.emailAddress))
+
+    def consigneeTelephone: Option[String] =
+      declaration.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
+
+    def consigneeAddress: Option[String] =
+      declaration.consigneeDetails.map(details => establishmentAddress(details.establishmentAddress).mkString(", "))
+
+    def declarantName: String = declaration.declarantDetails.legalName
+
+    def declarantEmailAddress: Option[String] =
+      declaration.declarantDetails.contactDetails.flatMap(details => details.emailAddress)
+
+    def declarantTelephoneNumber: Option[String] =
+      declaration.declarantDetails.contactDetails.flatMap(details => details.telephone)
+
+    def declarantContactAddress: Option[String] =
+      declaration.declarantDetails.contactDetails.map(details => declarantAddress(details).mkString(", "))
+
+    def declarantAddress(contactDetails: ContactDetails): List[String] = {
+      val lines = List(
+        contactDetails.addressLine1,
+        contactDetails.addressLine2,
+        contactDetails.addressLine3,
+        contactDetails.addressLine4,
+        contactDetails.postalCode,
+        contactDetails.countryCode
+      )
+      lines.collect { case Some(s) => s }
     }
 
-    def declarantTelephoneNumber: String = declaration.declarantDetails.contactDetails match {
-      case Some(value) => value.telephone.getOrElse("no telephone address")
-      case None        => "mp contact details"
+    def establishmentAddress(establishmentAddress: EstablishmentAddress): List[String] = {
+      val lines = List(
+        Some(establishmentAddress.addressLine1),
+        establishmentAddress.addressLine2,
+        establishmentAddress.addressLine3,
+        establishmentAddress.postalCode,
+        Some(establishmentAddress.countryCode)
+      )
+      lines.collect { case Some(s) => s }
     }
-
-    def declarantContactAddress: String = declaration.declarantDetails.contactDetails match {
-      case Some(value) =>
-        s"${value.addressLine1.getOrElse("")}, ${value.addressLine2.getOrElse("no line 1")}, ${value.addressLine3
-          .getOrElse("no line 2")}, ${value.addressLine4
-          .getOrElse("")}, ${value.postalCode.getOrElse("")}, ${value.countryCode.getOrElse("")}"
-      case None        => "mp contact details"
-    }
-
-    def companyName: String = declaration.consigneeDetails match {
-      case Some(value) => value.legalName
-      case None        => "could mot get name"
-    }
-
-    def companyAddress: String = declaration.consigneeDetails match {
-      case Some(value) =>
-        s"${value.establishmentAddress.addressLine1} ${value.establishmentAddress.addressLine2.getOrElse("")} ${value.establishmentAddress.addressLine3
-          .getOrElse("")} ${value.establishmentAddress.postalCode.getOrElse("")} ${value.establishmentAddress.countryCode}"
-      case None        => "could mot get name"
-    }
-
   }
 
   implicit val format: OFormat[Declaration] = Json.format[Declaration]

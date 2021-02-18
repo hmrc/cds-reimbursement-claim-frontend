@@ -16,21 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.syntax.eq._
-
-import javax.inject.{Inject, Singleton}
+import cats.data.EitherT
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.{CompleteImporterEoriNumberAnswer, IncompleteImporterEoriNumberAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
@@ -40,22 +45,94 @@ class EnterImporterEoriNumberController @Inject() (
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
-  def enterImporterEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(
-      enterImporterEoriNumberPage(
-        EnterImporterEoriNumberController.eoriNumberForm.fill(ImporterEoriNumber(Eori("12345678912345617")))
+  private def withImporterEoriNumberAnswer(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      ImporterEoriNumberAnswer
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              sessionData,
+              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            )
+          ) =>
+        val maybeImporterEoriNumberAnswer = draftClaim.fold(
+          _.importerEoriNumberAnswer
+        )
+        maybeImporterEoriNumberAnswer.fold[Future[Result]](
+          f(sessionData, fillingOutClaim, IncompleteImporterEoriNumberAnswer.empty)
+        )(f(sessionData, fillingOutClaim, _))
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  def enterImporterEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withImporterEoriNumberAnswer { (_, _, answers) =>
+      answers.fold(
+        ifIncomplete =>
+          ifIncomplete.importerEoriNumber match {
+            case Some(importerEoriNumber) =>
+              Ok(enterImporterEoriNumberPage(EnterImporterEoriNumberController.eoriNumberForm.fill(importerEoriNumber)))
+            case None                     =>
+              Ok(enterImporterEoriNumberPage(EnterImporterEoriNumberController.eoriNumberForm))
+          },
+        ifComplete =>
+          Ok(
+            enterImporterEoriNumberPage(
+              EnterImporterEoriNumberController.eoriNumberForm.fill(ifComplete.importerEoriNumber)
+            )
+          )
       )
-    )
+    }
   }
 
-  def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+  def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withImporterEoriNumberAnswer { (_, fillingOutClaim, answers) =>
+        EnterImporterEoriNumberController.eoriNumberForm
+          .bindFromRequest()
+          .fold(
+            requestFormWithErrors =>
+              BadRequest(
+                enterImporterEoriNumberPage(
+                  requestFormWithErrors
+                )
+              ),
+            importerEoriNumber => {
+              val updatedAnswers = answers.fold(
+                _ =>
+                  CompleteImporterEoriNumberAnswer(
+                    importerEoriNumber
+                  ),
+                complete => complete.copy(importerEoriNumber = importerEoriNumber)
+              )
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(importerEoriNumberAnswer = Some(updatedAnswers)))
+
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap((_: Unit) => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not get importer eori number", e)
+                  errorHandler.errorResult()
+                },
+                _ => Redirect(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber())
+              )
+            }
+          )
+      }
   }
 
 }
@@ -64,6 +141,11 @@ object EnterImporterEoriNumberController {
 
   final case class ImporterEoriNumber(value: Eori)
 
+  object ImporterEoriNumber {
+    implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
+  }
+
+  //TODO: find out what is a valid EORI number
   val eoriNumberMapping: Mapping[Eori] =
     nonEmptyText
       .verifying("invalid.number", str => Eori.isValid(str))
@@ -74,13 +156,5 @@ object EnterImporterEoriNumberController {
       "enter-importer-eori-number" -> eoriNumberMapping
     )(ImporterEoriNumber.apply)(ImporterEoriNumber.unapply)
   )
-
-  def processFormErrors(errors: Seq[FormError]): FormError =
-    if (errors.exists(fe => fe.message === "error.required")) {
-      FormError("enter-importer-eori-number", List("error.required"))
-    } else if (errors.exists(fe => fe.message === "invalid.reference"))
-      FormError("enter-importer-eori-number", List("invalid.reference"))
-    else
-      FormError("enter-importer-eori-number", List("invalid"))
 
 }

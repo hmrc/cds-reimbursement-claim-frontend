@@ -27,13 +27,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.toClaimantDetailsAsIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -82,7 +84,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
 
   def enterClaimantDetailsAsIndividual: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsIndividualAnswers { (_, _, answers) =>
+      withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
         answers.fold(
           ifIncomplete =>
             ifIncomplete.claimantDetailsAsIndividual match {
@@ -95,11 +97,23 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   )
                 )
               case None                              =>
-                Ok(
-                  enterClaimantDetailAsIndividualPage(
-                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
-                  )
-                )
+                fillingOutClaim.draftClaim.fold(_.maybeDeclaration) match {
+                  case Some(value) =>
+                    Ok(
+                      enterClaimantDetailAsIndividualPage(
+                        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                          toClaimantDetailsAsIndividual(value)
+                        )
+                      )
+                    )
+                  case None        =>
+                    Ok(
+                      enterClaimantDetailAsIndividualPage(
+                        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+                      )
+                    )
+
+                }
             },
           ifComplete =>
             Ok(
@@ -366,4 +380,25 @@ object EnterClaimantDetailsAsIndividualController {
       ""                                                        -> companyDetailsMapping
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
+
+  def toClaimantDetailsAsIndividual(declaration: Declaration): ClaimantDetailsAsIndividual = {
+    val d = Declaration.DeclarationOps(declaration)
+    val a = declaration.consigneeDetails.map(p => p.establishmentAddress)
+    ClaimantDetailsAsIndividual(
+      d.consigneeName.getOrElse(""),
+      Email(d.consigneeEmail.getOrElse("")),
+      d.consigneeTelephone.getOrElse(""),
+      NonUkAddress(
+        "",
+        a.map(s => s.addressLine1).getOrElse(""),
+        a.flatMap(s => s.addressLine2),
+        a.flatMap(s => s.addressLine3),
+        "",
+        Some(""),
+        a.flatMap(s => s.postalCode),
+        Country(a.map(s => s.countryCode).getOrElse(""))
+      ),
+      YesNo.No
+    )
+  }
 }

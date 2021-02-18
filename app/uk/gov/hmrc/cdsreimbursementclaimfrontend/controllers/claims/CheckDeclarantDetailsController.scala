@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
@@ -65,13 +65,41 @@ class CheckDeclarantDetailsController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
+    fillingOutClaim.draftClaim match {
+      case DraftClaim.DraftC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            importerEoriNumberAnswer,
+            declarantEoriNumberAnswer,
+            _
+          ) =>
+        (importerEoriNumberAnswer, declarantEoriNumberAnswer) match {
+          case (Some(_), Some(_)) => routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+          case _                  => routes.EnterMovementReferenceNumberController.enterMrn()
+        }
+    }
+
   def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withPossibleDeclaration { (_, _, maybeDeclaration) =>
+    withPossibleDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
       maybeDeclaration.fold(
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
-      )(declaration =>
-        Ok(checkDeclarantDetailsPage(declaration, routes.EnterMovementReferenceNumberController.enterMrn()))
-      )
+      )(declaration => Ok(checkDeclarantDetailsPage(declaration, handleBackLink(fillingOutClaim))))
     }
   }
 

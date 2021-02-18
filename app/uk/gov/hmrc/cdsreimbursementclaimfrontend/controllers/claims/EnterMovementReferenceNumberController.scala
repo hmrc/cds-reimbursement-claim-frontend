@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -54,7 +53,6 @@ class EnterMovementReferenceNumberController @Inject() (
   val errorHandler: ErrorHandler,
   claimService: ClaimService,
   cc: MessagesControllerComponents,
-  ineligiblePage: html.ineligible,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number,
   mrnNotLinkedToEoriPage: pages.mrn_not_linked_to_eori
@@ -196,83 +194,48 @@ class EnterMovementReferenceNumberController @Inject() (
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val result = for {
-                    declaration    <- claimService
-                                        .getDeclaration(mrn)
-                                        .leftMap(_ => Error("could not get declaration"))
-                    _              <- EitherT
-                                        .liftF(
-                                          updateSession(sessionStore, request)(
-                                            _.copy(journeyStatus =
-                                              Some(
-                                                updatedJourney.copy(fillingOutClaim =
-                                                  updatedJourney.draftClaim.fold(_.copy(declaration = declaration))
+                  val updateSessionWithReference = EitherT
+                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                    .leftMap((_: Unit) => Error("could not update session"))
+
+                  val getDeclaration: EitherT[Future, Error, Declaration] = claimService
+                    .getDeclaration(mrn)
+                    .leftMap(_ => Error("could not get declaration"))
+
+                  val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
+                    declaration    <- getDeclaration
+                    _              <- updateSessionWithReference
+                    mrnJourneyFlow <- EitherT
+                                        .fromEither[Future](
+                                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, declaration)
+                                        )
+                                        .leftMap(_ => Error("could not evaluate MRN flow"))
+                    _              <- EitherT.liftF(
+                                        updateSession(sessionStore, request)(
+                                          _.copy(journeyStatus =
+                                            Some(
+                                              fillingOutClaim.copy(draftClaim =
+                                                newDraftClaim.copy(
+                                                  maybeDeclaration = Some(declaration),
+                                                  movementReferenceNumberAnswer = Some(updatedAnswers)
                                                 )
                                               )
                                             )
                                           )
                                         )
-                                        .leftMap((_: Unit) => Error("could not update session"))
-                    mrnJourneyFlow <- EitherT.fromEither[Future](
-                                        evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, declaration)
                                       )
                   } yield mrnJourneyFlow
 
                   result.fold(
                     e => {
-                      logger.warn("could not determine correct MRN journey flow", e)
+                      logger.warn("could not get declaration information", e)
                       errorHandler.errorResult()
                     },
                     {
-                      case Left(value) => Ok("to be built")
-                      case Right(j)    =>
-                        val newD           = newDraftClaim.copy(
-                          maybeDeclaration = Some(j.declaration),
-                          movementReferenceNumberAnswer = Some(updatedAnswers)
-                        )
-                        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                        val result2 = EitherT
-                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                          .leftMap((_: Unit) => Error("could not update session"))
-
-                        result2.fold(
-                          e => {
-                            logger.warn("could not start third party importer journey")
-                            errorHandler.errorResult()
-                          },
-                          _ => {}
-                        )
-
+                      case Left(_)  => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                      case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
                     }
                   )
-
-//                  val result: EitherT[Future, models.Error, Unit] = for {
-//                    declaration   <- claimService.getDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
-//                    updatedJourney =
-//                      fillingOutClaim.copy(draftClaim =
-//                        if (
-//                          declaration.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
-//                        )
-//                          newDraftClaim.copy(
-//                            maybeDeclaration = Some(declaration),
-//                            movementReferenceNumberAnswer = Some(updatedAnswers)
-//                          )
-//                        else newDraftClaim
-//                      )
-//                    _             <-
-//                      EitherT
-//                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-//                        .leftMap((_: Unit) => Error("could not update session"))
-//                  } yield ()
-//
-//                  result.fold(
-//                    e => {
-//                      logger.warn("could not capture movement reference number", e)
-//                      errorHandler.errorResult()
-//                    },
-//                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
-//                  )
               }
           )
       }

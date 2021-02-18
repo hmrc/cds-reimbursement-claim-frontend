@@ -120,7 +120,7 @@ unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI
 #  INELIGIBLE PAGE
 #===================================================
 ineligible.title=Sorry, you cannot make a claim.
-ineligible.help=You do not have any paid charges against this MRN.
+ineligible.help=There is an issue with your declaration. Contact the CDS team.
 
 #===================================================
 #  ENTER MRN PAGE
@@ -150,6 +150,17 @@ enter-importer-eori-number.help-text=Must be 17 characters, for example 9GB03I52
 enter-importer-eori-number.invalid.number=Enter a valid EORI number
 enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
+
+#===================================================
+#  ENTER DECLARANT EORI NUMBER PAGE
+#===================================================
+enter-declarant-eori-number.title=Enter the declarant’s EORI number
+enter-declarant-eori-number.caption=Declarant EORI number
+enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
+enter-declarant-eori-number.help-text=Must be 17 characters, for example 9GB03I52858027018
+enter-declarant-eori-number.invalid.number=Enter a valid EORI number
+enter-declarant-eori-number.invalid=Enter a valid EORI number
+enter-declarant-eori-number.error.required=Enter a valid EORI number
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE

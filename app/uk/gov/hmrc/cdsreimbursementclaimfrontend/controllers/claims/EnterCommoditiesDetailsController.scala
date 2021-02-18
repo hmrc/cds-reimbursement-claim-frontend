@@ -95,6 +95,8 @@ class EnterCommoditiesDetailsController @Inject() (
             _,
             reasonForBasisAndClaimAnswer,
             _,
+            _,
+            _,
             _
           ) =>
         (reasonForBasisAndClaimAnswer, reasonForClaim) match {

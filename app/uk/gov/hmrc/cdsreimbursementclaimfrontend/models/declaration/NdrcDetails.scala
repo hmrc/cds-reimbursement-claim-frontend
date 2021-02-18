@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import play.api.libs.json.{Json, OFormat}
 
-sealed trait MrnJourney extends Product with Serializable
+final case class NdrcDetails(
+  taxType: String,
+  amount: String,
+  paymentMethod: String,
+  paymentReference: String,
+  cmaEligible: Option[String]
+)
 
-object MrnJourney {
-  final case class MrnImporter(declaration: Declaration) extends MrnJourney
-  final case class ThirdPartyImporter(declaration: Declaration) extends MrnJourney
+object NdrcDetails {
+  implicit val format: OFormat[NdrcDetails] = Json.format[NdrcDetails]
 }

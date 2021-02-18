@@ -22,8 +22,10 @@ import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{EnterClaim, EnterEuClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.CompleteBankAccountDetailAnswers
@@ -65,6 +67,8 @@ final case class CompleteC285Claim(
   maybeReasonForClaimAndBasisAnswer: Option[SelectReasonForClaimAndBasis],
   maybeReasonForClaim: Option[BasisForClaim],
   declaration: Option[Declaration],
+  importerEoriNumber: Option[ImporterEoriNumber],
+  declarantEoriNumber: Option[DeclarantEoriNumber],
   lastUpdatedDate: LocalDate
 ) extends CompleteClaim
 
@@ -90,6 +94,8 @@ object CompleteC285Claim {
             Some(completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswers),
             reasonForBasisAndClaimAnswer,
             None,
+            importerEoriNumberAnswer,
+            declarantEoriNumberAnswer,
             lastUpdatedDate
           ) =>
         completeMovementReferenceNumberAnswer.movementReferenceNumber match {
@@ -117,13 +123,42 @@ object CompleteC285Claim {
                 reasonForBasisAndClaimAnswer.flatMap(rcb => rcb.reasonForClaimAndBasis),
                 reasonForClaim.flatMap(p => p.reason),
                 declaration = None,
+                None,
+                None,
                 lastUpdatedDate = lastUpdatedDate
               )
             )
-          case Right(_)          => sys.error("invalid user data state")
+          case Right(mrn)        =>
+            Some(
+              CompleteC285Claim(
+                claimId = id,
+                Right(mrn),
+                duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
+                  duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
+                ),
+                completeDeclarationDetailAnswer,
+                duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
+                  duplicateDeclarantDetailAnswers.duplicateDeclaration
+                ),
+                completeDeclarantTypeAnswer,
+                completeClaimantDetailsAsIndividualAnswer,
+                claimantDetailsAsImporterCompanyAnswers,
+                completeBankAccountDetailAnswers,
+                supportingEvidenceAnswers = s,
+                ukDutyAmountAnswers.flatMap(p => p.maybeUkDuty),
+                euDutyAmountAnswers.flatMap(p => p.maybeEuDuty),
+                completeClaimAnswers,
+                completeCommodityDetailsAnswers,
+                None,
+                reasonForClaim.flatMap(p => p.reason),
+                declaration = None,
+                importerEoriNumberAnswer.flatMap(ie => ie.importerEori),
+                declarantEoriNumberAnswer.flatMap(de => de.declarantEori),
+                lastUpdatedDate = lastUpdatedDate
+              )
+            )
         }
-      case _ =>
-        None
+      case _ => None
     }
 
   implicit val eq: Eq[CompleteC285Claim]          = Eq.fromUniversalEquals[CompleteC285Claim]
@@ -153,6 +188,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         duplicateDeclarationDetails
@@ -164,6 +201,8 @@ object CompleteClaim {
             _,
             _,
             declarationDetails,
+            _,
+            _,
             _,
             _,
             _,
@@ -201,6 +240,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         declarantType.declarantType
@@ -225,6 +266,8 @@ object CompleteClaim {
             maybeReasonForClaimAndBasisAnswer,
             maybeReasonForClaim,
             _,
+            _,
+            _,
             _
           ) =>
         (maybeReasonForClaimAndBasisAnswer, maybeReasonForClaim) match {
@@ -244,6 +287,8 @@ object CompleteClaim {
             _,
             _,
             claimantDetailsAsImporterCompanyAnswer,
+            _,
+            _,
             _,
             _,
             _,
@@ -290,6 +335,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
@@ -311,6 +358,8 @@ object CompleteClaim {
             _,
             _,
             commodityDetails,
+            _,
+            _,
             _,
             _,
             _,
@@ -338,6 +387,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         bankAccountDetails.bankAccountDetails
@@ -354,6 +405,8 @@ object CompleteClaim {
             _,
             _,
             bankAccountDetails,
+            _,
+            _,
             _,
             _,
             _,
@@ -389,6 +442,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         ukDuty match {
@@ -411,6 +466,8 @@ object CompleteClaim {
             _,
             _,
             euDuty,
+            _,
+            _,
             _,
             _,
             _,
@@ -443,6 +500,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         movementReferenceNumber
@@ -453,6 +512,8 @@ object CompleteClaim {
             _,
             _,
             duplicateMovementReferenceNumberAnswer,
+            _,
+            _,
             _,
             _,
             _,
@@ -494,6 +555,8 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         supportingEvidenceAnswers.evidences
@@ -518,23 +581,12 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
+            _,
             _
           ) =>
         supportingEvidenceAnswers.evidences
     }
-
-    //    def declarantAddress: Option[String] = completeClaim match {
-//      case CompleteC285Claim(_, _, declaration, _, _, _) =>
-//        declaration match {
-//          case Some(value) =>
-//            value.declarantDetails.contactDetails.map { c =>
-//              s"${c.addressLine1.getOrElse("")}, ${c.addressLine2.getOrElse("")}, ${c.addressLine3
-//                .getOrElse("")}, ${c.addressLine4.getOrElse("")}, ${c.postalCode.getOrElse("")}, ${c.countryCode.getOrElse("")}"
-//            }
-//
-//          case None => Some("") //FIXME
-//        }
-//    }
 
   }
 
