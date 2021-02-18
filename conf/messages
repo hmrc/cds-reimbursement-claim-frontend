@@ -228,6 +228,7 @@ enter-declaration-details.declarant-phone-number.help=For international numbers 
 enter-declaration-details.error.required=Enter your declaration details
 enter-declaration-details.error.tooFarInFuture=Please a date before today
 enter-declaration-details.date-of-import.error.required=Enter a date of import
+enter-declaration-details-month.error.monthAndYearRequired = Enter a valid date of import
 enter-declaration-details-day.error.invalid=Enter a valid date of import
 enter-declaration-details.place-of-import.error.required=Enter a place of import
 enter-declaration-details.importer-name.error.required=Enter an importer name
