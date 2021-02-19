@@ -409,7 +409,7 @@ check-your-reimbursement-claim-total.help-text=These are the calculations based 
 #===================================================
 #  ENTER BANK DETAILS PAGE
 #===================================================
-enter-bank-details.title=Enter bank account details
+enter-bank-details.title=Enter Bank Account Details
 enter-bank-details.caption=Bank Details
 enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, contact the CDS team.
 enter-bank-details.account-name.label=Bank account name
