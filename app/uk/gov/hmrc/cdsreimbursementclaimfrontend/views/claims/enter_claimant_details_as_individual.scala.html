@@ -197,7 +197,7 @@
                     fieldId = line6Key,
                     label = Html(messages(s"$key.address.line6.label")),
                     errorKey = form.error(line6Key).map(e => s"${e.message}"),
-                    value = form.data.getOrElse(line6Key, "fsdf"),
+                    value = form.data.getOrElse(line6Key, ""),
                     hasErrors = form.error(line6Key).nonEmpty,
                     inputClass = Some("govuk-!-width-one-quarter"),
                     autoComplete = AutoCompleteType.AddressLevel1
