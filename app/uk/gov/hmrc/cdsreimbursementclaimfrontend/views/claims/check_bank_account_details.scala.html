@@ -15,8 +15,9 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccount
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 
@@ -26,7 +27,7 @@
  buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
 )
 
-@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(bankAccount : BankAccount)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
  @key = @{"bank-details"}
  @title = @{messages(s"$key.title")}
@@ -42,21 +43,21 @@
        <tbody>
         <tr>
          <th scope="row" style="font-weight:bold">Account name</th>
-         <td>/td>
+         <td>@bankAccount.accountName</td>
         </tr>
         <tr>
          <th scope="row" style="font-weight:bold">Sort code</th>
-         <td></td>
+         <td>@bankAccount.sortCode</td>
         </tr>
         <tr>
          <th scope="row" style="font-weight:bold">Account number</th>
-         <td></td>
+         <td>@bankAccount.accountNumber</td>
         </tr>
        </tbody>
       </table>
      </div>
 
-     <p>@Html(messages(s"$key.different-details-link"))</p>
+     <a href="@routes.BankAccountController.enterBankAccountDetails().url">@messages(s"$key.different-details-link")</a>
 
      @buttonLink(messages("button.continue"), fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url)
 

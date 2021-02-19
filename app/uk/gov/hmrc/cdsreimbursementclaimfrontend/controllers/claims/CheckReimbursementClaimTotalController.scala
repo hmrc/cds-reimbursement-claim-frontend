@@ -119,7 +119,15 @@ class CheckReimbursementClaimTotalController @Inject() (
             logger.warn("could not claim amounts", e)
             errorHandler.errorResult()
           },
-          _ => Redirect(routes.BankAccountController.enterBankAccountDetails())
+          _ =>
+            fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
+              case Some(value) =>
+                value match {
+                  case Left(_)  => Redirect(routes.BankAccountController.enterBankAccountDetails())
+                  case Right(_) => Redirect(routes.BankAccountController.checkBankAccountDetails())
+                }
+              case None        => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+            }
         )
       }
   }

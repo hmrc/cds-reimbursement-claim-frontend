@@ -32,7 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.{CompleteBankAccountDetailAnswers, IncompleteBankAccountDetailAnswers}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -51,6 +52,7 @@ class BankAccountController @Inject() (
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
+  checkBankAccountDetailsPage: pages.check_bank_account_details,
   enterBankAccountDetailsPage: pages.enter_bank_account_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
@@ -72,7 +74,7 @@ class BankAccountController @Inject() (
               fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
             )
           ) =>
-        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(
+        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswers] = draftClaim.fold(
           _.bankAccountDetailsAnswers
         )
         maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
@@ -81,8 +83,40 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def checkBankAccountDetails(): Action[AnyContent] = Action {
-    Ok("checking bank account details")
+  private def withMaskedBankDetails(
+    f: (
+      SessionData,
+      FillingOutClaim,
+      Option[MaskedBankDetails]
+    ) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+      case Some(
+            (
+              s,
+              r @ FillingOutClaim(_, _, c: DraftClaim)
+            )
+          ) =>
+        val maybeMaskedBankDetails: Option[MaskedBankDetails] =
+          c.fold(_.maybeDeclaration.flatMap(p => p.maskedBankDetails))
+        f(s, r, maybeMaskedBankDetails)
+      case _ => Redirect(baseRoutes.StartController.start())
+    }
+
+  def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withMaskedBankDetails { (_, _, answers) =>
+      answers.fold(
+        errorHandler.errorResult()
+      )(maskedBankDetails =>
+        (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
+          case (Some(cmbd), _)    =>
+            Ok(checkBankAccountDetailsPage(BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber)))
+          case (None, Some(dmbd)) =>
+            Ok(checkBankAccountDetailsPage(BankAccount(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber)))
+          case _                  => errorHandler.errorResult()
+        }
+      )
+    }
   }
 
   def enterBankAccountDetails: Action[AnyContent] =
