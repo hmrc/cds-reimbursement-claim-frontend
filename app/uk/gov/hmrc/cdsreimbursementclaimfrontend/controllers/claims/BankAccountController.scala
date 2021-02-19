@@ -222,7 +222,7 @@ object BankAccountController {
     implicit val format: OFormat[AccountName] = Json.format[AccountName]
   }
 
-  val accountNameRegex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,150}$""".r.pattern.asPredicate()
+  val accountNameRegex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
 
   val accountNameMapping: Mapping[AccountName] =
     nonEmptyText
