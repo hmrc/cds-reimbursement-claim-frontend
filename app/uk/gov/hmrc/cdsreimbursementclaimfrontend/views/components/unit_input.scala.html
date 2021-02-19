@@ -99,7 +99,7 @@ List(Some(assistiveKey), hintIdWithHintText.map(_._1), extraContentIdWithContent
   <div class="hmcts-currency-input custom-input-wrapper @inputClass @aspect">
     <input
       value="@value"
-      @if(autoComplete.value == "on") { autocomplete="@autoComplete.value" }
+      @if(autoComplete.value != "off") { autocomplete="@autoComplete.value" }
       class="@inputClasses"
       id="@fieldId"
       name="@fieldId"
