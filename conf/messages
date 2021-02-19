@@ -436,11 +436,11 @@ bank-details.different-details-link=Enter different bank details
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
-supporting-evidence.choose-document-type.error.number=Choose a document type to support your claim
-supporting-evidence.choose-document-type.error.required=Choose a document type to support your claim
+supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
+supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.caption=Supporting evidence
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.choose-document-type=Examples of document types:
+supporting-evidence.choose-document-type=Examples of file types
 supporting-evidence.choose-document-type.details.l0=C88/E2 (proof to authorise imports from the country of origin)
 supporting-evidence.choose-document-type.details.l1=Commercial invoice (shows the value of the goods)
 supporting-evidence.choose-document-type.details.l2=Packing list (document that states packaging details in each shipment)
