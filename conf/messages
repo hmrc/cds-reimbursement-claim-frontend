@@ -128,7 +128,7 @@ ineligible.help=There is an issue with your declaration. Contact the CDS team.
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
 enter-movement-reference-number.caption=Movement Reference Number
 enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
