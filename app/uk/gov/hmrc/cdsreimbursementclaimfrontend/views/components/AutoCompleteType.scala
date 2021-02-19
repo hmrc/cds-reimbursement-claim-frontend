@@ -23,6 +23,9 @@ object AutoCompleteType {
   final case object On extends AutoCompleteType {
     val value: String = "on"
   }
+  final case object Off extends AutoCompleteType {
+    val value: String = "off"
+  }
   final case object FirstName extends AutoCompleteType {
     val value: String = "given-name"
   }

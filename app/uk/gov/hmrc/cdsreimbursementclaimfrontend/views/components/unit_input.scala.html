@@ -66,6 +66,7 @@
 @describedByKeys = @{
 List(Some(assistiveKey), hintIdWithHintText.map(_._1), extraContentIdWithContent.map(_._1), errorIdWithError.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
 
+
 @fieldLabel = {
   @if(labelAsHeading) {
     <h1 class="govuk-label-wrapper">
@@ -98,13 +99,12 @@ List(Some(assistiveKey), hintIdWithHintText.map(_._1), extraContentIdWithContent
   <div class="hmcts-currency-input custom-input-wrapper @inputClass @aspect">
     <input
       value="@value"
-      autocomplete="@autoComplete.value"
+      @if(autoComplete.value == "on") { autocomplete="@autoComplete.value" }
       class="@inputClasses"
       id="@fieldId"
       name="@fieldId"
       type="text"
-      inputmode="decimal"
-      @if(labelledByID.nonEmpty) { aria-labelledby="@labelledByID" }>
+      @if(labelledByID.nonEmpty) { aria-labelledby="@labelledByID" }
       @if(describedByKeys.nonEmpty) { aria-describedby="@describedByKeys" }>
     <div class="hmcts-currency-input__symbol @aspect@if(hasErrors){ form-control--error}" aria-hidden="true">
     @unit

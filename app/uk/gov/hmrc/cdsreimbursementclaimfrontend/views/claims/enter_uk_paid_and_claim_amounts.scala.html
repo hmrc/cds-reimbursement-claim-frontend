@@ -76,15 +76,16 @@
             <thead>
                 <tr class="govuk-table__row">
                     <th scope="col" class="govuk-table__header">UK Duty</th>
-                    <th scope="col" class="govuk-table__header">Paid Amount</th>
-                    <th scope="col" class="govuk-table__header">Claim Amount</th>
+                    <th scope="col" class="govuk-table__header" id="aria-label-column.paid-amount">Paid Amount</th>
+                    <th scope="col" class="govuk-table__header" id="aria-label-column.claim-amount">Claim Amount</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
                 @for((taxCode, index) <- taxCodes.zipWithIndex){
                 <input id="enter-duty-and-claim-amounts[@index].tax-code" name="enter-duty-and-claim-amounts[@index].tax-code" type="hidden" value="1">
                 <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header" style="vertical-align: middle;">@taxCode.description</th>
+
+                    <th scope="row" class="govuk-table__header" style="vertical-align: middle;" id="enter-duty-and-claim-amounts[@index].aria-label-row">@taxCode.description</th>
                     <td class="govuk-table__cell">
                         @unitInput(
                             fieldId = s"$key[$index].paid",
@@ -94,7 +95,8 @@
                             label = Html(""),
                             labelAsHeading = false,
                             helpText = None,
-                            autoComplete = AutoCompleteType.On,
+                            autoComplete = AutoCompleteType.Off,
+                            labelledByID = s"enter-duty-and-claim-amounts[$index].aria-label-row aria-label-column.paid-amount",
                             inputClass = Some("small"),
                             aspect = "left",
                             unit = "£",
@@ -110,7 +112,8 @@
                             label = Html(""),
                             labelAsHeading = false,
                             helpText = None,
-                            autoComplete = AutoCompleteType.On,
+                            autoComplete = AutoCompleteType.Off,
+                            labelledByID = s"enter-duty-and-claim-amounts[$index].aria-label-row aria-label-column.claim-amount",
                             inputClass = Some("small"),
                             aspect = "left",
                             unit = "£",
