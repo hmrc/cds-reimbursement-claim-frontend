@@ -29,7 +29,7 @@ object GetDeclarationResponse {
   implicit val declarantDetailsReads: OFormat[DeclarantDetails]                                            = Json.format
   implicit val consigneeBankDetailsReads: OFormat[ConsigneeBankDetails]                                    = Json.format
   implicit val declarantBankDetailsReads: OFormat[DeclarantBankDetails]                                    = Json.format
-  implicit val bankDetailsReads: OFormat[BankDetails]                                                      = Json.format
+  implicit val bankDetailsReads: OFormat[BankAccount]                                                      = Json.format
   implicit val taxDetailsReads: OFormat[TaxDetails]                                                        = Json.format
   implicit val consigneeDetailsReads: OFormat[ConsigneeDetails]                                            = Json.format
   implicit val accountDetailsReads: OFormat[AccountDetails]                                                = Json.format
@@ -69,7 +69,7 @@ final case class ResponseDetail(
   declarantDetails: DeclarantDetails,
   consigneeDetails: Option[ConsigneeDetails],
   accountDetails: Option[List[AccountDetails]],
-  bankDetails: Option[BankDetails],
+  bankDetails: Option[BankAccount],
   securityDetails: Option[List[SecurityDetails]],
   ndrcDetails: Option[List[NdrcDetails]]
 )
