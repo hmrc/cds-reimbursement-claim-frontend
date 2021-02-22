@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAdd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -391,7 +392,7 @@ object EnterClaimantDetailsAsIndividualController {
   final case class ClaimantDetailsAsIndividual(
     fullName: String,
     emailAddress: Email,
-    phoneNumber: String,
+    phoneNumber: PhoneNumber,
     contactAddress: NonUkAddress,
     addCompanyDetails: YesNo
   )
@@ -404,7 +405,7 @@ object EnterClaimantDetailsAsIndividualController {
     mapping(
       "enter-claimant-details-individual.importer-full-name"    -> nonEmptyText,
       "enter-claimant-details-individual.importer-email"        -> Email.mapping,
-      "enter-claimant-details-individual.importer-phone-number" -> nonEmptyText,
+      "enter-claimant-details-individual.importer-phone-number" -> PhoneNumber.mapping,
       ""                                                        -> Address.nonUkAddressFormMapping,
       ""                                                        -> companyDetailsMapping
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
@@ -416,7 +417,7 @@ object EnterClaimantDetailsAsIndividualController {
     ClaimantDetailsAsIndividual(
       d.consigneeName.getOrElse(""),
       Email(d.consigneeEmail.getOrElse("")),
-      d.consigneeTelephone.getOrElse(""),
+      PhoneNumber(d.consigneeTelephone.getOrElse("")),
       NonUkAddress(
         a.flatMap(s => s.addressLine1).getOrElse(""),
         a.flatMap(s => s.addressLine2).getOrElse(""),
