@@ -224,7 +224,6 @@ enter-claimant-details-importer-company.address.line4.label=Town or city
 enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Enter a town or city
 enter-claimant-details-importer-company.address.line5.label=County (optional)
 enter-claimant-details-importer-company.address.line6.label=Postcode
-enter-claimant-details-importer-company.address.line6.error.required=Enter a postcode
 enter-claimant-details-importer-company.address.line7.label=Country
 enter-claimant-details-importer-company.countryCode.error.required=Enter a country
 enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
