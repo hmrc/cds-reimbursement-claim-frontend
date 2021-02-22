@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 @Singleton
 class IneligibleController @Inject() (
   cc: MessagesControllerComponents,
-  ineligiblePage: views.html.ineligible
+  ineligiblePage: views.html.no-duties-paid
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc) {
 
