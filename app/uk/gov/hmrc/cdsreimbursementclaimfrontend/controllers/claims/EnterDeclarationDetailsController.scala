@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarantDetail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, TimeUtils}
@@ -408,10 +409,10 @@ object EnterDeclarationDetailsController {
     placeOfImport: String,
     importerName: String,
     importerEmailAddress: Email,
-    importerPhoneNumber: String,
+    importerPhoneNumber: PhoneNumber,
     declarantName: String,
     declarantEmailAddress: Email,
-    declarantPhoneNumber: String
+    declarantPhoneNumber: PhoneNumber
   )
 
   object EntryDeclarationDetails {
@@ -424,10 +425,10 @@ object EnterDeclarationDetailsController {
       "enter-declaration-details.place-of-import"         -> nonEmptyText,
       "enter-declaration-details.importer-name"           -> nonEmptyText,
       "enter-declaration-details.importer-email-address"  -> Email.mapping,
-      "enter-declaration-details.importer-phone-number"   -> nonEmptyText,
+      "enter-declaration-details.importer-phone-number"   -> PhoneNumber.mapping,
       "enter-declaration-details.declarant-name"          -> nonEmptyText,
       "enter-declaration-details.declarant-email-address" -> Email.mapping,
-      "enter-declaration-details.declarant-phone-number"  -> nonEmptyText
+      "enter-declaration-details.declarant-phone-number"  -> PhoneNumber.mapping
     )(EntryDeclarationDetails.apply)(EntryDeclarationDetails.unapply)
   )
 
