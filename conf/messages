@@ -399,7 +399,7 @@ enter-duty-and-claim-amounts.help-text=HMRC does not refund agents' fees.
 enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid claim
 enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
 
-enter-duty-and-claim-amounts-eu.title=Enter EU Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts-eu.title=Enter EU duty amounts to calculate your claim
 enter-duty-and-claim-amounts-eu.caption=Duties Paid and Claims
 enter-duty-and-claim-amounts-eu.help-text=HMRC does not refund agents' fees.
 enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
