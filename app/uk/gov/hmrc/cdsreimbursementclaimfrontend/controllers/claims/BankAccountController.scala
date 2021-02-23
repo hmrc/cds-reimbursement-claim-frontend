@@ -303,7 +303,6 @@ object BankAccountController {
     mapping(
       "enter-bank-details.is-business-account" -> Forms
         .list(of(isBusinessAccountFormatter))
-        .verifying("error.required", _.nonEmpty)
     )(identity)(Some(_))
 
   }
