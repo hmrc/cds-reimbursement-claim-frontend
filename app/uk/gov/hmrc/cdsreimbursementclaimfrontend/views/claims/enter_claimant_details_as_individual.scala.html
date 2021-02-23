@@ -64,11 +64,11 @@
         }
      }
 
-    @options = @{List(YesNo.No, YesNo.Yes).map(toMessage)}
+    @options = @{List(YesNo.Yes, YesNo.No).map(toMessage)}
 
     @optionIndex(yesNo: YesNo) = @{ yesNo match {
-            case YesNo.No => 0
-            case YesNo.Yes => 1
+            case YesNo.No => 1
+            case YesNo.Yes => 0
     }}
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
