@@ -87,4 +87,6 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
 
   val mrnGuideUrl: String = getString("external-url.mrn-guide")
 
+  val contactCdsTeamUrl: String = getString("external-url.contact-cds-team")
+
 }

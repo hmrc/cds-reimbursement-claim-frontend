@@ -19,13 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.{views}
 
 @Singleton
 class IneligibleController @Inject() (
   cc: MessagesControllerComponents,
-  ineligiblePage: views.html.no-duties-paid
+  ineligiblePage: views.html.ineligible
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc) {
 
