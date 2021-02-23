@@ -803,7 +803,7 @@ details dl.govuk-check-your-answers {
 
 @media only screen and (max-width: 768px) {
 
-    table, thead, tbody, th, td, tr, .mobile-only {
+    /* table, thead, tbody, th, td, tr, .mobile-only {
         display: block;
     }
     thead tr {
@@ -830,7 +830,7 @@ details dl.govuk-check-your-answers {
         padding-right: 40px;
         white-space: nowrap;
         margin-left: -150px;
-    }
+    } */
 
     table.view-return-charges td:nth-of-type(1):before { content: "Description"; }
     table.view-return-charges td:nth-of-type(2):before { content: "Pay by"; }

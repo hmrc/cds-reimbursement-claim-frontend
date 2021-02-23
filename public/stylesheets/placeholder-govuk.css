@@ -15,6 +15,15 @@ h1 > label {
     font-weight: inherit;
 }
 
+td .form-group {
+    margin: 10px 0;
+}
+
+
+
+
+
+
 .govuk-link, .app-task-list__task-name > a, a, .app-step-nav-header__title, .app-step-nav-related__link {
   /*font-family: "nta", arial, sans-serif;*/
   -webkit-font-smoothing: antialiased;
