@@ -402,7 +402,7 @@ enter-duty-and-claim-amounts.caption=Duties Paid and Claims
 enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties?</h2>
 enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
 enter-duty-and-claim-amounts.help-text=HMRC does not refund agents' fees.
-enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid claim
+enter-duty-and-claim-amounts.invalid.claim=You must enter at least one valid paid and claim amount
 enter-duty-and-claim-amounts-eu.invalid.claim=You must enter at least one valid claim
 
 enter-duty-and-claim-amounts-eu.title=Enter EU duty amounts to calculate your claim
