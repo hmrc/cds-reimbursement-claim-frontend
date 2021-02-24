@@ -298,18 +298,18 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 #===================================================
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <span style="font-weight:bold">{0}</span>. If these details are incorrect, you can change them by contacting the CDS team.
-check-declaration-details.mrn-number.label=MRN Number
-check-declaration-details.import-date.label=Import Date
-check-declaration-details.paid-charges.label=Paid Charges
-check-declaration-details.importer-name.label=Importer Name
-check-declaration-details.importer-email.label=Importer Email
-check-declaration-details.importer-telephone.label=Importer Telephone
-check-declaration-details.importer-contact-address.label=Importer Contact Address
-check-declaration-details.declarant-name.label=Declarant Name
-check-declaration-details.declarant-email.label=Declarant Email
-check-declaration-details.declarant-telephone.label=Declarant Telephone
-check-declaration-details.declarant-contact-address.label=Declarant Contact Address
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
+check-declaration-details.mrn-number.label=MRN number
+check-declaration-details.import-date.label=Import date
+check-declaration-details.paid-charges.label=Paid charges
+check-declaration-details.importer-name.label=Importer name
+check-declaration-details.importer-email.label=Importer email
+check-declaration-details.importer-telephone.label=Importer telephone
+check-declaration-details.importer-contact-address.label=Importer contact address
+check-declaration-details.declarant-name.label=Declarant name
+check-declaration-details.declarant-email.label=Declarant email
+check-declaration-details.declarant-telephone.label=Declarant telephone
+check-declaration-details.declarant-contact-address.label=Declarant contact address
 
 #===================================================
 #  SELECT REASON FOR CLAIM PAGE
@@ -351,10 +351,10 @@ select-reason-and-basis-for-claim.error.number=Select the reason and or basis fo
 select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.caption=Reason for claim
 select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.basis.error.number= Select basis of claim
-select-reason-and-basis-for-claim.reason.error.number= Select reason for claim
+select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
+select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
 
-select-reason-and-basis-for-claim.basis.label=Examples of basis of claims:
+select-reason-and-basis-for-claim.basis.label=Examples of basis of claim
 select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
 select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
 select-reason-and-basis-for-claim.basis.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
@@ -366,7 +366,7 @@ select-reason-and-basis-for-claim.basis.details.l7=inward processing relief from
 select-reason-and-basis-for-claim.basis.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-reason-and-basis-for-claim.basis.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-reason-and-basis-for-claim.basis.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-reason-and-basis-for-claim.reason.label=Examples of reasons to claims:
+select-reason-and-basis-for-claim.reason.label=Examples of reasons to claim
 select-reason-and-basis-for-claim.basis.reason.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
 select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you paid duties that were not due)
 select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
@@ -397,7 +397,7 @@ enter-commodities-details.error.required=Enter commodity details
 #===================================================
 #  ENTER DUTIES PAGE
 #===================================================
-enter-duty-and-claim-amounts.title=Enter UK Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts.title=Enter UK duty amounts to calculate your claim
 enter-duty-and-claim-amounts.caption=Duties Paid and Claims
 enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties?</h2>
 enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
@@ -426,14 +426,14 @@ enter-bank-details.caption=Bank Details
 enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, contact the CDS team.
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
-enter-bank-details.account-name.error.required=Please enter your account name
+enter-bank-details.account-name.error.required=Enter a valid account name
 enter-bank-details.account-number.label=Account number
 enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
 enter-bank-details.account-number.error.required=Please enter a valid account number
-enter-bank-details.account-number.invalid=Please enter a valid account number
+enter-bank-details.account-number.invalid=Enter a valid account number
 enter-bank-details.sort-code.label=Sort Code
 enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
-enter-bank-details.sort-code.error.required=Please enter a valid sort code
+enter-bank-details-sort-code.error.required=Enter a valid sort code
 enter-bank-details.is-business-account=This is a business bank account
 
 #===================================================
