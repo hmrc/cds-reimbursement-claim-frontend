@@ -98,7 +98,11 @@ class BankAccountController @Inject() (
             )
           ) =>
         val maybeMaskedBankDetails: Option[MaskedBankDetails] =
-          c.fold(_.maybeDeclaration.flatMap(p => p.maskedBankDetails))
+          c.fold(
+            _.maybeDisplayDeclaration.flatMap(displayDeclaration =>
+              displayDeclaration.displayResponseDetail.maskedBankDetails
+            )
+          )
         f(s, r, maybeMaskedBankDetails)
       case _ => Redirect(baseRoutes.StartController.start())
     }

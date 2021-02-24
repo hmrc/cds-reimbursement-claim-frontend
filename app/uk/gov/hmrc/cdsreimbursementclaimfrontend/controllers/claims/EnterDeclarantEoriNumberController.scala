@@ -168,21 +168,21 @@ class EnterDeclarantEoriNumberController @Inject() (
       case None        => None
     }
 
-    val maybeDeclaration = fillingOutClaim.draftClaim.fold(_.maybeDeclaration)
+    val maybeDisplayDeclaration = fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration)
 
-    (maybeDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
-      case (Some(declaration), Some(importerEoriNumber), Some(declarationEori)) =>
-        (declaration.consigneeDetails) match {
+    (maybeDisplayDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
+      case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>
+        (displayDeclaration.displayResponseDetail.consigneeDetails) match {
           case Some(consigneeDetails) =>
             if (
-              (consigneeDetails.consigneeEORI === importerEoriNumber.value.value) && (declarationEori.value.value === declaration.declarantDetails.declarantEORI)
+              (consigneeDetails.consigneeEORI === importerEoriNumber.value.value) && (declarationEori.value.value === displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
             ) {
               Right(true)
             } else Right(false)
           case None                   => Left(Error("could not retrieve consignee eori"))
 
         }
-      case _                                                                    => Left(Error("could not retrieve details to determine third party flow"))
+      case _                                                                           => Left(Error("could not retrieve details to determine third party flow"))
     }
   }
 

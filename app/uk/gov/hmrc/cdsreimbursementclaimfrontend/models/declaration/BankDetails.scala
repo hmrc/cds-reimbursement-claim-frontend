@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import play.api.libs.json.{Json, OFormat}
 
-object DeclarationGen extends GenUtils {
-  implicit val declarationGen: Gen[Declaration] = gen[Declaration]
+final case class BankDetails(
+  consigneeBankDetails: Option[ConsigneeBankDetails],
+  declarantBankDetails: Option[DeclarantBankDetails]
+)
 
+object BankDetails {
+  implicit val format: OFormat[BankDetails] = Json.format[BankDetails]
 }

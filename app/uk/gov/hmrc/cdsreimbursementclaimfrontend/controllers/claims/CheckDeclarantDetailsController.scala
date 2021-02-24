@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -50,7 +50,7 @@ class CheckDeclarantDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      Option[Declaration]
+      Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -60,8 +60,8 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDeclaration = c.fold(_.maybeDeclaration)
-        f(s, r, maybeDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.maybeDisplayDeclaration)
+        f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
@@ -69,7 +69,7 @@ class CheckDeclarantDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      Option[Declaration]
+      Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -79,8 +79,8 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDeclaration = c.fold(_.maybeDuplicateDeclaration)
-        f(s, r, maybeDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.maybeDuplicateDisplayDeclaration)
+        f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
 

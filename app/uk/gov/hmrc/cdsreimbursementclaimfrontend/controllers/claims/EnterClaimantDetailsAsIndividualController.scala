@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -98,7 +98,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   )
                 )
               case None                              =>
-                fillingOutClaim.draftClaim.fold(_.maybeDeclaration) match {
+                fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration) match {
                   case Some(declaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>
@@ -411,9 +411,10 @@ object EnterClaimantDetailsAsIndividualController {
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 
-  def toClaimantDetailsAsIndividual(declaration: Declaration): ClaimantDetailsAsIndividual = {
-    val d = Declaration.DeclarationOps(declaration)
-    val a = declaration.consigneeDetails.flatMap(p => p.contactDetails)
+  def toClaimantDetailsAsIndividual(displayDeclaration: DisplayDeclaration): ClaimantDetailsAsIndividual = {
+    val declaration = displayDeclaration.displayResponseDetail
+    val d           = DisplayDeclaration.DisplayDeclarationOps(displayDeclaration)
+    val a           = declaration.consigneeDetails.flatMap(p => p.contactDetails)
     ClaimantDetailsAsIndividual(
       d.consigneeName.getOrElse(""),
       Email(d.consigneeEmail.getOrElse("")),

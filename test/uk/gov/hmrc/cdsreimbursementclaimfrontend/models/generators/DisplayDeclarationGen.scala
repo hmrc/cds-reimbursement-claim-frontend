@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import org.scalacheck.Gen
+import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
-sealed trait MrnJourney extends Product with Serializable
-
-object MrnJourney {
-  final case class MrnImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case class ThirdPartyImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
+object DisplayDeclarationGen extends GenUtils {
+  implicit val displayDeclarationGen: Gen[DisplayDeclaration] = gen[DisplayDeclaration]
 }

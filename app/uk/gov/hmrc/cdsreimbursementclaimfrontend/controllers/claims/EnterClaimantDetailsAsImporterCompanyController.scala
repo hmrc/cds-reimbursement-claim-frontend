@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -97,8 +97,8 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                   )
                 )
               case None                                   =>
-                fillingOutClaim.draftClaim.fold(_.maybeDeclaration) match {
-                  case Some(declaration) =>
+                fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration) match {
+                  case Some(displayDeclaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>
                         declarantTypeAnswer.declarantType match {
@@ -109,7 +109,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                                   enterClaimantDetailAsImporterCompanyPage(
                                     EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
                                       .fill(
-                                        toClaimantDetailsAsImporter(declaration)
+                                        toClaimantDetailsAsImporter(displayDeclaration)
                                       )
                                   )
                                 )
@@ -126,7 +126,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                       case None                      =>
                         Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                     }
-                  case None              =>
+                  case None                     =>
                     Ok(
                       enterClaimantDetailAsImporterCompanyPage(
                         EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
@@ -308,7 +308,8 @@ object EnterClaimantDetailsAsImporterCompanyController {
     )(ClaimantDetailsAsImporterCompany.apply)(ClaimantDetailsAsImporterCompany.unapply)
   )
 
-  def toClaimantDetailsAsImporter(declaration: Declaration): ClaimantDetailsAsImporterCompany = {
+  def toClaimantDetailsAsImporter(displayDeclaration: DisplayDeclaration): ClaimantDetailsAsImporterCompany = {
+    val declaration  = displayDeclaration.displayResponseDetail
     val maybeAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
     ClaimantDetailsAsImporterCompany(
       "",

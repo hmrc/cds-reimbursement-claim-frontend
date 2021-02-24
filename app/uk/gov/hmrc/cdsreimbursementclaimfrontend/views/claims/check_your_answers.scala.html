@@ -116,12 +116,12 @@ article.content__body {
                         }
                     }
                     case Right(_) =>{
-                        @completeClaim.declaration.map { details =>
+                        @completeClaim.maybeDisplayDeclaration.map { details =>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">@messages(s"$key.declaration-details.label")</th>
                                 <td class="govuk-table__cell">
                                     <ul class="govuk-list govuk-list--bullet">
-                                        <li>@messages(s"$key.declaration-details.l0") @details.acceptanceDate</li>
+                                        <li>@messages(s"$key.declaration-details.l0") @details.displayResponseDetail.acceptanceDate</li>
                                         <li>@messages(s"$key.declaration-details.l8") @formatAmountOfMoneyWithPoundSign(details.totalPaidCharges)</li>
                                         <li>@messages(s"$key.declaration-details.l2") @details.consigneeName</li>
                                         <li>@messages(s"$key.declaration-details.l3") @details.consigneeEmail</li>
@@ -160,13 +160,13 @@ article.content__body {
                         }
                     }
                     case Right(_) =>{
-                        @completeClaim.duplicateDeclaration.map{details =>
+                        @completeClaim.maybeDuplicateDisplayDeclaration.map{details =>
                             <tr class="govuk-table__row">
                                 <th scope="row" class="govuk-table__header">@messages(s"$key.duplicate-declaration-details.label")</th>
                                 <td class="govuk-table__cell">
                                     <ul class="govuk-list govuk-list--bullet">
-                                        <li>@messages(s"$key.declaration-details.l0") @details.declarantId</li>
-                                        <li>@messages(s"$key.declaration-details.l0") @details.acceptanceDate</li>
+                                        <li>@messages(s"$key.declaration-details.l0") @details.displayResponseDetail.declarationId</li>
+                                        <li>@messages(s"$key.declaration-details.l0") @details.displayResponseDetail.acceptanceDate</li>
                                         <li>@messages(s"$key.declaration-details.l8") @formatAmountOfMoneyWithPoundSign(details.totalPaidCharges)</li>
                                         <li>@messages(s"$key.declaration-details.l2") @details.consigneeName</li>
                                         <li>@messages(s"$key.declaration-details.l3") @details.consigneeEmail</li>

@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
@@ -63,8 +63,8 @@ final case class CompleteC285Claim(
   commodityDetails: CompleteCommodityDetailsAnswers,
   maybeReasonForClaimAndBasisAnswer: Option[SelectReasonForClaimAndBasis],
   maybeReasonForClaim: Option[BasisForClaim],
-  declaration: Option[Declaration],
-  duplicateDeclaration: Option[Declaration],
+  maybeDisplayDeclaration: Option[DisplayDeclaration],
+  maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber]
 ) extends CompleteClaim
@@ -90,8 +90,8 @@ object CompleteC285Claim {
             Some(completeClaimAnswers: CompleteClaimAnswers),
             Some(completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswers),
             reasonForBasisAndClaimAnswer,
-            declartion,
-            duplicateDeclaration,
+            maybeDisplayDeclaration,
+            maybeDuplicateDisplayDeclaration,
             importerEoriNumberAnswer,
             declarantEoriNumberAnswer
           ) =>
@@ -119,8 +119,8 @@ object CompleteC285Claim {
                 completeCommodityDetailsAnswers,
                 reasonForBasisAndClaimAnswer.flatMap(rcb => rcb.reasonForClaimAndBasis),
                 reasonForClaim.flatMap(p => p.reason),
-                declaration = None,
-                duplicateDeclaration = None,
+                maybeDisplayDeclaration = None,
+                maybeDuplicateDisplayDeclaration = None,
                 None,
                 None
               )
@@ -148,8 +148,8 @@ object CompleteC285Claim {
                 completeCommodityDetailsAnswers,
                 None,
                 reasonForClaim.flatMap(p => p.reason),
-                declartion,
-                duplicateDeclaration,
+                maybeDisplayDeclaration,
+                maybeDuplicateDisplayDeclaration,
                 importerEoriNumberAnswer.flatMap(ie => ie.importerEori),
                 declarantEoriNumberAnswer.flatMap(de => de.declarantEori)
               )
@@ -166,7 +166,7 @@ object CompleteClaim {
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
 
-    def declaration: Option[Declaration] = completeClaim match {
+    def maybeDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -184,15 +184,15 @@ object CompleteClaim {
             _,
             _,
             _,
-            declaration,
+            maybeDisplayDeclaration,
             _,
             _,
             _
           ) =>
-        declaration
+        maybeDisplayDeclaration
     }
 
-    def duplicateDeclaration: Option[Declaration] = completeClaim match {
+    def maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -211,11 +211,11 @@ object CompleteClaim {
             _,
             _,
             _,
-            duplicateDeclaration,
+            maybeDisplayDeclaration,
             _,
             _
           ) =>
-        duplicateDeclaration
+        maybeDisplayDeclaration
     }
 
     def duplicateEntryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
