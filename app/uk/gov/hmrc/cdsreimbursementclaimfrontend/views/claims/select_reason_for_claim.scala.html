@@ -37,7 +37,7 @@
 
 @(form: Form[SelectReasonForClaim], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"select-reason-for-claim"}
+ @key = @{"select-basis-for-claim"}
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
  @postAction = @{if(isAmend) routes.SelectReasonForClaimController.changeReasonForClaimSubmit() else routes.SelectReasonForClaimController.selectReasonForClaimSubmit()}
