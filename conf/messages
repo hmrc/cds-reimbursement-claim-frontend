@@ -312,7 +312,7 @@ check-declaration-details.declarant-telephone.label=Declarant telephone
 check-declaration-details.declarant-contact-address.label=Declarant contact address
 
 #===================================================
-#  SELECT REASON FOR CLAIM PAGE
+#  SELECT BASIS FOR CLAIM PAGE
 #===================================================
 select-reason-for-claim.title=Select the basis for claim
 select-reason-for-claim.error.number=Select the basis for claim
