@@ -397,7 +397,7 @@ enter-commodities-details.error.required=Enter commodity details
 #===================================================
 #  ENTER DUTIES PAGE
 #===================================================
-enter-duty-and-claim-amounts.title=Enter UK Duty Amounts to Calculate Your Claim
+enter-duty-and-claim-amounts.title=Enter UK duty amounts to calculate your claim
 enter-duty-and-claim-amounts.caption=Duties Paid and Claims
 enter-duty-and-claim-amounts.make-eu-duty-claim=<h2>Do you want to add EU duties?</h2>
 enter-duty-and-claim-amounts.make-eu-duty-claim.error.required=Please choose if you want to add EU duties
