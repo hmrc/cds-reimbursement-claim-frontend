@@ -106,8 +106,7 @@ class CheckDeclarantDetailsController @Inject() (
             _,
             _,
             importerEoriNumberAnswer,
-            declarantEoriNumberAnswer,
-            _
+            declarantEoriNumberAnswer
           ) =>
         (importerEoriNumberAnswer, declarantEoriNumberAnswer) match {
           case (Some(_), Some(_)) => routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()

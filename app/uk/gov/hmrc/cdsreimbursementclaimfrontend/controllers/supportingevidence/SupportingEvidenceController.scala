@@ -153,14 +153,14 @@ class SupportingEvidenceController @Inject() (
             val result = for {
               upscanUpload <- upscanService.getUpscanUpload(uploadReference)
               _            <- upscanUpload.upscanCallBack match {
-                                case Some(s: UpscanSuccess) =>
+                                case Some(upscanSuccess: UpscanSuccess) =>
                                   storeUpscanSuccess(
                                     upscanUpload,
-                                    s,
+                                    upscanSuccess,
                                     incompleteAnswers,
                                     fillingOutReturn
                                   )
-                                case _                      =>
+                                case _                                  =>
                                   EitherT.pure[Future, Error](())
                               }
             } yield upscanUpload

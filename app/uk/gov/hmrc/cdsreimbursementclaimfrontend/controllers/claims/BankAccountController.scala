@@ -109,11 +109,27 @@ class BankAccountController @Inject() (
         errorHandler.errorResult()
       )(maskedBankDetails =>
         (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
-          case (Some(cmbd), _)    =>
-            Ok(checkBankAccountDetailsPage(BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber)))
-          case (None, Some(dmbd)) =>
-            Ok(checkBankAccountDetailsPage(BankAccount(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber)))
-          case _                  => errorHandler.errorResult()
+          case (Some(consigneeBankDetails), _)    =>
+            Ok(
+              checkBankAccountDetailsPage(
+                BankAccount(
+                  consigneeBankDetails.accountHolderName,
+                  consigneeBankDetails.sortCode,
+                  consigneeBankDetails.accountNumber
+                )
+              )
+            )
+          case (None, Some(declarantBankDetails)) =>
+            Ok(
+              checkBankAccountDetailsPage(
+                BankAccount(
+                  declarantBankDetails.accountHolderName,
+                  declarantBankDetails.sortCode,
+                  declarantBankDetails.accountNumber
+                )
+              )
+            )
+          case _                                  => errorHandler.errorResult()
         }
       )
     }

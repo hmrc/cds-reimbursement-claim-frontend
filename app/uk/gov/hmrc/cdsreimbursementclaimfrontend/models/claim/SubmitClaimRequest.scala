@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, SignedInUserDetails}
 
-final case class SignedInUserDetails(
-  email: Option[Email],
-  eori: Eori,
-  verifiedEmail: Email,
-  contactName: ContactName
+import java.util.UUID
+
+final case class SubmitClaimRequest(
+  id: UUID,
+  completeClaim: CompleteClaim,
+  userDetails: SignedInUserDetails
 )
 
-object SignedInUserDetails {
-  implicit val format: OFormat[SignedInUserDetails] = Json.format[SignedInUserDetails]
+object SubmitClaimRequest {
+  implicit val format: OFormat[SubmitClaimRequest] = Json.format
 }

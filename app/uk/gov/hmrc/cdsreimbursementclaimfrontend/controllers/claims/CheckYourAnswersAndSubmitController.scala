@@ -35,7 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteC285Claim, CompleteClaim, Error, RetrievedUserType, SessionData, SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteC285Claim, CompleteClaim, Error, RetrievedUserType, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -86,6 +87,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                  submitClaim(
                                    completeClaim,
                                    fillingOutClaim,
+                                   fillingOutClaim.signedInUserDetails,
                                    request.authenticatedRequest.request.messages.lang
                                  )
                                )
@@ -126,7 +128,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
             case SubmitClaimSuccess(_) =>
               logger.info(
-                s"Successfully submitted claim with claim id :${completeClaim.claimId}"
+                s"Successfully submitted claim with claim id :${completeClaim.id}"
               )
               Redirect(
                 claimsRoutes.CheckYourAnswersAndSubmitController
@@ -141,6 +143,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
   private def submitClaim(
     completeClaim: CompleteClaim,
     fillingOutClaim: FillingOutClaim,
+    signedInUserDetails: SignedInUserDetails,
     language: Lang
   )(implicit
     hc: HeaderCarrier
@@ -149,7 +152,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
       .submitClaim(
         SubmitClaimRequest(
           fillingOutClaim.draftClaim.id,
-          completeClaim
+          completeClaim,
+          signedInUserDetails
         ),
         language
       )

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
@@ -26,12 +27,14 @@ object RetrievedUserType {
   final case class Individual(
     ggCredId: GGCredId,
     email: Option[Email],
-    eori: Eori
+    eori: Eori,
+    name: Option[Name]
   ) extends RetrievedUserType
 
   final case class Organisation(
     ggCredId: GGCredId,
-    eori: Eori
+    eori: Eori,
+    name: Option[Name]
   ) extends RetrievedUserType
 
   final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType

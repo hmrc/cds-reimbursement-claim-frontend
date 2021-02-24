@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
 
-import java.time.LocalDate
 import java.util.UUID
 
 sealed trait DraftClaim extends Product with Serializable {
@@ -53,8 +52,7 @@ object DraftClaim {
     maybeDeclaration: Option[Declaration], //Data that has come back from ACC-14
     maybeDuplicateDeclaration: Option[Declaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
-    lastUpdatedDate: LocalDate
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
@@ -80,8 +78,7 @@ object DraftClaim {
         None,
         None,
         None,
-        None,
-        LocalDate.now
+        None
       )
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
@@ -115,7 +112,6 @@ object DraftClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -132,7 +128,6 @@ object DraftClaim {
       case DraftC285Claim(
             _,
             movementReferenceNumberAnswer,
-            _,
             _,
             _,
             _,

@@ -40,16 +40,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
 
-import java.time.LocalDate
 import java.util.UUID
 
 sealed trait CompleteClaim extends Product with Serializable {
-  val claimId: UUID
-  val lastUpdatedDate: LocalDate
+  val id: UUID
 }
 
 final case class CompleteC285Claim(
-  claimId: UUID,
+  id: UUID,
   movementReferenceNumber: Either[EntryNumber, MRN],
   duplicateMovementReferenceNumberAnswer: Option[Either[EntryNumber, MRN]],
   declarationDetails: Option[DeclarationDetailAnswers],
@@ -68,8 +66,7 @@ final case class CompleteC285Claim(
   declaration: Option[Declaration],
   duplicateDeclaration: Option[Declaration],
   importerEoriNumber: Option[ImporterEoriNumber],
-  declarantEoriNumber: Option[DeclarantEoriNumber],
-  lastUpdatedDate: LocalDate
+  declarantEoriNumber: Option[DeclarantEoriNumber]
 ) extends CompleteClaim
 
 object CompleteC285Claim {
@@ -96,14 +93,13 @@ object CompleteC285Claim {
             declartion,
             duplicateDeclaration,
             importerEoriNumberAnswer,
-            declarantEoriNumberAnswer,
-            lastUpdatedDate
+            declarantEoriNumberAnswer
           ) =>
         completeMovementReferenceNumberAnswer.movementReferenceNumber match {
           case Left(entryNumber) =>
             Some(
               CompleteC285Claim(
-                claimId = id,
+                id = id,
                 Left(entryNumber),
                 duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
                   duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
@@ -126,14 +122,13 @@ object CompleteC285Claim {
                 declaration = None,
                 duplicateDeclaration = None,
                 None,
-                None,
-                lastUpdatedDate = lastUpdatedDate
+                None
               )
             )
           case Right(mrn)        =>
             Some(
               CompleteC285Claim(
-                claimId = id,
+                id = id,
                 Right(mrn),
                 duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
                   duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
@@ -156,8 +151,7 @@ object CompleteC285Claim {
                 declartion,
                 duplicateDeclaration,
                 importerEoriNumberAnswer.flatMap(ie => ie.importerEori),
-                declarantEoriNumberAnswer.flatMap(de => de.declarantEori),
-                lastUpdatedDate = lastUpdatedDate
+                declarantEoriNumberAnswer.flatMap(de => de.declarantEori)
               )
             )
         }
@@ -193,7 +187,6 @@ object CompleteClaim {
             declaration,
             _,
             _,
-            _,
             _
           ) =>
         declaration
@@ -219,7 +212,6 @@ object CompleteClaim {
             _,
             _,
             duplicateDeclaration,
-            _,
             _,
             _
           ) =>
@@ -247,7 +239,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         duplicateDeclarationDetails
@@ -259,7 +250,6 @@ object CompleteClaim {
             _,
             _,
             declarationDetailAnswers,
-            _,
             _,
             _,
             _,
@@ -309,7 +299,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         declarantType.declarantType
@@ -336,7 +325,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         (maybeReasonForClaimAndBasisAnswer, maybeReasonForClaim) match {
@@ -356,7 +344,6 @@ object CompleteClaim {
             _,
             _,
             claimantDetailsAsImporterCompanyAnswer,
-            _,
             _,
             _,
             _,
@@ -407,7 +394,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
@@ -429,7 +415,6 @@ object CompleteClaim {
             _,
             _,
             commodityDetails,
-            _,
             _,
             _,
             _,
@@ -461,7 +446,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         bankAccountDetails.bankAccountDetails
@@ -478,7 +462,6 @@ object CompleteClaim {
             _,
             _,
             bankAccountDetails,
-            _,
             _,
             _,
             _,
@@ -518,7 +501,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         ukDuty match {
@@ -548,7 +530,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         euDuty match {
@@ -561,7 +542,6 @@ object CompleteClaim {
       case CompleteC285Claim(
             _,
             movementReferenceNumber,
-            _,
             _,
             _,
             _,
@@ -605,7 +585,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         duplicateMovementReferenceNumberAnswer match {
@@ -626,7 +605,6 @@ object CompleteClaim {
             _,
             _,
             supportingEvidenceAnswers,
-            _,
             _,
             _,
             _,
