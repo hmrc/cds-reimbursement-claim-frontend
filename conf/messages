@@ -236,7 +236,7 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
-enter-declaration-details.title=Enter Declaration Details
+enter-declaration-details.title=Enter declaration details
 enter-declaration-details.caption=Declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
 enter-declaration-details.date-of-import.label=Date of Import
