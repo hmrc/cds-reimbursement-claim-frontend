@@ -39,7 +39,7 @@ object ClaimantDetailsAsImporterCompanyAnswer {
     claimantDetailsAsImporterCompany: ClaimantDetailsAsImporterCompany
   ) extends ClaimantDetailsAsImporterCompanyAnswer
 
-  object CompleteMovementReferenceTypeAnswer {
+  object CompleteClaimantDetailsAsImporterCompanyAnswer {
     implicit val format: OFormat[CompleteClaimantDetailsAsImporterCompanyAnswer] =
       derived.oformat[CompleteClaimantDetailsAsImporterCompanyAnswer]()
   }

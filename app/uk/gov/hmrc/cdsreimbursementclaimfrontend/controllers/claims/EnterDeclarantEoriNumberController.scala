@@ -168,7 +168,7 @@ class EnterDeclarantEoriNumberController @Inject() (
       case None        => None
     }
 
-    val maybeDisplayDeclaration = fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration)
+    val maybeDisplayDeclaration = fillingOutClaim.draftClaim.fold(_.displayDeclaration)
 
     (maybeDisplayDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
       case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>

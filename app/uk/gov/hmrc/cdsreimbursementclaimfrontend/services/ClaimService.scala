@@ -21,7 +21,6 @@ import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.http.Status.OK
 import play.api.i18n.Lang
-import play.api.libs.json.Json
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
@@ -57,7 +56,7 @@ class DefaultClaimService @Inject() (
     submitClaimRequest: SubmitClaimRequest,
     lang: Lang
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
-    claimConnector.submitClaim(Json.toJson(submitClaimRequest), lang).subflatMap { httpResponse =>
+    claimConnector.submitClaim(submitClaimRequest, lang).subflatMap { httpResponse =>
       if (httpResponse.status === OK)
         httpResponse
           .parseJSON[SubmitClaimResponse]()

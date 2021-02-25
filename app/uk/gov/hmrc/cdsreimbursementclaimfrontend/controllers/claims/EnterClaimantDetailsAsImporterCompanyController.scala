@@ -97,7 +97,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                   )
                 )
               case None                                   =>
-                fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration) match {
+                fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
                   case Some(displayDeclaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>

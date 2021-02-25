@@ -17,28 +17,35 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.syntax.eq._
+import cats.data.Validated.Valid
+import cats.implicits._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{EnterClaim, EnterEuClaim}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.CompleteBankAccountDetailAnswers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.CompleteClaimAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.CompleteClaimantDetailsAsImporterCompanyAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.CompleteCommodityDetailsAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EUDutyAmountAnswers.CompleteEUDutyAmountAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.CompleteUKDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.CompleteSupportingEvidenceAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, SupportingEvidenceAnswer}
 
 import java.util.UUID
 
@@ -46,123 +53,433 @@ sealed trait CompleteClaim extends Product with Serializable {
   val id: UUID
 }
 
-final case class CompleteC285Claim(
-  id: UUID,
-  movementReferenceNumber: Either[EntryNumber, MRN],
-  duplicateMovementReferenceNumberAnswer: Option[Either[EntryNumber, MRN]],
-  declarationDetails: Option[DeclarationDetailAnswers],
-  duplicateDeclarationDetails: Option[EntryDeclarationDetails],
-  declarantType: CompleteDeclarantTypeAnswer,
-  claimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer,
-  claimantDetailsAsImporterCompanyAnswer: Option[ClaimantDetailsAsImporterCompanyAnswer],
-  bankAccountDetails: CompleteBankAccountDetailAnswers,
-  supportingEvidenceAnswers: CompleteSupportingEvidenceAnswers,
-  maybeUKDuty: Option[EnterClaim],
-  maybeEUDuty: Option[EnterEuClaim],
-  claims: CompleteClaimAnswers,
-  commodityDetails: CompleteCommodityDetailsAnswers,
-  maybeReasonForClaimAndBasisAnswer: Option[SelectReasonForClaimAndBasis],
-  maybeReasonForClaim: Option[BasisForClaim],
-  maybeDisplayDeclaration: Option[DisplayDeclaration],
-  maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
-  importerEoriNumber: Option[ImporterEoriNumber],
-  declarantEoriNumber: Option[DeclarantEoriNumber]
-) extends CompleteClaim
+object CompleteClaim {
 
-object CompleteC285Claim {
+  final case class CompleteC285Claim(
+    id: UUID,
+    completeMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer,
+    maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
+    maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
+    maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
+    completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
+    completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer,
+    maybeClaimantDetailsAsImporterCompanyAnswer: Option[CompleteClaimantDetailsAsImporterCompanyAnswer],
+    maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
+    maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
+    supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
+    maybeCompleteUKDutyAmountAnswer: Option[CompleteUKDutyAmountAnswer],
+    maybeCompleteEUDutyAmountAnswer: Option[CompleteEUDutyAmountAnswer],
+    completeClaimAnswer: CompleteClaimsAnswer,
+    completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
+    maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
+    maybeDisplayDeclaration: Option[DisplayDeclaration],
+    maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
+    importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
+    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer]
+  ) extends CompleteClaim
 
-  def fromDraftClaim(draftClaim: DraftClaim): Option[CompleteC285Claim] =
-    draftClaim match {
-      case DraftClaim.DraftC285Claim(
-            id,
-            Some(completeMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
-            duplicateMovementReferenceNumberAnswer,
-            declarationDetailAnswers,
-            duplicateDeclarationDetailAnswers,
-            Some(completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer),
-            Some(completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer),
-            claimantDetailsAsImporterCompanyAnswers,
-            Some(completeBankAccountDetailAnswers: CompleteBankAccountDetailAnswers),
-            reasonForClaim,
-            Some(s: CompleteSupportingEvidenceAnswers),
-            ukDutyAmountAnswers,
-            euDutyAmountAnswers,
-            Some(completeClaimAnswers: CompleteClaimAnswers),
-            Some(completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswers),
-            reasonForBasisAndClaimAnswer,
-            maybeDisplayDeclaration,
-            maybeDuplicateDisplayDeclaration,
-            importerEoriNumberAnswer,
-            declarantEoriNumberAnswer
-          ) =>
-        completeMovementReferenceNumberAnswer.movementReferenceNumber match {
-          case Left(entryNumber) =>
-            Some(
-              CompleteC285Claim(
-                id = id,
-                Left(entryNumber),
-                duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
-                  duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
+  object CompleteC285Claim {
+
+    def fromDraftClaim(draftClaim: DraftClaim): Either[Error, CompleteC285Claim] =
+      draftClaim match {
+        case DraftClaim.DraftC285Claim(
+              id,
+              Some(draftCompleteMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
+              draftMaybeDuplicateCompleteMovementReferenceNumberAnswer,
+              draftMaybeDeclarationDetailsAnswer,
+              draftDuplicateDeclarationDetailAnswer,
+              draftDeclarantTypeAnswer,
+              draftClaimantDetailsAsIndividualAnswer,
+              draftClaimantDetailsAsImporterCompanyAnswer,
+              draftBankAccountDetailAnswer,
+              draftBasisForClaim,
+              draftSupportingEvidence,
+              draftUkDutyAmountsAnswer,
+              draftEuDutyAmountsAnswer,
+              draftClaimsAnswer,
+              draftCommodityAnswer,
+              draftReasonAndBasisOfClaimAnswer,
+              maybeDisplayDeclaration,
+              maybeDuplicateDisplayDeclaration,
+              draftImporterEoriNumberAnswer,
+              draftDeclarantEoriNumberAnswer
+            ) =>
+          draftCompleteMovementReferenceNumberAnswer.movementReferenceNumber match {
+            case Left(_) =>
+              (
+                validateDuplicateMovementReferenceNumberAnswer(
+                  draftMaybeDuplicateCompleteMovementReferenceNumberAnswer
                 ),
-                declarationDetailAnswers,
-                duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
-                  duplicateDeclarantDetailAnswers.duplicateDeclaration
-                ),
-                completeDeclarantTypeAnswer,
-                completeClaimantDetailsAsIndividualAnswer,
-                claimantDetailsAsImporterCompanyAnswers,
-                completeBankAccountDetailAnswers,
-                supportingEvidenceAnswers = s,
-                ukDutyAmountAnswers.flatMap(p => p.maybeUkDuty),
-                euDutyAmountAnswers.flatMap(p => p.maybeEuDuty),
-                completeClaimAnswers,
-                completeCommodityDetailsAnswers,
-                reasonForBasisAndClaimAnswer.flatMap(rcb => rcb.reasonForClaimAndBasis),
-                reasonForClaim.flatMap(p => p.reason),
-                maybeDisplayDeclaration = None,
-                maybeDuplicateDisplayDeclaration = None,
-                None,
-                None
+                validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
+                validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
+                validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
+                validateClaimantDetailsAsIndividualAnswer(draftClaimantDetailsAsIndividualAnswer),
+                validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
+                validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
+                validateSupportingEvidenceAnswer(draftSupportingEvidence),
+                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
+                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
+                validateClaimsAnswer(draftClaimsAnswer),
+                validateCommodityDetailsAnswer(draftCommodityAnswer),
+                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
               )
-            )
-          case Right(mrn)        =>
-            Some(
-              CompleteC285Claim(
-                id = id,
-                Right(mrn),
-                duplicateMovementReferenceNumberAnswer.flatMap(duplicateMovementReferenceNumberAnswer =>
-                  duplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber
+                .mapN {
+                  case (
+                        completeMaybeDuplicateEntryReferenceNumberAnswer,
+                        completeDeclarationDetailsAnswer,
+                        completeDuplicateDeclarationDetailAnswer,
+                        completeDeclarantTypeAnswer,
+                        completeClaimantDetailsAsIndividualAnswer,
+                        completeClaimantDetailsAsImporterCompanyAnswer,
+                        completeBankAccountDetailAnswer,
+                        completeSupportingEvidenceAnswer,
+                        completeUKDutyAmountAnswer,
+                        completeEUDutyAmountAnswer,
+                        completeClaimsAnswer,
+                        completeCommodityDetailsAnswer,
+                        completeReasonAndBasisOfClaimAnswer
+                      ) =>
+                    CompleteC285Claim(
+                      id = id,
+                      completeMovementReferenceNumberAnswer = draftCompleteMovementReferenceNumberAnswer,
+                      maybeCompleteDuplicateMovementReferenceNumberAnswer =
+                        completeMaybeDuplicateEntryReferenceNumberAnswer,
+                      maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
+                      maybeCompleteDuplicateDeclarationDetailsAnswer = Some(completeDuplicateDeclarationDetailAnswer),
+                      completeDeclarantTypeAnswer,
+                      completeClaimantDetailsAsIndividualAnswer,
+                      completeClaimantDetailsAsImporterCompanyAnswer,
+                      None,
+                      completeBankAccountDetailAnswer,
+                      supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+                      completeUKDutyAmountAnswer,
+                      completeEUDutyAmountAnswer,
+                      completeClaimsAnswer,
+                      completeCommodityDetailsAnswer,
+                      completeReasonAndBasisOfClaimAnswer,
+                      maybeDisplayDeclaration = None,
+                      maybeDuplicateDisplayDeclaration = None,
+                      None,
+                      None
+                    )
+                }
+                .toEither
+                .leftMap { errors =>
+                  Error(
+                    s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
+                  )
+                }
+
+            case Right(_) =>
+              (
+                validateDuplicateMovementReferenceNumberAnswer(
+                  draftMaybeDuplicateCompleteMovementReferenceNumberAnswer
                 ),
-                None,
-                duplicateDeclarationDetailAnswers.flatMap(duplicateDeclarantDetailAnswers =>
-                  duplicateDeclarantDetailAnswers.duplicateDeclaration
-                ),
-                completeDeclarantTypeAnswer,
-                completeClaimantDetailsAsIndividualAnswer,
-                claimantDetailsAsImporterCompanyAnswers,
-                completeBankAccountDetailAnswers,
-                supportingEvidenceAnswers = s,
-                ukDutyAmountAnswers.flatMap(p => p.maybeUkDuty),
-                euDutyAmountAnswers.flatMap(p => p.maybeEuDuty),
-                completeClaimAnswers,
-                completeCommodityDetailsAnswers,
-                None,
-                reasonForClaim.flatMap(p => p.reason),
-                maybeDisplayDeclaration,
-                maybeDuplicateDisplayDeclaration,
-                importerEoriNumberAnswer.flatMap(ie => ie.importerEori),
-                declarantEoriNumberAnswer.flatMap(de => de.declarantEori)
+                validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
+                validateClaimantDetailsAsIndividualAnswer(draftClaimantDetailsAsIndividualAnswer),
+                validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
+                validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
+                validateBasisOfClaimAnswer(draftBasisForClaim),
+                validateSupportingEvidenceAnswer(draftSupportingEvidence),
+                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
+                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
+                validateClaimsAnswer(draftClaimsAnswer),
+                validateCommodityDetailsAnswer(draftCommodityAnswer),
+                validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
+                validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
               )
-            )
+                .mapN {
+                  case (
+                        completeMaybeDuplicateMovementReferenceNumberAnswer,
+                        completeDeclarantTypeAnswer,
+                        completeClaimantDetailsAsIndividualAnswer,
+                        completeClaimantDetailsAsImporterCompanyAnswer,
+                        completeBankAccountDetailAnswer,
+                        completeBasisOfClaimAnswer,
+                        completeSupportingEvidenceAnswer,
+                        completeUKDutyAmountAnswer,
+                        completeEUDutyAmountAnswer,
+                        completeClaimsAnswer,
+                        completeCommodityDetailsAnswer,
+                        completeImporterEoriNumberAnswer,
+                        completeDeclarantEoriNumberAnswer
+                      ) =>
+                    CompleteC285Claim(
+                      id = id,
+                      completeMovementReferenceNumberAnswer = draftCompleteMovementReferenceNumberAnswer,
+                      maybeCompleteDuplicateMovementReferenceNumberAnswer =
+                        completeMaybeDuplicateMovementReferenceNumberAnswer,
+                      maybeCompleteDeclarationDetailsAnswer = None,
+                      maybeCompleteDuplicateDeclarationDetailsAnswer = None,
+                      completeDeclarantTypeAnswer,
+                      completeClaimantDetailsAsIndividualAnswer,
+                      completeClaimantDetailsAsImporterCompanyAnswer,
+                      completeBasisOfClaimAnswer,
+                      completeBankAccountDetailAnswer,
+                      completeSupportingEvidenceAnswer,
+                      completeUKDutyAmountAnswer,
+                      completeEUDutyAmountAnswer,
+                      completeClaimsAnswer,
+                      completeCommodityDetailsAnswer,
+                      None,
+                      maybeDisplayDeclaration,
+                      maybeDuplicateDisplayDeclaration,
+                      completeImporterEoriNumberAnswer,
+                      completeDeclarantEoriNumberAnswer
+                    )
+                }
+                .toEither
+                .leftMap { errors =>
+                  Error(
+                    s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
+                  )
+                }
+
+          }
+        case _ => Left(Error("unknown claim type"))
+      }
+
+    implicit val eq: Eq[CompleteC285Claim]          = Eq.fromUniversalEquals[CompleteC285Claim]
+    implicit val format: OFormat[CompleteC285Claim] = Json.format[CompleteC285Claim]
+  }
+
+  def validateDeclarantEoriNumberAnswer(
+    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
+  ): Validation[Option[CompleteDeclarantEoriNumberAnswer]] =
+    maybeDeclarantEoriNumberAnswer match {
+      case Some(value) =>
+        value match {
+          case DeclarantEoriNumberAnswer.IncompleteDeclarantEoriNumberAnswer(
+                _
+              ) =>
+            invalid("incomplete declarant eori number answer")
+          case completeDeclarantEoriNumberAnswer: CompleteDeclarantEoriNumberAnswer =>
+            Valid(Some(completeDeclarantEoriNumberAnswer))
         }
-      case _ => None
+      case None        => Valid(None)
     }
 
-  implicit val eq: Eq[CompleteC285Claim]          = Eq.fromUniversalEquals[CompleteC285Claim]
-  implicit val format: OFormat[CompleteC285Claim] = Json.format[CompleteC285Claim]
-}
+  def validateImporterEoriNumberAnswer(
+    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumberAnswer]
+  ): Validation[Option[CompleteImporterEoriNumberAnswer]] =
+    maybeImporterEoriNumberAnswer match {
+      case Some(value) =>
+        value match {
+          case ImporterEoriNumberAnswer.IncompleteImporterEoriNumberAnswer(
+                _
+              ) =>
+            invalid("incomplete eori number answer")
+          case completeImporterEoriNumberAnswer: CompleteImporterEoriNumberAnswer =>
+            Valid(Some(completeImporterEoriNumberAnswer))
+        }
+      case None        => Valid(None)
+    }
 
-object CompleteClaim {
+  def validateReasonAndBasisOfClaimAnswer(
+    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
+  ): Validation[Option[CompleteReasonAndBasisOfClaimAnswer]] =
+    maybeReasonAndBasisOfClaimAnswer match {
+      case Some(value) =>
+        value match {
+          case ReasonAndBasisOfClaimAnswer.IncompleteReasonAndBasisOfClaimAnswer(
+                _
+              ) =>
+            invalid("incomplete reason and basis of claim answer")
+          case completeReasonAndBasisOfClaimAnswer: CompleteReasonAndBasisOfClaimAnswer =>
+            Valid(Some(completeReasonAndBasisOfClaimAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateCommodityDetailsAnswer(
+    maybeClaimsAnswer: Option[CommoditiesDetailsAnswer]
+  ): Validation[CompleteCommodityDetailsAnswer] =
+    maybeClaimsAnswer match {
+      case Some(value) =>
+        value match {
+          case CommoditiesDetailsAnswer.IncompleteCommoditiesDetailsAnswer(_)  =>
+            invalid("incomplete commodity detail answer")
+          case completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswer =>
+            Valid(completeCommodityDetailsAnswers)
+        }
+      case None        => invalid("missing commodity details answer")
+    }
+
+  def validateClaimsAnswer(
+    maybeClaimsAnswer: Option[ClaimsAnswer]
+  ): Validation[CompleteClaimsAnswer] =
+    maybeClaimsAnswer match {
+      case Some(value) =>
+        value match {
+          case ClaimsAnswer.IncompleteClaimsAnswer(_)     =>
+            invalid("incomplete claims answer")
+          case completeClaimsAnswer: CompleteClaimsAnswer =>
+            Valid(completeClaimsAnswer)
+        }
+      case None        => invalid("missing supporting evidence answer")
+    }
+
+  def validateEUDutyAmountsAnswer(
+    maybeUKDutyAmountAnswers: Option[EUDutyAmountAnswers]
+  ): Validation[Option[CompleteEUDutyAmountAnswer]] =
+    maybeUKDutyAmountAnswers match {
+      case Some(value) =>
+        value match {
+          case EUDutyAmountAnswers.IncompleteEUDutyAmountAnswer(
+                _
+              ) =>
+            invalid("incomplete eu duty amounts answer")
+          case completeBasisOfClaimAnswer: CompleteEUDutyAmountAnswer =>
+            Valid(Some(completeBasisOfClaimAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateUKDutyAmountsAnswer(
+    maybeUKDutyAmountAnswers: Option[UKDutyAmountAnswers]
+  ): Validation[Option[CompleteUKDutyAmountAnswer]] =
+    maybeUKDutyAmountAnswers match {
+      case Some(value) =>
+        value match {
+          case UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer(
+                _
+              ) =>
+            invalid("incomplete uk duty amounts answer")
+          case completeBasisOfClaimAnswer: CompleteUKDutyAmountAnswer =>
+            Valid(Some(completeBasisOfClaimAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateSupportingEvidenceAnswer(
+    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
+  ): Validation[CompleteSupportingEvidenceAnswer] =
+    maybeSupportingEvidenceAnswer match {
+      case Some(value) =>
+        value match {
+          case SupportingEvidenceAnswer.IncompleteSupportingEvidenceAnswer(_)     =>
+            invalid("incomplete supporting evidence answer")
+          case completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer =>
+            Valid(completeSupportingEvidenceAnswer)
+        }
+      case None        => invalid("missing supporting evidence answer")
+    }
+
+  def validateBasisOfClaimAnswer(
+    maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
+  ): Validation[Option[CompleteBasisOfClaimAnswer]] =
+    maybeBasisOfClaimAnswer match {
+      case Some(value) =>
+        value match {
+          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(
+                _
+              ) =>
+            invalid("incomplete basis of claim answer")
+          case completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer =>
+            Valid(Some(completeBasisOfClaimAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateBankAccountDetailAnswer(
+    maybeBankAccountDetailsAnswer: Option[BankAccountDetailsAnswer]
+  ): Validation[Option[CompleteBankAccountDetailAnswer]] =
+    maybeBankAccountDetailsAnswer match {
+      case Some(value) =>
+        value match {
+          case BankAccountDetailsAnswer.IncompleteBankAccountDetailAnswer(_)    =>
+            invalid("incomplete bank details type answer")
+          case completeBankAccountDetailAnswer: CompleteBankAccountDetailAnswer =>
+            Valid(Some(completeBankAccountDetailAnswer))
+        }
+      case None        => Valid(None) //check
+    }
+
+  def validateClaimantDetailsAsImporterAnswer(
+    maybeClaimantDetailsAsImporterCompanyAnswer: Option[ClaimantDetailsAsImporterCompanyAnswer]
+  ): Validation[Option[CompleteClaimantDetailsAsImporterCompanyAnswer]] =
+    maybeClaimantDetailsAsImporterCompanyAnswer match {
+      case Some(value) =>
+        value match {
+          case ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer(
+                _
+              ) =>
+            invalid("incomplete claimant details as importer answer")
+          case completeClaimantDetailsAsImporterCompanyAnswer: CompleteClaimantDetailsAsImporterCompanyAnswer =>
+            Valid(Some(completeClaimantDetailsAsImporterCompanyAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateClaimantDetailsAsIndividualAnswer(
+    maybeClaimantDetailsAsIndividualAnswer: Option[ClaimantDetailsAsIndividualAnswer]
+  ): Validation[CompleteClaimantDetailsAsIndividualAnswer] =
+    maybeClaimantDetailsAsIndividualAnswer match {
+      case Some(value) =>
+        value match {
+          case ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer(_) =>
+            invalid("incomplete claimant details type answer")
+          case c: CompleteClaimantDetailsAsIndividualAnswer                                     => Valid(c)
+        }
+      case None        => invalid("missing claimant details type answer")
+    }
+
+  def validateDeclarantTypeAnswer(
+    maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
+  ): Validation[CompleteDeclarantTypeAnswer] =
+    maybeDeclarantTypeAnswer match {
+      case Some(value) =>
+        value match {
+          case DeclarantTypeAnswer.IncompleteDeclarantTypeAnswer(_) =>
+            invalid("incomplete declarant type answer")
+          case c: CompleteDeclarantTypeAnswer                       => Valid(c)
+        }
+      case None        => invalid("missing declarant type answer")
+    }
+
+  def validateDeclarationDetailsAnswer(
+    maybeDeclarationDetailsAnswer: Option[DeclarationDetailsAnswer]
+  ): Validation[CompleteDeclarationDetailsAnswer] =
+    maybeDeclarationDetailsAnswer match {
+      case Some(value) =>
+        value match {
+          case DeclarationDetailsAnswer.IncompleteDeclarationDetailsAnswer(_)     =>
+            invalid("incomplete declaration details answer")
+          case completeDeclarationDetailsAnswer: CompleteDeclarationDetailsAnswer =>
+            Valid(completeDeclarationDetailsAnswer)
+        }
+      case None        => invalid("missing declaration details answer")
+    }
+
+  def validateDuplicateMovementReferenceNumberAnswer(
+    maybeDuplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer]
+  ): Validation[Option[CompleteDuplicateMovementReferenceNumberAnswer]] =
+    maybeDuplicateMovementReferenceNumberAnswer match {
+      case Some(value) =>
+        value match {
+          case DuplicateMovementReferenceNumberAnswer.IncompleteDuplicateMovementReferenceNumberAnswer(
+                _
+              ) =>
+            invalid("incomplete duplicate movement reference number")
+          case completeDuplicateMovementReferenceNumberAnswer: CompleteDuplicateMovementReferenceNumberAnswer =>
+            Valid(Some(completeDuplicateMovementReferenceNumberAnswer))
+        }
+      case None        => Valid(None)
+    }
+
+  def validateDuplicateDeclarantDetailAnswer(
+    maybeDuplicateDeclarantDetailAnswers: Option[DuplicateDeclarationDetailsAnswer]
+  ): Validation[CompleteDuplicateDeclarationDetailsAnswer] =
+    maybeDuplicateDeclarantDetailAnswers match {
+      case Some(value) =>
+        value match {
+          case DuplicateDeclarationDetailsAnswer.IncompleteDuplicateDeclarationDetailAnswer(_)     =>
+            invalid("incomplete duplicate declaration details answer")
+          case completeDuplicateDeclarationDetailAnswer: CompleteDuplicateDeclarationDetailsAnswer =>
+            Valid(completeDuplicateDeclarationDetailAnswer)
+        }
+      case None        => invalid("missing duplicate declaration details answer")
+    }
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
 
@@ -241,7 +558,11 @@ object CompleteClaim {
             _,
             _
           ) =>
-        duplicateDeclarationDetails
+        duplicateDeclarationDetails match {
+          case Some(completeDuplicateDeclarationDetailsAnswer) =>
+            completeDuplicateDeclarationDetailsAnswer.duplicateDeclaration
+          case None                                            => None
+        }
     }
 
     def entryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
@@ -268,13 +589,8 @@ object CompleteClaim {
             _
           ) =>
         declarationDetailAnswers match {
-          case Some(value) =>
-            value match {
-              case DeclarationDetailAnswers.IncompleteDeclarationDetailAnswer(declarationDetails) => declarationDetails
-              case DeclarationDetailAnswers.CompleteDeclarationDetailAnswer(declarationDetails)   =>
-                Some(declarationDetails)
-            }
-          case None        => None
+          case Some(completeDeclarationDetailsAnswer) => Some(completeDeclarationDetailsAnswer.declarationDetails)
+          case None                                   => None
         }
     }
 
@@ -304,7 +620,7 @@ object CompleteClaim {
         declarantType.declarantType
     }
 
-    def reasonForClaim: Either[SelectReasonForClaimAndBasis, BasisForClaim] = completeClaim match {
+    def basisForClaim: Either[SelectReasonForClaimAndBasis, BasisOfClaim] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -314,6 +630,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            maybeBasisForClaim,
             _,
             _,
             _,
@@ -321,15 +638,14 @@ object CompleteClaim {
             _,
             _,
             maybeReasonForClaimAndBasisAnswer,
-            maybeReasonForClaim,
             _,
             _,
             _,
             _
           ) =>
-        (maybeReasonForClaimAndBasisAnswer, maybeReasonForClaim) match {
-          case (Some(rc), None) => Left(rc)
-          case (None, Some(r))  => Right(r)
+        (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
+          case (Some(rc), None) => Left(rc.selectReasonForBasisAndClaim)
+          case (None, Some(r))  => Right(r.basisOfClaim)
           case _                => sys.error("invalid state: cannot have both reason-for-claim-and-basis and reason-for-claim")
         }
     }
@@ -358,17 +674,7 @@ object CompleteClaim {
             _
           ) =>
         claimantDetailsAsImporterCompanyAnswer match {
-          case Some(value) =>
-            value match {
-              case ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer(
-                    claimantDetailsAsImporterCompany
-                  ) =>
-                claimantDetailsAsImporterCompany
-              case ClaimantDetailsAsImporterCompanyAnswer.CompleteClaimantDetailsAsImporterCompanyAnswer(
-                    claimantDetailsAsImporterCompany
-                  ) =>
-                Some(claimantDetailsAsImporterCompany)
-            }
+          case Some(value) => Some(value.claimantDetailsAsImporterCompany)
           case None        => None
         }
     }
@@ -414,8 +720,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            commodityDetails,
             _,
+            commodityDetails,
             _,
             _,
             _,
@@ -425,8 +731,9 @@ object CompleteClaim {
         commodityDetails.commodityDetails.value
     }
 
-    def bankDetails: BankAccountController.BankAccountDetails = completeClaim match {
+    def bankDetails: Option[BankAccountController.BankAccountDetails] = completeClaim match {
       case CompleteC285Claim(
+            _,
             _,
             _,
             _,
@@ -445,12 +752,15 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
-        bankAccountDetails.bankAccountDetails
+        bankAccountDetails match {
+          case Some(bankAccountDetailAnswer) => Some(bankAccountDetailAnswer.bankAccountDetails)
+          case None                          => None
+        }
     }
 
+    //TODO: fixme
     def bankAccountType: String = completeClaim match {
       case CompleteC285Claim(
             _,
@@ -461,8 +771,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            bankAccountDetails,
             _,
+            bankAccountDetails,
             _,
             _,
             _,
@@ -474,8 +784,12 @@ object CompleteClaim {
             _,
             _
           ) =>
-        bankAccountDetails.bankAccountDetails.isBusinessAccount.headOption match {
-          case Some(value) => if (value === 0) "Business Account" else "Non-Business Account"
+        bankAccountDetails match {
+          case Some(value) =>
+            value.bankAccountDetails.isBusinessAccount.headOption match {
+              case Some(value) => if (value === 0) "Business Account" else "Non-Business Account"
+              case None        => ""
+            }
           case None        => ""
         }
     }
@@ -492,8 +806,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            ukDuty,
             _,
+            ukDuty,
             _,
             _,
             _,
@@ -561,10 +875,10 @@ object CompleteClaim {
             _,
             _
           ) =>
-        movementReferenceNumber
+        movementReferenceNumber.movementReferenceNumber
     }
 
-    def duplicateMovementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
+    def duplicateMovementReferenceNumber: Option[Either[EntryNumber, MRN]] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -588,8 +902,12 @@ object CompleteClaim {
             _
           ) =>
         duplicateMovementReferenceNumberAnswer match {
-          case Some(value) => value
-          case None        => sys.error("could not find movement reference number")
+          case Some(completeDuplicateMovementReferenceNumberAnswer) =>
+            completeDuplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber match {
+              case Some(number) => Some(number)
+              case None         => None
+            }
+          case _                                                    => None
         }
     }
 
@@ -604,8 +922,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            supportingEvidenceAnswers,
             _,
+            supportingEvidenceAnswers,
             _,
             _,
             _,

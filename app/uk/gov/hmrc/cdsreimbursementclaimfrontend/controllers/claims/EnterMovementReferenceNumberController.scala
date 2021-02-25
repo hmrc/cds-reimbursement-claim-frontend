@@ -216,7 +216,7 @@ class EnterMovementReferenceNumberController @Inject() (
                                                 Some(
                                                   fillingOutClaim.copy(draftClaim =
                                                     newDraftClaim.copy(
-                                                      maybeDisplayDeclaration = Some(displayDeclaration),
+                                                      displayDeclaration = Some(displayDeclaration),
                                                       movementReferenceNumberAnswer = Some(updatedAnswers)
                                                     )
                                                   )
@@ -338,7 +338,7 @@ class EnterMovementReferenceNumberController @Inject() (
                           displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
                         )
                           newDraftClaim.copy(
-                            maybeDisplayDeclaration = Some(displayDeclaration),
+                            displayDeclaration = Some(displayDeclaration),
                             movementReferenceNumberAnswer = Some(updatedAnswers)
                           )
                         else newDraftClaim
@@ -476,7 +476,7 @@ class EnterMovementReferenceNumberController @Inject() (
                                                 Some(
                                                   fillingOutClaim.copy(draftClaim =
                                                     newDraftClaim.copy(
-                                                      maybeDuplicateDisplayDeclaration = Some(displayDeclaration),
+                                                      duplicateDisplayDeclaration = Some(displayDeclaration),
                                                       duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
                                                     )
                                                   )

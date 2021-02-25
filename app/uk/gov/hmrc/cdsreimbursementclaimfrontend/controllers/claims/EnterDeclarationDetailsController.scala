@@ -26,8 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailAnswers.{CompleteDeclarationDetailAnswer, IncompleteDeclarationDetailAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarantDetailAnswers.{CompleteDuplicateDeclarationDetailAnswer, IncompleteDuplicateDeclarationDetailAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -60,7 +60,7 @@ class EnterDeclarationDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      DeclarationDetailAnswers
+      DeclarationDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -71,10 +71,10 @@ class EnterDeclarationDetailsController @Inject() (
             )
           ) =>
         val maybeDeclarationAnswers = draftClaim.fold(
-          _.declarationDetailAnswers
+          _.declarationDetailsAnswer
         )
         maybeDeclarationAnswers.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDeclarationDetailAnswer.empty)
+          f(sessionData, fillingOutClaim, IncompleteDeclarationDetailsAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -83,7 +83,7 @@ class EnterDeclarationDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      DuplicateDeclarantDetailAnswers
+      DuplicateDeclarationDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -94,7 +94,7 @@ class EnterDeclarationDetailsController @Inject() (
             )
           ) =>
         val maybeDuplicateDeclarantDetailAnswers = draftClaim.fold(
-          _.duplicateDeclarationDetailAnswers
+          _.duplicateDeclarationDetailsAnswer
         )
         maybeDuplicateDeclarantDetailAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteDuplicateDeclarationDetailAnswer.empty)
@@ -169,13 +169,13 @@ class EnterDeclarationDetailsController @Inject() (
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteDeclarationDetailAnswer(
+                  CompleteDeclarationDetailsAnswer(
                     declarantDetailAnswers
                   ),
                 complete => complete.copy(declarationDetails = declarantDetailAnswers)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(declarationDetailAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(declarationDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -266,13 +266,13 @@ class EnterDeclarationDetailsController @Inject() (
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteDeclarationDetailAnswer(
+                  CompleteDeclarationDetailsAnswer(
                     declarantDetailAnswers
                   ),
                 complete => complete.copy(declarationDetails = declarantDetailAnswers)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(declarationDetailAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(declarationDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -375,13 +375,13 @@ class EnterDeclarationDetailsController @Inject() (
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteDuplicateDeclarationDetailAnswer(
+                  CompleteDuplicateDeclarationDetailsAnswer(
                     Some(declarantDetailAnswers)
                   ),
                 complete => complete.copy(duplicateDeclaration = Some(declarantDetailAnswers))
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(duplicateDeclarationDetailAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(duplicateDeclarationDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 

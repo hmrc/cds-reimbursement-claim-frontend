@@ -30,10 +30,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.{CompleteBankAccountDetailAnswers, IncompleteBankAccountDetailAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.{CompleteBankAccountDetailAnswer, IncompleteBankAccountDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswer, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -64,7 +64,7 @@ class BankAccountController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      BankAccountDetailsAnswers
+      BankAccountDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -74,11 +74,11 @@ class BankAccountController @Inject() (
               fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
             )
           ) =>
-        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswers] = draftClaim.fold(
-          _.bankAccountDetailsAnswers
+        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswer] = draftClaim.fold(
+          _.bankAccountDetailsAnswer
         )
         maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswers.empty)
+          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -99,7 +99,7 @@ class BankAccountController @Inject() (
           ) =>
         val maybeMaskedBankDetails: Option[MaskedBankDetails] =
           c.fold(
-            _.maybeDisplayDeclaration.flatMap(displayDeclaration =>
+            _.displayDeclaration.flatMap(displayDeclaration =>
               displayDeclaration.displayResponseDetail.maskedBankDetails
             )
           )
@@ -181,13 +181,13 @@ class BankAccountController @Inject() (
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteBankAccountDetailAnswers(
+                  CompleteBankAccountDetailAnswer(
                     bankAccountDetails
                   ),
                 complete => complete.copy(bankAccountDetails = bankAccountDetails)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -252,13 +252,13 @@ class BankAccountController @Inject() (
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteBankAccountDetailAnswers(
+                  CompleteBankAccountDetailAnswer(
                     bankAccountDetails
                   ),
                 complete => complete.copy(bankAccountDetails = bankAccountDetails)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 

@@ -22,7 +22,7 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
 
 import java.util.UUID
 
@@ -36,27 +36,26 @@ object DraftClaim {
     id: UUID,
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
-    declarationDetailAnswers: Option[DeclarationDetailAnswers],
-    duplicateDeclarationDetailAnswers: Option[DuplicateDeclarantDetailAnswers],
+    declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
+    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
     claimantDetailsAsImporterCompanyAnswers: Option[ClaimantDetailsAsImporterCompanyAnswer],
-    bankAccountDetailsAnswers: Option[BankAccountDetailsAnswers],
-    reasonForClaim: Option[ReasonForClaimAnswer],
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
+    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
+    basisOfClaimAnswer: Option[BasisOfClaimAnswer],
+    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
     ukDutyAmountAnswers: Option[UKDutyAmountAnswers],
-    euDutyAmountAnswers: Option[EuDutyAmountAnswers],
-    claimAnswers: Option[ClaimAnswers],
-    commoditiesDetailsAnswers: Option[CommoditiesDetailsAnswers],
-    reasonForBasisAndClaimAnswer: Option[ReasonForClaimAndBasisAnswer],
-    maybeDisplayDeclaration: Option[DisplayDeclaration],
-    maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
+    euDutyAmountAnswers: Option[EUDutyAmountAnswers],
+    claimAnswers: Option[ClaimsAnswer],
+    commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
+    reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
+    displayDeclaration: Option[DisplayDeclaration],
+    duplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
-    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
@@ -80,6 +79,7 @@ object DraftClaim {
         None,
         None
       )
+    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 

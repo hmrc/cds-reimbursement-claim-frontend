@@ -26,9 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswers.{CompleteCommodityDetailsAnswers, IncompleteCommoditiesDetailsAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswers, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswer, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -56,7 +56,7 @@ class EnterCommoditiesDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      CommoditiesDetailsAnswers
+      CommoditiesDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -67,10 +67,10 @@ class EnterCommoditiesDetailsController @Inject() (
             )
           ) =>
         val maybeCommoditiesDetailsAnswers = draftClaim.fold(
-          _.commoditiesDetailsAnswers
+          _.commoditiesDetailsAnswer
         )
         maybeCommoditiesDetailsAnswers.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteCommoditiesDetailsAnswers.empty)
+          f(sessionData, fillingOutClaim, IncompleteCommoditiesDetailsAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -156,13 +156,13 @@ class EnterCommoditiesDetailsController @Inject() (
             commodityDetails => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteCommodityDetailsAnswers(
+                  CompleteCommodityDetailsAnswer(
                     commodityDetails
                   ),
                 complete => complete.copy(commodityDetails = commodityDetails)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -236,13 +236,13 @@ class EnterCommoditiesDetailsController @Inject() (
             commodityDetails => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteCommodityDetailsAnswers(
+                  CompleteCommodityDetailsAnswer(
                     commodityDetails
                   ),
                 complete => complete.copy(commodityDetails = commodityDetails)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 

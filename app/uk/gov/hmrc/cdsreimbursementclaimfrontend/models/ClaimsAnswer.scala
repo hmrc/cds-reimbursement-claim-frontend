@@ -19,43 +19,43 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait ClaimAnswers extends Product with Serializable
+sealed trait ClaimsAnswer extends Product with Serializable
 
-object ClaimAnswers {
+object ClaimsAnswer {
 
-  final case class IncompleteClaimAnswers(
+  final case class IncompleteClaimsAnswer(
     claims: List[Claim]
-  ) extends ClaimAnswers
+  ) extends ClaimsAnswer
 
-  object IncompleteClaimAnswers {
-    val empty: IncompleteClaimAnswers = IncompleteClaimAnswers(List.empty)
+  object IncompleteClaimsAnswer {
+    val empty: IncompleteClaimsAnswer = IncompleteClaimsAnswer(List.empty)
 
-    implicit val format: OFormat[IncompleteClaimAnswers] =
-      derived.oformat[IncompleteClaimAnswers]()
+    implicit val format: OFormat[IncompleteClaimsAnswer] =
+      derived.oformat[IncompleteClaimsAnswer]()
   }
 
-  final case class CompleteClaimAnswers(
+  final case class CompleteClaimsAnswer(
     claims: List[Claim]
-  ) extends ClaimAnswers
+  ) extends ClaimsAnswer
 
-  object CompleteClaimAnswers {
-    implicit val format: OFormat[CompleteClaimAnswers] =
-      derived.oformat[CompleteClaimAnswers]()
+  object CompleteClaimsAnswer {
+    implicit val format: OFormat[CompleteClaimsAnswer] =
+      derived.oformat[CompleteClaimsAnswer]()
   }
 
   implicit class ClaimAnswersOps(
-    private val a: ClaimAnswers
+    private val a: ClaimsAnswer
   ) extends AnyVal {
 
     def fold[A](
-      ifIncomplete: IncompleteClaimAnswers => A,
-      ifComplete: CompleteClaimAnswers => A
+      ifIncomplete: IncompleteClaimsAnswer => A,
+      ifComplete: CompleteClaimsAnswer => A
     ): A =
       a match {
-        case i: IncompleteClaimAnswers => ifIncomplete(i)
-        case c: CompleteClaimAnswers   => ifComplete(c)
+        case i: IncompleteClaimsAnswer => ifIncomplete(i)
+        case c: CompleteClaimsAnswer   => ifComplete(c)
       }
   }
 
-  implicit val format: OFormat[ClaimAnswers] = derived.oformat[ClaimAnswers]()
+  implicit val format: OFormat[ClaimsAnswer] = derived.oformat[ClaimsAnswer]()
 }

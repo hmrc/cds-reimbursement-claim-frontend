@@ -45,7 +45,7 @@ object MovementReferenceNumberAnswer {
       derived.oformat[CompleteMovementReferenceNumberAnswer]()
   }
 
-  implicit class MovementReferenceNumberOps(
+  implicit class MovementReferenceNumberAnswerOps(
     private val a: MovementReferenceNumberAnswer
   ) extends AnyVal {
 

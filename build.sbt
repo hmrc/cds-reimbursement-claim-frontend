@@ -58,7 +58,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     scalacOptions ++= Seq(
       "-Yrangepos",
-      "-language:postfixOps"
+      "-language:postfixOps",
+      "-Ypartial-unification"
     ),
     scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"

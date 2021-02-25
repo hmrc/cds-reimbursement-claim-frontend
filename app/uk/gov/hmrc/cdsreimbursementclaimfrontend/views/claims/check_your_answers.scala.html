@@ -144,7 +144,9 @@ article.content__body {
                                 <th scope="row" class="govuk-table__header">@messages(s"$key.duplicate-declaration-details.label")</th>
                                 <td class="govuk-table__cell">
                                     <ul class="govuk-list govuk-list--bullet">
-                                        <li>@messages(s"$key.duplicate-declaration-details.l0") @completeClaim.duplicateMovementReferenceNumber.fold(e => e.value, s =>s.value)</li>
+                                        @completeClaim.duplicateMovementReferenceNumber.map{ number =>
+                                            <li>@messages(s"$key.duplicate-declaration-details.l0") @number.fold(e => e.value, s =>s.value)</li>
+                                        }
                                         <li>@messages(s"$key.declaration-details.l0") @details.dateOfImport.checkYourDetailsDisplayFormat</li>
                                         <li>@messages(s"$key.declaration-details.l1") @details.placeOfImport</li>
                                         <li>@messages(s"$key.declaration-details.l2") @details.importerName</li>
@@ -185,7 +187,7 @@ article.content__body {
 
                 <tr class="govuk-table__row">
                     <th scope="row" style="font-weight:bold">@messages(s"$key.declarant-type.label")</th>
-                    <td class="govuk-table__cell">@completeClaim.declarantType.repr</td>
+                    <td class="govuk-table__cell">@completeClaim.declarantType</td>
                     <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantType().url, Some(messages(s"cya.change")))</td>
                 </tr>
                 <tr class="govuk-table__row">
@@ -220,8 +222,8 @@ article.content__body {
                             <th scope="row" class="govuk-table__header">@messages(s"$key.reason-and-basis.label")</th>
                             <td class="govuk-table__cell">
                                 <ul class="govuk-list govuk-list--bullet">
-                                    <li>@messages(s"$key.reason-and-basis.l0") @reasonAndBasis.basisForClaim.repr</li>
-                                    <li>@messages(s"$key.reason-and-basis.l1") @reasonAndBasis.reasonForClaim.repr</li>
+                                    <li>@messages(s"$key.reason-and-basis.l0") @reasonAndBasis.basisForClaim</li>
+                                    <li>@messages(s"$key.reason-and-basis.l1") @reasonAndBasis.reasonForClaim</li>
                                 </ul>
                             </td>
                             <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url, Some(messages(s"cya.change")))</td>
@@ -232,7 +234,7 @@ article.content__body {
                             <th scope="row" class="govuk-table__header">Reason for Claim</th>
                             <td class="govuk-table__cell">
                                 <ul class="govuk-list govuk-list--bullet">
-                                    <li>@messages(s"$key.reason-and-basis.l0") @reason.repr</li>
+                                    <li>@messages(s"$key.reason-and-basis.l0") @reason</li>
                                 </ul>
                             </td>
                             <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.SelectReasonForClaimController.changeReasonForClaimSubmit().url, Some(messages(s"cya.change")))</td>
@@ -258,18 +260,20 @@ article.content__body {
                     </td>
                     <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterDutyAmountsController.changeUkDutyAmounts().url, Some(messages(s"cya.change")))</td>
                 </tr>
-                <tr lass="govuk-table__row">
-                    <th scope="row" class="govuk-table__header">@messages(s"$key.bank-details.label")</th>
-                    <td class="govuk-table__cell">
-                        <ul class="govuk-list govuk-list--bullet">
-                            <li>Bank account name: @completeClaim.bankDetails.accountName</li>
-                            <li>Type of bank account: @completeClaim.bankAccountType</li>
-                            <li>Sort code: @completeClaim.bankDetails.sortCode.value</li>
-                            <li>Account number: @completeClaim.bankDetails.accountNumber.value</li>
-                        </ul>
-                    </td>
-                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.BankAccountController.changeBankAccountDetails().url, Some(messages(s"cya.change")))</td>
-                </tr>
+                @completeClaim.bankDetails.map{ bankAccount =>
+                    <tr lass="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.bank-details.label")</th>
+                        <td class="govuk-table__cell">
+                            <ul class="govuk-list govuk-list--bullet">
+                                <li>Bank account name: @bankAccount.accountName</li>
+                                <li>Type of bank account: @completeClaim.bankAccountType</li>
+                                <li>Sort code: @bankAccount.sortCode.value</li>
+                                <li>Account number: @bankAccount.accountNumber.value</li>
+                            </ul>
+                        </td>
+                        <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.BankAccountController.changeBankAccountDetails().url, Some(messages(s"cya.change")))</td>
+                    </tr>
+                }
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header">@messages(s"$key.attached-documents.label")</th>
                     <td class="govuk-table__cell">

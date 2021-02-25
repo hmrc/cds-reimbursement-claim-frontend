@@ -340,8 +340,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                     claimantDetailsAsIndividualAnswers = None,
                     claimantDetailsAsImporterCompanyAnswers = None,
                     reasonForBasisAndClaimAnswer = None,
-                    reasonForClaim = None,
-                    duplicateDeclarationDetailAnswers = None,
+                    basisOfClaimAnswer = None,
+                    duplicateDeclarationDetailsAnswer = None,
                     duplicateMovementReferenceNumberAnswer = None
                   )
                 )

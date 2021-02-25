@@ -98,7 +98,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   )
                 )
               case None                              =>
-                fillingOutClaim.draftClaim.fold(_.maybeDisplayDeclaration) match {
+                fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
                   case Some(declaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>

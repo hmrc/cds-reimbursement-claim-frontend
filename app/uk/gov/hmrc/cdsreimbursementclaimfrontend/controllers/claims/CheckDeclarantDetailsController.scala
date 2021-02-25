@@ -60,7 +60,7 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDisplayDeclaration = c.fold(_.maybeDisplayDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
         f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -79,7 +79,7 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDisplayDeclaration = c.fold(_.maybeDuplicateDisplayDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
         f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
