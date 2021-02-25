@@ -216,7 +216,7 @@ article.content__body {
                         <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url, Some(messages(s"cya.change")))</td>
                     </tr>
                 }
-                @completeClaim.reasonForClaim match{
+                @completeClaim.basisForClaim match{
                     case Left(reasonAndBasis) =>{
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">@messages(s"$key.reason-and-basis.label")</th>

@@ -119,8 +119,8 @@ unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI
 #===================================================
 #  INELIGIBLE PAGE
 #===================================================
-ineligible.title=Sorry, you cannot make a claim.
-ineligible.help=There is an issue with your declaration. Contact the CDS team.
+ineligible.title=Sorry, you are unable to make a claim
+ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a target="_blank" href="{0}">the CDS team</a> (opens in new tab) via the imports and exports general enquiries. 
 
 #===================================================
 #  ENTER MRN PAGE
@@ -168,17 +168,17 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.title=Enter your claimant details
 enter-claimant-details-individual.caption=Individual Claimant Details
-enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.importer-full-name.label=Full name
 enter-claimant-details-individual.importer-full-name.help=This must be your legal name
 enter-claimant-details-individual.importer-full-name.error.required=Enter a full name
 enter-claimant-details-individual.importer-email.label=Email address
 enter-claimant-details-individual.importer-email.error.required=Enter a valid email address
+enter-claimant-details-individual.importer-email.invalid=Enter a valid email address
 enter-claimant-details-individual.importer-phone-number.error.required=Enter a valid phone number
-enter-claimant-details-individual.importer-phone-number.label=Phone number
 enter-claimant-details-individual.importer-phone-number.invalid=Enter a valid phone number
+enter-claimant-details-individual.importer-phone-number.label=Phone number
 enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
-enter-claimant-details-individual.importer-contact-address.label=Contact Address
+enter-claimant-details-individual.importer-contact-address.label=Contact address
 enter-claimant-details-individual.address.building.label=Building number or name
 enter-claimant-details-individual.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-individual.address.line1.label=Address Line 1
@@ -236,7 +236,7 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
-enter-declaration-details.title=Enter Declaration Details
+enter-declaration-details.title=Enter declaration details
 enter-declaration-details.caption=Declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
 enter-declaration-details.date-of-import.label=Date of Import
@@ -298,7 +298,7 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 #===================================================
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
 check-declaration-details.mrn-number.label=MRN number
 check-declaration-details.import-date.label=Import date
 check-declaration-details.paid-charges.label=Paid charges
@@ -312,36 +312,36 @@ check-declaration-details.declarant-telephone.label=Declarant telephone
 check-declaration-details.declarant-contact-address.label=Declarant contact address
 
 #===================================================
-#  SELECT REASON FOR CLAIM PAGE
+#  SELECT BASIS FOR CLAIM PAGE
 #===================================================
-select-reason-for-claim.title=Select the reason for claim
-select-reason-for-claim.error.number=Select the reason for claim
-select-reason-for-claim.error.required=Select the reason for claim
-select-reason-for-claim.caption=Reason for claim
-select-reason-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-for-claim=Examples of basis of claims:
-select-reason-for-claim.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
-select-reason-for-claim.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
-select-reason-for-claim.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
-select-reason-for-claim.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
-select-reason-for-claim.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
-select-reason-for-claim.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
-select-reason-for-claim.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
-select-reason-for-claim.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
-select-reason-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
-select-reason-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
-select-reason-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-reason-for-claim.reason.d0=Duplicate MRN or Entry
-select-reason-for-claim.reason.d1=Duty suspension
-select-reason-for-claim.reason.d2=End use relief
-select-reason-for-claim.reason.d3=Incorrect commodity code
-select-reason-for-claim.reason.d4=Incorrect CPC
-select-reason-for-claim.reason.d5=Incorrect value
-select-reason-for-claim.reason.d6=Incorrect EORI and deferment account number
-select-reason-for-claim.reason.d7=Inward Processing Relief from Customs Duty
-select-reason-for-claim.reason.d8=Outward Processing Relief
-select-reason-for-claim.reason.d9=Preference
-select-reason-for-claim.reason.d10=Proof of returns/refund given
+select-basis-for-claim.title=Select the basis for claim
+select-basis-for-claim.error.number=Select the basis for claim
+select-basis-for-claim.error.required=Select the basis for claim
+select-basis-for-claim.caption=Reason for claim
+select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim=Examples of basis of claim
+select-basis-for-claim.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
+select-basis-for-claim.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
+select-basis-for-claim.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
+select-basis-for-claim.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
+select-basis-for-claim.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
+select-basis-for-claim.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
+select-basis-for-claim.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
+select-basis-for-claim.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
+select-basis-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
+select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
+select-basis-for-claim.reason.d0=Duplicate MRN or Entry
+select-basis-for-claim.reason.d1=Duty suspension
+select-basis-for-claim.reason.d2=End use relief
+select-basis-for-claim.reason.d3=Incorrect commodity code
+select-basis-for-claim.reason.d4=Incorrect CPC
+select-basis-for-claim.reason.d5=Incorrect value
+select-basis-for-claim.reason.d6=Incorrect EORI and deferment account number
+select-basis-for-claim.reason.d7=Inward Processing Relief from Customs Duty
+select-basis-for-claim.reason.d8=Outward Processing Relief
+select-basis-for-claim.reason.d9=Preference
+select-basis-for-claim.reason.d10=Proof of returns/refund given
 
 #===================================================
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
@@ -414,7 +414,7 @@ enter-duty-and-claim-amounts-eu-eu.invalid.claim=You must enter at least one val
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-your-reimbursement-claim-total.title=Your Reimbursement Claim Total
+check-your-reimbursement-claim-total.title=Your reimbursement claim total
 check-your-reimbursement-claim-total.caption=Reimbursement Claim
 check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
 

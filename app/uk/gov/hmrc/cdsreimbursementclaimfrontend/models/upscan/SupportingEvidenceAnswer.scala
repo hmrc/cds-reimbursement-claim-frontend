@@ -40,7 +40,7 @@ object SupportingEvidenceAnswer {
     implicit val format: OFormat[CompleteSupportingEvidenceAnswer] = Json.format[CompleteSupportingEvidenceAnswer]
   }
 
-  implicit class UploadSupportingDocumentsOps(
+  implicit class SupportingEvidenceAnswerOps(
     private val a: SupportingEvidenceAnswer
   ) extends AnyVal {
 
