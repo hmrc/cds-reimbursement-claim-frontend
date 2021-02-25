@@ -56,12 +56,15 @@
   @if(hasErrors) {
    @errorSummary(form)
   }
-
-  @pageHeading(title)
+    <label for="@{key}" class="govuk-label">
+        @pageHeading(title)
+    </label>
 
     <div class="govuk-inset-text">
         @Html(messages(s"$key.help-text"))
     </div>
+
+
 
   <div class="space-document-type">
       @details(messages(s"$key"),

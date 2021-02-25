@@ -355,6 +355,9 @@ select-reason-and-basis-for-claim.help-text=This will help us to understand why 
 select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
 select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
 
+select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
+select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
+
 select-reason-and-basis-for-claim.basis.label=Examples of basis of claim
 select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
 select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
