@@ -21,7 +21,7 @@ import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.http.Status.OK
 import play.api.i18n.Lang
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -34,6 +34,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
+
+  def testSubmitClaim(jsValue: JsValue, lang: Lang)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, Error, SubmitClaimResponse]
 
   def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
@@ -51,6 +55,23 @@ class DefaultClaimService @Inject() (
   ec: ExecutionContext
 ) extends ClaimService
     with Logging {
+
+  def testSubmitClaim(
+    jsValue: JsValue,
+    lang: Lang
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
+    claimConnector.submitClaim(jsValue, lang).subflatMap { httpResponse =>
+      if (httpResponse.status === OK)
+        httpResponse
+          .parseJSON[SubmitClaimResponse]()
+          .leftMap(Error(_))
+      else
+        Left(
+          Error(
+            s"call to get submit claim came back with status ${httpResponse.status}}"
+          )
+        )
+    }
 
   def submitClaim(
     submitClaimRequest: SubmitClaimRequest,
