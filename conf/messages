@@ -210,6 +210,7 @@ enter-claimant-details-importer-company.importer-company-name.label=Company name
 enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
 enter-claimant-details-importer-company.importer-email.label=Email address
 enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
+enter-claimant-details-importer-company.importer-email.invalid=Enter a valid email
 enter-claimant-details-importer-company.importer-phone-number.error.required=Enter a valid phone number
 enter-claimant-details-importer-company.importer-phone-number.label=Phone number
 enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
