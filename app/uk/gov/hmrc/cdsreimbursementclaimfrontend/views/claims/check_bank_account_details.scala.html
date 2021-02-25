@@ -34,32 +34,51 @@
 
  @mainTemplate(title = title, userType = request.userType){
 
+@*
+* Temp CSS before switch to new frontend
+*@
+
+<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+<div class="govuk-width-container">
+ <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
+  <div>
+   <div>
+
     @pageHeading(title)
 
-    <p class="govuk-body">@messages(s"$key.help-text")</p>
+    <div class="govuk-inset-text">
+     @messages(s"$key.help-text")
+    </div>
 
      <div class="space-details">
       <table class="govuk-table">
        <tbody>
-        <tr>
-         <th scope="row" style="font-weight:bold">Account name</th>
-         <td>@bankAccount.accountName</td>
+        <tr class="govuk-table__row">
+         <th scope="row" class="govuk-table__header">Account name</th>
+         <td class="govuk-table__cell">@bankAccount.accountName</td>
         </tr>
-        <tr>
-         <th scope="row" style="font-weight:bold">Sort code</th>
-         <td>@bankAccount.sortCode</td>
+        <tr class="govuk-table__row">
+         <th scope="row" class="govuk-table__header">Sort code</th>
+         <td class="govuk-table__cell">@bankAccount.sortCode</td>
         </tr>
-        <tr>
-         <th scope="row" style="font-weight:bold">Account number</th>
-         <td>@bankAccount.accountNumber</td>
+        <tr class="govuk-table__row">
+         <th scope="row" class="govuk-table__header">Account number</th>
+         <td class="govuk-table__cell">@bankAccount.accountNumber</td>
         </tr>
        </tbody>
       </table>
      </div>
-
+<div class="govuk-!-margin-bottom-8">
      <a href="@routes.BankAccountController.enterBankAccountDetails().url">@messages(s"$key.different-details-link")</a>
+ </div>
 
      @buttonLink(messages("button.continue"), fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url)
 
+
+   </div>
+  </div>
+ </main>
+</div>
 
  }
