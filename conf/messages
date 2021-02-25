@@ -119,8 +119,8 @@ unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI
 #===================================================
 #  INELIGIBLE PAGE
 #===================================================
-ineligible.title=Sorry, you cannot make a claim.
-ineligible.help=There is an issue with your declaration. Contact the CDS team.
+ineligible.title=Sorry, you are unable to make a claim
+ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a target="_blank" href="{0}">the CDS team</a> (opens in new tab) via the imports and exports general enquiries. 
 
 #===================================================
 #  ENTER MRN PAGE
@@ -178,7 +178,7 @@ enter-claimant-details-individual.importer-phone-number.error.required=Enter a v
 enter-claimant-details-individual.importer-phone-number.invalid=Enter a valid phone number
 enter-claimant-details-individual.importer-phone-number.label=Phone number
 enter-claimant-details-individual.importer-phone-number.help=For international numbers include the country code.
-enter-claimant-details-individual.importer-contact-address.label=Contact Address
+enter-claimant-details-individual.importer-contact-address.label=Contact address
 enter-claimant-details-individual.address.building.label=Building number or name
 enter-claimant-details-individual.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-individual.address.line1.label=Address Line 1
@@ -237,7 +237,7 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
-enter-declaration-details.title=Enter Declaration Details
+enter-declaration-details.title=Enter declaration details
 enter-declaration-details.caption=Declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
 enter-declaration-details.date-of-import.label=Date of Import
@@ -299,7 +299,7 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 #===================================================
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
 check-declaration-details.mrn-number.label=MRN number
 check-declaration-details.import-date.label=Import date
 check-declaration-details.paid-charges.label=Paid charges
@@ -415,7 +415,7 @@ enter-duty-and-claim-amounts-eu-eu.invalid.claim=You must enter at least one val
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-your-reimbursement-claim-total.title=Your Reimbursement Claim Total
+check-your-reimbursement-claim-total.title=Your reimbursement claim total
 check-your-reimbursement-claim-total.caption=Reimbursement Claim
 check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
 
@@ -424,7 +424,7 @@ check-your-reimbursement-claim-total.help-text=These are the calculations based 
 #===================================================
 enter-bank-details.title=Enter bank account details
 enter-bank-details.caption=Bank Details
-enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, contact the CDS team.
+enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, <a href="{0}" target="_blank">contact the CDS team</a> via the imports and exports general enquiries. 
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
