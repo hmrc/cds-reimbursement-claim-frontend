@@ -68,6 +68,10 @@
     @Html(messages(s"$key.help-text"))
 </div>
 
+
+
+  <label for="@{key}" class="govuk-label govuk-label--s">@Html(messages(s"$key.select-label"))</label>
+
   <div class="space-document-type">
       @details(messages(s"$key"),
         Html(s"""|

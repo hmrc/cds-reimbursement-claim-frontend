@@ -319,6 +319,7 @@ select-basis-for-claim.title=Select the basis for claim
 select-basis-for-claim.error.number=Select the basis for claim
 select-basis-for-claim.error.required=Select the basis for claim
 select-basis-for-claim.caption=Reason for claim
+select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim=Examples of basis of claim
 select-basis-for-claim.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
