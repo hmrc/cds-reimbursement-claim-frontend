@@ -414,7 +414,7 @@ enter-duty-and-claim-amounts-eu-eu.invalid.claim=You must enter at least one val
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-your-reimbursement-claim-total.title=Your Reimbursement Claim Total
+check-your-reimbursement-claim-total.title=Your reimbursement claim total
 check-your-reimbursement-claim-total.caption=Reimbursement Claim
 check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
 
