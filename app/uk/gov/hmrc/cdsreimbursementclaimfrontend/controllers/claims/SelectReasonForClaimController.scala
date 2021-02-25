@@ -242,7 +242,7 @@ object SelectReasonForClaimController {
   val reasonForClaimForm: Form[SelectReasonForClaim] =
     Form(
       mapping(
-        "select-reason-for-claim" -> number
+        "select-basis-for-claim" -> number
           .verifying(
             "invalid reason for claim",
             reason =>
