@@ -16,59 +16,47 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.data.EitherT
-import cats.instances.future._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.Ignore
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.i18n.Lang
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Request
-import play.api.test.FakeRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 @Ignore
 class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
-
-  implicit val hc: HeaderCarrier   = HeaderCarrier()
-  implicit val request: Request[_] = FakeRequest()
-
-  //private val defaultLanguage    = Lang.defaultLang
-  private val claimConnector = mock[ClaimConnector]
+//
+//  implicit val hc: HeaderCarrier   = HeaderCarrier()
+//  implicit val request: Request[_] = FakeRequest()
+//
+//  //private val defaultLanguage    = Lang.defaultLang
+//  private val claimConnector = mock[ClaimConnector]
   //private val backEndConnector   = mock[CDSReimbursementClaimConnector]
   // private val submitClaimService = new DefaultClaimService(claimConnector, backEndConnector)
 
-  val okResponse: JsValue = Json.parse("""{
-      |    "PostNewClaimsResponse": {
-      |        "ResponseCommon": {
-      |            "Status": "OK",
-      |            "ProcessingDateTime": "2020-12-23T16:58:28Z",
-      |			"CDFPayCaseNumber": "NDRC-1234",
-      |			"CDFPayService":"NDRC"
-      |        }
-      |    }
-      |}""".stripMargin)
-
-  def errorResponse(errorMessage: String): JsValue = Json.parse(s"""{
-      |   "ErrorDetails":{
-      |      "ProcessingDateTime":"2016-10-10T13:52:16Z",
-      |      "CorrelationId":"d60de98c-f499-47f5-b2d6-e80966e8d19e",
-      |      "ErrorMessage":"$errorMessage"
-      |    }
-      |}""".stripMargin)
-
-  def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
-    (claimConnector
-      .submitClaim(_: JsValue, _: Lang)(_: HeaderCarrier))
-      .expects(submitClaimData, *, *)
-      .returning(EitherT.fromEither[Future](response))
-      .atLeastOnce()
+//  val okResponse: JsValue = Json.parse("""{
+//      |    "PostNewClaimsResponse": {
+//      |        "ResponseCommon": {
+//      |            "Status": "OK",
+//      |            "ProcessingDateTime": "2020-12-23T16:58:28Z",
+//      |			"CDFPayCaseNumber": "NDRC-1234",
+//      |			"CDFPayService":"NDRC"
+//      |        }
+//      |    }
+//      |}""".stripMargin)
+//
+//  def errorResponse(errorMessage: String): JsValue = Json.parse(s"""{
+//      |   "ErrorDetails":{
+//      |      "ProcessingDateTime":"2016-10-10T13:52:16Z",
+//      |      "CorrelationId":"d60de98c-f499-47f5-b2d6-e80966e8d19e",
+//      |      "ErrorMessage":"$errorMessage"
+//      |    }
+//      |}""".stripMargin)
+//
+//  def mockSubmitClaim(submitClaimRequest: SubmitClaimRequest)(response: Either[Error, HttpResponse]) =
+//    (claimConnector
+//      .submitClaim(_: submitClaimRequest, _: Lang)(_: HeaderCarrier))
+//      .expects(submitClaimData, *, *)
+//      .returning(EitherT.fromEither[Future](response))
+//      .atLeastOnce()
 
 //  "Submit Claim Service" when {
 //    "handling submit claim" should {

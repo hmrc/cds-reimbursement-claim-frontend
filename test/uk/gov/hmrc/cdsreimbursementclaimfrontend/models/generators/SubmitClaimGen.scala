@@ -18,15 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 
-object CompleteClaimGen extends HigherPriorityCompleteReturnGen with GenUtils
+object SubmitClaimGen extends GenUtils {
 
-trait HigherPriorityCompleteReturnGen extends LowerPriorityCompleteReturnGen { this: GenUtils =>
-  implicit val completeClaimGen: Gen[CompleteClaim] = gen[CompleteClaim]
-}
+  implicit val subClaimRequestGen: Gen[SubmitClaimRequest] = gen[SubmitClaimRequest]
 
-trait LowerPriorityCompleteReturnGen { this: GenUtils =>
-  implicit val completeC285ClaimGen: Gen[CompleteC285Claim] = gen[CompleteC285Claim]
 }

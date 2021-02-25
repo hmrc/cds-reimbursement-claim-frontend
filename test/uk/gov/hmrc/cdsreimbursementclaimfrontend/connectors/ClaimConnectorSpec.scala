@@ -25,9 +25,12 @@ import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.libs.json.JsString
 import play.api.test.Helpers.{await, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpSupport {
@@ -58,6 +61,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val defaultLanguage            = Lang.defaultLang
+    val submitClaimRequest         = sample[SubmitClaimRequest]
 
     val backEndUrl = "http://host3:123/cds-reimbursement-claim/claim"
 
@@ -72,7 +76,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
             mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
               Right(httpResponse)
             )
-            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value) shouldBe Right(httpResponse)
+            await(connector.submitClaim(submitClaimRequest, defaultLanguage).value) shouldBe Right(httpResponse)
           }
         }
       }
@@ -87,7 +91,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
             mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
               Right(httpResponse)
             )
-            await(connector.submitClaim(JsString("claim request"), defaultLanguage).value).isLeft shouldBe true
+            await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true
           }
         }
       }
@@ -95,7 +99,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
         mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
           Left(new Throwable("boom"))
         )
-        await(connector.submitClaim(JsString("claim request"), defaultLanguage).value).isLeft shouldBe true
+        await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true
       }
     }
 

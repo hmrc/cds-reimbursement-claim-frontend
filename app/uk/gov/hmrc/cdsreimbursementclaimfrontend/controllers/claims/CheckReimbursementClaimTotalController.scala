@@ -83,12 +83,16 @@ class CheckReimbursementClaimTotalController @Inject() (
           .getOrElse(IncompleteEUDutyAmountAnswer.empty)
           .dutyAmounts
           .filter(d => isClaimZero(d.claim))
-          .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))) ++
+          .map(p =>
+            Claim("", "", p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))
+          ) ++ //FIXME
           maybeUkDutyAnswers
             .getOrElse(IncompleteUKDutyAmountAnswer.empty)
             .dutyAmounts
             .filter(d => isClaimZero(d.claim))
-            .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0))))
+            .map(p =>
+              Claim("", "", p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))
+            ) //FIXME
 
         f(sessionData, fillingOutClaim, claims)
       case _ => Redirect(baseRoutes.StartController.start())
