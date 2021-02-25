@@ -90,7 +90,7 @@ class SelectReasonForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-reason-for-claim.title")
+          messageFromMessageKey("select-basis-for-claim.title")
         )
       }
     }
