@@ -169,7 +169,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   ),
                 complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
               )
-              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.No) {
+              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.Yes) {
                 fillingOutClaim.draftClaim.fold(
                   _.copy(
                     claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
@@ -192,7 +192,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                 },
                 _ =>
                   claimantDetailsAsIndividual.addCompanyDetails match {
-                    case YesNo.No  =>
+                    case YesNo.Yes =>
                       fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
                         case Some(referenceNumber) =>
                           referenceNumber match {
@@ -212,7 +212,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                           }
                         case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                       }
-                    case YesNo.Yes =>
+                    case YesNo.No  =>
                       Redirect(
                         routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
                       )
