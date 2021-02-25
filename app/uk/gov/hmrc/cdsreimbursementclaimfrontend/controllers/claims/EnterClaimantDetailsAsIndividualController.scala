@@ -153,14 +153,12 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
         EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(s"${requestFormWithErrors.toString}")
+            requestFormWithErrors =>
               BadRequest(
                 enterClaimantDetailAsIndividualPage(
                   requestFormWithErrors
                 )
-              )
-            },
+              ),
             claimantDetailsAsIndividual => {
               val updatedAnswers = answers.fold(
                 _ =>

@@ -23,9 +23,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
-
 import java.time.LocalDate
 import java.util.UUID
+
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
 
 sealed trait DraftClaim extends Product with Serializable {
   val id: UUID
@@ -93,6 +95,19 @@ object DraftClaim {
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
       }
+
+    def claimantDetailsAsIndividual: Option[ClaimantDetailsAsIndividual] = draftClaim match {
+      case dc: DraftC285Claim =>
+        dc.claimantDetailsAsIndividualAnswers match {
+          case Some(answer) =>
+            answer match {
+              case complete: CompleteClaimantDetailsAsIndividualAnswer     => Some(complete.claimantDetailsAsIndividual)
+              case incomplete: IncompleteClaimantDetailsAsIndividualAnswer => incomplete.claimantDetailsAsIndividual
+            }
+          case None         => None
+        }
+      case _                  => None
+    }
 
     def declarantType: Option[DeclarantType] = draftClaim match {
       case DraftC285Claim(
