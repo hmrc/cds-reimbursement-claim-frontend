@@ -298,7 +298,7 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 #===================================================
 check-declaration-details.title=Check these details are correct
 check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
 check-declaration-details.mrn-number.label=MRN number
 check-declaration-details.import-date.label=Import date
 check-declaration-details.paid-charges.label=Paid charges
