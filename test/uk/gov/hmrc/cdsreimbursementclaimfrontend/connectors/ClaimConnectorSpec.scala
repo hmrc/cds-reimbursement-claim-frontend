@@ -73,7 +73,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
           HttpResponse(200, JsString("claim response"), Map[String, Seq[String]]().empty)
         ).foreach { httpResponse =>
           withClue(s"For http response [${httpResponse.toString}]") {
-            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
               Right(httpResponse)
             )
             await(connector.submitClaim(submitClaimRequest, defaultLanguage).value) shouldBe Right(httpResponse)
@@ -88,7 +88,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
           HttpResponse(500, emptyJsonBody)
         ).foreach { httpResponse =>
           withClue(s"For http response [${httpResponse.toString}]") {
-            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
               Right(httpResponse)
             )
             await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true
@@ -96,7 +96,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
         }
       }
       "the future fails" in {
-        mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), JsString("claim request"))(
+        mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
           Left(new Throwable("boom"))
         )
         await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true

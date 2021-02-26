@@ -19,7 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
@@ -90,6 +92,19 @@ object DraftClaim {
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
       }
+
+    def claimantDetailsAsIndividual: Option[ClaimantDetailsAsIndividual] = draftClaim match {
+      case dc: DraftC285Claim =>
+        dc.claimantDetailsAsIndividualAnswers match {
+          case Some(answer) =>
+            answer match {
+              case complete: CompleteClaimantDetailsAsIndividualAnswer     => Some(complete.claimantDetailsAsIndividual)
+              case incomplete: IncompleteClaimantDetailsAsIndividualAnswer => incomplete.claimantDetailsAsIndividual
+            }
+          case None         => None
+        }
+      case _                  => None
+    }
 
     def declarantType: Option[DeclarantType] = draftClaim match {
       case DraftC285Claim(

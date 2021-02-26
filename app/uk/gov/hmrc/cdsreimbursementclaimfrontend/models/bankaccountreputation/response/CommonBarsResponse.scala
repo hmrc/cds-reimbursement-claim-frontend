@@ -14,26 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response
 
-import play.api.Logger
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-
-trait Logging {
-
-  val logger: Logger = Logger(this.getClass)
-
-}
-
-object Logging {
-
-  implicit class LoggerOps(private val l: Logger) extends AnyVal {
-    def warn(msg: => String, error: => Error): Unit = {
-      val idString = error.identifiers.map { case (k, v) => s"[$k: $v]" }.mkString(" ")
-      error.throwable.fold(l.warn(s"$idString $msg ${error.message}"))(e =>
-        l.warn(s"$idString $msg ${error.message}", e)
-      )
-    }
-  }
-
-}
+final case class CommonBarsResponse(
+  accountNumberWithSortCodeIsValid: ReputationResponse,
+  accountExists: Option[ReputationResponse] = None
+)

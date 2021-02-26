@@ -440,6 +440,8 @@ enter-bank-details.sort-code.label=Sort Code
 enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
 enter-bank-details-sort-code.error.required=Enter a valid sort code
 enter-bank-details.is-business-account=This is a business bank account
+enter-bank-details.error.moc-check-failed=Account number must be valid for the given sort code
+enter-bank-details.error.account-does-not-exists=Account number must belong to an active bank account
 
 #===================================================
 #  BANK DETAILS PAGE
@@ -479,8 +481,8 @@ supporting-evidence.check-your-answers.add-another-file=Add another file
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.caption=Supporting evidence
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
-supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
-supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, PDF, DOC, and XLS.
+supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, and PDF.
+supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.caption=Supporting evidence
@@ -499,7 +501,7 @@ supporting-evidence.scan-failed.bullet1=the file had a virus or was corrupt
 supporting-evidence.scan-failed.bullet2=you did not select a file to upload
 supporting-evidence.scan-failed.bullet3=you uploaded the wrong type of file
 supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
-supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, PDF, DOC, and XLS
+supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, and PDF.
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
@@ -631,6 +633,7 @@ countryCode.error.required=Enter a country
 #===================================================
 #  COUNTRIES - START
 #===================================================
+countryCode.placeholder=Select country
 country.AD=Andorra
 country.AE=United Arab Emirates
 country.AF=Afghanistan

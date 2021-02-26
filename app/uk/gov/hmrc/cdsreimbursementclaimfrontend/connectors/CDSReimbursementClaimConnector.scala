@@ -24,13 +24,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
 import javax.inject.Singleton
+import play.api.libs.json.JsValue
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultCDSReimbursementClaimConnector])
 trait CDSReimbursementClaimConnector {
   def getDeclarationDetails(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+
+  def getBusinessReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  def getPersonalReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+
 }
 
 @Singleton
@@ -50,6 +55,27 @@ class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, service
         .map(Right(_))
         .recover { case e => Left(Error(e)) }
     )
-
   }
+
+  def getBusinessReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
+    val url = getUri("bank-account-reputation", "business")
+    getReputation(data, url)
+  }
+
+  def getPersonalReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
+    val url = getUri("bank-account-reputation", "personal")
+    getReputation(data, url)
+  }
+
+  def getUri(serviceName: String, apiName: String): String =
+    servicesConfig.baseUrl(serviceName) + servicesConfig.getString(s"microservice.services.$serviceName.$apiName")
+
+  def getReputation(data: JsValue, url: String)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
+    EitherT[Future, Error, HttpResponse](
+      http
+        .POST[JsValue, HttpResponse](url, data)
+        .map(Right(_))
+        .recover { case e => Left(Error(e)) }
+    )
+
 }

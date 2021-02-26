@@ -20,7 +20,6 @@ import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
 import controllers.Assets.ACCEPT_LANGUAGE
 import play.api.i18n.Lang
-import play.api.libs.json.Json
 import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
@@ -52,8 +51,6 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
   ): EitherT[Future, Error, HttpResponse] = {
 
     val submitClaimUrl: String = s"$baseUrl/cds-reimbursement-claim/claim"
-
-    println(s"${Json.toJson(submitClaimRequest)}")
 
     EitherT[Future, Error, HttpResponse](
       http
