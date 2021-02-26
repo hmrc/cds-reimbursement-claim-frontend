@@ -30,7 +30,7 @@ class TestPageController @Inject() (testPage: TestPage)(implicit
 
   val show: Action[AnyContent] = Action { implicit request =>
     //Ok("Hello")
-    Ok(testPage("This is the title", "The heading", "And the message"))
+    Ok(testPage("This is the title"))
   }
 
 }
