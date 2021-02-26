@@ -231,7 +231,7 @@ class BankAccountController @Inject() (
                     case false =>
                       val claimant = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
                       val address  = BarsAddress(
-                        claimant.map(_.contactAddress.allNonEmptyLines).getOrElse(Nil),
+                        Nil,
                         None,
                         claimant.flatMap(_.contactAddress.postcode)
                       )

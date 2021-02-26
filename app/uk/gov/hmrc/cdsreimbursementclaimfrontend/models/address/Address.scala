@@ -25,10 +25,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BooleanFormatter
 
-sealed trait Address extends Product with Serializable {
-  def emptyOrNull(in: String): Option[String]         = Option(in).flatMap(str => if (str.length > 0) None else Some(str))
-  def emptyOrNull(in: Option[String]): Option[String] = in.flatMap(emptyOrNull(_))
-}
+sealed trait Address extends Product with Serializable
 
 object Address {
 
@@ -57,16 +54,7 @@ object Address {
     line5: Option[String],
     postcode: Option[String],
     country: Country
-  ) extends Address {
-    def allNonEmptyLines: List[String] = List(
-      emptyOrNull(buildingName),
-      emptyOrNull(line1),
-      emptyOrNull(line2),
-      emptyOrNull(line3),
-      emptyOrNull(line4),
-      emptyOrNull(line5)
-    ).flatten(Option.option2Iterable)
-  }
+  ) extends Address
 
   implicit val nonUkAddressFormat: OFormat[NonUkAddress] = derived.oformat[NonUkAddress]()
 
