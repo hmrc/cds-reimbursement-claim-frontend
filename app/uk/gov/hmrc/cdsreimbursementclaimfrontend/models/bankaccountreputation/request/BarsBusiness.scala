@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request
 
-import play.api.Logger
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import play.api.libs.json.{Json, OFormat}
 
-trait Logging {
+final case class BarsBusiness(
+  companyName: String, // Must be between 1 and 70 characters long
+  companyRegistrationNumber: Option[String],
+  address: Option[BarsAddress]
+)
 
-  val logger: Logger = Logger(this.getClass)
-
-}
-
-object Logging {
-
-  implicit class LoggerOps(private val l: Logger) extends AnyVal {
-    def warn(msg: => String, error: => Error): Unit = {
-      val idString = error.identifiers.map { case (k, v) => s"[$k: $v]" }.mkString(" ")
-      error.throwable.fold(l.warn(s"$idString $msg ${error.message}"))(e =>
-        l.warn(s"$idString $msg ${error.message}", e)
-      )
-    }
-  }
-
+object BarsBusiness {
+  implicit val format: OFormat[BarsBusiness] = Json.format[BarsBusiness]
 }
