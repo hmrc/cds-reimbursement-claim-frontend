@@ -197,42 +197,44 @@ class EnterMovementReferenceNumberController @Inject() (
                     .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                     .leftMap((_: Unit) => Error("could not update session"))
 
-                  val getDeclaration: EitherT[Future, Error, DisplayDeclaration] = claimService
+                  val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
                     .getDisplayDeclaration(mrn)
                     .leftMap(_ => Error("could not get declaration"))
 
                   val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
-                    displayDeclaration <- getDeclaration
-                    _                  <- updateSessionWithReference
-                    mrnJourneyFlow     <-
+                    maybeDisplayDeclaration <- getDeclaration
+                    _                       <- updateSessionWithReference
+                    mrnJourneyFlow          <-
                       EitherT
                         .fromEither[Future](
-                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, displayDeclaration)
+                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
                         )
                         .leftMap(_ => Error("could not evaluate MRN flow"))
-                    _                  <- EitherT.liftF(
-                                            updateSession(sessionStore, request)(
-                                              _.copy(journeyStatus =
-                                                Some(
-                                                  fillingOutClaim.copy(draftClaim =
-                                                    newDraftClaim.copy(
-                                                      displayDeclaration = Some(displayDeclaration),
-                                                      movementReferenceNumberAnswer = Some(updatedAnswers)
-                                                    )
-                                                  )
-                                                )
-                                              )
-                                            )
-                                          )
+                    displayDeclaration      <-
+                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                    _                       <- EitherT.liftF(
+                                                 updateSession(sessionStore, request)(
+                                                   _.copy(journeyStatus =
+                                                     Some(
+                                                       fillingOutClaim.copy(draftClaim =
+                                                         newDraftClaim.copy(
+                                                           displayDeclaration = Some(displayDeclaration),
+                                                           movementReferenceNumberAnswer = Some(updatedAnswers)
+                                                         )
+                                                       )
+                                                     )
+                                                   )
+                                                 )
+                                               )
                   } yield mrnJourneyFlow
 
                   result.fold(
                     e => {
                       logger.warn("could not get declaration information", e)
-                      errorHandler.errorResult()
+                      Redirect(baseRoutes.IneligibleController.ineligible())
                     },
                     {
-                      case Left(_)  => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                      case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
                       case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
                     }
                   )
@@ -330,9 +332,12 @@ class EnterMovementReferenceNumberController @Inject() (
                     DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
 
                   val result: EitherT[Future, models.Error, Unit] = for {
-                    displayDeclaration <-
-                      claimService.getDisplayDeclaration(mrn).leftMap(_ => Error("could not get declaration"))
-                    updatedJourney      =
+                    maybeDisplayDeclaration <- claimService
+                                                 .getDisplayDeclaration(mrn)
+                                                 .leftMap(_ => Error("could not get declaration"))
+                    displayDeclaration      <-
+                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                    updatedJourney           =
                       fillingOutClaim.copy(draftClaim =
                         if (
                           displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
@@ -343,7 +348,7 @@ class EnterMovementReferenceNumberController @Inject() (
                           )
                         else newDraftClaim
                       )
-                    _                  <-
+                    _                       <-
                       EitherT
                         .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                         .leftMap((_: Unit) => Error("could not update session"))
@@ -354,7 +359,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       logger.warn("could not capture change to mrn number", e)
                       errorHandler.errorResult()
                     },
-                    _ => Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                    _ => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
                   )
               }
           )
@@ -457,42 +462,44 @@ class EnterMovementReferenceNumberController @Inject() (
                     .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                     .leftMap((_: Unit) => Error("could not update session"))
 
-                  val getDeclaration: EitherT[Future, Error, DisplayDeclaration] = claimService
+                  val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
                     .getDisplayDeclaration(mrn)
                     .leftMap(_ => Error("could not get duplicate declaration"))
 
                   val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
-                    displayDeclaration <- getDeclaration
-                    _                  <- updateSessionWithReference
-                    mrnJourneyFlow     <-
+                    maybeDisplayDeclaration <- getDeclaration
+                    _                       <- updateSessionWithReference
+                    mrnJourneyFlow          <-
                       EitherT
                         .fromEither[Future](
-                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, displayDeclaration)
+                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
                         )
                         .leftMap(_ => Error("could not evaluate MRN flow"))
-                    _                  <- EitherT.liftF(
-                                            updateSession(sessionStore, request)(
-                                              _.copy(journeyStatus =
-                                                Some(
-                                                  fillingOutClaim.copy(draftClaim =
-                                                    newDraftClaim.copy(
-                                                      duplicateDisplayDeclaration = Some(displayDeclaration),
-                                                      duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
-                                                    )
-                                                  )
-                                                )
-                                              )
-                                            )
-                                          )
+                    displayDeclaration      <-
+                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                    _                       <- EitherT.liftF(
+                                                 updateSession(sessionStore, request)(
+                                                   _.copy(journeyStatus =
+                                                     Some(
+                                                       fillingOutClaim.copy(draftClaim =
+                                                         newDraftClaim.copy(
+                                                           duplicateDisplayDeclaration = Some(displayDeclaration),
+                                                           duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
+                                                         )
+                                                       )
+                                                     )
+                                                   )
+                                                 )
+                                               )
                   } yield mrnJourneyFlow
 
                   result.fold(
                     e => {
                       logger.warn("could not get declaration information", e)
-                      errorHandler.errorResult()
+                      Redirect(baseRoutes.IneligibleController.ineligible())
                     },
                     {
-                      case Left(_)  => Redirect(routes.CheckDeclarantDetailsController.checkDuplicateDetails())
+                      case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
                       case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
                     }
                   )
@@ -503,19 +510,27 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private def evaluateMrnJourneyFlow(
     signedInUserDetails: SignedInUserDetails,
-    displayDeclaration: DisplayDeclaration
+    maybeDisplayDeclaration: Option[DisplayDeclaration]
   ): Either[Error, Either[MrnImporter, ThirdPartyImporter]] =
-    (
-      displayDeclaration.displayResponseDetail.consigneeDetails,
-      Some(displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
-    ) match {
-      case (None, _)           => Right(Right(ThirdPartyImporter(displayDeclaration)))
-      case (Some(cd), Some(d)) =>
-        if (cd.consigneeEORI === signedInUserDetails.eori.value) Right(Left(MrnImporter(displayDeclaration)))
-        else if (cd.consigneeEORI =!= signedInUserDetails.eori.value || d =!= signedInUserDetails.eori.value)
-          Right(Right(ThirdPartyImporter(displayDeclaration)))
-        else Right(Right(ThirdPartyImporter(displayDeclaration)))
-      case _                   => Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
+    maybeDisplayDeclaration match {
+      case Some(displayDeclaration) =>
+        (
+          displayDeclaration.displayResponseDetail.consigneeDetails,
+          Some(displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
+        ) match {
+          case (None, _)                                        => Right(Right(ThirdPartyImporter(displayDeclaration)))
+          case (Some(consigneeDetails), Some(declarantDetails)) =>
+            if (consigneeDetails.consigneeEORI === signedInUserDetails.eori.value)
+              Right(Left(MrnImporter(displayDeclaration)))
+            else if (
+              consigneeDetails.consigneeEORI =!= signedInUserDetails.eori.value || declarantDetails =!= signedInUserDetails.eori.value
+            )
+              Right(Right(ThirdPartyImporter(displayDeclaration)))
+            else Right(Right(ThirdPartyImporter(displayDeclaration)))
+          case _                                                => Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
+        }
+
+      case None => Left(Error("received no declaration information"))
     }
 
 }

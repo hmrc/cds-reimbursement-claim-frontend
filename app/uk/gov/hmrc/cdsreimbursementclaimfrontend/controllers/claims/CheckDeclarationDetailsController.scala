@@ -33,13 +33,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.Future
 
 @Singleton
-class CheckDeclarantDetailsController @Inject() (
+class CheckDeclarationDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  checkDeclarantDetailsPage: pages.check_declarant_details
+  checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -120,9 +120,9 @@ class CheckDeclarantDetailsController @Inject() (
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
       )(declaration =>
         Ok(
-          checkDeclarantDetailsPage(
+          checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarantDetailsController.checkDetailsSubmit(),
+            routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
             handleBackLink(fillingOutClaim)
           )
         )
@@ -140,9 +140,9 @@ class CheckDeclarantDetailsController @Inject() (
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
       )(declaration =>
         Ok(
-          checkDeclarantDetailsPage(
+          checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarantDetailsController.checkDuplicateDetailsSubmit(),
+            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit(),
             handleBackLink(fillingOutClaim)
           )
         )

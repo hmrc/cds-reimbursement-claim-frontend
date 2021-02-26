@@ -69,6 +69,10 @@
        @Html(messages(s"$key.help-text"))
     </div>
 
+
+
+  <label for="@{key}.basis" class="govuk-label govuk-label--s">@Html(messages(s"$key.basis.select-label"))</label>
+
   <div class="space-document-type">
       @details(messages(s"$key.basis.label"),
         Html(s"""|
@@ -155,6 +159,7 @@
     </div>
 
 
+  <label for="@{key}.reason" class="govuk-label govuk-label--s">@Html(messages(s"$key.reason.select-label"))</label>
 
   <div class="space-document-type">
       @details(messages(s"$key.reason.label"),

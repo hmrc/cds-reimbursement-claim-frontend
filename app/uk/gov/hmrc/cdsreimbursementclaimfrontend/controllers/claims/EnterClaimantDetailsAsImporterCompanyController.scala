@@ -312,17 +312,17 @@ object EnterClaimantDetailsAsImporterCompanyController {
     val declaration  = displayDeclaration.displayResponseDetail
     val maybeAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
     ClaimantDetailsAsImporterCompany(
-      "",
-      Email(""),
-      PhoneNumber(""),
+      declaration.consigneeDetails.map(cd => cd.legalName).getOrElse(""),
+      Email(declaration.consigneeDetails.flatMap(cd => cd.contactDetails.flatMap(s => s.emailAddress)).getOrElse("")),
+      PhoneNumber(
+        declaration.consigneeDetails.flatMap(cd => cd.contactDetails.flatMap(s => s.telephone)).getOrElse("")
+      ),
       NonUkAddress(
         maybeAddress.map(s => s.addressLine1).getOrElse(""),
-        maybeAddress.flatMap(s => s.addressLine2).getOrElse(""),
+        maybeAddress.flatMap(s => s.addressLine2),
         None,
-        maybeAddress.flatMap(s => s.addressLine3),
-        "",
-        None,
-        maybeAddress.flatMap(s => s.postalCode),
+        maybeAddress.flatMap(s => s.addressLine3).getOrElse(""),
+        maybeAddress.flatMap(s => s.postalCode).getOrElse(""),
         Country(maybeAddress.map(s => s.countryCode).getOrElse(""))
       )
     )

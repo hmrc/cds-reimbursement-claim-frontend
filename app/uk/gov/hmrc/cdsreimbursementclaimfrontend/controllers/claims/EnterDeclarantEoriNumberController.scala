@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-class EnterDeclarantsEoriNumberController {}
-
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -143,7 +141,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                        Redirect(routes.CheckDeclarationDetailsController.checkDetails())
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())

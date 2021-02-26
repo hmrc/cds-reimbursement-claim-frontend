@@ -48,26 +48,22 @@
      </span>
     }
 
-   case (NonUkAddress(b, l1,l2,l3,l4,l5,postcode,country), Block) => {
+   case (NonUkAddress(l1,l2,l3,l4,postcode,country), Block) => {
     <div>
-     @b<br />
      @l1<br />
      @l2.map(l => Html(s"$l<br />"))
      @l3.map(l => Html(s"$l<br />"))
      @l4.map(l => Html(s"$l<br />"))
-     @l5.map(l => Html(s"$l<br />"))
      @postcode.map(p => Html(s"$p<br />"))
      @messages.translate(s"country.${country.code}", Seq.empty)
     </div>
    }
-   case (NonUkAddress(b,l1,l2,l3,l4,l5,postcode,country), Line) => {
+   case (NonUkAddress(l1,l2,l3,l4,postcode,country), Line) => {
      <span>
-      @b,
       @l1,
       @l2.map(l => s"$l, ")
       @l3.map(l => s"$l, ")
       @l4.map(l => s"$l, ")
-      @l5.map(l => s"$l, ")
       @postcode.map(p => s"$p, ")
       @messages.translate(s"country.${country.code}", Seq.empty)
      </span>

@@ -209,6 +209,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
               )
             )
           ) =>
+        println(s"\n\n\n\n\n\ndeclaration is ${draftClaim.fold(_.displayDeclaration).toString}")
         CompleteC285Claim
           .fromDraftClaim(draftClaim)
           .fold[Future[Result]](

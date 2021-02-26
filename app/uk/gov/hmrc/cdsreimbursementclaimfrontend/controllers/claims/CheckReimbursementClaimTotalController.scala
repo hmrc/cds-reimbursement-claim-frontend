@@ -84,14 +84,26 @@ class CheckReimbursementClaimTotalController @Inject() (
           .dutyAmounts
           .filter(d => isClaimZero(d.claim))
           .map(p =>
-            Claim("", "", p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))
+            Claim(
+              "001",
+              "sfsd",
+              p.taxCode,
+              p.paid.getOrElse(BigDecimal(0).setScale(2)).setScale(2),
+              p.claim.getOrElse(BigDecimal(0).setScale(2)).setScale(2)
+            )
           ) ++ //FIXME
           maybeUkDutyAnswers
             .getOrElse(IncompleteUKDutyAmountAnswer.empty)
             .dutyAmounts
             .filter(d => isClaimZero(d.claim))
             .map(p =>
-              Claim("", "", p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))
+              Claim(
+                "",
+                "",
+                p.taxCode,
+                p.paid.getOrElse(BigDecimal(0).setScale(2)).setScale(2),
+                p.claim.getOrElse(BigDecimal(0).setScale(2).setScale(2))
+              )
             ) //FIXME
 
         f(sessionData, fillingOutClaim, claims)

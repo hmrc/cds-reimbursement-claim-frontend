@@ -46,13 +46,11 @@
     @title = @{messages(s"$key.title")}
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @line0Key = @{s"$nonUkAddressKey-building"}
     @line1Key = @{s"$nonUkAddressKey-line1"}
     @line2Key = @{s"$nonUkAddressKey-line2"}
     @line3Key = @{s"$nonUkAddressKey-line3"}
     @line4Key = @{s"$nonUkAddressKey-line4"}
-    @line5Key = @{s"$nonUkAddressKey-line5"}
-    @line6Key = @{s"$nonUkAddressKey-line6"}
+    @line5Key = @{"postcode"}
     @countryCodeKey = @{"countryCode"}
 
     @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
@@ -121,76 +119,56 @@
                   @messages(s"$key.importer-contact-address.label")
                   </h2>
               </legend>
-              @textInput(
-                fieldId = line0Key,
-                label = Html(messages(s"$key.address.building.label")),
-                errorKey = form.error(line0Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line0Key, ""),
-                hasErrors = form.error(line0Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLine1
-              )
-              @textInput(
-                fieldId = line1Key,
-                label = Html(messages(s"$key.address.line1.label")),
-                errorKey = form.error(line1Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line1Key, ""),
-                hasErrors = form.error(line1Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLine2
-              )
-              @textInput(
-                fieldId = line2Key,
-                label = Html(messages(s"$key.address.line2.label")),
-                errorKey = form.error(line2Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line2Key, ""),
-                hasErrors = form.error(line2Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel2
-              )
-              @textInput(
-                fieldId = line3Key,
-                label = Html(messages(s"$key.address.line3.label")),
-                errorKey = form.error(line3Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line3Key, ""),
-                hasErrors = form.error(line3Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel1
-              )
-              @textInput(
-                fieldId = line4Key,
-                label = Html(messages(s"$key.address.line4.label")),
-                errorKey = form.error(line4Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line4Key, ""),
-                hasErrors = form.error(line4Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel2
-               )
-
-              @textInput(
-                fieldId = line5Key,
-                label = Html(messages(s"$key.address.line5.label")),
-                errorKey = form.error(line5Key).map(e => s"${e.message}"),
-                value = form.data.getOrElse(line5Key, ""),
-                hasErrors = form.error(line5Key).nonEmpty,
-                inputClass = Some("form-control-3-4"),
-                autoComplete = AutoCompleteType.AddressLevel1
-              )
-
                 @textInput(
-                    fieldId = line6Key,
-                    label = Html(messages(s"$key.address.line6.label")),
-                    errorKey = form.error(line6Key).map(e => s"${e.message}"),
-                    value = form.data.getOrElse(line6Key, ""),
-                    hasErrors = form.error(line6Key).nonEmpty,
-                inputClass = Some("govuk-!-width-one-quarter"),
+                    fieldId = line1Key,
+                    label = Html(messages(s"$key.address.line1.label")),
+                    errorKey = form.error(line1Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line1Key, ""),
+                    hasErrors = form.error(line1Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLine2
+                )
+                @textInput(
+                    fieldId = line2Key,
+                    label = Html(messages(s"$key.address.line2.label")),
+                    errorKey = form.error(line2Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line2Key, ""),
+                    hasErrors = form.error(line2Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel2
+                )
+                @textInput(
+                    fieldId = line3Key,
+                    label = Html(messages(s"$key.address.line3.label")),
+                    errorKey = form.error(line3Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line3Key, ""),
+                    hasErrors = form.error(line3Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel1
+                )
+                @textInput(
+                    fieldId = line4Key,
+                    label = Html(messages(s"$key.address.line4.label")),
+                    errorKey = form.error(line4Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line4Key, ""),
+                    hasErrors = form.error(line4Key).nonEmpty,
+                    inputClass = Some("form-control-3-4"),
+                    autoComplete = AutoCompleteType.AddressLevel2
+                )
+                @textInput(
+                    fieldId = line5Key,
+                    label = Html(messages(s"$key.address.line5.label")),
+                    errorKey = form.error(line5Key).map(e => s"${e.message}"),
+                    value = form.data.getOrElse(line5Key, ""),
+                    hasErrors = form.error(line5Key).nonEmpty,
+                    inputClass = Some("govuk-!-width-one-quarter"),
                     autoComplete = AutoCompleteType.AddressLevel1
                 )
 
                 @countryCode(
                     Country.countryCodes,
                     selected = form.data.get(countryCodeKey),
-                    label = messages(s"${key}.address.line7.label"),
+                    label = messages(s"${key}.address.line6.label"),
                     hasErrors = form.error(countryCodeKey).nonEmpty,
                     errorKey = form.error(countryCodeKey).map(e => s"${e.message}"),
                     autoComplete = AutoCompleteType.Country

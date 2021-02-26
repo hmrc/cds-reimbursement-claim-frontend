@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
+import controllers.Assets.NO_CONTENT
 import play.api.http.Status.OK
 import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
@@ -39,7 +40,7 @@ trait ClaimService {
     hc: HeaderCarrier
   ): EitherT[Future, Error, SubmitClaimResponse]
 
-  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, DisplayDeclaration]
+  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
 
 }
 
@@ -69,15 +70,18 @@ class DefaultClaimService @Inject() (
         )
     }
 
-  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, DisplayDeclaration] =
+  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     cdsReimbursementClaimConnector
       .getDeclarationDetails(mrn)
       .subflatMap { response =>
-        if (response.status === OK)
+        if (response.status === OK) {
           response
             .parseJSON[DisplayDeclaration]()
+            .map(Some(_))
             .leftMap(Error(_))
-        else
+        } else if (response.status === NO_CONTENT) {
+          Right(None)
+        } else
           Left(Error(s"call to get declaration details ${response.status}"))
       }
 

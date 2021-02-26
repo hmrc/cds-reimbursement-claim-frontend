@@ -20,8 +20,8 @@ import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
-import play.api.data.Forms.{mapping, nonEmptyText, number}
-import play.api.data.{Form, Mapping}
+import play.api.data.Form
+import play.api.data.Forms.{mapping, nonEmptyText, of}
 import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -169,15 +169,19 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   ),
                 complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
               )
-              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails === YesNo.No) {
+              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails) {
+                fillingOutClaim.draftClaim.fold(
+                  _.copy(
+                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers)
+                  )
+                )
+              } else {
                 fillingOutClaim.draftClaim.fold(
                   _.copy(
                     claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
                     claimantDetailsAsImporterCompanyAnswers = None
                   )
                 )
-              } else {
-                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
               }
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -191,31 +195,30 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ =>
-                  claimantDetailsAsIndividual.addCompanyDetails match {
-                    case YesNo.No  =>
-                      fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
-                        case Some(referenceNumber) =>
-                          referenceNumber match {
-                            case Left(_)  =>
-                              fillingOutClaim.draftClaim.declarantType match {
-                                case Some(declarantType) =>
-                                  declarantType match {
-                                    case DeclarantType.Importer =>
-                                      Redirect(
-                                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-                                      )
-                                    case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
-                                  }
-                                case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                              }
-                            case Right(_) => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
-                          }
-                        case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-                      }
-                    case YesNo.Yes =>
-                      Redirect(
-                        routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
-                      )
+                  if (claimantDetailsAsIndividual.addCompanyDetails) {
+                    Redirect(
+                      routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
+                    )
+                  } else {
+                    fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
+                      case Some(referenceNumber) =>
+                        referenceNumber match {
+                          case Left(_)  =>
+                            fillingOutClaim.draftClaim.declarantType match {
+                              case Some(declarantType) =>
+                                declarantType match {
+                                  case DeclarantType.Importer =>
+                                    Redirect(
+                                      routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                                    )
+                                  case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                                }
+                              case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                            }
+                          case Right(_) => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                        }
+                      case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    }
                   }
               )
             }
@@ -306,7 +309,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                       },
                       _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                     )
-                  } else if (o === YesNo.Yes) {
+                  } else if (o) {
                     // this means user doesn't want the importer company details so we trash that
                     // and update the session
                     // and send them back to the CYA page
@@ -376,25 +379,12 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
 
 object EnterClaimantDetailsAsIndividualController {
 
-  val companyDetailsMapping: Mapping[YesNo] =
-    mapping(
-      "enter-claimant-details-individual.add-company-details" -> number
-        .verifying("invalid", a => a === 0 || a === 1)
-        .transform[YesNo](
-          value => if (value === 0) YesNo.No else YesNo.Yes,
-          {
-            case YesNo.Yes => 1
-            case YesNo.No  => 0
-          }
-        )
-    )(identity)(Some(_))
-
   final case class ClaimantDetailsAsIndividual(
     fullName: String,
     emailAddress: Email,
     phoneNumber: PhoneNumber,
     contactAddress: NonUkAddress,
-    addCompanyDetails: YesNo
+    addCompanyDetails: Boolean
   )
 
   object ClaimantDetailsAsIndividual {
@@ -407,7 +397,7 @@ object EnterClaimantDetailsAsIndividualController {
       "enter-claimant-details-individual.importer-email"        -> Email.mapping,
       "enter-claimant-details-individual.importer-phone-number" -> PhoneNumber.mapping,
       ""                                                        -> Address.nonUkAddressFormMapping,
-      ""                                                        -> companyDetailsMapping
+      "enter-claimant-details-individual.add-company-details"   -> of(BooleanFormatter.formatter)
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 
@@ -421,15 +411,13 @@ object EnterClaimantDetailsAsIndividualController {
       PhoneNumber(d.consigneeTelephone.getOrElse("")),
       NonUkAddress(
         a.flatMap(s => s.addressLine1).getOrElse(""),
-        a.flatMap(s => s.addressLine2).getOrElse(""),
+        a.flatMap(s => s.addressLine2),
         None,
-        a.flatMap(s => s.addressLine3),
-        a.flatMap(s => s.addressLine4).getOrElse(""),
-        None,
-        a.flatMap(s => s.postalCode),
+        a.flatMap(s => s.addressLine3).getOrElse(""),
+        a.flatMap(s => s.postalCode).getOrElse(""),
         Country(a.flatMap(s => s.countryCode).getOrElse(""))
       ),
-      YesNo.No
+      addCompanyDetails = false
     )
   }
 }
