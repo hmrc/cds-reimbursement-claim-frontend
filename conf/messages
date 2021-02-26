@@ -631,6 +631,7 @@ countryCode.error.required=Enter a country
 #===================================================
 #  COUNTRIES - START
 #===================================================
+countryCode.placeholder=Select country
 country.AD=Andorra
 country.AE=United Arab Emirates
 country.AF=Afghanistan
