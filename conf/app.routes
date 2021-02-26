@@ -17,4 +17,7 @@ GET /switch-to-english-language                                             uk.g
 
 GET /accessibility-statement                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AccessibilityStatementController.accessibilityStatement()
 
-GET /assets/*file                                                           controllers.Assets.at(path="/public", file)
+GET /assets/*file                                                          controllers.Assets.at(path="/public", file)
+
+->  /govuk-frontend                                                         govuk.Routes
+->  /hmrc-frontend                                                          hmrcfrontend.Routes
