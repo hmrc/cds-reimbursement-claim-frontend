@@ -21,57 +21,57 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.EnterEuClaim
 
-sealed trait EuDutyAmountAnswers extends Product with Serializable
+sealed trait EUDutyAmountAnswers extends Product with Serializable
 
-object EuDutyAmountAnswers {
+object EUDutyAmountAnswers {
 
-  final case class IncompleteEuDutyAmountAnswer(
+  final case class IncompleteEUDutyAmountAnswer(
     euDutyAmounts: Option[EnterEuClaim]
-  ) extends EuDutyAmountAnswers
+  ) extends EUDutyAmountAnswers
 
-  object IncompleteEuDutyAmountAnswer {
-    val empty: IncompleteEuDutyAmountAnswer = IncompleteEuDutyAmountAnswer(None)
+  object IncompleteEUDutyAmountAnswer {
+    val empty: IncompleteEUDutyAmountAnswer = IncompleteEUDutyAmountAnswer(None)
 
-    implicit val format: OFormat[IncompleteEuDutyAmountAnswer] =
-      derived.oformat[IncompleteEuDutyAmountAnswer]()
+    implicit val format: OFormat[IncompleteEUDutyAmountAnswer] =
+      derived.oformat[IncompleteEUDutyAmountAnswer]()
   }
 
-  final case class CompleteEuDutyAmountAnswer(
+  final case class CompleteEUDutyAmountAnswer(
     euDutyAmounts: EnterEuClaim
-  ) extends EuDutyAmountAnswers
+  ) extends EUDutyAmountAnswers
 
-  object CompleteMovementReferenceTypeAnswer {
-    implicit val format: OFormat[CompleteEuDutyAmountAnswer] =
-      derived.oformat[CompleteEuDutyAmountAnswer]()
+  object CompleteEUDutyAmountAnswer {
+    implicit val format: OFormat[CompleteEUDutyAmountAnswer] =
+      derived.oformat[CompleteEUDutyAmountAnswer]()
   }
 
   implicit class EuDutyAmountAnswersOps(
-    private val a: EuDutyAmountAnswers
+    private val a: EUDutyAmountAnswers
   ) extends AnyVal {
 
     def fold[A](
-      ifIncomplete: IncompleteEuDutyAmountAnswer => A,
-      ifComplete: CompleteEuDutyAmountAnswer => A
+      ifIncomplete: IncompleteEUDutyAmountAnswer => A,
+      ifComplete: CompleteEUDutyAmountAnswer => A
     ): A =
       a match {
-        case i: IncompleteEuDutyAmountAnswer => ifIncomplete(i)
-        case c: CompleteEuDutyAmountAnswer   => ifComplete(c)
+        case i: IncompleteEUDutyAmountAnswer => ifIncomplete(i)
+        case c: CompleteEUDutyAmountAnswer   => ifComplete(c)
       }
 
     def dutyAmounts: List[EnterDutyAmountsController.EuDutyAmount] = a match {
-      case IncompleteEuDutyAmountAnswer(euDutyAmounts) =>
+      case IncompleteEUDutyAmountAnswer(euDutyAmounts) =>
         euDutyAmounts match {
           case Some(value) => value.dutyAmounts
           case None        => List.empty
         }
-      case CompleteEuDutyAmountAnswer(euDutyAmounts)   => euDutyAmounts.dutyAmounts
+      case CompleteEUDutyAmountAnswer(euDutyAmounts)   => euDutyAmounts.dutyAmounts
     }
     def maybeEuDuty: Option[EnterEuClaim]                          = a match {
-      case IncompleteEuDutyAmountAnswer(euDutyAmounts) => euDutyAmounts
-      case CompleteEuDutyAmountAnswer(euDutyAmounts)   => Some(euDutyAmounts)
+      case IncompleteEUDutyAmountAnswer(euDutyAmounts) => euDutyAmounts
+      case CompleteEUDutyAmountAnswer(euDutyAmounts)   => Some(euDutyAmounts)
     }
   }
 
-  implicit val format: OFormat[EuDutyAmountAnswers] =
-    derived.oformat[EuDutyAmountAnswers]()
+  implicit val format: OFormat[EUDutyAmountAnswers] =
+    derived.oformat[EUDutyAmountAnswers]()
 }

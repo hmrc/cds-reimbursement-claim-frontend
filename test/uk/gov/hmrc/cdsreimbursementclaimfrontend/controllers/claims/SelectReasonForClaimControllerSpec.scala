@@ -27,12 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAnswer.IncompleteReasonForClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ReasonForClaimAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
 
@@ -55,10 +55,10 @@ class SelectReasonForClaimControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeReasonForClaim: Option[ReasonForClaimAnswer]
+    maybeReasonForClaim: Option[BasisOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(reasonForClaim = maybeReasonForClaim)
+      DraftC285Claim.newDraftC285Claim.copy(basisOfClaimAnswer = maybeReasonForClaim)
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -79,7 +79,7 @@ class SelectReasonForClaimControllerSpec
 
       "show the enter your mrn page" in {
 
-        val answers = IncompleteReasonForClaimAnswer.empty
+        val answers = IncompleteBasisOfClaimAnswer.empty
 
         val (session, _, _) = sessionWithClaimState(Some(answers))
 

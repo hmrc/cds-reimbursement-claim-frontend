@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.util.UUID
-
-final case class SubmitClaimRequest(
-  id: UUID,
-  completeClaim: CompleteClaim
+final case class SubmitClaimResponse(
+  caseNumber: String,
+  payService: String,
+  processingDate: String
 )
 
-object SubmitClaimRequest {
-
-  implicit val format: OFormat[SubmitClaimRequest] = Json.format
-
+object SubmitClaimResponse {
+  implicit val format: OFormat[SubmitClaimResponse] = Json.format
 }

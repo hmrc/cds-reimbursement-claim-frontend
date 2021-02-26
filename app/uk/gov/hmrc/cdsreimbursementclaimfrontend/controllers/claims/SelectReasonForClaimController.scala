@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.SelectReasonForClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonForClaimAnswer.{CompleteReasonForClaimAnswer, IncompleteReasonForClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -56,7 +56,7 @@ class SelectReasonForClaimController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      ReasonForClaimAnswer
+      BasisOfClaimAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -67,10 +67,10 @@ class SelectReasonForClaimController @Inject() (
             )
           ) =>
         val maybeReasonForClaim = c.fold(
-          _.reasonForClaim
+          _.basisOfClaimAnswer
         )
         maybeReasonForClaim.fold[Future[Result]](
-          f(s, r, IncompleteReasonForClaimAnswer.empty)
+          f(s, r, IncompleteBasisOfClaimAnswer.empty)
         )(f(s, r, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -80,7 +80,7 @@ class SelectReasonForClaimController @Inject() (
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
-            ifIncomplete.reasonForClaimOption match {
+            ifIncomplete.maybeBasisOfClaim match {
               case Some(reasonForClaimOption) =>
                 Ok(
                   selectReasonForClaimPage(
@@ -100,7 +100,7 @@ class SelectReasonForClaimController @Inject() (
             Ok(
               selectReasonForClaimPage(
                 SelectReasonForClaimController.reasonForClaimForm.fill(
-                  SelectReasonForClaim(ifComplete.reasonForClaimOption)
+                  SelectReasonForClaim(ifComplete.basisOfClaim)
                 ),
                 routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
               )
@@ -123,12 +123,12 @@ class SelectReasonForClaimController @Inject() (
                 )
               ),
             reasonForClaim => {
-              val updatedAnswers: ReasonForClaimAnswer = answers.fold(
-                _ => CompleteReasonForClaimAnswer(reasonForClaim.reasonForClaimOption),
-                complete => complete.copy(reasonForClaimOption = reasonForClaim.reasonForClaimOption)
+              val updatedAnswers: BasisOfClaimAnswer = answers.fold(
+                _ => CompleteBasisOfClaimAnswer(reasonForClaim.reasonForClaimOption),
+                complete => complete.copy(basisOfClaim = reasonForClaim.reasonForClaimOption)
               )
-              val newDraftClaim                        =
-                fillingOutClaim.draftClaim.fold(_.copy(reasonForClaim = Some(updatedAnswers)))
+              val newDraftClaim                      =
+                fillingOutClaim.draftClaim.fold(_.copy(basisOfClaimAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -143,9 +143,9 @@ class SelectReasonForClaimController @Inject() (
                 },
                 _ =>
                   reasonForClaim.reasonForClaimOption match {
-                    case BasisForClaim.DuplicateMrnEntry =>
+                    case BasisOfClaim.DuplicateMrnEntry =>
                       Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
-                    case _                               => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                    case _                              => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
                   }
               )
             }
@@ -159,7 +159,7 @@ class SelectReasonForClaimController @Inject() (
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
-            ifIncomplete.reasonForClaimOption match {
+            ifIncomplete.maybeBasisOfClaim match {
               case Some(reasonForClaimOption) =>
                 Ok(
                   selectReasonForClaimPage(
@@ -181,7 +181,7 @@ class SelectReasonForClaimController @Inject() (
             Ok(
               selectReasonForClaimPage(
                 SelectReasonForClaimController.reasonForClaimForm.fill(
-                  SelectReasonForClaim(ifComplete.reasonForClaimOption)
+                  SelectReasonForClaim(ifComplete.basisOfClaim)
                 ),
                 routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
                 true
@@ -206,12 +206,12 @@ class SelectReasonForClaimController @Inject() (
                 )
               ),
             reasonForClaim => {
-              val updatedAnswers: ReasonForClaimAnswer = answers.fold(
-                _ => CompleteReasonForClaimAnswer(reasonForClaim.reasonForClaimOption),
-                complete => complete.copy(reasonForClaimOption = reasonForClaim.reasonForClaimOption)
+              val updatedAnswers: BasisOfClaimAnswer = answers.fold(
+                _ => CompleteBasisOfClaimAnswer(reasonForClaim.reasonForClaimOption),
+                complete => complete.copy(basisOfClaim = reasonForClaim.reasonForClaimOption)
               )
-              val newDraftClaim                        =
-                fillingOutClaim.draftClaim.fold(_.copy(reasonForClaim = Some(updatedAnswers)))
+              val newDraftClaim                      =
+                fillingOutClaim.draftClaim.fold(_.copy(basisOfClaimAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -236,7 +236,7 @@ class SelectReasonForClaimController @Inject() (
 object SelectReasonForClaimController {
 
   final case class SelectReasonForClaim(
-    reasonForClaimOption: BasisForClaim
+    reasonForClaimOption: BasisOfClaim
   )
 
   val reasonForClaimForm: Form[SelectReasonForClaim] =
@@ -261,32 +261,32 @@ object SelectReasonForClaimController {
                 reason === 12 ||
                 reason === 13
           )
-          .transform[BasisForClaim](
+          .transform[BasisOfClaim](
             {
-              case 0  => BasisForClaim.DuplicateMrnEntry
-              case 1  => BasisForClaim.DutySuspension
-              case 2  => BasisForClaim.EndUseRelief
-              case 3  => BasisForClaim.IncorrectCommodityCode
-              case 4  => BasisForClaim.IncorrectCpc
-              case 5  => BasisForClaim.IncorrectValue
-              case 6  => BasisForClaim.IncorrectEoriAndDefermentAccountNumber
-              case 7  => BasisForClaim.InwardProcessingReliefFromCustomsDuty
-              case 8  => BasisForClaim.OutwardProcessingRelief
-              case 9  => BasisForClaim.Preference
-              case 10 => BasisForClaim.ProofOfReturnRefundGiven
+              case 0  => BasisOfClaim.DuplicateMrnEntry
+              case 1  => BasisOfClaim.DutySuspension
+              case 2  => BasisOfClaim.EndUseRelief
+              case 3  => BasisOfClaim.IncorrectCommodityCode
+              case 4  => BasisOfClaim.IncorrectCpc
+              case 5  => BasisOfClaim.IncorrectValue
+              case 6  => BasisOfClaim.IncorrectEoriAndDefermentAccountNumber
+              case 7  => BasisOfClaim.InwardProcessingReliefFromCustomsDuty
+              case 8  => BasisOfClaim.OutwardProcessingRelief
+              case 9  => BasisOfClaim.Preference
+              case 10 => BasisOfClaim.ProofOfReturnRefundGiven
             },
             {
-              case BasisForClaim.DuplicateMrnEntry                      => 0
-              case BasisForClaim.DutySuspension                         => 1
-              case BasisForClaim.EndUseRelief                           => 2
-              case BasisForClaim.IncorrectCommodityCode                 => 3
-              case BasisForClaim.IncorrectCpc                           => 4
-              case BasisForClaim.IncorrectValue                         => 5
-              case BasisForClaim.IncorrectEoriAndDefermentAccountNumber => 6
-              case BasisForClaim.InwardProcessingReliefFromCustomsDuty  => 7
-              case BasisForClaim.OutwardProcessingRelief                => 8
-              case BasisForClaim.Preference                             => 9
-              case BasisForClaim.ProofOfReturnRefundGiven               => 10
+              case BasisOfClaim.DuplicateMrnEntry                      => 0
+              case BasisOfClaim.DutySuspension                         => 1
+              case BasisOfClaim.EndUseRelief                           => 2
+              case BasisOfClaim.IncorrectCommodityCode                 => 3
+              case BasisOfClaim.IncorrectCpc                           => 4
+              case BasisOfClaim.IncorrectValue                         => 5
+              case BasisOfClaim.IncorrectEoriAndDefermentAccountNumber => 6
+              case BasisOfClaim.InwardProcessingReliefFromCustomsDuty  => 7
+              case BasisOfClaim.OutwardProcessingRelief                => 8
+              case BasisOfClaim.Preference                             => 9
+              case BasisOfClaim.ProofOfReturnRefundGiven               => 10
             }
           )
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)

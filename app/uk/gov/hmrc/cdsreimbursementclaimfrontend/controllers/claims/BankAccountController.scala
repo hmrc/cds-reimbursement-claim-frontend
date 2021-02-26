@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import java.util.function.Predicate
-
 import cats.data.EitherT
 import cats.syntax.either._
 import cats.syntax.eq._
@@ -33,12 +31,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.{CompleteBankAccountDetailAnswers, IncompleteBankAccountDetailAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.{CompleteBankAccountDetailAnswer, IncompleteBankAccountDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswers, DraftClaim, Error, SessionData, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswer, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -46,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -97,7 +96,7 @@ class BankAccountController @Inject() (
             )
           ) =>
         val maybeMaskedBankDetails: Option[MaskedBankDetails] =
-          c.fold(_.maybeDeclaration.flatMap(p => p.maskedBankDetails))
+          c.fold(_.displayDeclaration.flatMap(p => p.displayResponseDetail.maskedBankDetails))
         f(s, r, maybeMaskedBankDetails)
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -133,7 +132,7 @@ class BankAccountController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      BankAccountDetailsAnswers
+      BankAccountDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -143,11 +142,11 @@ class BankAccountController @Inject() (
               fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
             )
           ) =>
-        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswers] = draftClaim.fold(
-          _.bankAccountDetailsAnswers
+        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswer] = draftClaim.fold(
+          _.bankAccountDetailsAnswer
         )
         maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswers.empty)
+          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -203,13 +202,13 @@ class BankAccountController @Inject() (
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteBankAccountDetailAnswers(
+                  CompleteBankAccountDetailAnswer(
                     bankAccountDetails
                   ),
                 complete => complete.copy(bankAccountDetails = bankAccountDetails)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -233,7 +232,7 @@ class BankAccountController @Inject() (
                       val address  = BarsAddress(
                         Nil,
                         None,
-                        claimant.flatMap(_.contactAddress.postcode)
+                        claimant.map(_.contactAddress.postcode)
                       )
                       val subject  = BarsSubject(
                         None,

@@ -19,13 +19,11 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Select
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Label
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.ErrorMessage
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Hint
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Utils._
 
 
 @this(
-    govukErrorMessage: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.select.govukErrorMessage,
     govukHint: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.select.govukHint,
     govukLabel: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.select.govukLabel
 )
@@ -62,18 +60,8 @@
 
 @* FIXME extract to common snippets package *@
 @errorMessageSnippet(describedBy: String) = @{
-  errorMessage.fold((describedBy, HtmlFormat.empty)) { errorMessage =>
-    val errorId = s"$id-error"
-    val describedBy1 = s"$describedBy $errorId".ltrim
-    val errorMessageHtml =
-     govukErrorMessage(ErrorMessage(
-       id = Some(errorId),
-       classes = errorMessage.classes,
-       attributes = errorMessage.attributes,
-       visuallyHiddenText = errorMessage.visuallyHiddenText,
-       content = errorMessage.content
-     ))
-    (describedBy1, errorMessageHtml)
+  errorMessage.fold((describedBy, HtmlFormat.empty)) { _ =>
+    (describedBy, HtmlFormat.empty)
   }
 }
 

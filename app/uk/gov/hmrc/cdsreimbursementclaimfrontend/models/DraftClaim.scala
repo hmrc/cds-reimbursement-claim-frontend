@@ -19,15 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers
-import java.time.LocalDate
-import java.util.UUID
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
+
+import java.util.UUID
 
 sealed trait DraftClaim extends Product with Serializable {
   val id: UUID
@@ -39,28 +38,26 @@ object DraftClaim {
     id: UUID,
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
-    declarationDetailAnswers: Option[DeclarationDetailAnswers],
-    duplicateDeclarationDetailAnswers: Option[DuplicateDeclarantDetailAnswers],
+    declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
+    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
     claimantDetailsAsImporterCompanyAnswers: Option[ClaimantDetailsAsImporterCompanyAnswer],
-    bankAccountDetailsAnswers: Option[BankAccountDetailsAnswers],
-    reasonForClaim: Option[ReasonForClaimAnswer],
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswers],
+    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
+    basisOfClaimAnswer: Option[BasisOfClaimAnswer],
+    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
     ukDutyAmountAnswers: Option[UKDutyAmountAnswers],
-    euDutyAmountAnswers: Option[EuDutyAmountAnswers],
-    claimAnswers: Option[ClaimAnswers],
-    commoditiesDetailsAnswers: Option[CommoditiesDetailsAnswers],
-    reasonForBasisAndClaimAnswer: Option[ReasonForClaimAndBasisAnswer],
-    maybeDeclaration: Option[Declaration], //Data that has come back from ACC-14
-    maybeDuplicateDeclaration: Option[Declaration],
+    euDutyAmountAnswers: Option[EUDutyAmountAnswers],
+    claimAnswers: Option[ClaimsAnswer],
+    commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
+    reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
+    displayDeclaration: Option[DisplayDeclaration],
+    duplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
-    lastUpdatedDate: LocalDate
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
-    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
@@ -82,9 +79,9 @@ object DraftClaim {
         None,
         None,
         None,
-        None,
-        LocalDate.now
+        None
       )
+    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
 
@@ -130,7 +127,6 @@ object DraftClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -147,7 +143,6 @@ object DraftClaim {
       case DraftC285Claim(
             _,
             movementReferenceNumberAnswer,
-            _,
             _,
             _,
             _,

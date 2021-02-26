@@ -25,8 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimAnswers.CompleteClaimAnswers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.IncompleteEuDutyAmountAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EUDutyAmountAnswers.IncompleteEUDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, Error, SessionData, upscan => _}
@@ -80,15 +80,31 @@ class CheckReimbursementClaimTotalController @Inject() (
           _.euDutyAmountAnswers
         )
         val claims: List[Claim] = maybeEuDutyAnswers
-          .getOrElse(IncompleteEuDutyAmountAnswer.empty)
+          .getOrElse(IncompleteEUDutyAmountAnswer.empty)
           .dutyAmounts
           .filter(d => isClaimZero(d.claim))
-          .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0)))) ++
+          .map(p =>
+            Claim(
+              "001",
+              "sfsd",
+              p.taxCode,
+              p.paid.getOrElse(BigDecimal(0).setScale(2)).setScale(2),
+              p.claim.getOrElse(BigDecimal(0).setScale(2)).setScale(2)
+            )
+          ) ++ //FIXME
           maybeUkDutyAnswers
             .getOrElse(IncompleteUKDutyAmountAnswer.empty)
             .dutyAmounts
             .filter(d => isClaimZero(d.claim))
-            .map(p => Claim(p.taxCode, p.paid.getOrElse(BigDecimal(0)), p.claim.getOrElse(BigDecimal(0))))
+            .map(p =>
+              Claim(
+                "",
+                "",
+                p.taxCode,
+                p.paid.getOrElse(BigDecimal(0).setScale(2)).setScale(2),
+                p.claim.getOrElse(BigDecimal(0).setScale(2).setScale(2))
+              )
+            ) //FIXME
 
         f(sessionData, fillingOutClaim, claims)
       case _ => Redirect(baseRoutes.StartController.start())
@@ -104,7 +120,7 @@ class CheckReimbursementClaimTotalController @Inject() (
   def checkReimbursementClaimTotalSubmit: Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
       withReimbursementClaimTotals { (_, fillingOutClaim, answers) =>
-        val updatedAnswers = CompleteClaimAnswers(answers)
+        val updatedAnswers = CompleteClaimsAnswer(answers)
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(claimAnswers = Some(updatedAnswers)))
 

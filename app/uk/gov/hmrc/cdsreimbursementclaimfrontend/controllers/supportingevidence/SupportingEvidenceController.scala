@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, upscan => _, _}
@@ -77,7 +77,7 @@ class SupportingEvidenceController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      SupportingEvidenceAnswers
+      SupportingEvidenceAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -91,7 +91,7 @@ class SupportingEvidenceController @Inject() (
           _.supportingEvidenceAnswers
         )
         maybeSupportingEvidenceAnswers.fold[Future[Result]](
-          f(s, r, IncompleteSupportingEvidenceAnswers.empty)
+          f(s, r, IncompleteSupportingEvidenceAnswer.empty)
         )(f(s, r, _))
 
       case _ => Redirect(baseRoutes.StartController.start())
@@ -146,21 +146,21 @@ class SupportingEvidenceController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutReturn, answers) =>
         answers match {
-          case _: CompleteSupportingEvidenceAnswers =>
+          case _: CompleteSupportingEvidenceAnswer =>
             Redirect(routes.SupportingEvidenceController.checkYourAnswers())
 
-          case incompleteAnswers: IncompleteSupportingEvidenceAnswers =>
+          case incompleteAnswers: IncompleteSupportingEvidenceAnswer =>
             val result = for {
               upscanUpload <- upscanService.getUpscanUpload(uploadReference)
               _            <- upscanUpload.upscanCallBack match {
-                                case Some(s: UpscanSuccess) =>
+                                case Some(upscanSuccess: UpscanSuccess) =>
                                   storeUpscanSuccess(
                                     upscanUpload,
-                                    s,
+                                    upscanSuccess,
                                     incompleteAnswers,
                                     fillingOutReturn
                                   )
-                                case _                      =>
+                                case _                                  =>
                                   EitherT.pure[Future, Error](())
                               }
             } yield upscanUpload
@@ -197,7 +197,7 @@ class SupportingEvidenceController @Inject() (
   private def storeUpscanSuccess(
     upscanUpload: UpscanUpload,
     upscanCallBack: UpscanSuccess,
-    answers: IncompleteSupportingEvidenceAnswers,
+    answers: IncompleteSupportingEvidenceAnswer,
     fillingOutClaim: FillingOutClaim
   )(implicit
     request: RequestWithSessionData[_],
@@ -235,7 +235,7 @@ class SupportingEvidenceController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
         answers match {
-          case _: IncompleteSupportingEvidenceAnswers | _: CompleteSupportingEvidenceAnswers =>
+          case _: IncompleteSupportingEvidenceAnswer | _: CompleteSupportingEvidenceAnswer =>
             Ok(
               chooseDocumentTypePage(
                 SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
@@ -279,7 +279,7 @@ class SupportingEvidenceController @Inject() (
                       sys.error(s"could not find file upload with reference: $uploadReference")
                   }
                   val newEvidences                 = complete.evidences.filterNot(_.uploadReference === uploadReference)
-                  IncompleteSupportingEvidenceAnswers(
+                  IncompleteSupportingEvidenceAnswer(
                     newEvidences :+ s
                   )
                 }
@@ -324,7 +324,7 @@ class SupportingEvidenceController @Inject() (
           { complete =>
             val newEvidences = complete.evidences
               .filterNot(_.uploadReference === uploadReference)
-            IncompleteSupportingEvidenceAnswers(
+            IncompleteSupportingEvidenceAnswer(
               newEvidences
             )
           }
@@ -369,17 +369,17 @@ class SupportingEvidenceController @Inject() (
   def checkYourAnswersSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
-        val updatedAnswers: SupportingEvidenceAnswers = answers match {
-          case IncompleteSupportingEvidenceAnswers(
+        val updatedAnswers: SupportingEvidenceAnswer = answers match {
+          case IncompleteSupportingEvidenceAnswer(
                 evidences
               ) =>
-            CompleteSupportingEvidenceAnswers(
+            CompleteSupportingEvidenceAnswer(
               evidences
             )
-          case CompleteSupportingEvidenceAnswers(
+          case CompleteSupportingEvidenceAnswer(
                 evidences
               ) =>
-            CompleteSupportingEvidenceAnswers(
+            CompleteSupportingEvidenceAnswer(
               evidences
             )
         }
@@ -408,31 +408,31 @@ class SupportingEvidenceController @Inject() (
     }
 
   private def checkYourAnswersHandler(
-    answers: SupportingEvidenceAnswers
+    answers: SupportingEvidenceAnswer
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     answers match {
 
-      case IncompleteSupportingEvidenceAnswers(
+      case IncompleteSupportingEvidenceAnswer(
             supportingEvidences
           ) if supportingEvidences.isEmpty =>
         Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
-      case IncompleteSupportingEvidenceAnswers(
+      case IncompleteSupportingEvidenceAnswer(
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswers(supportingEvidences),
+            CompleteSupportingEvidenceAnswer(supportingEvidences),
             maxUploads
           )
         )
 
-      case CompleteSupportingEvidenceAnswers(
+      case CompleteSupportingEvidenceAnswer(
             supportingEvidences
           ) =>
         Ok(
           checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswers(
+            CompleteSupportingEvidenceAnswer(
               supportingEvidences
             ),
             maxUploads

@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Format
 
-final case class SubmitClaimResponse(
-  caseNumber: String,
-  payService: String,
-  processingDate: String
-)
+final case class ContactName(value: String) extends AnyVal
 
-object SubmitClaimResponse {
-  implicit val format: OFormat[SubmitClaimResponse] = Json.format
+object ContactName {
+
+  implicit val format: Format[ContactName] =
+    implicitly[Format[String]].inmap(ContactName(_), _.value)
+
 }

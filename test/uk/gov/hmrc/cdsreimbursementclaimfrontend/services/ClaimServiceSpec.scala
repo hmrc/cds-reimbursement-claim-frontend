@@ -21,7 +21,6 @@ import cats.instances.future._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import play.api.test.FakeRequest
@@ -48,57 +47,57 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
   private val submitClaimService          = new DefaultClaimService(claimConnector, reimbursementClaimConnector)
 
   val okResponse: JsValue = Json.parse("""{
-      |    "PostNewClaimsResponse": {
-      |        "ResponseCommon": {
-      |            "Status": "OK",
-      |            "ProcessingDateTime": "2020-12-23T16:58:28Z",
-      |			"CDFPayCaseNumber": "NDRC-1234",
-      |			"CDFPayService":"NDRC"
-      |        }
-      |    }
-      |}""".stripMargin)
+                                         |    "PostNewClaimsResponse": {
+                                         |        "ResponseCommon": {
+                                         |            "Status": "OK",
+                                         |            "ProcessingDateTime": "2020-12-23T16:58:28Z",
+                                         |			"CDFPayCaseNumber": "NDRC-1234",
+                                         |			"CDFPayService":"NDRC"
+                                         |        }
+                                         |    }
+                                         |}""".stripMargin)
 
   def errorResponse(errorMessage: String): JsValue = Json.parse(s"""{
-      |   "ErrorDetails":{
-      |      "ProcessingDateTime":"2016-10-10T13:52:16Z",
-      |      "CorrelationId":"d60de98c-f499-47f5-b2d6-e80966e8d19e",
-      |      "ErrorMessage":"$errorMessage"
-      |    }
-      |}""".stripMargin)
+                                                                   |   "ErrorDetails":{
+                                                                   |      "ProcessingDateTime":"2016-10-10T13:52:16Z",
+                                                                   |      "CorrelationId":"d60de98c-f499-47f5-b2d6-e80966e8d19e",
+                                                                   |      "ErrorMessage":"$errorMessage"
+                                                                   |    }
+                                                                   |}""".stripMargin)
 
-  def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
-    (claimConnector
-      .submitClaim(_: JsValue, _: Lang)(_: HeaderCarrier))
-      .expects(submitClaimData, *, *)
-      .returning(EitherT.fromEither[Future](response))
-      .atLeastOnce()
+//  def mockSubmitClaim(submitClaimData: JsValue)(response: Either[Error, HttpResponse]) =
+//    (claimConnector
+//      .submitClaim(_: JsValue, _: Lang)(_: HeaderCarrier))
+//      .expects(submitClaimData, *, *)
+//      .returning(EitherT.fromEither[Future](response))
+//      .atLeastOnce()
 
-//  "Submit Claim Service" when {
-//    "handling submit claim" should {
-//      "handle successful submits" when {
-//        "there is a valid payload" in {
-//          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, okResponse, Map.empty[String, Seq[String]])))
-//          await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value) shouldBe Right(okResponse)
-//        }
-//      }
-//
-//      "handle unsuccessful submits" when {
-//        "500 response" in {
-//          val eisResponse = errorResponse("call to get submit claim came back with status")
-//          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(500, eisResponse, Map.empty[String, Seq[String]])))
-//          val response    = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
-//          response.fold(_.message should include("call to get submit claim came back with status"), _ => fail())
-//        }
-//
-//        "Invalid Json response" in {
-//          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, """{"a"-"b"}""", Map.empty[String, Seq[String]])))
-//          val response = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
-//          response.fold(_.message should include("Unexpected character"), _ => fail())
-//        }
-//
-//      }
-//    }
-//  }
+  //  "Submit Claim Service" when {
+  //    "handling submit claim" should {
+  //      "handle successful submits" when {
+  //        "there is a valid payload" in {
+  //          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, okResponse, Map.empty[String, Seq[String]])))
+  //          await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value) shouldBe Right(okResponse)
+  //        }
+  //      }
+  //
+  //      "handle unsuccessful submits" when {
+  //        "500 response" in {
+  //          val eisResponse = errorResponse("call to get submit claim came back with status")
+  //          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(500, eisResponse, Map.empty[String, Seq[String]])))
+  //          val response    = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
+  //          response.fold(_.message should include("call to get submit claim came back with status"), _ => fail())
+  //        }
+  //
+  //        "Invalid Json response" in {
+  //          mockSubmitClaim(JsString("Hello"))(Right(HttpResponse(200, """{"a"-"b"}""", Map.empty[String, Seq[String]])))
+  //          val response = await(submitClaimService.submitClaim(JsString("Hello"), defaultLanguage).value)
+  //          response.fold(_.message should include("Unexpected character"), _ => fail())
+  //        }
+  //
+  //      }
+  //    }
+  //  }
 
   "Business Reputation Service" should {
 

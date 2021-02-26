@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import org.scalacheck.ScalacheckShapeless._
@@ -27,11 +27,11 @@ object UpscanGen extends GenUtils {
 
   implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
 
-  implicit val completeUploadSupportingEvidenceAnswersGen: Gen[CompleteSupportingEvidenceAnswers] =
-    gen[CompleteSupportingEvidenceAnswers]
+  implicit val completeUploadSupportingEvidenceAnswersGen: Gen[CompleteSupportingEvidenceAnswer] =
+    gen[CompleteSupportingEvidenceAnswer]
 
-  implicit val incompleteUploadSupportingEvidenceAnswersGen: Gen[IncompleteSupportingEvidenceAnswers] =
-    gen[IncompleteSupportingEvidenceAnswers]
+  implicit val incompleteUploadSupportingEvidenceAnswersGen: Gen[IncompleteSupportingEvidenceAnswer] =
+    gen[IncompleteSupportingEvidenceAnswer]
 
   implicit val supportingEvidenceGen: Gen[SupportingEvidence] =
     gen[SupportingEvidence]

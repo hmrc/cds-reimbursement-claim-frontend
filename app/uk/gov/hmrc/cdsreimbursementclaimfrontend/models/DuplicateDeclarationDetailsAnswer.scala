@@ -20,13 +20,13 @@ import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 
-sealed trait DuplicateDeclarantDetailAnswers extends Product with Serializable
+sealed trait DuplicateDeclarationDetailsAnswer extends Product with Serializable
 
-object DuplicateDeclarantDetailAnswers {
+object DuplicateDeclarationDetailsAnswer {
 
   final case class IncompleteDuplicateDeclarationDetailAnswer(
     duplicateDeclaration: Option[EntryDeclarationDetails]
-  ) extends DuplicateDeclarantDetailAnswers
+  ) extends DuplicateDeclarationDetailsAnswer
 
   object IncompleteDuplicateDeclarationDetailAnswer {
     val empty: IncompleteDuplicateDeclarationDetailAnswer = IncompleteDuplicateDeclarationDetailAnswer(None)
@@ -35,33 +35,33 @@ object DuplicateDeclarantDetailAnswers {
       derived.oformat[IncompleteDuplicateDeclarationDetailAnswer]()
   }
 
-  final case class CompleteDuplicateDeclarationDetailAnswer(
+  final case class CompleteDuplicateDeclarationDetailsAnswer(
     duplicateDeclaration: Option[EntryDeclarationDetails]
-  ) extends DuplicateDeclarantDetailAnswers
+  ) extends DuplicateDeclarationDetailsAnswer
 
-  object CompleteDuplicateDeclarationDetailAnswer {
-    implicit val format: OFormat[CompleteDuplicateDeclarationDetailAnswer] =
-      derived.oformat[CompleteDuplicateDeclarationDetailAnswer]()
+  object CompleteDuplicateDeclarationDetailsAnswer {
+    implicit val format: OFormat[CompleteDuplicateDeclarationDetailsAnswer] =
+      derived.oformat[CompleteDuplicateDeclarationDetailsAnswer]()
   }
 
   implicit class DuplicateDeclarantDetailAnswersOps(
-    private val a: DuplicateDeclarantDetailAnswers
+    private val a: DuplicateDeclarationDetailsAnswer
   ) extends AnyVal {
 
     def fold[A](
       ifIncomplete: IncompleteDuplicateDeclarationDetailAnswer => A,
-      ifComplete: CompleteDuplicateDeclarationDetailAnswer => A
+      ifComplete: CompleteDuplicateDeclarationDetailsAnswer => A
     ): A =
       a match {
         case i: IncompleteDuplicateDeclarationDetailAnswer => ifIncomplete(i)
-        case c: CompleteDuplicateDeclarationDetailAnswer   => ifComplete(c)
+        case c: CompleteDuplicateDeclarationDetailsAnswer  => ifComplete(c)
       }
 
     def duplicateDeclaration: Option[EntryDeclarationDetails] = a match {
       case IncompleteDuplicateDeclarationDetailAnswer(duplicateDeclaration) => duplicateDeclaration
-      case CompleteDuplicateDeclarationDetailAnswer(duplicateDeclaration)   => duplicateDeclaration
+      case CompleteDuplicateDeclarationDetailsAnswer(duplicateDeclaration)  => duplicateDeclaration
     }
   }
 
-  implicit val format: OFormat[DuplicateDeclarantDetailAnswers] = derived.oformat[DuplicateDeclarantDetailAnswers]()
+  implicit val format: OFormat[DuplicateDeclarationDetailsAnswer] = derived.oformat[DuplicateDeclarationDetailsAnswer]()
 }

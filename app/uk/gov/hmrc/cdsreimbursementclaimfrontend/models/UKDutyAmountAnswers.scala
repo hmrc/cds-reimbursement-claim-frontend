@@ -39,7 +39,7 @@ object UKDutyAmountAnswers {
     ukDutyAmounts: EnterClaim
   ) extends UKDutyAmountAnswers
 
-  object CompleteMovementReferenceTypeAnswer {
+  object CompleteUKDutyAmountAnswer {
     implicit val format: OFormat[CompleteUKDutyAmountAnswer] =
       derived.oformat[CompleteUKDutyAmountAnswer]()
   }

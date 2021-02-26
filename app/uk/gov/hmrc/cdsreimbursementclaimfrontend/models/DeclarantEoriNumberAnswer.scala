@@ -39,7 +39,7 @@ object DeclarantEoriNumberAnswer {
     declarantEoriNumber: DeclarantEoriNumber
   ) extends DeclarantEoriNumberAnswer
 
-  object CompleteImporterEoriNumberAnswer {
+  object CompleteDeclarantEoriNumberAnswer {
     implicit val format: OFormat[CompleteDeclarantEoriNumberAnswer] =
       derived.oformat[CompleteDeclarantEoriNumberAnswer]()
   }

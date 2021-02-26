@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -33,13 +33,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.Future
 
 @Singleton
-class CheckDeclarantDetailsController @Inject() (
+class CheckDeclarationDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  checkDeclarantDetailsPage: pages.check_declarant_details
+  checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -50,7 +50,7 @@ class CheckDeclarantDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      Option[Declaration]
+      Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -60,8 +60,8 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDeclaration = c.fold(_.maybeDeclaration)
-        f(s, r, maybeDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
+        f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
@@ -69,7 +69,7 @@ class CheckDeclarantDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      Option[Declaration]
+      Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -79,8 +79,8 @@ class CheckDeclarantDetailsController @Inject() (
               r @ FillingOutClaim(_, _, c: DraftClaim)
             )
           ) =>
-        val maybeDeclaration = c.fold(_.maybeDuplicateDeclaration)
-        f(s, r, maybeDeclaration)
+        val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
+        f(s, r, maybeDisplayDeclaration)
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
@@ -106,8 +106,7 @@ class CheckDeclarantDetailsController @Inject() (
             _,
             _,
             importerEoriNumberAnswer,
-            declarantEoriNumberAnswer,
-            _
+            declarantEoriNumberAnswer
           ) =>
         (importerEoriNumberAnswer, declarantEoriNumberAnswer) match {
           case (Some(_), Some(_)) => routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
@@ -121,9 +120,9 @@ class CheckDeclarantDetailsController @Inject() (
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
       )(declaration =>
         Ok(
-          checkDeclarantDetailsPage(
+          checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarantDetailsController.checkDetailsSubmit(),
+            routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
             handleBackLink(fillingOutClaim)
           )
         )
@@ -141,9 +140,9 @@ class CheckDeclarantDetailsController @Inject() (
         Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
       )(declaration =>
         Ok(
-          checkDeclarantDetailsPage(
+          checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarantDetailsController.checkDuplicateDetailsSubmit(),
+            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit(),
             handleBackLink(fillingOutClaim)
           )
         )

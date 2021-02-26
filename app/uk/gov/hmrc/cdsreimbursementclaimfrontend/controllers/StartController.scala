@@ -21,6 +21,7 @@ import cats.instances.future._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
@@ -178,11 +179,11 @@ class StartController @Inject() (
     request: RequestWithSessionDataAndRetrievedData[AnyContent]
   ): Future[Result] =
     retrievedUserType match {
-      case RetrievedUserType.Individual(ggCredId, email, eori) =>
-        handleSignedInUser(ggCredId, eori, email)
+      case RetrievedUserType.Individual(ggCredId, email, eori, name) =>
+        handleSignedInUser(ggCredId, eori, email, name)
 
-      case RetrievedUserType.Organisation(ggCredId, eori) =>
-        handleSignedInUser(ggCredId, eori, None)
+      case RetrievedUserType.Organisation(ggCredId, eori, name) =>
+        handleSignedInUser(ggCredId, eori, None, name)
 
       case u: RetrievedUserType.NonGovernmentGatewayRetrievedUser =>
         handleNonGovernmentGatewayUser(u)
@@ -216,7 +217,8 @@ class StartController @Inject() (
   private def handleSignedInUser(
     ggCredId: GGCredId,
     eori: Eori,
-    email: Option[Email]
+    email: Option[Email],
+    name: Option[Name]
   )(implicit
     request: RequestWithSessionDataAndRetrievedData[_]
   ): Future[Result] = {
@@ -228,7 +230,12 @@ class StartController @Inject() (
                  journeyStatus = Some(
                    FillingOutClaim(
                      ggCredId,
-                     SignedInUserDetails(email, eori),
+                     SignedInUserDetails(
+                       email,
+                       eori,
+                       Email(""),
+                       name.map(s => ContactName(s.name.getOrElse("No name"))).getOrElse(ContactName("No name")) //FIXME
+                     ),
                      DraftC285Claim.newDraftC285Claim
                    )
                  )

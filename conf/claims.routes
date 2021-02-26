@@ -52,11 +52,11 @@ POST        /enter-reason-for-claim-and-basis                       uk.gov.hmrc.
 GET         /change-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis()
 POST        /change-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit()
 
-GET         /check-declarant-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetails()
-POST        /check-declarant-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDetailsSubmit()
+GET         /check-declaration-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetails()
+POST        /check-declaration-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetailsSubmit()
 
-GET         /check-duplicate-declarant-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDuplicateDetails()
-POST        /check-duplicate-declarant-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarantDetailsController.checkDuplicateDetailsSubmit()
+GET         /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetails()
+POST        /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
 
 GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails
 POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit

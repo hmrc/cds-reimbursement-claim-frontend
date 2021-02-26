@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber, BankAccountDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes.SupportingEvidenceController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswers.CompleteBankAccountDetailAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswers, Error, SessionData, SignedInUserDetails, SortCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswer, Error, SessionData, SignedInUserDetails, SortCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -87,10 +87,10 @@ class BankAccountControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeBankAccountDetails: Option[BankAccountDetailsAnswers]
+    maybeBankAccountDetails: Option[BankAccountDetailsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(bankAccountDetailsAnswers = maybeBankAccountDetails)
+      DraftC285Claim.newDraftC285Claim.copy(bankAccountDetailsAnswer = maybeBankAccountDetails)
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -118,7 +118,7 @@ class BankAccountControllerSpec
         val businessResponse = sample[BusinessCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Yes, accountExists = None)
         mockBusinessReputation(Right(businessResponse))
-        val answers          = CompleteBankAccountDetailAnswers(businessBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -139,7 +139,7 @@ class BankAccountControllerSpec
         val businessResponse = sample[BusinessCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(Yes))
         mockBusinessReputation(Right(businessResponse))
-        val answers          = CompleteBankAccountDetailAnswers(businessBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -160,7 +160,7 @@ class BankAccountControllerSpec
         val businessResponse = sample[BusinessCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = No, accountExists = None)
         mockBusinessReputation(Right(businessResponse))
-        val answers          = CompleteBankAccountDetailAnswers(businessBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -180,7 +180,7 @@ class BankAccountControllerSpec
         val businessResponse = sample[BusinessCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(No))
         mockBusinessReputation(Right(businessResponse))
-        val answers          = CompleteBankAccountDetailAnswers(businessBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -211,7 +211,7 @@ class BankAccountControllerSpec
         val personalResponse = sample[PersonalCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Yes, accountExists = None)
         mockPersonalReputation(Right(personalResponse))
-        val answers          = CompleteBankAccountDetailAnswers(personalBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -232,7 +232,7 @@ class BankAccountControllerSpec
         val personalResponse = sample[PersonalCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(Yes))
         mockPersonalReputation(Right(personalResponse))
-        val answers          = CompleteBankAccountDetailAnswers(personalBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -253,7 +253,7 @@ class BankAccountControllerSpec
         val personalResponse = sample[PersonalCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = No, accountExists = None)
         mockPersonalReputation(Right(personalResponse))
-        val answers          = CompleteBankAccountDetailAnswers(personalBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -273,7 +273,7 @@ class BankAccountControllerSpec
         val personalResponse = sample[PersonalCompleteResponse]
           .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(No))
         mockPersonalReputation(Right(personalResponse))
-        val answers          = CompleteBankAccountDetailAnswers(personalBankAccount)
+        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()

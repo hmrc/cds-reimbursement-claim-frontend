@@ -19,15 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
+import controllers.Assets.NO_CONTENT
 import play.api.http.Status.OK
 import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.Declaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -37,15 +39,12 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
 
-  def testSubmitClaim(jsValue: JsValue, lang: Lang)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, SubmitClaimResponse]
-
   def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, SubmitClaimResponse]
 
-  def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Declaration]
+  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]]
+
   def getBusinessAccountReputation(
     barsRequest: BarsBusinessAssessRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, BusinessCompleteResponse]
@@ -65,28 +64,11 @@ class DefaultClaimService @Inject() (
 ) extends ClaimService
     with Logging {
 
-  def testSubmitClaim(
-    jsValue: JsValue,
-    lang: Lang
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
-    claimConnector.submitClaim(jsValue, lang).subflatMap { httpResponse =>
-      if (httpResponse.status === OK)
-        httpResponse
-          .parseJSON[SubmitClaimResponse]()
-          .leftMap(Error(_))
-      else
-        Left(
-          Error(
-            s"call to get submit claim came back with status ${httpResponse.status}}"
-          )
-        )
-    }
-
   def submitClaim(
     submitClaimRequest: SubmitClaimRequest,
     lang: Lang
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
-    claimConnector.submitClaim(Json.toJson(submitClaimRequest), lang).subflatMap { httpResponse =>
+    claimConnector.submitClaim(submitClaimRequest, lang).subflatMap { httpResponse =>
       if (httpResponse.status === OK)
         httpResponse
           .parseJSON[SubmitClaimResponse]()
@@ -99,15 +81,18 @@ class DefaultClaimService @Inject() (
         )
     }
 
-  def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Declaration] =
+  def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     cdsReimbursementClaimConnector
       .getDeclarationDetails(mrn)
       .subflatMap { response =>
-        if (response.status === OK)
+        if (response.status === OK) {
           response
-            .parseJSON[Declaration]()
+            .parseJSON[DisplayDeclaration]()
+            .map(Some(_))
             .leftMap(Error(_))
-        else
+        } else if (response.status === NO_CONTENT) {
+          Right(None)
+        } else
           Left(Error(s"call to get declaration details ${response.status}"))
       }
 

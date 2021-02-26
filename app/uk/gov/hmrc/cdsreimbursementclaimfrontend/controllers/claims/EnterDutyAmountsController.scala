@@ -29,11 +29,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.{removeZeroClaims, removeZeroEuClaims}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EuDutyAmountAnswers.{CompleteEuDutyAmountAnswer, IncompleteEuDutyAmountAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EUDutyAmountAnswers.{CompleteEUDutyAmountAnswer, IncompleteEUDutyAmountAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{EUTaxCode, UKTaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.{CompleteUKDutyAmountAnswer, IncompleteUKDutyAmountAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BooleanFormatter, DraftClaim, Error, EuDutyAmountAnswers, SessionData, TaxCode, UKDutyAmountAnswers, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BooleanFormatter, DraftClaim, Error, EUDutyAmountAnswers, SessionData, TaxCode, UKDutyAmountAnswers, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -85,7 +85,7 @@ class EnterDutyAmountsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      EuDutyAmountAnswers
+      EUDutyAmountAnswers
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -99,7 +99,7 @@ class EnterDutyAmountsController @Inject() (
           _.euDutyAmountAnswers
         )
         maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteEuDutyAmountAnswer.empty)
+          f(sessionData, fillingOutClaim, IncompleteEUDutyAmountAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
       case _ => Redirect(baseRoutes.StartController.start())
     }
@@ -260,7 +260,7 @@ class EnterDutyAmountsController @Inject() (
             enterClaim => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteEuDutyAmountAnswer(
+                  CompleteEUDutyAmountAnswer(
                     enterClaim
                   ),
                 complete => complete.copy(euDutyAmounts = removeZeroEuClaims(enterClaim))
@@ -311,7 +311,7 @@ class EnterDutyAmountsController @Inject() (
             enterClaim => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteEuDutyAmountAnswer(
+                  CompleteEUDutyAmountAnswer(
                     enterClaim
                   ),
                 complete => complete.copy(euDutyAmounts = removeZeroEuClaims(enterClaim))

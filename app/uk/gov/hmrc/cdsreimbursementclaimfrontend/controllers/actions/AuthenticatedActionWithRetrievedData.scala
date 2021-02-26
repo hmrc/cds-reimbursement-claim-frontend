@@ -19,11 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.mvc.{MessagesRequest, Result, WrappedRequest}
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{MessagesRequest, Result, WrappedRequest}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -67,8 +67,9 @@ class AuthenticatedActionWithRetrievedData @Inject() (
         Retrievals.affinityGroup and
           Retrievals.email and
           Retrievals.allEnrolments and
-          Retrievals.credentials
-      ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds =>
+          Retrievals.credentials and
+          Retrievals.name
+      ) { case affinityGroup ~ maybeEmail ~ enrolments ~ creds ~ name =>
         withGGCredentials(creds, request) { ggCredId =>
           affinityGroup match {
 
@@ -78,6 +79,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 maybeEmail,
                 enrolments,
                 ggCredId,
+                name,
                 request
               )
 
@@ -87,6 +89,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
                 None,
                 enrolments,
                 ggCredId,
+                name,
                 request
               )
 
@@ -106,12 +109,13 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     maybeEmail: Option[String],
     enrolments: Enrolments,
     ggCredId: GGCredId,
+    name: Option[Name],
     request: MessagesRequest[A]
   ): Future[Either[Result, AuthenticatedRequestWithRetrievedData[A]]] =
     hasEoriEnrolment(enrolments, request) map {
       case Left(_)           => Left(Redirect(routes.UnauthorisedController.unauthorised()))
       case Right(Some(eori)) =>
-        handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, request)
+        handleSignedInUser(eori, ggCredId, affinityGroup, maybeEmail, name, request)
       case Right(None)       =>
         Left(Redirect(routes.UnauthorisedController.unauthorised()))
     }
@@ -142,19 +146,20 @@ class AuthenticatedActionWithRetrievedData @Inject() (
       Individual
     ],
     maybeEmail: Option[String],
+    name: Option[Name],
     request: MessagesRequest[A]
   ): Either[Result, AuthenticatedRequestWithRetrievedData[A]] = {
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Individual(ggCredId, maybeEmail.map(Email(_)), eori),
+          RetrievedUserType.Individual(ggCredId, maybeEmail.map(Email(_)), eori, name),
           Some(userType),
           request
         )
 
       } else {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Organisation(ggCredId, eori),
+          RetrievedUserType.Organisation(ggCredId, eori, name),
           Some(userType),
           request
         )

@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-class EnterDeclarantsEoriNumberController {}
-
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -143,7 +141,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(routes.CheckDeclarantDetailsController.checkDetails())
+                        Redirect(routes.CheckDeclarationDetailsController.checkDetails())
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())
@@ -168,21 +166,21 @@ class EnterDeclarantEoriNumberController @Inject() (
       case None        => None
     }
 
-    val maybeDeclaration = fillingOutClaim.draftClaim.fold(_.maybeDeclaration)
+    val maybeDisplayDeclaration = fillingOutClaim.draftClaim.fold(_.displayDeclaration)
 
-    (maybeDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
-      case (Some(declaration), Some(importerEoriNumber), Some(declarationEori)) =>
-        (declaration.consigneeDetails) match {
+    (maybeDisplayDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
+      case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>
+        (displayDeclaration.displayResponseDetail.consigneeDetails) match {
           case Some(consigneeDetails) =>
             if (
-              (consigneeDetails.consigneeEORI === importerEoriNumber.value.value) && (declarationEori.value.value === declaration.declarantDetails.declarantEORI)
+              (consigneeDetails.consigneeEORI === importerEoriNumber.value.value) && (declarationEori.value.value === displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
             ) {
               Right(true)
             } else Right(false)
           case None                   => Left(Error("could not retrieve consignee eori"))
 
         }
-      case _                                                                    => Left(Error("could not retrieve details to determine third party flow"))
+      case _                                                                           => Left(Error("could not retrieve details to determine third party flow"))
     }
   }
 

@@ -16,35 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers
 
-import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class SubmitClaimController @Inject() ()(implicit
-  mcc: MessagesControllerComponents,
-  claimService: ClaimService
+  mcc: MessagesControllerComponents
 ) extends FrontendController(mcc)
     with Logging {
 
-  val claim: Action[AnyContent] = Action.async { implicit request =>
-    claimService
-      .testSubmitClaim(tpi05Payload, Lang.defaultLang)
-      .fold(
-        e => {
-          logger.warn("submission failed ", e)
-          InternalServerError
-        },
-        s => Ok(Json.toJson(s))
-      )
-
+  val claim: Action[AnyContent] = Action {
+    Ok("")
   }
 
   val tpi05Payload: JsValue = Json.parse(

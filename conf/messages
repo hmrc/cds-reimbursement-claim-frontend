@@ -183,20 +183,20 @@ enter-claimant-details-individual.address.building.label=Building number or name
 enter-claimant-details-individual.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-individual.address.line1.label=Address Line 1
 enter-claimant-details-individual.address.line1.error.required=Enter a address line 1
-enter-claimant-details-individual.nonUkAddress-line1.error.required=Enter a address line 1
+enter-claimant-details-individual.nonUkAddress-line1.error.required=Enter an address line 1
 enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
 enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
 enter-claimant-details-individual.address.line4.label=Town or city
 enter-claimant-details-individual.nonUkAddress-line4.error.required=Enter a valid town or city
-enter-claimant-details-individual.address.line5.label=County (optional)
-enter-claimant-details-individual.address.line6.label=Postcode
-enter-claimant-details-individual.address.line6.error.required=Enter a valid postcode
-enter-claimant-details-individual.address.line7.label=Country
+enter-claimant-details-individual.address.line5.label=Postcode
+enter-claimant-details-individual.address.line5.postcode.error.required=Enter a valid postcode
+enter-claimant-details-individual.address.line6.label=Country
 enter-claimant-details-individual.countryCode.error.required=Enter a country
 enter-claimant-details-individual.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
+postcode.error.required=Enter a valid postcode
 countryCode.enter-claimant-details-individual.error.required=Enter a country
 
 #===================================================

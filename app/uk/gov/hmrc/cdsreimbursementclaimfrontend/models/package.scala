@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import cats.data.Validated.Invalid
+import cats.data.{NonEmptyList, ValidatedNel}
 
-final case class SignedInUserDetails(
-  email: Option[Email],
-  eori: Eori,
-  verifiedEmail: Email,
-  contactName: ContactName
-)
+package object models {
 
-object SignedInUserDetails {
-  implicit val format: OFormat[SignedInUserDetails] = Json.format[SignedInUserDetails]
+  type Validation[A] = ValidatedNel[String, A]
+
+  def invalid[A](error: String): Validation[A] = Invalid(NonEmptyList.one(error))
+
 }

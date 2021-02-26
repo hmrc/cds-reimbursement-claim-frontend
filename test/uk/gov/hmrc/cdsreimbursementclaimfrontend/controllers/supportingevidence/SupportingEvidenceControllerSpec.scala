@@ -35,11 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, UUIDGenerator}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswers.{CompleteSupportingEvidenceAnswers, IncompleteSupportingEvidenceAnswers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
@@ -98,13 +98,13 @@ class SupportingEvidenceControllerSpec
       .returning(EitherT.fromEither[Future](result))
 
   private def sessionWithClaimState(
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswers]
+    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(supportingEvidenceAnswers = supportingEvidenceAnswers)
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
-    val signedInUserDetails = SignedInUserDetails(Some(email), eori)
+    val signedInUserDetails = SignedInUserDetails(Some(email), eori, Email(""), ContactName(""))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(
@@ -147,7 +147,7 @@ class SupportingEvidenceControllerSpec
   )(pageTitleKey: String, titleArgs: String*)(
     performAction: (UploadReference, Seq[(String, String)]) => Future[Result],
     currentSession: SessionData = sessionWithClaimState(
-      Some(sample[CompleteSupportingEvidenceAnswers])
+      Some(sample[CompleteSupportingEvidenceAnswer])
     )._1
   ): Unit = {
     inSequence {
@@ -196,7 +196,7 @@ class SupportingEvidenceControllerSpec
             Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
           )
 
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List.fill(3)(supportingEvidence)
           )
 
@@ -217,7 +217,7 @@ class SupportingEvidenceControllerSpec
       "show technical error page" when {
 
         "upscan initiate call fails" in {
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List.empty
           )
 
@@ -246,7 +246,7 @@ class SupportingEvidenceControllerSpec
 
           val uploadReference = sample[UploadReference]
 
-          val answers = IncompleteSupportingEvidenceAnswers(evidences = List.empty)
+          val answers = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -308,7 +308,7 @@ class SupportingEvidenceControllerSpec
             Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
           )
 
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List.fill(2)(supportingEvidence)
           )
 
@@ -343,7 +343,7 @@ class SupportingEvidenceControllerSpec
             mockGetSession(
               sessionWithClaimState(
                 Some(
-                  IncompleteSupportingEvidenceAnswers(
+                  IncompleteSupportingEvidenceAnswer(
                     List(supportingEvidence)
                   )
                 )
@@ -367,7 +367,7 @@ class SupportingEvidenceControllerSpec
             mockGetSession(
               sessionWithClaimState(
                 Some(
-                  IncompleteSupportingEvidenceAnswers(
+                  IncompleteSupportingEvidenceAnswer(
                     List(supportingEvidence)
                   )
                 )
@@ -418,7 +418,7 @@ class SupportingEvidenceControllerSpec
 
           val upscanUpload = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
 
-          val answers = IncompleteSupportingEvidenceAnswers(List(supportingEvidence))
+          val answers = IncompleteSupportingEvidenceAnswer(List(supportingEvidence))
 
           val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
 
@@ -431,7 +431,7 @@ class SupportingEvidenceControllerSpec
             None
           )
 
-          val updatedAnswers: IncompleteSupportingEvidenceAnswers =
+          val updatedAnswers: IncompleteSupportingEvidenceAnswer =
             answers.copy(evidences = newSupportingEvidence :: answers.evidences)
 
           val newDraftClaim = draftClaim.fold(
@@ -479,7 +479,7 @@ class SupportingEvidenceControllerSpec
             None
           )
 
-          val answers = CompleteSupportingEvidenceAnswers(
+          val answers = CompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -508,7 +508,7 @@ class SupportingEvidenceControllerSpec
           val uploadReference    = sample[UploadReference]
           val supportingEvidence = sample[SupportingEvidence].copy(uploadReference = uploadReference)
 
-          val answers = CompleteSupportingEvidenceAnswers(
+          val answers = CompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -536,7 +536,7 @@ class SupportingEvidenceControllerSpec
           val supportingEvidence =
             sample[SupportingEvidence].copy(uploadReference = uploadReference)
 
-          val answers = CompleteSupportingEvidenceAnswers(
+          val answers = CompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -573,7 +573,7 @@ class SupportingEvidenceControllerSpec
               upscanCallBack = Some(updatedUpscanSuccess)
             )
 
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -623,7 +623,7 @@ class SupportingEvidenceControllerSpec
             sample[UpscanUpload]
               .copy(uploadReference = uploadReference, upscanCallBack = None)
 
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -669,7 +669,7 @@ class SupportingEvidenceControllerSpec
               upscanCallBack = Some(upscanFailure)
             )
 
-          val answers = IncompleteSupportingEvidenceAnswers(
+          val answers = IncompleteSupportingEvidenceAnswer(
             List(supportingEvidence)
           )
 
@@ -697,7 +697,7 @@ class SupportingEvidenceControllerSpec
 
         "the user has already answered yes to adding supporting evidences and has not uploaded any evidences so far" in {
 
-          val answers = IncompleteSupportingEvidenceAnswers.empty
+          val answers = IncompleteSupportingEvidenceAnswer.empty
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -724,7 +724,7 @@ class SupportingEvidenceControllerSpec
 
         "the use has never answered this question" in {
 
-          val answers = IncompleteSupportingEvidenceAnswers.empty
+          val answers = IncompleteSupportingEvidenceAnswer.empty
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -745,7 +745,7 @@ class SupportingEvidenceControllerSpec
 
         "the user has completed the supporting evidence section" in {
 
-          val answers = CompleteSupportingEvidenceAnswers(
+          val answers = CompleteSupportingEvidenceAnswer(
             List.empty
           )
 
@@ -773,10 +773,10 @@ class SupportingEvidenceControllerSpec
 
         "an error occurs when updating the session with the draft claim" in {
 
-          val answers = IncompleteSupportingEvidenceAnswers.empty
+          val answers = IncompleteSupportingEvidenceAnswer.empty
 
           val updatedAnswers =
-            CompleteSupportingEvidenceAnswers(List.empty)
+            CompleteSupportingEvidenceAnswer(List.empty)
 
           val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
 

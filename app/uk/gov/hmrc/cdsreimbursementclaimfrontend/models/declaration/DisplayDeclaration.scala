@@ -18,19 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class Declaration(
-  declarantId: String,
-  acceptanceDate: String,
-  declarantDetails: DeclarantDetails,
-  consigneeDetails: Option[ConsigneeDetails],
-  maskedBankDetails: Option[MaskedBankDetails],
-  securityDetails: Option[List[SecurityDetails]],
-  ndrcDetails: Option[List[NdrcDetails]]
+final case class DisplayDeclaration(
+  displayResponseDetail: DisplayResponseDetail
 )
 
-object Declaration {
+object DisplayDeclaration {
 
-  implicit class DeclarationOps(declaration: Declaration) {
+  implicit class DisplayDeclarationOps(displayDeclaration: DisplayDeclaration) {
+
+    private val declaration: DisplayResponseDetail = displayDeclaration.displayResponseDetail
 
     def totalPaidCharges: BigDecimal =
       BigDecimal(
@@ -83,5 +79,5 @@ object Declaration {
     }
   }
 
-  implicit val format: OFormat[Declaration] = Json.format[Declaration]
+  implicit val format: OFormat[DisplayDeclaration] = Json.format[DisplayDeclaration]
 }
