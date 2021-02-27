@@ -73,23 +73,19 @@ GET         /check-if-claim-was-sent                                uk.gov.hmrc.
 
 GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
+GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails
+POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit
+
+GET         /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
+POST        /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
+
+GET         /start-claim                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
+GET         /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
+POST        /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
+
 GET         /check-reimbursement-claim-total                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal
 POST        /check-reimbursement-claim-total                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckReimbursementClaimTotalController.checkReimbursementClaimTotalSubmit
-
-GET         /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmounts
-POST        /enter-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterUkDutyAmountsSubmit
-
-GET         /change-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeUkDutyAmounts
-POST        /change-uk-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeUkDutyAmountsSubmit
-
-GET         /enter-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmounts
-POST        /enter-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.enterEuDutyAmountsSubmit
-
-GET         /change-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeEuDutyAmounts
-POST        /change-eu-duty-amounts                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDutyAmountsController.changeEuDutyAmountsSubmit
 
 GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
 POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
 
-GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails
-POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit

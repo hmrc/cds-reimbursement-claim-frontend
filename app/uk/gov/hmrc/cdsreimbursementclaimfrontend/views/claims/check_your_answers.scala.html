@@ -252,13 +252,13 @@ article.content__body {
                     <th scope="row" class="govuk-table__header">@messages(s"$key.claim-calculation.label")</th>
                     <td class="govuk-table__cell">
                         <ul class="govuk-list govuk-list--bullet">
-                            <li>Amount of UK Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim)</li>
-                            <li>Amount of EU Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalEuDutyToClaim)</li>
-                            <li>Total claimed reimbursement: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim + completeClaim.totalEuDutyToClaim)</li>
+                            <li>Amount of UK Duty to reimburse claimed by you: </li>
+                            <li>Amount of EU Duty to reimburse claimed by you: </li>
+                            <li>Total claimed reimbursement: </li>
                         </ul>
 
                     </td>
-                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterDutyAmountsController.changeUkDutyAmounts().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), "", Some(messages(s"cya.change")))</td>
                 </tr>
                 @completeClaim.bankDetails.map{ bankAccount =>
                     <tr lass="govuk-table__row">

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.api.i18n.Messages
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
 
-@this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template
-)
+import play.api.libs.json.{Json, OFormat}
 
-@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+final case class DutiesSelected(duties: List[Duty]) extends AnyVal
 
-  @key = @{"check-your-reimbursement-claim-total"}
-  @title = @{messages(s"$key.title")}
-
-  @mainTemplate(title = title, userType = request.userType){
-
-
-  }
+object DutiesSelected {
+  implicit val format: OFormat[DutiesSelected] = Json.format[DutiesSelected]
+}

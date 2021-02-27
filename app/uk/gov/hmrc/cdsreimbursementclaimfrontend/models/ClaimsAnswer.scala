@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
@@ -28,7 +29,8 @@ object ClaimsAnswer {
   ) extends ClaimsAnswer
 
   object IncompleteClaimsAnswer {
-    val empty: IncompleteClaimsAnswer = IncompleteClaimsAnswer(List.empty)
+    val empty: IncompleteClaimsAnswer           = IncompleteClaimsAnswer(List.empty)
+    implicit val eq: Eq[IncompleteClaimsAnswer] = Eq.fromUniversalEquals[IncompleteClaimsAnswer]
 
     implicit val format: OFormat[IncompleteClaimsAnswer] =
       derived.oformat[IncompleteClaimsAnswer]()
@@ -39,6 +41,7 @@ object ClaimsAnswer {
   ) extends ClaimsAnswer
 
   object CompleteClaimsAnswer {
+    implicit val eq: Eq[CompleteClaimsAnswer]          = Eq.fromUniversalEquals[CompleteClaimsAnswer]
     implicit val format: OFormat[CompleteClaimsAnswer] =
       derived.oformat[CompleteClaimsAnswer]()
   }
@@ -57,5 +60,6 @@ object ClaimsAnswer {
       }
   }
 
+  implicit val eq: Eq[ClaimsAnswer]          = Eq.fromUniversalEquals[ClaimsAnswer]
   implicit val format: OFormat[ClaimsAnswer] = derived.oformat[ClaimsAnswer]()
 }

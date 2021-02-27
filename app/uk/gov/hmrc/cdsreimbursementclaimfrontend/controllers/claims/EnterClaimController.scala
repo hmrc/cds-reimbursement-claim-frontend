@@ -27,8 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.util.UUID
+
 @Singleton
-class CheckReimbursementClaimTotalController @Inject() (
+class EnterClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -40,13 +42,18 @@ class CheckReimbursementClaimTotalController @Inject() (
     with Logging
     with SessionUpdates {
 
-  def checkReimbursementClaimTotal: Action[AnyContent] = Action {
-    Ok("")
+  def startClaim(): Action[AnyContent] = Action {
+    Ok("start")
   }
 
-  def checkReimbursementClaimTotalSubmit: Action[AnyContent] = Action {
-    Ok("")
+  def enterClaim(id: UUID): Action[AnyContent] = Action {
+    Ok(s"claim ${id.toString}")
   }
+
+  def enterClaimSubmit(id: UUID): Action[AnyContent] = Action {
+    Ok(s"claim ${id.toString}")
+  }
+
 }
 
-object CheckReimbursementClaimTotalController {}
+object EnterClaimController {}

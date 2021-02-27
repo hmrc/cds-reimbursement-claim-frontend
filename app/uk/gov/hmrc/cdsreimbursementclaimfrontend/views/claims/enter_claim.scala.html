@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import java.util.UUID
+@import play.api.data.Form
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -22,12 +24,13 @@
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template
 )
 
-@()(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(id : UUID, form : Form[Boolean])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-  @key = @{"check-your-reimbursement-claim-total"}
+  @key = @{"enter-claim"}
   @title = @{messages(s"$key.title")}
+  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-  @mainTemplate(title = title, userType = request.userType){
+  @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
+    @id
 
-
-  }
+}

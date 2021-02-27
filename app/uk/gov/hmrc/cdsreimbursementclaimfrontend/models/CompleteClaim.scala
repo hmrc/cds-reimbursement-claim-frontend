@@ -37,11 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.Comp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EUDutyAmountAnswers.CompleteEUDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.CompleteUKDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
@@ -67,9 +65,6 @@ object CompleteClaim {
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
-    maybeCompleteUKDutyAmountAnswer: Option[CompleteUKDutyAmountAnswer],
-    maybeCompleteEUDutyAmountAnswer: Option[CompleteEUDutyAmountAnswer],
-    completeClaimAnswer: CompleteClaimsAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
@@ -94,9 +89,7 @@ object CompleteClaim {
               draftBankAccountDetailAnswer,
               draftBasisForClaim,
               draftSupportingEvidence,
-              draftUkDutyAmountsAnswer,
-              draftEuDutyAmountsAnswer,
-              draftClaimsAnswer,
+              _,
               draftCommodityAnswer,
               draftReasonAndBasisOfClaimAnswer,
               maybeDisplayDeclaration,
@@ -117,9 +110,6 @@ object CompleteClaim {
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
-                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
-                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
-                validateClaimsAnswer(draftClaimsAnswer),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
               )
@@ -133,9 +123,6 @@ object CompleteClaim {
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
-                        completeUKDutyAmountAnswer,
-                        completeEUDutyAmountAnswer,
-                        completeClaimsAnswer,
                         completeCommodityDetailsAnswer,
                         completeReasonAndBasisOfClaimAnswer
                       ) =>
@@ -152,9 +139,6 @@ object CompleteClaim {
                       None,
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
-                      completeUKDutyAmountAnswer,
-                      completeEUDutyAmountAnswer,
-                      completeClaimsAnswer,
                       completeCommodityDetailsAnswer,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
@@ -181,9 +165,6 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
-                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
-                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
-                validateClaimsAnswer(draftClaimsAnswer),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
                 validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
@@ -197,9 +178,6 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeBasisOfClaimAnswer,
                         completeSupportingEvidenceAnswer,
-                        completeUKDutyAmountAnswer,
-                        completeEUDutyAmountAnswer,
-                        completeClaimsAnswer,
                         completeCommodityDetailsAnswer,
                         completeImporterEoriNumberAnswer,
                         completeDeclarantEoriNumberAnswer
@@ -217,9 +195,6 @@ object CompleteClaim {
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
                       completeSupportingEvidenceAnswer,
-                      completeUKDutyAmountAnswer,
-                      completeEUDutyAmountAnswer,
-                      completeClaimsAnswer,
                       completeCommodityDetailsAnswer,
                       None,
                       maybeDisplayDeclaration,
@@ -317,38 +292,6 @@ object CompleteClaim {
             Valid(completeClaimsAnswer)
         }
       case None        => invalid("missing supporting evidence answer")
-    }
-
-  def validateEUDutyAmountsAnswer(
-    maybeUKDutyAmountAnswers: Option[EUDutyAmountAnswers]
-  ): Validation[Option[CompleteEUDutyAmountAnswer]] =
-    maybeUKDutyAmountAnswers match {
-      case Some(value) =>
-        value match {
-          case EUDutyAmountAnswers.IncompleteEUDutyAmountAnswer(
-                _
-              ) =>
-            invalid("incomplete eu duty amounts answer")
-          case completeBasisOfClaimAnswer: CompleteEUDutyAmountAnswer =>
-            Valid(Some(completeBasisOfClaimAnswer))
-        }
-      case None        => Valid(None)
-    }
-
-  def validateUKDutyAmountsAnswer(
-    maybeUKDutyAmountAnswers: Option[UKDutyAmountAnswers]
-  ): Validation[Option[CompleteUKDutyAmountAnswer]] =
-    maybeUKDutyAmountAnswers match {
-      case Some(value) =>
-        value match {
-          case UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer(
-                _
-              ) =>
-            invalid("incomplete uk duty amounts answer")
-          case completeBasisOfClaimAnswer: CompleteUKDutyAmountAnswer =>
-            Valid(Some(completeBasisOfClaimAnswer))
-        }
-      case None        => Valid(None)
     }
 
   def validateSupportingEvidenceAnswer(
@@ -498,9 +441,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             maybeDisplayDeclaration,
             _,
             _,
@@ -511,9 +451,6 @@ object CompleteClaim {
 
     def maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
       case CompleteC285Claim(
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -553,9 +490,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         duplicateDeclarationDetails match {
@@ -571,9 +505,6 @@ object CompleteClaim {
             _,
             _,
             declarationDetailAnswers,
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -612,9 +543,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         declarantType.declarantType
@@ -631,9 +559,6 @@ object CompleteClaim {
             _,
             _,
             maybeBasisForClaim,
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -668,9 +593,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         claimantDetailsAsImporterCompanyAnswer match {
@@ -697,9 +619,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
@@ -707,9 +626,6 @@ object CompleteClaim {
 
     def commodityDetails: String = completeClaim match {
       case CompleteC285Claim(
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -749,9 +665,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         bankAccountDetails match {
@@ -779,9 +692,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             _
           ) =>
         bankAccountDetails match {
@@ -794,71 +704,10 @@ object CompleteClaim {
         }
     }
 
-    def totalUkDutyToClaim: BigDecimal = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            ukDuty,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        ukDuty match {
-          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
-          case None        => BigDecimal(0)
-        }
-    }
-
-    def totalEuDutyToClaim: BigDecimal = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            euDuty,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        euDuty match {
-          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
-          case None        => BigDecimal(0)
-        }
-    }
-
     def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
       case CompleteC285Claim(
             _,
             movementReferenceNumber,
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -883,9 +732,6 @@ object CompleteClaim {
             _,
             _,
             duplicateMovementReferenceNumberAnswer,
-            _,
-            _,
-            _,
             _,
             _,
             _,
@@ -924,9 +770,6 @@ object CompleteClaim {
             _,
             _,
             supportingEvidenceAnswers,
-            _,
-            _,
-            _,
             _,
             _,
             _,

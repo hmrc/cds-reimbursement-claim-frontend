@@ -46,9 +46,7 @@ object DraftClaim {
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
-    ukDutyAmountAnswers: Option[UKDutyAmountAnswers],
-    euDutyAmountAnswers: Option[EUDutyAmountAnswers],
-    claimAnswers: Option[ClaimsAnswer],
+    dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
     reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
     displayDeclaration: Option[DisplayDeclaration],
@@ -61,8 +59,6 @@ object DraftClaim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
-        None,
-        None,
         None,
         None,
         None,
@@ -125,8 +121,6 @@ object DraftClaim {
             _,
             _,
             _,
-            _,
-            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -143,8 +137,6 @@ object DraftClaim {
       case DraftC285Claim(
             _,
             movementReferenceNumberAnswer,
-            _,
-            _,
             _,
             _,
             _,
