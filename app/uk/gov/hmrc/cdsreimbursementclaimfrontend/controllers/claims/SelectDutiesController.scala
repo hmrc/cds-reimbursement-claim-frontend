@@ -154,8 +154,7 @@ class SelectDutiesController @Inject() (
                   case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 }
             },
-          ifComplete => {
-            println(s"I am here and the duties selected is :${ifComplete.dutiesSelected.duties.toString()}")
+          ifComplete =>
             fillingOutClaim.draftClaim.movementReferenceNumber match {
               case Some(value) =>
                 value match {
@@ -182,7 +181,6 @@ class SelectDutiesController @Inject() (
                 logger.warn("Could not find movement or entry reference number")
                 errorHandler.errorResult()
             }
-          }
         )
       }
     }
@@ -222,7 +220,6 @@ class SelectDutiesController @Inject() (
               ),
             dutiesSelected => {
 
-              println(s"duties selected are: ${dutiesSelected.duties.toString()}")
               val updatedAnswers = currentAnswers.fold(
                 _ =>
                   CompleteDutiesSelectedAnswer(
@@ -299,15 +296,8 @@ object SelectDutiesController {
                   code === 13
             )
             .transform[TaxCode](
-              (x: Int) => {
-                println(s"index is $x")
-                println(s"duties are: ${dutiesSelected.duties.toString()}")
-                dutiesSelected.duties(x).taxCode
-              },
-              (t: TaxCode) => {
-                println(s"tax codei is $t")
-                dutiesSelected.duties.indexOf(Duty(t))
-              }
+              (x: Int) => dutiesSelected.duties(x).taxCode,
+              (t: TaxCode) => dutiesSelected.duties.indexOf(Duty(t))
             )
         )(Duty.apply)(Duty.unapply)
       ).verifying("error.required", _.nonEmpty)

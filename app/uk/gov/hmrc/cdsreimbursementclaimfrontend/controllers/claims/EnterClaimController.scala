@@ -334,7 +334,6 @@ class EnterClaimController @Inject() (
                     case Left(_) =>
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer)) match {
                         case Some(selectedDuties) =>
-                          println(s"Select duties are: ${selectedDuties.duties.toString}")
                           makeEntryClaims(selectedDuties.duties.map(s => s.taxCode.toString))
                         case _                    => List.empty
                       }
@@ -346,8 +345,6 @@ class EnterClaimController @Inject() (
 
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer), maybeNdrcDetails) match {
                         case (Some(selectedDuties), Some(ndrcDetails)) =>
-                          println(s"Select duties are: ${selectedDuties.duties.toString}")
-                          println(s"NDRC are: ${ndrcDetails.toString()}")
                           makeClaims(selectedDuties.duties, ndrcDetails)
                         case _                                         => List.empty
                       }
@@ -493,7 +490,6 @@ class EnterClaimController @Inject() (
                   .bindFromRequest()
                   .fold(
                     requestFormWithErrors => {
-                      println(s"errors are :${requestFormWithErrors.toString}")
                       val claim = answers
                         .fold(ifComplete => ifComplete.claims, ifIncomplete => ifIncomplete.claims)
                         .find(p => p.id === id)
@@ -507,8 +503,6 @@ class EnterClaimController @Inject() (
                       def allProcessed(claims: List[Claim]): Boolean = claims.forall(p => p.isFilled)
 
                       val claims = answers.fold(_.claims, _.claims)
-
-                      println(s"claims are ${claims.toString}")
 
                       val maybeClaim: Option[Claim] = claims.find(p => p.id === id)
 
@@ -527,7 +521,6 @@ class EnterClaimController @Inject() (
 
                       if (allProcessed(updatedClaims)) {
 
-                        println(s"I should be bhere")
                         val updatedAnswers = answers.fold(
                           _ =>
                             IncompleteClaimsAnswer(
@@ -553,7 +546,6 @@ class EnterClaimController @Inject() (
                           _ => Redirect(routes.EnterClaimController.checkClaim())
                         )
                       } else {
-                        println("all claims not processed")
                         val updatedAnswers = answers.fold(
                           _ =>
                             IncompleteClaimsAnswer(
@@ -578,7 +570,6 @@ class EnterClaimController @Inject() (
                           },
                           _ => {
                             val notProcessClaims = updatedClaims.filter(p => p.isFilled === false)
-                            println(s"claims not processed are :${notProcessClaims.toString()}")
                             notProcessClaims.headOption.fold {
                               logger.warn("Could not determine whether there are any claims 8")
                               errorHandler.errorResult()
@@ -594,7 +585,6 @@ class EnterClaimController @Inject() (
                   .bindFromRequest()
                   .fold(
                     requestFormWithErrors => {
-                      println(s"errors are :${requestFormWithErrors.toString}")
                       val claim = answers
                         .fold(ifComplete => ifComplete.claims, ifIncomplete => ifIncomplete.claims)
                         .find(p => p.id === id)
@@ -646,7 +636,6 @@ class EnterClaimController @Inject() (
                           _ => Redirect(routes.EnterClaimController.checkClaim())
                         )
                       } else {
-                        println("all claims not processed")
                         val updatedAnswers = answers.fold(
                           _ =>
                             IncompleteClaimsAnswer(
@@ -671,7 +660,6 @@ class EnterClaimController @Inject() (
                           },
                           _ => {
                             val notProcessClaims = updatedClaims.filter(p => p.isFilled === false)
-                            println(s"claims not processed are :${notProcessClaims.toString()}")
                             notProcessClaims.headOption.fold {
                               logger.warn("Could not determine whether there are any claims 8")
                               errorHandler.errorResult()
