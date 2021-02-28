@@ -55,5 +55,7 @@ object TaxCode {
     case "B05" => Some(B05)
   }
 
+  def listOfTaxCodes: List[TaxCode] = List(A00, A20, A30, A35, A40, A45, B00, A50, A70, A80, A90, B05)
+
   implicit val format: OFormat[TaxCode] = derived.oformat[TaxCode]()
 }

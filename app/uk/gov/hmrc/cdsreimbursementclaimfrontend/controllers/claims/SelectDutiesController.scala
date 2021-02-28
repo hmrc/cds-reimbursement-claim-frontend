@@ -83,10 +83,15 @@ class SelectDutiesController @Inject() (
     fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
       case Some(displayDeclaration) =>
         displayDeclaration.displayResponseDetail.ndrcDetails match {
-          case Some(ndrcDetails) => makeBlankForm(ndrcDetails).duties
+          case Some(ndrcDetails) => makeBlankForm(ndrcDetails, fillingOutClaim.draftClaim.isMrnFlow).duties
           case None              => List.empty
         }
       case None                     => List.empty
+    }
+
+  private def dutiesForEntryFlow: List[Duty] =
+    TaxCode.listOfTaxCodes.map { code =>
+      Duty(code)
     }
 
   def selectDuties(): Action[AnyContent] =
@@ -105,43 +110,78 @@ class SelectDutiesController @Inject() (
                   )
                 )
               case None                 =>
-                val ndrcDetails: List[NdrcDetails] = fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
-                  case Some(displayDeclaration) =>
-                    displayDeclaration.displayResponseDetail.ndrcDetails match {
-                      case Some(ndrcDetails) => ndrcDetails
-                      case None              => List.empty
-                    }
-                  case None                     => List.empty
-                }
+                fillingOutClaim.draftClaim.movementReferenceNumber match {
+                  case Some(referenceNumber) =>
+                    referenceNumber match {
+                      case Left(_)  =>
+                        Ok(
+                          selectDutiesPage(
+                            SelectDutiesController
+                              .selectDutiesForm(makeBlankForm(List.empty, fillingOutClaim.draftClaim.isMrnFlow))
+                              .fill(DutiesSelected(List.empty)),
+                            dutiesForEntryFlow
+                          )
+                        )
+                      case Right(_) =>
+                        val ndrcDetails: List[NdrcDetails] =
+                          fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
+                            case Some(displayDeclaration) =>
+                              displayDeclaration.displayResponseDetail.ndrcDetails match {
+                                case Some(ndrcDetails) => ndrcDetails
+                                case None              => List.empty
+                              }
+                            case None                     => List.empty
+                          }
 
-                if (ndrcDetails.nonEmpty) {
-                  Ok(
-                    selectDutiesPage(
-                      SelectDutiesController
-                        .selectDutiesForm(makeBlankForm(ndrcDetails))
-                        .fill(DutiesSelected(List.empty)),
-                      duties(fillingOutClaim)
-                    )
-                  )
-                } else {
-                  logger.warn(
-                    s"ACC-14 response returned no NDRC details: Num of ndrc entries: ${ndrcDetails.size} | Ndrc tax codes: ${ndrcDetails
-                      .map(s => s.taxType)
-                      .mkString("|")}"
-                  )
-                  Redirect(baseRoutes.IneligibleController.ineligible())
+                        if (ndrcDetails.nonEmpty) {
+                          Ok(
+                            selectDutiesPage(
+                              SelectDutiesController
+                                .selectDutiesForm(makeBlankForm(ndrcDetails, fillingOutClaim.draftClaim.isMrnFlow))
+                                .fill(DutiesSelected(List.empty)),
+                              duties(fillingOutClaim)
+                            )
+                          )
+                        } else {
+                          logger.warn(
+                            s"ACC-14 response returned no NDRC details: Num of ndrc entries: ${ndrcDetails.size} | Ndrc tax codes: ${ndrcDetails
+                              .map(s => s.taxType)
+                              .mkString("|")}"
+                          )
+                          Redirect(baseRoutes.IneligibleController.ineligible())
+                        }
+                    }
+                  case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                 }
             },
           ifComplete => {
             println(s"I am here and the duties selected is :${ifComplete.dutiesSelected.duties.toString()}")
-            Ok(
-              selectDutiesPage(
-                SelectDutiesController
-                  .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
-                  .fill(ifComplete.dutiesSelected),
-                duties(fillingOutClaim)
-              )
-            )
+            fillingOutClaim.draftClaim.movementReferenceNumber match {
+              case Some(value) =>
+                value match {
+                  case Left(_)  =>
+                    Ok(
+                      selectDutiesPage(
+                        SelectDutiesController
+                          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                          .fill(ifComplete.dutiesSelected),
+                        dutiesForEntryFlow
+                      )
+                    )
+                  case Right(_) =>
+                    Ok(
+                      selectDutiesPage(
+                        SelectDutiesController
+                          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                          .fill(ifComplete.dutiesSelected),
+                        duties(fillingOutClaim)
+                      )
+                    )
+                }
+              case None        =>
+                logger.warn("Could not find movement or entry reference number")
+                errorHandler.errorResult()
+            }
           }
         )
       }
@@ -152,7 +192,17 @@ class SelectDutiesController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectedDutiesAnswer { (_, fillingOutClaim, currentAnswers) =>
         SelectDutiesController
-          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+          .selectDutiesForm {
+            fillingOutClaim.draftClaim.movementReferenceNumber match {
+              case Some(value) =>
+                value match {
+                  case Left(_)  => makeBlankForm(List.empty, fillingOutClaim.draftClaim.isMrnFlow)
+                  case Right(_) => DutiesSelected(duties(fillingOutClaim))
+                }
+              case None        =>
+                sys.error("could not find movement or entry reference number")
+            }
+          }
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -206,18 +256,24 @@ class SelectDutiesController @Inject() (
 
 object SelectDutiesController {
 
-  private def makeBlankForm(ndrcDetails: List[NdrcDetails]): DutiesSelected = {
-    val duties: List[Duty] = ndrcDetails.map { n =>
-      TaxCode.fromString(n.taxType) match {
-        case Some(taxCode) =>
-          Duty(taxCode)
-        case None          => sys.error(s"invalid data received from ACC-14: NDRC details tax type not recognised: ${n.taxType}")
+  private def makeBlankForm(ndrcDetails: List[NdrcDetails], isMrnFlow: Boolean): DutiesSelected =
+    if (isMrnFlow) {
+      val duties: List[Duty] = ndrcDetails.map { n =>
+        TaxCode.fromString(n.taxType) match {
+          case Some(taxCode) =>
+            Duty(taxCode)
+          case None          =>
+            sys.error(s"invalid data received from ACC-14: NDRC details tax type not recognised: ${n.taxType}")
+        }
       }
+      DutiesSelected(
+        duties
+      )
+    } else {
+      DutiesSelected(TaxCode.listOfTaxCodes.map { code =>
+        Duty(code)
+      })
     }
-    DutiesSelected(
-      duties
-    )
-  }
 
   def selectDutiesForm(dutiesSelected: DutiesSelected): Form[DutiesSelected] = Form(
     mapping(

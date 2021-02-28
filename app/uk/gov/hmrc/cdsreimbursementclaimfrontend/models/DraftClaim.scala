@@ -91,6 +91,15 @@ object DraftClaim {
         case a: DraftC285Claim => draftC285Claim(a)
       }
 
+    def isMrnFlow: Boolean = draftClaim.movementReferenceNumber match {
+      case Some(value) =>
+        value match {
+          case Left(_)  => false
+          case Right(_) => true
+        }
+      case None        => sys.error("no movement or entry reference number found")
+    }
+
     def claimantDetailsAsIndividual: Option[ClaimantDetailsAsIndividual] = draftClaim match {
       case dc: DraftC285Claim =>
         dc.claimantDetailsAsIndividualAnswers match {
