@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, SupportingEvidenceAnswer}
@@ -70,7 +71,8 @@ object CompleteClaim {
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
-    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer]
+    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
+    completeClaimsAnswer: CompleteClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -96,7 +98,7 @@ object CompleteClaim {
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
-              _ //claimsanswer TODO needs to be passe dinto complete claim
+              Some(completeClaimsAnswer: CompleteClaimsAnswer)
             ) =>
           draftCompleteMovementReferenceNumberAnswer.movementReferenceNumber match {
             case Left(_) =>
@@ -145,7 +147,8 @@ object CompleteClaim {
                       maybeDisplayDeclaration = None,
                       maybeDuplicateDisplayDeclaration = None,
                       None,
-                      None
+                      None,
+                      completeClaimsAnswer
                     )
                 }
                 .toEither
@@ -201,7 +204,8 @@ object CompleteClaim {
                       maybeDisplayDeclaration,
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
-                      completeDeclarantEoriNumberAnswer
+                      completeDeclarantEoriNumberAnswer,
+                      completeClaimsAnswer
                     )
                 }
                 .toEither
@@ -445,6 +449,7 @@ object CompleteClaim {
             maybeDisplayDeclaration,
             _,
             _,
+            _,
             _
           ) =>
         maybeDisplayDeclaration
@@ -468,6 +473,7 @@ object CompleteClaim {
             _,
             maybeDisplayDeclaration,
             _,
+            _,
             _
           ) =>
         maybeDisplayDeclaration
@@ -480,6 +486,7 @@ object CompleteClaim {
             _,
             _,
             duplicateDeclarationDetails,
+            _,
             _,
             _,
             _,
@@ -518,6 +525,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         declarationDetailAnswers match {
@@ -534,6 +542,7 @@ object CompleteClaim {
             _,
             _,
             declarantType,
+            _,
             _,
             _,
             _,
@@ -567,6 +576,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
@@ -586,6 +596,7 @@ object CompleteClaim {
             _,
             _,
             claimantDetailsAsImporterCompanyAnswer,
+            _,
             _,
             _,
             _,
@@ -620,6 +631,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
@@ -639,6 +651,7 @@ object CompleteClaim {
             _,
             _,
             commodityDetails,
+            _,
             _,
             _,
             _,
@@ -666,6 +679,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         bankAccountDetails match {
@@ -687,6 +701,7 @@ object CompleteClaim {
             _,
             _,
             bankAccountDetails,
+            _,
             _,
             _,
             _,
@@ -723,6 +738,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         movementReferenceNumber.movementReferenceNumber
@@ -733,6 +749,7 @@ object CompleteClaim {
             _,
             _,
             duplicateMovementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,
@@ -776,9 +793,34 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         supportingEvidenceAnswers.evidences
+    }
+
+    def totalClaim: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            completeClaimsAnswer
+          ) =>
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(completeClaimsAnswer.claims.map(c => c.claimAmount).sum)
     }
 
   }
