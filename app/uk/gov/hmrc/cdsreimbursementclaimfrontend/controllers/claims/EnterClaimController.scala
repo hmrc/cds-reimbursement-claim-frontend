@@ -88,8 +88,8 @@ class EnterClaimController @Inject() (
     taxCodes.map { details =>
       Claim(
         uuidGenerator.nextId(),
-        "",
-        "",
+        "001",
+        "Unknown",
         details,
         BigDecimal(0.0),
         BigDecimal(0.0),

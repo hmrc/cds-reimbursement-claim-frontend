@@ -114,7 +114,8 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
-                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
+                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
+                validateBasisOfClaimAnswer(draftBasisForClaim)
               )
                 .mapN {
                   case (
@@ -127,7 +128,8 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
-                        completeReasonAndBasisOfClaimAnswer
+                        completeReasonAndBasisOfClaimAnswer,
+                        completeBasisOfClaimAnswer
                       ) =>
                     CompleteC285Claim(
                       id = id,
@@ -139,7 +141,7 @@ object CompleteClaim {
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
-                      None,
+                      completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
@@ -269,6 +271,27 @@ object CompleteClaim {
             Valid(Some(completeReasonAndBasisOfClaimAnswer))
         }
       case None        => Valid(None)
+    }
+
+  def validateBasisOfClaimAnswer(
+    maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer],
+    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
+  ): Validation[Option[CompleteBasisOfClaimAnswer]] =
+    maybeReasonAndBasisOfClaimAnswer match {
+      case Some(_) => Valid(None)
+      case None    =>
+        maybeBasisOfClaimAnswer match {
+          case Some(value) =>
+            value match {
+              case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(maybeBasisOfClaim) =>
+                maybeBasisOfClaim match {
+                  case Some(value) => Valid(Some(CompleteBasisOfClaimAnswer(value)))
+                  case None        => Valid(None)
+                }
+              case CompleteBasisOfClaimAnswer(basisOfClaim)                           => Valid(Some(CompleteBasisOfClaimAnswer(basisOfClaim)))
+            }
+          case None        => Valid(None)
+        }
     }
 
   def validateCommodityDetailsAnswer(
@@ -426,7 +449,7 @@ object CompleteClaim {
           case completeDuplicateDeclarationDetailAnswer: CompleteDuplicateDeclarationDetailsAnswer =>
             Valid(completeDuplicateDeclarationDetailAnswer)
         }
-      case None        => invalid("missing duplicate declaration details answer")
+      case None        => Valid(CompleteDuplicateDeclarationDetailsAnswer(None))
     }
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
@@ -582,6 +605,10 @@ object CompleteClaim {
         (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
           case (Some(rc), None) => Left(rc.selectReasonForBasisAndClaim)
           case (None, Some(r))  => Right(r.basisOfClaim)
+          case (None, None)     =>
+            sys.error(
+              "invalid state: either select reason for basis and claim or reason for claim should have been provided"
+            )
           case _                => sys.error("invalid state: cannot have both reason-for-claim-and-basis and reason-for-claim")
         }
     }
