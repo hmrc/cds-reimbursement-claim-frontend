@@ -400,7 +400,7 @@ enter-commodities-details.help-text=You can enter more than one commodity from t
 enter-commodities-details.error.required=Enter commodity details
 
 #===================================================
-#  SELECT DUTIES PAGE
+#  MAKE CLAIM PAGES
 #===================================================
 select-duties.title=Select the duties you want to claim for
 select-duties.help-text=You can select any duty from the import declaration.
@@ -419,6 +419,17 @@ select-duties.duty.A85=A85 - Provisional Anti-Dumping Duty
 select-duties.duty.A90=A90 - Definitive Countervailing Duty
 select-duties.duty.A95=A95 - Provisional Countervailing Duty
 select-duties.duty.B05=B05 - Value Added Tax
+
+enter-claim.title=Enter the claim amount for duty {0}
+enter-claim.help-text=This is to calculate your reimbursement as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.paid-amount-label=Paid Amount
+enter-claim.claim-amount=Claim Amount
+enter-claim.claim-amount-label=This is the Customs Duty amount you wish to claim for.
+enter-claim.error.required=Enter an amount to claim
+enter-claim.error.real=Enter a valid claim amount
+
+check-claim.title=Your reimbursement claim totals
+check-claim.help-text=These are the calculations based on the information you gave us.
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE

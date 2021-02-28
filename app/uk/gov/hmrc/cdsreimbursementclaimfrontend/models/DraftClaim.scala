@@ -52,13 +52,15 @@ object DraftClaim {
     displayDeclaration: Option[DisplayDeclaration],
     duplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
+    claimsAnswer: Option[ClaimsAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,
@@ -121,6 +123,7 @@ object DraftClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -137,6 +140,7 @@ object DraftClaim {
       case DraftC285Claim(
             _,
             movementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,

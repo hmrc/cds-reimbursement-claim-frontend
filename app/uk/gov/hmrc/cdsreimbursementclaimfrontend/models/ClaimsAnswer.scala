@@ -58,6 +58,11 @@ object ClaimsAnswer {
         case i: IncompleteClaimsAnswer => ifIncomplete(i)
         case c: CompleteClaimsAnswer   => ifComplete(c)
       }
+
+    def total: BigDecimal = a match {
+      case IncompleteClaimsAnswer(claims) => claims.map(c => c.claimAmount).sum
+      case CompleteClaimsAnswer(claims)   => claims.map(c => c.claimAmount).sum
+    }
   }
 
   implicit val eq: Eq[ClaimsAnswer]          = Eq.fromUniversalEquals[ClaimsAnswer]

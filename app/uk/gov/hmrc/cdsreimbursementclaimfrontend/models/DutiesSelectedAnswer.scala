@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.DutiesSelected
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
 
 sealed trait DutiesSelectedAnswer extends Product with Serializable
 
@@ -57,6 +57,15 @@ object DutiesSelectedAnswer {
         case i: IncompleteDutiesSelectedAnswer => ifIncomplete(i)
         case c: CompleteDutiesSelectedAnswer   => ifComplete(c)
       }
+
+    def duties: List[Duty] = a match {
+      case IncompleteDutiesSelectedAnswer(maybeDutiesSelected) =>
+        maybeDutiesSelected match {
+          case Some(value) => value.duties
+          case None        => List.empty
+        }
+      case CompleteDutiesSelectedAnswer(dutiesSelected)        => dutiesSelected.duties
+    }
   }
 
   implicit val eq: Eq[DutiesSelectedAnswer] = Eq.fromUniversalEquals[DutiesSelectedAnswer]

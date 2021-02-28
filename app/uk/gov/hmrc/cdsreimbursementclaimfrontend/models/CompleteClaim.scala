@@ -95,7 +95,8 @@ object CompleteClaim {
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
-              draftDeclarantEoriNumberAnswer
+              draftDeclarantEoriNumberAnswer,
+              _ //claimsanswer TODO needs to be passe dinto complete claim
             ) =>
           draftCompleteMovementReferenceNumberAnswer.movementReferenceNumber match {
             case Left(_) =>

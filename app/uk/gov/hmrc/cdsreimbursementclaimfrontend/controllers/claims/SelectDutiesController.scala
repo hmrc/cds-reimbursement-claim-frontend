@@ -17,12 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, toBifunctorOps}
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.format.Formatter
-import play.api.data.{Form, FormError, Forms}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -35,8 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutiesSelectedAnswer, Error, SessionData, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{FormUtils, Logging}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -99,7 +98,9 @@ class SelectDutiesController @Inject() (
               case Some(dutiesSelected) =>
                 Ok(
                   selectDutiesPage(
-                    SelectDutiesController.selectDutiesForm.fill(dutiesSelected),
+                    SelectDutiesController
+                      .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                      .fill(dutiesSelected),
                     duties(fillingOutClaim)
                   )
                 )
@@ -116,7 +117,9 @@ class SelectDutiesController @Inject() (
                 if (ndrcDetails.nonEmpty) {
                   Ok(
                     selectDutiesPage(
-                      SelectDutiesController.selectDutiesForm.fill(makeBlankForm(ndrcDetails)),
+                      SelectDutiesController
+                        .selectDutiesForm(makeBlankForm(ndrcDetails))
+                        .fill(DutiesSelected(List.empty)),
                       duties(fillingOutClaim)
                     )
                   )
@@ -129,21 +132,27 @@ class SelectDutiesController @Inject() (
                   Redirect(baseRoutes.IneligibleController.ineligible())
                 }
             },
-          ifComplete =>
+          ifComplete => {
+            println(s"I am here and the duties selected is :${ifComplete.dutiesSelected.duties.toString()}")
             Ok(
               selectDutiesPage(
-                SelectDutiesController.selectDutiesForm.fill(ifComplete.dutiesSelected),
+                SelectDutiesController
+                  .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                  .fill(ifComplete.dutiesSelected),
                 duties(fillingOutClaim)
               )
             )
+          }
         )
       }
     }
 
+  //TODO: need to check if they changed the selection - if so trash what they renoved or update if they have added
   def selectDutiesSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSelectedDutiesAnswer { (_, fillingOutClaim, answers) =>
-        SelectDutiesController.selectDutiesForm
+      withSelectedDutiesAnswer { (_, fillingOutClaim, currentAnswers) =>
+        SelectDutiesController
+          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -152,7 +161,7 @@ class SelectDutiesController @Inject() (
                   requestFormWithErrors
                     .fill(
                       DutiesSelected(
-                        answers.fold(
+                        currentAnswers.fold(
                           _.maybeDutiesSelected.getOrElse(DutiesSelected(List.empty)).duties,
                           _.dutiesSelected.duties
                         )
@@ -162,14 +171,17 @@ class SelectDutiesController @Inject() (
                 )
               ),
             dutiesSelected => {
-              val updatedAnswers = answers.fold(
+
+              println(s"duties selected are: ${dutiesSelected.duties.toString()}")
+              val updatedAnswers = currentAnswers.fold(
                 _ =>
                   CompleteDutiesSelectedAnswer(
                     dutiesSelected
                   ),
                 complete => complete.copy(dutiesSelected = dutiesSelected)
               )
-              val newDraftClaim  =
+
+              val newDraftClaim =
                 fillingOutClaim.draftClaim.fold(_.copy(dutiesSelectedAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -207,52 +219,7 @@ object SelectDutiesController {
     )
   }
 
-  val assetTypeForNonUkResidentsForm: Form[List[TaxCode]] = {
-    val checkBoxAssetTypeFormFormatter: Formatter[TaxCode] =
-      new Formatter[TaxCode] {
-
-        override def bind(
-          key: String,
-          data: Map[String, String]
-        ): Either[Seq[FormError], TaxCode] =
-          FormUtils
-            .readValue(key, data, identity)
-            .flatMap {
-              case "0"  => Right(TaxCode.A00)
-              case "1"  => Right(TaxCode.A20)
-              case "2"  => Right(TaxCode.A30)
-              case "3"  => Right(TaxCode.A35)
-              case "4"  => Right(TaxCode.A40)
-              case "5"  => Right(TaxCode.A45)
-              case "6"  => Right(TaxCode.B00)
-              case "7"  => Right(TaxCode.A50)
-              case "8"  => Right(TaxCode.A70)
-              case "9"  => Right(TaxCode.A80)
-              case "10" => Right(TaxCode.A85)
-              case "11" => Right(TaxCode.A90)
-              case "12" => Right(TaxCode.A95)
-              case "13" => Right(TaxCode.B05)
-              case _    => Left(FormError(key, "error.invalid"))
-            }
-            .leftMap(Seq(_))
-
-        override def unbind(
-          key: String,
-          value: TaxCode
-        ): Map[String, String] =
-          Map(key -> value.toString)
-      }
-
-    Form(
-      mapping(
-        "select-duties" -> Forms
-          .list(of(checkBoxAssetTypeFormFormatter))
-          .verifying("error.required", _.nonEmpty)
-      )(identity)(Some(_))
-    )
-  }
-
-  val selectDutiesForm: Form[DutiesSelected] = Form(
+  def selectDutiesForm(dutiesSelected: DutiesSelected): Form[DutiesSelected] = Form(
     mapping(
       "select-duties" -> list(
         mapping(
@@ -276,37 +243,14 @@ object SelectDutiesController {
                   code === 13
             )
             .transform[TaxCode](
-              {
-                case 0  => TaxCode.A00
-                case 1  => TaxCode.A20
-                case 2  => TaxCode.A30
-                case 3  => TaxCode.A35
-                case 4  => TaxCode.A40
-                case 5  => TaxCode.A45
-                case 6  => TaxCode.B00
-                case 7  => TaxCode.A50
-                case 8  => TaxCode.A70
-                case 9  => TaxCode.A80
-                case 10 => TaxCode.A85
-                case 11 => TaxCode.A90
-                case 12 => TaxCode.A95
-                case 13 => TaxCode.B05
+              (x: Int) => {
+                println(s"index is $x")
+                println(s"duties are: ${dutiesSelected.duties.toString()}")
+                dutiesSelected.duties(x).taxCode
               },
-              {
-                case TaxCode.A00 => 0
-                case TaxCode.A20 => 1
-                case TaxCode.A30 => 2
-                case TaxCode.A35 => 3
-                case TaxCode.A40 => 4
-                case TaxCode.A45 => 5
-                case TaxCode.B00 => 6
-                case TaxCode.A50 => 7
-                case TaxCode.A70 => 8
-                case TaxCode.A80 => 9
-                case TaxCode.A85 => 10
-                case TaxCode.A90 => 11
-                case TaxCode.A95 => 12
-                case TaxCode.B05 => 13
+              (t: TaxCode) => {
+                println(s"tax codei is $t")
+                dutiesSelected.duties.indexOf(Duty(t))
               }
             )
         )(Duty.apply)(Duty.unapply)

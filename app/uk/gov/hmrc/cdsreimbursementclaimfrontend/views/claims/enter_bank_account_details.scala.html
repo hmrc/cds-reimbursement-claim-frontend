@@ -44,7 +44,7 @@
     @errorKey = @{List(s"$key-sort-code-1", s"$key-sort-code-2", s"$key-sort-code-3", key).map(form.error).find(_.isDefined).flatten}
 
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
-    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.CheckReimbursementClaimTotalController.checkReimbursementClaimTotal}
+    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
 
     @options = @{
         List(
