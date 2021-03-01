@@ -34,17 +34,7 @@
   @mainTemplate(title = title, userType = request.userType) {
 
 
-@*
-* Temp CSS before switch to new frontend
-*@
 
-<link rel="stylesheet" href='/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css' />
-
-    <div class="govuk-width-container">
-
-        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
-            <div>
-                <div>
 
                     <div class="govuk-panel govuk-panel--confirmation">
                         <h1 class="govuk-panel__title">@title</h1>
@@ -77,12 +67,7 @@
 
                     <p class="govuk-body"><a href="@{routes.StartController.startNewClaim().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
-                </div>
-            </div>
-        </main>
-
         <p style="margin-top:70px;"><a href="@routes.FeedbackController.feedback().url">@messages(s"exit-survey.link-text")</a></p>
 
-    </div>
 
 }
