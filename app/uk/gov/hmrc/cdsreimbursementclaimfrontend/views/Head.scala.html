@@ -14,17 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.ErrorMessage
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Utils._
+@import play.twirl.api.Html
 
 @this()
 
-@(params: ErrorMessage)
-@import params._
-<span @id.map {id => id="@id"} class="@toClasses("govuk-error-message", classes)"@toAttributes(attributes)>
- @visuallyHiddenText match {
-   case Some(NonEmptyString(text)) => {<span class="govuk-visually-hidden">@text:</span>}
-   case Some(_) | None => {}
- }
- @content.asHtml
-</span>
+@(headBlock: Option[Html] = None)
+@headBlock
+<!--[if lte IE 8]><script src='@controllers.routes.Assets.versioned("javascripts/html5shiv.min.js")'></script><![endif]-->
+<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if gt IE 8]><!--><link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" /><!--<![endif]-->

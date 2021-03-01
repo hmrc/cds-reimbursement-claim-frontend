@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.SelectItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
@@ -95,7 +95,10 @@
 
     <div class = "space-select">
         @inputSelect(
-            form = form,
+        label = "demo label",
+        isPageHeading = false,
+
+        form = form,
             id = s"$key.basis",
             name = s"$key.basis",
             items = Seq(
@@ -174,7 +177,10 @@
     <div class = "space-select">
 
         @inputSelect(
-            form = form,
+        label = "demo label",
+        isPageHeading = false,
+
+        form = form,
             id = s"$key.reason",
             name = s"$key.reason",
             items = Seq(

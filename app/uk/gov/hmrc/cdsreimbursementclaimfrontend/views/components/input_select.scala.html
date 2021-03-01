@@ -16,36 +16,44 @@
 
 @import play.api.i18n._
 @import play.api.data.Form
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.SelectItem
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Select
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Text
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.Hint
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.HtmlContent
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.govukSelect
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.Select
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
-@this(govukSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.select.govukSelect)
+@this(govukSelect: govukSelect)
 
 @(
-    form: Form[_],
-    id: String,
-    name: String,
-    items: Seq[SelectItem],
-    hint: Option[String] = None,
-    classes: Option[String] = None,
-    attributes: Map[String, String] = Map.empty
+        form: Form[_],
+        id: String,
+        name: String,
+        items: Seq[SelectItem],
+        label: String,
+        isPageHeading: Boolean,
+        headingMessageArgs: Seq[String] = Seq(),
+        hint: Option[String] = None,
+        classes: Option[String] = None,
+        labelClasses: Option[String] = None,
+        attributes: Map[String, String] = Map.empty
 )(implicit messages: Messages)
 
-    @govukSelect(
-        Select
-        (
-            id = id,
-            name = name,
-            items = Seq(SelectItem.defaultObject) ++ items,
-            hint = hint.map(hintKey => Hint(
-                content = HtmlContent(messages(hintKey))
-            )),
-            errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
-            classes = classes.getOrElse(""),
-            attributes = attributes
-        )
-    )
+@govukSelect(Select(
+    id = id,
+    name = name,
+    items = Seq(SelectItem.defaultObject) ++ items,
+    label = Label(
+        content = Text(messages(label, headingMessageArgs:_*)),
+        isPageHeading = isPageHeading,
+        classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
+    ),
+    hint = hint.map(hintKey => Hint(
+        content = HtmlContent(messages(hintKey))
+    )),
+    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+    classes = classes.getOrElse(""),
+    attributes = attributes
+))   )

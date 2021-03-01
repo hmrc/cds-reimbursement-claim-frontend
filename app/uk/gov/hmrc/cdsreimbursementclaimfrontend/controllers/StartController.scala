@@ -93,7 +93,7 @@ class StartController @Inject() (
       result.fold(
         { e =>
           logger.warn("could not initiate claim journey", e)
-          errorHandler.errorResult(sessionData.userType)
+          errorHandler.errorResult()
         },
         _ =>
           Redirect(
@@ -206,7 +206,7 @@ class StartController @Inject() (
     ).map {
       case Left(e) =>
         logger.warn("could not update session", e)
-        errorHandler.errorResult(request.authenticatedRequest.userType)
+        errorHandler.errorResult()
 
       case Right(_) =>
         Redirect(routes.StartController.weOnlySupportGG())
@@ -247,7 +247,7 @@ class StartController @Inject() (
     result.fold(
       { e =>
         logger.warn("could not initiate claim journey", e)
-        errorHandler.errorResult(request.authenticatedRequest.userType)
+        errorHandler.errorResult()
       },
       _ =>
         Redirect(

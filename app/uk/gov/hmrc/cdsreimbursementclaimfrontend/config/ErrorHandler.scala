@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Request, Result}
 import play.twirl.api.Html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -41,21 +40,16 @@ class ErrorHandler @Inject() (
   )(implicit
     request: Request[_]
   ): Html =
-    error_template(None, pageTitle, heading, message)
+    error_template(pageTitle, heading, message)
 
   def errorResult[R <: Request[_]](
-    userType: Option[UserType]
   )(implicit request: R): Result =
     InternalServerError(
       error_template(
-        userType,
         Messages("global.error.InternalServerError500.title"),
         Messages("global.error.InternalServerError500.heading"),
         Messages("global.error.InternalServerError500.message")
       )
     )
-
-  def errorResult()(implicit request: RequestWithSessionData[_]): Result =
-    errorResult(request.userType)
 
 }

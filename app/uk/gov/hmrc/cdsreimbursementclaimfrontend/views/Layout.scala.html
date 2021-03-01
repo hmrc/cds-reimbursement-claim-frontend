@@ -14,15 +14,27 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 
-@this(layout: Layout)
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.FooterLinks
+@import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
 
-    @(pageTitle: String, heading: String, message: String)(implicit messages: Messages, appConfig: ViewConfig)
-        @layout(pageTitle = Some(pageTitle)) {
-            <h1 class="govuk-heading-xl">@{Text(heading).asHtml}</h1>
-            <p class="govuk-body">@{Text(message).asHtml}</p>
-    }
+
+@this(
+    govukLayout: govukLayout,
+    head: Head
+)
+    @(pageTitle: Option[String] = None,
+        headBlock: Option[Html] = None,
+        scriptsBlock: Option[Html] = None
+    )(contentBlock: Html)(implicit messages: Messages, viewConfig: ViewConfig)
+
+    @govukLayout(
+        pageTitle = pageTitle,
+        headBlock = Some(head(headBlock)),
+        scriptsBlock = scriptsBlock,
+        beforeContentBlock = None,
+        footerItems = FooterLinks()
+    )(contentBlock)

@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
+import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
+class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
   private def getString(key: String): String = servicesConfig.getString(key)
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
@@ -88,5 +89,7 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
   val mrnGuideUrl: String = getString("external-url.mrn-guide")
 
   val contactCdsTeamUrl: String = getString("external-url.contact-cds-team")
+
+  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
 }

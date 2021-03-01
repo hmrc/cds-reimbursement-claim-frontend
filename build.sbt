@@ -49,7 +49,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"))
   .settings(addCompilerPlugin(scalafixSemanticdb))
   .settings(scalaVersion := "2.12.12")
-  .settings(routesImport := Seq.empty)
+  .settings(routesImport := Seq("_root_.controllers.Assets.Asset"))
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
     majorVersion := 0,
