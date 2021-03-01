@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
 
+import play.api.data.Form
+import play.api.data.Forms.{bigDecimal, mapping}
 import play.api.libs.json.{Json, OFormat}
 
-import java.util.UUID
+final case class ClaimAmount(amount: BigDecimal)
 
-final case class Claim(
-  id: UUID,
-  paymentMethod: String,
-  paymentReference: String,
-  taxCode: String,
-  paidAmount: BigDecimal,
-  claimAmount: BigDecimal,
-  isFilled: Boolean
-)
-
-object Claim {
-  implicit class ListClaimOps(private val claims: List[Claim]) {
-    def total: BigDecimal = claims.map(c => c.claimAmount).sum
-  }
-  implicit val format: OFormat[Claim] = Json.format[Claim]
+object ClaimAmount {
+  val claimAmountForm: Form[ClaimAmount]    = Form(
+    mapping(
+      "claim" -> bigDecimal
+    )(ClaimAmount.apply)(ClaimAmount.unapply)
+  )
+  implicit val format: OFormat[ClaimAmount] = Json.format[ClaimAmount]
 }

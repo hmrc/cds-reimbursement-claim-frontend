@@ -1,0 +1,96 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.DutiesSelected
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
+
+@this(
+ mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
+)
+
+@(form : Form[DutiesSelected], duties : List[Duty], isAmend : Boolean = false)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+  @key = @{"select-duties"}
+  @title = @{messages(s"$key.title")}
+  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+  @postAction = @{if(isAmend) routes.SelectDutiesController.selectDutiesSubmit else routes.SelectDutiesController.selectDutiesSubmit}
+  @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
+
+  @toIndex(taxCode: TaxCode) = @{duties.indexOf(Duty(taxCode))}
+
+  @options = @{
+    duties.map{
+        duty =>
+            RadioOption(
+                label = messages(s"${key}.duty.${duty.taxCode}"),
+                content = None,
+                optionHelpText = None
+            )
+        }
+  }
+
+    @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
+
+    @*
+    * Temp CSS before switch to new frontend
+    *@
+
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+    @backLinkComponent(backLinkAction)
+
+    @if(hasErrors) {
+        @errorSummary(form)
+    }
+
+    @pageHeading(title)
+
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text"))
+    </div>
+
+    @formWrapper(postAction, 'novalidate -> "novalidate") {
+
+        @checkboxGroup(
+            fieldId = key,
+            options = options,
+            selected = form.value.map(ds => ds.duties.map(d => toIndex(d.taxCode))).getOrElse(List.empty),
+            helpText = None,
+            label = Html(""),
+            error = form.error(key),
+            customErrorKey = None
+        )
+
+        @submitButton(messages("button.continue"))
+
+    }
+
+  }

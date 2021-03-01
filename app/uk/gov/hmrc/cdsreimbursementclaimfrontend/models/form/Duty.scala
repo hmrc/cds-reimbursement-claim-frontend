@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-import java.util.UUID
+final case class Duty(taxCode: TaxCode)
 
-final case class Claim(
-  id: UUID,
-  paymentMethod: String,
-  paymentReference: String,
-  taxCode: String,
-  paidAmount: BigDecimal,
-  claimAmount: BigDecimal,
-  isFilled: Boolean
-)
-
-object Claim {
-  implicit class ListClaimOps(private val claims: List[Claim]) {
-    def total: BigDecimal = claims.map(c => c.claimAmount).sum
-  }
-  implicit val format: OFormat[Claim] = Json.format[Claim]
+object Duty {
+  implicit val format: OFormat[Duty] = Json.format[Duty]
 }

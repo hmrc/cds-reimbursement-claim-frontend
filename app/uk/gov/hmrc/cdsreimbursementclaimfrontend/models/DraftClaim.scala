@@ -46,22 +46,20 @@ object DraftClaim {
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
-    ukDutyAmountAnswers: Option[UKDutyAmountAnswers],
-    euDutyAmountAnswers: Option[EUDutyAmountAnswers],
-    claimAnswers: Option[ClaimsAnswer],
+    dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
     reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
     displayDeclaration: Option[DisplayDeclaration],
     duplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
+    claimsAnswer: Option[ClaimsAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
-        None,
         None,
         None,
         None,
@@ -92,6 +90,15 @@ object DraftClaim {
       draftClaim match {
         case a: DraftC285Claim => draftC285Claim(a)
       }
+
+    def isMrnFlow: Boolean = draftClaim.movementReferenceNumber match {
+      case Some(value) =>
+        value match {
+          case Left(_)  => false
+          case Right(_) => true
+        }
+      case None        => sys.error("no movement or entry reference number found")
+    }
 
     def claimantDetailsAsIndividual: Option[ClaimantDetailsAsIndividual] = draftClaim match {
       case dc: DraftC285Claim =>
@@ -126,7 +133,6 @@ object DraftClaim {
             _,
             _,
             _,
-            _,
             _
           ) =>
         declarantTypeAnswer match {
@@ -143,7 +149,6 @@ object DraftClaim {
       case DraftC285Claim(
             _,
             movementReferenceNumberAnswer,
-            _,
             _,
             _,
             _,

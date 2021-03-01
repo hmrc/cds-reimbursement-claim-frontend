@@ -18,6 +18,7 @@
 @import play.api.data.Form
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
@@ -38,7 +39,7 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[Confirmation], completeClaim : CompleteClaim, backLink : Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[Confirmation], signedInUserDetails: SignedInUserDetails, completeClaim : CompleteClaim, backLink : Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"check-your-answers"}
   @title = @{messages(s"$key.title")}
@@ -47,7 +48,7 @@
     @options = @{
         List(
             RadioOption(
-                label = Html(messages(s"$key.declaration-statement", "John Smith")),
+                label = Html(messages(s"$key.declaration-statement", signedInUserDetails.contactName.value)),
                 content = None,
                 optionHelpText = None
             )
@@ -252,13 +253,13 @@ article.content__body {
                     <th scope="row" class="govuk-table__header">@messages(s"$key.claim-calculation.label")</th>
                     <td class="govuk-table__cell">
                         <ul class="govuk-list govuk-list--bullet">
-                            <li>Amount of UK Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim)</li>
-                            <li>Amount of EU Duty to reimburse claimed by you: @formatAmountOfMoneyWithPoundSign(completeClaim.totalEuDutyToClaim)</li>
-                            <li>Total claimed reimbursement: @formatAmountOfMoneyWithPoundSign(completeClaim.totalUkDutyToClaim + completeClaim.totalEuDutyToClaim)</li>
+                            <li>Amount of UK Duty to reimburse claimed by you: </li>
+                            <li>Amount of EU Duty to reimburse claimed by you: </li>
+                            <li>Total claimed reimbursement: </li>
                         </ul>
 
                     </td>
-                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), claimRoutes.EnterDutyAmountsController.changeUkDutyAmounts().url, Some(messages(s"cya.change")))</td>
+                    <td class="govuk-table__cell">@cyaChange(messages(s"cya.change"), "", Some(messages(s"cya.change")))</td>
                 </tr>
                 @completeClaim.bankDetails.map{ bankAccount =>
                     <tr lass="govuk-table__row">

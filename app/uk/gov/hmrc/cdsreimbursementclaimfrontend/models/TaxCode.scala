@@ -19,78 +19,43 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait TaxCode extends Product with Serializable {
-  def description: String
-}
+sealed trait TaxCode extends Product with Serializable
 
 object TaxCode {
-  sealed trait UKTaxCode extends TaxCode with Product with Serializable {
-    override def description: String
+
+  case object A00 extends TaxCode
+  case object A20 extends TaxCode
+  case object A30 extends TaxCode
+  case object A35 extends TaxCode
+  case object A40 extends TaxCode
+  case object A45 extends TaxCode
+  case object B00 extends TaxCode
+  case object A50 extends TaxCode
+  case object A70 extends TaxCode
+  case object A80 extends TaxCode
+  case object A85 extends TaxCode
+  case object A90 extends TaxCode
+  case object A95 extends TaxCode
+  case object B05 extends TaxCode
+
+  def fromString(taxCode: String): Option[TaxCode] = taxCode match {
+    case "A00" => Some(A00)
+    case "A20" => Some(A20)
+    case "A30" => Some(A30)
+    case "A35" => Some(A35)
+    case "A40" => Some(A40)
+    case "A45" => Some(A45)
+    case "B00" => Some(B00)
+    case "A50" => Some(A50)
+    case "A70" => Some(A70)
+    case "A80" => Some(A80)
+    case "A85" => Some(A85)
+    case "A90" => Some(A90)
+    case "A95" => Some(A95)
+    case "B05" => Some(B05)
   }
 
-  object UKTaxCode {
-    case object A00 extends UKTaxCode {
-      override def description: String = "A00 - Customs Duty"
-    }
-
-    case object A20 extends UKTaxCode {
-      override def description: String = "A20 - Additional Duty"
-    }
-
-    case object A30 extends UKTaxCode {
-      override def description: String = "A30 - Definitive Anti-Dumping Duty"
-    }
-
-    case object A35 extends UKTaxCode {
-      override def description: String = "A35 - Provisional Anti-Dumping Duty"
-    }
-
-    case object A40 extends UKTaxCode {
-      override def description: String = "A40 - Definitive Countervailing Duty"
-    }
-
-    case object A45 extends UKTaxCode {
-      override def description: String = "A45 - Provisional Countervailing Duty"
-    }
-
-    case object B00 extends UKTaxCode {
-      override def description: String = "B00 - Value Added Tax"
-    }
-
-    implicit val format: OFormat[UKTaxCode] = derived.oformat[UKTaxCode]()
-  }
-
-  sealed trait EUTaxCode extends TaxCode with Product with Serializable {
-    def description: String
-  }
-
-  object EUTaxCode {
-    case object A50 extends EUTaxCode {
-      override def description: String = "A50 - Customs Duty"
-    }
-    case object A70 extends EUTaxCode {
-      override def description: String = "A70 - Additional Duty"
-    }
-    case object A80 extends EUTaxCode {
-      override def description: String = "A80 - Definitive Anti-Dumping Duty"
-    }
-    case object A85 extends EUTaxCode {
-      override def description: String = "A85 - Provisional Anti-Dumping Duty"
-    }
-    case object A90 extends EUTaxCode {
-      override def description: String = "A90 - Definitive Countervailing Duty"
-    }
-    case object A95 extends EUTaxCode {
-      override def description: String = "A95 - Provisional Countervailing Duty"
-    }
-    case object B05 extends EUTaxCode {
-      override def description: String = "B05 - Value Added Tax"
-    }
-
-    implicit val format: OFormat[EUTaxCode] = derived.oformat[EUTaxCode]()
-
-  }
+  def listOfTaxCodes: List[TaxCode] = List(A00, A20, A30, A35, A40, A45, B00, A50, A70, A80, A90, B05)
 
   implicit val format: OFormat[TaxCode] = derived.oformat[TaxCode]()
-
 }

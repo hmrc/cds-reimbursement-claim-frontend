@@ -91,9 +91,8 @@ class EnterCommoditiesDetailsController @Inject() (
             _,
             _,
             _,
-            _,
-            _,
             reasonForBasisAndClaimAnswer,
+            _,
             _,
             _,
             _,
@@ -140,6 +139,7 @@ class EnterCommoditiesDetailsController @Inject() (
       }
     }
 
+  //TODO; error check on character count
   def enterCommoditiesDetailsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCommoditiesDetails { (_, fillingOutClaim, answers) =>
@@ -161,7 +161,8 @@ class EnterCommoditiesDetailsController @Inject() (
                   ),
                 complete => complete.copy(commodityDetails = commodityDetails)
               )
-              val newDraftClaim  =
+
+              val newDraftClaim =
                 fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -175,7 +176,7 @@ class EnterCommoditiesDetailsController @Inject() (
                   logger.warn("could not get commodity details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterDutyAmountsController.enterUkDutyAmounts())
+                _ => Redirect(routes.SelectDutiesController.selectDuties())
               )
             }
           )
@@ -193,7 +194,7 @@ class EnterCommoditiesDetailsController @Inject() (
                   enterCommoditiesDetailsPage(
                     EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
                     handleBackLink(fillingOutClaim),
-                    true
+                    isAmend = true
                   )
                 )
               case None                   =>
@@ -201,7 +202,7 @@ class EnterCommoditiesDetailsController @Inject() (
                   enterCommoditiesDetailsPage(
                     EnterCommoditiesDetailsController.commoditiesDetailsForm,
                     handleBackLink(fillingOutClaim),
-                    true
+                    isAmend = true
                   )
                 )
             },
@@ -219,6 +220,7 @@ class EnterCommoditiesDetailsController @Inject() (
       }
     }
 
+  //TODO; error check on character count
   def changeCommoditiesDetailsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCommoditiesDetails { (_, fillingOutClaim, answers) =>
