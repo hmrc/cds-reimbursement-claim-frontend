@@ -37,12 +37,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.Comp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EUDutyAmountAnswers.CompleteEUDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UKDutyAmountAnswers.CompleteUKDutyAmountAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, SupportingEvidenceAnswer}
@@ -67,15 +66,13 @@ object CompleteClaim {
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
-    maybeCompleteUKDutyAmountAnswer: Option[CompleteUKDutyAmountAnswer],
-    maybeCompleteEUDutyAmountAnswer: Option[CompleteEUDutyAmountAnswer],
-    completeClaimAnswer: CompleteClaimsAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
-    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer]
+    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
+    completeClaimsAnswer: CompleteClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -94,15 +91,14 @@ object CompleteClaim {
               draftBankAccountDetailAnswer,
               draftBasisForClaim,
               draftSupportingEvidence,
-              draftUkDutyAmountsAnswer,
-              draftEuDutyAmountsAnswer,
-              draftClaimsAnswer,
+              _,
               draftCommodityAnswer,
               draftReasonAndBasisOfClaimAnswer,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
-              draftDeclarantEoriNumberAnswer
+              draftDeclarantEoriNumberAnswer,
+              Some(completeClaimsAnswer: CompleteClaimsAnswer)
             ) =>
           draftCompleteMovementReferenceNumberAnswer.movementReferenceNumber match {
             case Left(_) =>
@@ -117,11 +113,9 @@ object CompleteClaim {
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
-                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
-                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
-                validateClaimsAnswer(draftClaimsAnswer),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
-                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
+                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
+                validateBasisOfClaimAnswer(draftBasisForClaim)
               )
                 .mapN {
                   case (
@@ -133,11 +127,9 @@ object CompleteClaim {
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
-                        completeUKDutyAmountAnswer,
-                        completeEUDutyAmountAnswer,
-                        completeClaimsAnswer,
                         completeCommodityDetailsAnswer,
-                        completeReasonAndBasisOfClaimAnswer
+                        completeReasonAndBasisOfClaimAnswer,
+                        completeBasisOfClaimAnswer
                       ) =>
                     CompleteC285Claim(
                       id = id,
@@ -149,18 +141,16 @@ object CompleteClaim {
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
-                      None,
+                      completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
-                      completeUKDutyAmountAnswer,
-                      completeEUDutyAmountAnswer,
-                      completeClaimsAnswer,
                       completeCommodityDetailsAnswer,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
                       maybeDuplicateDisplayDeclaration = None,
                       None,
-                      None
+                      None,
+                      completeClaimsAnswer
                     )
                 }
                 .toEither
@@ -181,9 +171,6 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
-                validateUKDutyAmountsAnswer(draftUkDutyAmountsAnswer),
-                validateEUDutyAmountsAnswer(draftEuDutyAmountsAnswer),
-                validateClaimsAnswer(draftClaimsAnswer),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
                 validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
@@ -197,9 +184,6 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeBasisOfClaimAnswer,
                         completeSupportingEvidenceAnswer,
-                        completeUKDutyAmountAnswer,
-                        completeEUDutyAmountAnswer,
-                        completeClaimsAnswer,
                         completeCommodityDetailsAnswer,
                         completeImporterEoriNumberAnswer,
                         completeDeclarantEoriNumberAnswer
@@ -217,15 +201,13 @@ object CompleteClaim {
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
                       completeSupportingEvidenceAnswer,
-                      completeUKDutyAmountAnswer,
-                      completeEUDutyAmountAnswer,
-                      completeClaimsAnswer,
                       completeCommodityDetailsAnswer,
                       None,
                       maybeDisplayDeclaration,
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
-                      completeDeclarantEoriNumberAnswer
+                      completeDeclarantEoriNumberAnswer,
+                      completeClaimsAnswer
                     )
                 }
                 .toEither
@@ -291,6 +273,27 @@ object CompleteClaim {
       case None        => Valid(None)
     }
 
+  def validateBasisOfClaimAnswer(
+    maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer],
+    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
+  ): Validation[Option[CompleteBasisOfClaimAnswer]] =
+    maybeReasonAndBasisOfClaimAnswer match {
+      case Some(_) => Valid(None)
+      case None    =>
+        maybeBasisOfClaimAnswer match {
+          case Some(value) =>
+            value match {
+              case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(maybeBasisOfClaim) =>
+                maybeBasisOfClaim match {
+                  case Some(value) => Valid(Some(CompleteBasisOfClaimAnswer(value)))
+                  case None        => Valid(None)
+                }
+              case CompleteBasisOfClaimAnswer(basisOfClaim)                           => Valid(Some(CompleteBasisOfClaimAnswer(basisOfClaim)))
+            }
+          case None        => Valid(None)
+        }
+    }
+
   def validateCommodityDetailsAnswer(
     maybeClaimsAnswer: Option[CommoditiesDetailsAnswer]
   ): Validation[CompleteCommodityDetailsAnswer] =
@@ -317,38 +320,6 @@ object CompleteClaim {
             Valid(completeClaimsAnswer)
         }
       case None        => invalid("missing supporting evidence answer")
-    }
-
-  def validateEUDutyAmountsAnswer(
-    maybeUKDutyAmountAnswers: Option[EUDutyAmountAnswers]
-  ): Validation[Option[CompleteEUDutyAmountAnswer]] =
-    maybeUKDutyAmountAnswers match {
-      case Some(value) =>
-        value match {
-          case EUDutyAmountAnswers.IncompleteEUDutyAmountAnswer(
-                _
-              ) =>
-            invalid("incomplete eu duty amounts answer")
-          case completeBasisOfClaimAnswer: CompleteEUDutyAmountAnswer =>
-            Valid(Some(completeBasisOfClaimAnswer))
-        }
-      case None        => Valid(None)
-    }
-
-  def validateUKDutyAmountsAnswer(
-    maybeUKDutyAmountAnswers: Option[UKDutyAmountAnswers]
-  ): Validation[Option[CompleteUKDutyAmountAnswer]] =
-    maybeUKDutyAmountAnswers match {
-      case Some(value) =>
-        value match {
-          case UKDutyAmountAnswers.IncompleteUKDutyAmountAnswer(
-                _
-              ) =>
-            invalid("incomplete uk duty amounts answer")
-          case completeBasisOfClaimAnswer: CompleteUKDutyAmountAnswer =>
-            Valid(Some(completeBasisOfClaimAnswer))
-        }
-      case None        => Valid(None)
     }
 
   def validateSupportingEvidenceAnswer(
@@ -478,7 +449,7 @@ object CompleteClaim {
           case completeDuplicateDeclarationDetailAnswer: CompleteDuplicateDeclarationDetailsAnswer =>
             Valid(completeDuplicateDeclarationDetailAnswer)
         }
-      case None        => invalid("missing duplicate declaration details answer")
+      case None        => Valid(CompleteDuplicateDeclarationDetailsAnswer(None))
     }
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
@@ -498,10 +469,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             maybeDisplayDeclaration,
+            _,
             _,
             _,
             _
@@ -525,10 +494,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             maybeDisplayDeclaration,
+            _,
             _,
             _
           ) =>
@@ -542,8 +509,6 @@ object CompleteClaim {
             _,
             _,
             duplicateDeclarationDetails,
-            _,
-            _,
             _,
             _,
             _,
@@ -584,8 +549,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
             _
           ) =>
         declarationDetailAnswers match {
@@ -602,8 +565,6 @@ object CompleteClaim {
             _,
             _,
             declarantType,
-            _,
-            _,
             _,
             _,
             _,
@@ -634,10 +595,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             maybeReasonForClaimAndBasisAnswer,
+            _,
             _,
             _,
             _,
@@ -646,6 +605,10 @@ object CompleteClaim {
         (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
           case (Some(rc), None) => Left(rc.selectReasonForBasisAndClaim)
           case (None, Some(r))  => Right(r.basisOfClaim)
+          case (None, None)     =>
+            sys.error(
+              "invalid state: either select reason for basis and claim or reason for claim should have been provided"
+            )
           case _                => sys.error("invalid state: cannot have both reason-for-claim-and-basis and reason-for-claim")
         }
     }
@@ -660,8 +623,6 @@ object CompleteClaim {
             _,
             _,
             claimantDetailsAsImporterCompanyAnswer,
-            _,
-            _,
             _,
             _,
             _,
@@ -698,8 +659,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
             _
           ) =>
         claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
@@ -718,10 +677,8 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
-            _,
             commodityDetails,
+            _,
             _,
             _,
             _,
@@ -743,8 +700,6 @@ object CompleteClaim {
             _,
             _,
             bankAccountDetails,
-            _,
-            _,
             _,
             _,
             _,
@@ -780,8 +735,6 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
             _
           ) =>
         bankAccountDetails match {
@@ -794,70 +747,10 @@ object CompleteClaim {
         }
     }
 
-    def totalUkDutyToClaim: BigDecimal = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            ukDuty,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        ukDuty match {
-          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
-          case None        => BigDecimal(0)
-        }
-    }
-
-    def totalEuDutyToClaim: BigDecimal = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            euDuty,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        euDuty match {
-          case Some(value) => BigDecimal(value.dutyAmounts.map(f => f.claim.getOrElse(BigDecimal(0)).toDouble).sum)
-          case None        => BigDecimal(0)
-        }
-    }
-
     def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
       case CompleteC285Claim(
             _,
             movementReferenceNumber,
-            _,
-            _,
             _,
             _,
             _,
@@ -883,8 +776,6 @@ object CompleteClaim {
             _,
             _,
             duplicateMovementReferenceNumberAnswer,
-            _,
-            _,
             _,
             _,
             _,
@@ -930,11 +821,33 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
-            _,
             _
           ) =>
         supportingEvidenceAnswers.evidences
+    }
+
+    def totalClaim: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            completeClaimsAnswer
+          ) =>
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(completeClaimsAnswer.claims.map(c => c.claimAmount).sum)
     }
 
   }

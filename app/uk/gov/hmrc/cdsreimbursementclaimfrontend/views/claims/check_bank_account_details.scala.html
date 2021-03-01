@@ -24,7 +24,8 @@
 @this(
  mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
+ buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
 @(bankAccount : BankAccount)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
@@ -44,6 +45,8 @@
  <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
   <div>
    <div>
+
+    @backLinkComponent(routes.EnterClaimController.checkClaim())
 
     @pageHeading(title)
 

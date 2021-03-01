@@ -1,0 +1,103 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+
+@import java.util.UUID
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.AmountPair
+
+@this(
+    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    unitInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.unit_input,
+    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+)
+
+@(id : UUID, form : Form[AmountPair], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+  @key = @{"enter-claim"}
+  @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
+  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+  @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
+
+   @*
+    * Temp CSS before switch to new frontend
+    *@
+
+    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
+
+    @if(hasErrors) {
+        @errorSummary(form)
+    }
+
+    @pageHeading(title)
+
+    <div class="govuk-inset-text">
+        @Html(messages(s"$key.help-text"))
+    </div>
+
+    @formWrapper(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+
+        @unitInput(
+            fieldId = s"${key}.paid-amount",
+            value = form.data.get(s"${key}.paid-amount").getOrElse(""),
+            formError = form.error(s"${key}.paid-amount"),
+            hasErrors =  form.error(s"${key}.paid-amount").nonEmpty,
+            label = Html(messages(s"${key}.paid-amount")),
+            labelAsHeading = false,
+            helpText = None,
+            autoComplete = AutoCompleteType.Off,
+            labelledByID = "",
+            inputClass = Some("small"),
+            aspect = "left",
+            unit = "£",
+            assistiveText = messages("unit-input.assistive.pounds")
+        )
+
+        @unitInput(
+            fieldId = s"${key}.claim-amount",
+            value = form.data.get(s"${key}.claim-amount").getOrElse(""),
+            formError = form.error(s"${key}.claim-amount"),
+            hasErrors =  form.error(s"${key}.claim-amount").nonEmpty,
+            label = Html(messages(s"${key}.claim-amount")),
+            labelAsHeading = false,
+            helpText = None,
+            autoComplete = AutoCompleteType.Off,
+            labelledByID = "",
+            inputClass = Some("small"),
+            aspect = "left",
+            unit = "£",
+            assistiveText = messages("unit-input.assistive.pounds")
+        )
+
+        @submitButton(messages("button.continue"))
+
+    }
+}

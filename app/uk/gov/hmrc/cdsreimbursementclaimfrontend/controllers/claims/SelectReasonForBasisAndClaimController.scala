@@ -130,7 +130,8 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 complete => complete.copy(selectReasonForBasisAndClaim = reasonForClaimAndBasis)
               )
               val newDraftClaim                               =
-                fillingOutClaim.draftClaim.fold(_.copy(reasonForBasisAndClaimAnswer = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim
+                  .fold(_.copy(reasonForBasisAndClaimAnswer = Some(updatedAnswers), basisOfClaimAnswer = None))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 

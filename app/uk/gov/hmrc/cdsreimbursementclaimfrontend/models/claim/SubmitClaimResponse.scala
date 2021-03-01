@@ -19,9 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
 import play.api.libs.json.{Json, OFormat}
 
 final case class SubmitClaimResponse(
-  caseNumber: String,
-  payService: String,
-  processingDate: String
+  caseNumber: String
 )
 
 object SubmitClaimResponse {

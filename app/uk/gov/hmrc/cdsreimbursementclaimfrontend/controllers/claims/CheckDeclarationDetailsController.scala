@@ -104,7 +104,6 @@ class CheckDeclarationDetailsController @Inject() (
             _,
             _,
             _,
-            _,
             importerEoriNumberAnswer,
             declarantEoriNumberAnswer
           ) =>
