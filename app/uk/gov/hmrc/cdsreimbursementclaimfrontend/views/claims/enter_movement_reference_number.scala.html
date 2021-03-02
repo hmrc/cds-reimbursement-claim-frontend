@@ -25,7 +25,6 @@
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
@@ -34,17 +33,12 @@
 
     @key = @{"enter-movement-reference-number"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
 
     @layout(pageTitle = Some(s"$title")) {
 
         @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
