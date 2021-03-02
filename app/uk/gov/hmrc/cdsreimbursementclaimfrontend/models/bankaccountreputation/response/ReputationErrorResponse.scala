@@ -18,18 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class BusinessCompleteResponse(
-  accountNumberWithSortCodeIsValid: ReputationResponse,
-  sortCodeIsPresentOnEISCD: String,
-  accountExists: Option[ReputationResponse] = None,
-  companyNameMatches: Option[ReputationResponse],
-  companyPostCodeMatches: Option[ReputationResponse],
-  companyRegistrationNumberMatches: Option[ReputationResponse],
-  nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
-  sortCodeBankName: Option[String] = None
-)
+final case class ReputationErrorResponse(code: String, desc: String) {
+  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(ReputationResponse.No, None, Some(this))
 
-object BusinessCompleteResponse {
-  implicit val businessCompleteResponseFormat: OFormat[BusinessCompleteResponse] = Json.format[BusinessCompleteResponse]
+}
 
+object ReputationErrorResponse {
+  implicit val reputationErrorResponseFormat: OFormat[ReputationErrorResponse] = Json.format[ReputationErrorResponse]
 }
