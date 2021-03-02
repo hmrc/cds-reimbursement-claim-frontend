@@ -16,70 +16,50 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
 @(form: Form[MovementReferenceNumber], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"enter-movement-reference-number"}
- @title = @{messages(s"$key.title")}
- @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+    @key = @{"enter-movement-reference-number"}
+    @title = @{messages(s"$key.title")}
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
- @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
+    @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
 
- @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title")) {
 
-  @*
-  * Temp CSS before switch to new frontend
-  *@
+        @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
-  <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
-  <div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
-      <div>
-        <div>
+        @if(hasErrors) {
+            @errorSummary(form)
+        }
 
-          @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
+        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-          @if(hasErrors) {
-           @errorSummary(form)
-          }
-
-          @formWrapper(postAction, 'novalidate -> "novalidate") {
-            @textInput(
-             fieldId = key,
-             value = form.data.getOrElse(key, ""),
-             errorKey = form.error(key).map(e => e.message),
-             extraContent = Some(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl))),
-             extraContentClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
-             hasErrors = form.error(key).nonEmpty,
-             labelAsHeading = true,
-             label = Html(title),
-             labelClass = Some("govuk-!-margin-bottom-4"),
-             helpText = Some(Html(messages(s"$key.help"))),
-             autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = key,
+                name = key,
+                label = title,
+                isPageHeading = true,
+                classes = Some("govuk-input--width-20"),
+                hint = Some("enter-movement-reference-number.help-text")
             )
 
             @submitButton(messages("button.continue"))
 
-          }
+        }
 
-        </div>
-      </div>
-    </main>
-  </div>
-
-}
+    }
