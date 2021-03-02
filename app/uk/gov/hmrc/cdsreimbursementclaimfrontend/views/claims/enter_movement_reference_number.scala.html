@@ -46,11 +46,11 @@
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
             @pageHeading(
-                heading = messages("enter-movement-reference-number.title")
+                heading = messages(s"${key}.title")
             )
 
             @paragraphBlock(
-                content = Html(messages("enter-movement-reference-number.help-text")),
+                content = Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)),
                 classes = Some("govuk-body govuk-!-margin-bottom-8")
             )
 
@@ -62,7 +62,7 @@
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some("enter-movement-reference-number.help")
+                hint = Some(s"${key}.help")
             )
 
             @submitButton(messages("button.continue"))
