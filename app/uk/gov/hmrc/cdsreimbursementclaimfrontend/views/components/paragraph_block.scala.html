@@ -14,12 +14,15 @@
  * limitations under the License.
  *@
 
+@import play.twirl.api.Html
+
 @this()
 
 @(
-    heading: String
+    content: Html,
+    classes: Option[String] = None
 )
 
-<h1 class="govuk-heading-xl">
-    @heading
-</h1>
+<p class="@classes">
+    @content
+</p>
