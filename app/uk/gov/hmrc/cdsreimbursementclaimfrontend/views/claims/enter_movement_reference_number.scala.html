@@ -45,9 +45,7 @@
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-            @pageHeading(
-                heading = messages(s"${key}.title")
-            )
+            @pageHeading(title)
 
             @paragraphBlock(
                 content = Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)),

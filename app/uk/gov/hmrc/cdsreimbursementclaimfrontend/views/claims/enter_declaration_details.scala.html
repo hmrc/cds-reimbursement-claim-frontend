@@ -15,156 +15,132 @@
  *@
 
 @import play.api.data.Form
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- dateInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.date_input,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraphBlock: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
-@(form : Form[_], entryNumber: EntryNumber, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[EntryDeclarationDetails], entryNumber: EntryNumber, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-declaration-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
-    @backLink = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterMovementReferenceNumberController.enterMrn}
+    @backLink = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDeclarationDetailsController.enterDeclarationDetails}
 
-    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title")) {
 
-        @*
-        * Temp CSS before switch to new frontend
-        *@
-
-        <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
-
-        <div class="govuk-width-container">
-            <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
-                <div>
-                    <div>
-
-        @backLinkComponent(backLink)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
-
-        @pageHeading(title)
-
-        <div class="govuk-inset-text">
-            <p class="declaration-paragraph">@Html(messages(s"$key.help-text", entryNumber.value))</p>
-        </div>
+        @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-            @dateInput(
-                fieldId = key,
-                label = Html(messages(s"$key.date-of-import.label")),
-                dayValue = form.data.get(s"$key-day"),
-                monthValue = form.data.get(s"$key-month"),
-                yearValue = form.data.get(s"$key-year"),
-                helpText = Some(Html(messages(s"$key.date-of-import.help"))),
-                errorKey = Some(""),
-                hasErrors = hasErrors,
-                labelClass = Some("govuk-label--s")
+            @backLinkComponent(backLink)
+
+            @pageHeading(title)
+
+            @paragraphBlock(
+                content = Html(messages(s"$key.help-text", entryNumber.value)),
+                classes = Some("govuk-body govuk-!-margin-bottom-8")
             )
 
-            @textInput(
-                fieldId = s"$key.place-of-import",
-                value = form.data.getOrElse(s"$key.place-of-import", ""),
-                errorKey = form.error(s"$key.place-of-import").map(e => e.message),
-                hasErrors = form.error(s"$key.place-of-import").nonEmpty,
-                label = Html(messages(s"$key.place-of-import.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = Some(Html(messages(s"$key.place-of-import.help"))),
-                autoComplete = AutoCompleteType.On
+
+
+
+            @*  INPUT DATE HERE  *@
+
+
+
+
+            @inputText(
+                form = form,
+                id = s"$key.place-of-import",
+                name = s"$key.place-of-import",
+                label = messages(s"$key.place-of-import.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(messages(s"$key.place-of-import.help"))
             )
 
-            @textInput(
-                fieldId = s"$key.importer-name",
-                value = form.data.getOrElse(s"$key.importer-name", ""),
-                errorKey = form.error(s"$key.importer-name").map(e => e.message),
-                hasErrors = form.error(s"$key.importer-name").nonEmpty,
-                label = Html(messages(s"$key.importer-name.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = Some(Html(messages(s"$key.importer-name.help"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.importer-name",
+                name = s"$key.importer-name",
+                label = messages(s"$key.importer-name.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(messages(s"$key.importer-name.help"))
             )
 
-            @textInput(
-                fieldId = s"$key.importer-email-address",
-                value = form.data.getOrElse(s"$key.importer-email-address", ""),
-                errorKey = form.error(s"$key.importer-email-address").map(e => e.message),
-                hasErrors = form.error(s"$key.importer-email-address").nonEmpty,
-                label = Html(messages(s"$key.importer-email-address.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = None,
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.importer-email-address",
+                name = s"$key.importer-email-address",
+                label = messages(s"$key.importer-email-address.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20")
             )
 
-            @textInput(
-                fieldId = s"$key.importer-phone-number",
-                value = form.data.getOrElse(s"$key.importer-phone-number", ""),
-                errorKey = form.error(s"$key.importer-phone-number").map(e => e.message),
-                hasErrors = form.error(s"$key.importer-phone-number").nonEmpty,
-                label = Html(messages(s"$key.importer-phone-number.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = Some(Html(messages(s"$key.importer-phone-number.help"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.importer-phone-number",
+                name = s"$key.importer-phone-number",
+                label = messages(s"$key.importer-phone-number.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(messages(s"$key.importer-phone-number.help"))
             )
 
-            @textInput(
-                fieldId = s"$key.declarant-name",
-                value = form.data.getOrElse(s"$key.declarant-name", ""),
-                errorKey = form.error(s"$key.declarant-name").map(e => e.message),
-                hasErrors = form.error(s"$key.declarant-name").nonEmpty,
-                label = Html(messages(s"$key.declarant-name.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = Some(Html(messages(s"$key.declarant-name.help"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.declarant-name",
+                name = s"$key.declarant-name",
+                label = messages(s"$key.declarant-name.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(messages(s"$key.declarant-name.help"))
             )
 
-            @textInput(
-                fieldId = s"$key.declarant-email-address",
-                value = form.data.getOrElse(s"$key.declarant-email-address", ""),
-                errorKey = form.error(s"$key.declarant-email-address").map(e => e.message),
-                hasErrors = form.error(s"$key.declarant-email-address").nonEmpty,
-                label = Html(messages(s"$key.declarant-email-address.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = None,
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.declarant-email-address",
+                name = s"$key.declarant-email-address",
+                label = messages(s"$key.declarant-email-address.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20")
             )
 
-            @textInput(
-                fieldId = s"$key.declarant-phone-number",
-                value = form.data.getOrElse(s"$key.declarant-phone-number", ""),
-                errorKey = form.error(s"$key.declarant-phone-number").map(e => e.message),
-                hasErrors = form.error(s"$key.declarant-phone-number").nonEmpty,
-                label = Html(messages(s"$key.declarant-phone-number.label")),
-                labelClass = Some("govuk-label--s"),
-                helpText = Some(Html(messages(s"$key.declarant-phone-number.help"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.declarant-phone-number",
+                name = s"$key.declarant-phone-number",
+                label = messages(s"$key.declarant-phone-number.label"),
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
+                hint = Some(messages(s"$key.declarant-phone-number.help"))
             )
 
             @submitButton(messages("button.continue"))
+
         }
 
-                </div>
-            </div>
-        </main>
-    </div>
-
-}
+    }
