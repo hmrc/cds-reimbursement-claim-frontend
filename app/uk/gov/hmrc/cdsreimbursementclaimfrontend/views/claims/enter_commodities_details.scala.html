@@ -24,7 +24,7 @@
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
@@ -40,7 +40,7 @@
     @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit}
     @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title")) {
 
 
 
