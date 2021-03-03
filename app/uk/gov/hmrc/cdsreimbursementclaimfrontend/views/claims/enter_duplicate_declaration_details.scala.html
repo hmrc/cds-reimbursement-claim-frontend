@@ -59,15 +59,9 @@
         @formWrapper(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit(), 'novalidate -> "novalidate") {
 
             @dateInput(
-                fieldId = key,
-                label = Html(messages(s"$key.date-of-import.label")),
-                dayValue = form.data.get(s"$key-day"),
-                monthValue = form.data.get(s"$key-month"),
-                yearValue = form.data.get(s"$key-year"),
-                helpText = Some(Html(messages(s"$key.date-of-import.help"))),
-                errorKey = Some(""),
-                hasErrors = hasErrors,
-                labelClass = Some("govuk-label--m")
+                form = form,
+                legendContent = "",
+                id = key
             )
 
             @textInput(

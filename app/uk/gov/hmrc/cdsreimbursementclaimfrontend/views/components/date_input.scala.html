@@ -14,62 +14,57 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n.Messages
-@import play.twirl.api.Html
+@import play.api.i18n._
+@import play.api.data.Form
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.DateInput
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.InputItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
 
-@this(
-  errorInline: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_inline
-)
+@this(govukDateInput: uk.gov.hmrc.govukfrontend.views.html.components.govukDateInput)
 
 @(
-  fieldId: String,
-  label: Html,
-  dayValue: Option[String],
-  monthValue: Option[String],
-  yearValue: Option[String],
-  helpText: Option[Html],
-  errorKey: Option[String],
-  hasErrors: Boolean,
-  labelClass: Option[String] = None
-)(implicit messages: Messages)
+  form: Form[_],
+  legendContent: String,
+  legendClasses: String = "govuk-fieldset__legend--xl",
+  id: String = "value",
+  hintText: Option[String] = None,
+  legendAsPageHeading: Boolean = true)(implicit messages: Messages)
 
-@classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
-@inputClasses = @{if(hasErrors) "form-control form-control-error" else "form-control" }
-@hintTextKey = @{s"${{fieldId}}-form-hint"}
-@errorId = @{s"${{fieldId}}-inline-error"}
-@hintIdWithHintText = @{helpText.map(hintTextKey -> _)}
-@errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
-@describedByKeys = @{
-  List(hintIdWithHintText.map(_._1), errorIdWithMessageKey.map(_._1)).collect{ case Some(t) => t }.mkString(" ")}
-@classBuilder(s: Option[String]*) = @{s.toList.collect{case Some(s) => s}.mkString(" ")}
-@labelClasses = @{classBuilder(Some("form-label"), labelClass)}
-
-<div class="@classes">
-  <fieldset id="@fieldId"@if(describedByKeys.nonEmpty) { aria-describedby="@describedByKeys" }>
-    <legend>
-        <label for="@{fieldId}" class="@{labelClasses}">@{label}</label>
-    </legend>
-    @if(helpText.isDefined) {
-      <span id="@{fieldId}-form-hint" class="form-hint">
-        @helpText.map(t => t)
-      </span>
-    }
-    @errorIdWithMessageKey.map { case (id, key) =>
-      @errorInline(id, messages(key))
-    }
-    <div class="form-date">
-      <div class="form-group form-group-day lang-@messages("lang")">
-        <label class="form-label" for="@{fieldId}-day">@messages("generic.day")</label>
-        <input class="@inputClasses" id="@{fieldId}-day" name="@{fieldId}-day" type="text" pattern="[0-9]*" inputmode="numeric" @dayValue.map{d => value="@d"}>
-      </div>
-      <div class="form-group form-group-month">
-        <label class="form-label" for="@{fieldId}-month">@messages("generic.month")</label>
-        <input class="@inputClasses" id="@{fieldId}-month" name="@{fieldId}-month" type="text" pattern="[0-9]*" inputmode="numeric" @monthValue.map{m => value="@m"}>
-      </div>
-      <div class="form-group form-group-year">
-        <label class="form-label" for="@{fieldId}-year">@messages("generic.year")</label>
-        <input class="@inputClasses" id="@{fieldId}-year" name="@{fieldId}-year" type="text" pattern="[0-9]*" inputmode="numeric" @yearValue.map{y => value="@y"}>
-      </div>
-    </div>
-  </fieldset>
-</div>
+@govukDateInput(DateInput(
+    fieldset = Some(Fieldset(
+        legend = Some(
+            Legend(
+                content = Text(messages(legendContent)),
+                isPageHeading = legendAsPageHeading,
+                classes = legendClasses
+            )
+        )
+    )),
+    id = id,
+    items = Seq(
+        InputItem(
+            classes = "govuk-input--width-2",
+            name =  s"$id.day",
+            label = Some(messages("date.day")),
+            value = form(s"$id.day").value
+        ),
+        InputItem(
+            classes = "govuk-input--width-2",
+            name = s"$id.month",
+            label = Some(messages("date.month")),
+            value = form(s"$id.month").value
+        ),
+        InputItem(
+            classes = "govuk-input--width-4",
+            name = s"$id.year",
+            label = Some(messages("date.year")),
+            value = form(s"$id.year").value
+        )
+    ),
+    hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
+    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+))
