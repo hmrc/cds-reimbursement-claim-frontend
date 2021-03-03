@@ -24,12 +24,14 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 @this(
- declarationDetailsUtils : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DeclarationDetailsUtils,
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+    declarationDetailsUtils : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DeclarationDetailsUtils,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraphBlock: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
 @(declaration : DisplayDeclaration, postAction : Call, backLink : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -41,16 +43,19 @@
 
         @backLinkComponent(backLink)
 
-            <div class="govuk-inset-text">
-                @Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId))
-            </div>
+        @pageHeader(title)
 
-            @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @paragraphBlock(
+            content = Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)),
+            classes = Some("govuk-body govuk-!-margin-bottom-8")
+        )
 
-                @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration)))
+        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-                @submitButton(messages("button.continue"))
+            @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration)))
 
-            }
+            @submitButton(messages("button.continue"))
+
+        }
 
 }
