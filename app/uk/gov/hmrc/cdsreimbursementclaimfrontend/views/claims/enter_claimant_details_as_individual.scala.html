@@ -26,7 +26,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController._
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
@@ -56,18 +56,9 @@
     @countryCodeKey = @{"countryCode"}
 
 
-    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title")) {
 
-    @*
-    * Temp CSS before switch to new frontend
-    *@
 
-    <link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
-
-    <div class="govuk-width-container">
-        <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
-            <div>
-                <div>
 
         @backLinkComponent(backLink)
 
@@ -190,9 +181,6 @@
             @submitButton(messages("button.continue"))
         }
 
-                </div>
-            </div>
-        </main>
-    </div>
+
 
 }

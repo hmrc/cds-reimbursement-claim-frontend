@@ -20,13 +20,13 @@ import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import controllers.Assets.NO_CONTENT
-import play.api.http.Status.OK
+import play.api.http.Status._
 import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -47,11 +47,11 @@ trait ClaimService {
 
   def getBusinessAccountReputation(
     barsRequest: BarsBusinessAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BusinessCompleteResponse]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse]
 
   def getPersonalAccountReputation(
     barsRequest: BarsPersonalAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, PersonalCompleteResponse]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse]
 
 }
 
@@ -98,7 +98,7 @@ class DefaultClaimService @Inject() (
 
   def getBusinessAccountReputation(
     barsRequest: BarsBusinessAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, BusinessCompleteResponse] =
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse] =
     getReputation[BarsBusinessAssessRequest, BusinessCompleteResponse](
       barsRequest,
       cdsReimbursementClaimConnector.getBusinessReputation
@@ -106,24 +106,29 @@ class DefaultClaimService @Inject() (
 
   def getPersonalAccountReputation(
     barsRequest: BarsPersonalAssessRequest
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, PersonalCompleteResponse] =
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, CommonBarsResponse] =
     getReputation[BarsPersonalAssessRequest, PersonalCompleteResponse](
       barsRequest,
       cdsReimbursementClaimConnector.getPersonalReputation
     )
 
-  def getReputation[I, O](data: I, method: JsValue => EitherT[Future, Error, HttpResponse])(implicit
+  def getReputation[I, O <: ReputationResult](data: I, method: JsValue => EitherT[Future, Error, HttpResponse])(implicit
     writes: Writes[I],
     read: Reads[O]
-  ): EitherT[Future, Error, O] =
+  ): EitherT[Future, Error, CommonBarsResponse] =
     method(Json.toJson(data))
       .subflatMap { response =>
-        if (response.status === OK)
-          response
-            .parseJSON[O]()
-            .leftMap(Error(_))
-        else
-          Left(Error(s"Call to Business Reputation Service (BARS) failed with: ${response.status}"))
+        response.status match {
+          case OK          =>
+            response.parseJSON[O]().map(_.toCommonResponse()).leftMap(Error(_))
+          case BAD_REQUEST =>
+            response.parseJSON[ReputationErrorResponse]().map(_.toCommonResponse()).leftMap(Error(_))
+          case status: Int =>
+            Left(
+              Error(
+                s"Call to Business Reputation Service (BARS) failed with: $status, body: ${response.body}"
+              )
+            )
+        }
       }
-
 }

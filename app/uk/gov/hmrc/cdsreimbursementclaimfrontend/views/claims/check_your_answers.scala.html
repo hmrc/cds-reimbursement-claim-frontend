@@ -61,8 +61,6 @@
 * Temp CSS before switch to new frontend
 *@
 
-<link rel="stylesheet" href="/claim-for-reimbursement-of-import-duties/assets/stylesheets/placeholder-govuk.css" />
-
 <style type="text/css">
 
 article.content__body {
@@ -71,11 +69,6 @@ article.content__body {
 }
 
 </style>
-
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main" style="padding-top: 10px!important;">
-        <div>
-            <div>
 
     @backLinkComponent(backLink)
 
@@ -205,7 +198,7 @@ article.content__body {
                 </tr>
                 @completeClaim.claimantDetailsAsImporterCompany.map{ details =>
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@messages(s"$key.claimant--company-details.label")</th>
+                        <th scope="row" class="govuk-table__header">@messages(s"$key.claimant-company-details.label")</th>
                         <td class="govuk-table__cell">
                             <ul class="govuk-list govuk-list--bullet">
                                 <li>@messages(s"$key.claimant-details.l0") @details.companyName</li>
@@ -303,12 +296,5 @@ article.content__body {
 
         @submitButton(messages("button.confirm-and-submit-claim"))
     }
-
-
-
-            </div>
-        </div>
-    </main>
-</div>
 
   }
