@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsAddress, BarsBusinessAssessRequest, BarsPersonalAssessRequest, BarsSubject}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, CommonBarsResponse, PersonalCompleteResponse, ReputationErrorResponse}
 import org.scalacheck.ScalacheckShapeless._
 
 object BankAccountReputationGen extends GenUtils {
@@ -28,4 +28,6 @@ object BankAccountReputationGen extends GenUtils {
   implicit val barsPersonalAssessRequestGen: Gen[BarsPersonalAssessRequest] = gen[BarsPersonalAssessRequest]
   implicit val businessCompleteResponseGen: Gen[BusinessCompleteResponse]   = gen[BusinessCompleteResponse]
   implicit val personalCompleteResponseGen: Gen[PersonalCompleteResponse]   = gen[PersonalCompleteResponse]
+  implicit val commonBarsResponseGen: Gen[CommonBarsResponse]               = gen[CommonBarsResponse]
+  implicit val reputationErrorResponseGen: Gen[ReputationErrorResponse]     = gen[ReputationErrorResponse]
 }

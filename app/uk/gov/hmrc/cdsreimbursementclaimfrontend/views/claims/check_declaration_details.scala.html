@@ -39,11 +39,11 @@
 
     @layout(pageTitle = Some(s"$title")) {
 
-        @backLinkComponent(backLink)
-
             <div class="govuk-inset-text">
                 @Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId))
             </div>
+
+            @backLinkComponent(backLink)
 
             @formWrapper(postAction, 'novalidate -> "novalidate") {
 
@@ -53,4 +53,4 @@
 
             }
 
-}
+        }

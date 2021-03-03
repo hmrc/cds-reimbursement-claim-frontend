@@ -18,6 +18,27 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 
 import play.api.libs.json.{Json, OFormat}
 
+sealed trait ReputationResult {
+  def toCommonResponse(): CommonBarsResponse
+}
+
+final case class BusinessCompleteResponse(
+  accountNumberWithSortCodeIsValid: ReputationResponse,
+  sortCodeIsPresentOnEISCD: String,
+  accountExists: Option[ReputationResponse] = None,
+  companyNameMatches: Option[ReputationResponse],
+  companyPostCodeMatches: Option[ReputationResponse],
+  companyRegistrationNumberMatches: Option[ReputationResponse],
+  nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
+  sortCodeBankName: Option[String] = None
+) extends ReputationResult {
+  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(accountNumberWithSortCodeIsValid, accountExists, None)
+}
+
+object BusinessCompleteResponse {
+  implicit val businessCompleteResponseFormat: OFormat[BusinessCompleteResponse] = Json.format[BusinessCompleteResponse]
+}
+
 final case class PersonalCompleteResponse(
   accountNumberWithSortCodeIsValid: ReputationResponse,
   sortCodeIsPresentOnEISCD: String,
@@ -28,7 +49,9 @@ final case class PersonalCompleteResponse(
   subjectHasDeceased: Option[ReputationResponse] = None,
   nonStandardAccountDetailsRequiredForBacs: Option[ReputationResponse] = None,
   sortCodeBankName: Option[String] = None
-)
+) extends ReputationResult {
+  def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(accountNumberWithSortCodeIsValid, accountExists, None)
+}
 
 object PersonalCompleteResponse {
 

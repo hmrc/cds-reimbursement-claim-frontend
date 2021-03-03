@@ -45,7 +45,9 @@
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-            @pageHeading(title)
+          @pageHeading(title)
+
+          @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
             @paragraphBlock(
                 content = Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)),
@@ -65,6 +67,8 @@
 
             @submitButton(messages("button.continue"))
 
-        }
+
 
     }
+
+}

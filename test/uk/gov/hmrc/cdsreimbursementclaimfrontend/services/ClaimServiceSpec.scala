@@ -28,7 +28,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse, ReputationErrorResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -114,15 +114,24 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       val httpResponse    = HttpResponse(200, Json.toJson(businessReponse).toString())
       mockBusinessReputationConnector(Json.toJson(businessRequest))(Right(httpResponse))
       val response        = await(submitClaimService.getBusinessAccountReputation(businessRequest).value)
-      response shouldBe Right(businessReponse)
+      response shouldBe Right(businessReponse.toCommonResponse())
+    }
+
+    "parse error response" in {
+      val businessRequest = sample[BarsBusinessAssessRequest]
+      val errorResponse   = sample[ReputationErrorResponse]
+      val httpResponse    = HttpResponse(400, Json.toJson(errorResponse).toString())
+      mockBusinessReputationConnector(Json.toJson(businessRequest))(Right(httpResponse))
+      val response        = await(submitClaimService.getBusinessAccountReputation(businessRequest).value)
+      response shouldBe Right(errorResponse.toCommonResponse())
     }
 
     "Fail when the connector fails" in {
       val businessRequest = sample[BarsBusinessAssessRequest]
-      val httpResponse    = HttpResponse(400, "")
+      val httpResponse    = HttpResponse(500, "")
       mockBusinessReputationConnector(Json.toJson(businessRequest))(Right(httpResponse))
       val response        = await(submitClaimService.getBusinessAccountReputation(businessRequest).value)
-      response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 400"))
+      response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500, body: "))
     }
 
     "Fail when the returned JSON cannot be parsed" in {
@@ -154,14 +163,22 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       val httpResponse    = HttpResponse(200, Json.toJson(personalReponse).toString())
       mockPersonalReputationConnector(Json.toJson(personalRequest))(Right(httpResponse))
       val response        = await(submitClaimService.getPersonalAccountReputation(personalRequest).value)
-      response shouldBe Right(personalReponse)
+      response shouldBe Right(personalReponse.toCommonResponse())
+    }
+
+    "parse error response" in {
+      val errorResponse = sample[ReputationErrorResponse]
+      val httpResponse  = HttpResponse(400, Json.toJson(errorResponse).toString())
+      mockPersonalReputationConnector(Json.toJson(personalRequest))(Right(httpResponse))
+      val response      = await(submitClaimService.getPersonalAccountReputation(personalRequest).value)
+      response shouldBe Right(errorResponse.toCommonResponse())
     }
 
     "Fail when the connector fails" in {
-      val httpResponse = HttpResponse(400, "")
+      val httpResponse = HttpResponse(500, "")
       mockPersonalReputationConnector(Json.toJson(personalRequest))(Right(httpResponse))
       val response     = await(submitClaimService.getPersonalAccountReputation(personalRequest).value)
-      response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 400"))
+      response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500, body: "))
     }
 
     "Fail when the returned JSON cannot be parsed" in {

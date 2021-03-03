@@ -36,8 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -59,14 +58,14 @@ class BankAccountControllerSpec
 
   val claimService = mock[ClaimService]
 
-  def mockBusinessReputation(response: Either[Error, BusinessCompleteResponse]) =
+  def mockBusinessReputation(response: Either[Error, CommonBarsResponse]) =
     (claimService
       .getBusinessAccountReputation(_: BarsBusinessAssessRequest)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
 
-  def mockPersonalReputation(response: Either[Error, PersonalCompleteResponse]) =
+  def mockPersonalReputation(response: Either[Error, CommonBarsResponse]) =
     (claimService
       .getPersonalAccountReputation(_: BarsPersonalAssessRequest)(_: HeaderCarrier))
       .expects(*, *)
@@ -115,8 +114,8 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
-        val businessResponse = sample[BusinessCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Yes, accountExists = None)
+        val businessResponse =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = None, otherError = None)
         mockBusinessReputation(Right(businessResponse))
         val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -136,8 +135,11 @@ class BankAccountControllerSpec
       }
 
       "Let users through when the Bank Account Validation succeeds with accountExists" in {
-        val businessResponse = sample[BusinessCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(Yes))
+        val businessResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = Indeterminate,
+          accountExists = Some(Yes),
+          otherError = None
+        )
         mockBusinessReputation(Right(businessResponse))
         val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -157,8 +159,8 @@ class BankAccountControllerSpec
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No" in {
-        val businessResponse = sample[BusinessCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = No, accountExists = None)
+        val businessResponse =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = No, accountExists = None, otherError = None)
         mockBusinessReputation(Right(businessResponse))
         val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -177,8 +179,11 @@ class BankAccountControllerSpec
       }
 
       "Fail when the Bank Account Validation fails with accountExists = No" in {
-        val businessResponse = sample[BusinessCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(No))
+        val businessResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = Indeterminate,
+          accountExists = Some(No),
+          otherError = None
+        )
         mockBusinessReputation(Right(businessResponse))
         val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -192,7 +197,32 @@ class BankAccountControllerSpec
         val doc              = Jsoup.parse(contentAsString(result))
 
         val error = doc.getElementsByClass("error-summary-list").select("li").text()
-        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exists")
+        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Fail when the Bank Account Number" in {
+        val errorResponse    =
+          ReputationErrorResponse(code = "INVALID_ACCOUNT_NUMBER", desc = "123456: invalid account number")
+        val businessResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = No,
+          accountExists = None,
+          otherError = Some(errorResponse)
+        )
+        mockBusinessReputation(Right(businessResponse))
+        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
+        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val form             = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
+        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val doc              = Jsoup.parse(contentAsString(result))
+
+        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_ACCOUNT_NUMBER")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -208,8 +238,8 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
-        val personalResponse = sample[PersonalCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Yes, accountExists = None)
+        val personalResponse =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = None, otherError = None)
         mockPersonalReputation(Right(personalResponse))
         val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -229,8 +259,11 @@ class BankAccountControllerSpec
       }
 
       "Let users through when the Bank Account Validation succeeds with accountExists" in {
-        val personalResponse = sample[PersonalCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(Yes))
+        val personalResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = Indeterminate,
+          accountExists = Some(Yes),
+          otherError = None
+        )
         mockPersonalReputation(Right(personalResponse))
         val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -250,8 +283,8 @@ class BankAccountControllerSpec
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = No" in {
-        val personalResponse = sample[PersonalCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = No, accountExists = None)
+        val personalResponse =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = No, accountExists = None, otherError = None)
         mockPersonalReputation(Right(personalResponse))
         val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -270,8 +303,11 @@ class BankAccountControllerSpec
       }
 
       "Fail when the Bank Account Validation fails with accountExists = No" in {
-        val personalResponse = sample[PersonalCompleteResponse]
-          .copy(accountNumberWithSortCodeIsValid = Indeterminate, accountExists = Some(No))
+        val personalResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = Indeterminate,
+          accountExists = Some(No),
+          otherError = None
+        )
         mockPersonalReputation(Right(personalResponse))
         val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)  = sessionWithClaimState(Some(answers))
@@ -285,7 +321,31 @@ class BankAccountControllerSpec
         val doc              = Jsoup.parse(contentAsString(result))
 
         val error = doc.getElementsByClass("error-summary-list").select("li").text()
-        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exists")
+        error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Fail when the Sort Code is invalid" in {
+        val errorResponse    = ReputationErrorResponse(code = "INVALID_SORTCODE", desc = "1234: invalid sortcode")
+        val personalResponse = CommonBarsResponse(
+          accountNumberWithSortCodeIsValid = No,
+          accountExists = None,
+          otherError = Some(errorResponse)
+        )
+        mockPersonalReputation(Right(personalResponse))
+        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
+        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val form             = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
+        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val doc              = Jsoup.parse(contentAsString(result))
+
+        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_SORTCODE")
         status(result) shouldBe BAD_REQUEST
       }
 

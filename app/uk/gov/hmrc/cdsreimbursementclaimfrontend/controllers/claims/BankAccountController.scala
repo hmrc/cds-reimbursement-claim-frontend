@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import java.util.function.Predicate
+
 import cats.data.EitherT
 import cats.syntax.either._
 import cats.syntax.eq._
@@ -34,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, ro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.{CompleteBankAccountDetailAnswer, IncompleteBankAccountDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswer, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -44,7 +46,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -224,9 +225,7 @@ class BankAccountController @Inject() (
                     .getOrElse(false)
                   isBusinessAccount match {
                     case true  =>
-                      claimService
-                        .getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
-                        .map(bar => CommonBarsResponse(bar.accountNumberWithSortCodeIsValid, bar.accountExists))
+                      claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                     case false =>
                       val claimant = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
                       val address  = BarsAddress(
@@ -242,9 +241,7 @@ class BankAccountController @Inject() (
                         None,
                         address
                       )
-                      claimService
-                        .getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
-                        .map(bar => CommonBarsResponse(bar.accountNumberWithSortCodeIsValid, bar.accountExists))
+                      claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
                   }
                 }
               } yield reputationResponse).fold(
@@ -253,7 +250,13 @@ class BankAccountController @Inject() (
                   errorHandler.errorResult()
                 },
                 reputationResponse =>
-                  if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
+                  if (reputationResponse.otherError.isDefined) {
+                    val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")
+                    val form     = BankAccountController.enterBankDetailsForm
+                      .fill(bankAccountDetails)
+                      .withGlobalError(s"enter-bank-details.error.$errorKey")
+                    BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
+                  } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
                       .withGlobalError("enter-bank-details.error.moc-check-failed")
@@ -261,7 +264,7 @@ class BankAccountController @Inject() (
                   } else if (reputationResponse.accountExists === Some(ReputationResponse.No)) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
-                      .withGlobalError("enter-bank-details.error.account-does-not-exists")
+                      .withGlobalError("enter-bank-details.error.account-does-not-exist")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
                   } else {
                     Redirect(redirectTo)

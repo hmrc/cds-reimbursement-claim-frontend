@@ -18,5 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.r
 
 final case class CommonBarsResponse(
   accountNumberWithSortCodeIsValid: ReputationResponse,
-  accountExists: Option[ReputationResponse] = None
+  accountExists: Option[ReputationResponse] = None,
+  otherError: Option[ReputationErrorResponse] = None
 )
