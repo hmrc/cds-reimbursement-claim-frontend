@@ -24,7 +24,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
@@ -37,7 +37,7 @@
  @title = @{messages(s"$key.title")}
  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
- @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+ @layout(pageTitle = Some(s"$title")) {
 
 
 
