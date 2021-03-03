@@ -16,27 +16,22 @@
 
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
 )
 
-@()(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@()(implicit messages: Messages, appConfig: ViewConfig)
 
  @key = @{"submit-claim-error"}
  @title = @{messages(s"$key.title")}
 
- @mainTemplate(title = title, userType = request.userType) {
-
-
+ @layout(pageTitle = Some(s"$title")) {
 
   @pageHeading(title)
 
   <p>@messages(s"$key.p1")</p>
   <p>@messages(s"$key.p2")</p>
-
-
 
 }
