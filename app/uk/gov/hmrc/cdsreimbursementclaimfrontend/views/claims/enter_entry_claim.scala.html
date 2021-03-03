@@ -31,7 +31,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.AmountPair
 
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     unitInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.unit_input,
@@ -45,7 +45,7 @@
   @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
   @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-  @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
+    @layout(pageTitle = Some(s"$title")) {
 
 
 
