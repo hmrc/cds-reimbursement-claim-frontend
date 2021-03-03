@@ -19,19 +19,46 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.FooterLinks
 @import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
+
 
 @this(
     govukLayout: govukLayout,
-    head: Head
+    head: Head,
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
+
 )
     @(pageTitle: Option[String] = None,
         headBlock: Option[Html] = None,
-        scriptsBlock: Option[Html] = None
+        scriptsBlock: Option[Html] = None,
+        timeOut: Boolean = true
     )(contentBlock: Html)(implicit messages: Messages, viewConfig: ViewConfig)
+
+    @defaultHead = {
+        @headBlock
+            @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
+                                name="timeOutDialog",
+                                timeout= Some(viewConfig.timeout),
+                                countdown= Some(viewConfig.countdown),
+                                message= Some(messages("sessionExpired.message")),
+                                keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+                                signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+                                timeoutUrl= Some(s"${StartController.timedOut.url}"),
+                                keepAliveButtonText= Some(messages("sessionExpired.keepAliveButtonText")),
+                                signOutButtonText= Some(messages("sessionExpired.signOutButtonText")),
+                                language = Some("en")
+                            ))}
+            <script>
+                    dataLayer = [{
+                        'URL': window.location.pathname
+                    }];
+            </script>
+    }
 
     @govukLayout(
         pageTitle = pageTitle,
-        headBlock = Some(head(headBlock)),
+        headBlock = Some(head(Some(defaultHead))),
         scriptsBlock = scriptsBlock,
         beforeContentBlock = None,
         footerItems = FooterLinks()

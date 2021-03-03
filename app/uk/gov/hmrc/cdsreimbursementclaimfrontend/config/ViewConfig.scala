@@ -92,4 +92,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
+  lazy val timeout: Int   = 1 //FIXME
+  lazy val countdown: Int = 1 //FIXME
+
 }
