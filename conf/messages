@@ -147,7 +147,7 @@ enter-importer-eori-number.title=Enter the importer’s EORI number
 enter-importer-eori-number.caption=Importer EORI number
 enter-importer-eori-number.help=You can get the EORI number from the importer, otherwise you will be unable to make a claim.
 enter-importer-eori-number.help-text=Must be between 14 to 17 characters, for example 9GB03I52858027018
-enter-importer-eori-number.invalid.number=Enter a valid EORI number
+enter-importer-eori-number.invalid.number=Must be between 14 to 17 characters, for example 9GB03I52858027018
 enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
 
@@ -158,7 +158,7 @@ enter-declarant-eori-number.title=Enter the declarant’s EORI number
 enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=Must be between 14 to 17 characters, for example 9GB03I52858027018
-enter-declarant-eori-number.invalid.number=Enter a valid EORI number
+enter-declarant-eori-number.invalid.number=Enter a valid EORI number that is between 14 to 17 characters
 enter-declarant-eori-number.invalid=Enter a valid EORI number
 enter-declarant-eori-number.error.required=Enter a valid EORI number
 
