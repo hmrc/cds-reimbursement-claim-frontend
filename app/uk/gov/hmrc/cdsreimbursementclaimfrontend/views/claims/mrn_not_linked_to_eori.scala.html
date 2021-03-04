@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
@@ -35,7 +35,7 @@
  @key = @{"mrn-not-linked-to-eori"}
  @title = @{messages(s"$key.title")}
 
- @mainTemplate(title = title, userType = request.userType) {
+    @layout(pageTitle = Some(s"$title")) {
 
     @backLinkComponent(backLink)
 

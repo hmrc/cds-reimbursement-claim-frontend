@@ -25,7 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
@@ -44,7 +44,7 @@
  @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
  @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-@mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title")) {
 
 
 
