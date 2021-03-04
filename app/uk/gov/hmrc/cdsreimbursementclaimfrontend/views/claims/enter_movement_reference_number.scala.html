@@ -45,20 +45,20 @@
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-          @pageHeading(title)
+            @pageHeading(title)
 
-          @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
+            @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
             @paragraphBlock(
                 content = Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)),
-                classes = Some("govuk-body govuk-!-margin-bottom-8")
+                classes = Some("govuk-inset-text govuk-!-margin-bottom-8")
             )
 
             @inputText(
                 form = form,
                 id = key,
                 name = key,
-                label = title,
+                label = messages(s"$key.enter-mrn.label"),
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
@@ -67,8 +67,6 @@
 
             @submitButton(messages("button.continue"))
 
-
+        }
 
     }
-
-}
