@@ -90,7 +90,7 @@ landing.help.p1=You can use this service to apply to claim reimbursements on ove
 landing.help.p2=In the near future, you will also be able to use this service to make multiple claims. Reimbursement via Current Month Adjustment (CMA) will also be available.
 landing.who.heading=Who can claim
 landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
-landing.who.p2=Find out <a href="{0}" target="_blank">more about an EORI number</a> (opens in new tab) and an <a href="{1}" target="_blank">MRN</a> (opens in new tab).
+landing.who.p2=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">more about an EORI number (opens in new tab)</a> and an <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">MRN (opens in new tab)</a>.
 landing.who.p3=As a claim declarant you can be an:
 landing.who.l1=importer or a representative of the importer
 landing.who.l2=agent, freight forwarder or accountant
@@ -130,21 +130,20 @@ landing.details.l10=additional supporting documents (for example an import licen
 #===================================================
 unauthorised.title=Sorry, this service is unavailable
 unauthorised.help=You must have an EORI number associated with your CDS enrolment before you can use this service. This number will then be associated with your Government Gateway credentials.
-unauthorised.help-text=Find out <a href="{0}" target="_blank">How to get an EORI number.</a>
+unauthorised.help-text=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">How to get an EORI number (opens in new tab)</a>.
 
 #===================================================
 #  INELIGIBLE PAGE
 #===================================================
 ineligible.title=Sorry, you are unable to make a claim
-ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a target="_blank" href="{0}">the CDS team</a> (opens in new tab) via the imports and exports general enquiries. 
+ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
-enter-movement-reference-number.caption=Movement Reference Number
 enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a target="_blank" href="{0}" class="govuk-link">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
 enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
@@ -154,7 +153,6 @@ enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 #  MRN DOES NOT MATCH EORI PAGE
 #===================================================
 mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
-mrn-not-linked-to-eori.caption=Movement Reference Number
 mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI number. Please enter a valid MRN number.
 
 #===================================================
@@ -182,7 +180,7 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 #===================================================
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
 #===================================================
-enter-claimant-details-individual.title=Enter your claimant details
+enter-claimant-details-individual.title=Enter your claimant details as an individual
 enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-individual.individual-full-name.label=Full name
 enter-claimant-details-individual.individual-full-name.help=This must be your legal name
@@ -249,7 +247,6 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
 enter-declaration-details.title=Enter declaration details
-enter-declaration-details.caption=Declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
 enter-declaration-details.date-of-import.label=Date of Import
 enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
@@ -294,7 +291,6 @@ enter-declaration-details.declarant-email-address.invalid = Enter a valid declar
 #  SELECT DECLARANT TYPE PAGE
 #===================================================
 select-who-is-making-the-claim.title=Who is making this claim?
-select-who-is-making-the-claim.caption=Declarant Type
 select-who-is-making-the-claim.help-text=This person is responsible for the claim. They are the point of contact if we have a query about the claim.
 select-who-is-making-the-claim.importer=I am a private individual importer
 select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
@@ -309,8 +305,7 @@ select-who-is-making-the-claim.details.p1=A representative company can be a pers
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Check these details are correct
-check-declaration-details.caption=Declarant Details
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>. If these details are incorrect, you can change them by <a target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
+check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>.<br /><br />If these details are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
 check-declaration-details.mrn-number.label=MRN number
 check-declaration-details.import-date.label=Import date
 check-declaration-details.paid-charges.label=Paid charges
@@ -329,7 +324,6 @@ check-declaration-details.declarant-contact-address.label=Declarant contact addr
 select-basis-for-claim.title=Select the basis for claim
 select-basis-for-claim.error.number=Select the basis for claim
 select-basis-for-claim.error.required=Select the basis for claim
-select-basis-for-claim.caption=Reason for claim
 select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim=Examples of basis of claim
@@ -362,7 +356,6 @@ select-basis-for-claim.reason.d10=Proof of returns/refund given
 select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.caption=Reason for claim
 select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
 select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
@@ -406,7 +399,6 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
-enter-commodities-details.caption=Commodity Details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 
@@ -449,15 +441,13 @@ check-claim.help-text=These are the calculations based on the information you ga
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
 check-your-reimbursement-claim-total.title=Your reimbursement claim total
-check-your-reimbursement-claim-total.caption=Reimbursement Claim
 check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.caption=Bank Details
-enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, <a href="{0}" target="_blank">contact the CDS team</a> via the imports and exports general enquiries. 
+enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
@@ -478,7 +468,6 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 #  BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
-bank-details.caption=Bank Details
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
 bank-details.different-details-link=Enter different bank details
 
@@ -488,7 +477,6 @@ bank-details.different-details-link=Enter different bank details
 supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
-supporting-evidence.choose-document-type.caption=Supporting evidence
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
 supporting-evidence.choose-document-type=Examples of file types
 supporting-evidence.choose-document-type.details.l0=C88/E2 (proof to authorise imports from the country of origin)
@@ -502,7 +490,6 @@ supporting-evidence.choose-document-type.details.l7=Proof of authority (from imp
 supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
 supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
-supporting-evidence.check-your-answers.caption=Supporting evidence
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
 supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
@@ -510,13 +497,11 @@ supporting-evidence.check-your-answers.cya-change=Change
 supporting-evidence.check-your-answers.assistive=the file named {0}
 supporting-evidence.check-your-answers.add-another-file=Add another file
 supporting-evidence.upload.title=Upload files to support your claim
-supporting-evidence.upload.caption=Supporting evidence
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
-supporting-evidence.scan-progress.caption=Supporting evidence
 supporting-evidence.scan-progress.p1=We are checking your file.
 supporting-evidence.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
 supporting-evidence.upload-failed.title=There is a problem with the file you uploaded
@@ -550,7 +535,6 @@ supporting-evidence.choose-document-type.document-type.d9=Additional Supporting 
 # CHECK YOUR ANSWERS PAGE
 #===================================================
 check-your-answers.title=Review your claim
-check-your-answers.caption=Claim Details
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
 check-your-answers.entry-reference-number.label=Entry reference number
 check-your-answers.mrn.label=MRN
@@ -621,7 +605,6 @@ confirmation-of-submission.what-next.link.1.start-another-claim=Start another cl
 #===================================================
 
 accessibility-statement.title = Accessibility statement
-accessibility-statement.caption = Claim for reimbursement of import duties
 accessibility-statement.heading1 = Using this service
 accessibility-statement.heading2 = How accessible this service is
 accessibility-statement.heading3 = Reporting accessibility problems with this service
@@ -634,7 +617,7 @@ accessibility-statement.p3 = This service is run by HM Revenue and Customs (HMRC
 accessibility-statement.p4 = We want as many people as possible to be able to use this service. This means you should be able to:
 accessibility-statement.p5 = We have also made the text in the service as simple as possible to understand. <a href="{0}">AbilityNet has advice</a> on making your device easier to use if you have a disability.
 accessibility-statement.p6 = HMRC is committed to making these forms accessible in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. The service was tested on 1 March 2021 and found to be compliant with the<a href="{0}"> Web Content Accessibility Guidelines version 2.1 AAA standard.</a> Since then, it has been extended. We cannot be certain that it is fully compliant. The full service will be tested by HMRC within the next three months.
-accessibility-statement.p7 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, <a target="_blank" href="{0}">report the accessibility problem (opens in a new tab).</a>
+accessibility-statement.p7 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">report the accessibility problem (opens in a new tab)</a>.
 accessibility-statement.p8 = The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint, <a href="{0}">contact the Equality Advisory and Support Service (EASS)</a>, or
 accessibility-statement.p82 = the <a href="{0}">Equality Commission for Northern Ireland (ECNI)</a> if you live in Northern Ireland.
 accessibility-statement.p9 = We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
