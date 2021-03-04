@@ -22,36 +22,29 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- radioGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.radio_group,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
+ details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
+ radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
 @(form: Form[DeclarantType], backLink: Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"select-who-is-making-the-claim"}
- @title = @{messages(s"$key.title")}
- @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+    @key = @{"select-who-is-making-the-claim"}
+    @title = @{messages(s"$key.title")}
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
- @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit else routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit}
- @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
-
- @toMessage(declrantType: DeclarantType) = @{
-    declrantType match {
-        case DeclarantType.Importer                                 => Html(messages("select-who-is-making-the-claim.importer"))
-        case DeclarantType.AssociatedWithImporterCompany             => Html(messages("select-who-is-making-the-claim.associate-with-importer-company"))
-        case DeclarantType.AssociatedWithRepresentativeCompany      => Html(messages("select-who-is-making-the-claim.associate-with-representative-company"))
-    }
- }
-
- @options = @{List(DeclarantType.Importer, DeclarantType.AssociatedWithImporterCompany, DeclarantType.AssociatedWithRepresentativeCompany).map(toMessage)}
+    @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit else routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit}
+    @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
     @detailsText = {
         @details(messages(s"$key.details.label"),
@@ -64,31 +57,49 @@
 
     @layout(pageTitle = Some(s"$title")) {
 
+        @backLinkComponent(backAction)
 
+        @if(hasErrors) {
+            @errorSummary(form)
+        }
 
-                    @backLinkComponent(backAction)
+        @pageHeading(title)
 
-                    @if(hasErrors) {
-                        @errorSummary(form)
-                    }
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-                    @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @detailsText
 
-                        @radioGroup(
-                          fieldId = key,
-                          label = pageHeading(title),
-                          helpText = Some(detailsText),
-                          extraContent = Some(Html(messages(s"$key.help-text"))),
-                          extraContentClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
-                          options = options,
-                          errorKey = form.error(key).map(e => e.message),
-                          hasErrors = hasErrors,
-                          selected = form.value.map(entity => options.indexOf(toMessage(entity)))
-                        )
+        @formWrapper(postAction, 'novalidate -> "novalidate") {
 
-                        @submitButton(messages("button.continue"))
+            @radios(
+                form = form,
+                legend = "legend",
+                legendAsHeading = true,
+                hintKey = None,
+                classes = "classes",
+                inline = true,
+                items = Seq(
+                    RadioItem(
+                        id = Some("some id"),
+                        value = None,
+                        content = Text(messages(s"$key.importer")),
+                        checked = false
+                    ),
+                    RadioItem(
+                        id = Some("some id"),
+                        value = None,
+                        content = Text(messages(s"$key.associate-with-importer-company")),
+                        checked = false
+                    ),
+                    RadioItem(
+                        id = Some("some id"),
+                        value = None,
+                        content = Text(messages(s"$key.associate-with-representative-company")),
+                        checked = false
+                    )
+                )
+            )
 
-                    }
-
-
-}
+            @submitButton(messages("button.continue"))
+        }
+    }
