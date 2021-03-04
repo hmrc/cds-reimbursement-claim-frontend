@@ -171,7 +171,6 @@ enter-importer-eori-number.error.required=Enter a valid EORI number
 #  ENTER DECLARANT EORI NUMBER PAGE
 #===================================================
 enter-declarant-eori-number.title=Enter the declarant’s EORI number
-enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
 enter-declarant-eori-number.help-text=Must be 17 characters, for example 9GB03I52858027018
 enter-declarant-eori-number.invalid.number=Enter a valid EORI number
