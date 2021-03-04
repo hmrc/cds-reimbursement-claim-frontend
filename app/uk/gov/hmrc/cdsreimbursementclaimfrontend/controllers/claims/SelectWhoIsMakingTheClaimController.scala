@@ -389,7 +389,7 @@ object SelectWhoIsMakingTheClaimController {
   val chooseDeclarantTypeForm: Form[DeclarantType] =
     Form(
       mapping(
-        "select-who-is-making-the-claim" -> number
+        "value" -> number
           .verifying("invalid", a => a === 0 || a === 1 || a === 2)
           .transform[DeclarantType](
             value =>
