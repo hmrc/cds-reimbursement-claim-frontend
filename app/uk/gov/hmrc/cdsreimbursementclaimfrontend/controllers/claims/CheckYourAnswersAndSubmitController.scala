@@ -71,7 +71,6 @@ class CheckYourAnswersAndSubmitController @Inject() (
       withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
         Ok(
           checkYourAnswersPage(
-            CheckYourAnswersAndSubmitController.confirmDetailsForms,
             fillingOutClaim.signedInUserDetails,
             completeClaim,
             fileUploadRoutes.SupportingEvidenceController.checkYourAnswers()

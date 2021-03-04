@@ -27,6 +27,7 @@ generic.yes=Yes
 generic.no=No
 button.tryAgain=Try again
 button.continue=Continue
+button.accept-and-send=Accept and send
 button.saveAndContinue=Save and continue
 button.confirm-and-continue=Confirm and continue
 button.confirm-and-submit-claim=Confirm and submit claim

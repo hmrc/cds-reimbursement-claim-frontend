@@ -21,13 +21,15 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
-
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+    fileUploadCya: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.SupportingEvidenceHelper,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.supportingevidence.summary
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
 @(answers: CompleteSupportingEvidenceAnswer, maxUploads: Int)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -36,23 +38,17 @@
 
     @title = @{messages(s"$key.title")}
 
-    @mainTemplate(title = title, userType = request.userType) {
-
-
+    @layout(pageTitle = Some(s"$title")) {
 
         @pageHeading(title)
 
-        <div class="govuk-inset-text">
-            @Html(messages(s"$key.help-text"))
-        </div>
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-        @summary(answers)
+
+        @summary(SummaryList(fileUploadCya.declarationSummary(answers)))
 
         @if(answers.evidences.size < maxUploads){
-
-         <p id="add-another-file">
-            <a href="@routes.SupportingEvidenceController.uploadSupportingEvidence().url">@messages(s"$key.add-another-file")</a>
-         </p>
+            @paragraph(Html(s"""<a href="@routes.SupportingEvidenceController.uploadSupportingEvidence().url">${messages(s"${key}.add-another-file")}</a>"""), Some("govuk-body"))
         }
 
         @formWrapper(routes.SupportingEvidenceController.checkYourAnswersSubmit(), 'novalidate -> "novalidate") {

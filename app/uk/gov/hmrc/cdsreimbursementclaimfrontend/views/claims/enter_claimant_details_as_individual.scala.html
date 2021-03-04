@@ -43,7 +43,7 @@
 @(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-claimant-details-individual"}
-    @addressKey = @{"address"}
+    @addressKey = @{"nonUkAddress"}
 
     @title = @{messages(s"$key.title")}
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

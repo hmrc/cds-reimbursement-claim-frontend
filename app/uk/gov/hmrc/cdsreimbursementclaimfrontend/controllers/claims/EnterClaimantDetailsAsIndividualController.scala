@@ -153,12 +153,14 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
         EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
               BadRequest(
                 enterClaimantDetailAsIndividualPage(
                   requestFormWithErrors
                 )
-              ),
+              )
+            },
             claimantDetailsAsIndividual => {
               val updatedAnswers = answers.fold(
                 _ =>
@@ -391,11 +393,11 @@ object EnterClaimantDetailsAsIndividualController {
 
   val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
     mapping(
-      "enter-claimant-details-individual.importer-full-name"    -> nonEmptyText,
-      "enter-claimant-details-individual.importer-email"        -> Email.mapping,
-      "enter-claimant-details-individual.importer-phone-number" -> PhoneNumber.mapping,
-      ""                                                        -> Address.nonUkAddressFormMapping,
-      "enter-claimant-details-individual.add-company-details"   -> of(BooleanFormatter.formatter)
+      "enter-claimant-details-individual.individual-full-name"    -> nonEmptyText,
+      "enter-claimant-details-individual.individual-email"        -> Email.mapping,
+      "enter-claimant-details-individual.individual-phone-number" -> PhoneNumber.mapping,
+      ""                                                          -> Address.nonUkAddressFormMapping,
+      "enter-claimant-details-individual.add-company-details"     -> of(BooleanFormatter.formatter)
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 

@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+
 import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration

@@ -26,7 +26,7 @@
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
@@ -86,7 +86,7 @@
 
     <div class = "space-select">
         @inputSelect(
-        label = "demo label",
+        label = "Choose basis of claim",
         isPageHeading = false,
 
         form = form,
@@ -168,7 +168,7 @@
     <div class = "space-select">
 
         @inputSelect(
-        label = "demo label",
+        label = "Choose reason for claim",
         isPageHeading = false,
 
         form = form,
