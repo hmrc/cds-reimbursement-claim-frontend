@@ -43,11 +43,11 @@
 
         @backLinkComponent(backLink)
 
-        @pageHeader(title)
+        @pageHeading(title)
 
         @paragraphBlock(
             content = Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)),
-            classes = Some("govuk-body govuk-!-margin-bottom-8")
+            classes = Some("govuk-inset-text govuk-!-margin-bottom-8")
         )
 
         @formWrapper(postAction, 'novalidate -> "novalidate") {
