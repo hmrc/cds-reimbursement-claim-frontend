@@ -38,7 +38,7 @@
  yesNo: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.yes_no
 )
 
-@*//TODO:  field set; legend; yesNO button*@
+@*//TODO:  field set; legend; countryKey; yesNO button*@
 
 @(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -90,24 +90,34 @@
                 name = s"$key.individual-email",
                 label = s"$key.individual-email.label",
                 isPageHeading = false,
-                hint = Some(s"$key.individual-email.help"),
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
+
+            @inputText(
+                form = form,
+                id = s"$key.individual-phone-number",
+                name = s"$key.individual-phone-number",
+                label = s"$key.individual-phone-number.label",
+                isPageHeading = false,
+                hint = Some(s"$key.individual-phone-number.help"),
+                classes = Some("govuk-input--width-20"),
+                labelClasses = Some("govuk-label govuk-label--s")
+            )
+
             <fieldset id="@key">
                 <legend>
                   <h2>
-                    @messages(s"$key.importer-contact-address.label")
+                    @messages(s"$key.individual-contact-address.label")
                   </h2>
                 </legend>
 
                 @inputText(
                     form = form,
                     id = line1Key,
-                    name = s"$key.individual-email",
+                    name = line1Key,
                     label = s"$key.address.line1.label",
                     isPageHeading = false,
-                    hint = Some(s"$key.individual-email.help"),
                     classes = Some("govuk-input--width-20"),
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
@@ -115,10 +125,9 @@
                 @inputText(
                     form = form,
                     id = line2Key,
-                    name = s"$key.individual-email",
+                    name = line2Key,
                     label = s"$key.address.line2.label",
                     isPageHeading = false,
-                    hint = Some(s"$key.individual-email.help"),
                     classes = Some("govuk-input--width-20"),
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
@@ -126,10 +135,9 @@
                 @inputText(
                     form = form,
                     id = line3Key,
-                    name = s"$key.individual-email",
+                    name = line3Key,
                     label = s"$key.address.line3.label",
                     isPageHeading = false,
-                    hint = Some(s"$key.individual-email.help"),
                     classes = Some("govuk-input--width-20"),
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
@@ -137,10 +145,9 @@
                 @inputText(
                     form = form,
                     id = line4Key,
-                    name = s"$key.individual-email",
+                    name = line4Key,
                     label = s"$key.address.line4.label",
                     isPageHeading = false,
-                    hint = Some(s"$key.individual-email.help"),
                     classes = Some("govuk-input--width-20"),
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
@@ -148,10 +155,9 @@
                 @inputText(
                     form = form,
                     id = line5Key,
-                    name = s"$key.individual-email",
+                    name = line5Key,
                     label = s"$key.address.line5.label",
                     isPageHeading = false,
-                    hint = Some(s"$key.individual-email.help"),
                     classes = Some("govuk-input--width-20"),
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
