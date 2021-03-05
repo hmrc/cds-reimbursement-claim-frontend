@@ -160,20 +160,20 @@ mrn-not-linked-to-eori.help-text=The MRN number must be linked to your EORI numb
 #  ENTER IMPORTER EORI NUMBER PAGE
 #===================================================
 enter-importer-eori-number.title=Enter the importer’s EORI number
+enter-importer-eori-number.caption=Importer EORI number
 enter-importer-eori-number.help=You can get the EORI number from the importer, otherwise you will be unable to make a claim.
-enter-importer-eori-number.input-label=EORI number
-enter-importer-eori-number.help-text=Must be 17 characters, for example 9GB03I52858027018
+enter-importer-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
 enter-importer-eori-number.invalid.number=Enter a valid EORI number
 enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
 
 #===================================================
-#  ENTER DECLARANTDECLARANT EORI NUMBER PAGE
+#  ENTER DECLARANT EORI NUMBER PAGE
 #===================================================
 enter-declarant-eori-number.title=Enter the declarant’s EORI number
+enter-declarant-eori-number.caption=Declarant EORI number
 enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
-enter-declarant-eori-number.input-label=EORI number
-enter-declarant-eori-number.help-text=Must be 17 characters, for example 9GB03I52858027018
+enter-declarant-eori-number.help-text=Must be between 14-17 characters and start with the first two letters of the ISO county code, GB for example: GB03152858027018
 enter-declarant-eori-number.invalid.number=Enter a valid EORI number
 enter-declarant-eori-number.invalid=Enter a valid EORI number
 enter-declarant-eori-number.error.required=Enter a valid EORI number
@@ -211,12 +211,17 @@ enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
 postcode.error.required=Enter a valid postcode
 countryCode.enter-claimant-details-individual.error.required=Enter a country
+nonUkAddress-line1.error.pattern=Enter a valid address line 1
+nonUkAddress-line2.error.pattern=Enter a valid address line 2
+nonUkAddress-line3.error.pattern=Enter a valid address line 3
+nonUkAddress-line4.error.pattern=Enter a valid town or city
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
 enter-claimant-details-importer-company.help-text=These are the details if we need to contact you about this claim application.
 enter-claimant-details-importer-company.title=Enter your claimant details as an importer company
+enter-claimant-details-importer-company.caption=Company Claimant Details
 enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
 enter-claimant-details-importer-company.importer-company-name.label=Company name
 enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
@@ -224,19 +229,21 @@ enter-claimant-details-importer-company.importer-email.label=Email address
 enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
 enter-claimant-details-importer-company.importer-email.invalid=Enter a valid email
 enter-claimant-details-importer-company.importer-phone-number.error.required=Enter a valid phone number
+enter-claimant-details-importer-company.importer-phone-number.invalid=Enter a valid phone number
 enter-claimant-details-importer-company.importer-phone-number.label=Phone number
 enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
 enter-claimant-details-importer-company.importer-contact-address.label=Contact Address
+enter-claimant-details-importer-company.address.building.label=Building number or name
+enter-claimant-details-importer-company.nonUkAddress-building.error.required=Enter a building number or name
 enter-claimant-details-importer-company.address.line1.label=Address Line 1
 enter-claimant-details-importer-company.address.line1.error.required=Enter address line 1
-enter-claimant-details-importer-company.address-line1.error.required=Enter address line 1
+enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Enter address line 1
 enter-claimant-details-importer-company.address.line2.label=Address Line 2 (optional)
 enter-claimant-details-importer-company.address.line3.label=Address Line 3 (optional)
 enter-claimant-details-importer-company.address.line4.label=Town or city
-enter-claimant-details-importer-company.address-line4.error.required=Enter a town or city
-enter-claimant-details-importer-company.address.line5.label=County (optional)
-enter-claimant-details-importer-company.address.line6.label=Postcode
-enter-claimant-details-importer-company.address.line7.label=Country
+enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Enter a town or city
+enter-claimant-details-importer-company.address.line5.label=Postcode
+enter-claimant-details-importer-company.address.line6.label=Country
 enter-claimant-details-importer-company.countryCode.error.required=Enter a country
 enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
 enter-claimant-details-importer-company.add-company-details.no=No
