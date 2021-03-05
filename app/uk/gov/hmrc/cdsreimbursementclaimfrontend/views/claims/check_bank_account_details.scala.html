@@ -22,17 +22,16 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
-@* TODO YesNo component *@
+@* TODO button link component *@
 
 @this(
  checkYourBankAccountDetailsHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourBankAccountDetailsHelper,
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
+ buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  backLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-
 )
 
 @(bankAccount : BankAccount)(implicit messages:Messages, viewConfig: ViewConfig)
@@ -50,13 +49,9 @@
 
     @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
 
-  @* TODO YesNo component *@
 
-   <div class="govuk-!-margin-bottom-8">
-     <a href="@routes.BankAccountController.enterBankAccountDetails().url">@messages(s"$key.different-details-link")</a>
-   </div>
+    @paragraph(Html(s"""<a href="routes.BankAccountController.enterBankAccountDetails().url">${messages(s"${key}.different-details-link")}</a>"""), Some("govuk-body"))
 
-     @buttonLink(messages("button.continue"), fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url)
+    @buttonLink(messages("button.continue"), Some(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url))
 
-    @* TODO YesNo component *@
  }
