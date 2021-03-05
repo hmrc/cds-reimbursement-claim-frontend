@@ -168,7 +168,7 @@ enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
 
 #===================================================
-#  ENTER DECLARANT EORI NUMBER PAGE
+#  ENTER DECLARANTDECLARANT EORI NUMBER PAGE
 #===================================================
 enter-declarant-eori-number.title=Enter the declarant’s EORI number
 enter-declarant-eori-number.help=You can get the EORI number from the declarant, otherwise you will be unable to make a claim.
@@ -473,6 +473,9 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 #===================================================
 bank-details.title=Check these bank details are correct
 bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
+bank-details.account-name.label=Account name
+bank-details.sort-code.label=Sort code
+bank-details.account-number=Account number
 bank-details.different-details-link=Enter different bank details
 
 #===================================================
