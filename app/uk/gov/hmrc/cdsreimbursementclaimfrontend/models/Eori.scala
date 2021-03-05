@@ -24,7 +24,7 @@ final case class Eori(value: String) extends AnyVal
 object Eori {
 
   def isValid(maybeEori: String): Boolean = {
-    val regex = """\w{14,17}"""
+    val regex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
     maybeEori.matches(regex)
   }
 
