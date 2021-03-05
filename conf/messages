@@ -437,6 +437,9 @@ enter-claim.claim-amount.error.real=Enter a valid claim amount
 enter-claim.invalid.claim=Enter a claim amount which is less then or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
 check-claim.help-text=These are the calculations based on the information you gave us.
+check-claim.update=Update the calculation
+check-claim.total=Total Reimbursement
+
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE

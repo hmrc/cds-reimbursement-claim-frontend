@@ -61,9 +61,6 @@
     </div>
 
 
-
-  <label for="@{key}.basis" class="govuk-label govuk-label--s">@Html(messages(s"$key.basis.select-label"))</label>
-
   <div class="space-document-type">
       @details(messages(s"$key.basis.label"),
         Html(s"""|
@@ -86,7 +83,7 @@
 
     <div class = "space-select">
         @inputSelect(
-        label = "Choose basis of claim",
+        label = messages(s"$key.basis.select-label"),
         isPageHeading = false,
 
         form = form,
@@ -153,8 +150,6 @@
     </div>
 
 
-  <label for="@{key}.reason" class="govuk-label govuk-label--s">@Html(messages(s"$key.reason.select-label"))</label>
-
   <div class="space-document-type">
       @details(messages(s"$key.reason.label"),
         Html(s"""|
@@ -168,7 +163,7 @@
     <div class = "space-select">
 
         @inputSelect(
-        label = "Choose reason for claim",
+        label = messages(s"$key.reason.select-label"),
         isPageHeading = false,
 
         form = form,

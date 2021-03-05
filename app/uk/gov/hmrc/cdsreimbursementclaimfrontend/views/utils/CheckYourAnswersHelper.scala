@@ -75,27 +75,4 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           )
         )
     }
-
-//  private def makeSupportingEvidenceRow(
-//    completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer
-//  ): SummaryList = {
-//    val fileUploadSummaryRows = completeSupportingEvidenceAnswer.evidences.map { evidence =>
-//      SummaryListRow(
-//        key = Key(Text(messages(s"$key.mrn.label")(lang))),
-//        value = Value(Text(evidence.fileName)),
-//        actions = Some(
-//          Actions(
-//            items = Seq(
-//              ActionItem(
-//                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
-//                content = Text("Change")
-//              )
-//            )
-//          )
-//        )
-//      )
-//    }
-//    SummaryList(rows = fileUploadSummaryRows)
-//  }
-
 }
