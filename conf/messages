@@ -407,7 +407,7 @@ enter-commodities-details.error.required=Enter commodity details
 #  MAKE CLAIM PAGES
 #===================================================
 select-duties.title=Select the duties you want to claim for
-select-duties.help-text=You can select any duty from the import declaration.
+select-duties.help-text=These are the duties that have been paid in the import declaration.<br />You can select any of the paid duties.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=A00 - Customs Duty
 select-duties.duty.A20=A20 - Additional Duty
@@ -451,7 +451,7 @@ check-your-reimbursement-claim-total.help-text=These are the calculations based 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK. To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
+enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK.<br />To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
