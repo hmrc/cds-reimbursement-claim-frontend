@@ -16,8 +16,7 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
@@ -25,7 +24,7 @@
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
 )
 
-@()(implicit messages: Messages, viewConfig: ViewConfig)
+@()(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{ "accessibility-statement" }
     @title = @{messages(s"$key.title")}

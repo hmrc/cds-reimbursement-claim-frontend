@@ -31,7 +31,8 @@
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
- checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form : Form[BankAccountDetails], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -45,9 +46,9 @@
     @options = @{List(
                 CheckboxItem(
                     name = Some(s"${key}[]"),
-                    value = "0",
+                    value = "true",
                     content = Text("Is business account"),
-                    checked = form.data.exists(_._2 == "0")
+                    checked = form.data.exists(_._2 == true)
             ))
         }
 
@@ -55,6 +56,8 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLinkAction)
+
+        @errorSummary(form.errors, Some(key))
 
         @pageHeading(title)
 
@@ -85,8 +88,8 @@
 
             @inputText(
                 form = form,
-                id = s"$key.sort-code.label",
-                name = s"$key.sort-code.label",
+                id = s"$key.sort-code",
+                name = s"$key.sort-code",
                 label = s"$key.sort-code.label",
                 isPageHeading = false,
                 hint = None,
@@ -98,7 +101,7 @@
                 form = form,
                 id = s"$key.account-number",
                 name = s"$key.account-number",
-                label = s"$key.account-number",
+                label = s"$key.account-number.label",
                 isPageHeading = false,
                 hint = None,
                 classes = Some("govuk-input--width-20"),

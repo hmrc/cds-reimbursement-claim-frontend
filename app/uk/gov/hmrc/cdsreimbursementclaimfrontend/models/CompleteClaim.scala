@@ -726,7 +726,7 @@ object CompleteClaim {
                         Some(
                           BankAccountController.BankAccountDetails(
                             AccountName(value.accountHolderName),
-                            List.empty,
+                            Some(false),
                             SortCode(value.sortCode),
                             AccountNumber(value.accountNumber)
                           )
@@ -764,8 +764,8 @@ object CompleteClaim {
           ) =>
         bankAccountDetails match {
           case Some(value) =>
-            value.bankAccountDetails.isBusinessAccount.headOption match {
-              case Some(value) => if (value === 0) "Business Account" else "Non-Business Account"
+            value.bankAccountDetails.isBusinessAccount match {
+              case Some(value) => if (value === true) "Business Account" else "Non-Business Account"
               case None        => ""
             }
           case None        => ""

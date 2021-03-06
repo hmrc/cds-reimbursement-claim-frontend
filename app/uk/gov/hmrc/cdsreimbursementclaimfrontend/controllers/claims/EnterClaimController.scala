@@ -597,7 +597,6 @@ class EnterClaimController @Inject() (
                     .bindFromRequest()
                     .fold(
                       requestFormWithErrors => {
-                        println(s"${requestFormWithErrors.toString}")
                         val updatedErrors: Seq[FormError] =
                           requestFormWithErrors.errors.map(d => d.copy(key = "enter-claim"))
 

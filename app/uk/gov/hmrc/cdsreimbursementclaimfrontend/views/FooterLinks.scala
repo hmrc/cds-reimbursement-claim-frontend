@@ -21,8 +21,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.govukfrontend.views.viewmodels.footer.FooterItem
 
 object FooterLinks {
-  def apply()(implicit messages: Messages, appConfig: ViewConfig): Seq[FooterItem] = appConfig.footerLinkItems.flatMap {
-    item =>
+  def apply()(implicit messages: Messages, viewConfig: ViewConfig): Seq[FooterItem] =
+    viewConfig.footerLinkItems.flatMap { item =>
       val keyPrefix = s"footer.$item"
       val textKey   = s"$keyPrefix.text"
       val urlKey    = s"$keyPrefix.url"
@@ -34,5 +34,5 @@ object FooterLinks {
           )
         )
       else Seq.empty
-  }
+    }
 }

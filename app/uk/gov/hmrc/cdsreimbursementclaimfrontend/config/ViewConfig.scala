@@ -17,6 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
 import play.api.Configuration
+import play.api.i18n.Lang
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -27,6 +29,10 @@ import scala.concurrent.duration.Duration
 class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
   private def getString(key: String): String     = servicesConfig.getString(key)
   private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
+
+  val en: String            = "en"
+  val cy: String            = "cy"
+  val defaultLanguage: Lang = Lang(en)
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
@@ -53,10 +59,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .url
 
   val govUkUrl: String = getString("external-url.gov-uk")
-
-  val userRecruitmentBannerEnabled: Boolean = servicesConfig.getBoolean("user-recruitment-banner.enabled")
-
-  val userRecruitmentUrl: String = getString("user-recruitment-banner.url")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")
 
@@ -98,4 +100,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
 
+  def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
+
+  def routeToSwitchLanguage: String => Call = (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
 }

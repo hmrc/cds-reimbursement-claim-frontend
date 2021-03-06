@@ -16,7 +16,7 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 
@@ -26,7 +26,7 @@
   paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@()(implicit messages: Messages, appConfig: ViewConfig)
+@()(implicit request : Request[_], messages: Messages, appConfig: ViewConfig)
 
 @title = @{messages("weOnlySupportGG.title")}
 

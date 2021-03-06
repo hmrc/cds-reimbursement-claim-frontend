@@ -16,8 +16,8 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.FooterLinks
 @import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
@@ -25,7 +25,10 @@
 @this(
     govukLayout: govukLayout,
     head: Head,
-    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
+    hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet,
+    hmrcStandardFooter: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter,
+    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select
 )
 
 @(
@@ -33,7 +36,7 @@
     headBlock: Option[Html] = None,
     scriptsBlock: Option[Html] = None,
     timeOut: Boolean = true
-)(contentBlock: Html)(implicit messages: Messages, viewConfig: ViewConfig)
+)(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @defaultHead = {
         @headBlock
@@ -41,12 +44,12 @@
                                 name="timeOutDialog",
                                 timeout= Some(viewConfig.timeout),
                                 countdown= Some(viewConfig.countdown),
-                                message= Some(messages("sessionExpired.message")),
+                                message= Some(messages("session-expired-message")),
                                 keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
                                 signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
                                 timeoutUrl= Some(s"${StartController.timedOut.url}"),
-                                keepAliveButtonText= Some(messages("sessionExpired.keepAliveButtonText")),
-                                signOutButtonText= Some(messages("sessionExpired.signOutButtonText")),
+                                keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+                                signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
                                 language = Some("en")
                             ))}
             <script>
@@ -54,7 +57,11 @@
                         'URL': window.location.pathname
                     }];
             </script>
+
+        @hmrcTrackingConsentSnippet()
     }
+
+
 
     @scripts = {
         @scriptsBlock
@@ -80,10 +87,15 @@
 
     }
 
+    @beforeContentBlock = {
+        @phaseBanner
+        @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
+    }
+
     @govukLayout(
         pageTitle = pageTitle,
         headBlock = Some(head(Some(defaultHead))),
         scriptsBlock = Some(scripts),
-        beforeContentBlock = Some(phaseBanner),
-        footerItems = FooterLinks()
+        beforeContentBlock = Some(beforeContentBlock),
+        footerBlock = Some(hmrcStandardFooter())
     )(contentBlock)

@@ -16,7 +16,7 @@
 
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
@@ -25,7 +25,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@()(implicit messages:Messages, viewConfig: ViewConfig)
+@()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"ineligible"}
 @title = @{messages(s"$key.title")}

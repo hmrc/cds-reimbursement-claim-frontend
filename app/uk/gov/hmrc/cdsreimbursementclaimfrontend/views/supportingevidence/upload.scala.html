@@ -17,6 +17,7 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
 @import play.twirl.api.Html
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
@@ -28,7 +29,7 @@
  fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input
 )
 
-@(upscanUpload : UpscanUpload, backLink: Call)(implicit messages: Messages, appConfig: ViewConfig)
+@(upscanUpload : UpscanUpload, backLink: Call)(implicit request : Request[_], messages: Messages, appConfig: ViewConfig)
 
  @key = @{"supporting-evidence.upload"}
  @field = @{"file"}

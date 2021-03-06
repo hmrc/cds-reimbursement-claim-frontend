@@ -154,8 +154,7 @@ class EnterDeclarationDetailsController @Inject() (
         EnterDeclarationDetailsController.entryDeclarationDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(s"${requestFormWithErrors.toString}")
+            requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
                 .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
                   case Left(entryNumber) =>
@@ -166,8 +165,7 @@ class EnterDeclarationDetailsController @Inject() (
                       )
                     )
                   case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-                }
-            },
+                },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
                 _ =>

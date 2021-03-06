@@ -164,8 +164,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(s"${requestFormWithErrors.toString}")
+            requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber match {
                 case Some(movementReferenceNumber) =>
                   movementReferenceNumber.fold(
@@ -185,8 +184,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       )
                   )
                 case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-              }
-            },
+              },
             declarantTypeAnswer => {
               val updatedAnswers = answers.fold(
                 _ => CompleteDeclarantTypeAnswer(declarantTypeAnswer),

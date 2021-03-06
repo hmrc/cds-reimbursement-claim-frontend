@@ -16,6 +16,7 @@
 
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
@@ -24,7 +25,7 @@
 layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout
 )
 
-@(justSubmittedClaim : JustSubmittedClaim)(implicit messages:Messages, viewConfig: ViewConfig)
+@(justSubmittedClaim : JustSubmittedClaim)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
   @key=@{"confirmation-of-submission"}
   @title = @{ messages(s"$key.title") }
