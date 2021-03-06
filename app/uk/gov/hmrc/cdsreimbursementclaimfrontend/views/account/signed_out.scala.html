@@ -15,23 +15,22 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
 )
 
-@()(implicit messages: Messages, appConfig: ViewConfig, request: Request[_])
+@()(implicit messages: Messages, appConfig: ViewConfig)
 
 @title = @{messages("signed-out.title")}
 
-@mainTemplate(title = title, userType = None, withSignOutLink = false) {
+@layout(pageTitle = Some(s"$title")) {
 
  @pageHeading(title)
 

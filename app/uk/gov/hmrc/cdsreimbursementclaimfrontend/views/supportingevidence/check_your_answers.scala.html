@@ -44,8 +44,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-
-        @summary(SummaryList(fileUploadCya.declarationSummary(answers)))
+        @summary(SummaryList(fileUploadCya.makeUploadedFilesRows(answers.evidences)))
 
         @if(answers.evidences.size < maxUploads){
             @paragraph(Html(messages(s"${key}.add-another-file", routes.SupportingEvidenceController.uploadSupportingEvidence().url)), Some("govuk-body"))

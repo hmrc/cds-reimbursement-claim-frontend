@@ -22,9 +22,7 @@ GET /accessibility-statement                                                uk.g
 
 ->  /govuk-frontend                                                         govuk.Routes
 ->  /hmrc-frontend                                                          hmrcfrontend.Routes
-GET /hello-world                                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.HelloWorldController.helloWorld
 GET /assets/*file                                                           controllers.Assets.versioned(path = "/public", file: Asset)
 
 
-GET        /hello-world             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.HelloWorldController.helloWorld
 GET        /assets/*file            @controllers.Assets.versioned(path = "/public", file: Asset)
