@@ -27,7 +27,6 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
@@ -39,20 +38,13 @@
 
  @key = @{"select-reason-and-basis-for-claim"}
  @title = @{messages(s"$key.title")}
- @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
  @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
  @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
     @layout(pageTitle = Some(s"$title")) {
 
-
-
    @backLinkComponent(backLinkAction)
-
-   @if(hasErrors) {
-    @errorSummary(form)
-   }
 
    @pageHeading(title)
 

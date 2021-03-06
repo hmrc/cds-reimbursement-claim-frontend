@@ -27,7 +27,6 @@
 @this(
 layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
@@ -40,13 +39,9 @@ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
 
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @layout(pageTitle = Some(s"$title")) {
 
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @pageHeading(title)
 

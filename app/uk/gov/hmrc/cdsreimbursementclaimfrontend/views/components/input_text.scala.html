@@ -53,5 +53,5 @@
     )),
     value = form(name).value,
     inputType = inputType,
-    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
 ))

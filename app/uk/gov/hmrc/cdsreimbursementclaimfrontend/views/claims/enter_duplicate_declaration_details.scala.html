@@ -32,7 +32,6 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
 )
 
@@ -40,15 +39,10 @@
 
     @key = @{"enter-declaration-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLink)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @caption(messages(s"$key.caption"))
 

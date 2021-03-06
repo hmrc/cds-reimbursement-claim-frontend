@@ -31,7 +31,6 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
 )
 
@@ -39,7 +38,6 @@
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
-  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
   @postAction = @{if(isAmend) routes.SelectDutiesController.selectDutiesSubmit else routes.SelectDutiesController.selectDutiesSubmit}
   @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
@@ -59,13 +57,7 @@
 
     @layout(pageTitle = Some(s"$title")) {
 
-
-
     @backLinkComponent(backLinkAction)
-
-    @if(hasErrors) {
-        @errorSummary(form)
-    }
 
     @pageHeading(title)
 

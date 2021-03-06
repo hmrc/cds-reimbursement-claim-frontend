@@ -30,7 +30,6 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input,
  checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
  sortCodeInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sort_code_input,
@@ -40,7 +39,6 @@
 
     @key = @{"enter-bank-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
     @errorKey = @{List(s"$key-sort-code-1", s"$key-sort-code-2", s"$key-sort-code-3", key).map(form.error).find(_.isDefined).flatten}
 
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
@@ -59,10 +57,6 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLinkAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @pageHeading(title)
 

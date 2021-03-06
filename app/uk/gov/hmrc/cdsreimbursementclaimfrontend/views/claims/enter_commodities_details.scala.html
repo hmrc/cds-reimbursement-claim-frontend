@@ -30,25 +30,19 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
 @(form : Form[CommodityDetails], backLink: Call, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-commodities-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
     @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit}
     @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLinkAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @pageHeading(title)
 

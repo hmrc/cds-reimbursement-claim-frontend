@@ -31,7 +31,6 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code
 )
@@ -46,7 +45,6 @@
     @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @line1Key = @{s"$addressKey-line1"}
     @line2Key = @{s"$addressKey-line2"}
@@ -60,10 +58,6 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLinkAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @pageHeading(title)
 

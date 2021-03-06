@@ -28,7 +28,6 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
@@ -41,7 +40,6 @@
 
     @key = @{"select-who-is-making-the-claim"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit else routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit}
     @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
@@ -58,10 +56,6 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
 
         @pageHeading(title)
 

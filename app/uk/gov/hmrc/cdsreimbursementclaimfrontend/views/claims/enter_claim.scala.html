@@ -19,7 +19,6 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @import java.util.UUID
@@ -35,24 +34,15 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    unitInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.unit_input,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 )
 
 @(id : UUID, form : Form[ClaimAmount], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"enter-claim"}
   @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
-  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
     @layout(pageTitle = Some(s"$title")) {
-
-
-
-    @if(hasErrors) {
-        @errorSummary(form)
-    }
 
     @pageHeading(title)
 
@@ -66,22 +56,7 @@
             <strong>@messages(s"${key}.paid-amount-label") : @formatAmountOfMoneyWithPoundSign(claim.paidAmount)</strong>
         </p>
 
-
-        @unitInput(
-            fieldId = key,
-            value = form.data.get(key).getOrElse(""),
-            formError = form.error(key),
-            hasErrors =  form.error(key).nonEmpty,
-            label = Html(""),
-            labelAsHeading = false,
-            helpText = None,
-            autoComplete = AutoCompleteType.Off,
-            labelledByID = "",
-            inputClass = Some("small"),
-            aspect = "left",
-            unit = "£",
-            assistiveText = messages("unit-input.assistive.pounds")
-        )
+@form
 
         @submitButton(messages("button.continue"))
 

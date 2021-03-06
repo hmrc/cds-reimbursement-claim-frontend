@@ -26,7 +26,6 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
 )
@@ -35,16 +34,8 @@
 
  @key = @{"enter-movement-reference-number"}
  @title = @{messages(s"$key.title")}
- @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
  @layout(pageTitle = Some(s"$title")) {
-
-
-
-          @if(hasErrors) {
-           @errorSummary(form)
-          }
-
           @formWrapper(routes.EnterMovementReferenceNumberController.enterDuplicateMrnSubmit(), 'novalidate -> "novalidate") {
 
             @textInput(

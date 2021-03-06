@@ -48,7 +48,7 @@ language-switcher.welsh.hidden=Newid yr iaith i’r Gymraeg
 language-switcher.welsh.hover=Defnyddio’r cyfrif hwn yn Cymraeg
 language-switcher.nav=Language switcher
 
-error.summary.heading=There’s a problem
+error.summary.title=There’s a problem
 
 date.day=Day
 date.month=Month

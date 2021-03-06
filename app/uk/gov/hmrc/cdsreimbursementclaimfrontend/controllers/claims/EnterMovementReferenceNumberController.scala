@@ -146,14 +146,16 @@ class EnterMovementReferenceNumberController @Inject() (
         EnterMovementReferenceNumberController.movementReferenceNumberForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
               BadRequest(
                 enterMovementReferenceNumberPage(
                   requestFormWithErrors.copy(errors =
                     Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
                   )
                 )
-              ),
+              )
+            },
             movementReferenceNumber =>
               movementReferenceNumber.value match {
                 case Left(entryNumber) =>
