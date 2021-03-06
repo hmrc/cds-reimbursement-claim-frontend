@@ -28,7 +28,7 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
  radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
@@ -66,7 +66,7 @@
 
         @detailsText
 
-        @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @radios(
                 form = form,

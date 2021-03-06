@@ -24,7 +24,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
@@ -47,7 +47,7 @@
 
     @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
 
-    @formWrapper(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
         @submitButton(messages(s"$key.button.tryAgain"))
     }
 

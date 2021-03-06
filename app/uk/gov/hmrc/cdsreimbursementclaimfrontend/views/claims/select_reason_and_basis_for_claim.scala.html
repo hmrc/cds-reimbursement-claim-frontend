@@ -27,7 +27,7 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
@@ -71,7 +71,7 @@
       ))
   </div>
 
-  @formWrapper(postAction, 'novalidate -> "novalidate") {
+  @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
     <div class = "space-select">
         @inputSelect(

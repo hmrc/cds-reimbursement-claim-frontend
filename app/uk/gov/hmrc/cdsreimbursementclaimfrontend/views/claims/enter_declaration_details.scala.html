@@ -30,7 +30,7 @@
     paragraphBlock: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
@@ -46,7 +46,7 @@
 
         @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
-        @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @backLinkComponent(backLink)
 

@@ -27,8 +27,9 @@
  claimSummaryHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.ClaimSummaryHelper,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+
+summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
@@ -43,7 +44,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-        @formWrapper(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
             @summary(SummaryList(claimSummaryHelper.claimSummary(claims)))
             @submitButton(messages("button.continue"))
         }

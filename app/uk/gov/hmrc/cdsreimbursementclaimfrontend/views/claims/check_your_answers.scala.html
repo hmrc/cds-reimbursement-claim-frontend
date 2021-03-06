@@ -32,7 +32,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 )
 
 @(completeClaim : CompleteClaim, backLink : Call)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
@@ -78,7 +78,7 @@
         <h2 class="govuk-heading-m">@messages(s"${key}.confirmation-statement.h2")</h2>
         @paragraph(Html(messages(s"${key}.confirmation-statement")), Some("govuk-body"))
 
-        @formWrapper(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
             @submitButton(messages("button.accept-and-send"))
         }
     }

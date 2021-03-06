@@ -29,7 +29,7 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
 
 )
@@ -47,7 +47,7 @@
 
         <p class="declaration-paragraph">@Html(messages(s"$key.help-text", entryNumber.value))</p>
 
-        @formWrapper(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit(), 'novalidate -> "novalidate") {
 
             @dateInput(
                 form = form,
