@@ -84,7 +84,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -100,7 +100,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -116,7 +116,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -132,7 +132,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -148,7 +148,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -164,7 +164,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -180,7 +180,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -196,7 +196,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 Actions(
                   items = Seq(
                     ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
                       content = Text(messages("cya.change")(lang))
                     )
                   )
@@ -212,32 +212,14 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             SummaryListRow(
               key = Key(Text(messages(s"$key.declaration-details.l0")(lang))),
               value = Value(Text(details.displayResponseDetail.acceptanceDate)),
-              actions = Some(
-                Actions(
-                  items = Seq(
-                    ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                      content = Text(messages("cya.change")(lang))
-                    )
-                  )
-                )
-              )
+              actions = None
             )
           },
           completeClaim.maybeDisplayDeclaration.map { details =>
             SummaryListRow(
               key = Key(Text(messages(s"$key.declaration-details.l8")(lang))),
               value = Value(Text(formatAmountOfMoneyWithPoundSign(details.totalPaidCharges))),
-              actions = Some(
-                Actions(
-                  items = Seq(
-                    ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                      content = Text(messages("cya.change")(lang))
-                    )
-                  )
-                )
-              )
+              actions = None
             )
           },
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
@@ -245,16 +227,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l2")(lang))),
                 value = Value(Text(name)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -263,16 +236,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l3")(lang))),
                 value = Value(Text(email)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -281,16 +245,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l4")(lang))),
                 value = Value(Text(tel)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -299,16 +254,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l10")(lang))),
                 value = Value(Text(address)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -316,16 +262,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             SummaryListRow(
               key = Key(Text(messages(s"$key.declaration-details.l5")(lang))),
               value = Value(Text(details.declarantName)),
-              actions = Some(
-                Actions(
-                  items = Seq(
-                    ActionItem(
-                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                      content = Text(messages("cya.change")(lang))
-                    )
-                  )
-                )
-              )
+              actions = None
             )
           },
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
@@ -333,16 +270,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l9")(lang))),
                 value = Value(Text(address)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -351,16 +279,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l7")(lang))),
                 value = Value(Text(tel)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           },
@@ -369,16 +288,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               SummaryListRow(
                 key = Key(Text(messages(s"$key.declaration-details.l6")(lang))),
                 value = Value(Text(email)),
-                actions = Some(
-                  Actions(
-                    items = Seq(
-                      ActionItem(
-                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                        content = Text(messages("cya.change")(lang))
-                      )
-                    )
-                  )
-                )
+                actions = None
               )
             }
           }
@@ -398,7 +308,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -412,7 +322,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -426,7 +336,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -446,7 +356,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -468,7 +378,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href =
+                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -484,7 +395,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href =
+                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -500,7 +412,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href =
+                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -516,7 +429,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href =
+                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -553,7 +467,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -604,7 +518,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim().url}",
                     content = Text(messages("cya.change")(lang))
                   )
                 )
@@ -623,7 +537,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimController.checkClaim().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -637,7 +551,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimController.checkClaim().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -651,7 +565,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                href = s"${routes.EnterClaimController.checkClaim().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
@@ -670,7 +584,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -686,7 +600,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -702,7 +616,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
                   content = Text(messages("cya.change")(lang))
                 )
               )
@@ -721,8 +635,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href =
-                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, addNew = false).url}",
+                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
                 content = Text(messages("cya.change")(lang))
               )
             )
