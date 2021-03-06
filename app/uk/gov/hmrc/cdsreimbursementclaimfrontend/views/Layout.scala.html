@@ -22,18 +22,18 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 
-
 @this(
     govukLayout: govukLayout,
     head: Head,
     hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
-
 )
-    @(pageTitle: Option[String] = None,
-        headBlock: Option[Html] = None,
-        scriptsBlock: Option[Html] = None,
-        timeOut: Boolean = true
-    )(contentBlock: Html)(implicit messages: Messages, viewConfig: ViewConfig)
+
+@(
+    pageTitle: Option[String] = None,
+    headBlock: Option[Html] = None,
+    scriptsBlock: Option[Html] = None,
+    timeOut: Boolean = true
+)(contentBlock: Html)(implicit messages: Messages, viewConfig: ViewConfig)
 
     @defaultHead = {
         @headBlock
@@ -56,6 +56,15 @@
             </script>
     }
 
+    @scripts = {
+        @scriptsBlock
+        <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js.map.js")'></script>
+    }
+
     @phaseBanner = {
 
         <div class="govuk-phase-banner">
@@ -74,7 +83,7 @@
     @govukLayout(
         pageTitle = pageTitle,
         headBlock = Some(head(Some(defaultHead))),
-        scriptsBlock = scriptsBlock,
+        scriptsBlock = Some(scripts),
         beforeContentBlock = Some(phaseBanner),
         footerItems = FooterLinks()
     )(contentBlock)

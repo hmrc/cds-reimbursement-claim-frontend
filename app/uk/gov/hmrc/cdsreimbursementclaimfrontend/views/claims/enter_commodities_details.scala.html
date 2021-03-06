@@ -30,7 +30,8 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
+ backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form : Form[CommodityDetails], backLink: Call, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -43,6 +44,8 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLinkAction)
+
+        @errorSummary(form.errors, Some(key))
 
         @pageHeading(title)
 
@@ -62,16 +65,15 @@
                         Explain why you would like to be reimbursed and why you are entitled to this claim. Also include include the commodity code, type of product, quantity and unit.
                     </div>
                     @textArea(
-                    form = form,
-                    id = key,
-                    name = key,
-                    label = Label(),
-                    value = None,
-                    maxWords = Some(500)
+                        form = form,
+                        id = key,
+                        name = key,
+                        label = Label(),
+                        value = form.value.map(d => d.value),
+                        maxWords = Some(500)
                     )
 
                 </div>
-
             </div>
 
             @submitButton(messages("button.continue"))

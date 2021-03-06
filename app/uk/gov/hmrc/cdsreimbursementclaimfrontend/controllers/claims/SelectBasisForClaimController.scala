@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.SelectReasonForClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.SelectReasonForClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
@@ -39,13 +39,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SelectReasonForClaimController @Inject() (
+class SelectBasisForClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  selectReasonForClaimPage: pages.select_reason_for_claim
+  selectReasonForClaimPage: pages.select_basis_for_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -75,7 +75,7 @@ class SelectReasonForClaimController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def selectReasonForClaim(): Action[AnyContent] =
+  def selectBasisForClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
@@ -84,14 +84,14 @@ class SelectReasonForClaimController @Inject() (
               case Some(reasonForClaimOption) =>
                 Ok(
                   selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
+                    SelectBasisForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
               case None                       =>
                 Ok(
                   selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm,
+                    SelectBasisForClaimController.reasonForClaimForm,
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
                   )
                 )
@@ -99,7 +99,7 @@ class SelectReasonForClaimController @Inject() (
           ifComplete =>
             Ok(
               selectReasonForClaimPage(
-                SelectReasonForClaimController.reasonForClaimForm.fill(
+                SelectBasisForClaimController.reasonForClaimForm.fill(
                   SelectReasonForClaim(ifComplete.basisOfClaim)
                 ),
                 routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
@@ -109,10 +109,10 @@ class SelectReasonForClaimController @Inject() (
       }
     }
 
-  def selectReasonForClaimSubmit(): Action[AnyContent] =
+  def selectBasisForClaimSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
-        SelectReasonForClaimController.reasonForClaimForm
+        SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -155,7 +155,7 @@ class SelectReasonForClaimController @Inject() (
 
     }
 
-  def changeReasonForClaim(): Action[AnyContent] =
+  def changeBasisForClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
@@ -164,7 +164,7 @@ class SelectReasonForClaimController @Inject() (
               case Some(reasonForClaimOption) =>
                 Ok(
                   selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
+                    SelectBasisForClaimController.reasonForClaimForm.fill(SelectReasonForClaim(reasonForClaimOption)),
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
                     true
                   )
@@ -172,7 +172,7 @@ class SelectReasonForClaimController @Inject() (
               case None                       =>
                 Ok(
                   selectReasonForClaimPage(
-                    SelectReasonForClaimController.reasonForClaimForm,
+                    SelectBasisForClaimController.reasonForClaimForm,
                     routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
                     true
                   )
@@ -181,7 +181,7 @@ class SelectReasonForClaimController @Inject() (
           ifComplete =>
             Ok(
               selectReasonForClaimPage(
-                SelectReasonForClaimController.reasonForClaimForm.fill(
+                SelectBasisForClaimController.reasonForClaimForm.fill(
                   SelectReasonForClaim(ifComplete.basisOfClaim)
                 ),
                 routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual(),
@@ -192,10 +192,10 @@ class SelectReasonForClaimController @Inject() (
       }
     }
 
-  def changeReasonForClaimSubmit(): Action[AnyContent] =
+  def changeBasisForClaimSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
-        SelectReasonForClaimController.reasonForClaimForm
+        SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -234,7 +234,7 @@ class SelectReasonForClaimController @Inject() (
     }
 }
 
-object SelectReasonForClaimController {
+object SelectBasisForClaimController {
 
   final case class SelectReasonForClaim(
     reasonForClaimOption: BasisOfClaim

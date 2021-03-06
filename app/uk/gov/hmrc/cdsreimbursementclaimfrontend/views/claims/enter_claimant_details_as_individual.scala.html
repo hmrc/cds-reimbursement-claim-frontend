@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import cats.syntax.eq._
 @import play.api.data.Form
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
@@ -24,6 +23,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -34,10 +35,10 @@
  formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code,
- yesNo: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.yes_no
+ fieldSet : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.field_set,
+ radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
-
-@*//TODO:  field set; legend; countryKey; yesNO button*@
 
 @(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -60,6 +61,8 @@
     @layout(pageTitle = Some(s"$title")) {
 
         @backLinkComponent(backLink)
+
+        @errorSummary(form.errors, Some(key))
 
         @pageHeading(title)
 
@@ -99,12 +102,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            <fieldset id="@key">
-                <legend>
-                  <h2>
-                    @messages(s"$key.individual-contact-address.label")
-                  </h2>
-                </legend>
+            @fieldSet(messages(s"$key.individual-contact-address.label")) {
 
                 @inputText(
                     form = form,
@@ -166,14 +164,29 @@
                     autoComplete = AutoCompleteType.Country
                 )
 
-            </fieldset>
+            }
 
-            @yesNo(
-                fieldId = s"$key.add-company-details",
-                label =  Html(messages(s"$key.add-company-details.label")),
-                errorKey = form.error(s"$key.add-company-details").map(e => e.message),
-                hasErrors = form.errors(s"$key.add-company-details").nonEmpty,
-                selected = form.data.get(s"$key.add-company-details").map(s => if(s === "true") true else false)
+            @radios(
+                form = form,
+                name = s"$key.add-company-details",
+                legend = s"$key.add-company-details.label",
+                legendAsHeading = true,
+                hintKey = None,
+                inline = false,
+                items = Seq(
+                    RadioItem(
+                        id = Some(s"$key.add-company-details"),
+                        value = Some("true"),
+                        content = Text("Yes"),
+                        checked = form(s"$key.add-company-details").value.contains("true")
+                    ),
+                    RadioItem(
+                        id = Some(s"$key.add-company-details"),
+                        value = Some("false"),
+                        content = Text("No"),
+                        checked = form(s"$key.add-company-details").value.contains("false")
+                    )
+                )
             )
 
             @submitButton(messages("button.continue"))

@@ -190,11 +190,11 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                               declarantType match {
                                 case DeclarantType.Importer =>
                                   Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                                case _                      => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                                case _                      => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                               }
                             case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                           }
-                        case Right(_) => Redirect(routes.SelectReasonForClaimController.selectReasonForClaim())
+                        case Right(_) => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                       }
                     case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }

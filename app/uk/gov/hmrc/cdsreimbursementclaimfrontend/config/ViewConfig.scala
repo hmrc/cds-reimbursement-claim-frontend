@@ -21,10 +21,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 
 @Singleton
 class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
-  private def getString(key: String): String = servicesConfig.getString(key)
+  private def getString(key: String): String     = servicesConfig.getString(key)
+  private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
@@ -92,7 +94,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
-  lazy val timeout: Int   = 1 //FIXME
-  lazy val countdown: Int = 1 //FIXME
+  lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
+
+  lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
 
 }

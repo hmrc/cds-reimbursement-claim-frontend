@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, Ses
 
 import scala.concurrent.Future
 
-class SelectReasonForClaimControllerSpec
+class SelectBasisForClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -48,7 +48,7 @@ class SelectReasonForClaimControllerSpec
       bind[SessionCache].toInstance(mockSessionStore)
     )
 
-  lazy val controller: SelectReasonForClaimController = instanceOf[SelectReasonForClaimController]
+  lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
