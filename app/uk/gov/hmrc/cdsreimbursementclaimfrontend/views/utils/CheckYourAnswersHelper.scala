@@ -15,14 +15,17 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
-
 import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, _}
 
 import javax.inject.{Inject, Singleton}
 
@@ -33,24 +36,559 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
 
   private val key = "check-your-answers"
 
-  def cyaSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeReferenceNumberRowSummary(number: Either[EntryNumber, MRN]): List[SummaryListRow] = {
+    val referenceNumber = number match {
+      case Left(value)  =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.entry-reference-number.label")(lang))),
+          value = Value(Text(value.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      case Right(value) =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.mrn.label")(lang))),
+          value = Value(Text(value.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+    }
+    List(referenceNumber)
+  }
+
+  def makeDeclarationDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+    completeClaim.movementReferenceNumber match {
+      case Left(_)  =>
+        val rows = List(
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l0")(lang))),
+              value = Value(Text(details.dateOfImport.checkYourDetailsDisplayFormat)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l1")(lang))),
+              value = Value(Text(details.placeOfImport)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l2")(lang))),
+              value = Value(Text(details.importerName)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l3")(lang))),
+              value = Value(Text(details.importerEmailAddress.value)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l4")(lang))),
+              value = Value(Text(details.importerPhoneNumber.value)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l5")(lang))),
+              value = Value(Text(details.declarantName)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l6")(lang))),
+              value = Value(Text(details.declarantEmailAddress.value)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.entryDeclarationDetails.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l7")(lang))),
+              value = Value(Text(details.declarantPhoneNumber.value)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          }
+        )
+        rows.flattenOption
+      case Right(_) =>
+        val rows: List[Option[SummaryListRow]] = List(
+          completeClaim.maybeDisplayDeclaration.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l0")(lang))),
+              value = Value(Text(details.displayResponseDetail.acceptanceDate)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.maybeDisplayDeclaration.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l8")(lang))),
+              value = Value(Text(formatAmountOfMoneyWithPoundSign(details.totalPaidCharges))),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.consigneeName.map { name =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l2")(lang))),
+                value = Value(Text(name)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.consigneeEmail.map { email =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l3")(lang))),
+                value = Value(Text(email)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.consigneeTelephone.map { tel =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l4")(lang))),
+                value = Value(Text(tel)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.consigneeAddress.map { address =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l10")(lang))),
+                value = Value(Text(address)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.map { details =>
+            SummaryListRow(
+              key = Key(Text(messages(s"$key.declaration-details.l5")(lang))),
+              value = Value(Text(details.declarantName)),
+              actions = Some(
+                Actions(
+                  items = Seq(
+                    ActionItem(
+                      href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                      content = Text(messages("cya.change")(lang))
+                    )
+                  )
+                )
+              )
+            )
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.declarantContactAddress.map { address =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l9")(lang))),
+                value = Value(Text(address)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.declarantTelephoneNumber.map { tel =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l7")(lang))),
+                value = Value(Text(tel)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          },
+          completeClaim.maybeDisplayDeclaration.flatMap { details =>
+            details.declarantEmailAddress.map { email =>
+              SummaryListRow(
+                key = Key(Text(messages(s"$key.declaration-details.l6")(lang))),
+                value = Value(Text(email)),
+                actions = Some(
+                  Actions(
+                    items = Seq(
+                      ActionItem(
+                        href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                        content = Text(messages("cya.change")(lang))
+                      )
+                    )
+                  )
+                )
+              )
+            }
+          }
+        )
+        rows.flattenOption
+    }
+
+  def makeClaimantDetailsSummary(
+    completeClaim: CompleteClaim,
+    request: RequestWithSessionData[_]
+  ): List[SummaryListRow] =
     List(
-      makeReferenceNumberRow(completeClaim.movementReferenceNumber)
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+        value = Value(Text(completeClaim.claimantDetailsAsIndividual.fullName)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claimant-details.l1")(lang))),
+        value = Value(Text(completeClaim.claimantDetailsAsIndividual.emailAddress.value)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claimant-details.l2")(lang))),
+        value = Value(Text(completeClaim.claimantDetailsAsIndividual.phoneNumber.value)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claimant-details.l3")(lang))),
+        value = Value(
+          Text(
+            completeClaim.claimantDetailsAsIndividual.contactAddress
+              .getAddressLines(messages.preferred(request))
+              .mkString(", ")
+          )
+        ),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def makeClaimantDetailsAsImporterSummary(
+    completeClaim: CompleteClaim,
+    request: RequestWithSessionData[_]
+  ): List[SummaryListRow] =
+    List(
+      completeClaim.claimantDetailsAsImporterCompany.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          value = Value(Text(details.companyName)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      },
+      completeClaim.claimantDetailsAsImporterCompany.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          value = Value(Text(details.emailAddress.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      },
+      completeClaim.claimantDetailsAsImporterCompany.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          value = Value(Text(details.phoneNumber.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      },
+      completeClaim.claimantDetailsAsImporterCompany.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          value = Value(Text(details.contactAddress.getAddressLines(messages.preferred(request)).mkString(", "))),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      }
     ).flattenOption
 
-  private def makeReferenceNumberRow(number: Either[EntryNumber, MRN]): Option[SummaryListRow] =
-    number match {
+  def makeClaimantDetailsAsImporterSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+    List(
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.commodities-details.label")(lang))),
+        value = Value(Text(completeClaim.commodityDetails)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def makeCommodityDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+    List(
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.commodities-details.label")(lang))),
+        value = Value(Text(completeClaim.commodityDetails)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def makeBasisAndOrReasonForClaim(completeClaim: CompleteClaim): List[SummaryListRow] =
+    completeClaim.basisForClaim match {
       case Left(value)  =>
-        Some(
+        List(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.entry-reference-number.label")(lang))),
-            value = Value(Text(value.value)),
+            key = Key(Text(messages(s"$key.reason-and-basis.l0")(lang))),
+            value = Value(Text(value.basisForClaim)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                    content = Text("cya.change")
+                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    content = Text(messages("cya.change")(lang))
+                  )
+                )
+              )
+            )
+          ),
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l1")(lang))),
+            value = Value(Text(value.reasonForClaim.repr)),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    content = Text(messages("cya.change")(lang))
                   )
                 )
               )
@@ -58,21 +596,138 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           )
         )
       case Right(value) =>
-        Some(
+        List(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.mrn.label")(lang))),
-            value = Value(Text(value.value)),
+            key = Key(Text(messages(s"$key.reason-and-basis.l0")(lang))),
+            value = Value(Text(value.toString)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                    content = Text("cya.change")
+                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    content = Text(messages("cya.change")(lang))
                   )
                 )
               )
             )
           )
         )
+    }
+
+  def makeClaimCalculationSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+    List(
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claim-uk-duty.label")(lang))),
+        value = Value(Text(completeClaim.totalUKDutyClaim)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.claim-eu-duty.label")(lang))),
+        value = Value(Text(completeClaim.totalEuDutyClaim)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.total-claim.label")(lang))),
+        value = Value(Text(completeClaim.totalClaim)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      )
+    )
+
+  def makeBankDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+    List(
+      completeClaim.bankDetails.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.bank-details.account-name.label")(lang))),
+          value = Value(Text(details.accountName.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      },
+      completeClaim.bankDetails.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.bank-details.sort-code.label")(lang))),
+          value = Value(Text(details.sortCode.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      },
+      completeClaim.bankDetails.map { details =>
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.bank-details.account-number.label")(lang))),
+          value = Value(Text(details.accountNumber.value)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                  content = Text(messages("cya.change")(lang))
+                )
+              )
+            )
+          )
+        )
+      }
+    ).flattenOption
+
+  def makeSupportingEvidenceSummary(supportingEvidences: List[SupportingEvidence]): List[SummaryListRow] =
+    supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),
+        value = Value(Text(document.fileName)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href =
+                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, addNew = false).url}",
+                content = Text(messages("cya.change")(lang))
+              )
+            )
+          )
+        )
+      )
     }
 }

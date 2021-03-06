@@ -252,7 +252,10 @@ class SupportingEvidenceController @Inject() (
         SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(chooseDocumentTypePage(requestFormWithErrors, uploadReference)),
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
+              BadRequest(chooseDocumentTypePage(requestFormWithErrors, uploadReference))
+            },
             documentType => {
               val updatedAnswers = answers.fold(
                 incomplete => {

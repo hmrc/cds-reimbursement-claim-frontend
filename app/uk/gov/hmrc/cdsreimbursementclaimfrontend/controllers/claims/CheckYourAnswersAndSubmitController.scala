@@ -68,10 +68,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def checkAllAnswers(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
+      withCompleteDraftClaim(request) { (_, _, completeClaim) =>
         Ok(
           checkYourAnswersPage(
-            fillingOutClaim.signedInUserDetails,
             completeClaim,
             fileUploadRoutes.SupportingEvidenceController.checkYourAnswers()
           )

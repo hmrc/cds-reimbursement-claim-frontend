@@ -47,8 +47,6 @@
 
             @pageHeading(title)
 
-            @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
-
             @paragraphBlock(
                 content = Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)),
                 classes = Some("govuk-inset-text govuk-!-margin-bottom-8")
