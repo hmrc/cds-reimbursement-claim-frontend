@@ -48,7 +48,7 @@
         @summary(SummaryList(fileUploadCya.declarationSummary(answers)))
 
         @if(answers.evidences.size < maxUploads){
-            @paragraph(Html(s"""<a href="@routes.SupportingEvidenceController.uploadSupportingEvidence().url">${messages(s"${key}.add-another-file")}</a>"""), Some("govuk-body"))
+            @paragraph(Html(messages(s"${key}.add-another-file", routes.SupportingEvidenceController.uploadSupportingEvidence().url)), Some("govuk-body"))
         }
 
         @formWrapper(routes.SupportingEvidenceController.checkYourAnswersSubmit(), 'novalidate -> "novalidate") {

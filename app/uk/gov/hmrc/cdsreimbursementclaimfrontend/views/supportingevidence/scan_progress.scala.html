@@ -22,8 +22,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
     formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
     caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption
@@ -34,7 +34,7 @@
     @key = @{"supporting-evidence.scan-progress"}
     @title = @{messages(s"$key.title")}
 
-    @mainTemplate(title = title, userType = request.userType) {
+    @layout(pageTitle = Some(s"$title")) {
 
 
 

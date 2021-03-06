@@ -434,10 +434,10 @@ select-duties.duty.B05=B05 - Value Added Tax
 
 enter-claim.title=Enter the claim amount for duty {0}
 enter-claim.help-text=This is to calculate your reimbursement as part of your claim. HMRC does not refund agents’ fees.
-enter-claim.paid-amount-label=Paid Amount
+enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
 enter-claim.paid-amount=Paid Amount
-enter-claim.claim-amount-label=This is the Customs Duty amount you wish to claim for.
+enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim for.
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.real=Enter a valid claim amount
 enter-claim.paid-amount.error.real=Enter a valid paid amount
@@ -445,7 +445,7 @@ enter-claim.claim-amount.error.real=Enter a valid claim amount
 enter-claim.invalid.claim=Enter a claim amount which is less then or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
 check-claim.help-text=These are the calculations based on the information you gave us.
-check-claim.update=Update the calculation
+check-claim.update=<a href="{0}">Update the calculation</a>
 check-claim.total=Total Reimbursement
 
 
@@ -484,7 +484,7 @@ bank-details.help-text=These are the details of where your reimbursements will b
 bank-details.account-name.label=Account name
 bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number
-bank-details.different-details-link=Enter different bank details
+bank-details.different-details-link=<a href="{0}">Enter different bank details</a>
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
@@ -510,7 +510,7 @@ supporting-evidence.check-your-answers.help-text=You can add more files as evide
 supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
 supporting-evidence.check-your-answers.cya-change=Change
 supporting-evidence.check-your-answers.assistive=the file named {0}
-supporting-evidence.check-your-answers.add-another-file=Add another file
+supporting-evidence.check-your-answers.add-another-file=<a href="{0}">Add another file</a>
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, and PDF.

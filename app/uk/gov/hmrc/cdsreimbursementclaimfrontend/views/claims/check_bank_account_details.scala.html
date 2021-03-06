@@ -49,8 +49,7 @@
 
     @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
 
-
-    @paragraph(Html(s"""<a href="routes.BankAccountController.enterBankAccountDetails().url">${messages(s"${key}.different-details-link")}</a>"""), Some("govuk-body"))
+    @paragraph(Html(messages(s"${key}.different-details-link", routes.BankAccountController.enterBankAccountDetails().url)), Some("govuk-body"))
 
     @buttonLink(messages("button.continue"), Some(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url))
 

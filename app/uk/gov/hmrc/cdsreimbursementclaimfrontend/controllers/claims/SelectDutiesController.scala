@@ -203,7 +203,8 @@ class SelectDutiesController @Inject() (
           }
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
               BadRequest(
                 selectDutiesPage(
                   requestFormWithErrors
@@ -217,7 +218,8 @@ class SelectDutiesController @Inject() (
                     ),
                   duties(fillingOutClaim)
                 )
-              ),
+              )
+            },
             dutiesSelected => {
 
               val updatedAnswers = currentAnswers.fold(

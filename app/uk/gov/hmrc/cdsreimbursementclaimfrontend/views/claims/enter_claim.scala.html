@@ -31,32 +31,42 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
 @(id : UUID, form : Form[ClaimAmount], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-  @key = @{"enter-claim"}
-  @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
+    @key = @{"enter-claim"}
+    @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
 
     @layout(pageTitle = Some(s"$title")) {
 
+    @errorSummary(form.errors, Some(key))
+
     @pageHeading(title)
 
-    <div class="govuk-inset-text">
-        @Html(messages(s"$key.help-text"))
-    </div>
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-    @formWrapper(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
-        <p>
-            <strong>@messages(s"${key}.paid-amount-label") : @formatAmountOfMoneyWithPoundSign(claim.paidAmount)</strong>
-        </p>
+        @paragraph(Html(messages(s"${key}.paid-amount-label", formatAmountOfMoneyWithPoundSign(claim.paidAmount))), Some("govuk-body"))
 
-@form
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = messages(s"$key.claim-amount"),
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"${key}.claim-amount.hint")
+        )
 
         @submitButton(messages("button.continue"))
 
