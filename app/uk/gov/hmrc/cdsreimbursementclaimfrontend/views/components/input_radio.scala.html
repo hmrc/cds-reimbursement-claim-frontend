@@ -29,6 +29,7 @@
 
 @(
     form: Form[_],
+    name : String,
     legend: String,
     items: Seq[RadioItem],
     legendAsHeading: Boolean = true,
@@ -39,7 +40,7 @@
 
 @govukRadios(Radios(
     classes = if(inline) "govuk-radios--inline" else "",
-    name = "value",
+    name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
             content = Text(messages(legend)),
@@ -51,5 +52,5 @@
         content = Text(messages(hint))
     )},
     items = items,
-    errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
 ))
