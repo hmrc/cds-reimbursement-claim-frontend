@@ -608,6 +608,9 @@ check-your-answers.reason-basis.h2=Reason or basis for claim
 check-your-answers.claimant-details.h2=Claimant’s details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s company details
 
+check-your-answers.confirmation-statement.h2=Now send your application
+check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
+
 
 #===================================================
 # SUBMISSION ERROR PAGE
