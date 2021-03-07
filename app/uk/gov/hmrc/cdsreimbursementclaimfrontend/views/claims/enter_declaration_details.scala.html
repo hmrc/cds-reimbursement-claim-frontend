@@ -27,10 +27,10 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     dateInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.date_input,
-    paragraphBlock: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
@@ -52,10 +52,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
             @pageHeading(title)
 
-            @paragraphBlock(
-                content = Html(messages(s"$key.help-text", entryNumber.value)),
-                classes = Some("govuk-inset-text govuk-!-margin-bottom-8")
-            )
+            @paragraph(Html(messages(s"$key.help-text", entryNumber.value)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @dateInput(
                 form = form,

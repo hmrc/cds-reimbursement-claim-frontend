@@ -66,7 +66,7 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -170,9 +170,9 @@
                 form = form,
                 name = s"$key.add-company-details",
                 legend = s"$key.add-company-details.label",
-                legendAsHeading = true,
+                legendAsHeading = false,
                 hintKey = None,
-                inline = false,
+                inline = true,
                 items = Seq(
                     RadioItem(
                         id = Some(s"$key.add-company-details"),

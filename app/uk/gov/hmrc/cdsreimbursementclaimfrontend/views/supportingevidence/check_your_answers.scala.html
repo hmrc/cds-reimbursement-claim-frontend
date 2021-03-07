@@ -42,7 +42,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
         @summary(SummaryList(fileUploadCya.makeUploadedFilesRows(answers.evidences)))
 

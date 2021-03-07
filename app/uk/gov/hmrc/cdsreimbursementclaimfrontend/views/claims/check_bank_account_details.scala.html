@@ -46,7 +46,7 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
     @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
 

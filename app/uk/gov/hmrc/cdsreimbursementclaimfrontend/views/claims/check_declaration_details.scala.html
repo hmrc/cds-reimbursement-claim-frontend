@@ -27,7 +27,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     backLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    paragraphBlock: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
@@ -44,10 +44,7 @@
 
         @pageHeading(title)
 
-        @paragraphBlock(
-            content = Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)),
-            classes = Some("govuk-inset-text govuk-!-margin-bottom-8")
-        )
+        @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
             @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration)))
