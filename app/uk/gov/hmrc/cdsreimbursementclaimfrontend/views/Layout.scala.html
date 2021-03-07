@@ -87,8 +87,26 @@
 
     }
 
+    @userBanner = {
+
+        <div class="cds-user-banner">
+            <div>
+                <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-2 govuk-!-padding-0 govuk-!-font-size-16">
+                    <strong>EORI GB123456789001:</strong> John Coward
+                </p>
+            </div>
+            <div>
+                <p class="govuk-body govuk-!-margin-top-2 govuk-!-margin-bottom-2 govuk-!-padding-0 govuk-!-font-size-16">
+                    <a href="#">Sign out</a>
+                </p>
+            </div>
+        </div>
+
+    }
+
     @beforeContentBlock = {
         @phaseBanner
+        @userBanner
         @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
     }
 
