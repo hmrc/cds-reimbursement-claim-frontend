@@ -101,13 +101,20 @@
                 </p>
             </div>
         </div>
+        <div class="cds-user-banner cds-no-border">
+            <div>
+                <!-- Back link here...? -->
+            </div>
+            <div>
+                @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
+            </div>
+        </div>
 
     }
 
     @beforeContentBlock = {
         @phaseBanner
         @userBanner
-        @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
     }
 
     @govukLayout(
