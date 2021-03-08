@@ -263,6 +263,7 @@ enter-declaration-details.declarant-phone-number.invalid=Enter a valid phone num
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
 enter-declaration-details.error.required=Enter a valid import date
 enter-declaration-details.error.tooFarInFuture=Please a date before today
+enter-declaration-details.error.invalid= Enter a valid date of import
 enter-declaration-details.date-of-import.error.required=Enter a valid date of import
 enter-declaration-details-month.error.monthAndYearRequired = Enter a valid date of import
 enter-declaration-details-day.error.invalid=Enter a valid date of import
