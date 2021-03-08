@@ -1,5 +1,5 @@
 service.name=Claim for reimbursement of import duties
-service.homePageUrl = /cds-reimbursement-claim-frontend
+service.homePageUrl = /claim-for-reimbursement-of-import-duties
 service.text=Claim for reimbursement of import duties
 service.title=Claim for reimbursement of import duties
 service.signOut=Sign out
