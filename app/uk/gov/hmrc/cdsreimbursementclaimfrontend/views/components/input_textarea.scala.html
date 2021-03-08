@@ -31,7 +31,7 @@
     name: String                       = "",
     rows: Int                          = 5,
     value: Option[String]              = None,
-    maxWords: Option[Int]              = None,
+    maxLength: Option[Int]              = None,
     label: Label                       = Label(),
     hint: Option[Hint]                 = None
 )(implicit messages: Messages)
@@ -42,7 +42,7 @@
         name = name,
         rows = rows,
         value = value,
-        maxWords = maxWords,
+        maxLength = maxLength,
         label = label,
         hint = hint,
         errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
