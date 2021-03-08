@@ -653,6 +653,7 @@ accessibility-statement.li5 = listen to the service using a screen reader (inclu
 nonUkAddress-building.error.required=Enter a building name or number
 nonUkAddress-line1.error.required=Enter address line 1
 nonUkAddress-line4.error.required=Enter a town or city
+nonUkAddress-line1.error.tooLong= Enter address line 1
 countryCode.error.required=Enter a country
 
 #===================================================
