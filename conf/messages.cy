@@ -8,9 +8,9 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
 lang=en
 
-sessionExpired.message=We will sign you out for your security
-sessionExpired.keepAliveButtonText=Stay signed in
-sessionExpired.signOutButtonText=Sign Out
+session-expired-message=We will sign you out for your security
+session-expired.keep-alive-button-text=Stay signed in
+session-expired.sign-out-button-text=Sign Out
 
 footer.cookies.text = Cookies
 footer.cookies.url = /help/cookies

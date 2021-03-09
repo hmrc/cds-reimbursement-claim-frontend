@@ -106,12 +106,15 @@ class EnterDeclarantEoriNumberController @Inject() (
         EnterDeclarantEoriNumberController.eoriNumberForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
+            requestFormWithErrors => {
+              println(s"${requestFormWithErrors.toString}")
+
               BadRequest(
                 enterDeclarantEoriNumberPage(
                   requestFormWithErrors
                 )
-              ),
+              )
+            },
             declarantEoriNumber => {
               val updatedAnswers = answers.fold(
                 _ =>
