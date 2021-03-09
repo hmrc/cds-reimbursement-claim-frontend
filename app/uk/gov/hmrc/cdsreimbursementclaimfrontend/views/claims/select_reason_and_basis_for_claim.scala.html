@@ -31,8 +31,7 @@
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
-    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
-    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
+    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
 )
 
 @(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -41,11 +40,9 @@
  @title = @{messages(s"$key.title")}
 
  @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
- @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
+ @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backLinkAction)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

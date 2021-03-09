@@ -172,7 +172,6 @@ enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
 enter-importer-eori-number.input-label=Enter the EORI number
 
-
 #===================================================
 #  ENTER DECLARANT EORI NUMBER PAGE
 #===================================================

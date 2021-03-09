@@ -26,7 +26,6 @@
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     cyaHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourAnswersHelper,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
@@ -35,14 +34,12 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 )
 
-@(completeClaim : CompleteClaim, backLink : Call)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(completeClaim : CompleteClaim, link : Call)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backLink)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

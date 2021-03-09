@@ -38,7 +38,7 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
     @key = @{"check-claim"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

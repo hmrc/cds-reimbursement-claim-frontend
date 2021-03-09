@@ -57,7 +57,7 @@
                                 signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
                                 language = Some("en")
                             ))}
-            <script>
+<script xmlns="http://www.w3.org/1999/html">
                     dataLayer = [{
                         'URL': window.location.pathname
                     }];
@@ -97,7 +97,10 @@
         <div class="cds-user-banner">
             <div>
                 <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                    <strong class="govuk-!-margin-right-1">EORI @signedInUserDetails.fold("No Eori")(user => user.eori.value):</strong> @signedInUserDetails.fold("")(user => user.contactName.value)
+                    @signedInUserDetails.map{ user =>
+                        <strong class="govuk-!-margin-right-1">
+                            EORI @user.eori.value:</strong> @user.contactName.value
+                    }
                 </p>
             </div>
             <div>
