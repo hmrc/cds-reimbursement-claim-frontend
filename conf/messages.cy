@@ -171,6 +171,7 @@ enter-importer-eori-number.help-text=Must be between 14-17 characters and start 
 enter-importer-eori-number.invalid.number=Enter a valid EORI number
 enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
+enter-importer-eori-number.input-label=Enter the EORI number
 
 #===================================================
 #  ENTER DECLARANT EORI NUMBER PAGE
@@ -182,6 +183,7 @@ enter-declarant-eori-number.help-text=Must be between 14-17 characters and start
 enter-declarant-eori-number.invalid.number=Enter a valid EORI number
 enter-declarant-eori-number.invalid=Enter a valid EORI number
 enter-declarant-eori-number.error.required=Enter a valid EORI number
+enter-declarant-eori-number.input-label=Enter the EORI number
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
