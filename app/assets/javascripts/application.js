@@ -8,6 +8,9 @@ const CDSR = {
 
     form: document.querySelector('form'),
     errorSummary: document.querySelector('#cdsr-dynamic-error-summary'),
+    errorPageTitle: "Error: " + document.title,
+    errorInputElement: document.querySelector('#file-upload-error'),
+    errorsShowing: false,
 
     Init: () => {
 
@@ -20,13 +23,24 @@ const CDSR = {
         let fileInputs = document.querySelectorAll('input[type=file]');
 
         for (i = 0; i < fileInputs.length; ++i) {
-            if (fileInputs[i].files.length == 0 ) {
+            if (fileInputs[i].files.length == 0) {
 
                 event.preventDefault();
 
-                CDSR.errorSummary.classList.remove('govuk-!-display-none');
-                CDSR.errorSummary.querySelector('a').focus();
-                document.title = "Error: " + document.title;
+                if (CDSR.errorsShowing === false) {
+                    CDSR.errorSummary.classList.remove('govuk-!-display-none');
+                    CDSR.errorSummary.querySelector('a').focus();
+
+                    let errorMessaging = CDSR.errorInputElement.cloneNode(true);
+                    CDSR.errorInputElement.remove();
+                    fileInputs[i].parentNode.insertBefore(errorMessaging, fileInputs[i]);
+
+                    fileInputs[i].parentNode.classList.add('govuk-form-group--error');
+
+                    document.title = CDSR.errorPageTitle;
+
+                    CDSR.errorsShowing = true;
+                }
 
             }
         }

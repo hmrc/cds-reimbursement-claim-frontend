@@ -40,7 +40,7 @@
 
 @classBuilder(s: Option[String]*) = @{s.toList.collect{case Some(s) => s}.mkString(" ")}
 
-@classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
+@classes = @{if(hasErrors) "govuk-form-group govuk-form-group--error" else "govuk-form-group" }
 @inputClasses = @{if(hasErrors) {
   classBuilder(Some("form-control"), Some("form-control-error"), inputClass)
 } else {

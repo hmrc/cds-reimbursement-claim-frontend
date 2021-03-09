@@ -66,6 +66,10 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
   </div>
  </div>
 
+ <span id="file-upload-error" class="govuk-error-message">
+  <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
+ </span>
+
 </div>
 
 
@@ -85,14 +89,16 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
    fieldId = field,
    label = Html(title),
    labelClass = Some("govuk-label govuk-label--s"),
-   inputClass = Some("govuk-file-upload govuk-!-margin-bottom-9"),
+   inputClass = Some("govuk-file-upload"),
    hasErrors = false,
    errorKey = None,
    labelAsHeading = false,
    autoComplete = AutoCompleteType.On
   )
 
+  <div class="govuk-!-margin-bottom-9">
   @submitButton(messages("button.saveAndContinue"))
+  </div>
  </form>
 
 
