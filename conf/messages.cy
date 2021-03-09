@@ -8,7 +8,6 @@ exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
 lang=en
 
-
 sessionExpired.message=We will sign you out for your security
 sessionExpired.keepAliveButtonText=Stay signed in
 sessionExpired.signOutButtonText=Sign Out
