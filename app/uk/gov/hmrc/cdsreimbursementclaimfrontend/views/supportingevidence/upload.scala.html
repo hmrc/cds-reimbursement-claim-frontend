@@ -44,6 +44,33 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
 
  @backLinkComponent(backLink)
 
+
+
+<div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+
+ <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+  <h2 class="govuk-error-summary__title" id="error-summary-title">
+   There’s a problem
+  </h2>
+  <div class="govuk-error-summary__body">
+
+   <ul class="govuk-list govuk-error-summary__list">
+
+    <li>
+
+     <a href="#file">@(messages(s"${key}.error.required"))</a>
+
+    </li>
+
+   </ul>
+  </div>
+ </div>
+
+</div>
+
+
+
+
 @pageHeading(title)
 
 @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
@@ -57,9 +84,11 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
   @fileInput(
    fieldId = field,
    label = Html(title),
+   labelClass = Some("govuk-label govuk-label--s"),
+   inputClass = Some("govuk-file-upload govuk-!-margin-bottom-9"),
    hasErrors = false,
    errorKey = None,
-   labelAsHeading = true,
+   labelAsHeading = false,
    autoComplete = AutoCompleteType.On
   )
 

@@ -1,25 +1,34 @@
 window.GOVUKFrontend.initAll();
 window.HMRCFrontend.initAll();
 
+
+// Functionality for CDSR service
+
 const CDSR = {
 
-    const form = querySelector('form');
-
-    form.addEventListener('submit', CDSR.CheckFileInputs);
+    form: document.querySelector('form'),
+    errorSummary: document.querySelector('#cdsr-dynamic-error-summary'),
 
     Init: () => {
 
-        CDSR.GetFileInputs();
+        CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
 
     },
 
-    GetFileInputs: () => {
+    CheckFileInputs: (event) => {
 
-        CDSR.fileInputs = document.querySelectorAll('input[type=file]');
+        let fileInputs = document.querySelectorAll('input[type=file]');
 
-        for (i = 0; i < CDSR.fileInputs.length; ++i) {
-            // fileInputs[i].classList.add('hello-tony');
-            console.log(CDSR.fileInputs[i]);
+        for (i = 0; i < fileInputs.length; ++i) {
+            if (fileInputs[i].files.length == 0 ) {
+
+                event.preventDefault();
+
+                CDSR.errorSummary.classList.remove('govuk-!-display-none');
+                CDSR.errorSummary.querySelector('a').focus();
+                document.title = "Error: " + document.title;
+
+            }
         }
 
     }
@@ -29,22 +38,17 @@ const CDSR = {
 window.addEventListener('load', CDSR.Init);
 
 
+// =====================================================
+// Back link mimics browser back functionality
+// =====================================================
+// store referrer value to cater for IE - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10474810/  */
+const docReferrer = document.referrer
 
-//
-//
-//
-//
-//// =====================================================
-//// Back link mimics browser back functionality
-//// =====================================================
-//// store referrer value to cater for IE - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10474810/  */
-//const docReferrer = document.referrer
-//
-//// prevent resubmit warning
-//if (window.history && window.history.replaceState && typeof window.history.replaceState === 'function') {
-//  window.history.replaceState(null, null, window.location.href);
-//}
-//
+// prevent resubmit warning
+if (window.history && window.history.replaceState && typeof window.history.replaceState === 'function') {
+  window.history.replaceState(null, null, window.location.href);
+}
+
 //;(function(window, document) {
 ////  GOVUK.details.init();
 //
