@@ -118,9 +118,12 @@ class EnterClaimController @Inject() (
       Claim(
         uuidGenerator.nextId(),
         ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentMethod).getOrElse(""),
-        ndrcDetails.find(n => n.taxType === duty.toString).map(s => s.paymentReference).getOrElse(""),
+        ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentReference).getOrElse(""),
         duty.taxCode.toString,
-        ndrcDetails.find(n => n.taxType === duty.toString).map(s => BigDecimal(s.amount)).getOrElse(BigDecimal(0.0)),
+        ndrcDetails
+          .find(n => n.taxType === duty.taxCode.toString)
+          .map(s => BigDecimal(s.amount))
+          .getOrElse(BigDecimal(0.0)),
         BigDecimal(0.0),
         isFilled = false
       )
@@ -144,7 +147,7 @@ class EnterClaimController @Inject() (
                       maybeDutiesSelected match {
                         case Some(dutiesSelected) =>
                           if (dutiesSelected.duties.size === numberOfClaims) {
-                            Redirect(routes.EnterClaimController.checkClaim())
+                            Redirect(routes.EnterClaimController.checkClaim()) // there is no change
                           } else if (dutiesSelected.duties.size <= numberOfClaims) {
 
                             val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
@@ -239,7 +242,7 @@ class EnterClaimController @Inject() (
                       } else if (dutiesSelected.duties.size <= numberOfClaims) {
                         // we need to remove that claim
                         val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
-                        val updatedClaims  = ifIncomplete.claims.filterNot(p => taxCodes.contains(p.taxCode))
+                        val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.contains(p.taxCode))
                         //update session and work which is the next one to fill in
                         val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
 
