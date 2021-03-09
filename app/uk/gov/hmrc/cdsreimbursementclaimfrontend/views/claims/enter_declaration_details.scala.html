@@ -40,15 +40,13 @@
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
-    @backLink = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDeclarationDetailsController.enterDeclarationDetails}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterMovementReferenceNumberController.enterMrn}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link)) {
 
         @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-
-            @backLinkComponent(backLink)
 
             @pageHeading(title)
 

@@ -14,9 +14,10 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n.Messages
+@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.api.mvc.Request
+@import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
@@ -29,7 +30,8 @@
     hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
     hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet,
     hmrcStandardFooter: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter,
-    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select
+    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
+    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
 )
 
 @(
@@ -37,7 +39,8 @@
     headBlock: Option[Html] = None,
     scriptsBlock: Option[Html] = None,
     timeOut: Boolean = true,
-    signedInUserDetails: Option[SignedInUserDetails] = None
+    signedInUserDetails: Option[SignedInUserDetails] = None,
+    backLink : Option[Call] = None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @defaultHead = {
@@ -105,7 +108,7 @@
         </div>
         <div class="cds-user-banner cds-no-border">
             <div>
-                <!-- Back link here...? -->
+                @backLink.map{ link => @backLinkComponent(link) }
             </div>
             <div>
                 @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
