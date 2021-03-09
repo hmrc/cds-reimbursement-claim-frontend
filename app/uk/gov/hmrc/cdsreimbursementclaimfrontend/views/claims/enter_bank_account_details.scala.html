@@ -29,7 +29,6 @@
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
@@ -42,7 +41,7 @@
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
-    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
 
     @options = @{List(
                 CheckboxItem(
@@ -54,9 +53,7 @@
         }
 
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backLinkAction)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors, Some(key))
 

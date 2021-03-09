@@ -30,7 +30,6 @@
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
@@ -43,7 +42,7 @@
     @addressKey = @{"nonUkAddress"}
 
     @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
-    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
 
@@ -55,9 +54,7 @@
 
     @countryCodeKey = @{"countryCode"}
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backLinkAction)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors, Some(key))
 

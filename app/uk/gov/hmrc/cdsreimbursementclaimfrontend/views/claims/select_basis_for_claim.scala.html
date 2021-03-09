@@ -31,7 +31,6 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
@@ -42,11 +41,9 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
      @title = @{messages(s"$key.title")}
 
      @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit() else routes.SelectBasisForClaimController.selectBasisForClaimSubmit()}
-     @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
+     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backLinkAction)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors, Some(key))
 

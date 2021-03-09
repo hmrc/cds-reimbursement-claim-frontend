@@ -29,7 +29,6 @@
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
 formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
  radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
@@ -43,7 +42,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit else routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit}
-    @backAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
     @detailsText = {
         @details(messages(s"$key.details.label"),
@@ -54,9 +53,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
         ))
     }
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLinkComponent(backAction)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors, Some(key))
 

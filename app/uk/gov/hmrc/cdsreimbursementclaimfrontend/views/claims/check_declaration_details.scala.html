@@ -25,7 +25,6 @@
 @this(
     declarationDetailsUtils : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DeclarationDetailsUtils,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    backLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -38,9 +37,7 @@
     @key = @{"check-declaration-details"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @backLink(link)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 
