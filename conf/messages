@@ -642,7 +642,7 @@ accessibility-statement.p10 = We can provide a British Sign Language (BSL) inter
 accessibility-statement.p11 = Find out how to <a href="{0}">contact us.</a>
 accessibility-statement.p12 = The service was tested on 1 March 2021 and checked for compliance with WCAG 2.1 AAA. It was built using parts that were tested by the <a href="{0}">Digital Accessibility Centre.</a>
 accessibility-statement.p13 = This page was prepared on 28 January 2021. It was last updated on 28 January 2021.
-accessibility-statement.p14 = <a href="{0}">Get help with this page.</a>
+accessibility-statement.p14 = <a target="_blank" href="{0}">Get help with this page.</a>
 accessibility-statement.li1 = change colours, contrast levels and fonts
 accessibility-statement.li2 = zoom in up to 300% without the text spilling off the screen
 accessibility-statement.li3 = get from the start of the service to the end using just a keyboard
