@@ -63,7 +63,7 @@ if (window.history && window.history.replaceState && typeof window.history.repla
   window.history.replaceState(null, null, window.location.href);
 }
 
-//;(function(window, document) {
+;(function(window, document) {
 ////  GOVUK.details.init();
 //
 //  var errorSummary = document.querySelector('.error-summary');
@@ -79,36 +79,36 @@ if (window.history && window.history.replaceState && typeof window.history.repla
 ////    })
 ////  }
 //
-//  var countryEl = document.querySelector("#countryCode");
-////  var lang = GOVUK.getCookie("PLAY_LANG")
-//  if (countryEl && (!lang || lang === "en")) {
-//    openregisterLocationPicker({
-//      selectElement: countryEl,
-//      name: 'countryCode-name',
-//      url: '/claim-for-reimbursement-of-import-duties/assets/location-autocomplete-graph.json',
-//      defaultValue: ''
-//    });
+  var countryEl = document.querySelector("#countryCode");
+  var lang = 'en';
+  if (countryEl && (!lang || lang === "en")) {
+    openregisterLocationPicker({
+      selectElement: countryEl,
+      name: 'countryCode-name',
+      url: '/claim-for-reimbursement-of-import-duties/assets/location-autocomplete-graph.json',
+      defaultValue: ''
+    });
+
+    var wrapper = document.querySelector('.country-code-wrapper');
+
+    function resetSelectIfEmpty(e) {
+      if (e.target.id === 'countryCode') {
+        var val = e.target.value.trim();
+        var countrySelect = document.querySelector("#countryCode-select");
+        if (countrySelect) {
+          var countriesArray = Array.prototype.slice.call(countrySelect.options);
+          var matches = countriesArray.filter(function (o) {
+            return o.text !== '' && o.text === val
+          });
+          if (!matches.length) {
+            countrySelect.value = ''
+          }
+        }
+      }
+    }
 //
-//    var wrapper = document.querySelector('.country-code-wrapper');
-//
-//    function resetSelectIfEmpty(e) {
-//      if (e.target.id === 'countryCode') {
-//        var val = e.target.value.trim();
-//        var countrySelect = document.querySelector("#countryCode-select");
-//        if (countrySelect) {
-//          var countriesArray = Array.prototype.slice.call(countrySelect.options);
-//          var matches = countriesArray.filter(function (o) {
-//            return o.text !== '' && o.text === val
-//          });
-//          if (!matches.length) {
-//            countrySelect.value = ''
-//          }
-//        }
-//      }
-//    }
-//
-//    wrapper.addEventListener('change', resetSelectIfEmpty);
-//  }
+    wrapper.addEventListener('change', resetSelectIfEmpty);
+  }
 //
 ////  var urBanner = document.querySelector('.ur-banner')
 ////  if (urBanner) {
@@ -149,4 +149,4 @@ if (window.history && window.history.replaceState && typeof window.history.repla
 ////    })
 ////  }
 //
-//})(window, document);
+})(window, document);
