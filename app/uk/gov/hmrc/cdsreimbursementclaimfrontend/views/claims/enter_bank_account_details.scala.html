@@ -20,99 +20,88 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.BankAccountDetails
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input,
- checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
- sortCodeInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.sort_code_input,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+ inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form : Form[BankAccountDetails], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-bank-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-    @errorKey = @{List(s"$key-sort-code-1", s"$key-sort-code-2", s"$key-sort-code-3", key).map(form.error).find(_.isDefined).flatten}
 
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
-    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
 
-    @options = @{
-        List(
-          RadioOption(
-            label = messages(s"$key.is-business-account"),
-            content = None,
-            optionHelpText = None
-          )
-        )
-    }
-
-    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
-
-        @backLinkComponent(backLinkAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
+    @options = @{List(
+                CheckboxItem(
+                    name = Some(s"${key}[]"),
+                    value = "true",
+                    content = Text("Is business account"),
+                    checked = form.data.exists(_._2 == true)
+            ))
         }
+
+
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+
+        @errorSummary(form.errors, Some(key))
 
         @pageHeading(title)
 
-        <div class="govuk-inset-text">
-            @Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl))
-        </div>
+        @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-        @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @textInput(
-                fieldId = s"$key.account-name",
-                value = form.data.getOrElse(s"$key.account-name", ""),
-                errorKey = form.error(s"$key.account-name").map(e => e.message),
-                hasErrors = form.error(s"$key.account-name").nonEmpty,
-                label = Html(messages(s"$key.account-name.label")),
-                labelClass = Some("govuk-label--m"),
-                helpText =  Some(Html(messages(s"$key.account-name.help-text"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.account-name",
+                name = s"$key.account-name",
+                label = s"$key.account-name.label",
+                isPageHeading = false,
+                hint = Some(s"${key}.account-name.help-text"),
+                classes = Some("govuk-input--width-20"),
+                labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @checkboxGroup(
-                fieldId = s"$key.is-business-account",
-                options = options,
-                selected = form.data.get(s"$key.is-business-account[0]").toList.map(s => s.toInt),
-                helpText = None,
-                label = Html(""),
-                customErrorKey = None
+            @checkboxes(
+                field = form(s"$key.is-business-account"),
+                legendAsHeading = false,
+                legend = "",
+                items = options,
+                hint = None
             )
 
-            @sortCodeInput(
-                fieldId = key,
-                label = Html(messages(s"$key.sort-code.label")),
-                sortCode1Value = form.data.get(s"$key-sort-code-1"),
-                sortCode2Value = form.data.get(s"$key-sort-code-2"),
-                sortCode3Value = form.data.get(s"$key-sort-code-3"),
-                helpText = Some(Html(messages(s"$key.sort-code.help"))),
-                errorKey = errorKey.map(e => s"${e.key}.${e.message}"),
-                hasErrors = form.error(s"$key-sort-code").nonEmpty,
-                labelClass = Some("govuk-label--m")
+            @inputText(
+                form = form,
+                id = s"$key.sort-code",
+                name = s"$key.sort-code",
+                label = s"$key.sort-code.label",
+                isPageHeading = false,
+                hint = Some(s"${key}.sort-code.help"),
+                classes = Some("govuk-input--width-5"),
+                labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @textInput(
-                fieldId = s"$key.account-number",
-                value = form.data.getOrElse(s"$key.account-number", ""),
-                errorKey = form.error(s"$key.account-number").map(e => e.message),
-                hasErrors = form.error(s"$key.account-number").nonEmpty,
-                label = Html(messages(s"$key.account-number.label")),
-                labelClass = Some("govuk-label--m"),
-                helpText =  Some(Html(messages(s"$key.account-number.help-text"))),
-                autoComplete = AutoCompleteType.On
+            @inputText(
+                form = form,
+                id = s"$key.account-number",
+                name = s"$key.account-number",
+                label = s"$key.account-number.label",
+                isPageHeading = false,
+                hint = Some(s"${key}.account-number.help-text"),
+                classes = Some("govuk-input--width-5"),
+                labelClasses = Some("govuk-label govuk-label--s")
             )
 
             @submitButton(messages("button.continue"))

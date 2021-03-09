@@ -95,7 +95,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
             case other =>
               logger.warn(s"User has unsupported affinity group type $other")
-              Future.successful(Left(errorHandler.errorResult(None)(request)))
+              Future.successful(Left(errorHandler.errorResult()(request)))
           }
         }
       }
@@ -131,11 +131,11 @@ class AuthenticatedActionWithRetrievedData @Inject() (
             Future.successful(Right(Some(Eori(eori.value))))
           case None       =>
             logger.warn(s"EORI is missing from the enrolment")
-            Future.successful(Left(errorHandler.errorResult(None)(request)))
+            Future.successful(Left(errorHandler.errorResult()(request)))
         }
       case None       =>
         logger.warn("No EORI enrolment")
-        Future.successful(Left(errorHandler.errorResult(None)(request)))
+        Future.successful(Left(errorHandler.errorResult()(request)))
     }
 
   private def handleSignedInUser[A](
@@ -185,7 +185,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     credentials match {
       case None =>
         logger.warn("No credentials were retrieved")
-        Future.successful(Left(errorHandler.errorResult(None)(request)))
+        Future.successful(Left(errorHandler.errorResult()(request)))
 
       case Some(Credentials(id, "GovernmentGateway")) =>
         f(GGCredId(id))

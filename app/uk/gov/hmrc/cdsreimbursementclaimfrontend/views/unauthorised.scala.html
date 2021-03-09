@@ -15,27 +15,23 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
-        mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@()(implicit messages:Messages, viewConfig: ViewConfig, request: Request[_])
+@()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"unauthorised"}
 @title = @{messages(s"$key.title")}
 
-@mainTemplate(title = title, userType = None) {
-
+@layout(pageTitle = Some(s"$title")) {
     @pageHeading(title)
-
-    <p class="govuk-body">@messages(s"$key.help")</p>
-
-    <p class="govuk-body">@Html(messages(s"$key.help-text", viewConfig.eoriNumberHelpUrl))</p>
-
+    @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
+    @paragraph(Html(messages(s"$key.help-text", viewConfig.eoriNumberHelpUrl)), Some("govuk-body"))
 }

@@ -22,47 +22,32 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ui.SelectItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
- details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
+    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
 )
 
 @(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
  @key = @{"select-reason-and-basis-for-claim"}
  @title = @{messages(s"$key.title")}
- @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
  @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
- @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
+ @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-@mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
+        @pageHeading(title)
 
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-   @backLinkComponent(backLinkAction)
-
-   @if(hasErrors) {
-    @errorSummary(form)
-   }
-
-   @pageHeading(title)
-
-    <div class="govuk-inset-text">
-       @Html(messages(s"$key.help-text"))
-    </div>
-
-
-
-  <label for="@{key}.basis" class="govuk-label govuk-label--s">@Html(messages(s"$key.basis.select-label"))</label>
 
   <div class="space-document-type">
       @details(messages(s"$key.basis.label"),
@@ -82,11 +67,14 @@
       ))
   </div>
 
-  @formWrapper(postAction, 'novalidate -> "novalidate") {
+  @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
     <div class = "space-select">
         @inputSelect(
-            form = form,
+        label = messages(s"$key.basis.select-label"),
+        isPageHeading = false,
+
+        form = form,
             id = s"$key.basis",
             name = s"$key.basis",
             items = Seq(
@@ -150,8 +138,6 @@
     </div>
 
 
-  <label for="@{key}.reason" class="govuk-label govuk-label--s">@Html(messages(s"$key.reason.select-label"))</label>
-
   <div class="space-document-type">
       @details(messages(s"$key.reason.label"),
         Html(s"""|
@@ -165,7 +151,10 @@
     <div class = "space-select">
 
         @inputSelect(
-            form = form,
+        label = messages(s"$key.reason.select-label"),
+        isPageHeading = false,
+
+        form = form,
             id = s"$key.reason",
             name = s"$key.reason",
             items = Seq(

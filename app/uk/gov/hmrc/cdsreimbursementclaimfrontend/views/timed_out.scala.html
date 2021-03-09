@@ -15,33 +15,28 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
 )
 
-@()(implicit messages:Messages, appConfig: ViewConfig, request: Request[_])
+@()(implicit request : Request[_], messages:Messages, appConfig: ViewConfig)
 
 @title = @{messages("timed-out.title")}
 
-@mainTemplate(title = title, userType = None, withSignOutLink = false) {
+@layout(pageTitle = Some(s"$title")) {
 
   @pageHeading(title)
 
-  <p>
-    @messages("timed-out.p1")
-  </p>
-
-  <p>
-    @Html(messages("timed-out.p2"))
-  </p>
+  @paragraph(Html(messages("timed-out.p1")), Some("govuk-body"))
+  @paragraph(Html(messages("timed-out.p2")), Some("govuk-body"))
 
   @buttonLink(messages("timed-out.button"), routes.StartController.start().url)
 

@@ -3,5 +3,5 @@
 ->          /claim-for-reimbursement-of-import-duties                   claims.Routes
 ->          /claim-for-reimbursement-of-import-duties                   supporting_evidence.Routes
 ->          /                                                           health.Routes
-->          /template                                                   template.Routes
+
 GET         /admin/metrics                                              com.kenshoo.play.metrics.MetricsController.metrics

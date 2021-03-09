@@ -22,60 +22,44 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+ textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(form : Form[CommodityDetails], backLink: Call, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[CommodityDetails], link: Call, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-commodities-details"}
     @title = @{messages(s"$key.title")}
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
     @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit}
-    @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
+    @bLink = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else link}
 
-    @mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), backLink = Some(bLink), signedInUserDetails = request.signedInUserDetails) {
 
-
-
-        @backLinkComponent(backLinkAction)
-
-        @if(hasErrors) {
-            @errorSummary(form)
-        }
+        @errorSummary(form.errors, Some(key))
 
         @pageHeading(title)
 
-        <div class="govuk-inset-text">
-            @Html(messages(s"$key.help-text"))
-        </div>
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-        @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-
-            <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="500">
-                <div class="govuk-form-group">
-                    <label class="govuk-label govuk-label--s" for="@key">
-                        Details for commodity
-                    </label>
-
-                    <div id="with-hint-hint" class="govuk-hint">
-                        Explain why you would like to be reimbursed and why you are entitled to this claim. Also include include the commodity code, type of product, quantity and unit.
-                    </div>
-                    <textarea class="govuk-textarea govuk-js-character-count" id="@key" name="@key" rows="5" aria-describedby="with-hint-info with-hint-hint"></textarea>
-                </div>
-
-                <div id="with-hint-info" class="govuk-hint govuk-character-count__message" aria-live="polite">
-                    You can enter up to 500 characters
-                </div>
-
-            </div>
+            @textArea(
+                form = form,
+                id = key,
+                name = key,
+                label = Label(),
+                hint = None,
+                value = form.value.map(text => text.value),
+                maxLength = Some(500)
+            )
 
             @submitButton(messages("button.continue"))
         }

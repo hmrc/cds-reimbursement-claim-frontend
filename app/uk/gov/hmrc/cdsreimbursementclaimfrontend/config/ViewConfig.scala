@@ -16,14 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 
+import play.api.Configuration
+import play.api.i18n.Lang
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 
 @Singleton
-class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
-  private def getString(key: String): String = servicesConfig.getString(key)
+class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+  private def getString(key: String): String     = servicesConfig.getString(key)
+  private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
+
+  val en: String            = "en"
+  val cy: String            = "cy"
+  val defaultLanguage: Lang = Lang(en)
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
@@ -50,10 +59,6 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
       .url
 
   val govUkUrl: String = getString("external-url.gov-uk")
-
-  val userRecruitmentBannerEnabled: Boolean = servicesConfig.getBoolean("user-recruitment-banner.enabled")
-
-  val userRecruitmentUrl: String = getString("user-recruitment-banner.url")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")
 
@@ -89,4 +94,13 @@ class ViewConfig @Inject() (servicesConfig: ServicesConfig) {
 
   val contactCdsTeamUrl: String = getString("external-url.contact-cds-team")
 
+  val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
+
+  lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
+
+  lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
+
+  def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
+
+  def routeToSwitchLanguage: String => Call = (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
 }

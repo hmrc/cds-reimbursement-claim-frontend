@@ -20,8 +20,8 @@ import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.data.Form
 import play.api.data.Forms.{bigDecimal, mapping}
+import play.api.data.{Form, FormError}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -118,9 +118,12 @@ class EnterClaimController @Inject() (
       Claim(
         uuidGenerator.nextId(),
         ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentMethod).getOrElse(""),
-        ndrcDetails.find(n => n.taxType === duty.toString).map(s => s.paymentReference).getOrElse(""),
+        ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentReference).getOrElse(""),
         duty.taxCode.toString,
-        ndrcDetails.find(n => n.taxType === duty.toString).map(s => BigDecimal(s.amount)).getOrElse(BigDecimal(0.0)),
+        ndrcDetails
+          .find(n => n.taxType === duty.taxCode.toString)
+          .map(s => BigDecimal(s.amount))
+          .getOrElse(BigDecimal(0.0)),
         BigDecimal(0.0),
         isFilled = false
       )
@@ -144,7 +147,7 @@ class EnterClaimController @Inject() (
                       maybeDutiesSelected match {
                         case Some(dutiesSelected) =>
                           if (dutiesSelected.duties.size === numberOfClaims) {
-                            Redirect(routes.EnterClaimController.checkClaim())
+                            Redirect(routes.EnterClaimController.checkClaim()) // there is no change
                           } else if (dutiesSelected.duties.size <= numberOfClaims) {
 
                             val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
@@ -239,7 +242,7 @@ class EnterClaimController @Inject() (
                       } else if (dutiesSelected.duties.size <= numberOfClaims) {
                         // we need to remove that claim
                         val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
-                        val updatedClaims  = ifIncomplete.claims.filterNot(p => taxCodes.contains(p.taxCode))
+                        val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.contains(p.taxCode))
                         //update session and work which is the next one to fill in
                         val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
 
@@ -405,7 +408,7 @@ class EnterClaimController @Inject() (
                       case Left(_)  =>
                         Ok(enterEntryClaimPage(id, EnterClaimController.entryClaimAmountForm, claim))
                       case Right(_) =>
-                        Ok(enterClaimPage(id, EnterClaimController.mrnClaimAmountForm, claim))
+                        Ok(enterClaimPage(id, EnterClaimController.mrnClaimAmountForm(claim.paidAmount), claim))
                     }
                   case None        =>
                     logger.warn("Could not find movement or entry reference number")
@@ -429,7 +432,9 @@ class EnterClaimController @Inject() (
                         Ok(
                           enterClaimPage(
                             id,
-                            EnterClaimController.mrnClaimAmountForm.fill(ClaimAmount(claim.claimAmount)),
+                            EnterClaimController
+                              .mrnClaimAmountForm(claim.paidAmount)
+                              .fill(ClaimAmount(claim.claimAmount)),
                             claim
                           )
                         )
@@ -464,7 +469,9 @@ class EnterClaimController @Inject() (
                       Ok(
                         enterClaimPage(
                           id,
-                          EnterClaimController.mrnClaimAmountForm.fill(ClaimAmount(claim.claimAmount)),
+                          EnterClaimController
+                            .mrnClaimAmountForm(claim.paidAmount)
+                            .fill(ClaimAmount(claim.claimAmount)),
                           claim
                         )
                       )
@@ -581,95 +588,109 @@ class EnterClaimController @Inject() (
                     }
                   )
               case Right(_) =>
-                EnterClaimController.mrnClaimAmountForm
-                  .bindFromRequest()
-                  .fold(
-                    requestFormWithErrors => {
-                      val claim = answers
-                        .fold(ifComplete => ifComplete.claims, ifIncomplete => ifIncomplete.claims)
-                        .find(p => p.id === id)
-                      claim.fold {
-                        logger.warn("Lost claim!")
-                        errorHandler.errorResult()
-                      }(claim => BadRequest(enterClaimPage(id, requestFormWithErrors, claim)))
-                    },
-                    claimAmount => {
+                val claim = answers
+                  .fold(ifComplete => ifComplete.claims, ifIncomplete => ifIncomplete.claims)
+                  .find(p => p.id === id)
+                claim.fold {
+                  logger.warn("Lost claim!")
+                  Future.successful(errorHandler.errorResult())
+                } { claim =>
+                  EnterClaimController
+                    .mrnClaimAmountForm(claim.paidAmount)
+                    .bindFromRequest()
+                    .fold(
+                      requestFormWithErrors => {
+                        val updatedErrors: Seq[FormError] =
+                          requestFormWithErrors.errors.map(d => d.copy(key = "enter-claim"))
 
-                      def allProcessed(claims: List[Claim]): Boolean = claims.forall(p => p.isFilled)
-
-                      val claims = answers.fold(_.claims, _.claims)
-
-                      val maybeClaim: Option[Claim] = claims.find(p => p.id === id)
-
-                      val claim = maybeClaim match {
-                        case Some(value) => value
-                        case None        => sys.error("Could not find claim")
-                      }
-
-                      val updatedClaims =
-                        claims.filterNot(p => p.id === id) :+ claim
-                          .copy(isFilled = true, claimAmount = claimAmount.amount)
-
-                      if (allProcessed(updatedClaims)) {
-                        val updatedAnswers = answers.fold(
-                          _ =>
-                            IncompleteClaimsAnswer(
-                              updatedClaims
-                            ),
-                          complete => complete.copy(claims = updatedClaims)
+                        val claim = answers
+                          .fold(ifComplete => ifComplete.claims, ifIncomplete => ifIncomplete.claims)
+                          .find(p => p.id === id)
+                        claim.fold {
+                          logger.warn("Lost claim!")
+                          errorHandler.errorResult()
+                        }(claim =>
+                          BadRequest(enterClaimPage(id, requestFormWithErrors.copy(errors = updatedErrors), claim))
                         )
+                      },
+                      claimAmount => {
 
-                        val newDraftClaim =
-                          fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                        def allProcessed(claims: List[Claim]): Boolean = claims.forall(p => p.isFilled)
 
-                        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                        val claims = answers.fold(_.claims, _.claims)
 
-                        val result = EitherT
-                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                          .leftMap((_: Unit) => Error("could not update session"))
+                        val maybeClaim: Option[Claim] = claims.find(p => p.id === id)
 
-                        result.fold(
-                          e => {
-                            logger.warn("could not process all claims", e)
-                            errorHandler.errorResult()
-                          },
-                          _ => Redirect(routes.EnterClaimController.checkClaim())
-                        )
-                      } else {
-                        val updatedAnswers = answers.fold(
-                          _ =>
-                            IncompleteClaimsAnswer(
-                              updatedClaims
-                            ),
-                          complete => complete.copy(claims = updatedClaims)
-                        )
+                        val claim = maybeClaim match {
+                          case Some(value) => value
+                          case None        => sys.error("Could not find claim")
+                        }
 
-                        val newDraftClaim =
-                          fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                        val updatedClaims =
+                          claims.filterNot(p => p.id === id) :+ claim
+                            .copy(isFilled = true, claimAmount = claimAmount.amount)
 
-                        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                        if (allProcessed(updatedClaims)) {
+                          val updatedAnswers = answers.fold(
+                            _ =>
+                              IncompleteClaimsAnswer(
+                                updatedClaims
+                              ),
+                            complete => complete.copy(claims = updatedClaims)
+                          )
 
-                        val result = EitherT
-                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                          .leftMap((_: Unit) => Error("could not update session"))
+                          val newDraftClaim =
+                            fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
 
-                        result.fold(
-                          e => {
-                            logger.warn("could not process claim", e)
-                            errorHandler.errorResult()
-                          },
-                          _ => {
-                            val notProcessClaims = updatedClaims.filter(p => p.isFilled === false)
-                            notProcessClaims.headOption.fold {
-                              logger.warn("Could not determine whether there are any claims 8")
+                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                          val result = EitherT
+                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                            .leftMap((_: Unit) => Error("could not update session"))
+
+                          result.fold(
+                            e => {
+                              logger.warn("could not process all claims", e)
                               errorHandler.errorResult()
-                            }(claim => Redirect(routes.EnterClaimController.enterClaim(claim.id)))
-                          }
-                        )
-                      }
+                            },
+                            _ => Redirect(routes.EnterClaimController.checkClaim())
+                          )
+                        } else {
+                          val updatedAnswers = answers.fold(
+                            _ =>
+                              IncompleteClaimsAnswer(
+                                updatedClaims
+                              ),
+                            complete => complete.copy(claims = updatedClaims)
+                          )
 
-                    }
-                  )
+                          val newDraftClaim =
+                            fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+
+                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                          val result = EitherT
+                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                            .leftMap((_: Unit) => Error("could not update session"))
+
+                          result.fold(
+                            e => {
+                              logger.warn("could not process claim", e)
+                              errorHandler.errorResult()
+                            },
+                            _ => {
+                              val notProcessClaims = updatedClaims.filter(p => p.isFilled === false)
+                              notProcessClaims.headOption.fold {
+                                logger.warn("Could not determine whether there are any claims 8")
+                                errorHandler.errorResult()
+                              }(claim => Redirect(routes.EnterClaimController.enterClaim(claim.id)))
+                            }
+                          )
+                        }
+
+                      }
+                    )
+                }
             }
           case None        =>
             logger.warn("Could not find movement or entry reference number")
@@ -746,18 +767,20 @@ object EnterClaimController {
 
   final case class ClaimAmount(amount: BigDecimal)
 
-  val mrnClaimAmountForm: Form[ClaimAmount] = Form(
-    mapping(
-      "enter-claim" -> bigDecimal
-    )(ClaimAmount.apply)(ClaimAmount.unapply)
-  )
+  def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
+    Form(
+      mapping(
+        "enter-claim" -> bigDecimal
+      )(ClaimAmount.apply)(ClaimAmount.unapply)
+        .verifying("invalid.claim", a => a.amount <= paidAmount)
+    )
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
       "enter-claim.paid-amount"  -> bigDecimal,
       "enter-claim.claim-amount" -> bigDecimal
     )(AmountPair.apply)(AmountPair.unapply)
-      .verifying("enter-claim.invalid.claim", a => a.claimAmount < a.paidAmount)
+      .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
 
 }

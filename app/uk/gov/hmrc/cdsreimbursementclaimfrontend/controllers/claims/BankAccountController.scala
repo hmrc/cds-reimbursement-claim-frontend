@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import java.util.function.Predicate
-
 import cats.data.EitherT
-import cats.syntax.either._
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Forms._
-import play.api.data.format.Formatter
-import play.api.data.{Form, FormError, Forms, Mapping}
+import play.api.data.{Form, Mapping}
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -46,8 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton
 class BankAccountController @Inject() (
@@ -220,9 +216,7 @@ class BankAccountController @Inject() (
                 reputationResponse <- {
                   val barsAccount       =
                     BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-                  val isBusinessAccount = bankAccountDetails.isBusinessAccount.headOption
-                    .map(a => if (a === 0) true else false)
-                    .getOrElse(false)
+                  val isBusinessAccount = bankAccountDetails.isBusinessAccount.getOrElse(false)
                   isBusinessAccount match {
                     case true  =>
                       claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
@@ -279,127 +273,32 @@ class BankAccountController @Inject() (
 
 object BankAccountController {
 
-  val isBusinessAccountMapping: Mapping[List[Int]] = {
-    val isBusinessAccountFormatter: Formatter[Int] =
-      new Formatter[Int] {
-
-        override def bind(
-          key: String,
-          data: Map[String, String]
-        ): Either[Seq[FormError], Int] =
-          readValue(key, data, identity)
-            .flatMap {
-              case "0" => Right(0)
-              case _   => Left(FormError(key, "error.invalid"))
-            }
-            .leftMap(Seq(_))
-
-        override def unbind(
-          key: String,
-          value: Int
-        ): Map[String, String] =
-          Map(key -> value.toString)
-      }
-
-    mapping(
-      "enter-bank-details.is-business-account" -> Forms
-        .list(of(isBusinessAccountFormatter))
-    )(identity)(Some(_))
-
-  }
-  val accountNumberRegex: Predicate[String]          = "^\\d{6,8}$".r.pattern.asPredicate()
-  val accountNumberMapping: Mapping[AccountNumber]   =
+  val accountNumberRegex: Predicate[String]        = "^\\d{6,8}$".r.pattern.asPredicate()
+  val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText
       .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => accountNumberRegex.test(e.value))
-  val accountNameRegex: Predicate[String]            = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
-  val accountNameMapping: Mapping[AccountName]       =
+
+  val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
+  val sortCodeMapping: Mapping[SortCode] =
+    nonEmptyText
+      .transform[SortCode](s => SortCode(s.replaceAllLiterally(" ", "")), _.value)
+      .verifying("invalid", e => sortCodeRegex.test(e.value))
+
+  val accountNameRegex: Predicate[String]      = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
+  val accountNameMapping: Mapping[AccountName] =
     nonEmptyText
       .transform[AccountName](s => AccountName(s.trim()), _.value)
       .verifying("invalid", e => accountNameRegex.test(e.value))
-  val sortCodeMapping: Mapping[SortCode]             =
-    mapping(
-      "" -> of(
-        sortCodeFormatter(
-          "enter-bank-details-sort-code-1",
-          "enter-bank-details-sort-code-2",
-          "enter-bank-details-sort-code-3",
-          "enter-bank-details-sort-code"
-        )
-      )
-    )(SortCode(_))(d => Some(d.value))
+
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(
-      "enter-bank-details.account-name"   -> accountNameMapping,
-      ""                                  -> isBusinessAccountMapping,
-      ""                                  -> sortCodeMapping,
-      "enter-bank-details.account-number" -> accountNumberMapping
+      "enter-bank-details.account-name"        -> accountNameMapping,
+      "enter-bank-details.is-business-account" -> optional(boolean),
+      "enter-bank-details.sort-code"           -> sortCodeMapping,
+      "enter-bank-details.account-number"      -> accountNumberMapping
     )(BankAccountDetails.apply)(BankAccountDetails.unapply)
   )
-
-  def readValue[T](
-    key: String,
-    data: Map[String, String],
-    f: String => T,
-    requiredErrorArgs: Seq[String] = Seq.empty
-  ): Either[FormError, T] =
-    data
-      .get(key)
-      .map(_.trim())
-      .filter(_.nonEmpty)
-      .fold[Either[FormError, T]](Left(FormError(key, "error.required", requiredErrorArgs))) { stringValue =>
-        Either
-          .fromTry(Try(f(stringValue)))
-          .leftMap(_ => FormError(key, "error.invalid"))
-      }
-
-  def sortCodeFormatter(
-    sortCode1Key: String,
-    sortCode2Key: String,
-    sortCode3Key: String,
-    sortCode: String
-  ): Formatter[String] =
-    new Formatter[String] {
-      def sortCodeFieldStringValues(
-        data: Map[String, String]
-      ): Either[FormError, (String, String, String)] =
-        List(sortCode1Key, sortCode2Key, sortCode3Key)
-          .map(data.get(_).map(_.trim).filter(_.nonEmpty)) match {
-          case Some(sc1) :: Some(sc2) :: Some(sc3) :: Nil =>
-            Right((sc1, sc2, sc3))
-          case None :: Some(_) :: Some(_) :: Nil          =>
-            Left(FormError(sortCode1Key, "error.required"))
-          case Some(_) :: None :: Some(_) :: Nil          =>
-            Left(FormError(sortCode2Key, "error.required"))
-          case Some(_) :: Some(_) :: None :: Nil          =>
-            Left(FormError(sortCode3Key, "error.required"))
-          case Some(_) :: None :: None :: Nil             =>
-            Left(FormError(sortCode2Key, "error.sc1-and-sc1.required"))
-          case None :: Some(_) :: None :: Nil             =>
-            Left(FormError(sortCode1Key, "error.sc1-and-sc3.required"))
-          case None :: None :: Some(_) :: Nil             =>
-            Left(FormError(sortCode1Key, "error.sc1-and-sc2.required"))
-          case _                                          =>
-            Left(FormError(sortCode, "error.required"))
-        }
-
-      override def bind(
-        key: String,
-        data: Map[String, String]
-      ): Either[Seq[FormError], String] = {
-        val result = for {
-          scFields <- sortCodeFieldStringValues(data)
-        } yield scFields._1 + scFields._2 + scFields._3
-        result.leftMap(Seq(_))
-      }
-
-      override def unbind(key: String, value: String): Map[String, String] =
-        Map(
-          sortCode1Key -> value.substring(0, 2),
-          sortCode2Key -> value.substring(2, 4),
-          sortCode3Key -> value.substring(4, 6)
-        )
-    }
 
   final case class AccountNumber(value: String) extends AnyVal
 
@@ -407,7 +306,7 @@ object BankAccountController {
 
   final case class BankAccountDetails(
     accountName: AccountName,
-    isBusinessAccount: List[Int],
+    isBusinessAccount: Option[Boolean],
     sortCode: SortCode,
     accountNumber: AccountNumber
   )

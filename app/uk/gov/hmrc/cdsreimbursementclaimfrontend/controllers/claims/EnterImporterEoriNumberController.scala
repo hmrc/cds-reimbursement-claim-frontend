@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.{mapping, text}
 import play.api.data._
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -145,9 +145,8 @@ object EnterImporterEoriNumberController {
     implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
   }
 
-  //TODO: find out what is a valid EORI number
   val eoriNumberMapping: Mapping[Eori] =
-    nonEmptyText
+    text
       .verifying("invalid.number", str => Eori.isValid(str))
       .transform[Eori](str => Eori(str), eori => eori.value)
 

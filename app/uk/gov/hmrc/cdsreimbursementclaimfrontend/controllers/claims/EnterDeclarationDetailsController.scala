@@ -438,9 +438,9 @@ object EnterDeclarationDetailsController {
         TimeUtils.dateFormatter(
           Some(today),
           None,
-          "enter-declaration-details-day",
-          "enter-declaration-details-month",
-          "enter-declaration-details-year",
+          "enter-declaration-details.day",
+          "enter-declaration-details.month",
+          "enter-declaration-details.year",
           "enter-declaration-details"
         )
       )

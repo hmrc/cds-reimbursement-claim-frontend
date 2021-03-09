@@ -40,11 +40,11 @@ POST        /enter-claimant-details-as-company                      uk.gov.hmrc.
 GET         /change-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany()
 POST        /change-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit()
 
-GET         /enter-reason-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaim()
-POST        /enter-reason-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.selectReasonForClaimSubmit()
+GET         /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim()
+POST        /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit()
 
-GET         /change-reason-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.changeReasonForClaim()
-POST        /change-reason-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForClaimController.changeReasonForClaimSubmit()
+GET         /change-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaim()
+POST        /change-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaimSubmit()
 
 GET         /enter-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
 POST        /enter-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()

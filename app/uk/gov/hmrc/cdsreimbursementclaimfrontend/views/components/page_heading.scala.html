@@ -14,14 +14,12 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.Html
-
 @this()
 
-@(heading: String, caption: Option[String] = None, subtitle: Option[String] = None)
+@(
+    heading: String
+)
 
- <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">
-  @caption.map(c => Html(s"""<span class="heading-secondary">$c</span>"""))
-  @heading
-  @subtitle.map(s => Html(s"""<p class="sub-heading">$s</p>"""))
- </h1>
+<h1 class="govuk-heading-xl govuk-!-margin-bottom-4">
+    @heading
+</h1>

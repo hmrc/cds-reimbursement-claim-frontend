@@ -20,55 +20,34 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ claimSummaryHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.ClaimSummaryHelper,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+
+summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
 @(claims : List[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-  @key = @{"check-claim"}
-  @title = @{messages(s"$key.title")}
+    @key = @{"check-claim"}
+    @title = @{messages(s"$key.title")}
 
-  @mainTemplate(title = title, userType = request.userType){
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
+        @pageHeading(title)
 
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @pageHeading(title)
-
-    <div class="govuk-inset-text">
-        @Html(messages(s"$key.help-text"))
-    </div>
-
-    @formWrapper(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
-
-        <div class="space-details">
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">
-                @for(claim <- claims){
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">@{messages(s"select-duties.duty.${claim.taxCode}")}</th>
-                        <td class="govuk-table__cell">@{formatAmountOfMoneyWithPoundSign(claim.claimAmount)}</td>
-                    </tr>
-                }
-                <tr class="govuk-table__row">
-                    <th scope="row" class="govuk-table__header">Total reimbursement</th>
-                    <td class="govuk-table__cell">@{formatAmountOfMoneyWithPoundSign(claims.total)}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
+        @formWithCSRF(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
+            @summary(SummaryList(claimSummaryHelper.claimSummary(claims)))
             @submitButton(messages("button.continue"))
         }
 
-        <p id="update-calculation">
-            <a href="@routes.SelectDutiesController.selectDuties().url">Update the calculation</a>
-        </p>
-
-
+        @paragraph(Html(messages(s"${key}.update", routes.SelectDutiesController.selectDuties().url)), Some("govuk-body"))
   }

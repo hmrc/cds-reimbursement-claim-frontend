@@ -21,10 +21,10 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
 @()(implicit request:RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
@@ -32,9 +32,7 @@
  @key = @{"supporting-evidence.scan-failed"}
  @title = @{messages(s"$key.title")}
 
- @mainTemplate(title = title, userType = request.userType) {
-
-
+ @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
   @pageHeading(title)
 
@@ -50,10 +48,8 @@
   <p>@{messages(s"$key.p2")}</p>
   <p>@{messages(s"$key.p3")}</p>
 
-  @formWrapper(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+  @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
    @submitButton(messages(s"$key.button.tryAgain"))
   }
 
-
-
- }
+}

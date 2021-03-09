@@ -17,76 +17,62 @@
 @import play.api.data.Form
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.DutiesSelected
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.RadioOption
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
- formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- checkboxGroup: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.checkbox_group,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
 @(form : Form[DutiesSelected], duties : List[Duty], isAmend : Boolean = false)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
-  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
   @postAction = @{if(isAmend) routes.SelectDutiesController.selectDutiesSubmit else routes.SelectDutiesController.selectDutiesSubmit}
-  @backLinkAction = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
+  @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
 
-  @toIndex(taxCode: TaxCode) = @{duties.indexOf(Duty(taxCode))}
-
-  @options = @{
-    duties.map{
-        duty =>
-            RadioOption(
-                label = messages(s"${key}.duty.${duty.taxCode}"),
-                content = None,
-                optionHelpText = None
+    @options = @{duties.zipWithIndex.map { case (duty, index ) =>
+                CheckboxItem(
+                    name = Some(s"${key}[$index]"),
+                    value = index.toString,
+                    content = Text(messages(s"${key}.duty.${duty.taxCode}")),
+                    checked = form.data.exists(_._2 == index.toString)
             )
         }
-  }
-
-    @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
-
-
-
-    @backLinkComponent(backLinkAction)
-
-    @if(hasErrors) {
-        @errorSummary(form)
     }
 
-    @pageHeading(title)
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-    <div class="govuk-inset-text">
-        @Html(messages(s"$key.help-text"))
-    </div>
+        @errorSummary(form.errors, Some(key))
 
-    @formWrapper(postAction, 'novalidate -> "novalidate") {
+        @pageHeading(title)
 
-        @checkboxGroup(
-            fieldId = key,
-            options = options,
-            selected = form.value.map(ds => ds.duties.map(d => toIndex(d.taxCode))).getOrElse(List.empty),
-            helpText = None,
-            label = Html(""),
-            error = form.error(key),
-            customErrorKey = None
-        )
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-        @submitButton(messages("button.continue"))
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-    }
+            @checkboxes(
+                field = form(s"$key"),
+                legendAsHeading = false,
+                legend = "",
+                items = options,
+                hint = None
+            )
+
+            @submitButton(messages("button.continue"))
+
+        }
 
   }

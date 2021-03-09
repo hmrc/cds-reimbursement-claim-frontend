@@ -19,7 +19,6 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 @import java.util.UUID
@@ -31,66 +30,47 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.AmountPair
 
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    unitInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.unit_input,
-    formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
 )
 
 @(id : UUID, form : Form[AmountPair], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"enter-claim"}
   @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
-  @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-  @mainTemplate(title = title, userType = None, hasErrors =hasErrors){
-
-
-
-    @if(hasErrors) {
-        @errorSummary(form)
-    }
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
     @pageHeading(title)
 
-    <div class="govuk-inset-text">
-        @Html(messages(s"$key.help-text"))
-    </div>
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @formWrapper(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
-        @unitInput(
-            fieldId = s"${key}.paid-amount",
-            value = form.data.get(s"${key}.paid-amount").getOrElse(""),
-            formError = form.error(s"${key}.paid-amount"),
-            hasErrors =  form.error(s"${key}.paid-amount").nonEmpty,
-            label = Html(messages(s"${key}.paid-amount")),
-            labelAsHeading = false,
-            helpText = None,
-            autoComplete = AutoCompleteType.Off,
-            labelledByID = "",
-            inputClass = Some("small"),
-            aspect = "left",
-            unit = "£",
-            assistiveText = messages("unit-input.assistive.pounds")
+        @inputText(
+            form = form,
+            id = s"${key}.paid-amount",
+            name = s"${key}.paid-amount",
+            label = messages(s"${key}.paid-amount"),
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"${key}.claim-amount.hint")
         )
 
-        @unitInput(
-            fieldId = s"${key}.claim-amount",
-            value = form.data.get(s"${key}.claim-amount").getOrElse(""),
-            formError = form.error(s"${key}.claim-amount"),
-            hasErrors =  form.error(s"${key}.claim-amount").nonEmpty,
-            label = Html(messages(s"${key}.claim-amount")),
-            labelAsHeading = false,
-            helpText = None,
-            autoComplete = AutoCompleteType.Off,
-            labelledByID = "",
-            inputClass = Some("small"),
-            aspect = "left",
-            unit = "£",
-            assistiveText = messages("unit-input.assistive.pounds")
+        @inputText(
+            form = form,
+            id = s"${key}.claim-amount",
+            name = s"${key}.claim-amount",
+            label = messages(s"${key}.claim-amount"),
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"${key}.claim-amount.hint")
         )
 
         @submitButton(messages("button.continue"))

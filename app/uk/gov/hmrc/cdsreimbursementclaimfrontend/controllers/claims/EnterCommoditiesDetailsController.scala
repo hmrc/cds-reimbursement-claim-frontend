@@ -100,7 +100,7 @@ class EnterCommoditiesDetailsController @Inject() (
           ) =>
         (reasonForBasisAndClaimAnswer, reasonForClaim) match {
           case (Some(_), None) => routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-          case (None, Some(_)) => routes.SelectReasonForClaimController.selectReasonForClaim()
+          case (None, Some(_)) => routes.SelectBasisForClaimController.selectBasisForClaim()
           case _               => sys.error("invalid data state: cannot have both reason and basis for claim and reason for claim")
         }
     }

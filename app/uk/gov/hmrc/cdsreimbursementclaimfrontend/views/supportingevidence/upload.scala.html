@@ -17,19 +17,20 @@
 @import play.api.i18n.Messages
 @import play.api.mvc.Call
 @import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 
 @this(
- mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
- backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input
 )
 
-@(upscanUpload : UpscanUpload, backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@(upscanUpload : UpscanUpload, link: Call)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
  @key = @{"supporting-evidence.upload"}
  @field = @{"file"}
@@ -37,13 +38,43 @@
  @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
  @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
- @helpText = @{messages(s"$key.help-text")}
 
- @mainTemplate(title = title, userType = request.userType) {
-
+ @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
 
- @backLinkComponent(backLink)
+
+<div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+
+ <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+  <h2 class="govuk-error-summary__title" id="error-summary-title">
+   There’s a problem
+  </h2>
+  <div class="govuk-error-summary__body">
+
+   <ul class="govuk-list govuk-error-summary__list">
+
+    <li>
+
+     <a href="#file">@(messages(s"${key}.error.required"))</a>
+
+    </li>
+
+   </ul>
+  </div>
+ </div>
+
+ <span id="file-upload-error" class="govuk-error-message">
+  <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
+ </span>
+
+</div>
+
+
+
+
+@pageHeading(title)
+
+@paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
  <form action="@href" method="post" enctype="multipart/form-data">
 
@@ -54,15 +85,17 @@
   @fileInput(
    fieldId = field,
    label = Html(title),
-   helpText = Some(Html(helpText)),
-   helpTextClass = Some("govuk-inset-text govuk-!-margin-bottom-8"),
+   labelClass = Some("govuk-label govuk-label--s"),
+   inputClass = Some("govuk-file-upload"),
    hasErrors = false,
    errorKey = None,
-   labelAsHeading = true,
+   labelAsHeading = false,
    autoComplete = AutoCompleteType.On
   )
 
+  <div class="govuk-!-margin-bottom-9">
   @submitButton(messages("button.saveAndContinue"))
+  </div>
  </form>
 
 

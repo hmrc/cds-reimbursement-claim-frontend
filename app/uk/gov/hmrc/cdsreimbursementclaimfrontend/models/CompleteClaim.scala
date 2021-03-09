@@ -21,6 +21,7 @@ import cats.data.Validated.Valid
 import cats.implicits._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
@@ -691,7 +692,7 @@ object CompleteClaim {
     def bankDetails: Option[BankAccountController.BankAccountDetails] = completeClaim match {
       case CompleteC285Claim(
             _,
-            _,
+            completeMovementReferenceNumberAnswer,
             _,
             _,
             _,
@@ -703,15 +704,39 @@ object CompleteClaim {
             _,
             _,
             _,
-            _,
+            maybeDisplayDeclaration,
             _,
             _,
             _,
             _
           ) =>
-        bankAccountDetails match {
-          case Some(bankAccountDetailAnswer) => Some(bankAccountDetailAnswer.bankAccountDetails)
-          case None                          => None
+        completeMovementReferenceNumberAnswer.movementReferenceNumber match {
+          case Left(_)  =>
+            bankAccountDetails match {
+              case Some(bankAccountDetailAnswer) => Some(bankAccountDetailAnswer.bankAccountDetails)
+              case None                          => None
+            }
+          case Right(_) =>
+            maybeDisplayDeclaration match {
+              case Some(value) =>
+                value.displayResponseDetail.maskedBankDetails match {
+                  case Some(maybeBankDetails) =>
+                    maybeBankDetails.consigneeBankDetails match {
+                      case Some(value) =>
+                        Some(
+                          BankAccountController.BankAccountDetails(
+                            AccountName(value.accountHolderName),
+                            Some(false),
+                            SortCode(value.sortCode),
+                            AccountNumber(value.accountNumber)
+                          )
+                        )
+                      case None        => None
+                    }
+                  case None                   => None
+                }
+              case None        => None
+            }
         }
     }
 
@@ -739,8 +764,8 @@ object CompleteClaim {
           ) =>
         bankAccountDetails match {
           case Some(value) =>
-            value.bankAccountDetails.isBusinessAccount.headOption match {
-              case Some(value) => if (value === 0) "Business Account" else "Non-Business Account"
+            value.bankAccountDetails.isBusinessAccount match {
+              case Some(value) => if (value === true) "Business Account" else "Non-Business Account"
               case None        => ""
             }
           case None        => ""
@@ -824,6 +849,62 @@ object CompleteClaim {
             _
           ) =>
         supportingEvidenceAnswers.evidences
+    }
+
+    def totalUKDutyClaim: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            completeClaimsAnswer
+          ) =>
+        def isUKTax(taxCode: String): Boolean =
+          TaxCode.listOfUKTaxCodes.map(t => t.toString).exists(p => p.contains(taxCode))
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(
+          completeClaimsAnswer.claims.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+        )
+    }
+
+    def totalEuDutyClaim: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            completeClaimsAnswer
+          ) =>
+        def isUKTax(taxCode: String): Boolean =
+          TaxCode.listOfEUTaxCodes.map(t => t.toString).exists(p => p.contains(taxCode))
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(
+          completeClaimsAnswer.claims.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+        )
     }
 
     def totalClaim: String = completeClaim match {

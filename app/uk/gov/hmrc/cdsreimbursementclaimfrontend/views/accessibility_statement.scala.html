@@ -15,25 +15,23 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Request
 @import play.twirl.api.Html
-
-
+@import play.api.mvc.Request
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
-    mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
 )
 
-@()(implicit messages: Messages, viewConfig: ViewConfig, request: Request[_])
+@()(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{ "accessibility-statement" }
     @title = @{messages(s"$key.title")}
 
-    @mainTemplate(title = title, userType = None, withSignOutLink = false) {
+@layout(pageTitle = Some(s"$title")) {
 
-    @pageHeading(title)
+@pageHeading(title)
 
 <div id="content" class="govuk-grid-row">
 

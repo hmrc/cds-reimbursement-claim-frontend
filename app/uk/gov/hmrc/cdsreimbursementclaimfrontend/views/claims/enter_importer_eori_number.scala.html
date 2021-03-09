@@ -21,51 +21,42 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 
 @this(
-        mainTemplate: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.main_template,
-        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.submit_button,
-        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-        formWrapper: uk.gov.hmrc.play.views.html.helpers.FormWithCSRF,
-        caption: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.caption,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-        textInput : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.text_input
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form: Form[ImporterEoriNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-importer-eori-number"}
-@title = @{messages(s"$key.title")}
+    @key = @{"enter-importer-eori-number"}
+    @title = @{messages(s"$key.title")}
 
-@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-@mainTemplate(title = title, userType = request.userType, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-    @if(hasErrors) {
-       @errorSummary(form)
-   }
+        @errorSummary(form.errors, Some(key))
 
-    @caption(messages(s"$key.caption"))
+        @pageHeading(title)
 
-    @pageHeading(title)
+        @paragraph(Html(messages(s"$key.help")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    <p>@messages(s"$key.help")</p>
+       @formWithCSRF(routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(), 'novalidate -> "novalidate") {
 
-   @formWrapper(routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(), 'novalidate -> "novalidate") {
-
-        @textInput(
-            fieldId = key,
-            value = form.data.getOrElse(key, ""),
-            errorKey = form.error(key).map(e => e.message),
-            hasErrors = form.error(key).nonEmpty,
-            label = Html(""),
-            labelClass = Some("govuk-label--m"),
-            helpText = Some(Html(messages(s"$key.help-text"))),
-            autoComplete = AutoCompleteType.On
-        )
-
-        @submitButton(messages("button.continue"))
-
+           @inputText(
+               form = form,
+               id = key,
+               name = key,
+               label = s"${key}.input-label",
+               isPageHeading = false,
+               hint = Some(s"${key}.help-text"),
+               classes = Some("govuk-input--width-20"),
+               labelClasses = Some("govuk-label govuk-label--s")
+           )
+            @submitButton(messages("button.continue"))
+        }
     }
-
-}

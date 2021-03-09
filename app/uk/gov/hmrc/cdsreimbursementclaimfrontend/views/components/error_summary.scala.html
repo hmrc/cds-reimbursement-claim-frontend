@@ -14,45 +14,28 @@
  * limitations under the License.
  *@
 
-@import play.api.i18n.Messages
-@import play.api.data.Form
+@import play.api.i18n._
+@import play.api.data.FormError
+@import play.twirl.api.TwirlFeatureImports._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.govukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary
 
-@this()
+@this(govukErrorSummary: govukErrorSummary)
 
-@(form: Form[_], customErrorKey: Option[String] = None, userKeyOnly: String = "")(implicit messages: Messages)
+@(errors: Seq[FormError], errorFieldName: Option[String] = None)(implicit messages: Messages)
 
-<div
-  class="error-summary"
-  id="error-summary-display"
-  role="alert"
-  aria-labelledby="error-summary-heading"
-  tabindex="-1">
-
-  <h2
-    id="error-summary-heading"
-    class="heading-medium error-summary-heading">
-    @messages("error.summary.heading")
-  </h2>
-
-  <ul class="error-summary-list">
-    @if(form.globalErrors.nonEmpty) {
-      @form.globalErrors.map { error =>
-        <li>
-          <span class="error-message">
-            @messages(s"${error.message}", error.args: _*)
-          </span>
-        </li>
-      }
-    } else {
-      @form.errors.map { error =>
-        <li>
-          <a href="#@error.key" data-focuses="@error.key">
-            @messages(s"${customErrorKey.getOrElse(error.key)}$userKeyOnly.${error.message}", error.args: _*)
-          </a>
-        </li>
-      }
+@if(errors.nonEmpty) {
+    @defining(errors.map { error =>
+        ErrorLink(
+            href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
+            content = Text(messages(s"${error.key}.${error.message}", error.args:_*))
+        )
+    }) { errorLinks =>
+        @govukErrorSummary(ErrorSummary(
+            errorList = errorLinks,
+            title = Text(messages("error.summary.title"))
+        ))
     }
-
-  </ul>
-
-</div>
+}

@@ -1,0 +1,134 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.mvc.Call
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
+
+@this(
+    govukLayout: govukLayout,
+    head: Head,
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
+    hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet,
+    hmrcStandardFooter: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter,
+    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
+    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link
+)
+
+@(
+    pageTitle: Option[String] = None,
+    headBlock: Option[Html] = None,
+    scriptsBlock: Option[Html] = None,
+    timeOut: Boolean = true,
+    signedInUserDetails: Option[SignedInUserDetails] = None,
+    backLink : Option[Call] = None
+)(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+    @defaultHead = {
+        @headBlock
+            @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
+                                name="timeOutDialog",
+                                timeout= Some(viewConfig.timeout),
+                                countdown= Some(viewConfig.countdown),
+                                message= Some(messages("session-expired-message")),
+                                keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+                                signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+                                timeoutUrl= Some(s"${StartController.timedOut.url}"),
+                                keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+                                signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
+                                language = Some("en")
+                            ))}
+            <script xmlns="http://www.w3.org/1999/html">
+                    dataLayer = [{
+                        'URL': window.location.pathname
+                    }];
+            </script>
+
+        @hmrcTrackingConsentSnippet()
+    }
+
+
+
+    @scripts = {
+        @scriptsBlock
+        <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js.map.js")'></script>
+        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+    }
+
+    @phaseBanner = {
+
+        <div class="govuk-phase-banner">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
+                    alpha
+                </strong>
+                <span class="govuk-phase-banner__text">
+              This is a new service – your <a class="govuk-link" href="#">feedback</a> will help us to improve it.
+            </span>
+            </p>
+        </div>
+
+    }
+
+    @userBanner = {
+
+        <div class="cds-user-banner">
+            <div>
+                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+                    @signedInUserDetails.map{ user =>
+                        <strong class="govuk-!-margin-right-1">
+                            EORI @user.eori.value:</strong> @user.contactName.value
+                    }
+                </p>
+            </div>
+            <div>
+                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+                    <a href='@{viewConfig.signOutUrl}?continue=@{StartController.start().url}'>Sign out</a>
+                </p>
+            </div>
+        </div>
+        <div class="cds-user-banner cds-no-border">
+            <div>
+                @backLink.map{ link => @backLinkComponent(link) }
+            </div>
+            <div>
+                @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
+            </div>
+        </div>
+
+    }
+
+    @beforeContentBlock = {
+        @phaseBanner
+        @userBanner
+    }
+
+    @govukLayout(
+        pageTitle = pageTitle,
+        headBlock = Some(head(Some(defaultHead))),
+        scriptsBlock = Some(scripts),
+        beforeContentBlock = Some(beforeContentBlock),
+        footerBlock = Some(hmrcStandardFooter())
+    )(contentBlock)
