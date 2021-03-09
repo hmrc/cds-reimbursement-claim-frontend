@@ -21,7 +21,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
 
 import scala.concurrent.ExecutionContext
 
@@ -30,9 +30,19 @@ final case class RequestWithSessionData[A](
   authenticatedRequest: AuthenticatedRequest[A]
 ) extends WrappedRequest[A](authenticatedRequest)
     with PreferredMessagesProvider {
-  override def messagesApi: MessagesApi =
+  override def messagesApi: MessagesApi                =
     authenticatedRequest.request.messagesApi
-  val userType: Option[UserType]        = sessionData.flatMap(_.userType)
+  val userType: Option[UserType]                       = sessionData.flatMap(_.userType)
+  val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus) match {
+    case Some(value) =>
+      value match {
+        case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => Some(signedInUserDetails)
+        case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => Some(signedInUserDetails)
+        case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => Some(signedInUserDetails)
+        case JourneyStatus.NonGovernmentGatewayJourney                      => None
+      }
+    case None        => None
+  }
 }
 
 @Singleton

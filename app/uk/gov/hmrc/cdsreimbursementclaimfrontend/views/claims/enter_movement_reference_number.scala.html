@@ -40,7 +40,7 @@
 
     @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
