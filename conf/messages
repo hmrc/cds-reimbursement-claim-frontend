@@ -170,6 +170,7 @@ enter-importer-eori-number.help-text=Must be between 14-17 characters and start 
 enter-importer-eori-number.invalid.number=Enter a valid EORI number
 enter-importer-eori-number.invalid=Enter a valid EORI number
 enter-importer-eori-number.error.required=Enter a valid EORI number
+enter-importer-eori-number.input-label=Enter importer eori number
 
 #===================================================
 #  ENTER DECLARANT EORI NUMBER PAGE
