@@ -45,10 +45,10 @@
 
     @options = @{duties.zipWithIndex.map { case (duty, index ) =>
                 CheckboxItem(
-                    name = Some(s"${key}[]"),
+                    name = Some(s"${key}[$index]"),
                     value = index.toString,
                     content = Text(messages(s"${key}.duty.${duty.taxCode}")),
-                    checked = form.data.exists(_._2 == duty.toString)
+                    checked = form.data.exists(_._2 == index.toString)
             )
         }
     }

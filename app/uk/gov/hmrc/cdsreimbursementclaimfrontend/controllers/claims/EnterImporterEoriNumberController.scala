@@ -100,14 +100,12 @@ class EnterImporterEoriNumberController @Inject() (
         EnterImporterEoriNumberController.eoriNumberForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => {
-              println(s"${requestFormWithErrors.toString}")
+            requestFormWithErrors =>
               BadRequest(
                 enterImporterEoriNumberPage(
                   requestFormWithErrors
                 )
-              )
-            },
+              ),
             importerEoriNumber => {
               val updatedAnswers = answers.fold(
                 _ =>

@@ -86,7 +86,7 @@ class SelectDutiesController @Inject() (
           case Some(ndrcDetails) => makeBlankForm(ndrcDetails, fillingOutClaim.draftClaim.isMrnFlow).duties
           case None              => List.empty
         }
-      case None                     => List.empty
+      case None                     => makeBlankForm(List.empty, false).duties
     }
 
   private def dutiesForEntryFlow: List[Duty] =
@@ -162,7 +162,7 @@ class SelectDutiesController @Inject() (
                     Ok(
                       selectDutiesPage(
                         SelectDutiesController
-                          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                          .selectDutiesForm(ifComplete.dutiesSelected)
                           .fill(ifComplete.dutiesSelected),
                         dutiesForEntryFlow
                       )
@@ -171,7 +171,7 @@ class SelectDutiesController @Inject() (
                     Ok(
                       selectDutiesPage(
                         SelectDutiesController
-                          .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
+                          .selectDutiesForm(ifComplete.dutiesSelected)
                           .fill(ifComplete.dutiesSelected),
                         duties(fillingOutClaim)
                       )
@@ -185,7 +185,6 @@ class SelectDutiesController @Inject() (
       }
     }
 
-  //TODO: need to check if they changed the selection - if so trash what they renoved or update if they have added
   def selectDutiesSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withSelectedDutiesAnswer { (_, fillingOutClaim, currentAnswers) =>
@@ -194,7 +193,7 @@ class SelectDutiesController @Inject() (
             fillingOutClaim.draftClaim.movementReferenceNumber match {
               case Some(value) =>
                 value match {
-                  case Left(_)  => makeBlankForm(List.empty, fillingOutClaim.draftClaim.isMrnFlow)
+                  case Left(_)  => makeBlankForm(List.empty, false)
                   case Right(_) => DutiesSelected(duties(fillingOutClaim))
                 }
               case None        =>
