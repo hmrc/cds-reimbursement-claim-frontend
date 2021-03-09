@@ -38,7 +38,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

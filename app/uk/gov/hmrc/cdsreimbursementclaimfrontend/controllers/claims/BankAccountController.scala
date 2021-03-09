@@ -178,45 +178,7 @@ class BankAccountController @Inject() (
     }
 
   def enterBankAccountDetailsSubmit: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withBankAccountDetailsAnswers { (_, fillingOutClaim, answers) =>
-        BankAccountController.enterBankDetailsForm
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterBankAccountDetailsPage(
-                  requestFormWithErrors
-                )
-              ),
-            bankAccountDetails => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteBankAccountDetailAnswer(
-                    bankAccountDetails
-                  ),
-                complete => complete.copy(bankAccountDetails = bankAccountDetails)
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(bankAccountDetailsAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not bank account details", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
-              )
-            }
-          )
-      }
-    }
+    changeBankAccountDetailsSubmit(false, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
 
   def changeBankAccountDetailsSubmit: Action[AnyContent] =
     changeBankAccountDetailsSubmit(true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers())

@@ -40,7 +40,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
 
         @pageHeading(title)

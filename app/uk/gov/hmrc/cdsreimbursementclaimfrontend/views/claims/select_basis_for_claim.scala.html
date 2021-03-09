@@ -71,7 +71,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
       @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @inputSelect(
-                label = messages("select-basis-for-claim.select-label"),
+                label = "select-basis-for-claim.select-label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 form = form,
@@ -136,7 +136,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                     )
             )
 
-        @submitButton(messages("button.saveAndContinue"))
+        @submitButton("button.saveAndContinue")
 
       }
 
