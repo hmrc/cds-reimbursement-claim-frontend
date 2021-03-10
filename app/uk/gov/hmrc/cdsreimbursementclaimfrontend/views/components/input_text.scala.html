@@ -18,6 +18,7 @@
 @import play.api.data.Form
 @import uk.gov.hmrc.govukfrontend.views.html.components.govukInput
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.Input
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
@@ -36,7 +37,8 @@
     headingMessageArgs: Seq[String] = Seq(),
     hint: Option[String] = None,
     classes: Option[String] = None,
-    labelClasses: Option[String] = None
+    labelClasses: Option[String] = None,
+    prefix: Option[PrefixOrSuffix] = None
 )(implicit messages: Messages)
 
 @govukInput(Input(
@@ -53,5 +55,6 @@
     )),
     value = form(name).value,
     inputType = inputType,
+    prefix = prefix,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
 ))
