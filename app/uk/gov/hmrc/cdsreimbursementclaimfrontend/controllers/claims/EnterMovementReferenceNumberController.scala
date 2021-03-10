@@ -36,13 +36,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter,
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
+import shapeless._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -52,6 +53,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   claimService: ClaimService,
+  customsDataStoreService: CustomsDataStoreService,
   cc: MessagesControllerComponents,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
@@ -169,9 +171,16 @@ class EnterMovementReferenceNumberController @Inject() (
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val result = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                  val result = for {
+                    maybeVerifiedEmail <- getVerifiedEmail(fillingOutClaim.signedInUserDetails.eori)
+                    res                <- EitherT
+                                            .liftF(
+                                              updateSession(sessionStore, request)(
+                                                _.copy(journeyStatus = Some(updateValidatedEmail(updatedJourney, maybeVerifiedEmail)))
+                                              )
+                                            )
+                                            .leftMap((_: Unit) => Error("could not update session"))
+                  } yield res
 
                   result.fold(
                     e => {
@@ -203,6 +212,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
                   val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
                     maybeDisplayDeclaration <- getDeclaration
+                    maybeVerifiedEmail      <- getVerifiedEmail(fillingOutClaim.signedInUserDetails.eori)
                     _                       <- updateSessionWithReference
                     mrnJourneyFlow          <-
                       EitherT
@@ -216,8 +226,8 @@ class EnterMovementReferenceNumberController @Inject() (
                                                  updateSession(sessionStore, request)(
                                                    _.copy(journeyStatus =
                                                      Some(
-                                                       fillingOutClaim.copy(draftClaim =
-                                                         newDraftClaim.copy(
+                                                       updateValidatedEmail(fillingOutClaim, maybeVerifiedEmail).copy(
+                                                         draftClaim = newDraftClaim.copy(
                                                            displayDeclaration = Some(displayDeclaration),
                                                            movementReferenceNumberAnswer = Some(updatedAnswers)
                                                          )
@@ -309,9 +319,16 @@ class EnterMovementReferenceNumberController @Inject() (
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val result = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                  val result = for {
+                    maybeVerifiedEmail <- getVerifiedEmail(fillingOutClaim.signedInUserDetails.eori)
+                    res                <- EitherT
+                                            .liftF(
+                                              updateSession(sessionStore, request)(
+                                                _.copy(journeyStatus = Some(updateValidatedEmail(updatedJourney, maybeVerifiedEmail)))
+                                              )
+                                            )
+                                            .leftMap((_: Unit) => Error("could not update session"))
+                  } yield res
 
                   result.fold(
                     e => {
@@ -322,10 +339,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 case Right(mrn)        =>
                   val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
-                    _ =>
-                      CompleteMovementReferenceNumberAnswer(
-                        Right(mrn)
-                      ),
+                    _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
                     complete => complete.copy(movementReferenceNumber = Right(mrn))
                   )
                   val newDraftClaim                                         =
@@ -335,6 +349,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     maybeDisplayDeclaration <- claimService
                                                  .getDisplayDeclaration(mrn)
                                                  .leftMap(_ => Error("could not get declaration"))
+                    maybeVerifiedEmail      <- getVerifiedEmail(fillingOutClaim.signedInUserDetails.eori)
                     displayDeclaration      <-
                       EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
                     updatedJourney           =
@@ -350,7 +365,11 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     _                       <-
                       EitherT
-                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .liftF(
+                          updateSession(sessionStore, request)(
+                            _.copy(journeyStatus = Some(updateValidatedEmail(updatedJourney, maybeVerifiedEmail)))
+                          )
+                        )
                         .leftMap((_: Unit) => Error("could not update session"))
                   } yield ()
 
@@ -531,6 +550,23 @@ class EnterMovementReferenceNumberController @Inject() (
         }
 
       case None => Left(Error("received no declaration information"))
+    }
+
+  private def getVerifiedEmail(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]] =
+    customsDataStoreService
+      .getEmailByEori(eori)
+      .leftMap(_ => Error("Could not get verified email for Eori"))
+
+  private def updateValidatedEmail(
+    fillingOutClaim: FillingOutClaim,
+    maybeValidatedEmail: Option[VerifiedEmail]
+  ): FillingOutClaim =
+    maybeValidatedEmail match {
+      case Some(verifiedEmail) =>
+        val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
+        emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)
+      case None                =>
+        fillingOutClaim
     }
 
 }
