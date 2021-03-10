@@ -263,7 +263,7 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #===================================================
 enter-declaration-details.title=Enter declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
-enter-declaration-details.date-of-import.label=Date of Import
+enter-declaration-details.date-of-import.label=Date of import
 enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
 enter-declaration-details.place-of-import.label=Place of import
 enter-declaration-details.place-of-import.help=This is where the commodities arrived in the UK. You can find the location on import documents.
