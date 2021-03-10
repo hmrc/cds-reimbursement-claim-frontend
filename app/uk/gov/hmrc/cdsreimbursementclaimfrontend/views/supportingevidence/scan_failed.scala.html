@@ -32,7 +32,7 @@
  @key = @{"supporting-evidence.scan-failed"}
  @title = @{messages(s"$key.title")}
 
- @layout(pageTitle = Some(s"$title")) {
+ @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
   @pageHeading(title)
 

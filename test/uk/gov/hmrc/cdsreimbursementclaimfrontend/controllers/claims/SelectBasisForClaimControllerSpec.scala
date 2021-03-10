@@ -71,13 +71,13 @@ class SelectBasisForClaimControllerSpec
     )
   }
 
-  "Movement Reference Number Controller" when {
+  "Select basis for claim Controller" when {
 
-    "handling requests to capture an mrn number" must {
+    "handling requests to capture a basis for a claim" must {
 
-      def performAction(): Future[Result] = controller.selectReasonForClaim()(FakeRequest())
+      def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
 
-      "show the enter your mrn page" in {
+      "show the select basis for claim page" in {
 
         val answers = IncompleteBasisOfClaimAnswer.empty
 
