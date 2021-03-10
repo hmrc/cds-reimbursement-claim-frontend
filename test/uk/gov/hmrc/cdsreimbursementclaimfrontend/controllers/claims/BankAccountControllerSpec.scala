@@ -126,9 +126,6 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = getGlobalErrors(doc).asScala
-        errors.size shouldBe 0
-
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
 
@@ -149,9 +146,6 @@ class BankAccountControllerSpec
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
-
-        val errors = getGlobalErrors(doc).asScala
-        errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -249,9 +243,6 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = getGlobalErrors(doc).asScala
-        errors.size shouldBe 0
-
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
 
@@ -272,9 +263,6 @@ class BankAccountControllerSpec
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
-
-        val errors = getGlobalErrors(doc).asScala
-        errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
