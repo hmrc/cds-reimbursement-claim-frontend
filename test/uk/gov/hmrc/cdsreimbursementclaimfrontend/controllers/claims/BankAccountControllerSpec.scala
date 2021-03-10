@@ -19,10 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.Ignore
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
@@ -50,7 +49,6 @@ import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@Ignore
 class BankAccountControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -83,10 +81,6 @@ class BankAccountControllerSpec
       bind[ClaimService].toInstance(claimService)
     )
 
-  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetailsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
@@ -103,6 +97,8 @@ class BankAccountControllerSpec
       draftC285Claim
     )
   }
+
+  def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   "Bank Account Controller" when {
 
@@ -130,7 +126,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = doc.getElementsByClass("error-summary-list").select("li").asScala
+        val errors = getGlobalErrors(doc).asScala
         errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
@@ -154,7 +150,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = doc.getElementsByClass("error-summary-list").select("li").asScala
+        val errors = getGlobalErrors(doc).asScala
         errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
@@ -174,8 +170,7 @@ class BankAccountControllerSpec
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
-
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error            = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
         status(result) shouldBe BAD_REQUEST
       }
@@ -198,7 +193,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
         status(result) shouldBe BAD_REQUEST
       }
@@ -223,7 +218,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_ACCOUNT_NUMBER")
         status(result) shouldBe BAD_REQUEST
       }
@@ -254,7 +249,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = doc.getElementsByClass("error-summary-list").select("li").asScala
+        val errors = getGlobalErrors(doc).asScala
         errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
@@ -278,7 +273,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val errors = doc.getElementsByClass("error-summary-list").select("li").asScala
+        val errors = getGlobalErrors(doc).asScala
         errors.size shouldBe 0
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
@@ -299,7 +294,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.moc-check-failed")
         status(result) shouldBe BAD_REQUEST
       }
@@ -322,7 +317,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.account-does-not-exist")
         status(result) shouldBe BAD_REQUEST
       }
@@ -346,7 +341,7 @@ class BankAccountControllerSpec
         val result           = controller.enterBankAccountDetailsSubmit(request)
         val doc              = Jsoup.parse(contentAsString(result))
 
-        val error = doc.getElementsByClass("error-summary-list").select("li").text()
+        val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey("enter-bank-details.error.INVALID_SORTCODE")
         status(result) shouldBe BAD_REQUEST
       }
