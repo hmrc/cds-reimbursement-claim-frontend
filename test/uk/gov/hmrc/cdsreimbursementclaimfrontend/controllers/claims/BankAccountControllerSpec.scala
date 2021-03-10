@@ -45,7 +45,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -124,7 +123,6 @@ class BankAccountControllerSpec
         val form             = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
-        val doc              = Jsoup.parse(contentAsString(result))
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -145,7 +143,6 @@ class BankAccountControllerSpec
         val form             = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
-        val doc              = Jsoup.parse(contentAsString(result))
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -241,7 +238,6 @@ class BankAccountControllerSpec
         val form             = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
-        val doc              = Jsoup.parse(contentAsString(result))
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -262,7 +258,6 @@ class BankAccountControllerSpec
         val form             = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result           = controller.enterBankAccountDetailsSubmit(request)
-        val doc              = Jsoup.parse(contentAsString(result))
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
