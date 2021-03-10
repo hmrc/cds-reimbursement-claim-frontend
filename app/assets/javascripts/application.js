@@ -22,27 +22,31 @@ const CDSR = {
 
         let fileInputs = document.querySelectorAll('input[type=file]');
 
-        for (i = 0; i < fileInputs.length; ++i) {
-            if (fileInputs[i].files.length == 0) {
+        if (fileInputs.length != 0) {
 
-                event.preventDefault();
+            for (i = 0; i < fileInputs.length; ++i) {
+                if (fileInputs[i].files.length == 0) {
 
-                if (CDSR.errorsShowing === false) {
-                    CDSR.errorSummary.classList.remove('govuk-!-display-none');
-                    CDSR.errorSummary.querySelector('a').focus();
+                    event.preventDefault();
 
-                    let errorMessaging = CDSR.errorInputElement.cloneNode(true);
-                    CDSR.errorInputElement.remove();
-                    fileInputs[i].parentNode.insertBefore(errorMessaging, fileInputs[i]);
+                    if (CDSR.errorsShowing === false) {
+                        CDSR.errorSummary.classList.remove('govuk-!-display-none');
+                        CDSR.errorSummary.querySelector('a').focus();
 
-                    fileInputs[i].parentNode.classList.add('govuk-form-group--error');
+                        let errorMessaging = CDSR.errorInputElement.cloneNode(true);
+                        CDSR.errorInputElement.remove();
+                        fileInputs[i].parentNode.insertBefore(errorMessaging, fileInputs[i]);
 
-                    document.title = CDSR.errorPageTitle;
+                        fileInputs[i].parentNode.classList.add('govuk-form-group--error');
 
-                    CDSR.errorsShowing = true;
+                        document.title = CDSR.errorPageTitle;
+
+                        CDSR.errorsShowing = true;
+                    }
+
                 }
-
             }
+
         }
 
     }
@@ -60,7 +64,7 @@ const docReferrer = document.referrer
 
 // prevent resubmit warning
 if (window.history && window.history.replaceState && typeof window.history.replaceState === 'function') {
-  window.history.replaceState(null, null, window.location.href);
+    window.history.replaceState(null, null, window.location.href);
 }
 
 ;(function(window, document) {
