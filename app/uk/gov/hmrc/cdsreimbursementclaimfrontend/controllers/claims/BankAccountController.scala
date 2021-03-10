@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import java.util.function.Predicate
+
 import cats.data.EitherT
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
@@ -42,7 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
