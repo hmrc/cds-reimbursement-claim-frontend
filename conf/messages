@@ -415,6 +415,7 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
+enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 
