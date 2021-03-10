@@ -14,7 +14,9 @@ const CDSR = {
 
     Init: () => {
 
-        CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
+        if (CDSR.form) {
+            CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
+        }
 
     },
 
@@ -29,7 +31,6 @@ const CDSR = {
 
                 if (CDSR.errorsShowing === false) {
                     CDSR.errorSummary.classList.remove('govuk-!-display-none');
-                    CDSR.errorSummary.querySelector('a').focus();
 
                     let errorMessaging = CDSR.errorInputElement.cloneNode(true);
                     CDSR.errorInputElement.remove();
@@ -41,6 +42,8 @@ const CDSR = {
 
                     CDSR.errorsShowing = true;
                 }
+
+                CDSR.errorSummary.querySelector('a').focus();
 
             }
         }
