@@ -78,9 +78,28 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
         )
         maybeClaimantDetailsAsImporterCompany.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteClaimantDetailsAsImporterCompanyAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
+        )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
       case _ => Redirect(baseRoutes.StartController.start())
     }
+
+  private def addEmail(
+    fillingOutClaim: FillingOutClaim,
+    claimantDetails: ClaimantDetailsAsImporterCompanyAnswer
+  ): ClaimantDetailsAsImporterCompanyAnswer =
+    claimantDetails.fold(
+      ifIncomplete =>
+        IncompleteClaimantDetailsAsImporterCompanyAnswer(
+          ifIncomplete.claimantDetailsAsImporterCompany.map(
+            _.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
+          )
+        ),
+      ifComplete =>
+        CompleteClaimantDetailsAsImporterCompanyAnswer(
+          ifComplete.claimantDetailsAsImporterCompany.copy(emailAddress =
+            fillingOutClaim.signedInUserDetails.verifiedEmail
+          )
+        )
+    )
 
   def enterClaimantDetailsAsImporterCompany: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -109,7 +128,10 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                                   enterClaimantDetailAsImporterCompanyPage(
                                     EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
                                       .fill(
-                                        toClaimantDetailsAsImporter(displayDeclaration)
+                                        toClaimantDetailsAsImporter(
+                                          displayDeclaration,
+                                          fillingOutClaim.signedInUserDetails.verifiedEmail
+                                        )
                                       )
                                   )
                                 )
@@ -308,12 +330,15 @@ object EnterClaimantDetailsAsImporterCompanyController {
     )(ClaimantDetailsAsImporterCompany.apply)(ClaimantDetailsAsImporterCompany.unapply)
   )
 
-  def toClaimantDetailsAsImporter(displayDeclaration: DisplayDeclaration): ClaimantDetailsAsImporterCompany = {
+  def toClaimantDetailsAsImporter(
+    displayDeclaration: DisplayDeclaration,
+    verifiedEmail: Email
+  ): ClaimantDetailsAsImporterCompany = {
     val declaration  = displayDeclaration.displayResponseDetail
     val maybeAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
     ClaimantDetailsAsImporterCompany(
       declaration.consigneeDetails.map(cd => cd.legalName).getOrElse(""),
-      Email(declaration.consigneeDetails.flatMap(cd => cd.contactDetails.flatMap(s => s.emailAddress)).getOrElse("")),
+      verifiedEmail,
       PhoneNumber(
         declaration.consigneeDetails.flatMap(cd => cd.contactDetails.flatMap(s => s.telephone)).getOrElse("")
       ),

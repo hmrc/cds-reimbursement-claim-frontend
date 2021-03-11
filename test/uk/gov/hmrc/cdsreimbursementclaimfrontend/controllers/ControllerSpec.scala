@@ -34,8 +34,8 @@ import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.{Metrics, MockMetrics}
-
 import java.net.URLEncoder
+
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
@@ -63,6 +63,7 @@ class TestMessagesApi(
     logger.error(s"Could not find message for key: $key ${args.mkString("-")}")
     s"""not_found_message("$key")"""
   }
+
 }
 
 @Singleton
@@ -115,6 +116,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   }
 
   lazy val fakeApplication: Application = buildFakeApplication()
+  lazy val theMessagesApi               = fakeApplication.injector.instanceOf[MessagesApi]
 
   def instanceOf[A : ClassTag]: A = fakeApplication.injector.instanceOf[A]
 
@@ -131,15 +133,15 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     super.afterAll()
   }
 
-  def messageFromMessageKey(messageKey: String, args: Any*)(implicit messagesApi: MessagesApi): String = {
-    val m = messagesApi(messageKey, args: _*)(lang)
+  def messageFromMessageKey(messageKey: String, args: Any*): String = {
+    val m = theMessagesApi(messageKey, args: _*)
     if (m === messageKey) sys.error(s"Message key `$messageKey` is missing a message")
     m
   }
 
   def checkIsTechnicalErrorPage(
     result: Future[Result]
-  )(implicit messagesApi: MessagesApi): Unit = {
+  ): Unit = {
     import cats.instances.int._
     import cats.syntax.eq._
     if (status(result) =!= INTERNAL_SERVER_ERROR) println(contentAsString(result))

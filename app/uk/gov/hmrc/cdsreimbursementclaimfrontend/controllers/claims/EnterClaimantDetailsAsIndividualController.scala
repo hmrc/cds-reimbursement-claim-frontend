@@ -68,20 +68,35 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
-          ) =>
-        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(
-          _.claimantDetailsAsIndividualAnswers
-        )
+      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
+        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(_.claimantDetailsAsIndividualAnswers)
         maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteClaimantDetailsAsIndividualAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
+          f(
+            sessionData,
+            fillingOutClaim,
+            IncompleteClaimantDetailsAsIndividualAnswer.empty
+          )
+        )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
+      case _                                                                                    =>
+        Redirect(baseRoutes.StartController.start())
     }
+
+  private def addEmail(
+    fillingOutClaim: FillingOutClaim,
+    claimantDetails: ClaimantDetailsAsIndividualAnswer
+  ): ClaimantDetailsAsIndividualAnswer =
+    claimantDetails.fold(
+      ifIncomplete =>
+        IncompleteClaimantDetailsAsIndividualAnswer(
+          ifIncomplete.claimantDetailsAsIndividual.map(
+            _.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
+          )
+        ),
+      ifComplete =>
+        CompleteClaimantDetailsAsIndividualAnswer(
+          ifComplete.claimantDetailsAsIndividual.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
+        )
+    )
 
   def enterClaimantDetailsAsIndividual: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -110,7 +125,10 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                                   enterClaimantDetailAsIndividualPage(
                                     EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
                                       .fill(
-                                        toClaimantDetailsAsIndividual(declaration)
+                                        toClaimantDetailsAsIndividual(
+                                          declaration,
+                                          fillingOutClaim.signedInUserDetails.verifiedEmail
+                                        )
                                       )
                                   )
                                 )
@@ -387,6 +405,7 @@ object EnterClaimantDetailsAsIndividualController {
 
   object ClaimantDetailsAsIndividual {
     implicit val format: OFormat[ClaimantDetailsAsIndividual] = derived.oformat[ClaimantDetailsAsIndividual]()
+
   }
 
   val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
@@ -399,13 +418,16 @@ object EnterClaimantDetailsAsIndividualController {
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 
-  def toClaimantDetailsAsIndividual(displayDeclaration: DisplayDeclaration): ClaimantDetailsAsIndividual = {
+  def toClaimantDetailsAsIndividual(
+    displayDeclaration: DisplayDeclaration,
+    verifiedEmail: Email
+  ): ClaimantDetailsAsIndividual = {
     val declaration = displayDeclaration.displayResponseDetail
     val d           = DisplayDeclaration.DisplayDeclarationOps(displayDeclaration)
     val a           = declaration.consigneeDetails.flatMap(p => p.contactDetails)
     ClaimantDetailsAsIndividual(
       d.consigneeName.getOrElse(""),
-      Email(d.consigneeEmail.getOrElse("")),
+      verifiedEmail,
       PhoneNumber(d.consigneeTelephone.getOrElse("")),
       NonUkAddress(
         a.flatMap(s => s.addressLine1).getOrElse(""),
