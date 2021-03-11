@@ -251,12 +251,12 @@ class BankAccountController @Inject() (
                       .fill(bankAccountDetails)
                       .withGlobalError(s"enter-bank-details.error.$errorKey")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
-                  } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
+                  } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
                       .withGlobalError("enter-bank-details.error.moc-check-failed")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
-                  } else if (reputationResponse.accountExists === Some(ReputationResponse.No)) {
+                  } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
                       .withGlobalError("enter-bank-details.error.account-does-not-exist")
