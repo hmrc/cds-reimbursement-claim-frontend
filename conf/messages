@@ -478,6 +478,7 @@ enter-bank-details.account-number.invalid=Enter a valid account number
 enter-bank-details.sort-code.label=Sort Code
 enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
 enter-bank-details.sort-code.error.required=Enter a valid sort code
+enter-bank-details.sort-code.invalid=Enter a valid sort code
 enter-bank-details-sort-code-1.error.sc1-and-sc3.required=Enter a valid sort code
 enter-bank-details-sort-code-2.error.sc1-and-sc1.required=Enter a valid sort code
 enter-bank-details-sort-code-1.error.sc1-and-sc2.required=Enter a valid sort code
