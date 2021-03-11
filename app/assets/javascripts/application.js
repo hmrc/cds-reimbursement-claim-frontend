@@ -55,6 +55,17 @@ const CDSR = {
 window.addEventListener('load', CDSR.Init);
 
 
+
+      openregisterLocationPicker({
+        additionalSynonyms: [
+          { name: 'Albion', code: 'country:GB' }
+        ],
+        defaultValue: '',
+        selectElement: document.querySelector("#countryCode"),
+        url: '/claim-for-reimbursement-of-import-duties/assets/location-autocomplete-graph.json'
+      })
+
+
 // =====================================================
 // Back link mimics browser back functionality
 // =====================================================
@@ -82,36 +93,36 @@ if (window.history && window.history.replaceState && typeof window.history.repla
 ////    })
 ////  }
 //
-  var countryEl = document.querySelector("#countryCode");
-  var lang = 'en';
-  if (countryEl && (!lang || lang === "en")) {
-    openregisterLocationPicker({
-      selectElement: countryEl,
-      name: 'countryCode-name',
-      url: '/claim-for-reimbursement-of-import-duties/assets/location-autocomplete-graph.json',
-      defaultValue: ''
-    });
-
-    var wrapper = document.querySelector('.country-code-wrapper');
-
-    function resetSelectIfEmpty(e) {
-      if (e.target.id === 'countryCode') {
-        var val = e.target.value.trim();
-        var countrySelect = document.querySelector("#countryCode-select");
-        if (countrySelect) {
-          var countriesArray = Array.prototype.slice.call(countrySelect.options);
-          var matches = countriesArray.filter(function (o) {
-            return o.text !== '' && o.text === val
-          });
-          if (!matches.length) {
-            countrySelect.value = ''
-          }
-        }
-      }
-    }
+//  var countryEl = document.querySelector("#countryCode");
+//  var lang = 'en';
+//  if (countryEl && (!lang || lang === "en")) {
+//    openregisterLocationPicker({
+//      selectElement: countryEl,
+//      name: 'countryCode-name',
+//      url: '/claim-for-reimbursement-of-import-duties/assets/location-autocomplete-graph.json',
+//      defaultValue: ''
+//    });
 //
-    wrapper.addEventListener('change', resetSelectIfEmpty);
-  }
+//    var wrapper = document.querySelector('.country-code-wrapper');
+//
+//    function resetSelectIfEmpty(e) {
+//      if (e.target.id === 'countryCode') {
+//        var val = e.target.value.trim();
+//        var countrySelect = document.querySelector("#countryCode-select");
+//        if (countrySelect) {
+//          var countriesArray = Array.prototype.slice.call(countrySelect.options);
+//          var matches = countriesArray.filter(function (o) {
+//            return o.text !== '' && o.text === val
+//          });
+//          if (!matches.length) {
+//            countrySelect.value = ''
+//          }
+//        }
+//      }
+//    }
+////
+//    wrapper.addEventListener('change', resetSelectIfEmpty);
+//  }
 //
 ////  var urBanner = document.querySelector('.ur-banner')
 ////  if (urBanner) {
