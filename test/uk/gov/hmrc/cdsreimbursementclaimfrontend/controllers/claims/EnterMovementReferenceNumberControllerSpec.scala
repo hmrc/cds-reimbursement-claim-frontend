@@ -16,39 +16,54 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatest.Ignore
+import cats.data.EitherT
+import cats.implicits._
+import org.jsoup.Jsoup
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@Ignore
 class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
+  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore)
+      bind[SessionCache].toInstance(mockSessionStore),
+      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
     )
+
+  def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
+    (mockCustomsDataStoreService
+      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+      .expects(*, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
 
   lazy val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
 
@@ -75,27 +90,96 @@ class EnterMovementReferenceNumberControllerSpec
 
   "Movement Reference Number Controller" when {
 
-    "handling requests to capture an mrn number" must {
+    val verifiedEmail = "jex.belaran@xmail.com"
+
+    "Enter MRN page" must {
 
       def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
 
-      "show the enter your mrn page" in {
-
-        val answers = IncompleteMovementReferenceNumberAnswer.empty
-
+      "show the title" in {
+        val answers         = IncompleteMovementReferenceNumberAnswer.empty
         val (session, _, _) = sessionWithClaimState(Some(answers))
-
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
         }
+        val doc             = Jsoup.parse(contentAsString(performAction()))
 
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("enter-reference-number.title")
-        )
+        doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
+        doc.select("#enter-movement-reference-number").`val`() shouldBe ""
       }
+
+      "Show error page when customs-data-store request fails " in {
+        val answers         = IncompleteMovementReferenceNumberAnswer.empty
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Left(Error(new Exception("Boom"))))
+        }
+        checkIsTechnicalErrorPage(performAction())
+      }
+
+      "Check for redirect when customs-data-store does not return an email (no email associated for the given EORI)" in {
+        val answers         = IncompleteMovementReferenceNumberAnswer.empty
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(None))
+        }
+        checkIsRedirect(performAction(), "http://localhost:9898/manage-email-cds/start")
+      }
+
+      "Check for redirect when customs-data-store does return an email" in {
+        val answers         = IncompleteMovementReferenceNumberAnswer.empty
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
+          mockStoreSession(Right(()))
+        }
+        status(performAction()) shouldBe 200
+      }
+
+      "Check for redirect when customs-data-store does return an email, but storage fails" in {
+        val answers         = IncompleteMovementReferenceNumberAnswer.empty
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
+          mockStoreSession(Left(Error(new Exception("Wham"))))
+        }
+        checkIsTechnicalErrorPage(performAction())
+      }
+
     }
+
+    "Change MRN page" must {
+      def performAction(): Future[Result] = controller.changeMrn()(FakeRequest())
+
+      "show the title and the MRN number" in {
+        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+        val doc             = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
+        doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
+      }
+
+    }
+
   }
 
 }
