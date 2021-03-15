@@ -130,7 +130,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockGetEmail(Right(None))
         }
-        checkIsRedirect(performAction(), "http://localhost:9898/manage-email-cds/start")
+        checkIsRedirect(performAction(), "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim")
       }
 
       "Check for redirect when customs-data-store does return an email" in {
