@@ -46,7 +46,6 @@
     @defaultHead = {
         @headBlock
             @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
-                                name="timeOutDialog",
                                 timeout= Some(viewConfig.timeout),
                                 countdown= Some(viewConfig.countdown),
                                 message= Some(messages("session-expired-message")),
@@ -54,8 +53,7 @@
                                 signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
                                 timeoutUrl= Some(s"${StartController.timedOut.url}"),
                                 keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
-                                signOutButtonText= Some(messages("session-expired.sign-out-button-text")),
-                                language = Some("en")
+                                signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
                             ))}
             <script xmlns="http://www.w3.org/1999/html">
                     dataLayer = [{
@@ -73,7 +71,6 @@
         <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
         <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
         <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
-        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js.map")'></script>
         <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
     }
 
