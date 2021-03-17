@@ -30,7 +30,7 @@
     @defining(errors.map { error =>
         ErrorLink(
             href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
-            content = Text(messages(error.message, error.args:_*))
+            content = Text(messages(s"${error.key}.${error.message}", error.args:_*))
         )
     }) { errorLinks =>
         @govukErrorSummary(ErrorSummary(
