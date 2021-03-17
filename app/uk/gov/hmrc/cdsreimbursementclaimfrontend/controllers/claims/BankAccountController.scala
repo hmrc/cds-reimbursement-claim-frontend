@@ -218,25 +218,24 @@ class BankAccountController @Inject() (
                   val barsAccount       =
                     BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
                   val isBusinessAccount = bankAccountDetails.isBusinessAccount.getOrElse(false)
-                  isBusinessAccount match {
-                    case true  =>
-                      claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
-                    case false =>
-                      val claimant = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
-                      val address  = BarsAddress(
-                        Nil,
-                        None,
-                        claimant.map(_.contactAddress.postcode)
-                      )
-                      val subject  = BarsSubject(
-                        None,
-                        Some(updatedAnswers.bankAccountDetails.accountName.value),
-                        None,
-                        None,
-                        None,
-                        address
-                      )
-                      claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
+                  if (isBusinessAccount) {
+                    claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
+                  } else {
+                    val claimant = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
+                    val address  = BarsAddress(
+                      Nil,
+                      None,
+                      claimant.map(_.contactAddress.postcode)
+                    )
+                    val subject  = BarsSubject(
+                      None,
+                      Some(updatedAnswers.bankAccountDetails.accountName.value),
+                      None,
+                      None,
+                      None,
+                      address
+                    )
+                    claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
                   }
                 }
               } yield reputationResponse).fold(
@@ -249,17 +248,17 @@ class BankAccountController @Inject() (
                     val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")
                     val form     = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
-                      .withGlobalError(s"enter-bank-details.error.$errorKey")
+                      .withError("enter-bank-details", s"error.$errorKey")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
                   } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
-                      .withGlobalError("enter-bank-details.error.moc-check-failed")
+                      .withError("enter-bank-details", "error.moc-check-failed")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
                   } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
                     val form = BankAccountController.enterBankDetailsForm
                       .fill(bankAccountDetails)
-                      .withGlobalError("enter-bank-details.error.account-does-not-exist")
+                      .withError("enter-bank-details", s"error.account-does-not-exist")
                     BadRequest(enterBankAccountDetailsPage(form, isAmend = isAmend))
                   } else {
                     Redirect(redirectTo)
