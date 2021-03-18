@@ -99,33 +99,6 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def enterBankAccountDetails: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withBankAccountDetailsAnswers { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.bankAccountDetails match {
-              case Some(bankAccountDetails) =>
-                Ok(enterBankAccountDetailsPage(BankAccountController.enterBankDetailsForm.fill(bankAccountDetails)))
-              case None                     =>
-                Ok(
-                  enterBankAccountDetailsPage(
-                    BankAccountController.enterBankDetailsForm
-                  )
-                )
-            },
-          ifComplete =>
-            Ok(
-              enterBankAccountDetailsPage(
-                BankAccountController.enterBankDetailsForm.fill(
-                  ifComplete.bankAccountDetails
-                )
-              )
-            )
-        )
-      }
-    }
-
   private def withBankAccountDetailsAnswers(
     f: (
       SessionData,
@@ -149,7 +122,10 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def changeBankAccountDetails: Action[AnyContent] =
+  def enterBankAccountDetails: Action[AnyContent]  = enterOrchangeBankAccountDetails(false)
+  def changeBankAccountDetails: Action[AnyContent] = enterOrchangeBankAccountDetails(true)
+
+  protected def enterOrchangeBankAccountDetails(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withBankAccountDetailsAnswers { (_, _, answers) =>
         answers.fold(
@@ -161,7 +137,7 @@ class BankAccountController @Inject() (
                 Ok(
                   enterBankAccountDetailsPage(
                     BankAccountController.enterBankDetailsForm,
-                    isAmend = true
+                    isAmend = isAmend
                   )
                 )
             },
@@ -171,7 +147,7 @@ class BankAccountController @Inject() (
                 BankAccountController.enterBankDetailsForm.fill(
                   ifComplete.bankAccountDetails
                 ),
-                isAmend = true
+                isAmend = isAmend
               )
             )
         )
@@ -179,12 +155,15 @@ class BankAccountController @Inject() (
     }
 
   def enterBankAccountDetailsSubmit: Action[AnyContent] =
-    changeBankAccountDetailsSubmit(false, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+    enterOrchangeBankAccountDetailsSubmit(
+      false,
+      fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence()
+    )
 
   def changeBankAccountDetailsSubmit: Action[AnyContent] =
-    changeBankAccountDetailsSubmit(true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+    enterOrchangeBankAccountDetailsSubmit(true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
 
-  protected def changeBankAccountDetailsSubmit(isAmend: Boolean, redirectTo: Call): Action[AnyContent] =
+  protected def enterOrchangeBankAccountDetailsSubmit(isAmend: Boolean, redirectTo: Call): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withBankAccountDetailsAnswers { (_, fillingOutClaim, answers) =>
         BankAccountController.enterBankDetailsForm
@@ -199,10 +178,7 @@ class BankAccountController @Inject() (
               ),
             bankAccountDetails => {
               val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteBankAccountDetailAnswer(
-                    bankAccountDetails
-                  ),
+                _ => CompleteBankAccountDetailAnswer(bankAccountDetails),
                 complete => complete.copy(bankAccountDetails = bankAccountDetails)
               )
               val newDraftClaim  =
@@ -221,20 +197,10 @@ class BankAccountController @Inject() (
                   if (isBusinessAccount) {
                     claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                   } else {
-                    val claimant = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
-                    val address  = BarsAddress(
-                      Nil,
-                      None,
-                      claimant.map(_.contactAddress.postcode)
-                    )
-                    val subject  = BarsSubject(
-                      None,
-                      Some(updatedAnswers.bankAccountDetails.accountName.value),
-                      None,
-                      None,
-                      None,
-                      address
-                    )
+                    val claimant    = fillingOutClaim.draftClaim.claimantDetailsAsIndividual
+                    val address     = BarsAddress(Nil, None, claimant.map(_.contactAddress.postcode))
+                    val accountName = Some(updatedAnswers.bankAccountDetails.accountName.value)
+                    val subject     = BarsSubject(None, accountName, None, None, None, address)
                     claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
                   }
                 }
