@@ -82,7 +82,6 @@ class EnterMovementReferenceNumberController @Inject() (
         (for {
           maybeVerifiedEmail <- customsDataStoreService
                                   .getEmailByEori(fillingOutClaim.signedInUserDetails.eori)
-                                  .map { a => println("====== " + a.toString); a }
                                   .leftMap { error =>
                                     logger.warn("changeOrEnterMrn error calling customs-data-store", error)
                                     errorHandler.errorResult()
