@@ -97,6 +97,16 @@ class BankAccountControllerSpec
     )
   }
 
+  private def updateSession(sessionData: SessionData, bankAccountDetails: BankAccountDetails): SessionData =
+    sessionData.journeyStatus match {
+      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+        val newClaim      =
+          draftClaim.copy(bankAccountDetailsAnswer = Some(CompleteBankAccountDetailAnswer(bankAccountDetails)))
+        val journeyStatus = FillingOutClaim(g, s, newClaim)
+        sessionData.copy(journeyStatus = Some(journeyStatus))
+      case _                                                         => fail()
+    }
+
   def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   "Bank Account Controller" when {
@@ -111,18 +121,21 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in {
-        val businessResponse =
+        val businessResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val answers            = CompleteBankAccountDetailAnswer(businessBankAccount)
+        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val updatedBankAccount = businessBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
           mockBusinessReputation(Right(businessResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
-        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -219,18 +232,21 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
-        val personalResponse =
+        val personalResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val answers            = CompleteBankAccountDetailAnswer(personalBankAccount)
+        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val updatedBankAccount = personalBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
           mockPersonalReputation(Right(personalResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
-        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }

@@ -717,25 +717,30 @@ object CompleteClaim {
               case None                          => None
             }
           case Right(_) =>
-            maybeDisplayDeclaration match {
-              case Some(value) =>
-                value.displayResponseDetail.maskedBankDetails match {
-                  case Some(maybeBankDetails) =>
-                    maybeBankDetails.consigneeBankDetails match {
-                      case Some(value) =>
-                        Some(
-                          BankAccountController.BankAccountDetails(
-                            AccountName(value.accountHolderName),
-                            Some(false),
-                            SortCode(value.sortCode),
-                            AccountNumber(value.accountNumber)
-                          )
-                        )
-                      case None        => None
+            bankAccountDetails match {
+              case Some(bankAccountDetailAnswer) =>
+                Some(bankAccountDetailAnswer.bankAccountDetails)
+              case None                          =>
+                maybeDisplayDeclaration match {
+                  case Some(value) =>
+                    value.displayResponseDetail.maskedBankDetails match {
+                      case Some(maybeBankDetails) =>
+                        maybeBankDetails.consigneeBankDetails match {
+                          case Some(value) =>
+                            Some(
+                              BankAccountController.BankAccountDetails(
+                                AccountName(value.accountHolderName),
+                                Some(false),
+                                SortCode(value.sortCode),
+                                AccountNumber(value.accountNumber)
+                              )
+                            )
+                          case None        => None
+                        }
+                      case None                   => None
                     }
-                  case None                   => None
+                  case None        => None
                 }
-              case None        => None
             }
         }
     }

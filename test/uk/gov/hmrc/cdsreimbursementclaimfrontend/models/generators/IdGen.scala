@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import org.scalacheck.ScalacheckShapeless._
 
@@ -30,4 +30,12 @@ object IdGen extends GenUtils {
   implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
 
   implicit val eoriGen: Gen[Eori] = gen[Eori]
+
+  implicit val mrn: Gen[MRN] = Arbitrary(for {
+    d1      <- Gen.listOfN(2, Gen.numChar)
+    letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
+    word    <- Gen.listOfN(13, Gen.numChar)
+    d2      <- Gen.listOfN(1, Gen.numChar)
+  } yield MRN(s"${d1.mkString("")}${letter2.mkString("")}${word.mkString("")}${d2.mkString("")}")).arbitrary
+
 }
