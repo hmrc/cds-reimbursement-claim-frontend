@@ -105,8 +105,7 @@ class SupportingEvidenceController @Inject() (
         else
           upscanService
             .initiate(
-              routes.SupportingEvidenceController
-                .handleUpscanErrorRedirect(),
+              routes.SupportingEvidenceController.handleUpscanErrorRedirect(),
               routes.SupportingEvidenceController.scanProgress
             )
             .fold(
@@ -116,10 +115,7 @@ class SupportingEvidenceController @Inject() (
               },
               uploadUpscan =>
                 Ok(
-                  uploadPage(
-                    uploadUpscan,
-                    claimRoutes.BankAccountController.checkBankAccountDetails()
-                  )
+                  uploadPage(uploadUpscan, claimRoutes.BankAccountController.checkBankAccountDetails())
                 )
             )
       }
@@ -140,9 +136,7 @@ class SupportingEvidenceController @Inject() (
       Ok(scanFailedPage())
     }
 
-  def scanProgress(
-    uploadReference: UploadReference
-  ): Action[AnyContent] =
+  def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutReturn, answers) =>
         answers match {
@@ -370,18 +364,10 @@ class SupportingEvidenceController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
         val updatedAnswers: SupportingEvidenceAnswer = answers match {
-          case IncompleteSupportingEvidenceAnswer(
-                evidences
-              ) =>
-            CompleteSupportingEvidenceAnswer(
-              evidences
-            )
-          case CompleteSupportingEvidenceAnswer(
-                evidences
-              ) =>
-            CompleteSupportingEvidenceAnswer(
-              evidences
-            )
+          case IncompleteSupportingEvidenceAnswer(evidences) =>
+            CompleteSupportingEvidenceAnswer(evidences)
+          case CompleteSupportingEvidenceAnswer(evidences)   =>
+            CompleteSupportingEvidenceAnswer(evidences)
         }
 
         val newDraftClaim: DraftClaim.DraftC285Claim = fillingOutClaim.draftClaim.fold(
