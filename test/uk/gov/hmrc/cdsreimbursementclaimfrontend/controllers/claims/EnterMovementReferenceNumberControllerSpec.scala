@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.data.FormError
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -177,9 +178,32 @@ class EnterMovementReferenceNumberControllerSpec
         doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
       }
-
     }
 
+    "Form validation" must {
+      val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
+      val mrnKey = "enter-movement-reference-number"
+
+      "accept valid MRN" in {
+        val errors = form.bind(Map(mrnKey -> "10ABCDEFGHIJKLMNO0")).errors
+        errors shouldBe Nil
+      }
+
+      "accept valid Entry Number (Chief Number)" in {
+        val errors = form.bind(Map(mrnKey -> "123456789A12345678")).errors
+        errors shouldBe Nil
+      }
+
+      "reject 19 characters" in {
+        val errors = form.bind(Map(mrnKey -> "910ABCDEFGHIJKLMNO0")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
+      }
+
+      "reject 17 characters" in {
+        val errors = form.bind(Map(mrnKey -> "123456789A1234567")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
+      }
+    }
   }
 
 }
