@@ -17,9 +17,11 @@
 @this()
 
 @(
-    heading: String
+    heading: String,
+    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4",
+    level: String = "h1"
 )
 
-<h1 class="govuk-heading-xl govuk-!-margin-bottom-4">
+<@level class="@classes">
     @heading
-</h1>
+</@level>
