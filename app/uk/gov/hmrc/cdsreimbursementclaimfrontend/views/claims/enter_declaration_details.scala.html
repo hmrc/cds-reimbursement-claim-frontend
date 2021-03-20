@@ -31,7 +31,6 @@
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
-    backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
@@ -44,8 +43,6 @@
     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterMovementReferenceNumberController.enterMrn}
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
-
-        @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
