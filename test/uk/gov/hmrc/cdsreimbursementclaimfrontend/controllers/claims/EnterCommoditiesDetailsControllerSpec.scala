@@ -27,12 +27,12 @@ class EnterCommoditiesDetailsControllerSpec extends ControllerSpec {
       commodityDetails -> "A box of biscuits"
     )
 
-    "accept good declaration details" in {
+    "accept good commodity details" in {
       val errors = form.bind(goodData).errors
       errors shouldBe Nil
     }
 
-    "Day of Import" should {
+    "commodity details" should {
       "Accept longest possible details" in {
         val errors = form.bind(goodData.updated(commodityDetails, List.fill(500)("a").mkString(""))).errors
         errors shouldBe Nil
