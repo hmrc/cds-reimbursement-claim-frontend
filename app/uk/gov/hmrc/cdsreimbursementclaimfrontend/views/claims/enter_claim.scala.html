@@ -69,7 +69,7 @@
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hint = Some(s"${key}.claim-amount.hint"),
-            prefix = Some(PrefixOrSuffix(content = Text("£")))
+            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
         @submitButton(messages("button.continue"))
