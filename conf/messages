@@ -341,7 +341,7 @@ select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verifi
 select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
 
 select-basis-for-claim.reason.d0=Duplicate Entry
-select-basis-for-claim.reason.d1=Duty suspension
+select-basis-for-claim.reason.d1=Duty Suspension
 select-basis-for-claim.reason.d2=End Use
 select-basis-for-claim.reason.d3=Incorrect Commodity Code
 select-basis-for-claim.reason.d4=Incorrect CPC
@@ -386,7 +386,7 @@ select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you p
 select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
 
 select-reason-and-basis-for-claim.basis.d0=Duplicate Entry
-select-reason-and-basis-for-claim.basis.d1=Duty suspension
+select-reason-and-basis-for-claim.basis.d1=Duty Suspension
 select-reason-and-basis-for-claim.basis.d2=End Use
 select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
 select-reason-and-basis-for-claim.basis.d4=Incorrect CPC

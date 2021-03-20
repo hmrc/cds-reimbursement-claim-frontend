@@ -354,7 +354,7 @@ select-basis-for-claim.details.l8=outward processing relief (allows EU traders t
 select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
 select-basis-for-claim.reason.d0=Duplicate MRN or Entry
-select-basis-for-claim.reason.d1=Duty suspension
+select-basis-for-claim.reason.d1=Duty Suspension
 select-basis-for-claim.reason.d2=End use relief
 select-basis-for-claim.reason.d3=Incorrect commodity code
 select-basis-for-claim.reason.d4=Incorrect CPC
@@ -396,7 +396,7 @@ select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you p
 select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
 
 select-reason-and-basis-for-claim.basis.d0=Duplicate MRN or Entry
-select-reason-and-basis-for-claim.basis.d1=Duty suspension
+select-reason-and-basis-for-claim.basis.d1=Duty Suspension
 select-reason-and-basis-for-claim.basis.d2=End use relief
 select-reason-and-basis-for-claim.basis.d3=Incorrect commodity code
 select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
