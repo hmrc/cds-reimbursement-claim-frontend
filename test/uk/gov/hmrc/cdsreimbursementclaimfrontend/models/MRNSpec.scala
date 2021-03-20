@@ -52,5 +52,10 @@ class MRNSpec extends AnyWordSpec with Matchers {
     "fail if not 18 characters" in {
       isValid("11GBResponse11111") shouldBe false
     }
+
+    "Succeed with lower case letters" in {
+      isValid("10ABCDEFGHIJKLMnO0") shouldBe true
+    }
+
   }
 }

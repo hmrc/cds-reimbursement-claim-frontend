@@ -29,7 +29,7 @@ final case class PhoneNumber(value: String) extends AnyVal
 
 object PhoneNumber {
 
-  val phoneNumberRegex: Predicate[String] = "^(\\+)?[0-9]{1,15}$".r.pattern.asPredicate()
+  val phoneNumberRegex: Predicate[String] = "^(\\+)?[0-9]{1,30}$".r.pattern.asPredicate()
 
   implicit val format: Format[PhoneNumber] =
     implicitly[Format[String]].inmap(PhoneNumber(_), _.value)
