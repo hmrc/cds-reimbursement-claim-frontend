@@ -7,6 +7,7 @@ hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
 lang=en
+currency=£
 
 session-expired-message=For your security, we will time you out in
 session-expired.sign-out-button-text=Sign-out

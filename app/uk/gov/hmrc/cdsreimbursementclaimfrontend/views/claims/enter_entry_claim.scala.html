@@ -21,6 +21,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
+
 @import java.util.UUID
 @import play.api.data.Form
 @import play.api.i18n.Messages
@@ -58,7 +61,8 @@
             label = messages(s"${key}.paid-amount"),
             labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
-            classes = Some("govuk-input--width-20"),
+            classes = Some("govuk-input govuk-input--width-5"),
+            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency")))),
             hint = Some(s"${key}.claim-amount.hint")
         )
 
@@ -69,7 +73,8 @@
             label = messages(s"${key}.claim-amount"),
             labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
-            classes = Some("govuk-input--width-20"),
+            classes = Some("govuk-input govuk-input--width-5"),
+            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency")))),
             hint = Some(s"${key}.claim-amount.hint")
         )
 
