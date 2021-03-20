@@ -48,30 +48,29 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-
-  <div class="space-document-type">
-      @details(messages(s"$key.basis.label"),
-        Html(s"""|
-            |<li> ${messages(s"$key.basis.details.l0")} </li>
-            |<li> ${messages(s"$key.basis.details.l1")} </li>
-            |<li> ${messages(s"$key.basis.details.l2")} </li>
-            |<li> ${messages(s"$key.basis.details.l3")} </li>
-            |<li> ${messages(s"$key.basis.details.l4")} </li>
-            |<li> ${messages(s"$key.basis.details.l5")} </li>
-            |<li> ${messages(s"$key.basis.details.l6")} </li>
-            |<li> ${messages(s"$key.basis.details.l7")} </li>
-            |<li> ${messages(s"$key.basis.details.l8")} </li>
-            |<li> ${messages(s"$key.basis.details.l9")} </li>
-            |<li> ${messages(s"$key.basis.details.l10")} </li>
-            |""".stripMargin
-      ))
-  </div>
+        @details(messages(s"$key.basis.label"),
+            Html(s"""|
+                |<ul class="govuk-list govuk-list--bullet">
+                |<li> ${messages(s"$key.basis.details.l0")} </li>
+                |<li> ${messages(s"$key.basis.details.l1")} </li>
+                |<li> ${messages(s"$key.basis.details.l2")} </li>
+                |<li> ${messages(s"$key.basis.details.l3")} </li>
+                |<li> ${messages(s"$key.basis.details.l4")} </li>
+                |<li> ${messages(s"$key.basis.details.l5")} </li>
+                |<li> ${messages(s"$key.basis.details.l6")} </li>
+                |<li> ${messages(s"$key.basis.details.l7")} </li>
+                |<li> ${messages(s"$key.basis.details.l8")} </li>
+                |<li> ${messages(s"$key.basis.details.l9")} </li>
+                |<li> ${messages(s"$key.basis.details.l10")} </li>
+                |</ul>
+                |""".stripMargin
+            ))
 
   @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-    <div class = "space-select">
-        @inputSelect(
+    @inputSelect(
         label = messages(s"$key.basis.select-label"),
+        labelClasses = Some("govuk-label govuk-label--s"),
         isPageHeading = false,
 
         form = form,
@@ -135,47 +134,43 @@
                 )
             )
         )
-    </div>
 
-
-  <div class="space-document-type">
-      @details(messages(s"$key.reason.label"),
+    @details(messages(s"$key.reason.label"),
         Html(s"""|
+            |<ul class="govuk-list govuk-list--bullet">
             |<li> ${messages(s"$key.basis.reason.l0")} </li>
             |<li> ${messages(s"$key.basis.reason.l1")} </li>
             |<li> ${messages(s"$key.basis.reason.l2")} </li>
+            |</ul>
             |""".stripMargin
-      ))
-  </div>
+        ))
 
-    <div class = "space-select">
-
-        @inputSelect(
+    @inputSelect(
         label = messages(s"$key.reason.select-label"),
+        labelClasses = Some("govuk-label govuk-label--s"),
         isPageHeading = false,
 
         form = form,
-            id = s"$key.reason",
-            name = s"$key.reason",
-            items = Seq(
-                SelectItem(
-                    value = Some("0"),
-                    text  = messages(s"$key.reason.d0"),
-                    selected = form(s"$key.reason").value.contains("0")
-                ),
-                SelectItem(
-                    value = Some("1"),
-                    text  = messages(s"$key.reason.d1"),
-                    selected = form(s"$key.reason").value.contains("1")
-                ),
-                SelectItem(
-                    value = Some("2"),
-                    text  = messages(s"$key.reason.d2"),
-                    selected = form(s"$key.reason").value.contains("2")
-                )
+        id = s"$key.reason",
+        name = s"$key.reason",
+        items = Seq(
+            SelectItem(
+                value = Some("0"),
+                text  = messages(s"$key.reason.d0"),
+                selected = form(s"$key.reason").value.contains("0")
+            ),
+            SelectItem(
+                value = Some("1"),
+                text  = messages(s"$key.reason.d1"),
+                selected = form(s"$key.reason").value.contains("1")
+            ),
+            SelectItem(
+                value = Some("2"),
+                text  = messages(s"$key.reason.d2"),
+                selected = form(s"$key.reason").value.contains("2")
             )
         )
-    </div>
+    )
 
     @submitButton(messages("button.saveAndContinue"))
 
