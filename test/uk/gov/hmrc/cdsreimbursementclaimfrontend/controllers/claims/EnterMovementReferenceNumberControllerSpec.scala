@@ -20,7 +20,6 @@ import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.data.FormError
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule

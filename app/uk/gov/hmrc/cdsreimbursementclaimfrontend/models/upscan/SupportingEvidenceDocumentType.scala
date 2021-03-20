@@ -22,6 +22,7 @@ import play.api.libs.json.OFormat
 sealed trait SupportingEvidenceDocumentType extends Product with Serializable
 
 object SupportingEvidenceDocumentType {
+
   case object C88E2 extends SupportingEvidenceDocumentType
   case object CommercialInvoice extends SupportingEvidenceDocumentType
   case object PackingList extends SupportingEvidenceDocumentType
@@ -32,6 +33,8 @@ object SupportingEvidenceDocumentType {
   case object ProofOfAuthority extends SupportingEvidenceDocumentType
   case object CorrespondenceTrader extends SupportingEvidenceDocumentType
   case object AdditionalSupportingDocuments extends SupportingEvidenceDocumentType
+  case object Other extends SupportingEvidenceDocumentType
+  case object ImportAndExportDeclaration extends SupportingEvidenceDocumentType
 
   implicit val format: OFormat[SupportingEvidenceDocumentType] = derived.oformat[SupportingEvidenceDocumentType]()
 }
