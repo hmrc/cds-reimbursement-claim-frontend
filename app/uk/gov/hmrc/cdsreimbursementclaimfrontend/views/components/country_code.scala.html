@@ -41,7 +41,7 @@
 )(implicit messages: Messages)
 
 @fieldId = @{"countryCode"}
-@classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
+@classes = @{if(hasErrors) "govuk-form-group govuk-form-group--error" else "form-group" }
 @inputClasses = @{if(hasErrors) "form-control form-control-error"  else "form-control"}
 @errorId = @{s"${{fieldId}}-inline-error"}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
