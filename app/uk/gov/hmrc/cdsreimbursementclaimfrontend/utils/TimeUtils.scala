@@ -77,14 +77,14 @@ object TimeUtils {
         }
 
       def toValidInt(
-                      key: String,
-                      stringValue: String,
-                      maxValue: Option[Int],
-                      minDigits:Int,
-                      maxDigits:Int
+        key: String,
+        stringValue: String,
+        maxValue: Option[Int],
+        minDigits: Int,
+        maxDigits: Int
       ): Either[FormError, Int] =
-        (stringValue.length >= minDigits && stringValue.length <= maxDigits ) match {
-          case true =>
+        (stringValue.length >= minDigits && stringValue.length <= maxDigits) match {
+          case true  =>
             Either.fromOption(
               Try(BigDecimal(stringValue).toIntExact).toOption.filter(i => i > 0 && maxValue.forall(i <= _)),
               FormError(key, "error.invalid")
@@ -99,9 +99,9 @@ object TimeUtils {
       ): Either[Seq[FormError], LocalDate] = {
         val result = for {
           dateFieldStrings <- dateFieldStringValues(data)
-          day ← toValidInt(dayKey, dateFieldStrings._1, Some(31),1,2)
-          month ← toValidInt(monthKey, dateFieldStrings._2, Some(12),1,2)
-          year ← toValidInt(yearKey, dateFieldStrings._3, None,4,4)
+          day ← toValidInt(dayKey, dateFieldStrings._1, Some(31), 1, 2)
+          month ← toValidInt(monthKey, dateFieldStrings._2, Some(12), 1, 2)
+          year ← toValidInt(yearKey, dateFieldStrings._3, None, 4, 4)
           date ← Either
                    .fromTry(Try(LocalDate.of(year, month, day)))
                    .leftMap(_ => FormError(dateKey, "error.invalid"))
