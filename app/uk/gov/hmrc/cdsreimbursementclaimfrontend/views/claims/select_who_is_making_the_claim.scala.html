@@ -75,19 +75,19 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 inline = true,
                 items = Seq(
                     RadioItem(
-                        id = Some(s"$key-0"),
+                        id = Some(s"$key-importer"),
                         value = Some("0"),
                         content = Text(messages(s"$key.importer")),
                         checked = false
                     ),
                     RadioItem(
-                        id = Some(s"$key-1"),
+                        id = Some(s"$key-associate-with-importer-company"),
                         value = Some("1"),
                         content = Text(messages(s"$key.associate-with-importer-company")),
                         checked = false
                     ),
                     RadioItem(
-                        id = Some(s"$key-2"),
+                        id = Some(s"$key-associate-with-representative-company"),
                         value = Some("2"),
                         content = Text(messages(s"$key.associate-with-representative-company")),
                         checked = false
