@@ -173,13 +173,13 @@
                 inline = true,
                 items = Seq(
                     RadioItem(
-                        id = Some(s"$key.add-company-details"),
+                        id = Some(s"$key.add-company-details-yes"),
                         value = Some("true"),
                         content = Text("Yes"),
                         checked = form(s"$key.add-company-details").value.contains("true")
                     ),
                     RadioItem(
-                        id = Some(s"$key.add-company-details"),
+                        id = Some(s"$key.add-company-details-no"),
                         value = Some("false"),
                         content = Text("No"),
                         checked = form(s"$key.add-company-details").value.contains("false")
