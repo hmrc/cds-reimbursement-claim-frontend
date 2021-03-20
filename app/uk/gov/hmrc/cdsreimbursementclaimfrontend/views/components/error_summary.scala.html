@@ -24,12 +24,12 @@
 
 @this(govukErrorSummary: govukErrorSummary)
 
-@(errors: Seq[FormError], errorFieldName: Option[String] = None)(implicit messages: Messages)
+@(errors: Seq[FormError])(implicit messages: Messages)
 
 @if(errors.nonEmpty) {
     @defining(errors.map { error =>
         ErrorLink(
-            href = Some(s"#${errorFieldName.getOrElse(error.key)}"),
+            href = Some(s"#${error.key}"),
             content = Text(messages(s"${error.key}.${error.message}", error.args:_*))
         )
     }) { errorLinks =>
@@ -38,4 +38,6 @@
             title = Text(messages("error.summary.title"))
         ))
     }
+
+
 }

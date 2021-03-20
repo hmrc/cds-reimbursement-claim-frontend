@@ -45,7 +45,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-        @errorSummary(form.errors, Some(key))
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
