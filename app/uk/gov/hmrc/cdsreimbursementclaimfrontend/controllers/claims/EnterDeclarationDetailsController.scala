@@ -422,12 +422,12 @@ object EnterDeclarationDetailsController {
   val entryDeclarationDetailsForm: Form[EntryDeclarationDetails] = Form(
     mapping(
       "enter-declaration-details.date-of-import"          -> dateOfImportMapping(LocalDate.now),
-      "enter-declaration-details.place-of-import"         -> nonEmptyText,
-      "enter-declaration-details.importer-name"           -> nonEmptyText,
-      "enter-declaration-details.importer-email-address"  -> Email.mapping,
+      "enter-declaration-details.place-of-import"         -> nonEmptyText(maxLength = 70),
+      "enter-declaration-details.importer-name"           -> nonEmptyText(maxLength = 160),
+      "enter-declaration-details.importer-email-address"  -> Email.mappingMaxLength241,
       "enter-declaration-details.importer-phone-number"   -> PhoneNumber.mapping,
-      "enter-declaration-details.declarant-name"          -> nonEmptyText,
-      "enter-declaration-details.declarant-email-address" -> Email.mapping,
+      "enter-declaration-details.declarant-name"          -> nonEmptyText(maxLength = 160),
+      "enter-declaration-details.declarant-email-address" -> Email.mappingMaxLength241,
       "enter-declaration-details.declarant-phone-number"  -> PhoneNumber.mapping
     )(EntryDeclarationDetails.apply)(EntryDeclarationDetails.unapply)
   )
