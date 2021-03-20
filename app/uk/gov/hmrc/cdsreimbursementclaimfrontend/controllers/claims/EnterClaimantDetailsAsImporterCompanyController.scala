@@ -324,7 +324,7 @@ object EnterClaimantDetailsAsImporterCompanyController {
   val claimantDetailsAsImporterCompanyForm: Form[ClaimantDetailsAsImporterCompany] = Form(
     mapping(
       "enter-claimant-details-importer-company.importer-company-name" -> nonEmptyText,
-      "enter-claimant-details-importer-company.importer-email"        -> Email.mapping,
+      "enter-claimant-details-importer-company.importer-email"        -> Email.mappingMaxLength124,
       "enter-claimant-details-importer-company.importer-phone-number" -> PhoneNumber.mapping,
       ""                                                              -> Address.nonUkAddressFormMapping
     )(ClaimantDetailsAsImporterCompany.apply)(ClaimantDetailsAsImporterCompany.unapply)
