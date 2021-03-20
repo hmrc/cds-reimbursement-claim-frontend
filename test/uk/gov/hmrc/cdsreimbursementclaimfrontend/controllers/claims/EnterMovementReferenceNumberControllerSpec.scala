@@ -181,7 +181,7 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "Form validation" must {
-      val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
+      val form   = EnterMovementReferenceNumberController.movementReferenceNumberForm
       val mrnKey = "enter-movement-reference-number"
 
       "accept valid MRN" in {
