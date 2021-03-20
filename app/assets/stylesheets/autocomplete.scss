@@ -142,3 +142,7 @@ input[type="text"].autocomplete__input {
 .autocomplete-wrapper {
   width: 100%
 }
+
+.govuk-form-group--error .autocomplete__wrapper .autocomplete__input {
+	border: 2px solid #d4351c;
+}
