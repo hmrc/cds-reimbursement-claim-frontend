@@ -22,7 +22,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalamock.scalatest.MockFactory
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.data.Forms.{boolean, optional}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
@@ -38,14 +37,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswer, Error, SessionData, SignedInUserDetails, SortCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -336,16 +334,16 @@ class BankAccountControllerSpec
   }
 
   "Form Validation" must {
-    val form = BankAccountController.enterBankDetailsForm
-    val accountName = "enter-bank-details.account-name"
-    val isBusiness = "enter-bank-details.is-business-account"
-    val sortCode = "enter-bank-details.sort-code"
+    val form          = BankAccountController.enterBankDetailsForm
+    val accountName   = "enter-bank-details.account-name"
+    val isBusiness    = "enter-bank-details.is-business-account"
+    val sortCode      = "enter-bank-details.sort-code"
     val accountNumber = "enter-bank-details.account-number"
 
     val goodData = Map(
-      accountName -> "Barkhan Seer",
-      isBusiness -> "false",
-      sortCode -> "123456",
+      accountName   -> "Barkhan Seer",
+      isBusiness    -> "false",
+      sortCode      -> "123456",
       accountNumber -> "12345678"
     )
 
@@ -365,7 +363,6 @@ class BankAccountControllerSpec
       }
     }
 
-
     "sortCode" should {
       "Accept longest possible sortCode" in {
         val errors = form.bind(goodData.updated(sortCode, numStringGen(6))).errors
@@ -380,7 +377,6 @@ class BankAccountControllerSpec
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
-
 
     "accountNumber" should {
       "Accept shortest possible accountNumber" in {
