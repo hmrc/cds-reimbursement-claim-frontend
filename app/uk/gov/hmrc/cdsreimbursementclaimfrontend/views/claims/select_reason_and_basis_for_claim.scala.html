@@ -33,7 +33,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-    dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropdownHelper
+    dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
 @(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -55,7 +55,7 @@
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
         @dropdownDetails(summary = s"$key.basis.details.heading", content = dropdownHelper.reasonAndBasisBasisDropDownContent)
-          
+
             @inputSelect(
         label = messages(s"$key.basis.select-label"),
         labelClasses = Some("govuk-label govuk-label--s"),
@@ -138,7 +138,7 @@
             )
         )
 
-    @dropdownDetails(summary = s"$key.reasons.details.heading", content = dropdownHelper.reasonAndBasisReasonDropDownContent)
+    @dropdownDetails(summary = s"$key.reason.details.heading", content = dropdownHelper.reasonAndBasisReasonDropDownContent)
 
     @inputSelect(
         label = messages(s"$key.reason.select-label"),

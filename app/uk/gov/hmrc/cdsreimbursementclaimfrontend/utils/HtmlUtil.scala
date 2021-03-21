@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.twirl.api.{Html, HtmlFormat}
 
-trait htmlUtil {
+trait HtmlUtil {
 
   def html(content: HtmlFormat.Appendable*): Html =
     HtmlFormat.fill(collection.immutable.Seq(content: _*))

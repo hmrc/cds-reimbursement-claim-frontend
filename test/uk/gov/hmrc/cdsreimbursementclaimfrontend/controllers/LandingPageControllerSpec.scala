@@ -24,8 +24,8 @@ class LandingPageControllerSpec extends ControllerSpec {
   lazy val controller: LandingPageController = instanceOf[LandingPageController]
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
-  "Landing Page Controller" must {
-    "display the landing page" when {
+  "Landing Page Controller" when {
+    "displaying the landing page" must {
       checkPageIsDisplayed(controller.landing()(FakeRequest()), messageFromMessageKey("landing.title"))
     }
   }
