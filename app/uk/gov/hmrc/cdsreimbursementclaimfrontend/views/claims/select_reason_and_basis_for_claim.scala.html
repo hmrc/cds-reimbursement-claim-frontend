@@ -32,7 +32,8 @@
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     inputSelect : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_select,
-    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropdownHelper
 )
 
 @(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
@@ -53,25 +54,9 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-        @details(messages(s"$key.basis.label"),
-            Html(s"""|
-                |<ul class="govuk-list govuk-list--bullet">
-                |<li> ${messages(s"$key.basis.details.l0")} </li>
-                |<li> ${messages(s"$key.basis.details.l1")} </li>
-                |<li> ${messages(s"$key.basis.details.l2")} </li>
-                |<li> ${messages(s"$key.basis.details.l3")} </li>
-                |<li> ${messages(s"$key.basis.details.l4")} </li>
-                |<li> ${messages(s"$key.basis.details.l5")} </li>
-                |<li> ${messages(s"$key.basis.details.l6")} </li>
-                |<li> ${messages(s"$key.basis.details.l7")} </li>
-                |<li> ${messages(s"$key.basis.details.l8")} </li>
-                |<li> ${messages(s"$key.basis.details.l9")} </li>
-                |<li> ${messages(s"$key.basis.details.l10")} </li>
-                |</ul>
-                |""".stripMargin
-            ))
-
-    @inputSelect(
+        @dropdownDetails(summary = s"$key.basis.details.heading", content = dropdownHelper.reasonAndBasisBasisDropDownContent)
+          
+            @inputSelect(
         label = messages(s"$key.basis.select-label"),
         labelClasses = Some("govuk-label govuk-label--s"),
         isPageHeading = false,
@@ -153,15 +138,7 @@
             )
         )
 
-    @details(messages(s"$key.reason.label"),
-        Html(s"""|
-            |<ul class="govuk-list govuk-list--bullet">
-            |<li> ${messages(s"$key.basis.reason.l0")} </li>
-            |<li> ${messages(s"$key.basis.reason.l1")} </li>
-            |<li> ${messages(s"$key.basis.reason.l2")} </li>
-            |</ul>
-            |""".stripMargin
-        ))
+    @dropdownDetails(summary = s"$key.reasons.details.heading", content = dropdownHelper.reasonAndBasisReasonDropDownContent)
 
     @inputSelect(
         label = messages(s"$key.reason.select-label"),

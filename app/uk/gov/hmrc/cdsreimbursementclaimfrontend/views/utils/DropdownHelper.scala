@@ -27,8 +27,9 @@ class DropdownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
 
   val landingKey: String          = "landing.details"
   val supportingEvidenceUploadKey = "supporting-evidence.upload.details"
-  val reasonAndBasisKey           = "select-reason-and-basis-for-claim.basis"
-  val basisKey                    = "select-reason-and-basis-for-claim.reason"
+  val reasonAndBasisBasisKey      = "select-reason-and-basis-for-claim.basis.details"
+  val reasonAndBasisReasonKey     = "select-reason-and-basis-for-claim.reason.details"
+  val basisKey                    = "select-basis-for-claim.details"
   val whoIsMakingTheClaimKey      = "select-who-is-making-the-claim"
 
   def landingDropDownContent()(implicit messages: Messages): Html =
@@ -68,4 +69,51 @@ class DropdownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
       )
     )
 
+  def reasonAndBasisBasisDropDownContent()(implicit messages: Messages): Html =
+    html(
+      bulletList(
+        Seq(
+          Html(messages(s"$reasonAndBasisBasisKey.l0")),
+          Html(messages(s"$reasonAndBasisBasisKey.l1")),
+          Html(messages(s"$reasonAndBasisBasisKey.l2")),
+          Html(messages(s"$reasonAndBasisBasisKey.l3")),
+          Html(messages(s"$reasonAndBasisBasisKey.l4")),
+          Html(messages(s"$reasonAndBasisBasisKey.l5")),
+          Html(messages(s"$reasonAndBasisBasisKey.l6")),
+          Html(messages(s"$reasonAndBasisBasisKey.l7")),
+          Html(messages(s"$reasonAndBasisBasisKey.l8")),
+          Html(messages(s"$reasonAndBasisBasisKey.l9"))
+        )
+      )
+    )
+
+  def reasonAndBasisReasonDropDownContent()(implicit messages: Messages): Html =
+    html(
+      bulletList(
+        Seq(
+          Html(messages(s"$reasonAndBasisReasonKey.l0")),
+          Html(messages(s"$reasonAndBasisReasonKey.l1")),
+          Html(messages(s"$reasonAndBasisReasonKey.l2"))
+        )
+      )
+    )
+
+  def basisDropDownContent()(implicit messages: Messages): Html =
+    html(
+      bulletList(
+        Seq(
+          Html(messages(s"$basisKey.l0")),
+          Html(messages(s"$basisKey.l1")),
+          Html(messages(s"$basisKey.l2")),
+          Html(messages(s"$basisKey.l3")),
+          Html(messages(s"$basisKey.l4")),
+          Html(messages(s"$basisKey.l5")),
+          Html(messages(s"$basisKey.l6")),
+          Html(messages(s"$basisKey.l7")),
+          Html(messages(s"$basisKey.l8")),
+          Html(messages(s"$basisKey.l9")),
+          Html(messages(s"$basisKey.l10"))
+        )
+      )
+    )
 }
