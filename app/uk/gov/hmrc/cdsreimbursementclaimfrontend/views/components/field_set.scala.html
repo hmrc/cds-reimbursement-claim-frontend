@@ -22,12 +22,12 @@
 
 @this(govukFieldset:  uk.gov.hmrc.govukfrontend.views.html.components.govukFieldset)
 
-@(legend: String, asHeading: Boolean = true)(content: Html)(implicit messages: Messages)
+@(legend: String, asHeading: Boolean = true, legendClasses: String = "govuk-fieldset__legend--m")(content: Html)(implicit messages: Messages)
 
 @govukFieldset(Fieldset(
     legend = Some(Legend(
         content = Text(messages(legend)),
-        classes = if(asHeading) "govuk-fieldset__legend--m" else "",
+        classes = legendClasses,
         isPageHeading = asHeading
     )),
     html = content
