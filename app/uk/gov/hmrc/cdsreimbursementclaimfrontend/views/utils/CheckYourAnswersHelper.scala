@@ -482,7 +482,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
         List(
           SummaryListRow(
             key = Key(Text(messages(s"$key.reason-and-basis.l0")(lang))),
-            value = Value(Text(value.basisForClaim)),
+            value = Value(Text(value.basisForClaim.stringValue)),
             actions = Some(
               Actions(
                 items = Seq(
