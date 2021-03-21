@@ -23,6 +23,9 @@ object Generators {
   def alphaNumGen(n: Int): String =
     Gen.listOfN(n, Gen.alphaNumChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
 
+  def alphaCharGen(n: Int): String =
+    Gen.listOfN(n, Gen.alphaChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
+
   def numStringGen(n: Int): String =
     Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
 
