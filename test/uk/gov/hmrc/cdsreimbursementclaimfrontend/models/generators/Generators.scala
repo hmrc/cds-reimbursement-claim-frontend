@@ -30,12 +30,17 @@ object Generators {
     Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
 
   def moneyGen(integralPart: Int, fractionalPart: Int): String = {
-    def fixedLentghRandomNumber(length: Int): String = length match {
+    val finalIntegral   = integralPart match {
       case 0      => ""
       case 1      => "9"
       case s: Int => s"9${numStringGen(s - 1)}"
     }
-    fixedLentghRandomNumber(integralPart) + "." + fixedLentghRandomNumber(fractionalPart)
+    val finalFractional = fractionalPart match {
+      case 0      => ""
+      case 1      => "9"
+      case s: Int => s"${numStringGen(s - 1)}9"
+    }
+    finalIntegral + "." + finalFractional
   }
 
   implicit val booleanGen: Gen[Boolean] = Gen.oneOf(true, false)

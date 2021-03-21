@@ -82,6 +82,41 @@ class EnterClaimControllerSpec extends ControllerSpec {
       }
     }
 
-  }
+    "MRN Claim Amount Validation" must {
+      val form        = EnterClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
+      val claimAmount = "enter-claim"
 
+      val goodData = Map(
+        claimAmount -> "0.01"
+      )
+
+      "accept good declaration details" in {
+        val errors = form.bind(goodData).errors
+        errors shouldBe Nil
+      }
+
+      "claimAmount" should {
+        "Accept shortest possible claimAmount" in {
+          val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 2))).errors
+          errors shouldBe Nil
+        }
+        "Accept longest possible claimAmount" in {
+          val errors = form.bind(goodData.updated(claimAmount, moneyGen(11, 2))).errors
+          errors shouldBe Nil
+        }
+        "Reject claimAmount decimals only too many" in {
+          val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        }
+        "Reject claimAmount too many decimals" in {
+          val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        }
+        "Reject claimAmount too long" in {
+          val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        }
+      }
+    }
+  }
 }
