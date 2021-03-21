@@ -777,8 +777,8 @@ object EnterClaimController {
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> bigDecimal,
-      "enter-claim.claim-amount" -> bigDecimal
+      "enter-claim.paid-amount"  -> bigDecimal(13, 2),
+      "enter-claim.claim-amount" -> bigDecimal(13, 2)
     )(AmountPair.apply)(AmountPair.unapply)
       .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
