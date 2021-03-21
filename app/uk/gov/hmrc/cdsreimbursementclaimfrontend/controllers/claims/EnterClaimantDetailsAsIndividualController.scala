@@ -410,7 +410,7 @@ object EnterClaimantDetailsAsIndividualController {
 
   val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
     mapping(
-      "enter-claimant-details-individual.individual-full-name"    -> nonEmptyText,
+      "enter-claimant-details-individual.individual-full-name"    -> nonEmptyText(maxLength = 512),
       "enter-claimant-details-individual.individual-email"        -> Email.mappingMaxLength124,
       "enter-claimant-details-individual.individual-phone-number" -> PhoneNumber.mapping,
       ""                                                          -> Address.nonUkAddressFormMapping,

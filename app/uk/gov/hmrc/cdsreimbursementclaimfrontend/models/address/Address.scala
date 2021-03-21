@@ -82,36 +82,13 @@ object Address {
       .verifying(Constraint[String](validateAddressLine(_)))
   }
 
-  val ukAddressForm: Form[UkAddress] =
-    Form(
-      formMapping(
-        "address-line1"  -> addressLineMapping,
-        "address-line2"  -> optional(addressLineMapping),
-        "address-town"   -> optional(addressLineMapping),
-        "address-county" -> optional(addressLineMapping),
-        "postcode"       -> Postcode.mapping
-      )(UkAddress.apply)(UkAddress.unapply)
-    )
-
-  val nonUkAddressForm: Form[NonUkAddress] =
-    Form(
-      formMapping(
-        "nonUkAddress-line1" -> addressLineMapping,
-        "nonUkAddress-line2" -> optional(addressLineMapping),
-        "nonUkAddress-line3" -> optional(addressLineMapping),
-        "nonUkAddress-line4" -> addressLineMapping,
-        "postcode"           -> nonEmptyText,
-        "countryCode"        -> of(Country.formatter)
-      )(NonUkAddress.apply)(NonUkAddress.unapply)
-    )
-
   val nonUkAddressFormMapping: Mapping[NonUkAddress] =
     formMapping(
       "nonUkAddress-line1" -> addressLineMapping,
       "nonUkAddress-line2" -> optional(addressLineMapping),
       "nonUkAddress-line3" -> optional(addressLineMapping),
       "nonUkAddress-line4" -> addressLineMapping,
-      "postcode"           -> nonEmptyText,
+      "postcode"           -> nonEmptyText(maxLength = 9),
       "countryCode"        -> of(Country.formatter)
     )(NonUkAddress.apply)(NonUkAddress.unapply)
 
