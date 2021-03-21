@@ -20,6 +20,12 @@ import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
 
+  def alphaNumGen(n: Int):String =
+    Gen.listOfN(n, Gen.alphaNumChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
+
+  def numStringGen(n: Int):String =
+    Gen.listOfN(n, Gen.numChar).map(_.mkString).sample.getOrElse(sys.error(s"Could not generate instance"))
+
   implicit val booleanGen: Gen[Boolean] = Gen.oneOf(true, false)
 
   implicit val stringGen: Gen[String] = Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
