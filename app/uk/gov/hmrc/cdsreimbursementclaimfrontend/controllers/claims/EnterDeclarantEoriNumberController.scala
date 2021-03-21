@@ -196,7 +196,7 @@ object EnterDeclarantEoriNumberController {
 
   //TODO: find out what is a valid EORI number
   val eoriNumberMapping: Mapping[Eori] =
-    nonEmptyText
+    nonEmptyText(maxLength = 18)
       .verifying("invalid.number", str => Eori.isValid(str))
       .transform[Eori](str => Eori(str), eori => eori.value)
 

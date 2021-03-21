@@ -270,7 +270,7 @@ object EnterCommoditiesDetailsController {
 
   val commoditiesDetailsForm: Form[CommodityDetails] = Form(
     mapping(
-      "enter-commodities-details" -> nonEmptyText
+      "enter-commodities-details" -> nonEmptyText(maxLength = 500)
     )(CommodityDetails.apply)(CommodityDetails.unapply)
   )
 

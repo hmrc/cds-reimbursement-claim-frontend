@@ -34,23 +34,30 @@
     legend: String,
     items: Seq[CheckboxItem],
     legendAsHeading: Boolean = true,
-    hint: Option[Html] = None
+    hint: Option[Html] = None,
+    singleton: Boolean = false
 )(implicit messages: Messages)
 
-    @govukCheckboxes(Checkboxes(
-        idPrefix = Some(field.id),
-        name = field.name,
-        fieldset = Some(Fieldset(
-            legend = Some(Legend(
-                content = Text(legend),
-                isPageHeading = legendAsHeading,
-                classes = if(legendAsHeading) "govuk-fieldset__legend--l" else "govuk-visually-hidden"
-            ))
-        )),
-        hint = hint.map(hintHtml => Hint(
-            content = HtmlContent(hintHtml)
-        )),
-        items = items,
-        errorMessage = field.errors.headOption.map(err => ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
-        )
-   )
+@fieldset = @{if (singleton) {
+    None
+} else {
+    Some(Fieldset(
+        legend = Some(Legend(
+            content = Text(legend),
+            isPageHeading = legendAsHeading,
+            classes = if(legendAsHeading) "govuk-fieldset__legend--l" else "govuk-visually-hidden"
+        ))
+    ))
+}}
+
+@govukCheckboxes(Checkboxes(
+    idPrefix = Some(field.id),
+    name = field.name,
+    fieldset = fieldset,
+    hint = hint.map(hintHtml => Hint(
+        content = HtmlContent(hintHtml)
+    )),
+    items = items,
+    errorMessage = field.errors.headOption.map(err => ErrorMessage(content = Text(messages(s"${field.name}.${err.message}", err.args:_*))))
+    )
+)

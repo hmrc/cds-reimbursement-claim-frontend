@@ -241,19 +241,19 @@ object BankAccountController {
 
   val accountNumberRegex: Predicate[String]        = "^\\d{6,8}$".r.pattern.asPredicate()
   val accountNumberMapping: Mapping[AccountNumber] =
-    nonEmptyText
+    nonEmptyText(minLength = 6, maxLength = 8)
       .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => accountNumberRegex.test(e.value))
 
   val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
   val sortCodeMapping: Mapping[SortCode] =
-    nonEmptyText
+    nonEmptyText(minLength = 6, maxLength = 6)
       .transform[SortCode](s => SortCode(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => sortCodeRegex.test(e.value))
 
   val accountNameRegex: Predicate[String]      = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
   val accountNameMapping: Mapping[AccountName] =
-    nonEmptyText
+    nonEmptyText(maxLength = 40)
       .transform[AccountName](s => AccountName(s.trim()), _.value)
       .verifying("invalid", e => accountNameRegex.test(e.value))
 
