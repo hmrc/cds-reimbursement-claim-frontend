@@ -339,17 +339,21 @@ select-basis-for-claim.details.l7=inward processing relief from Customs Duty (IP
 select-basis-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-basis-for-claim.reason.d0=Duplicate MRN or Entry
-select-basis-for-claim.reason.d1=Duty suspension
-select-basis-for-claim.reason.d2=End use relief
-select-basis-for-claim.reason.d3=Incorrect commodity code
+
+select-basis-for-claim.reason.d0=Duplicate Entry
+select-basis-for-claim.reason.d1=Duty Suspension
+select-basis-for-claim.reason.d2=End Use
+select-basis-for-claim.reason.d3=Incorrect Commodity Code
 select-basis-for-claim.reason.d4=Incorrect CPC
-select-basis-for-claim.reason.d5=Incorrect value
-select-basis-for-claim.reason.d6=Incorrect EORI and deferment account number
-select-basis-for-claim.reason.d7=Inward Processing Relief from Customs Duty
-select-basis-for-claim.reason.d8=Outward Processing Relief
-select-basis-for-claim.reason.d9=Preference
-select-basis-for-claim.reason.d10=Proof of returns/refund given
+select-basis-for-claim.reason.d5=Incorrect Value
+select-basis-for-claim.reason.d6=Incorrect EORI & Deferment Acc. Num.
+select-basis-for-claim.reason.d7=IP
+select-basis-for-claim.reason.d8=Miscellaneous
+select-basis-for-claim.reason.d9=OPR
+select-basis-for-claim.reason.d10=Personal Effects
+select-basis-for-claim.reason.d11=Preference
+select-basis-for-claim.reason.d12=RGR
+select-basis-for-claim.reason.d13=Proof of Return/Refund Given
 
 #===================================================
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
@@ -381,17 +385,21 @@ select-reason-and-basis-for-claim.basis.reason.l0=mail order goods - duties not 
 select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you paid duties that were not due)
 select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
 
-select-reason-and-basis-for-claim.basis.d0=Duplicate MRN or Entry
-select-reason-and-basis-for-claim.basis.d1=Duty suspension
-select-reason-and-basis-for-claim.basis.d2=End use relief
-select-reason-and-basis-for-claim.basis.d3=Incorrect commodity code
+select-reason-and-basis-for-claim.basis.d0=Duplicate Entry
+select-reason-and-basis-for-claim.basis.d1=Duty Suspension
+select-reason-and-basis-for-claim.basis.d2=End Use
+select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
 select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
-select-reason-and-basis-for-claim.basis.d5=Incorrect value
-select-reason-and-basis-for-claim.basis.d6=Incorrect EORI and deferment account number
-select-reason-and-basis-for-claim.basis.d7=Inward Processing Relief from Customs Duty
-select-reason-and-basis-for-claim.basis.d8=Outward Processing Relief
-select-reason-and-basis-for-claim.basis.d9=Preference
-select-reason-and-basis-for-claim.basis.d10=Proof of returns/refund given
+select-reason-and-basis-for-claim.basis.d5=Incorrect Value
+select-reason-and-basis-for-claim.basis.d6=Incorrect EORI & Deferment Acc. Num.
+select-reason-and-basis-for-claim.basis.d7=IP
+select-reason-and-basis-for-claim.basis.d8=Miscellaneous
+select-reason-and-basis-for-claim.basis.d9=OPR
+select-reason-and-basis-for-claim.basis.d10=Personal Effects
+select-reason-and-basis-for-claim.basis.d11=Preference
+select-reason-and-basis-for-claim.basis.d12=RGR
+select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
+
 select-reason-and-basis-for-claim.reason.d0=Mail order goods
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances

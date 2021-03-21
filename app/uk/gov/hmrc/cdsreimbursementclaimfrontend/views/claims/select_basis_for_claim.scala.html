@@ -45,7 +45,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-        @errorSummary(form.errors, Some(key))
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
@@ -132,6 +132,21 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                             value = Some("10"),
                             text  = messages(s"$key.reason.d10"),
                             selected = form(s"$key").value.contains("10")
+                        ),
+                        SelectItem(
+                            value = Some("11"),
+                            text  = messages(s"$key.reason.d11"),
+                            selected = form(s"$key").value.contains("11")
+                        ),
+                        SelectItem(
+                            value = Some("12"),
+                            text  = messages(s"$key.reason.d12"),
+                            selected = form(s"$key").value.contains("12")
+                        ),
+                        SelectItem(
+                            value = Some("13"),
+                            text  = messages(s"$key.reason.d13"),
+                            selected = form(s"$key").value.contains("13")
                         )
                     )
             )

@@ -59,7 +59,7 @@
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-        @errorSummary(form.errors, Some(key))
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
@@ -99,7 +99,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @fieldSet(messages(s"$key.individual-contact-address.label")) {
+            @fieldSet(messages(s"$key.individual-contact-address.label"), false) {
 
                 @inputText(
                     form = form,

@@ -42,7 +42,7 @@
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(bLink), signedInUserDetails = request.signedInUserDetails) {
 
-        @errorSummary(form.errors, Some(key))
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 

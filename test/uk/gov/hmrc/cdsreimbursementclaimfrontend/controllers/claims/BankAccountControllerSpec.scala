@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -331,5 +331,70 @@ class BankAccountControllerSpec
 
     }
 
+  }
+
+  "Form Validation" must {
+    val form          = BankAccountController.enterBankDetailsForm
+    val accountName   = "enter-bank-details.account-name"
+    val isBusiness    = "enter-bank-details.is-business-account"
+    val sortCode      = "enter-bank-details.sort-code"
+    val accountNumber = "enter-bank-details.account-number"
+
+    val goodData = Map(
+      accountName   -> "Barkhan Seer",
+      isBusiness    -> "false",
+      sortCode      -> "123456",
+      accountNumber -> "12345678"
+    )
+
+    "accept good declaration details" in {
+      val errors = form.bind(goodData).errors
+      errors shouldBe Nil
+    }
+
+    "accountName" should {
+      "Accept longest possible names" in {
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(40))).errors
+        errors shouldBe Nil
+      }
+      "Reject names too long" in {
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(41))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
+
+    "sortCode" should {
+      "Accept longest possible sortCode" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(6))).errors
+        errors shouldBe Nil
+      }
+      "Reject sortCode too short" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(5))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+      }
+      "Reject sortCode too long" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(7))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
+
+    "accountNumber" should {
+      "Accept shortest possible accountNumber" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(6))).errors
+        errors shouldBe Nil
+      }
+      "Accept longest possible accountNumber" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(8))).errors
+        errors shouldBe Nil
+      }
+      "Reject accountNumber too short" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+      }
+      "Reject accountNumber too long" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(9))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
   }
 }
