@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -97,6 +97,16 @@ class BankAccountControllerSpec
     )
   }
 
+  private def updateSession(sessionData: SessionData, bankAccountDetails: BankAccountDetails): SessionData =
+    sessionData.journeyStatus match {
+      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+        val newClaim      =
+          draftClaim.copy(bankAccountDetailsAnswer = Some(CompleteBankAccountDetailAnswer(bankAccountDetails)))
+        val journeyStatus = FillingOutClaim(g, s, newClaim)
+        sessionData.copy(journeyStatus = Some(journeyStatus))
+      case _                                                         => fail()
+    }
+
   def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   "Bank Account Controller" when {
@@ -111,18 +121,21 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in {
-        val businessResponse =
+        val businessResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-        val answers          = CompleteBankAccountDetailAnswer(businessBankAccount)
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val answers            = CompleteBankAccountDetailAnswer(businessBankAccount)
+        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val updatedBankAccount = businessBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
           mockBusinessReputation(Right(businessResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
-        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -219,18 +232,21 @@ class BankAccountControllerSpec
       )
 
       "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
-        val personalResponse =
+        val personalResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-        val answers          = CompleteBankAccountDetailAnswer(personalBankAccount)
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val answers            = CompleteBankAccountDetailAnswer(personalBankAccount)
+        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val updatedBankAccount = personalBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
           mockPersonalReputation(Right(personalResponse))
         }
-        val form             = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
-        val request          = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result           = controller.enterBankAccountDetailsSubmit(request)
+        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
       }
@@ -315,5 +331,70 @@ class BankAccountControllerSpec
 
     }
 
+  }
+
+  "Form Validation" must {
+    val form          = BankAccountController.enterBankDetailsForm
+    val accountName   = "enter-bank-details.account-name"
+    val isBusiness    = "enter-bank-details.is-business-account"
+    val sortCode      = "enter-bank-details.sort-code"
+    val accountNumber = "enter-bank-details.account-number"
+
+    val goodData = Map(
+      accountName   -> "Barkhan Seer",
+      isBusiness    -> "false",
+      sortCode      -> "123456",
+      accountNumber -> "12345678"
+    )
+
+    "accept good declaration details" in {
+      val errors = form.bind(goodData).errors
+      errors shouldBe Nil
+    }
+
+    "accountName" should {
+      "Accept longest possible names" in {
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(40))).errors
+        errors shouldBe Nil
+      }
+      "Reject names too long" in {
+        val errors = form.bind(goodData.updated(accountName, alphaNumGen(41))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
+
+    "sortCode" should {
+      "Accept longest possible sortCode" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(6))).errors
+        errors shouldBe Nil
+      }
+      "Reject sortCode too short" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(5))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+      }
+      "Reject sortCode too long" in {
+        val errors = form.bind(goodData.updated(sortCode, numStringGen(7))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
+
+    "accountNumber" should {
+      "Accept shortest possible accountNumber" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(6))).errors
+        errors shouldBe Nil
+      }
+      "Accept longest possible accountNumber" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(8))).errors
+        errors shouldBe Nil
+      }
+      "Reject accountNumber too short" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+      }
+      "Reject accountNumber too long" in {
+        val errors = form.bind(goodData.updated(accountNumber, numStringGen(9))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+    }
   }
 }

@@ -463,20 +463,24 @@ object SupportingEvidenceController {
                 documentType === 6 ||
                 documentType === 7 ||
                 documentType === 8 ||
-                documentType === 9
+                documentType === 9 ||
+                documentType === 10 ||
+                documentType === 11
           )
           .transform[SupportingEvidenceDocumentType](
             {
-              case 0 => SupportingEvidenceDocumentType.C88E2
-              case 1 => SupportingEvidenceDocumentType.CommercialInvoice
-              case 2 => SupportingEvidenceDocumentType.PackingList
-              case 3 => SupportingEvidenceDocumentType.AirWayBill
-              case 4 => SupportingEvidenceDocumentType.BillOfLading
-              case 5 => SupportingEvidenceDocumentType.SubstituteEntry
-              case 6 => SupportingEvidenceDocumentType.ScheduleOfMRNs
-              case 7 => SupportingEvidenceDocumentType.ProofOfAuthority
-              case 8 => SupportingEvidenceDocumentType.CorrespondenceTrader
-              case 9 => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
+              case 0  => SupportingEvidenceDocumentType.C88E2
+              case 1  => SupportingEvidenceDocumentType.CommercialInvoice
+              case 2  => SupportingEvidenceDocumentType.PackingList
+              case 3  => SupportingEvidenceDocumentType.AirWayBill
+              case 4  => SupportingEvidenceDocumentType.BillOfLading
+              case 5  => SupportingEvidenceDocumentType.SubstituteEntry
+              case 6  => SupportingEvidenceDocumentType.ScheduleOfMRNs
+              case 7  => SupportingEvidenceDocumentType.ProofOfAuthority
+              case 8  => SupportingEvidenceDocumentType.CorrespondenceTrader
+              case 9  => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
+              case 10 => SupportingEvidenceDocumentType.ImportAndExportDeclaration
+              case 11 => SupportingEvidenceDocumentType.Other
             },
             {
               case SupportingEvidenceDocumentType.C88E2                         => 0
@@ -489,6 +493,8 @@ object SupportingEvidenceController {
               case SupportingEvidenceDocumentType.ProofOfAuthority              => 7
               case SupportingEvidenceDocumentType.CorrespondenceTrader          => 8
               case SupportingEvidenceDocumentType.AdditionalSupportingDocuments => 9
+              case SupportingEvidenceDocumentType.ImportAndExportDeclaration    => 10
+              case SupportingEvidenceDocumentType.Other                         => 11
             }
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)

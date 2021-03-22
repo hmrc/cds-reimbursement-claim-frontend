@@ -22,7 +22,7 @@ import play.api.libs.json.OFormat
 sealed trait BasisOfClaim extends Product with Serializable
 
 object BasisOfClaim {
-  case object DuplicateMrnEntry extends BasisOfClaim
+  case object DuplicateEntry extends BasisOfClaim
   case object DutySuspension extends BasisOfClaim
   case object EndUseRelief extends BasisOfClaim
   case object IncorrectCommodityCode extends BasisOfClaim
@@ -30,22 +30,28 @@ object BasisOfClaim {
   case object IncorrectValue extends BasisOfClaim
   case object IncorrectEoriAndDefermentAccountNumber extends BasisOfClaim
   case object InwardProcessingReliefFromCustomsDuty extends BasisOfClaim
+  case object Miscellaneous extends BasisOfClaim
   case object OutwardProcessingRelief extends BasisOfClaim
+  case object PersonalEffects extends BasisOfClaim
   case object Preference extends BasisOfClaim
+  case object RGR extends BasisOfClaim
   case object ProofOfReturnRefundGiven extends BasisOfClaim
 
   implicit def basisForClaimToString(basisForClaim: BasisOfClaim): String = basisForClaim match {
-    case DuplicateMrnEntry                      => "Duplicate Mrn or Entry number"
+    case DuplicateEntry                         => "Duplicate Entry"
     case DutySuspension                         => "Duty Suspension"
-    case EndUseRelief                           => "End Use Relief"
+    case EndUseRelief                           => "End Use"
     case IncorrectCommodityCode                 => "Incorrect Commodity Code"
-    case IncorrectCpc                           => "Incorrect Cpc"
+    case IncorrectCpc                           => "Incorrect CPC"
     case IncorrectValue                         => "Incorrect Value"
-    case IncorrectEoriAndDefermentAccountNumber => "Incorrect Eori and Deferment Account Number"
-    case InwardProcessingReliefFromCustomsDuty  => "Inward Processing Relief from Customs Duty"
-    case OutwardProcessingRelief                => "Outward Processing Relief"
+    case IncorrectEoriAndDefermentAccountNumber => "Incorrect EORI & Deferment Acc. Num."
+    case InwardProcessingReliefFromCustomsDuty  => "IP"
+    case Miscellaneous                          => "Miscellaneous"
+    case OutwardProcessingRelief                => "OPR"
+    case PersonalEffects                        => "Personal Effects"
     case Preference                             => "Preference"
-    case ProofOfReturnRefundGiven               => "Proof of Return and Refund Given"
+    case RGR                                    => "RGR"
+    case ProofOfReturnRefundGiven               => "Proof of Return/Refund Given"
   }
 
   implicit val format: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()

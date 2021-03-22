@@ -19,15 +19,15 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 
 @this(
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input
 )
 
 @(upscanUpload : UpscanUpload, link: Call)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
@@ -38,10 +38,7 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
  @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
  @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
-
  @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
-
-
 
 <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
 
@@ -69,12 +66,26 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
 
 </div>
 
-
-
-
 @pageHeading(title)
 
 @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+
+@details(messages(s"$key"),
+    Html(s"""|
+            |<ul class="govuk-list govuk-list--bullet">
+            |<li>${messages(s"$key.details.l0")}</li>
+            |<li>${messages(s"$key.details.l1")}</li>
+            |<li>${messages(s"$key.details.l2")}</li>
+            |<li>${messages(s"$key.details.l3")}</li>
+            |<li>${messages(s"$key.details.l4")}</li>
+            |<li>${messages(s"$key.details.l5")}</li>
+            |<li>${messages(s"$key.details.l6")}</li>
+            |<li>${messages(s"$key.details.l7")}</li>
+            |<li>${messages(s"$key.details.l8")}</li>
+            |<li>${messages(s"$key.details.l9")}</li>
+            |</ul>
+            |""".stripMargin
+))
 
  <form action="@href" method="post" enctype="multipart/form-data">
 
@@ -89,15 +100,12 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
    inputClass = Some("govuk-file-upload"),
    hasErrors = false,
    errorKey = None,
-   labelAsHeading = false,
-   autoComplete = AutoCompleteType.On
+   labelAsHeading = false
   )
 
   <div class="govuk-!-margin-bottom-9">
   @submitButton(messages("button.saveAndContinue"))
   </div>
  </form>
-
-
 
 }

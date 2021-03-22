@@ -7,7 +7,7 @@ window.HMRCFrontend.initAll();
 const CDSR = {
 
     form: document.querySelector('form'),
-    lang: 'en',
+    lang: document.documentElement.lang,
 
     errorSummary: document.querySelector('#cdsr-dynamic-error-summary'),
     errorPageTitle: "Error: " + document.title,
@@ -18,31 +18,30 @@ const CDSR = {
 
     Init: () => {
 
-        CDSR.SetLanguage();
+        // Initialise file upload check
 
         if (CDSR.form) {
             CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
         }
 
+        // Set up country lookup input
+
         if (CDSR.countrySelectElement && (!CDSR.lang || CDSR.lang === "en")) {
-            openregisterLocationPicker({
-                additionalSynonyms: [
-                    { name: 'Albion', code: 'country:GB' }
-                ],
-                defaultValue: '',
-                selectElement: CDSR.countrySelectElement,
-                url: '/claim-for-reimbursement-of-import-duties/assets/json/location-autocomplete-graph.json'
-            });
+            CDSR.RenderCountryAutoComplete();
         }
 
     },
 
-    SetLanguage: () => {
+    RenderCountryAutoComplete: () => {
 
-        var match = document.cookie.match(new RegExp('(^| )PLAY_LANG=([^;]+)'));
-        if (match) {
-            CDSR.lang = match[2];
-        }
+        openregisterLocationPicker({
+            additionalSynonyms: [
+                { name: 'Albion', code: 'country:GB' }
+            ],
+            defaultValue: '',
+            selectElement: CDSR.countrySelectElement,
+            url: '/claim-for-reimbursement-of-import-duties/assets/json/location-autocomplete-graph.json'
+        });
 
     },
 

@@ -20,7 +20,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -59,7 +58,7 @@
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-        @errorSummary(form.errors, Some(key))
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
@@ -99,7 +98,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @fieldSet(messages(s"$key.individual-contact-address.label")) {
+            @fieldSet(messages(s"$key.individual-contact-address.label"), false) {
 
                 @inputText(
                     form = form,
@@ -157,8 +156,7 @@
                     selected = form.data.get(countryCodeKey),
                     label = messages(s"${key}.address.line6.label"),
                     hasErrors = form.error(countryCodeKey).nonEmpty,
-                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}"),
-                    autoComplete = AutoCompleteType.Country
+                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}")
                 )
 
             }
@@ -173,13 +171,13 @@
                 inline = true,
                 items = Seq(
                     RadioItem(
-                        id = Some(s"$key.add-company-details"),
+                        id = Some(s"$key.add-company-details-yes"),
                         value = Some("true"),
                         content = Text("Yes"),
                         checked = form(s"$key.add-company-details").value.contains("true")
                     ),
                     RadioItem(
-                        id = Some(s"$key.add-company-details"),
+                        id = Some(s"$key.add-company-details-no"),
                         value = Some("false"),
                         content = Text("No"),
                         checked = form(s"$key.add-company-details").value.contains("false")

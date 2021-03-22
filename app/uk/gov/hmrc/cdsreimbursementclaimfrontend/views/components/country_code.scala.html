@@ -21,7 +21,6 @@
 @import cats.instances.string._
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.WelshSorting.WelshStringOps
 
 @this(
@@ -34,14 +33,13 @@
   label: String,
   errorKey: Option[String],
   hasErrors: Boolean,
-  autoComplete: AutoCompleteType,
   helpText: Option[Html] = None,
   extraContent: Option[Html] = None,
   labelAsHeading: Boolean = false
 )(implicit messages: Messages)
 
 @fieldId = @{"countryCode"}
-@classes = @{if(hasErrors) "form-group form-group-error" else "form-group" }
+@classes = @{if(hasErrors) "govuk-form-group govuk-form-group--error" else "form-group" }
 @inputClasses = @{if(hasErrors) "form-control form-control-error"  else "form-control"}
 @errorId = @{s"${{fieldId}}-inline-error"}
 @errorIdWithMessageKey = @{errorKey.map(errorId -> _)}
@@ -88,7 +86,6 @@
    id="@fieldId"
    name="@fieldId"
    class="@inputClasses"
-   autocomplete="@{autoComplete.value}"
    @if(describedByKeys.nonEmpty) { aria-describedby="@describedByKeys" }>
     <option value="">@messages("countryCode.placeholder")</option>
      @sortedCountryCodeOptions.map { countryCodeWithCountryName =>

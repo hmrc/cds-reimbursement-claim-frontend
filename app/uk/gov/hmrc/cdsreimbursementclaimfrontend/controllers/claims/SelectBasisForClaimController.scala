@@ -27,8 +27,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.SelectReasonForClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -144,9 +144,9 @@ class SelectBasisForClaimController @Inject() (
                 },
                 _ =>
                   reasonForClaim.reasonForClaimOption match {
-                    case BasisOfClaim.DuplicateMrnEntry =>
+                    case BasisOfClaim.DuplicateEntry =>
                       Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
-                    case _                              => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                    case _                           => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
                   }
               )
             }
@@ -264,7 +264,7 @@ object SelectBasisForClaimController {
           )
           .transform[BasisOfClaim](
             {
-              case 0  => BasisOfClaim.DuplicateMrnEntry
+              case 0  => BasisOfClaim.DuplicateEntry
               case 1  => BasisOfClaim.DutySuspension
               case 2  => BasisOfClaim.EndUseRelief
               case 3  => BasisOfClaim.IncorrectCommodityCode
@@ -272,12 +272,15 @@ object SelectBasisForClaimController {
               case 5  => BasisOfClaim.IncorrectValue
               case 6  => BasisOfClaim.IncorrectEoriAndDefermentAccountNumber
               case 7  => BasisOfClaim.InwardProcessingReliefFromCustomsDuty
-              case 8  => BasisOfClaim.OutwardProcessingRelief
-              case 9  => BasisOfClaim.Preference
-              case 10 => BasisOfClaim.ProofOfReturnRefundGiven
+              case 8  => BasisOfClaim.Miscellaneous
+              case 9  => BasisOfClaim.OutwardProcessingRelief
+              case 10 => BasisOfClaim.PersonalEffects
+              case 11 => BasisOfClaim.Preference
+              case 12 => BasisOfClaim.RGR
+              case 13 => BasisOfClaim.ProofOfReturnRefundGiven
             },
             {
-              case BasisOfClaim.DuplicateMrnEntry                      => 0
+              case BasisOfClaim.DuplicateEntry                         => 0
               case BasisOfClaim.DutySuspension                         => 1
               case BasisOfClaim.EndUseRelief                           => 2
               case BasisOfClaim.IncorrectCommodityCode                 => 3
@@ -285,9 +288,12 @@ object SelectBasisForClaimController {
               case BasisOfClaim.IncorrectValue                         => 5
               case BasisOfClaim.IncorrectEoriAndDefermentAccountNumber => 6
               case BasisOfClaim.InwardProcessingReliefFromCustomsDuty  => 7
-              case BasisOfClaim.OutwardProcessingRelief                => 8
-              case BasisOfClaim.Preference                             => 9
-              case BasisOfClaim.ProofOfReturnRefundGiven               => 10
+              case BasisOfClaim.Miscellaneous                          => 8
+              case BasisOfClaim.OutwardProcessingRelief                => 9
+              case BasisOfClaim.PersonalEffects                        => 10
+              case BasisOfClaim.Preference                             => 11
+              case BasisOfClaim.RGR                                    => 12
+              case BasisOfClaim.ProofOfReturnRefundGiven               => 13
             }
           )
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)

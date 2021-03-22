@@ -7,19 +7,11 @@ hmrc_branding=HM Revenue & Customs
 exitSurvey.linkText=Tell us how we can improve this service (takes 1 minute)
 
 lang=en
+currency=£
 
 session-expired-message=For your security, we will time you out in
 session-expired.sign-out-button-text=Sign-out
 session-expired.keep-alive-button-text=Continue
-
-footer.cookies.text = Cookies
-footer.cookies.url = /help/cookies
-footer.privacy.text = Privacy policy
-footer.privacy.url = /help/privacy
-footer.termsConditions.text = Terms and conditions
-footer.termsConditions.url = /help/terms-and-conditions
-footer.govukHelp.text = Help using GOV.UK
-footer.govukHelp.url = https://www.gov.uk/help
 
 #===================================================
 #  GLOBAL MESSAGES
@@ -281,6 +273,7 @@ enter-declaration-details.year.error.required=Enter a valid date of import
 enter-declaration-details.error.required=Enter a valid date of import
 enter-declaration-details.place-of-import.error.required=Enter a valid place of import
 enter-declaration-details.error.monthAndYearRequired = Enter a valid date of import
+enter-declaration-details-day.error.dayAndMonthRequired= Enter a valid date of import
 enter-declaration-details.day.error.dayAndYearRequired= Enter a valid date of import
 enter-declaration-details.month.error.monthAndYearRequired=Enter a valid date of import
 enter-declaration-details.day.error.dayAndMonthRequired=Enter a valid date of import
@@ -346,17 +339,21 @@ select-basis-for-claim.details.l7=inward processing relief from Customs Duty (IP
 select-basis-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-basis-for-claim.reason.d0=Duplicate MRN or Entry
-select-basis-for-claim.reason.d1=Duty suspension
-select-basis-for-claim.reason.d2=End use relief
-select-basis-for-claim.reason.d3=Incorrect commodity code
+
+select-basis-for-claim.reason.d0=Duplicate Entry
+select-basis-for-claim.reason.d1=Duty Suspension
+select-basis-for-claim.reason.d2=End Use
+select-basis-for-claim.reason.d3=Incorrect Commodity Code
 select-basis-for-claim.reason.d4=Incorrect CPC
-select-basis-for-claim.reason.d5=Incorrect value
-select-basis-for-claim.reason.d6=Incorrect EORI and deferment account number
-select-basis-for-claim.reason.d7=Inward Processing Relief from Customs Duty
-select-basis-for-claim.reason.d8=Outward Processing Relief
-select-basis-for-claim.reason.d9=Preference
-select-basis-for-claim.reason.d10=Proof of returns/refund given
+select-basis-for-claim.reason.d5=Incorrect Value
+select-basis-for-claim.reason.d6=Incorrect EORI & Deferment Acc. Num.
+select-basis-for-claim.reason.d7=IP
+select-basis-for-claim.reason.d8=Miscellaneous
+select-basis-for-claim.reason.d9=OPR
+select-basis-for-claim.reason.d10=Personal Effects
+select-basis-for-claim.reason.d11=Preference
+select-basis-for-claim.reason.d12=RGR
+select-basis-for-claim.reason.d13=Proof of Return/Refund Given
 
 #===================================================
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
@@ -388,17 +385,21 @@ select-reason-and-basis-for-claim.basis.reason.l0=mail order goods - duties not 
 select-reason-and-basis-for-claim.basis.reason.l1=overpayment (for example you paid duties that were not due)
 select-reason-and-basis-for-claim.basis.reason.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
 
-select-reason-and-basis-for-claim.basis.d0=Duplicate MRN or Entry
-select-reason-and-basis-for-claim.basis.d1=Duty suspension
-select-reason-and-basis-for-claim.basis.d2=End use relief
-select-reason-and-basis-for-claim.basis.d3=Incorrect commodity code
+select-reason-and-basis-for-claim.basis.d0=Duplicate Entry
+select-reason-and-basis-for-claim.basis.d1=Duty Suspension
+select-reason-and-basis-for-claim.basis.d2=End Use
+select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
 select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
-select-reason-and-basis-for-claim.basis.d5=Incorrect value
-select-reason-and-basis-for-claim.basis.d6=Incorrect EORI and deferment account number
-select-reason-and-basis-for-claim.basis.d7=Inward Processing Relief from Customs Duty
-select-reason-and-basis-for-claim.basis.d8=Outward Processing Relief
-select-reason-and-basis-for-claim.basis.d9=Preference
-select-reason-and-basis-for-claim.basis.d10=Proof of returns/refund given
+select-reason-and-basis-for-claim.basis.d5=Incorrect Value
+select-reason-and-basis-for-claim.basis.d6=Incorrect EORI & Deferment Acc. Num.
+select-reason-and-basis-for-claim.basis.d7=IP
+select-reason-and-basis-for-claim.basis.d8=Miscellaneous
+select-reason-and-basis-for-claim.basis.d9=OPR
+select-reason-and-basis-for-claim.basis.d10=Personal Effects
+select-reason-and-basis-for-claim.basis.d11=Preference
+select-reason-and-basis-for-claim.basis.d12=RGR
+select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
+
 select-reason-and-basis-for-claim.reason.d0=Mail order goods
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances
@@ -417,20 +418,20 @@ enter-commodities-details.error.required=Enter commodity details
 select-duties.title=Select the duties you want to claim for
 select-duties.help-text=These are the duties that have been paid in the import declaration.<br />You can select any of the paid duties.
 select-duties.error.required=Choose at least one duty to claim against
-select-duties.duty.A00=A00 - Customs Duty
-select-duties.duty.A20=A20 - Additional Duty
-select-duties.duty.A30=A30 - Definitive Anti-Dumping Duty
-select-duties.duty.A35=A35 - Provisional Anti-Dumping Duty
-select-duties.duty.A40=A40 - Definitive Countervailing Duty
-select-duties.duty.A45=A45 - Provisional Countervailing Duty
-select-duties.duty.B00=B00 - Value Added Tax
-select-duties.duty.A50=A50 - Customs Duty
-select-duties.duty.A70=A70 - Additional Duty
-select-duties.duty.A80=A80 - Definitive Anti-Dumping Duty
-select-duties.duty.A85=A85 - Provisional Anti-Dumping Duty
-select-duties.duty.A90=A90 - Definitive Countervailing Duty
-select-duties.duty.A95=A95 - Provisional Countervailing Duty
-select-duties.duty.B05=B05 - Value Added Tax
+select-duties.duty.A00=Customs Duty - Code A00
+select-duties.duty.A20=Additional Duty - Code A20
+select-duties.duty.A30=Definitive Anti-Dumping Duty - Code A30
+select-duties.duty.A35=Provisional Anti-Dumping Duty - Code A35
+select-duties.duty.A40=Definitive Countervailing Duty - Code A40
+select-duties.duty.A45=Provisional Countervailing Duty - Code A45
+select-duties.duty.B00=Value Added Tax - Code B00
+select-duties.duty.A50=Customs Duty - Code A50
+select-duties.duty.A70=Additional Duty - Code A70
+select-duties.duty.A80=Definitive Anti-Dumping Duty - Code A80
+select-duties.duty.A85=Provisional Anti-Dumping Duty - Code A85
+select-duties.duty.A90=Definitive Countervailing Duty - Code A90
+select-duties.duty.A95=Provisional Countervailing Duty - Code A95
+select-duties.duty.B05=Value Added Tax - Code B05
 
 enter-claim.title=Enter the claim amount for duty {0}
 enter-claim.help-text=This is to calculate your reimbursement as part of your claim. HMRC does not refund agents’ fees.
@@ -500,17 +501,17 @@ supporting-evidence.choose-document-type.title=Select the description of the fil
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.choose-document-type=Examples of file types
-supporting-evidence.choose-document-type.details.l0=C88/E2 (proof to authorise imports from the country of origin)
-supporting-evidence.choose-document-type.details.l1=Commercial invoice (shows the value of the goods)
-supporting-evidence.choose-document-type.details.l2=Packing list (document that states packaging details in each shipment)
-supporting-evidence.choose-document-type.details.l3=Air waybill (in your cargo documents)
-supporting-evidence.choose-document-type.details.l4=Bill of lading (this is a receipt of shipped goods)
-supporting-evidence.choose-document-type.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-supporting-evidence.choose-document-type.details.l6=Schedule of MRNs (a list of previous MRN numbers)
-supporting-evidence.choose-document-type.details.l7=Proof of authority (from importer for duty to be repaid)
-supporting-evidence.choose-document-type.details.l8=Correspondence trader (an email chain or letters between you and the trader)
-supporting-evidence.choose-document-type.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+supporting-evidence.upload=Examples of file types
+supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
+supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
+supporting-evidence.upload.details.l2=Packing list (document that states packaging details in each shipment)
+supporting-evidence.upload.details.l3=Air waybill (in your cargo documents)
+supporting-evidence.upload.details.l4=Bill of lading (this is a receipt of shipped goods)
+supporting-evidence.upload.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
+supporting-evidence.upload.details.l6=Schedule of MRNs (a list of previous MRN numbers)
+supporting-evidence.upload.details.l7=Proof of authority (from importer for duty to be repaid)
+supporting-evidence.upload.details.l8=Correspondence trader (an email chain or letters between you and the trader)
+supporting-evidence.upload.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
@@ -552,6 +553,8 @@ supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
 supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
 supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
 supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
+supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
+supporting-evidence.choose-document-type.document-type.d11=Other
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
