@@ -22,9 +22,14 @@ final case class MRN(value: String)
 
 object MRN {
 
+  def changeToUpperCaseWithoutSpaces(maybeMrn: String): MRN =
+    MRN(maybeMrn.toUpperCase.replaceAll("\\s", ""))
+
   def isValid(maybeMrn: String): Boolean = {
-    val regex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
-    maybeMrn.matches(regex)
+
+    val mrnWithoutSpaces: String = maybeMrn.toUpperCase.replaceAll("\\s", "")
+    val regex                    = """\d{2}[a-zA-Z]{2}\w{13}\d"""
+    mrnWithoutSpaces.matches(regex)
   }
 
   implicit val format: OFormat[MRN] = Json.format[MRN]
