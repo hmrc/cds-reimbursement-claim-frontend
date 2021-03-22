@@ -161,7 +161,7 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       "Reject email too long" in {
         val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 242
         val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
@@ -172,7 +172,7 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       }
       "Reject numbers too long" in {
         val errors = form.bind(goodData.updated(importerPhone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
 
       "Reject non-numbers" in {
@@ -201,7 +201,7 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       "Reject email too long" in {
         val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 242
         val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
@@ -212,7 +212,7 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       }
       "Reject numbers too long" in {
         val errors = form.bind(goodData.updated(importerPhone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
 
       "Reject non-numbers" in {

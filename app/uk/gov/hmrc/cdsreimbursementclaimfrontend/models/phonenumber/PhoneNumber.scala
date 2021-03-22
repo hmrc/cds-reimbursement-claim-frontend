@@ -37,7 +37,7 @@ object PhoneNumber {
   implicit val eq: Eq[PhoneNumber] = Eq.instance(_.value === _.value)
 
   val mapping: Mapping[PhoneNumber] =
-    nonEmptyText
+    nonEmptyText(maxLength = 30)
       .transform[PhoneNumber](s => PhoneNumber(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => phoneNumberRegex.test(e.value))
 }

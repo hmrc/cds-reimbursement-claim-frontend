@@ -69,7 +69,7 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec extends ControllerSpec
       "Reject email too long" in {
         val email  = List.fill(117)("a").mkString("") + "@abc.com" //Allthogether 125
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
@@ -80,7 +80,7 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec extends ControllerSpec
       }
       "Reject numbers too long" in {
         val errors = form.bind(goodData.updated(phone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
