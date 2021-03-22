@@ -65,7 +65,7 @@ class BankAccountController @Inject() (
 
   def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withMaskedBankDetails { (_, _, answers) =>
-      answers.fold(errorHandler.errorResult()) { maskedBankDetails =>
+      answers.fold(Redirect(routes.BankAccountController.enterBankAccountDetails())) { maskedBankDetails =>
         (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
           case (Some(cmbd), _)    =>
             Ok(checkBankAccountDetailsPage(BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber)))
@@ -79,11 +79,7 @@ class BankAccountController @Inject() (
   }
 
   private def withMaskedBankDetails(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      Option[MaskedBankDetails]
-    ) => Future[Result]
+    f: (SessionData, FillingOutClaim, Option[MaskedBankDetails]) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
       case Some(

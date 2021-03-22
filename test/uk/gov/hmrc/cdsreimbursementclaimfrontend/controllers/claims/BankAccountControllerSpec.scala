@@ -145,6 +145,17 @@ class BankAccountControllerSpec
         checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails())
       }
 
+      "Redirect when MaskedBankDetails is None" in {
+        val (session, _, _) = sessionWithMaskedBankDetails(None)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request         = FakeRequest()
+        val result          = controller.checkBankAccountDetails()(request)
+        checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails())
+      }
+
       "Ok when MaskedBankDetails has consigneeBankDetails" in {
         val consigneeDetails  = sample[ConsigneeBankDetails]
         val maskedBankDetails = MaskedBankDetails(Some(consigneeDetails), None)
