@@ -58,6 +58,8 @@ POST        /check-declaration-details                                uk.gov.hmr
 GET         /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetails()
 POST        /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
 
+GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+
 GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails
 POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit
 
@@ -70,8 +72,6 @@ POST        /check-answers-accept-send                              uk.gov.hmrc.
 GET         /claim-submitted                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
 
 GET         /check-if-claim-was-sent                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
-
-GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
 GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails
 POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit
