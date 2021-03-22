@@ -143,11 +143,11 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
 
     "Importer name" should {
       "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(160)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(importerName, List.fill(70)("a").mkString(""))).errors
         errors shouldBe Nil
       }
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(161)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(importerName, List.fill(71)("a").mkString(""))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
@@ -183,11 +183,11 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
 
     "Declarant name" should {
       "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(160)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(declarantName, List.fill(70)("a").mkString(""))).errors
         errors shouldBe Nil
       }
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(161)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(declarantName, List.fill(71)("a").mkString(""))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
@@ -207,16 +207,16 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
 
     "Declarant phone" should {
       "Accept longest possible number" in {
-        val errors = form.bind(goodData.updated(importerPhone, List.fill(30)("1").mkString(""))).errors
+        val errors = form.bind(goodData.updated(declarantPhone, List.fill(30)("1").mkString(""))).errors
         errors shouldBe Nil
       }
       "Reject numbers too long" in {
-        val errors = form.bind(goodData.updated(importerPhone, List.fill(31)("1").mkString(""))).errors
+        val errors = form.bind(goodData.updated(declarantPhone, List.fill(31)("1").mkString(""))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
 
       "Reject non-numbers" in {
-        val errors = form.bind(goodData.updated(importerPhone, "123456789a")).errors
+        val errors = form.bind(goodData.updated(declarantPhone, "123456789a")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
       }
     }
