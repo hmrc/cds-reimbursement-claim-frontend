@@ -33,7 +33,6 @@ class EnterDeclarantEoriNumberControllerSpec extends ControllerSpec {
     )
 
     "accept good declaration details" in {
-      println(goodData)
       val errors = form.bind(goodData).errors
       errors shouldBe Nil
     }
