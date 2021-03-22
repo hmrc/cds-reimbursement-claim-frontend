@@ -281,7 +281,6 @@ enter-declaration-details.year.error.required=Enter a valid date of import
 enter-declaration-details.error.required=Enter a valid date of import
 enter-declaration-details.place-of-import.error.required=Enter a valid place of import
 enter-declaration-details.error.monthAndYearRequired = Enter a valid date of import
-enter-declaration-details-day.error.dayAndMonthRequired= Enter a valid date of import
 enter-declaration-details.day.error.dayAndYearRequired= Enter a valid date of import
 enter-declaration-details.month.error.monthAndYearRequired=Enter a valid date of import
 enter-declaration-details.day.error.dayAndMonthRequired=Enter a valid date of import
