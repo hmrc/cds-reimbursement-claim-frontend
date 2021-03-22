@@ -53,6 +53,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
         @details(messages(s"$key"),
             Html(s"""|
+                |<ul class="govuk-list govuk-list--bullet">
                 |<li> ${messages(s"$key.details.l0")} </li>
                 |<li> ${messages(s"$key.details.l1")} </li>
                 |<li> ${messages(s"$key.details.l2")} </li>
@@ -64,6 +65,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 |<li> ${messages(s"$key.details.l8")} </li>
                 |<li> ${messages(s"$key.details.l9")} </li>
                 |<li> ${messages(s"$key.details.l10")} </li>
+                |</ul>
                 |""".stripMargin
             )
         )
