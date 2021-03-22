@@ -62,12 +62,12 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec extends ControllerSpec
 
     "Email" should {
       "Accept longest possible email" in {
-        val email  = List.fill(116)("a").mkString("") + "@abc.com" //Allthogether 124
+        val email  = List.fill(233)("a").mkString("") + "@abc.com" //Allthogether 124
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
         errors shouldBe Nil
       }
       "Reject email too long" in {
-        val email  = List.fill(117)("a").mkString("") + "@abc.com" //Allthogether 125
+        val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 125
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
