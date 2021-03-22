@@ -43,12 +43,12 @@ object Email {
   implicit val eq: Eq[Email] = Eq.instance(_.value === _.value)
 
   val mappingMaxLength124: Mapping[Email] =
-    nonEmptyText
+    nonEmptyText(maxLength = 124)
       .transform[Email](s => Email(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => emailRegex124.test(e.value))
 
   val mappingMaxLength241: Mapping[Email] =
-    nonEmptyText
+    nonEmptyText(maxLength = 241)
       .transform[Email](s => Email(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => emailRegex241.test(e.value))
 
