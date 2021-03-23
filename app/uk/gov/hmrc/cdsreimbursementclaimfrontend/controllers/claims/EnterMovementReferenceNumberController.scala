@@ -543,7 +543,9 @@ object EnterMovementReferenceNumberController {
     nonEmptyText
       .verifying("invalid.number", str => MRN.isValid(str) | EntryNumber.isValid(str))
       .transform[Either[EntryNumber, MRN]](
-        str => if (MRN.isValid(str)) Right(MRN(str)) else Left(EntryNumber(str)),
+        str =>
+          if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))
+          else Left(EntryNumber.changeToUpperCaseWithoutSpaces(str)),
         {
           case Left(entryNumber) => entryNumber.value
           case Right(mrn)        => mrn.value

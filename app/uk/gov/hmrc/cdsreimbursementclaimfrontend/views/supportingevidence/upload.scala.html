@@ -19,7 +19,6 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 
 @this(
@@ -101,8 +100,7 @@
    inputClass = Some("govuk-file-upload"),
    hasErrors = false,
    errorKey = None,
-   labelAsHeading = false,
-   autoComplete = AutoCompleteType.On
+   labelAsHeading = false
   )
 
   <div class="govuk-!-margin-bottom-9">

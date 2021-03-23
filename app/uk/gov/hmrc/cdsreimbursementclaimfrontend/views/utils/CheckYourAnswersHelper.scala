@@ -47,7 +47,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.entry-reference-number.label")(lang))
                 )
               )
             )
@@ -62,7 +63,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.mrn.label")(lang))
                 )
               )
             )
@@ -85,7 +87,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l0")(lang))
                     )
                   )
                 )
@@ -101,7 +104,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l1")(lang))
                     )
                   )
                 )
@@ -117,7 +121,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l2")(lang))
                     )
                   )
                 )
@@ -133,7 +138,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l3")(lang))
                     )
                   )
                 )
@@ -149,7 +155,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l4")(lang))
                     )
                   )
                 )
@@ -165,7 +172,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l5")(lang))
                     )
                   )
                 )
@@ -181,7 +189,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l6")(lang))
                     )
                   )
                 )
@@ -197,7 +206,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang))
+                      content = Text(messages("cya.change")(lang)),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l7")(lang))
                     )
                   )
                 )
@@ -309,7 +319,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
               )
             )
           )
@@ -323,7 +334,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
               )
             )
           )
@@ -337,7 +349,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l2")(lang))
               )
             )
           )
@@ -357,7 +370,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividual().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
               )
             )
           )
@@ -380,7 +394,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 ActionItem(
                   href =
                     s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
                 )
               )
             )
@@ -389,7 +404,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l1")(lang))),
           value = Value(Text(details.emailAddress.value)),
           actions = Some(
             Actions(
@@ -397,7 +412,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 ActionItem(
                   href =
                     s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
                 )
               )
             )
@@ -406,7 +422,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l2")(lang))),
           value = Value(Text(details.phoneNumber.value)),
           actions = Some(
             Actions(
@@ -414,7 +430,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 ActionItem(
                   href =
                     s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l2")(lang))
                 )
               )
             )
@@ -423,7 +440,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l3")(lang))),
           value = Value(Text(details.contactAddress.getAddressLines(messages.preferred(request)).mkString(", "))),
           actions = Some(
             Actions(
@@ -431,7 +448,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 ActionItem(
                   href =
                     s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
                 )
               )
             )
@@ -439,24 +457,6 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
         )
       }
     ).flattenOption
-
-  def makeClaimantDetailsAsImporterSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
-    List(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.commodities-details.label")(lang))),
-        value = Value(Text(completeClaim.commodityDetails)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                content = Text(messages("cya.change")(lang))
-              )
-            )
-          )
-        )
-      )
-    )
 
   def makeCommodityDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(
@@ -468,7 +468,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.commodities-details.label")(lang))
               )
             )
           )
@@ -488,7 +489,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 items = Seq(
                   ActionItem(
                     href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                    content = Text(messages("cya.change")(lang))
+                    content = Text(messages("cya.change")(lang)),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0")(lang))
                   )
                 )
               )
@@ -502,7 +504,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 items = Seq(
                   ActionItem(
                     href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
-                    content = Text(messages("cya.change")(lang))
+                    content = Text(messages("cya.change")(lang)),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1")(lang))
                   )
                 )
               )
@@ -519,7 +522,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
                 items = Seq(
                   ActionItem(
                     href = s"${routes.SelectBasisForClaimController.changeBasisForClaim().url}",
-                    content = Text(messages("cya.change")(lang))
+                    content = Text(messages("cya.change")(lang)),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0")(lang))
                   )
                 )
               )
@@ -538,7 +542,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label")(lang))
               )
             )
           )
@@ -552,7 +557,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label")(lang))
               )
             )
           )
@@ -566,7 +572,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.total-claim.label")(lang))
               )
             )
           )
@@ -585,7 +592,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-name.label")(lang))
                 )
               )
             )
@@ -601,7 +609,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.sort-code.label")(lang))
                 )
               )
             )
@@ -617,7 +626,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang))
+                  content = Text(messages("cya.change")(lang)),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-number.label")(lang))
                 )
               )
             )
@@ -636,7 +646,8 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             items = Seq(
               ActionItem(
                 href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
-                content = Text(messages("cya.change")(lang))
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1)(lang))
               )
             )
           )

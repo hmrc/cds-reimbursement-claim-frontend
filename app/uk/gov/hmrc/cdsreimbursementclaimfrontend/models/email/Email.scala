@@ -30,26 +30,18 @@ final case class Email(value: String) extends AnyVal
 
 object Email {
 
-  def maxEmailRegex(length: Int): String =
-    "^(?=.{1,__X__}$)(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
-      .replaceAll("__X__", length.toString)
-
-  val emailRegex124: Predicate[String] = maxEmailRegex(124).r.pattern.asPredicate()
-  val emailRegex241: Predicate[String] = maxEmailRegex(241).r.pattern.asPredicate()
+  val emailRegex: Predicate[String] =
+    "^(?=.{1,241}$)(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])".r.pattern
+      .asPredicate()
 
   implicit val format: Format[Email] =
     implicitly[Format[String]].inmap(Email(_), _.value)
 
   implicit val eq: Eq[Email] = Eq.instance(_.value === _.value)
 
-  val mappingMaxLength124: Mapping[Email] =
-    nonEmptyText
+  val mappingMaxLength: Mapping[Email] =
+    nonEmptyText(maxLength = 241)
       .transform[Email](s => Email(s.replaceAllLiterally(" ", "")), _.value)
-      .verifying("invalid", e => emailRegex124.test(e.value))
-
-  val mappingMaxLength241: Mapping[Email] =
-    nonEmptyText
-      .transform[Email](s => Email(s.replaceAllLiterally(" ", "")), _.value)
-      .verifying("invalid", e => emailRegex241.test(e.value))
+      .verifying("invalid", e => emailRegex.test(e.value))
 
 }

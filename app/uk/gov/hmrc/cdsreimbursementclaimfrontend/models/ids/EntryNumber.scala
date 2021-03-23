@@ -22,9 +22,14 @@ final case class EntryNumber(value: String) extends AnyVal
 
 object EntryNumber {
 
+  def changeToUpperCaseWithoutSpaces(maybeEntryNumber: String): EntryNumber =
+    EntryNumber(maybeEntryNumber.toUpperCase.replaceAll("\\s", ""))
+
   def isValid(maybeEntryNumber: String): Boolean = {
-    val entryNumberFormat = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
-    maybeEntryNumber.matches(entryNumberFormat)
+
+    val entryNumberWithoutSpaces: String = maybeEntryNumber.toUpperCase.replaceAll("\\s", "")
+    val entryNumberFormat                = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
+    entryNumberWithoutSpaces.matches(entryNumberFormat)
   }
 
   implicit val format: OFormat[EntryNumber] = Json.format[EntryNumber]

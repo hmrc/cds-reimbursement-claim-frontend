@@ -770,15 +770,15 @@ object EnterClaimController {
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> bigDecimal
+        "enter-claim" -> bigDecimal(13, 2)
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> bigDecimal,
-      "enter-claim.claim-amount" -> bigDecimal
+      "enter-claim.paid-amount"  -> bigDecimal(13, 2),
+      "enter-claim.claim-amount" -> bigDecimal(13, 2)
     )(AmountPair.apply)(AmountPair.unapply)
       .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
