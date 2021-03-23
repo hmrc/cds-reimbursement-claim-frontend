@@ -21,24 +21,22 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import play.api.libs.json.JsValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JsValueGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CDSReimbursementClaimConnectorSpec
+class CustomsDataStoreConnectorSpec
     extends AnyWordSpec
     with Matchers
     with MockFactory
     with HttpSupport
     with ConnectorSpec {
 
-  val config: Configuration      = Configuration(
+  val configuration: Configuration = Configuration(
     ConfigFactory.parseString(
       """
         | self {
@@ -46,58 +44,34 @@ class CDSReimbursementClaimConnectorSpec
         |  },
         |  microservice {
         |    services {
-        |      cds-reimbursement-claim {
-        |        protocol = http
-        |        host     = localhost
-        |        port     = 7501
-        |      }
-        |      bank-account-reputation {
+        |    customs-data-store {
         |        protocol = http
         |        host = localhost
-        |        port = 9871
-        |        business = /business/v2/assess
-        |        personal = /personal/v3/assess
-        |     }
-        |
+        |        port = 9893
+        |        email-by-eori = "/customs-data-store/eori/:eori/verified-email"
+        |    }
         |   }
         |}
         |""".stripMargin
     )
   )
+
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val connector = new DefaultCDSReimbursementClaimConnector(mockHttp, new ServicesConfig(config))
+  val connector = new DefaultCustomsDataStoreConnector(mockHttp, new ServicesConfig(configuration))
 
-  "CDS Reimbursement Connector" when {
+  "Custom Data Store Connector" must {
 
-    val mrn = sample[MRN]
-    val url = s"http://localhost:7501/cds-reimbursement-claim/declaration/${mrn.value}"
+    val eori = sample[Eori]
+    val url  = s"http://localhost:9893/customs-data-store/eori/${eori.value}/verified-email"
 
-    "handling requests to get a declaration" must {
+    "handling requests to submit claim" must {
       behave like connectorBehaviour(
         mockGet(url)(_),
-        () => connector.getDeclaration(mrn)
+        () => connector.getCustomsEmail(eori)
       )
     }
 
-    "handling requests to verify a business bank account" must {
-      val url     = "http://localhost:9871/business/v2/assess"
-      val jsValue = sample[JsValue]
-
-      behave like connectorBehaviour(
-        mockPost(url, Seq.empty, *)(_),
-        () => connector.getBusinessReputation(jsValue)
-      )
-    }
-
-    "handling requests to verify a personal bank account" must {
-      val url     = "http://localhost:9871/personal/v3/assess"
-      val jsValue = sample[JsValue]
-
-      behave like connectorBehaviour(
-        mockPost(url, Seq.empty, *)(_),
-        () => connector.getPersonalReputation(jsValue)
-      )
-    }
   }
+
 }

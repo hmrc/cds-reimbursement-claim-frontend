@@ -24,12 +24,13 @@ import cats.syntax.eq._
 import com.google.inject.{ImplementedBy, Singleton}
 import play.api.http.Status.OK
 import play.api.mvc.Call
+import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, TimeUtils}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import java.util.UUID
 import javax.inject.Inject
@@ -63,21 +64,40 @@ class UpscanServiceImpl @Inject() (
     successRedirect: UploadReference => Call
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, UpscanUpload] =
     for {
-      uploadReference  <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
-      httpResponse     <- upscanConnector
-                            .initiate(
-                              errorRedirect,
-                              successRedirect(uploadReference),
-                              uploadReference
-                            )
-      upscanUploadMeta <- EitherT.fromOption(
-                            httpResponse.json.validate[UpscanUploadMeta].asOpt,
-                            Error("could not parse upscan initiate response")
-                          )
-      upscanUpload     <- EitherT.pure(
-                            UpscanUpload(uploadReference, upscanUploadMeta, TimeUtils.now(), None)
-                          )
-      _                <- upscanConnector.saveUpscanUpload(upscanUpload)
+      uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
+      maybeHttpResponse <- upscanConnector
+                             .initiate(
+                               errorRedirect,
+                               successRedirect(uploadReference),
+                               uploadReference
+                             )
+                             .map[Either[Error, HttpResponse]] { response =>
+                               if (response.status =!= Status.OK) {
+                                 logger.warn(
+                                   s"could not initiate upscan: received http " +
+                                     s"status ${response.status} and body ${response.body}"
+                                 )
+                                 Left(Error("could not initiate upscan"))
+                               } else
+                                 Right(response)
+                             }
+                             .recover { case e => Left(e) }
+      httpResponse      <- EitherT.fromEither(maybeHttpResponse)
+      upscanUploadMeta  <- EitherT.fromOption(
+                             httpResponse.json.validate[UpscanUploadMeta].asOpt,
+                             Error("could not parse http response")
+                           )
+      upscanUpload      <- EitherT.pure(
+                             UpscanUpload(uploadReference, upscanUploadMeta, TimeUtils.now(), None)
+                           )
+      _                 <- upscanConnector.saveUpscanUpload(upscanUpload).map { response =>
+                             response.status match {
+                               case Status.OK                                         => Right(response)
+                               case Status.BAD_REQUEST | Status.INTERNAL_SERVER_ERROR =>
+                                 logger.warn("could not save upscan upload")
+                                 Left(Error(s"failed to save upscan upload"))
+                             }
+                           }
     } yield upscanUpload
 
   override def getUpscanUpload(
@@ -88,8 +108,13 @@ class UpscanServiceImpl @Inject() (
         response
           .parseJSON[UpscanUpload]()
           .leftMap(Error(_))
-      else
+      else {
+        logger.warn(
+          s"could not get upscan upload: received http " +
+            s"status ${response.status} and body ${response.body}"
+        )
         Left(Error(s"call to get upscan upload failed ${response.status}"))
+      }
     }
 
 }

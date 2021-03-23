@@ -342,7 +342,7 @@ class GetDeclarationServiceSpec extends AnyWordSpec with Matchers with MockFacto
 
   def mockDeclarationConnector(mrn: MRN)(response: Either[Error, HttpResponse]) =
     (backendConnector
-      .getDeclarationDetails(_: MRN)(_: HeaderCarrier))
+      .getDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(mrn, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()
