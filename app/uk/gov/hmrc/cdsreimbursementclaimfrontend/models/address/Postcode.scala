@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import java.util.function.Predicate
 
-import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.{nonEmptyText, text}
 import play.api.data.Mapping
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationResult}
 import play.api.libs.functional.syntax._
@@ -35,11 +35,10 @@ object Postcode {
   implicit val format: Format[Postcode] =
     implicitly[Format[String]].inmap(Postcode(_), _.value)
 
-  val mapping: Mapping[Postcode] = {
+  val mappingUk: Mapping[Postcode] = {
 
-    def validatePostcode(p: Postcode): ValidationResult = {
-      val postcodeWithoutSpaces =
-        p.value.toUpperCase.replaceAllLiterally(" ", "")
+    def validateUkPostcode(p: Postcode): ValidationResult = {
+      val postcodeWithoutSpaces = p.value.toUpperCase.replaceAllLiterally(" ", "")
       if (p.value.length > 8) Invalid("error.tooLong")
       else if (!postcodeWithoutSpaces.forall(_.isLetterOrDigit))
         Invalid("error.invalidCharacters")
@@ -48,9 +47,11 @@ object Postcode {
       else Valid
     }
 
-    nonEmptyText
+    nonEmptyText(maxLength = 9)
       .transform[Postcode](p => Postcode(p.trim), _.value)
-      .verifying(Constraint[Postcode](validatePostcode(_)))
+      .verifying(Constraint[Postcode](validateUkPostcode(_)))
   }
+
+  val mappingNonUk: Mapping[Postcode] = text(maxLength = 9).transform[Postcode](p => Postcode(p.trim), _.value)
 
 }

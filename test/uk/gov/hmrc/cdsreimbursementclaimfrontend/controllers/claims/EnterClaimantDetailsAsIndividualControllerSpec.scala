@@ -132,11 +132,27 @@ class EnterClaimantDetailsAsIndividualControllerSpec extends ControllerSpec {
 
     "Postcode" should {
       "Accept longest possible post code" in {
-        val errors = form.bind(goodData.updated(postCode, List.fill(9)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(postCode, "BD17 7DG")).errors
         errors shouldBe Nil
       }
+      "Reject post code too long after trim" in {
+        val errors = form.bind(goodData.updated(postCode, "BDD17 7DG")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
+      }
+      "Reject invalid post code" in {
+        val errors = form.bind(goodData.updated(postCode, "BDD7 7DG")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.pattern")
+      }
       "Reject post code if too long" in {
-        val errors = form.bind(goodData.updated(postCode, List.fill(10)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(postCode, "BD17 7DGGA")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+      "Accept Anything outside of the UK" in {
+        val errors = form.bind(goodData.updated(countryCode, "IS").updated(postCode, "AA2")).errors
+        errors shouldBe Nil
+      }
+      "Reject Anything outside of the UK if it's too long" in {
+        val errors = form.bind(goodData.updated(countryCode, "IS").updated(postCode, "1234567890")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
