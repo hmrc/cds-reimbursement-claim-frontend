@@ -37,10 +37,12 @@ import scala.concurrent.Future
 
 class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenPropertyChecks with MockFactory {
 
-  val mockConnector                = mock[UpscanConnector]
-  val service                      = new UpscanServiceImpl(mockConnector)
-  val reference                    = sample[UploadReference]
-  val upload                       = sample[UpscanUpload]
+  val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
+  val mockUpscanService                      = new UpscanServiceImpl(mockUpscanConnector)
+
+  val uploadReference: UploadReference = sample[UploadReference]
+  val upscanUpload: UpscanUpload = sample[UpscanUpload]
+
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
 
@@ -50,30 +52,30 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
     "receiving an upscan related request" must {
       "get the upscan upload reference data" when {
         "given a valid upload reference" in {
-          val response = Right(HttpResponse(OK, Json.toJson(upload), Map[String, Seq[String]]().empty))
-          (mockConnector
+          val response = Right(HttpResponse(OK, Json.toJson(upscanUpload), Map[String, Seq[String]]().empty))
+          (mockUpscanConnector
             .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
-            .expects(reference, *)
+            .expects(uploadReference, *)
             .returning(EitherT.fromEither[Future](response))
-          await(service.getUpscanUpload(reference).value).isRight shouldBe true
+          await(mockUpscanService.getUpscanUpload(uploadReference).value).isRight shouldBe true
         }
 
         "it receives an invalid response" in {
           val response = Right(HttpResponse(OK, JsString("Nope"), Map[String, Seq[String]]().empty))
-          (mockConnector
+          (mockUpscanConnector
             .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
-            .expects(reference, *)
+            .expects(uploadReference, *)
             .returning(EitherT.fromEither[Future](response))
-          await(service.getUpscanUpload(reference).value).isLeft shouldBe true
+          await(mockUpscanService.getUpscanUpload(uploadReference).value).isLeft shouldBe true
         }
 
         "raise an error when the call fails" in {
           val response = Right(HttpResponse(INTERNAL_SERVER_ERROR, emptyJsonBody))
-          (mockConnector
+          (mockUpscanConnector
             .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
-            .expects(reference, *)
+            .expects(uploadReference, *)
             .returning(EitherT.fromEither[Future](response))
-          await(service.getUpscanUpload(reference).value).isLeft shouldBe true
+          await(mockUpscanService.getUpscanUpload(uploadReference).value).isLeft shouldBe true
         }
       }
 
@@ -88,21 +90,23 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
               Map[String, Seq[String]]().empty
             )
           )
-          (mockConnector
+          (mockUpscanConnector
             .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier))
             .expects(mockFailure, mockSuccess, *, *)
             .returning(EitherT.fromEither[Future](response))
-          (mockConnector
+          (mockUpscanConnector
             .saveUpscanUpload(_: UpscanUpload)(_: HeaderCarrier))
             .expects(*, *)
             .returning(EitherT.fromEither[Future](Right(HttpResponse(OK, emptyJsonBody))))
           await(
-            service
+            mockUpscanService
               .initiate(mockFailure, (_: UploadReference) => mockSuccess)
               .value
           ).isRight shouldBe true
         }
       }
+
+
     }
   }
 }
