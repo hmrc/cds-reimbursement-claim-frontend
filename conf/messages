@@ -138,6 +138,11 @@ enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 
 #===================================================
+#  ENTER DUPLICATE MRN PAGE
+#===================================================
+enter-duplicate-movement-reference-number.title=What is your duplicated Movement Reference Number (MRN)?
+
+#===================================================
 #  MRN DOES NOT MATCH EORI PAGE
 #===================================================
 mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
