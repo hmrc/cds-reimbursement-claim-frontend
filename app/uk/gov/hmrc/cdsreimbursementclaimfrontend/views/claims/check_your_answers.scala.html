@@ -54,7 +54,7 @@
 
         @completeClaim.claimantDetailsAsImporterCompany.map{ _ =>
             <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.claimant-details-as-importer.h2")</h2>
-            @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim)))
+            @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim, request)))
         }
 
         <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.reason-basis.h2")</h2>
