@@ -406,7 +406,7 @@ select-reason-and-basis-for-claim.basis.d7=Inward Processing Relief from Customs
 select-reason-and-basis-for-claim.basis.d8=Outward Processing Relief
 select-reason-and-basis-for-claim.basis.d9=Preference
 select-reason-and-basis-for-claim.basis.d10=Proof of returns/refund given
-select-reason-and-basis-for-claim.reason.d0=Mail order goods
+select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances
 
