@@ -27,21 +27,22 @@ import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenPropertyChecks with MockFactory {
 
   val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
-  val mockUpscanService                      = new UpscanServiceImpl(mockUpscanConnector)
+  val mockUpscanService                    = new UpscanServiceImpl(mockUpscanConnector)
 
   val uploadReference: UploadReference = sample[UploadReference]
-  val upscanUpload: UpscanUpload = sample[UpscanUpload]
+  val upscanUpload: UpscanUpload       = sample[UpscanUpload]
 
   implicit val hc: HeaderCarrier   = HeaderCarrier()
   implicit val request: Request[_] = FakeRequest()
@@ -79,7 +80,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
         }
       }
 
-      "get the upscan file descriptors" when {
+      "get the upscan file descriptors succeeds" when {
         "the upscan initiate service returns a successful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
@@ -106,7 +107,22 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
         }
       }
 
+      "get the upscan file descriptors fails" when {
+        "the upscan initiate service returns an unsuccessful response" in {
+          val mockSuccess = Call("GET", "/mock-success")
+          val mockFailure = Call("GET", "/mock-fail")
+          (mockUpscanConnector
+            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier))
+            .expects(mockFailure, mockSuccess, *, *)
+            .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, "{}"))))
+          await(
+            mockUpscanService
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess)
+              .value
+          ).isLeft shouldBe true
+        }
 
+      }
     }
   }
 }

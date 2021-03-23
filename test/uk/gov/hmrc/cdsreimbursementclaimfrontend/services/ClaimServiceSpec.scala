@@ -71,8 +71,8 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       |        "acceptanceDate": "2020-10-20",
       |        "procedureCode": "p-1",
       |        "declarantDetails": {
-      |            "declarantEORI": "S-1",
-      |            "legalName": "Sith Lord",
+      |            "declarantEORI": "F-1",
+      |            "legalName": "Fred Bread",
       |            "establishmentAddress": {
       |                "addressLine1": "line-1",
       |                "countryCode": "GB"
@@ -205,8 +205,8 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             maskedBankDetails = None,
             ndrcDetails = None,
             declarantDetails = DeclarantDetails(
-              declarantEORI = "S-1",
-              legalName = "Sith Lord",
+              declarantEORI = "F-1",
+              legalName = "Fred Bread",
               establishmentAddress = EstablishmentAddress(
                 addressLine1 = "line-1",
                 addressLine2 = None,
