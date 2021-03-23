@@ -400,7 +400,7 @@ select-reason-and-basis-for-claim.basis.d11=Preference
 select-reason-and-basis-for-claim.basis.d12=RGR
 select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
 
-select-reason-and-basis-for-claim.reason.d0=Mail order goods
+select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances
 
