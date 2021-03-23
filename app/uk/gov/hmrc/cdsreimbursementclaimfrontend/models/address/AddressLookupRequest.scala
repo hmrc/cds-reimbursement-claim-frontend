@@ -28,7 +28,7 @@ object AddressLookupRequest {
   val form: Form[AddressLookupRequest] =
     Form(
       formMapping(
-        "postcode" -> Postcode.mapping,
+        "postcode" -> Postcode.mappingUk,
         "filter"   -> optional(text)
           .transform[Option[String]](_.filter(_.nonEmpty), identity)
       )(AddressLookupRequest.apply)(AddressLookupRequest.unapply)
