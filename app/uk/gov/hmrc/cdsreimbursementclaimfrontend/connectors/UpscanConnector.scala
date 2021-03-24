@@ -22,7 +22,6 @@ import configs.ConfigReader
 import configs.syntax._
 import play.api.Configuration
 import play.api.mvc.Call
-import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -31,6 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @ImplementedBy(classOf[DefaultUpscanConnector])
 trait UpscanConnector {
@@ -77,7 +77,7 @@ class DefaultUpscanConnector @Inject() (
     s"$protocol://$host:$port/upscan/v2/initiate"
   }
 
-  private val backEndBaseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
+  private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
   private val selfBaseUrl: String = config.underlying.get[String]("self.url").value
 
@@ -92,7 +92,7 @@ class DefaultUpscanConnector @Inject() (
   ): EitherT[Future, Error, HttpResponse] = {
 
     val payload = UpscanInitiateRequest(
-      backEndBaseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}",
+      baseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}",
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
@@ -108,21 +108,9 @@ class DefaultUpscanConnector @Inject() (
 
     EitherT[Future, Error, HttpResponse](
       http
-        .POST[UpscanInitiateRequest, HttpResponse](
-          upscanInitiateUrl,
-          payload
-        )
-        .map[Either[Error, HttpResponse]] { response =>
-          if (response.status != Status.OK) {
-            logger.warn(
-              s"could not initiate upscan: received http " +
-                s"status ${response.status} and body ${response.body}"
-            )
-            Left(Error("could not initiate upscan"))
-          } else
-            Right(response)
-        }
-        .recover { case e => Left(Error(e)) }
+        .GET[HttpResponse](upscanInitiateUrl)
+        .map(Right(_))
+        .recover { case NonFatal(e) => Left(Error(e)) }
     )
   }
 
@@ -132,43 +120,26 @@ class DefaultUpscanConnector @Inject() (
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] = {
 
-    val url =
-      backEndBaseUrl + s"/cds-reimbursement-claim/upscan/upload-reference/${uploadReference.value}"
+    val url = baseUrl + s"/cds-reimbursement-claim/upscan/upload-reference/${uploadReference.value}"
 
     EitherT[Future, Error, HttpResponse](
       http
         .GET[HttpResponse](url)
-        .map[Either[Error, HttpResponse]] { response =>
-          if (response.status != Status.OK) {
-            logger.warn(
-              s"could not get upscan upload: received http " +
-                s"status ${response.status} and body ${response.body}"
-            )
-            Left(Error("could not get upscan upload"))
-          } else
-            Right(response)
-        }
-        .recover { case e => Left(Error(e)) }
+        .map(Right(_))
+        .recover { case NonFatal(e) => Left(Error(e)) }
     )
   }
 
   override def saveUpscanUpload(
     upscanUpload: UpscanUpload
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
-    val url = backEndBaseUrl + s"/cds-reimbursement-claim/upscan"
+    val url = baseUrl + s"/cds-reimbursement-claim/upscan"
 
     EitherT[Future, Error, HttpResponse](
       http
         .POST[UpscanUpload, HttpResponse](url, upscanUpload)
-        .map { response =>
-          response.status match {
-            case Status.OK                                         => Right(response)
-            case Status.BAD_REQUEST | Status.INTERNAL_SERVER_ERROR =>
-              logger.warn("could not save upscan upload")
-              Left(Error(s"failed to save upscan upload"))
-          }
-        }
-        .recover { case e => Left(Error(e)) }
+        .map(Right(_))
+        .recover { case NonFatal(e) => Left(Error(e)) }
     )
   }
 

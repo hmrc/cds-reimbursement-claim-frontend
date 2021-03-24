@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultCDSReimbursementClaimConnector])
 trait CDSReimbursementClaimConnector {
-  def getDeclarationDetails(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 
   def getBusinessReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
   def getPersonalReputation(data: JsValue)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
@@ -46,7 +46,7 @@ class DefaultCDSReimbursementClaimConnector @Inject() (http: HttpClient, service
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  override def getDeclarationDetails(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
+  override def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = {
     val getDeclarationUrl = s"$baseUrl/cds-reimbursement-claim/declaration/${mrn.value}"
 
     EitherT[Future, Error, HttpResponse](

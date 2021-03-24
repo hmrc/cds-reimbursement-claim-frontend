@@ -43,7 +43,7 @@ class DefaultCustomsDataStoreService @Inject() (
 
   def getEmailByEori(eori: Eori)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[VerifiedEmail]] =
     customsDataStoreConnector
-      .getEmailByEori(eori)
+      .getCustomsEmail(eori)
       .subflatMap { response =>
         response.status match {
           case OK        =>
