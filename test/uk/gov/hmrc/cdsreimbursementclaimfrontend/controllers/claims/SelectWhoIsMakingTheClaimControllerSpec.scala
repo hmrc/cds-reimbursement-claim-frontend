@@ -16,9 +16,108 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import play.api.mvc.{Call, Result}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, SessionData}
 
-class SelectWhoIsMakingTheClaimControllerSpec extends ControllerSpec {
+import scala.concurrent.Future
+
+class SelectWhoIsMakingTheClaimControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with ScalaCheckDrivenPropertyChecks {
+
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache)
+    )
+
+  lazy val controller: SelectWhoIsMakingTheClaimController = instanceOf[SelectWhoIsMakingTheClaimController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  def sessionWithFillingOutClaim(
+    answers: Option[DeclarantTypeAnswer]
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftClaim = sample[DraftC285Claim].copy(
+      declarantTypeAnswer = answers,
+      movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber(""))))
+    )
+    val journey    = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+    val session = SessionData.empty.copy(journeyStatus = Some(journey))
+    (session, journey, draftClaim)
+  }
+
+  "Select who is making the claim controller" when {
+
+    "handling request to show the page" must {
+
+      def performAction(): Future[Result] = controller.selectDeclarantType()(FakeRequest())
+
+      "show the page" when {
+
+        def test(
+          sessionData: SessionData,
+          expectedTitleKey: String,
+          expectedBackLink: Call,
+          expectedActionLink: Call
+        ): Unit = {
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(sessionData)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(expectedTitleKey),
+            { doc =>
+              doc.select("#back").attr("href") shouldBe expectedBackLink.url
+              doc
+                .select("#content > article > form")
+                .attr("action")                shouldBe expectedActionLink.url
+            }
+          )
+        }
+
+        "the user is filling in a claim" in {
+
+          val declarantTypeAnswer = sample[DeclarantTypeAnswer]
+          val session             = sessionWithFillingOutClaim(Some(declarantTypeAnswer))._1
+
+          test(
+            session,
+            "select-who-is-making-the-claim.title",
+            routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
+            routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit()
+          )
+
+        }
+
+      }
+
+    }
+
+  }
 
   "Form Validation" must {
     val form     = SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
@@ -50,4 +149,5 @@ class SelectWhoIsMakingTheClaimControllerSpec extends ControllerSpec {
     }
 
   }
+
 }
