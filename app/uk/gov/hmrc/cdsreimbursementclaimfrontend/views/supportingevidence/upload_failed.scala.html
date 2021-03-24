@@ -35,20 +35,20 @@
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-    @pageHeading(title)
+        @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
-    @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
-    <ul class="list-bullet">
-        <li>@paragraph(Html(messages(s"$key.bullet1")), Some("govuk-body"))</li>
-        <li>@paragraph(Html(messages(s"$key.bullet2")), Some("govuk-body"))</li>
-    </ul>
+        <ul class="list-bullet">
+            <li>@paragraph(Html(messages(s"$key.bullet1")), Some("govuk-body"))</li>
+            <li>@paragraph(Html(messages(s"$key.bullet2")), Some("govuk-body"))</li>
+        </ul>
 
-    @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
 
-    @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
-        @submitButton(messages(s"$key.button.tryAgain"))
+        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+            @submitButton(messages(s"$key.button.tryAgain"))
+        }
+
     }
-
-}

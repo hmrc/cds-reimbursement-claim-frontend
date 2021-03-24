@@ -70,91 +70,91 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
             )
         )
 
-      @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @inputSelect(
                 label = "select-basis-for-claim.select-label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 form = form,
-                    id = key,
-                    name = key,
-                    items = Seq(
-                        SelectItem(
-                            value = Some("0"),
-                            text  = messages(s"$key.reason.d0"),
-                            selected = form(s"$key").value.contains("0")
-                        ),
-                        SelectItem(
-                            value = Some("1"),
-                            text  = messages(s"$key.reason.d1"),
-                            selected = form(s"$key").value.contains("1")
-                        ),
-                        SelectItem(
-                            value = Some("2"),
-                            text  = messages(s"$key.reason.d2"),
-                            selected = form(s"$key").value.contains("2")
-                        ),
-                        SelectItem(
-                            value = Some("3"),
-                            text  = messages(s"$key.reason.d3"),
-                            selected = form(s"$key").value.contains("3")
-                        ),
-                        SelectItem(
-                            value = Some("4"),
-                            text  = messages(s"$key.reason.d4"),
-                            selected = form(s"$key").value.contains("4")
-                        ),
-                        SelectItem(
-                            value = Some("5"),
-                            text  = messages(s"$key.reason.d5"),
-                            selected = form(s"$key").value.contains("5")
-                        ),
-                        SelectItem(
-                            value = Some("6"),
-                            text  = messages(s"$key.reason.d6"),
-                            selected = form(s"$key").value.contains("6")
-                        ),
-                        SelectItem(
-                            value = Some("7"),
-                            text  = messages(s"$key.reason.d7"),
-                            selected = form(s"$key").value.contains("7")
-                        ),
-                        SelectItem(
-                            value = Some("8"),
-                            text  = messages(s"$key.reason.d8"),
-                            selected = form(s"$key").value.contains("8")
-                        ),
-                        SelectItem(
-                            value = Some("9"),
-                            text  = messages(s"$key.reason.d9"),
-                            selected = form(s"$key").value.contains("9")
-                        ),
-                        SelectItem(
-                            value = Some("10"),
-                            text  = messages(s"$key.reason.d10"),
-                            selected = form(s"$key").value.contains("10")
-                        ),
-                        SelectItem(
-                            value = Some("11"),
-                            text  = messages(s"$key.reason.d11"),
-                            selected = form(s"$key").value.contains("11")
-                        ),
-                        SelectItem(
-                            value = Some("12"),
-                            text  = messages(s"$key.reason.d12"),
-                            selected = form(s"$key").value.contains("12")
-                        ),
-                        SelectItem(
-                            value = Some("13"),
-                            text  = messages(s"$key.reason.d13"),
-                            selected = form(s"$key").value.contains("13")
-                        )
+                id = key,
+                name = key,
+                items = Seq(
+                    SelectItem(
+                        value = Some("0"),
+                        text  = messages(s"$key.reason.d0"),
+                        selected = form(s"$key").value.contains("0")
+                    ),
+                    SelectItem(
+                        value = Some("1"),
+                        text  = messages(s"$key.reason.d1"),
+                        selected = form(s"$key").value.contains("1")
+                    ),
+                    SelectItem(
+                        value = Some("2"),
+                        text  = messages(s"$key.reason.d2"),
+                        selected = form(s"$key").value.contains("2")
+                    ),
+                    SelectItem(
+                        value = Some("3"),
+                        text  = messages(s"$key.reason.d3"),
+                        selected = form(s"$key").value.contains("3")
+                    ),
+                    SelectItem(
+                        value = Some("4"),
+                        text  = messages(s"$key.reason.d4"),
+                        selected = form(s"$key").value.contains("4")
+                    ),
+                    SelectItem(
+                        value = Some("5"),
+                        text  = messages(s"$key.reason.d5"),
+                        selected = form(s"$key").value.contains("5")
+                    ),
+                    SelectItem(
+                        value = Some("6"),
+                        text  = messages(s"$key.reason.d6"),
+                        selected = form(s"$key").value.contains("6")
+                    ),
+                    SelectItem(
+                        value = Some("7"),
+                        text  = messages(s"$key.reason.d7"),
+                        selected = form(s"$key").value.contains("7")
+                    ),
+                    SelectItem(
+                        value = Some("8"),
+                        text  = messages(s"$key.reason.d8"),
+                        selected = form(s"$key").value.contains("8")
+                    ),
+                    SelectItem(
+                        value = Some("9"),
+                        text  = messages(s"$key.reason.d9"),
+                        selected = form(s"$key").value.contains("9")
+                    ),
+                    SelectItem(
+                        value = Some("10"),
+                        text  = messages(s"$key.reason.d10"),
+                        selected = form(s"$key").value.contains("10")
+                    ),
+                    SelectItem(
+                        value = Some("11"),
+                        text  = messages(s"$key.reason.d11"),
+                        selected = form(s"$key").value.contains("11")
+                    ),
+                    SelectItem(
+                        value = Some("12"),
+                        text  = messages(s"$key.reason.d12"),
+                        selected = form(s"$key").value.contains("12")
+                    ),
+                    SelectItem(
+                        value = Some("13"),
+                        text  = messages(s"$key.reason.d13"),
+                        selected = form(s"$key").value.contains("13")
                     )
+                )
             )
 
-        @submitButton("button.saveAndContinue")
+            @submitButton("button.saveAndContinue")
 
-      }
+        }
 
     }

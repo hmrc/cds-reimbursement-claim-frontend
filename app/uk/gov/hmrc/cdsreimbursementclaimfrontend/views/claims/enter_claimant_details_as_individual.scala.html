@@ -150,7 +150,6 @@
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
 
-
                 @countryCode(
                     Country.countryCodes,
                     selected = form.data.get(countryCodeKey),
@@ -186,8 +185,7 @@
             )
 
             @submitButton(messages("button.continue"))
+
         }
 
-
-
-}
+    }
