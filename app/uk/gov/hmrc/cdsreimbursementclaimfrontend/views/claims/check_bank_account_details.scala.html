@@ -36,19 +36,19 @@
 
 @(bankAccount : BankAccount)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
- @key = @{"bank-details"}
- @title = @{messages(s"$key.title")}
+    @key = @{"bank-details"}
+    @title = @{messages(s"$key.title")}
 
- @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, backLink = Some(routes.EnterClaimController.checkClaim())) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, backLink = Some(routes.EnterClaimController.checkClaim())) {
 
-    @pageHeading(title)
+        @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
+        @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
 
-    @paragraph(Html(messages(s"${key}.different-details-link", routes.BankAccountController.enterBankAccountDetails().url)), Some("govuk-body"))
+        @paragraph(Html(messages(s"${key}.different-details-link", routes.BankAccountController.enterBankAccountDetails().url)), Some("govuk-body"))
 
-    @buttonLink(messages("button.continue"), Some(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url))
+        @buttonLink(messages("button.continue"), Some(fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence().url))
 
- }
+    }

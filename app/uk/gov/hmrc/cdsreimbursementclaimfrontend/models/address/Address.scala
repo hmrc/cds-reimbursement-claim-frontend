@@ -24,7 +24,6 @@ import play.api.data.{Form, Mapping}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BooleanFormatter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.BranchedConditionalMapping._
 
 sealed trait Address extends Product with Serializable
 
@@ -89,11 +88,7 @@ object Address {
       "nonUkAddress-line2" -> optional(addressLineMapping),
       "nonUkAddress-line3" -> optional(addressLineMapping),
       "nonUkAddress-line4" -> addressLineMapping,
-      "postcode"           -> IfEqual("countryCode", "GB", Postcode.mappingUk, Postcode.mappingNonUk)
-        .transform[String](
-          _.map(_.value).getOrElse(""),
-          ps => Option(ps).map(Postcode(_))
-        ),
+      "postcode"           -> Postcode.mapping,
       "countryCode"        -> of(Country.formatter)
     )(NonUkAddress.apply)(NonUkAddress.unapply)
 

@@ -29,27 +29,27 @@
 
 @()(implicit request:RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
 
- @key = @{"supporting-evidence.scan-failed"}
- @title = @{messages(s"$key.title")}
+    @key = @{"supporting-evidence.scan-failed"}
+    @title = @{messages(s"$key.title")}
 
- @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-  @pageHeading(title)
+        @pageHeading(title)
 
-  <p>@{messages(s"$key.p1")}</p>
+        <p>@{messages(s"$key.p1")}</p>
 
-  <ul class="list-bullet">
-   <li>@messages(s"$key.bullet1")</li>
-   <li>@messages(s"$key.bullet2")</li>
-   <li>@messages(s"$key.bullet3")</li>
-   <li>@messages(s"$key.bullet4")</li>
-  </ul>
+        <ul class="list-bullet">
+            <li>@messages(s"$key.bullet1")</li>
+            <li>@messages(s"$key.bullet2")</li>
+            <li>@messages(s"$key.bullet3")</li>
+            <li>@messages(s"$key.bullet4")</li>
+        </ul>
 
-  <p>@{messages(s"$key.p2")}</p>
-  <p>@{messages(s"$key.p3")}</p>
+        <p>@{messages(s"$key.p2")}</p>
+        <p>@{messages(s"$key.p3")}</p>
 
-  @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
-   @submitButton(messages(s"$key.button.tryAgain"))
-  }
+        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+            @submitButton(messages(s"$key.button.tryAgain"))
+        }
 
-}
+    }
