@@ -17,12 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import java.util.function.Predicate
-
 import play.api.data.Forms.{nonEmptyText, text}
-import play.api.data.Mapping
+import play.api.data.{FormError, Forms, Mapping}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationResult}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Format
+import cats.implicits.catsSyntaxEq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode.{mappingNonUk, mappingUk}
 
 final case class Postcode(value: String) extends AnyVal
 
@@ -54,4 +55,35 @@ object Postcode {
 
   val mappingNonUk: Mapping[Postcode] = text(maxLength = 9).transform[Postcode](p => Postcode(p.trim), _.value)
 
+  val mapping: Mapping[String] = PostCodeMapping("", "countryCode", "GB", Nil)
+    .transform[String](
+      _.value,
+      Postcode(_)
+    )
+}
+
+final case class PostCodeMapping(
+  key: String,
+  conditionFieldName: String,
+  conditionFieldValue: String,
+  constraints: Seq[Constraint[Postcode]] = Nil
+) extends Mapping[Postcode] {
+
+  override val mappings: Seq[Mapping[_]] = Seq(this)
+
+  override def bind(data: Map[String, String]): Either[Seq[FormError], Postcode] = {
+    val condition = data.get(conditionFieldName).map(_ === conditionFieldValue).getOrElse(false)
+    val mapping   = if (condition) mappingUk else mappingNonUk
+    Forms.single(key -> mapping).bind(data)
+  }
+  override def unbind(value: Postcode): Map[String, String] = Map(key -> value.value)
+
+  override def unbindAndValidate(value: Postcode): (Map[String, String], Seq[FormError]) =
+    this.unbind(value) -> collectErrors(value)
+
+  override def withPrefix(prefix: String): Mapping[Postcode] =
+    addPrefix(prefix).map(newKey => this.copy(key = newKey)).getOrElse(this)
+
+  def verifying(additionalConstraints: Constraint[Postcode]*): Mapping[Postcode] =
+    this.copy(constraints = additionalConstraints ++ constraints)
 }
