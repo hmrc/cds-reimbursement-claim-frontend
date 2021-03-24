@@ -32,80 +32,74 @@
 
 @(upscanUpload : UpscanUpload, link: Call)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
- @key = @{"supporting-evidence.upload"}
- @field = @{"file"}
- @title = @{messages(s"$key.title")}
- @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
- @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
+    @key = @{"supporting-evidence.upload"}
+    @field = @{"file"}
+    @title = @{messages(s"$key.title")}
+    @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
+    @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
- @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
 
-<div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+        <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+            <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+                <h2 class="govuk-error-summary__title" id="error-summary-title">
+                    There’s a problem
+                </h2>
+                <div class="govuk-error-summary__body">
+                    <ul class="govuk-list govuk-error-summary__list">
+                        <li>
+                            <a href="#file">@(messages(s"${key}.error.required"))</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
- <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
-  <h2 class="govuk-error-summary__title" id="error-summary-title">
-   There’s a problem
-  </h2>
-  <div class="govuk-error-summary__body">
+            <span id="file-upload-error" class="govuk-error-message">
+                <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
+            </span>
+        </div>
 
-   <ul class="govuk-list govuk-error-summary__list">
+        @pageHeading(title)
 
-    <li>
+        @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-     <a href="#file">@(messages(s"${key}.error.required"))</a>
+        @details(messages(s"$key"),
+            Html(s"""|
+                    |<ul class="govuk-list govuk-list--bullet">
+                    |<li>${messages(s"$key.details.l0")}</li>
+                    |<li>${messages(s"$key.details.l1")}</li>
+                    |<li>${messages(s"$key.details.l2")}</li>
+                    |<li>${messages(s"$key.details.l3")}</li>
+                    |<li>${messages(s"$key.details.l4")}</li>
+                    |<li>${messages(s"$key.details.l5")}</li>
+                    |<li>${messages(s"$key.details.l6")}</li>
+                    |<li>${messages(s"$key.details.l7")}</li>
+                    |<li>${messages(s"$key.details.l8")}</li>
+                    |<li>${messages(s"$key.details.l9")}</li>
+                    |</ul>
+                    |""".stripMargin
+        ))
 
-    </li>
+        <form action="@href" method="post" enctype="multipart/form-data">
 
-   </ul>
-  </div>
- </div>
+            @for((k,v) <- meta){
+                <input type="hidden" id="@k" name="@k" value="@v">
+            }
 
- <span id="file-upload-error" class="govuk-error-message">
-  <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
- </span>
+            @fileInput(
+                fieldId = field,
+                label = Html(title),
+                labelClass = Some("govuk-label govuk-label--s"),
+                inputClass = Some("govuk-file-upload"),
+                hasErrors = false,
+                errorKey = None,
+                labelAsHeading = false
+            )
 
-</div>
+            <div class="govuk-!-margin-bottom-9">
+                @submitButton(messages("button.saveAndContinue"))
+            </div>
 
-@pageHeading(title)
+        </form>
 
-@paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
-
-@details(messages(s"$key"),
-    Html(s"""|
-            |<ul class="govuk-list govuk-list--bullet">
-            |<li>${messages(s"$key.details.l0")}</li>
-            |<li>${messages(s"$key.details.l1")}</li>
-            |<li>${messages(s"$key.details.l2")}</li>
-            |<li>${messages(s"$key.details.l3")}</li>
-            |<li>${messages(s"$key.details.l4")}</li>
-            |<li>${messages(s"$key.details.l5")}</li>
-            |<li>${messages(s"$key.details.l6")}</li>
-            |<li>${messages(s"$key.details.l7")}</li>
-            |<li>${messages(s"$key.details.l8")}</li>
-            |<li>${messages(s"$key.details.l9")}</li>
-            |</ul>
-            |""".stripMargin
-))
-
- <form action="@href" method="post" enctype="multipart/form-data">
-
-  @for((k,v) <- meta){
-   <input type="hidden" id="@k" name="@k" value="@v">
-  }
-
-  @fileInput(
-   fieldId = field,
-   label = Html(title),
-   labelClass = Some("govuk-label govuk-label--s"),
-   inputClass = Some("govuk-file-upload"),
-   hasErrors = false,
-   errorKey = None,
-   labelAsHeading = false
-  )
-
-  <div class="govuk-!-margin-bottom-9">
-  @submitButton(messages("button.saveAndContinue"))
-  </div>
- </form>
-
-}
+    }
