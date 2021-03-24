@@ -49,7 +49,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore)
+      bind[SessionCache].toInstance(mockSessionCache)
     )
 
   lazy val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]

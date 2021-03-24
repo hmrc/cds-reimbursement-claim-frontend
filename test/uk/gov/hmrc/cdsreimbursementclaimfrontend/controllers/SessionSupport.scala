@@ -25,28 +25,28 @@ import scala.concurrent.Future
 
 trait SessionSupport { this: MockFactory =>
 
-  val mockSessionStore: SessionCache = mock[SessionCache]
+  val mockSessionCache: SessionCache = mock[SessionCache]
 
   def mockGetSession(result: Either[Error, Option[SessionData]]) =
-    (mockSessionStore
+    (mockSessionCache
       .get()(_: HeaderCarrier))
       .expects(*)
       .returning(Future.successful(result))
 
   def mockGetSession(session: SessionData) =
-    (mockSessionStore
+    (mockSessionCache
       .get()(_: HeaderCarrier))
       .expects(*)
       .returning(Future.successful(Right(Some(session))))
 
   def mockStoreSession(session: SessionData)(result: Either[Error, Unit]) =
-    (mockSessionStore
+    (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(session, *)
       .returning(Future.successful(result))
 
   def mockStoreSession(result: Either[Error, Unit]) =
-    (mockSessionStore
+    (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(*, *)
       .returning(Future.successful(result))

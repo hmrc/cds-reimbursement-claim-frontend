@@ -45,7 +45,7 @@ class SelectBasisForClaimControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore)
+      bind[SessionCache].toInstance(mockSessionCache)
     )
 
   lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]

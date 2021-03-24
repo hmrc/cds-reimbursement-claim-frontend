@@ -37,7 +37,7 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
 
   lazy val action: SessionDataActionWithRetrievedData =
     new SessionDataActionWithRetrievedData(
-      mockSessionStore,
+      mockSessionCache,
       instanceOf[ErrorHandler]
     )
 

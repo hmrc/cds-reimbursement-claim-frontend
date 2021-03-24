@@ -19,19 +19,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 
-class AccessibilityStatementControllerSpec extends ControllerSpec {
+class UnauthorisedControllerSpec extends ControllerSpec {
 
-  lazy val controller: AccessibilityStatementController = instanceOf[AccessibilityStatementController]
+  lazy val controller: UnauthorisedController = instanceOf[UnauthorisedController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
-  "Accessibility Controller" must {
-    "display the accessibility page" when {
-      checkPageIsDisplayed(
-        controller.accessibilityStatement()(FakeRequest()),
-        messageFromMessageKey("accessibility-statement.title")
-      )
+  "UnauthorisedController controller" must {
+
+    "handling requests to display the unauthorised page" must {
+
+      "display the page" in {
+        checkPageIsDisplayed(
+          controller.unauthorised()(FakeRequest()),
+          messageFromMessageKey("unauthorised.title")
+        )
+      }
+
     }
+
   }
 
 }

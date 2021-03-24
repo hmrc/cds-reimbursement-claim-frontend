@@ -38,7 +38,7 @@ class AuthenticatedActionSpec extends ControllerSpec with MockFactory with Sessi
       mockAuthConnector,
       config,
       instanceOf[ErrorHandler],
-      mockSessionStore
+      mockSessionCache
     )
 
   def performAction[A](r: FakeRequest[A]): Future[Result] = {

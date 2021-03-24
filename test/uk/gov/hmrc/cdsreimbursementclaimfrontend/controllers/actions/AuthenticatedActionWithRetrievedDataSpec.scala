@@ -51,7 +51,7 @@ class AuthenticatedActionWithRetrievedDataSpec
       mockAuthConnector,
       config,
       instanceOf[ErrorHandler],
-      mockSessionStore
+      mockSessionCache
     )
 
   implicit val format: OFormat[RetrievedUserType] = derived.oformat[RetrievedUserType]()

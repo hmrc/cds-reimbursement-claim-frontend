@@ -71,6 +71,16 @@ exit-survey.link-text=What did you think of this service?
 #===================================================
 
 #===================================================
+#  WE ONLY SUPPORT GG PAGE
+#===================================================
+we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
+we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot be used to access this service.
+we-only-support-gg.createAccount=Create an account
+we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
+we-only-support-gg.signIn=Sign in if you already have an account
+we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
+
+#===================================================
 #  LANDING PAGE
 #===================================================
 landing.title=Claim for reimbursement of import duties

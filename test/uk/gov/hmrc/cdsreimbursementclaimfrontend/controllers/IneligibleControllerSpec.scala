@@ -16,19 +16,28 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.Inject
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.accessibility_statement
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
-class AccessibilityStatementController @Inject() (
-  cc: MessagesControllerComponents,
-  accessibilityStatementPage: accessibility_statement
-)(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+class IneligibleControllerSpec extends ControllerSpec {
 
-  def accessibilityStatement(): Action[AnyContent] =
-    Action(implicit request => Ok(accessibilityStatementPage()))
+  lazy val controller: IneligibleController = instanceOf[IneligibleController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  "Ineligible controller" must {
+
+    "handling requests to display the ineligible page" must {
+
+      "display the page" in {
+        checkPageIsDisplayed(
+          controller.ineligible()(FakeRequest()),
+          messageFromMessageKey("ineligible.title")
+        )
+      }
+
+    }
+
+  }
 
 }
