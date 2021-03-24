@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.data.Form
-import play.api.data.Forms.{optional, text, mapping => formMapping}
+import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.{Arbitrary, Gen}
+import play.api.libs.json._
 
-final case class AddressLookupRequest(
-  postcode: Postcode,
-  filter: Option[String]
-)
-
-object AddressLookupRequest {
-  val form: Form[AddressLookupRequest] =
-    Form(
-      formMapping(
-        "postcode" -> Postcode.mappingUk,
-        "filter"   -> optional(text)
-          .transform[Option[String]](_.filter(_.nonEmpty), identity)
-      )(AddressLookupRequest.apply)(AddressLookupRequest.unapply)
-    )
+object JsValueGen extends GenUtils {
+  implicit val jsValueGen: Gen[JsValue] = Gen.lzy(Arbitrary.arbitrary[String].map(JsString))
 }

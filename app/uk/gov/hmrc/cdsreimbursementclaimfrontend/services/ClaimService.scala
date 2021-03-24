@@ -83,7 +83,7 @@ class DefaultClaimService @Inject() (
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     cdsReimbursementClaimConnector
-      .getDeclarationDetails(mrn)
+      .getDeclaration(mrn)
       .subflatMap { response =>
         if (response.status === OK) {
           response

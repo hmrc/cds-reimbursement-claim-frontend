@@ -25,13 +25,13 @@ sealed trait ReasonForClaim extends Product with Serializable {
 
 object ReasonForClaim {
   case object MailForOrderGoods extends ReasonForClaim {
-    override def repr = "Mail for Order Goods"
+    override def repr = "Mail order goods - duties not due"
   }
   case object Overpayment extends ReasonForClaim {
-    override def repr = "Over payment"
+    override def repr = "Overpayment"
   }
   case object SpecialGoods extends ReasonForClaim {
-    override def repr = "Special Goods"
+    override def repr = "Special circumstances"
   }
 
   implicit val format: OFormat[ReasonForClaim] = derived.oformat[ReasonForClaim]()

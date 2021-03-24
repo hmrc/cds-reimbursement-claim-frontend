@@ -16,26 +16,36 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 
 @this(
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
-inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
 )
 
 @(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"enter-movement-reference-number"}
- @title = @{messages(s"$key.title")}
+    @key = @{"enter-movement-reference-number"}
+    @title = @{messages("enter-duplicate-movement-reference-number.title")}
 
- @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-          @formWithCSRF(routes.EnterMovementReferenceNumberController.enterDuplicateMrnSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterMovementReferenceNumberController.enterDuplicateMrnSubmit(), 'novalidate -> "novalidate") {
+
+            @errorSummary(form.errors)
+
+            @pageHeading(title)
+
+            @paragraph(Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @inputText(
                 form = form,
@@ -50,7 +60,6 @@ inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.inpu
 
             @submitButton(messages("button.continue"))
 
-          }
+        }
 
-
-}
+    }
