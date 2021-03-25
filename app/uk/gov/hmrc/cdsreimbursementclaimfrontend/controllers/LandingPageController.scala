@@ -19,19 +19,34 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
 class LandingPageController @Inject() (
   cc: MessagesControllerComponents,
-  landingPage: views.html.landing_page
+  landingPage: views.html.landing_page,
+  servicesConfig: ServicesConfig
 )(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+    extends FrontendController(cc)
+    with Logging {
 
   def landing(): Action[AnyContent] =
     Action(implicit request => Ok(landingPage()))
+
+  def testConfig(): Action[AnyContent] = Action {
+    val message =
+      s"""
+         |BankAccountReputation = ${servicesConfig.baseUrl("bank-account-reputation")}
+         |TestReputation = ${getUri("bank-account-reputation", "test")}
+         |""".stripMargin
+    logger.info(message)
+    Ok(message)
+  }
+
+  def getUri(serviceName: String, apiName: String): String =
+    servicesConfig.baseUrl(serviceName) + servicesConfig.getString(s"microservice.services.$serviceName.$apiName")
 
 }
