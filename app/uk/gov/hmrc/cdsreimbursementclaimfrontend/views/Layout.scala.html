@@ -55,10 +55,10 @@
                                 keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
                                 signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
                             ))}
-            <script xmlns="http://www.w3.org/1999/html">
-                    dataLayer = [{
-                        'URL': window.location.pathname
-                    }];
+            <script>
+                dataLayer = [{
+                    'URL': window.location.pathname
+                }];
             </script>
 
         @hmrcTrackingConsentSnippet()
@@ -107,7 +107,7 @@
             </div>
         </div>
         <div class="cds-user-banner cds-no-border">
-            <div>
+            <div id="cdsr-back-link">
                 @backLink.map{ link => @backLinkComponent(link) }
             </div>
             <div>
