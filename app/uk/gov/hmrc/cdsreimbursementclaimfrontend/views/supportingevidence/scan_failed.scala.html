@@ -49,7 +49,7 @@
         <p>@{messages(s"$key.p3")}</p>
 
         @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
-            @submitButton(messages(s"$key.button.tryAgain"))
+            @submitButton(s"$key.button.tryAgain")
         }
 
     }

@@ -45,7 +45,7 @@
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
             @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration)))
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
         }
 
     }

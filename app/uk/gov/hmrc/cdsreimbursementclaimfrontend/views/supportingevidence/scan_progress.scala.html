@@ -43,7 +43,7 @@
         @paragraph(Html(messages(s"$key.p2")), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(routes.SupportingEvidenceController.scanProgressSubmit(upscanUpload.uploadReference.value), 'novalidate -> "novalidate") {
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
         }
 
     }
