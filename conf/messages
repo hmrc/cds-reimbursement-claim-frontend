@@ -512,10 +512,6 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
-supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
-supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
-supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
 supporting-evidence.upload=Examples of file types
 supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
 supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
@@ -558,6 +554,11 @@ supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
 supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, and PDF.
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
+supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
+supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
+supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
+supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
+supporting-evidence.choose-document-type.label=Choose document type
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
 supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
 supporting-evidence.choose-document-type.document-type.d2=Packing List

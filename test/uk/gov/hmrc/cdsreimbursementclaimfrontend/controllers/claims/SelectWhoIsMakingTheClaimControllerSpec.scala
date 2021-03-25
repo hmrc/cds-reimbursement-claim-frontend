@@ -33,12 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 import scala.concurrent.Future
 
@@ -76,38 +74,6 @@ class SelectWhoIsMakingTheClaimControllerSpec
       ),
       journey,
       draftC285Claim
-    )
-  }
-
-  def testFormError(
-    uploadReference: UploadReference,
-    data: (String, String)*
-  )(
-    expectedErrorMessageKey: String,
-    errorArgs: Seq[String] = Nil
-  )(pageTitleKey: String, titleArgs: String*)(
-    performAction: (UploadReference, Seq[(String, String)]) => Future[Result],
-    currentSession: SessionData = sessionWithClaimState(
-      Some(sample[CompleteDeclarantTypeAnswer])
-    )._1
-  ): Unit = {
-    inSequence {
-      mockAuthWithNoRetrievals()
-      mockGetSession(currentSession)
-    }
-    checkPageIsDisplayed(
-      performAction(uploadReference, data),
-      messageFromMessageKey(pageTitleKey, titleArgs: _*),
-      { doc =>
-        doc
-          .select("#error-summary-display > ul > li > a")
-          .text() shouldBe messageFromMessageKey(
-          expectedErrorMessageKey,
-          errorArgs: _*
-        )
-        doc.title() should startWith("Error:")
-      },
-      BAD_REQUEST
     )
   }
 

@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import cats.data.EitherT
 import controllers.Assets.SEE_OTHER
 import org.scalamock.handlers.CallHandler3
-import org.scalatest.Ignore
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -49,7 +48,6 @@ import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@Ignore
 class SupportingEvidenceControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -197,7 +195,7 @@ class SupportingEvidenceControllerSpec
           )
 
           val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.fill(3)(supportingEvidence)
+            evidences = List.fill(30)(supportingEvidence)
           )
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -269,7 +267,7 @@ class SupportingEvidenceControllerSpec
             messageFromMessageKey("supporting-evidence.upload.title"),
             doc =>
               doc
-                .select("#back")
+                .select("a.govuk-back-link")
                 .attr("href") shouldBe
                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.BankAccountController
                   .checkBankAccountDetails()
@@ -640,18 +638,12 @@ class SupportingEvidenceControllerSpec
             messageFromMessageKey(
               "supporting-evidence.scan-progress.title"
             ),
-            { doc =>
+            doc =>
               doc
-                .select("#content > article > p:nth-child(3)")
+                .select("#main-content > div > div > h1")
                 .text() shouldBe messageFromMessageKey(
-                "supporting-evidence.scan-progress.p1"
+                "supporting-evidence.scan-progress.title"
               )
-              doc
-                .select("#content > article > p:nth-child(4)")
-                .text() shouldBe messageFromMessageKey(
-                "supporting-evidence.scan-progress.p2"
-              )
-            }
           )
         }
 
