@@ -374,14 +374,16 @@ select-basis-for-claim.reason.d13=Proof of Return/Refund Given
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
 #===================================================
 select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
-select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
-
 select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
 select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
+
+select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.basis.error.required=Select a reason for claim
+select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
+select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
+select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
 
 select-reason-and-basis-for-claim.basis.label=Examples of basis of claim
 select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)

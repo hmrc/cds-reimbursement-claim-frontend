@@ -42,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SelectReasonForBasisAndClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
+  val sessionCache: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   selectReasonForClaimAndBasisPage: pages.select_reason_and_basis_for_claim
@@ -136,7 +136,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
@@ -221,7 +221,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(

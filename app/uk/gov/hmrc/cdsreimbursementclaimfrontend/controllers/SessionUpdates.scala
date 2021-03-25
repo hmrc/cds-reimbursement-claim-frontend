@@ -27,7 +27,7 @@ import scala.concurrent.Future
 
 trait SessionUpdates {
 
-  def updateSession[R](sessionStore: SessionCache, request: R)(
+  def updateSession[R](sessionCache: SessionCache, request: R)(
     update: SessionData => SessionData
   )(implicit
     sessionProvider: SessionProvider[R],
@@ -39,7 +39,7 @@ trait SessionUpdates {
     if (session === updatedSession)
       Future.successful(Right(()))
     else
-      sessionStore.store(update(sessionProvider.toSession(request)))
+      sessionCache.store(update(sessionProvider.toSession(request)))
 
   }
 

@@ -308,7 +308,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         )
       }
 
-      "an invalid option value is submitted to the server" in {
+      "an invalid option value is submitted" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
           controller.selectDeclarantTypeSubmit()(

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import org.scalamock.handlers.{CallHandler1, CallHandler2}
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -27,25 +28,31 @@ trait SessionSupport { this: MockFactory =>
 
   val mockSessionCache: SessionCache = mock[SessionCache]
 
-  def mockGetSession(result: Either[Error, Option[SessionData]]) =
+  def mockGetSession(
+    result: Either[Error, Option[SessionData]]
+  ): CallHandler1[HeaderCarrier, Future[Either[Error, Option[SessionData]]]] =
     (mockSessionCache
       .get()(_: HeaderCarrier))
       .expects(*)
       .returning(Future.successful(result))
 
-  def mockGetSession(session: SessionData) =
+  def mockGetSession(session: SessionData): CallHandler1[HeaderCarrier, Future[Either[Error, Option[SessionData]]]] =
     (mockSessionCache
       .get()(_: HeaderCarrier))
       .expects(*)
       .returning(Future.successful(Right(Some(session))))
 
-  def mockStoreSession(session: SessionData)(result: Either[Error, Unit]) =
+  def mockStoreSession(
+    session: SessionData
+  )(result: Either[Error, Unit]): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
     (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(session, *)
       .returning(Future.successful(result))
 
-  def mockStoreSession(result: Either[Error, Unit]) =
+  def mockStoreSession(
+    result: Either[Error, Unit]
+  ): CallHandler2[SessionData, HeaderCarrier, Future[Either[Error, Unit]]] =
     (mockSessionCache
       .store(_: SessionData)(_: HeaderCarrier))
       .expects(*, *)
