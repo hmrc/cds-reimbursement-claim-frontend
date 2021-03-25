@@ -20,20 +20,24 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.{Call, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarantTypeAnswer, IncompleteDeclarantTypeAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 import scala.concurrent.Future
 
@@ -55,66 +59,90 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  def sessionWithFillingOutClaim(
-    answers: Option[DeclarantTypeAnswer]
-  ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftClaim = sample[DraftC285Claim].copy(
-      declarantTypeAnswer = answers,
-      movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber(""))))
+  private def sessionWithClaimState(
+    declarantTypeAnswer: Option[DeclarantTypeAnswer]
+  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(declarantTypeAnswer = declarantTypeAnswer)
+    val ggCredId            = sample[GGCredId]
+    val email               = sample[Email]
+    val eori                = sample[Eori]
+    val signedInUserDetails =
+      SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey,
+      draftC285Claim
     )
-    val journey    = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+  }
 
-    val session = SessionData.empty.copy(journeyStatus = Some(journey))
-    (session, journey, draftClaim)
+  def testFormError(
+    uploadReference: UploadReference,
+    data: (String, String)*
+  )(
+    expectedErrorMessageKey: String,
+    errorArgs: Seq[String] = Nil
+  )(pageTitleKey: String, titleArgs: String*)(
+    performAction: (UploadReference, Seq[(String, String)]) => Future[Result],
+    currentSession: SessionData = sessionWithClaimState(
+      Some(sample[CompleteDeclarantTypeAnswer])
+    )._1
+  ): Unit = {
+    inSequence {
+      mockAuthWithNoRetrievals()
+      mockGetSession(currentSession)
+    }
+    checkPageIsDisplayed(
+      performAction(uploadReference, data),
+      messageFromMessageKey(pageTitleKey, titleArgs: _*),
+      { doc =>
+        doc
+          .select("#error-summary-display > ul > li > a")
+          .text() shouldBe messageFromMessageKey(
+          expectedErrorMessageKey,
+          errorArgs: _*
+        )
+        doc.title() should startWith("Error:")
+      },
+      BAD_REQUEST
+    )
   }
 
   "Select who is making the claim controller" when {
 
-    "handling request to show the page" must {
+    def performAction(): Future[Result] = controller.selectDeclarantType()(FakeRequest())
 
-      def performAction(): Future[Result] = controller.selectDeclarantType()(FakeRequest())
+    "show who is making the declaration page" when {
 
-      "show the page" when {
+      "filling out a claim" in {
 
-        def test(
-          sessionData: SessionData,
-          expectedTitleKey: String,
-          expectedBackLink: Call,
-          expectedActionLink: Call
-        ): Unit = {
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(sessionData)
-          }
+        val answers = IncompleteDeclarantTypeAnswer.empty
 
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(expectedTitleKey),
-            { doc =>
-              doc.select("#back").attr("href") shouldBe expectedBackLink.url
-              doc
-                .select("#content > article > form")
-                .attr("action")                shouldBe expectedActionLink.url
-            }
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
           )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
         }
 
-        "the user is filling in a claim" in {
-
-          val declarantTypeAnswer = sample[DeclarantTypeAnswer]
-          val session             = sessionWithFillingOutClaim(Some(declarantTypeAnswer))._1
-
-          test(
-            session,
-            "select-who-is-making-the-claim.title",
-            routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
-            routes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit()
-          )
-
-        }
-
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-who-is-making-the-claim.title"),
+          doc =>
+            doc
+              .select("body > div.govuk-width-container > div.cds-user-banner.cds-no-border > div:nth-child(1) > a")
+              .attr("href") shouldBe
+              routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
+        )
       }
-
     }
 
   }

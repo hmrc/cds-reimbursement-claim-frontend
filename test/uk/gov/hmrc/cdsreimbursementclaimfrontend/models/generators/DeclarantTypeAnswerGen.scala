@@ -19,8 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 
 object DeclarantTypeAnswerGen extends GenUtils {
-  implicit val declarantTypeAnswerGen: Gen[DeclarantTypeAnswer] = gen[DeclarantTypeAnswer]
+  implicit val declarantTypeAnswerGen: Gen[DeclarantTypeAnswer]              = gen[DeclarantTypeAnswer]
+  implicit val completeDeclarantTypeAnswer: Gen[CompleteDeclarantTypeAnswer] = gen[CompleteDeclarantTypeAnswer]
 
 }
