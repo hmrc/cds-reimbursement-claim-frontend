@@ -26,6 +26,4 @@ GET         /language/:lang                                                 uk.g
 ->  /hmrc-frontend                                                          hmrcfrontend.Routes
 GET /assets/*file                                                           controllers.Assets.versioned(path = "/public", file: Asset)
 
-GET /test-config                                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.testConfig
-
 GET        /assets/*file            @controllers.Assets.versioned(path = "/public", file: Asset)

@@ -73,13 +73,11 @@ class EnterMovementReferenceNumberController @Inject() (
     if (env.mode.toString === Mode.Test.toString) true else runMode.forall(_ === Mode.Dev.toString)
   private val customsEmailFrontend = "customs-email-frontend"
   private val customsEmailFrontendUrl: String = {
-    val startPage       = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
-    val customsEmailUrl = isRunningLocal match {
+    val startPage = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
+    isRunningLocal match {
       case true  => servicesConfig.baseUrl(customsEmailFrontend) + startPage
       case false => servicesConfig.getString("self.url") + startPage
     }
-    logger.info(s"RunMode: $runMode , EnvMode: ${env.mode} , customsEmailUrl: $customsEmailUrl")
-    customsEmailUrl
   }
 
   private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
