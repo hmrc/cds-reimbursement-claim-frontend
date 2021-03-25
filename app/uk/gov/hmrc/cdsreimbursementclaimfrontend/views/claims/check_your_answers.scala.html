@@ -76,7 +76,7 @@
         @paragraph(Html(messages(s"${key}.confirmation-statement")), Some("govuk-body"))
 
         @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
-            @submitButton(messages("button.accept-and-send"))
+            @submitButton("button.accept-and-send")
         }
 
     }
