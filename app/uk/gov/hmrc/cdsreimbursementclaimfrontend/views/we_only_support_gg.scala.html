@@ -28,19 +28,20 @@
 
 @()(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
-@title = @{messages("weOnlySupportGG.title")}
+    @key = @{"we-only-support-gg"}
+    @title = @{messages("we-only-support-gg.title")}
 
 @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
     @pageHeading(title)
 
-    @paragraph(Html(messages("weOnlySupportGG.p1")), Some("govuk-body"))
+    @paragraph(Html(messages(s"${key}.p1")), Some("govuk-body"))
 
-    <h2 class="heading-medium">@messages("weOnlySupportGG.createAccount")</h2>
-    @paragraph(Html(messages("weOnlySupportGG.createAccount.p1",routes.StartController.signOutAndRegisterForGG().url)), Some("govuk-body"))
+    <h2 class="heading-medium">@messages(s"${key}.createAccount")</h2>
+    @paragraph(Html(messages(s"${key}.createAccount.p1",routes.StartController.signOutAndRegisterForGG().url)), Some("govuk-body"))
 
-    <h2 class="heading-medium">@messages("weOnlySupportGG.signIn")</h2>
-    @paragraph(Html(messages("weOnlySupportGG.signIn.p1", routes.StartController.signOutAndSignIn().url))), Some("govuk-body"))
+    <h2 class="heading-medium">@messages(s"${key}.signIn")</h2>
+    @paragraph(Html(messages(s"${key}.signIn.p1", routes.StartController.signOutAndSignIn().url))), Some("govuk-body"))
 
 
 

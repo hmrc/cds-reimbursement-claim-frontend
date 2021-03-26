@@ -16,19 +16,28 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
-@Singleton
-class UnauthorisedController @Inject() (
-  cc: MessagesControllerComponents,
-  unauthorisedPage: views.html.unauthorised
-)(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+class IneligibleControllerSpec extends ControllerSpec {
 
-  def unauthorised(): Action[AnyContent] = Action(implicit request => Ok(unauthorisedPage()).withNewSession)
+  lazy val controller: IneligibleController = instanceOf[IneligibleController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  "Ineligible controller" must {
+
+    "handling requests to display the ineligible page" must {
+
+      "display the page" in {
+        checkPageIsDisplayed(
+          controller.ineligible()(FakeRequest()),
+          messageFromMessageKey("ineligible.title")
+        )
+      }
+
+    }
+
+  }
 
 }

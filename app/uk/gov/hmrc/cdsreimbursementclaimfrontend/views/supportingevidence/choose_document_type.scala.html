@@ -50,7 +50,7 @@
             @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @inputSelect(
-                label = "Choose document type",
+                label = s"${key}.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 form = form,

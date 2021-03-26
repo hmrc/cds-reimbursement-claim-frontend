@@ -17,13 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.syntax.either._
 import com.google.inject.{Inject, Singleton}
-import play.api.data.Forms.{mapping, of}
-import play.api.data.format.Formatter
-import play.api.data.{Form, FormError, Forms, Mapping}
 import play.api.i18n.Lang
-import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -47,7 +42,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -165,7 +159,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def submissionError(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSubmitClaimFailedOrSubscribed(request)(_ => Ok(submitClaimFailedPage()))
+      withSubmitClaimFailed(request)(_ => Ok(submitClaimFailedPage()))
     }
 
   def confirmationOfSubmission(): Action[AnyContent] =
@@ -181,15 +175,16 @@ class CheckYourAnswersAndSubmitController @Inject() (
       case _                           => Redirect(baseRoutes.StartController.start())
     }
 
-  private def withSubmitClaimFailedOrSubscribed(
+  private def withSubmitClaimFailed(
     request: RequestWithSessionData[_]
   )(
     f: Either[SubmitClaimFailed, RetrievedUserType] => Future[Result]
   ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(s: SubmitClaimFailed) => f(Left(s))
-      // case Some(s: SignedInUser)      => f(Right(s))
-      case _                          => Redirect(baseRoutes.StartController.start())
+      case Some(s: SubmitClaimFailed)  => f(Left(s))
+      case Some(_: JustSubmittedClaim) =>
+        Redirect(routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission())
+      case _                           => Redirect(baseRoutes.StartController.start())
     }
 
   private def withCompleteDraftClaim(
@@ -233,66 +228,6 @@ object CheckYourAnswersAndSubmitController {
 
     final case class SubmitClaimSuccess(response: SubmitClaimResponse) extends SubmitClaimResult
 
-  }
-
-  def readValue[T](
-    key: String,
-    data: Map[String, String],
-    f: String => T,
-    requiredErrorArgs: Seq[String] = Seq.empty
-  ): Either[FormError, T] =
-    data
-      .get(key)
-      .map(_.trim())
-      .filter(_.nonEmpty)
-      .fold[Either[FormError, T]](Left(FormError(key, "error.required", requiredErrorArgs))) { stringValue =>
-        Either
-          .fromTry(Try(f(stringValue)))
-          .leftMap(_ => FormError(key, "error.invalid"))
-      }
-
-  val confirmDetails: Mapping[List[Int]] = {
-    val confirmFormatter: Formatter[Int] =
-      new Formatter[Int] {
-
-        override def bind(
-          key: String,
-          data: Map[String, String]
-        ): Either[Seq[FormError], Int] =
-          readValue(key, data, identity)
-            .flatMap {
-              case "0" => Right(0)
-              case _   => Left(FormError(key, "error.invalid"))
-            }
-            .leftMap(Seq(_))
-
-        override def unbind(
-          key: String,
-          value: Int
-        ): Map[String, String] =
-          Map(key -> value.toString)
-      }
-
-    mapping(
-      "check-your-answers.declaration" -> Forms
-        .list(of(confirmFormatter))
-        .verifying("error.required", _.nonEmpty)
-    )(identity)(Some(_))
-
-  }
-
-  val confirmDetailsForms: Form[Confirmation] = Form(
-    mapping(
-      "" -> confirmDetails
-    )(Confirmation.apply)(Confirmation.unapply)
-  )
-
-  final case class Confirmation(
-    hasConfirmed: List[Int]
-  )
-
-  object Confirmation {
-    implicit val format: OFormat[Confirmation] = Json.format[Confirmation]
   }
 
 }

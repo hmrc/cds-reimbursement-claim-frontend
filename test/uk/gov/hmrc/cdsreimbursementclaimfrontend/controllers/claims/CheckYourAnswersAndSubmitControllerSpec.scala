@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatest.Ignore
+import cats.data.EitherT
+import org.scalamock.handlers.CallHandler3
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -25,31 +26,56 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.CompleteDutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimantDetailsAsIndividualAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@Ignore
 class CheckYourAnswersAndSubmitControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
+  val mockClaimService: ClaimService = mock[ClaimService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimService)
     )
 
   lazy val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]
@@ -57,6 +83,14 @@ class CheckYourAnswersAndSubmitControllerSpec
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  def mockSubmitClaim(submitClaimRequest: SubmitClaimRequest)(
+    response: Either[Error, SubmitClaimResponse]
+  ): CallHandler3[SubmitClaimRequest, Lang, HeaderCarrier, EitherT[Future, Error, SubmitClaimResponse]] =
+    (mockClaimService
+      .submitClaim(_: SubmitClaimRequest, _: Lang)(_: HeaderCarrier))
+      .expects(submitClaimRequest, *, *)
+      .returning(EitherT.fromEither[Future](response))
 
   private def sessionWithCompleteClaimState(
   ): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
@@ -75,9 +109,186 @@ class CheckYourAnswersAndSubmitControllerSpec
     )
   }
 
+  val mrn: MRN                                                                             = sample[MRN]
+  val completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer                             = sample[CompleteDeclarantTypeAnswer]
+  val completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer =
+    sample[CompleteClaimantDetailsAsIndividualAnswer]
+  val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                               = sample[CompleteBasisOfClaimAnswer]
+  val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                   = sample[CompleteSupportingEvidenceAnswer]
+  val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                           = sample[CompleteDutiesSelectedAnswer]
+  val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                       = sample[CompleteCommodityDetailsAnswer]
+  val completeClaimsAnswer: CompleteClaimsAnswer                                           = sample[CompleteClaimsAnswer]
+
+  val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
+    movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(mrn))),
+    duplicateMovementReferenceNumberAnswer = None,
+    declarationDetailsAnswer = None,
+    duplicateDeclarationDetailsAnswer = None,
+    declarantTypeAnswer = Some(completeDeclarantTypeAnswer),
+    claimantDetailsAsIndividualAnswers = Some(completeClaimantDetailsAsIndividualAnswer),
+    claimantDetailsAsImporterCompanyAnswers = None,
+    bankAccountDetailsAnswer = None,
+    basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    supportingEvidenceAnswers = Some(completeSupportingEvidenceAnswer),
+    dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
+    commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
+    reasonForBasisAndClaimAnswer = None,
+    displayDeclaration = Some(
+      DisplayDeclaration(
+        displayResponseDetail = DisplayResponseDetail(
+          declarantReferenceNumber = Some("declarant ref"),
+          securityReason = Some("security reason"),
+          btaDueDate = None,
+          btaSource = None,
+          declarationId = "declaration-id",
+          acceptanceDate = "2020-10-20",
+          procedureCode = "p-1",
+          consigneeDetails = None,
+          accountDetails = None,
+          bankDetails = None,
+          maskedBankDetails = None,
+          ndrcDetails = Some(
+            List(
+              NdrcDetails(
+                taxType = "A01",
+                amount = "20.00",
+                paymentMethod = "CC",
+                paymentReference = "Some ref",
+                cmaEligible = None
+              )
+            )
+          ),
+          declarantDetails = DeclarantDetails(
+            declarantEORI = "F-1",
+            legalName = "Fred Bread",
+            establishmentAddress = EstablishmentAddress(
+              addressLine1 = "line-1",
+              addressLine2 = None,
+              addressLine3 = None,
+              postalCode = None,
+              countryCode = "GB"
+            ),
+            contactDetails = None
+          )
+        )
+      )
+    ),
+    duplicateDisplayDeclaration = None,
+    importerEoriNumberAnswer = None,
+    declarantEoriNumberAnswer = None,
+    claimsAnswer = Some(completeClaimsAnswer)
+  )
+
+  val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
+    id = filledDraftC285Claim.id,
+    completeMovementReferenceNumberAnswer = CompleteMovementReferenceNumberAnswer(Right(mrn)),
+    maybeCompleteDuplicateMovementReferenceNumberAnswer = None,
+    maybeCompleteDeclarationDetailsAnswer = None,
+    maybeCompleteDuplicateDeclarationDetailsAnswer = None,
+    completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,
+    completeClaimantDetailsAsIndividualAnswer = completeClaimantDetailsAsIndividualAnswer,
+    maybeClaimantDetailsAsImporterCompanyAnswer = None,
+    maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    maybeCompleteBankAccountDetailAnswer = None,
+    supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+    completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
+    None,
+    maybeDisplayDeclaration = Some(
+      DisplayDeclaration(
+        displayResponseDetail = DisplayResponseDetail(
+          declarantReferenceNumber = Some("declarant ref"),
+          securityReason = Some("security reason"),
+          btaDueDate = None,
+          btaSource = None,
+          declarationId = "declaration-id",
+          acceptanceDate = "2020-10-20",
+          procedureCode = "p-1",
+          consigneeDetails = None,
+          accountDetails = None,
+          bankDetails = None,
+          maskedBankDetails = None,
+          ndrcDetails = Some(
+            List(
+              NdrcDetails(
+                taxType = "A01",
+                amount = "20.00",
+                paymentMethod = "CC",
+                paymentReference = "Some ref",
+                cmaEligible = None
+              )
+            )
+          ),
+          declarantDetails = DeclarantDetails(
+            declarantEORI = "F-1",
+            legalName = "Fred Bread",
+            establishmentAddress = EstablishmentAddress(
+              addressLine1 = "line-1",
+              addressLine2 = None,
+              addressLine3 = None,
+              postalCode = None,
+              countryCode = "GB"
+            ),
+            contactDetails = None
+          )
+        )
+      )
+    ),
+    maybeDuplicateDisplayDeclaration = None,
+    importerEoriNumber = None,
+    declarantEoriNumber = None,
+    completeClaimsAnswer
+  )
+
   "Check Your Answers And Submit Controller" when {
 
-    "handling requests to submit a claim" must {
+    "handling requests to check all answers" must {
+
+      def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+
+      "redirect to the start of the journey" when {
+
+        "there is no journey status in the session" in {
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = None))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            baseRoutes.StartController.start()
+          )
+
+        }
+
+        "show the CYA page if the user has completely filled the claim" in {
+
+          val draftClaim = filledDraftC285Claim
+
+          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(completelyFilledOutClaim)))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("check-your-answers.title"),
+            doc =>
+              doc
+                .select("a.govuk-back-link")
+                .attr("href") shouldBe
+                fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url
+          )
+
+        }
+
+      }
 
       "show the confirmation page" in {
 
@@ -95,8 +306,243 @@ class CheckYourAnswersAndSubmitControllerSpec
           messageFromMessageKey("confirmation-of-submission.title")
         )
 
-        true shouldBe true
       }
+    }
+
+    "handling requests to submit a claim" when {
+
+      "the submission is a success" must {
+
+        "show the confirmation page" in {
+
+          def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
+
+          val draftClaim = filledDraftC285Claim
+
+          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          val submitClaimRequest = SubmitClaimRequest(
+            completelyFilledOutClaim.draftClaim.id,
+            completeC285Claim,
+            completelyFilledOutClaim.signedInUserDetails
+          )
+
+          val submitClaimResponse = sample[SubmitClaimResponse]
+
+          val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
+
+          val justSubmittedJourney = updatedSession.copy(journeyStatus =
+            Some(
+              JustSubmittedClaim(
+                completelyFilledOutClaim.ggCredId,
+                completelyFilledOutClaim.signedInUserDetails,
+                completeC285Claim,
+                submitClaimResponse
+              )
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+            mockSubmitClaim(submitClaimRequest)(Right(submitClaimResponse))
+            mockStoreSession(justSubmittedJourney)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+          )
+
+        }
+
+      }
+
+      "the submission is a failure" must {
+
+        "show the submission error page" in {
+
+          def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
+
+          val draftClaim = filledDraftC285Claim
+
+          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          val submitClaimRequest = SubmitClaimRequest(
+            completelyFilledOutClaim.draftClaim.id,
+            completeC285Claim,
+            completelyFilledOutClaim.signedInUserDetails
+          )
+
+          val submitClaimError = sample[SubmitClaimError]
+
+          val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
+
+          val submissionFailed = updatedSession.copy(journeyStatus =
+            Some(
+              SubmitClaimFailed(
+                completelyFilledOutClaim.ggCredId,
+                completelyFilledOutClaim.signedInUserDetails
+              )
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+            mockSubmitClaim(submitClaimRequest)(Left(submitClaimError.error))
+            mockStoreSession(submissionFailed)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.CheckYourAnswersAndSubmitController.submissionError()
+          )
+
+        }
+
+      }
+
+    }
+
+    "handling requests with a submission error session" must {
+
+      def performAction(): Future[Result] = controller.submissionError()(FakeRequest())
+
+      "redirect to the start of the journey" when {
+
+        "the journey is other than a failed submission" in {
+
+          val draftClaim = filledDraftC285Claim
+
+          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(updatedSession)
+          }
+
+          checkIsRedirect(
+            performAction(),
+            baseRoutes.StartController.start()
+          )
+
+        }
+
+      }
+
+      "redirect to the confirmation page" when {
+
+        "the claim has just been submitted" in {
+
+          val draftClaim = filledDraftC285Claim
+
+          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+          val (session, _, _) = sessionWithCompleteClaimState()
+
+          val submitClaimResponse = sample[SubmitClaimResponse]
+
+          val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
+
+          val justSubmittedJourney = updatedSession.copy(journeyStatus =
+            Some(
+              JustSubmittedClaim(
+                completelyFilledOutClaim.ggCredId,
+                completelyFilledOutClaim.signedInUserDetails,
+                completeC285Claim,
+                submitClaimResponse
+              )
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(justSubmittedJourney)
+          }
+
+          checkIsRedirect(
+            performAction(),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+          )
+
+        }
+
+      }
+
+    }
+
+    "show a technical error page" when {
+
+      "the user has not completely filled in the claim" in {
+
+        def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+
+        val draftC285Claim = sample[DraftC285Claim].copy(commoditiesDetailsAnswer = None)
+
+        val fillingOutClaim = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
+
+        val (session, _, _) = sessionWithCompleteClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+        }
+
+        checkIsTechnicalErrorPage(performAction())
+
+      }
+
+      "the submission was a success but the session could not be updated" in {
+
+        def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
+
+        val draftClaim = filledDraftC285Claim
+
+        val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+
+        val (session, _, _) = sessionWithCompleteClaimState()
+
+        val submitClaimRequest = SubmitClaimRequest(
+          completelyFilledOutClaim.draftClaim.id,
+          completeC285Claim,
+          completelyFilledOutClaim.signedInUserDetails
+        )
+
+        val submitClaimResponse = sample[SubmitClaimResponse]
+
+        val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
+
+        val justSubmittedJourney = updatedSession.copy(journeyStatus =
+          Some(
+            JustSubmittedClaim(
+              completelyFilledOutClaim.ggCredId,
+              completelyFilledOutClaim.signedInUserDetails,
+              completeC285Claim,
+              submitClaimResponse
+            )
+          )
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(updatedSession)
+          mockSubmitClaim(submitClaimRequest)(Right(submitClaimResponse))
+          mockStoreSession(justSubmittedJourney)(Left((Error("BOOM!"))))
+        }
+
+        checkIsTechnicalErrorPage(performAction())
+
+      }
+
     }
   }
 

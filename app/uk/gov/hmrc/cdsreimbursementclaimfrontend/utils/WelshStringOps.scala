@@ -21,7 +21,7 @@ import cats.instances.string._
 import cats.syntax.eq._
 import org.apache.commons.lang3.StringUtils
 
-object WelshSorting {
+object WelshStringOps {
   private val WELSH_ALPHABET = Map(
     " "  -> 0,
     "a"  -> 1,

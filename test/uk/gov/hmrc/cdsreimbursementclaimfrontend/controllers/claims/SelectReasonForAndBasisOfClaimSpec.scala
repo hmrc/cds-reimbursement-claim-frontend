@@ -25,20 +25,21 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.{CompleteReasonAndBasisOfClaimAnswer, IncompleteReasonAndBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
 
-class SelectBasisForClaimControllerSpec
+class SelectReasonForAndBasisOfClaimSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -50,17 +51,17 @@ class SelectBasisForClaimControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
+  lazy val controller: SelectReasonForBasisAndClaimController = instanceOf[SelectReasonForBasisAndClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeReasonForClaim: Option[BasisOfClaimAnswer]
+    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(basisOfClaimAnswer = maybeReasonForClaim)
+      DraftC285Claim.newDraftC285Claim.copy(reasonForBasisAndClaimAnswer = maybeReasonAndBasisOfClaimAnswer)
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -73,15 +74,15 @@ class SelectBasisForClaimControllerSpec
     )
   }
 
-  "Select basis of claim controller" must {
+  "Select Reason for and Basis of claim controller" must {
 
     "redirect to the start of the journey" when {
 
       "there is no journey status in the session" in {
 
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectReasonForClaimAndBasis()(FakeRequest())
 
-        val answers = IncompleteBasisOfClaimAnswer.empty
+        val answers = IncompleteReasonAndBasisOfClaimAnswer.empty
 
         val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -102,9 +103,9 @@ class SelectBasisForClaimControllerSpec
     "display the page" when {
 
       "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectReasonForClaimAndBasis()(FakeRequest())
 
-        val answers = IncompleteBasisOfClaimAnswer.empty
+        val answers = IncompleteReasonAndBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumberAnswer =
@@ -121,7 +122,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
+          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
           doc =>
             doc
               .select("a.govuk-back-link")
@@ -131,11 +132,12 @@ class SelectBasisForClaimControllerSpec
       }
 
       "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectReasonForClaimAndBasis()(FakeRequest())
 
-        val endUseRelief = BasisOfClaim.EndUseRelief
+        val mailForOrderGoods = ReasonForClaim.MailForOrderGoods
+        val basisOfClaim      = BasisOfClaim.Miscellaneous
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumberAnswer =
@@ -152,7 +154,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
+          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
           doc =>
             doc
               .select("a.govuk-back-link")
@@ -163,15 +165,16 @@ class SelectBasisForClaimControllerSpec
 
       "the user has come from the CYA page and is amending their answer" in {
 
-        def performAction(): Future[Result] = controller.changeBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.changeReasonForClaimAndBasis()(FakeRequest())
 
-        val endUseRelief = BasisOfClaim.EndUseRelief
+        val mailForOrderGoods = ReasonForClaim.MailForOrderGoods
+        val basisOfClaim      = BasisOfClaim.Miscellaneous
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
-            basisOfClaimAnswer = Some(answers),
+            reasonForBasisAndClaimAnswer = Some(answers),
             movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -185,7 +188,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
+          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
           doc =>
             doc
               .select("a.govuk-back-link")
@@ -201,30 +204,26 @@ class SelectBasisForClaimControllerSpec
       "user chooses a valid option" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.selectBasisForClaimSubmit()(
+          controller.selectReasonForClaimAndBasisSubmit()(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val endUseRelief = BasisOfClaim.EndUseRelief
+        val mailForOrderGoods = ReasonForClaim.Overpayment
+        val basisOfClaim      = BasisOfClaim.IncorrectCommodityCode
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(
-            basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val (session, _, _) = sessionWithClaimState(Some(answers))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session)
         }
 
         checkIsRedirect(
-          performAction(Seq("select-basis-for-claim" -> "2")),
+          performAction(
+            Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
+          ),
           routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
         )
       }
@@ -232,30 +231,25 @@ class SelectBasisForClaimControllerSpec
       "the user amends their answer" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeReasonForClaimAndBasisSubmit()(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
+        val mailForOrderGoods                                          = ReasonForClaim.Overpayment
+        val basisOfClaim                                               = BasisOfClaim.IncorrectCommodityCode
 
-        val incorrectCpc = BasisOfClaim.IncorrectCpc
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
-        val answers = CompleteBasisOfClaimAnswer(incorrectCpc)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(
-            basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val (session, _, _) = sessionWithClaimState(Some(answers))
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session)
         }
 
         checkIsRedirect(
-          performAction(Seq("select-basis-for-claim" -> "4")),
+          performAction(
+            Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
+          ),
           routes.CheckYourAnswersAndSubmitController.checkAllAnswers()
         )
       }
@@ -264,19 +258,20 @@ class SelectBasisForClaimControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option" in {
+      "the user does not select anY options" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeReasonForClaimAndBasisSubmit()(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val endUseRelief = BasisOfClaim.EndUseRelief
+        val mailForOrderGoods = ReasonForClaim.MailForOrderGoods
+        val basisOfClaim      = BasisOfClaim.Miscellaneous
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
-            basisOfClaimAnswer = Some(answers),
+            reasonForBasisAndClaimAnswer = Some(answers),
             movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -292,13 +287,19 @@ class SelectBasisForClaimControllerSpec
           performAction(
             Seq.empty
           ),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
+          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
+          doc => {
             doc
-              .select(".govuk-error-summary__list > li > a")
+              .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-basis-for-claim.error.required"
-            ),
+              s"select-reason-and-basis-for-claim.basis.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(2) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-reason-and-basis-for-claim.reason.error.required"
+            )
+          },
           BAD_REQUEST
         )
       }
@@ -306,17 +307,18 @@ class SelectBasisForClaimControllerSpec
       "an invalid option value is submitted" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeReasonForClaimAndBasisSubmit()(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val endUseRelief = BasisOfClaim.EndUseRelief
+        val mailForOrderGoods = ReasonForClaim.MailForOrderGoods
+        val basisOfClaim      = BasisOfClaim.Miscellaneous
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
-            basisOfClaimAnswer = Some(answers),
+            reasonForBasisAndClaimAnswer = Some(answers),
             movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -329,14 +331,25 @@ class SelectBasisForClaimControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq("select-basis-for-claim" -> "blah")),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
+          performAction(
+            Seq(
+              "select-reason-and-basis-for-claim.basis"  -> "blah",
+              "select-reason-and-basis-for-claim.reason" -> "blah"
+            )
+          ),
+          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
+          doc => {
             doc
-              .select(".govuk-error-summary__list > li > a")
+              .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-basis-for-claim.error.number"
-            ),
+              s"select-reason-and-basis-for-claim.basis.error.number"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(2) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-reason-and-basis-for-claim.reason.error.number"
+            )
+          },
           BAD_REQUEST
         )
       }

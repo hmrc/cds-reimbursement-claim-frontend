@@ -54,7 +54,7 @@
                 form = form,
                 id = key,
                 name = key,
-                label = messages(s"$key.label"),
+                label = s"$key.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 hint = None,
                 value = form.value.map(text => text.value),
