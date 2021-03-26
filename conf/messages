@@ -428,6 +428,7 @@ enter-commodities-details.title=Enter details of the commodities you would like 
 enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Describe details of the commodity
+enter-commodities-details.error.maxLength=You cannot enter more than 500 characters.
 
 #===================================================
 #  MAKE CLAIM PAGES
