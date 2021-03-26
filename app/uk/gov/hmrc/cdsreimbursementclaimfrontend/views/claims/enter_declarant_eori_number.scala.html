@@ -34,32 +34,32 @@
 
 @(form: Form[DeclarantEoriNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-declarant-eori-number"}
-@title = @{messages(s"$key.title")}
+    @key = @{"enter-declarant-eori-number"}
+    @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-    @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-    @pageHeading(title)
+        @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @formWithCSRF(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(), 'novalidate -> "novalidate") {
 
-        @inputText(
-            form = form,
-            id = key,
-            name = key,
-            label = s"${key}.input-label",
-            isPageHeading = false,
-            hint = Some(s"${key}.help-text"),
-            classes = Some("govuk-input--width-20"),
-            labelClasses = Some("govuk-label govuk-label--s")
-        )
+            @inputText(
+                form = form,
+                id = key,
+                name = key,
+                label = s"${key}.input-label",
+                isPageHeading = false,
+                hint = Some(s"${key}.help-text"),
+                classes = Some("govuk-input--width-20"),
+                labelClasses = Some("govuk-label govuk-label--s")
+            )
 
-        @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
+
+        }
 
     }
-
-}

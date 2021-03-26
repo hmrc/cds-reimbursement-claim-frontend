@@ -108,9 +108,12 @@ class DefaultUpscanConnector @Inject() (
 
     EitherT[Future, Error, HttpResponse](
       http
-        .GET[HttpResponse](upscanInitiateUrl)
+        .POST[UpscanInitiateRequest, HttpResponse](
+          upscanInitiateUrl,
+          payload
+        )
         .map(Right(_))
-        .recover { case NonFatal(e) => Left(Error(e)) }
+        .recover { case e => Left(Error(e)) }
     )
   }
 

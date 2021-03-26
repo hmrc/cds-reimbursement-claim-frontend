@@ -21,7 +21,6 @@ import cats.instances.future._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
@@ -92,7 +91,7 @@ class StartController @Inject() (
 
       result.fold(
         { e =>
-          logger.warn("could not initiate claim journey", e)
+          logger.warn("could not initiate claim journey:", e)
           errorHandler.errorResult()
         },
         _ =>
@@ -205,7 +204,7 @@ class StartController @Inject() (
       )
     ).map {
       case Left(e) =>
-        logger.warn("could not update session", e)
+        logger.warn("could not update session:", e)
         errorHandler.errorResult()
 
       case Right(_) =>
@@ -246,7 +245,7 @@ class StartController @Inject() (
 
     result.fold(
       { e =>
-        logger.warn("could not initiate claim journey", e)
+        logger.warn("could not initiate claim journey:", e)
         errorHandler.errorResult()
       },
       _ =>

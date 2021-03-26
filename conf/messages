@@ -71,6 +71,16 @@ exit-survey.link-text=What did you think of this service?
 #===================================================
 
 #===================================================
+#  WE ONLY SUPPORT GG PAGE
+#===================================================
+we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
+we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot be used to access this service.
+we-only-support-gg.createAccount=Create an account
+we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
+we-only-support-gg.signIn=Sign in if you already have an account
+we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
+
+#===================================================
 #  LANDING PAGE
 #===================================================
 landing.title=Claim for reimbursement of import duties
@@ -371,14 +381,16 @@ select-basis-for-claim.reason.d13=Proof of Return/Refund Given
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
 #===================================================
 select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
-select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
-
 select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
 select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
+
+select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.basis.error.required=Select a reason for claim
+select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
+select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
+select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
 
 select-reason-and-basis-for-claim.basis.label=Examples of basis of claim
 select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
@@ -425,6 +437,7 @@ enter-commodities-details.help-text=You can enter more than one commodity from t
 enter-commodities-details.error.required=Enter commodity details
 enter-commodities-details.error.maxLength=Enter commodity details
 enter-commodities-details.error.required=Describe details of the commodity
+enter-commodities-details.error.maxLength=You cannot enter more than 500 characters.
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -458,6 +471,7 @@ enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim 
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.real=Enter a valid claim amount
 enter-claim.claim-amount.error.real=Enter a valid claim amount
+enter-claim.paid-amount.error.real.precision=Enter a valid paid amount
 enter-claim.claim-amount.error.real.precision=Enter a valid claim amount
 enter-claim.invalid.claim=Enter a claim amount which is less then or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
@@ -519,10 +533,6 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
-supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
-supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
-supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
 supporting-evidence.upload=Examples of file types
 supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
 supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
@@ -565,6 +575,11 @@ supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
 supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, and PDF.
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
+supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
+supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
+supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
+supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
+supporting-evidence.choose-document-type.label=Choose document type
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
 supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
 supporting-evidence.choose-document-type.document-type.d2=Packing List

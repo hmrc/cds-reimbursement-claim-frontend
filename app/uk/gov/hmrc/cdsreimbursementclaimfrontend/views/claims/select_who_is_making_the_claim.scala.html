@@ -28,7 +28,7 @@
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
  radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
@@ -95,6 +95,8 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 )
             )
 
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
+
         }
+
     }

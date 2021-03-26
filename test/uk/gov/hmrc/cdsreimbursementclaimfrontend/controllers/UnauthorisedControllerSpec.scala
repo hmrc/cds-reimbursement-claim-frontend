@@ -16,19 +16,28 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import com.google.inject.Inject
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.accessibility_statement
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
-class AccessibilityStatementController @Inject() (
-  cc: MessagesControllerComponents,
-  accessibilityStatementPage: accessibility_statement
-)(implicit viewConfig: ViewConfig)
-    extends FrontendController(cc) {
+class UnauthorisedControllerSpec extends ControllerSpec {
 
-  def accessibilityStatement(): Action[AnyContent] =
-    Action(implicit request => Ok(accessibilityStatementPage()))
+  lazy val controller: UnauthorisedController = instanceOf[UnauthorisedController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  "UnauthorisedController controller" must {
+
+    "handling requests to display the unauthorised page" must {
+
+      "display the page" in {
+        checkPageIsDisplayed(
+          controller.unauthorised()(FakeRequest()),
+          messageFromMessageKey("unauthorised.title")
+        )
+      }
+
+    }
+
+  }
 
 }

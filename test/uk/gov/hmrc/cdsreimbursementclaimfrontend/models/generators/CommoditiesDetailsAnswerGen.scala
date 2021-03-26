@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.i18n.MessagesApi
-import play.api.test.FakeRequest
+import org.scalacheck.Gen
+import org.scalacheck.ScalacheckShapeless._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 
-class UnauthorisedSpec extends ControllerSpec {
+object CommoditiesDetailsAnswerGen extends GenUtils {
 
-  lazy val controller: UnauthorisedController = instanceOf[UnauthorisedController]
-  implicit lazy val messagesApi: MessagesApi  = controller.messagesApi
-
-  "Unauthorised Controller" must {
-    "display the unauthorised page" when {
-      checkPageIsDisplayed(controller.unauthorised()(FakeRequest()), messageFromMessageKey("unauthorised.title"))
-    }
-  }
+  implicit val completeCommodityDetailsAnswerGen: Gen[CompleteCommodityDetailsAnswer] =
+    gen[CompleteCommodityDetailsAnswer]
 
 }

@@ -25,7 +25,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanInitiateRequest, UpscanUpload}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -72,8 +72,19 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
       val mockUpscanInitiateSuccess = Call("GET", "/mock-success")
       val mockUpscanInitiateFailure = Call("GET", "/mock-fail")
 
+      val payload = UpscanInitiateRequest(
+        s"$baseUrl/upscan-call-back/upload-reference/${reference.value}",
+        s"host1.com${mockUpscanInitiateSuccess.url}",
+        s"host1.com${mockUpscanInitiateFailure.url}",
+        0,
+        1234
+      )
       behave like connectorBehaviour(
-        mockGet(expectedUrl)(_),
+        mockPost[UpscanInitiateRequest](
+          expectedUrl,
+          Seq.empty,
+          payload
+        ),
         () => connector.initiate(mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference)
       )
     }

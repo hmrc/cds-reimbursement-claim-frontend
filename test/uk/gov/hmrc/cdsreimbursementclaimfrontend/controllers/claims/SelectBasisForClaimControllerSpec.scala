@@ -22,17 +22,19 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
 
@@ -45,7 +47,7 @@ class SelectBasisForClaimControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore)
+      bind[SessionCache].toInstance(mockSessionCache)
     )
 
   lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
@@ -71,13 +73,13 @@ class SelectBasisForClaimControllerSpec
     )
   }
 
-  "Select basis for claim Controller" when {
+  "Select basis of claim controller" must {
 
-    "handling requests to capture a basis for a claim" must {
+    "redirect to the start of the journey" when {
 
-      def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+      "there is no journey status in the session" in {
 
-      "show the select basis for claim page" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
 
         val answers = IncompleteBasisOfClaimAnswer.empty
 
@@ -85,14 +87,260 @@ class SelectBasisForClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.StartController.start()
+        )
+
+      }
+
+    }
+
+    "display the page" when {
+
+      "the user has not answered this question before" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+
+        val answers = IncompleteBasisOfClaimAnswer.empty
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title")
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select("a.govuk-back-link")
+              .attr("href") shouldBe
+              routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual().url
         )
       }
+
+      "the user has answered this question before" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select("a.govuk-back-link")
+              .attr("href") shouldBe
+              routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual().url
+        )
+      }
+
+      "the user has come from the CYA page and is amending their answer" in {
+
+        def performAction(): Future[Result] = controller.changeBasisForClaim()(FakeRequest())
+
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(
+            basisOfClaimAnswer = Some(answers),
+            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select("a.govuk-back-link")
+              .attr("href") shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+        )
+
+      }
+
+    }
+
+    "handle submit requests" when {
+
+      "user chooses a valid option" in {
+
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.selectBasisForClaimSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(
+            basisOfClaimAnswer = Some(answers),
+            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("select-basis-for-claim" -> "2")),
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+        )
+      }
+
+      "the user amends their answer" in {
+
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.changeBasisForClaimSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val incorrectCpc = BasisOfClaim.IncorrectCpc
+
+        val answers = CompleteBasisOfClaimAnswer(incorrectCpc)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(
+            basisOfClaimAnswer = Some(answers),
+            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("select-basis-for-claim" -> "4")),
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+        )
+      }
+
+    }
+
+    "show an error summary" when {
+
+      "the user does not select an option" in {
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.changeBasisForClaimSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(
+            basisOfClaimAnswer = Some(answers),
+            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            Seq.empty
+          ),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-basis-for-claim.error.required"
+            ),
+          BAD_REQUEST
+        )
+      }
+
+      "an invalid option value is submitted" in {
+
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.changeBasisForClaimSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(
+            basisOfClaimAnswer = Some(answers),
+            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(Seq("select-basis-for-claim" -> "blah")),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-basis-for-claim.error.number"
+            ),
+          BAD_REQUEST
+        )
+      }
+
     }
   }
 

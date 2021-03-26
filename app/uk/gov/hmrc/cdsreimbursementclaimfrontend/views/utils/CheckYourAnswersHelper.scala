@@ -488,7 +488,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
                     content = Text(messages("cya.change")(lang)),
                     visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0")(lang))
                   )
@@ -503,7 +503,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.EnterMovementReferenceNumberController.changeMrn().url}",
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
                     content = Text(messages("cya.change")(lang)),
                     visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1")(lang))
                   )
