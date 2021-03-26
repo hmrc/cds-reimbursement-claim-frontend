@@ -214,12 +214,14 @@ enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.boolean=Choose if you want to add company details
 enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
+enter-claimant-details-individual.individual-full-name.error.maxLength= Enter a valid full name
 postcode.error.required=Enter a valid postcode
 countryCode.enter-claimant-details-individual.error.required=Enter a country
 nonUkAddress-line1.error.pattern=Enter a valid address line 1
 nonUkAddress-line2.error.pattern=Enter a valid address line 2
 nonUkAddress-line3.error.pattern=Enter a valid address line 3
 nonUkAddress-line4.error.pattern=Enter a valid town or city
+
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
@@ -230,6 +232,7 @@ enter-claimant-details-importer-company.caption=Company Claimant Details
 enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
 enter-claimant-details-importer-company.importer-company-name.label=Company name
 enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
+enter-claimant-details-importer-company.importer-company-name.error.maxLength=Enter a valid company name
 enter-claimant-details-importer-company.importer-email.label=Email address
 enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
 enter-claimant-details-importer-company.importer-email.invalid=Enter a valid email
@@ -302,6 +305,10 @@ enter-declaration-details.declarant-name.error.required=Enter a valid declarant 
 enter-declaration-details.declarant-email-address.error.required=Enter a valid declarant email address
 enter-declaration-details.declarant-phone-number.error.required=Enter a valid declarant phone number
 enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
+enter-declaration-details.place-of-import.error.maxLength = Enter a valid place of import
+enter-declaration-details.importer-name.error.maxLength = Enter a valid importer name
+enter-declaration-details.declarant-name.error.maxLength = Enter a valid declarant name
+
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
@@ -427,6 +434,8 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
 enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.error.required=Enter commodity details
+enter-commodities-details.error.maxLength=Enter commodity details
 enter-commodities-details.error.required=Describe details of the commodity
 enter-commodities-details.error.maxLength=You cannot enter more than 500 characters.
 
@@ -456,10 +465,11 @@ enter-claim.help-text=This is to calculate your reimbursement as part of your cl
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
 enter-claim.paid-amount=Paid Amount
+enter-claim.paid-amount.error.real=Enter a valid paid amount
+enter-claim.paid-amount.error.real.precision=Enter a valid paid amount
 enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim for.
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.real=Enter a valid claim amount
-enter-claim.paid-amount.error.real=Enter a valid paid amount
 enter-claim.claim-amount.error.real=Enter a valid claim amount
 enter-claim.paid-amount.error.real.precision=Enter a valid paid amount
 enter-claim.claim-amount.error.real.precision=Enter a valid claim amount
@@ -484,13 +494,18 @@ enter-bank-details.help-text=This is where you would like reimbursements to be m
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
+enter-bank-details.account-name.error.maxLength=Enter a valid account name
 enter-bank-details.account-number.label=Account number
 enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
 enter-bank-details.account-number.error.required=Please enter a valid account number
+enter-bank-details.account-number.error.minLength=Please enter a valid account number
+enter-bank-details.account-number.error.maxLength=Please enter a valid account number
 enter-bank-details.account-number.invalid=Enter a valid account number
 enter-bank-details.sort-code.label=Sort Code
 enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
 enter-bank-details.sort-code.error.required=Enter a valid sort code
+enter-bank-details.sort-code.error.minLength=Enter a valid sort code
+enter-bank-details.sort-code.error.maxLength=Enter a valid sort code
 enter-bank-details.sort-code.invalid=Enter a valid sort code
 enter-bank-details-sort-code-1.error.sc1-and-sc3.required=Enter a valid sort code
 enter-bank-details-sort-code-2.error.sc1-and-sc1.required=Enter a valid sort code
@@ -503,6 +518,7 @@ enter-bank-details.error.moc-check-failed=Account number must be valid for the g
 enter-bank-details.error.account-does-not-exist=Account number must belong to an active bank account
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid Account Number
 enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
+
 
 #===================================================
 #  BANK DETAILS PAGE
@@ -708,7 +724,11 @@ accessibility-statement.li5=listen to the service using a screen reader (includi
 nonUkAddress-building.error.required=Enter a building name or number
 nonUkAddress-line1.error.required=Enter address line 1
 nonUkAddress-line4.error.required=Enter a town or city
-nonUkAddress-line1.error.tooLong=Enter address line 1
+nonUkAddress-line1.error.tooLong=Enter a valid address line 1
+nonUkAddress-line2.error.tooLong=Enter a valid address line 2
+nonUkAddress-line3.error.tooLong=Enter a valid address line 3
+nonUkAddress-line4.error.tooLong=Enter a valid address line 4
+postcode.error.maxLength=Enter a valid postcode
 countryCode.error.required=Enter a country
 
 #===================================================
