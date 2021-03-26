@@ -215,6 +215,7 @@ enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.boolean=Choose if you want to add company details
 enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
 postcode.error.required=Enter a valid postcode
+postcode.error.pattern=Enter a valid postcode
 countryCode.enter-claimant-details-individual.error.required=Enter a country
 nonUkAddress-line1.error.pattern=Enter a valid address line 1
 nonUkAddress-line2.error.pattern=Enter a valid address line 2
