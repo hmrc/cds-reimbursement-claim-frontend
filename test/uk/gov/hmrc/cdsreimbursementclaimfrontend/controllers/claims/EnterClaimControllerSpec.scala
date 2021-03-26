@@ -26,10 +26,12 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.IncompleteClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.CompleteDutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -100,6 +102,97 @@ class EnterClaimControllerSpec
         checkIsRedirect(
           performAction(id),
           baseRoutes.StartController.start()
+        )
+
+      }
+
+    }
+
+    "redirect to claim page" when {
+
+      "there  are no claims" in {
+        def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
+
+        val answers = IncompleteClaimsAnswer.empty
+
+        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.IneligibleController.ineligible()
+        )
+
+      }
+
+      "number of claims match duties selected" in {
+        def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
+
+        val dutiesSelectedAnswer = CompleteDutiesSelectedAnswer(DutiesSelected(List(Duty(TaxCode.A00))))
+
+        val claim = sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
+
+        val answers = IncompleteClaimsAnswer(List(claim))
+
+        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+
+        val updatedClaim = draftC285Claim.copy(dutiesSelectedAnswer = Some(dutiesSelectedAnswer))
+
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = updatedClaim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterClaimController.checkClaim()
+        )
+
+      }
+
+      "number of claims is more than duties selected" in {
+        def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
+
+        val dutiesSelectedAnswer =
+          CompleteDutiesSelectedAnswer(DutiesSelected(List(Duty(TaxCode.A00))))
+
+        val claim1 = sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
+
+        val claim2 = sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
+
+        val answers = IncompleteClaimsAnswer(List(claim1, claim2))
+
+        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+
+        val updatedClaim = draftC285Claim.copy(dutiesSelectedAnswer = Some(dutiesSelectedAnswer))
+
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = updatedClaim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.EnterClaimController.checkClaim()
         )
 
       }
@@ -199,6 +292,33 @@ class EnterClaimControllerSpec
         )
       }
 
+      "the user has checked the claims" in {
+
+        def performAction(): Future[Result] = controller.checkClaimSubmit()(FakeRequest())
+
+        val claim = sample[Claim]
+          .copy(
+            claimAmount = BigDecimal(5.00).setScale(2),
+            paidAmount = BigDecimal(10.00).setScale(2),
+            isFilled = true,
+            taxCode = "A00"
+          )
+
+        val answers = CompleteClaimsAnswer(List(claim))
+
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.BankAccountController.enterBankAccountDetails()
+        )
+      }
+
     }
 
     "show an error summary" when {
@@ -255,6 +375,38 @@ class EnterClaimControllerSpec
       }
 
     }
+
+    "display the check your claim page" when {
+
+      "all the claims have been entered" in {
+
+        val claim = sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = "A00")
+
+        val answers = IncompleteClaimsAnswer(List(claim))
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(claim.id),
+          messageFromMessageKey("enter-claim.title", "Customs Duty - Code A00")
+        )
+
+      }
+
+    }
+
   }
 
   "Entry Claim Amount Validation" must {
