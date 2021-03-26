@@ -16,10 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.moneyGen
 
-class EnterClaimControllerSpec extends ControllerSpec {
+class EnterClaimControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with ScalaCheckDrivenPropertyChecks {
+
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache)
+    )
+
+  lazy val controller: SelectDutiesController = instanceOf[SelectDutiesController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   "Entry Claim Amount Validation" must {
     val form        = EnterClaimController.entryClaimAmountForm
