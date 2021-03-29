@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-//import play.api.mvc.Result
-//import play.api.test.FakeRequest
+import play.api.mvc.Result
+import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -37,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
-//import scala.concurrent.Future
+import scala.concurrent.Future
 
 class EnterClaimantDetailsAsIndividualControllerSpec
     extends ControllerSpec
@@ -76,6 +75,33 @@ class EnterClaimantDetailsAsIndividualControllerSpec
       journey,
       draftC285Claim
     )
+  }
+
+  "Enter Claimant Details As Individual controller" must {
+
+    "redirect to the start of the journey" when {
+
+      "there is no journey status in the session" in {
+
+        def performAction(): Future[Result] = controller.changeClaimantDetailsAsIndividual()(FakeRequest())
+
+        val answers = IncompleteClaimantDetailsAsIndividualAnswer.empty
+
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.StartController.start()
+        )
+
+      }
+
+    }
   }
 
   "Form Validation" must {
