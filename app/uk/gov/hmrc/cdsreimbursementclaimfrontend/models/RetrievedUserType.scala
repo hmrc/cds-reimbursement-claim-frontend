@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.auth.core.retrieve.Name
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
@@ -38,5 +38,9 @@ object RetrievedUserType {
   ) extends RetrievedUserType
 
   final case class NonGovernmentGatewayRetrievedUser(authProvider: String) extends RetrievedUserType
+
+  object NonGovernmentGatewayRetrievedUser {
+    implicit val format: OFormat[NonGovernmentGatewayRetrievedUser] = Json.format[NonGovernmentGatewayRetrievedUser]
+  }
 
 }

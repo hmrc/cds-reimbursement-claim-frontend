@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
@@ -152,14 +153,19 @@ class AuthenticatedActionWithRetrievedData @Inject() (
     def authenticatedRequest(userType: UserType): AuthenticatedRequestWithRetrievedData[A] =
       if (userType === UserType.Individual) {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Individual(ggCredId, maybeEmail.map(Email(_)), eori, name),
+          RetrievedUserType.Individual(
+            ggCredId,
+            maybeEmail.map(Email(_)),
+            eori,
+            models.Name.fromGGName(name)
+          ),
           Some(userType),
           request
         )
 
       } else {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Organisation(ggCredId, eori, name),
+          RetrievedUserType.Organisation(ggCredId, eori, models.Name.fromGGName(name)),
           Some(userType),
           request
         )

@@ -18,9 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
-import controllers.Assets.ACCEPT_LANGUAGE
+import play.api.http.HeaderNames.ACCEPT_LANGUAGE
 import play.api.i18n.Lang
-import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -30,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @ImplementedBy(classOf[DefaultClaimConnector])
 trait ClaimConnector {
@@ -59,17 +59,10 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
           submitClaimRequest,
           Seq(ACCEPT_LANGUAGE -> lang.language)
         )
-        .map[Either[Error, HttpResponse]] { response =>
-          if (response.status != Status.OK) {
-            logger.warn(
-              s"could not submit claim: received http " +
-                s"status ${response.status} and body ${response.body}"
-            )
-            Left(Error("could not submit claim"))
-          } else
-            Right(response)
+        .map(Right(_))
+        .recover { case NonFatal(e) =>
+          Left(Error(e))
         }
-        .recover { case e => Left(Error(e)) }
     )
   }
 }

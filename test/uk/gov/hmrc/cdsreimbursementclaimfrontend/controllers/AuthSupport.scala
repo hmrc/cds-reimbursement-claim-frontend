@@ -20,8 +20,7 @@ import play.api.Configuration
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, EmptyRetrieval, Retrieval, ~}
-import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
+import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.EnrolmentConfig.EoriEnrolment
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedActionWithRetrievedData
@@ -38,7 +37,7 @@ trait AuthSupport {
     mockAuthConnector,
     instanceOf[Configuration],
     instanceOf[ErrorHandler],
-    mockSessionStore
+    mockSessionCache
   )(instanceOf[ExecutionContext])
 
   def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
@@ -55,30 +54,36 @@ trait AuthSupport {
   def mockAuthWithNoRetrievals(): Unit =
     mockAuth(EmptyPredicate, EmptyRetrieval)(Future.successful(()))
 
-  val expectedRetrievals =
-    Retrievals.affinityGroup and Retrievals.email and Retrievals.allEnrolments and Retrievals.credentials
+  val expectedRetrievals
+    : Retrieval[Option[AffinityGroup] ~ Option[String] ~ Enrolments ~ Option[Credentials] ~ Option[Name]] =
+    Retrievals.affinityGroup and Retrievals.email and Retrievals.allEnrolments and Retrievals.credentials and Retrievals.name
 
   def mockAuthWithAllRetrievals(
     retrievedAffinityGroup: Option[AffinityGroup],
     retrievedEmail: Option[String],
     retrievedEnrolments: Set[Enrolment],
-    retrievedCredentials: Option[Credentials]
+    retrievedCredentials: Option[Credentials],
+    retrievedName: Option[Name]
   ): Unit =
     mockAuth(EmptyPredicate, expectedRetrievals)(
       Future successful (
-        new ~(retrievedAffinityGroup, retrievedEmail) and Enrolments(retrievedEnrolments) and retrievedCredentials
+        new ~(retrievedAffinityGroup, retrievedEmail) and Enrolments(
+          retrievedEnrolments
+        ) and retrievedCredentials and retrievedName
       )
     )
 
   def mockAuthWithAllIndividualRetrievals(
     retrievedEmail: Option[String],
-    retrievedCredentials: Credentials
+    retrievedCredentials: Credentials,
+    retrievedName: Name
   ): Unit =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       retrievedEmail,
       Set.empty,
-      Some(retrievedCredentials)
+      Some(retrievedCredentials),
+      Some(retrievedName)
     )
 
   def mockAuthWithEoriEnrolmentRetrievals(): Unit =
@@ -97,7 +102,37 @@ trait AuthSupport {
           ""
         )
       ),
-      Some(Credentials("gg-cred-id", "GovernmentGateway"))
+      Some(Credentials("gg-cred-id", "GovernmentGateway")),
+      Some(Name(Some("John Smith"), Some("Smith")))
+    )
+
+  def mockAuthWithOrgWithEoriEnrolmentRetrievals(): Unit =
+    mockAuthWithAllRetrievals(
+      Some(AffinityGroup.Organisation),
+      None,
+      Set(
+        Enrolment(
+          EoriEnrolment.key,
+          Seq(
+            EnrolmentIdentifier(
+              EoriEnrolment.eoriEnrolmentIdentifier,
+              "AB12345678901234Z"
+            )
+          ),
+          ""
+        )
+      ),
+      Some(Credentials("gg-cred-id", "GovernmentGateway")),
+      Some(Name(Some("John Smith"), Some("Smith")))
+    )
+
+  def mockAuthWithNonGGUserRetrievals(): Unit =
+    mockAuthWithAllRetrievals(
+      None,
+      None,
+      Set.empty,
+      Some(Credentials("id", "NonGG")),
+      None
     )
 
 }

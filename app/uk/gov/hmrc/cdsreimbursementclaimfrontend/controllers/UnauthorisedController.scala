@@ -19,9 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
-
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
@@ -31,7 +29,6 @@ class UnauthorisedController @Inject() (
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc) {
 
-  def unauthorised(): Action[AnyContent] =
-    Action(implicit request => Ok(unauthorisedPage()))
+  def unauthorised(): Action[AnyContent] = Action(implicit request => Ok(unauthorisedPage()).withNewSession)
 
 }

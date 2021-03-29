@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.i18n.MessagesApi
-import play.api.test.FakeRequest
+import play.api.libs.json.{Json, OFormat}
 
-class AccessibilityStatementControllerSpec extends ControllerSpec {
+final case class Name(name: Option[String], lastName: Option[String])
 
-  lazy val controller: AccessibilityStatementController = instanceOf[AccessibilityStatementController]
+object Name {
 
-  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
-
-  "Accessibility Controller" must {
-    "display the accessibility page" when {
-      checkPageIsDisplayed(
-        controller.accessibilityStatement()(FakeRequest()),
-        messageFromMessageKey("accessibility-statement.title")
-      )
+  def fromGGName(maybeName: Option[uk.gov.hmrc.auth.core.retrieve.Name]): Option[Name] =
+    maybeName.map { name =>
+      Name(name.name, name.lastName)
     }
-  }
 
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

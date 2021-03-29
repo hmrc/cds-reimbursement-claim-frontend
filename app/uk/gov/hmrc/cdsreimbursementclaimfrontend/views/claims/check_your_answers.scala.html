@@ -43,39 +43,40 @@
 
         @pageHeading(title)
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-7">@messages(s"${key}.reference-number.h2")</h2>
+        @pageHeading(messages(s"${key}.reference-number.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
         @summary(SummaryList(cyaHelper.makeReferenceNumberRowSummary(completeClaim.movementReferenceNumber)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.declaration-details.h2")</h2>
+        @pageHeading(messages(s"${key}.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeDeclarationDetailsSummary(completeClaim)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.claimant-details.h2")</h2>
+        @pageHeading(messages(s"${key}.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimantDetailsSummary(completeClaim, request)))
 
         @completeClaim.claimantDetailsAsImporterCompany.map{ _ =>
-            <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.claimant-details-as-importer.h2")</h2>
-            @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim)))
+            @pageHeading(messages(s"${key}.claimant-details-as-importer.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim, request)))
         }
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.reason-basis.h2")</h2>
+        @pageHeading(messages(s"${key}.reason-basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeBasisAndOrReasonForClaim(completeClaim)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.commodity-details.h2")</h2>
+        @pageHeading(messages(s"${key}.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeCommodityDetailsSummary(completeClaim)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.claim-calculation.h2")</h2>
+        @pageHeading(messages(s"${key}.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.bank-details.h2")</h2>
+        @pageHeading(messages(s"${key}.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.attached-documents.h2")</h2>
+        @pageHeading(messages(s"${key}.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(completeClaim.supportingEvidences)))
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-9">@messages(s"${key}.confirmation-statement.h2")</h2>
+        @pageHeading(messages(s"${key}.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"${key}.confirmation-statement")), Some("govuk-body"))
 
         @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
-            @submitButton(messages("button.accept-and-send"))
+            @submitButton("button.accept-and-send")
         }
+
     }

@@ -83,7 +83,7 @@ class DefaultClaimService @Inject() (
 
   def getDisplayDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
     cdsReimbursementClaimConnector
-      .getDeclarationDetails(mrn)
+      .getDeclaration(mrn)
       .subflatMap { response =>
         if (response.status === OK) {
           response
@@ -126,7 +126,7 @@ class DefaultClaimService @Inject() (
           case status: Int =>
             Left(
               Error(
-                s"Call to Business Reputation Service (BARS) failed with: $status, body: ${response.body}"
+                s"Call to Business Reputation Service (BARS) failed with: $status"
               )
             )
         }

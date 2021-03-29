@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 import cats.Eq
 import julienrf.json.derived
 import play.api.data.Forms.{nonEmptyText, number, of, optional, mapping => formMapping}
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationResult}
+import play.api.data.validation._
 import play.api.data.{Form, Mapping}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
@@ -88,7 +88,7 @@ object Address {
       "nonUkAddress-line2" -> optional(addressLineMapping),
       "nonUkAddress-line3" -> optional(addressLineMapping),
       "nonUkAddress-line4" -> addressLineMapping,
-      "postcode"           -> nonEmptyText(maxLength = 9),
+      "postcode"           -> Postcode.mapping,
       "countryCode"        -> of(Country.formatter)
     )(NonUkAddress.apply)(NonUkAddress.unapply)
 

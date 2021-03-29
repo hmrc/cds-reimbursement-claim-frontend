@@ -45,7 +45,7 @@ class CustomsDataStoreServiceSpec extends AnyWordSpec with Matchers with MockFac
 
   def mockDataStoreConnector(data: Eori)(response: Either[Error, HttpResponse]) =
     (dataStoreConnector
-      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+      .getCustomsEmail(_: Eori)(_: HeaderCarrier))
       .expects(data, *)
       .returning(EitherT.fromEither[Future](response))
       .atLeastOnce()

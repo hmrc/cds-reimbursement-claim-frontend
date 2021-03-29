@@ -71,6 +71,16 @@ exit-survey.link-text=What did you think of this service?
 #===================================================
 
 #===================================================
+#  WE ONLY SUPPORT GG PAGE
+#===================================================
+we-only-support-gg.title=Report and pay Capital Gains Tax on UK property
+we-only-support-gg.p1=The Government Gateway user ID you signed in with cannot be used to access this service.
+we-only-support-gg.createAccount=Create an account
+we-only-support-gg.createAccount.p1=You’ll need to <a href="{0}">create a new Government Gateway user ID</a>. You can then use it to create a Capital Gains Tax on UK property account.
+we-only-support-gg.signIn=Sign in if you already have an account
+we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government Gateway user ID you used to create your Capital Gains Tax on UK property account.
+
+#===================================================
 #  LANDING PAGE
 #===================================================
 landing.title=Claim for reimbursement of import duties
@@ -138,6 +148,11 @@ enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 
 #===================================================
+#  ENTER DUPLICATE MRN PAGE
+#===================================================
+enter-duplicate-movement-reference-number.title=What is your duplicated Movement Reference Number (MRN)?
+
+#===================================================
 #  MRN DOES NOT MATCH EORI PAGE
 #===================================================
 mrn-not-linked-to-eori.title=The MRN number you entered is not linked to your EORI number
@@ -199,12 +214,14 @@ enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.boolean=Choose if you want to add company details
 enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
+enter-claimant-details-individual.individual-full-name.error.maxLength= Enter a valid full name
 postcode.error.required=Enter a valid postcode
 countryCode.enter-claimant-details-individual.error.required=Enter a country
 nonUkAddress-line1.error.pattern=Enter a valid address line 1
 nonUkAddress-line2.error.pattern=Enter a valid address line 2
 nonUkAddress-line3.error.pattern=Enter a valid address line 3
 nonUkAddress-line4.error.pattern=Enter a valid town or city
+
 
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
@@ -215,6 +232,7 @@ enter-claimant-details-importer-company.caption=Company Claimant Details
 enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
 enter-claimant-details-importer-company.importer-company-name.label=Company name
 enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
+enter-claimant-details-importer-company.importer-company-name.error.maxLength=Enter a valid company name
 enter-claimant-details-importer-company.importer-email.label=Email address
 enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
 enter-claimant-details-importer-company.importer-email.invalid=Enter a valid email
@@ -287,6 +305,10 @@ enter-declaration-details.declarant-name.error.required=Enter a valid declarant 
 enter-declaration-details.declarant-email-address.error.required=Enter a valid declarant email address
 enter-declaration-details.declarant-phone-number.error.required=Enter a valid declarant phone number
 enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
+enter-declaration-details.place-of-import.error.maxLength = Enter a valid place of import
+enter-declaration-details.importer-name.error.maxLength = Enter a valid importer name
+enter-declaration-details.declarant-name.error.maxLength = Enter a valid declarant name
+
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
@@ -339,7 +361,6 @@ select-basis-for-claim.details.l7=inward processing relief from Customs Duty (IP
 select-basis-for-claim.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-basis-for-claim.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-basis-for-claim.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-
 select-basis-for-claim.reason.d0=Duplicate Entry
 select-basis-for-claim.reason.d1=Duty Suspension
 select-basis-for-claim.reason.d2=End Use
@@ -359,15 +380,15 @@ select-basis-for-claim.reason.d13=Proof of Return/Refund Given
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
 #===================================================
 select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
 select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
-select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
-
 select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
 select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
-
+select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
+select-reason-and-basis-for-claim.basis.error.required=Select a reason for claim
+select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
+select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
+select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
 select-reason-and-basis-for-claim.basis.details.heading=Examples of basis of claim
 select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
 select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
@@ -380,12 +401,10 @@ select-reason-and-basis-for-claim.basis.details.l7=inward processing relief from
 select-reason-and-basis-for-claim.basis.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 select-reason-and-basis-for-claim.basis.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
 select-reason-and-basis-for-claim.basis.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-
 select-reason-and-basis-for-claim.reason.details.heading=Examples of reasons to claim
 select-reason-and-basis-for-claim.reason.details.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
 select-reason-and-basis-for-claim.reason.details.l1=overpayment (for example you paid duties that were not due)
 select-reason-and-basis-for-claim.reason.details.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
-
 select-reason-and-basis-for-claim.basis.d0=Duplicate Entry
 select-reason-and-basis-for-claim.basis.d1=Duty Suspension
 select-reason-and-basis-for-claim.basis.d2=End Use
@@ -400,8 +419,7 @@ select-reason-and-basis-for-claim.basis.d10=Personal Effects
 select-reason-and-basis-for-claim.basis.d11=Preference
 select-reason-and-basis-for-claim.basis.d12=RGR
 select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
-
-select-reason-and-basis-for-claim.reason.d0=Mail order goods
+select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances
 
@@ -412,6 +430,9 @@ enter-commodities-details.title=Enter details of the commodities you would like 
 enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
+enter-commodities-details.error.maxLength=Enter commodity details
+enter-commodities-details.error.required=Describe details of the commodity
+enter-commodities-details.error.maxLength=You cannot enter more than 500 characters.
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -439,11 +460,14 @@ enter-claim.help-text=This is to calculate your reimbursement as part of your cl
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
 enter-claim.paid-amount=Paid Amount
+enter-claim.paid-amount.error.real=Enter a valid paid amount
+enter-claim.paid-amount.error.real.precision=Enter a valid paid amount
 enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim for.
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.real=Enter a valid claim amount
-enter-claim.paid-amount.error.real=Enter a valid paid amount
 enter-claim.claim-amount.error.real=Enter a valid claim amount
+enter-claim.paid-amount.error.real.precision=Enter a valid paid amount
+enter-claim.claim-amount.error.real.precision=Enter a valid claim amount
 enter-claim.invalid.claim=Enter a claim amount which is less then or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
 check-claim.help-text=These are the calculations based on the information you gave us.
@@ -465,13 +489,18 @@ enter-bank-details.help-text=This is where you would like reimbursements to be m
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
+enter-bank-details.account-name.error.maxLength=Enter a valid account name
 enter-bank-details.account-number.label=Account number
 enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
 enter-bank-details.account-number.error.required=Please enter a valid account number
+enter-bank-details.account-number.error.minLength=Please enter a valid account number
+enter-bank-details.account-number.error.maxLength=Please enter a valid account number
 enter-bank-details.account-number.invalid=Enter a valid account number
 enter-bank-details.sort-code.label=Sort Code
 enter-bank-details.sort-code.help=Must be 6 digits long, for example 01 02 03
 enter-bank-details.sort-code.error.required=Enter a valid sort code
+enter-bank-details.sort-code.error.minLength=Enter a valid sort code
+enter-bank-details.sort-code.error.maxLength=Enter a valid sort code
 enter-bank-details.sort-code.invalid=Enter a valid sort code
 enter-bank-details-sort-code-1.error.sc1-and-sc3.required=Enter a valid sort code
 enter-bank-details-sort-code-2.error.sc1-and-sc1.required=Enter a valid sort code
@@ -484,6 +513,7 @@ enter-bank-details.error.moc-check-failed=Account number must be valid for the g
 enter-bank-details.error.account-does-not-exist=Account number must belong to an active bank account
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid Account Number
 enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
+
 
 #===================================================
 #  BANK DETAILS PAGE
@@ -498,11 +528,7 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
-supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
-supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
-supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.upload=Examples of file types
+supporting-evidence.upload.details.heading=Examples of file types
 supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
 supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
 supporting-evidence.upload.details.l2=Packing list (document that states packaging details in each shipment)
@@ -544,6 +570,11 @@ supporting-evidence.scan-failed.bullet4=you uploaded a file larger than 10MB
 supporting-evidence.scan-failed.p2=We only accept these file types: JPG, PNG, and PDF.
 supporting-evidence.scan-failed.p3=You’ll need to try again.
 supporting-evidence.scan-failed.button.tryAgain=Try again
+supporting-evidence.choose-document-type.title=Select the description of the file you just uploaded
+supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
+supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
+supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
+supporting-evidence.choose-document-type.label=Choose document type
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
 supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
 supporting-evidence.choose-document-type.document-type.d2=Packing List
@@ -592,8 +623,8 @@ check-your-answers.reason-and-basis.l1=Basis
 check-your-answers.reason.label=Reason for claim
 check-your-answers.commodities-details.label=Commodities details
 check-your-answers.claim-calculation.label=Claim calculation
-check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you: 
-check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you: 
+check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
+check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l2=Total claimed reimbursement
 check-your-answers.bank-details.label=Bank details
 check-your-answers.bank-details.l0=Bank account name
@@ -607,8 +638,8 @@ check-your-answers.file-label=Document {0}
 check-your-answers.bank-details.account-name.label=Account name
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
-check-your-answers.claim-uk-duty.label=Amount of duty to reimburse claimed by you
-check-your-answers.claim-eu-duty.label=Amount of VAT to reimburse claimed by you
+check-your-answers.claim-uk-duty.label=All UK duties to reimburse claimed by you
+check-your-answers.claim-eu-duty.label=All EU duties to reimburse claimed by you
 check-your-answers.total-claim.label=Total claimed reimbursement
 check-your-answers.reference-number.h2=MRN reference number or Entry number
 check-your-answers.declaration-details.h2=Declaration details
@@ -688,7 +719,11 @@ accessibility-statement.li5=listen to the service using a screen reader (includi
 nonUkAddress-building.error.required=Enter a building name or number
 nonUkAddress-line1.error.required=Enter address line 1
 nonUkAddress-line4.error.required=Enter a town or city
-nonUkAddress-line1.error.tooLong=Enter address line 1
+nonUkAddress-line1.error.tooLong=Enter a valid address line 1
+nonUkAddress-line2.error.tooLong=Enter a valid address line 2
+nonUkAddress-line3.error.tooLong=Enter a valid address line 3
+nonUkAddress-line4.error.tooLong=Enter a valid address line 4
+postcode.error.maxLength=Enter a valid postcode
 countryCode.error.required=Enter a country
 
 #===================================================

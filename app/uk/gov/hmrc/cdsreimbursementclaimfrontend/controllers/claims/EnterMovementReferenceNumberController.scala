@@ -17,8 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
+import play.api.{Configuration, Environment, Mode}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import cats.implicits.catsSyntaxEq
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,6 +57,8 @@ class EnterMovementReferenceNumberController @Inject() (
   claimService: ClaimService,
   customsDataStoreService: CustomsDataStoreService,
   servicesConfig: ServicesConfig,
+  config: Configuration,
+  env: Environment,
   cc: MessagesControllerComponents,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
@@ -65,11 +68,17 @@ class EnterMovementReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private val customsEmailFrontend            = "customs-email-frontend"
-  private val customsEmailFrontendUrl: String =
-    servicesConfig.baseUrl(customsEmailFrontend) + servicesConfig.getString(
-      s"microservice.services.$customsEmailFrontend.start-page"
-    )
+  private val runMode              = config.getOptional[String]("run.mode")
+  private val isRunningLocal       =
+    if (env.mode.toString === Mode.Test.toString) true else runMode.forall(_ === Mode.Dev.toString)
+  private val customsEmailFrontend = "customs-email-frontend"
+  private val customsEmailFrontendUrl: String = {
+    val startPage = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
+    isRunningLocal match {
+      case true  => servicesConfig.baseUrl(customsEmailFrontend) + startPage
+      case false => servicesConfig.getString("self.url") + startPage
+    }
+  }
 
   private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
 
@@ -543,7 +552,9 @@ object EnterMovementReferenceNumberController {
     nonEmptyText
       .verifying("invalid.number", str => MRN.isValid(str) | EntryNumber.isValid(str))
       .transform[Either[EntryNumber, MRN]](
-        str => if (MRN.isValid(str)) Right(MRN(str)) else Left(EntryNumber(str)),
+        str =>
+          if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))
+          else Left(EntryNumber.changeToUpperCaseWithoutSpaces(str)),
         {
           case Left(entryNumber) => entryNumber.value
           case Right(mrn)        => mrn.value

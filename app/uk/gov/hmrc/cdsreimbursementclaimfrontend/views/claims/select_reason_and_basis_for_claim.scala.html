@@ -57,119 +57,118 @@
         @dropdownDetails(summary = s"$key.basis.details.heading", content = dropdownHelper.reasonAndBasisBasisDropDownContent)
 
             @inputSelect(
-        label = messages(s"$key.basis.select-label"),
-        labelClasses = Some("govuk-label govuk-label--s"),
-        isPageHeading = false,
+                label = s"$key.basis.select-label",
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
 
-        form = form,
-            id = s"$key.basis",
-            name = s"$key.basis",
-            items = Seq(
-                SelectItem(
-                    value = Some("0"),
-                    text  = messages(s"$key.basis.d0"),
-                    selected = form(s"$key.basis").value.contains("0")
-                ),
-                SelectItem(
-                    value = Some("1"),
-                    text  = messages(s"$key.basis.d1"),
-                    selected = form(s"$key.basis").value.contains("1")
-                ),
-                SelectItem(
-                    value = Some("2"),
-                    text  = messages(s"$key.basis.d2"),
-                    selected = form(s"$key.basis").value.contains("2")
-                ),
-                SelectItem(
-                    value = Some("3"),
-                    text  = messages(s"$key.basis.d3"),
-                    selected = form(s"$key.basis").value.contains("3")
-                ),
-                SelectItem(
-                    value = Some("4"),
-                    text  = messages(s"$key.basis.d4"),
-                    selected = form(s"$key.basis").value.contains("4")
-                ),
-                SelectItem(
-                    value = Some("5"),
-                    text  = messages(s"$key.basis.d5"),
-                    selected = form(s"$key.basis").value.contains("5")
-                ),
-                SelectItem(
-                    value = Some("6"),
-                    text  = messages(s"$key.basis.d6"),
-                    selected = form(s"$key.basis").value.contains("6")
-                ),
-                SelectItem(
-                    value = Some("7"),
-                    text  = messages(s"$key.basis.d7"),
-                    selected = form(s"$key.basis").value.contains("7")
-                ),
-                SelectItem(
-                    value = Some("8"),
-                    text  = messages(s"$key.basis.d8"),
-                    selected = form(s"$key.basis").value.contains("8")
-                ),
-                SelectItem(
-                    value = Some("9"),
-                    text  = messages(s"$key.basis.d9"),
-                    selected = form(s"$key.basis").value.contains("9")
-                ),
-                SelectItem(
-                    value = Some("10"),
-                    text  = messages(s"$key.basis.d10"),
-                    selected = form(s"$key.basis").value.contains("10")
-                ),
-                SelectItem(
-                    value = Some("11"),
-                    text  = messages(s"$key.basis.d11"),
-                    selected = form(s"$key").value.contains("11")
-                ),
-                SelectItem(
-                    value = Some("12"),
-                    text  = messages(s"$key.basis.d12"),
-                    selected = form(s"$key").value.contains("12")
-                ),
-                SelectItem(
-                    value = Some("13"),
-                    text  = messages(s"$key.basis.d13"),
-                    selected = form(s"$key").value.contains("13")
+                form = form,
+                id = s"$key.basis",
+                name = s"$key.basis",
+                items = Seq(
+                    SelectItem(
+                        value = Some("0"),
+                        text  = messages(s"$key.basis.d0"),
+                        selected = form(s"$key.basis").value.contains("0")
+                    ),
+                    SelectItem(
+                        value = Some("1"),
+                        text  = messages(s"$key.basis.d1"),
+                        selected = form(s"$key.basis").value.contains("1")
+                    ),
+                    SelectItem(
+                        value = Some("2"),
+                        text  = messages(s"$key.basis.d2"),
+                        selected = form(s"$key.basis").value.contains("2")
+                    ),
+                    SelectItem(
+                        value = Some("3"),
+                        text  = messages(s"$key.basis.d3"),
+                        selected = form(s"$key.basis").value.contains("3")
+                    ),
+                    SelectItem(
+                        value = Some("4"),
+                        text  = messages(s"$key.basis.d4"),
+                        selected = form(s"$key.basis").value.contains("4")
+                    ),
+                    SelectItem(
+                        value = Some("5"),
+                        text  = messages(s"$key.basis.d5"),
+                        selected = form(s"$key.basis").value.contains("5")
+                    ),
+                    SelectItem(
+                        value = Some("6"),
+                        text  = messages(s"$key.basis.d6"),
+                        selected = form(s"$key.basis").value.contains("6")
+                    ),
+                    SelectItem(
+                        value = Some("7"),
+                        text  = messages(s"$key.basis.d7"),
+                        selected = form(s"$key.basis").value.contains("7")
+                    ),
+                    SelectItem(
+                        value = Some("8"),
+                        text  = messages(s"$key.basis.d8"),
+                        selected = form(s"$key.basis").value.contains("8")
+                    ),
+                    SelectItem(
+                        value = Some("9"),
+                        text  = messages(s"$key.basis.d9"),
+                        selected = form(s"$key.basis").value.contains("9")
+                    ),
+                    SelectItem(
+                        value = Some("10"),
+                        text  = messages(s"$key.basis.d10"),
+                        selected = form(s"$key.basis").value.contains("10")
+                    ),
+                    SelectItem(
+                        value = Some("11"),
+                        text  = messages(s"$key.basis.d11"),
+                        selected = form(s"$key").value.contains("11")
+                    ),
+                    SelectItem(
+                        value = Some("12"),
+                        text  = messages(s"$key.basis.d12"),
+                        selected = form(s"$key").value.contains("12")
+                    ),
+                    SelectItem(
+                        value = Some("13"),
+                        text  = messages(s"$key.basis.d13"),
+                        selected = form(s"$key").value.contains("13")
+                    )
                 )
             )
-        )
 
-    @dropdownDetails(summary = s"$key.reason.details.heading", content = dropdownHelper.reasonAndBasisReasonDropDownContent)
+            @dropdownDetails(summary = s"$key.reason.details.heading", content = dropdownHelper.reasonAndBasisReasonDropDownContent)
 
-    @inputSelect(
-        label = messages(s"$key.reason.select-label"),
-        labelClasses = Some("govuk-label govuk-label--s"),
-        isPageHeading = false,
+            @inputSelect(
+                label = s"$key.reason.select-label",
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
 
-        form = form,
-        id = s"$key.reason",
-        name = s"$key.reason",
-        items = Seq(
-            SelectItem(
-                value = Some("0"),
-                text  = messages(s"$key.reason.d0"),
-                selected = form(s"$key.reason").value.contains("0")
-            ),
-            SelectItem(
-                value = Some("1"),
-                text  = messages(s"$key.reason.d1"),
-                selected = form(s"$key.reason").value.contains("1")
-            ),
-            SelectItem(
-                value = Some("2"),
-                text  = messages(s"$key.reason.d2"),
-                selected = form(s"$key.reason").value.contains("2")
+                form = form,
+                id = s"$key.reason",
+                name = s"$key.reason",
+                items = Seq(
+                    SelectItem(
+                        value = Some("0"),
+                        text  = messages(s"$key.reason.d0"),
+                        selected = form(s"$key.reason").value.contains("0")
+                    ),
+                    SelectItem(
+                        value = Some("1"),
+                        text  = messages(s"$key.reason.d1"),
+                        selected = form(s"$key.reason").value.contains("1")
+                    ),
+                    SelectItem(
+                        value = Some("2"),
+                        text  = messages(s"$key.reason.d2"),
+                        selected = form(s"$key.reason").value.contains("2")
+                    )
+                )
             )
-        )
-    )
 
-    @submitButton(messages("button.saveAndContinue"))
+            @submitButton("button.saveAndContinue")
 
-  }
+        }
 
-
-}
+    }

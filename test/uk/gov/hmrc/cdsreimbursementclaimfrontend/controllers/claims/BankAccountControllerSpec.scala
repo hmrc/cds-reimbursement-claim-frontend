@@ -37,7 +37,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeBankDetails, DeclarantBankDetails, DisplayDeclaration, DisplayResponseDetail, MaskedBankDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -76,7 +78,7 @@ class BankAccountControllerSpec
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionStore),
+      bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(claimService)
     )
 
@@ -88,6 +90,24 @@ class BankAccountControllerSpec
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey,
+      draftC285Claim
+    )
+  }
+
+  private def sessionWithMaskedBankDetails(
+    maybeMaskedBankDetails: Option[MaskedBankDetails]
+  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
+    val draftC285Claim        =
+      DraftC285Claim.newDraftC285Claim.copy(displayDeclaration = Some(DisplayDeclaration(displayResponseDetail)))
+    val ggCredId              = sample[GGCredId]
+    val signedInUserDetails   = sample[SignedInUserDetails]
+    val journey               = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(
         journeyStatus = Some(journey)
@@ -110,6 +130,60 @@ class BankAccountControllerSpec
   def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   "Bank Account Controller" when {
+
+    "Check Bank Account Details" should {
+
+      "Redirect when MaskedBankDetails is empty" in {
+        val maskedBankDetails = MaskedBankDetails(None, None)
+        val (session, _, _)   = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request           = FakeRequest()
+        val result            = controller.checkBankAccountDetails()(request)
+        checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails())
+      }
+
+      "Redirect when MaskedBankDetails is None" in {
+        val (session, _, _) = sessionWithMaskedBankDetails(None)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request         = FakeRequest()
+        val result          = controller.checkBankAccountDetails()(request)
+        checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails())
+      }
+
+      "Ok when MaskedBankDetails has consigneeBankDetails" in {
+        val consigneeDetails  = sample[ConsigneeBankDetails]
+        val maskedBankDetails = MaskedBankDetails(Some(consigneeDetails), None)
+        val (session, _, _)   = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request           = FakeRequest()
+        val result            = controller.checkBankAccountDetails()(request)
+        status(result) shouldBe OK
+        //checkPageIsDisplayed(result, messageFromMessageKey("bank-details.title"))
+      }
+
+      "Ok when MaskedBankDetails has declarantBankDetails" in {
+        val declarantBankDetails = sample[DeclarantBankDetails]
+        val maskedBankDetails    = MaskedBankDetails(None, Some(declarantBankDetails))
+        val (session, _, _)      = sessionWithMaskedBankDetails(Some(maskedBankDetails))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val request              = FakeRequest()
+        val result               = controller.checkBankAccountDetails()(request)
+        status(result) shouldBe OK
+        //checkPageIsDisplayed(result, messageFromMessageKey("bank-details.title"))
+      }
+    }
 
     "Business Bank Account" should {
 

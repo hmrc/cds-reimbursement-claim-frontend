@@ -66,13 +66,13 @@
             @checkboxes(
                 field = form(s"$key"),
                 legendAsHeading = false,
-                legend = "",
+                legend = title,
                 items = options,
                 hint = None
             )
 
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
 
         }
 
-  }
+    }

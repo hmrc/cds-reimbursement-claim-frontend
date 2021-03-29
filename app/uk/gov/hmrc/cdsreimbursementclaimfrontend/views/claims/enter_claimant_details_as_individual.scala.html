@@ -20,7 +20,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -99,7 +98,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @fieldSet(messages(s"$key.individual-contact-address.label")) {
+            @fieldSet(messages(s"$key.individual-contact-address.label"), false) {
 
                 @inputText(
                     form = form,
@@ -151,14 +150,12 @@
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
 
-
                 @countryCode(
                     Country.countryCodes,
                     selected = form.data.get(countryCodeKey),
                     label = messages(s"${key}.address.line6.label"),
                     hasErrors = form.error(countryCodeKey).nonEmpty,
-                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}"),
-                    autoComplete = AutoCompleteType.Country
+                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}")
                 )
 
             }
@@ -167,7 +164,7 @@
                 form = form,
                 name = s"$key.add-company-details",
                 classes = "govuk-fieldset__legend--s govuk-!-padding-top-6",
-                legend = s"$key.add-company-details.label",
+                legend = messages(s"$key.add-company-details.label"),
                 legendAsHeading = false,
                 hintKey = None,
                 inline = true,
@@ -187,9 +184,8 @@
                 )
             )
 
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
+
         }
 
-
-
-}
+    }

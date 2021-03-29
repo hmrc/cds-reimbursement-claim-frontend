@@ -23,17 +23,15 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.i18n.Lang
-import play.api.libs.json.JsString
-import play.api.test.Helpers.{await, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpSupport {
+class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpSupport with ConnectorSpec {
 
   val config: Configuration = Configuration(
     ConfigFactory.parseString(
@@ -54,8 +52,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
     )
   )
 
-  val connector             = new DefaultClaimConnector(mockHttp, new ServicesConfig(config))
-  private val emptyJsonBody = "{}"
+  val connector = new DefaultClaimConnector(mockHttp, new ServicesConfig(config))
 
   "Claim Connector" when {
 
@@ -63,44 +60,13 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
     val defaultLanguage            = Lang.defaultLang
     val submitClaimRequest         = sample[SubmitClaimRequest]
 
-    val backEndUrl = "http://host3:123/cds-reimbursement-claim/claim"
+    val url = "http://host3:123/cds-reimbursement-claim/claim"
 
-    "handling request to submit claim" must {
-
-      "do a post http call and get the TPI-05 API response" in {
-        List(
-          HttpResponse(200, emptyJsonBody),
-          HttpResponse(200, JsString("claim response"), Map[String, Seq[String]]().empty)
-        ).foreach { httpResponse =>
-          withClue(s"For http response [${httpResponse.toString}]") {
-            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
-              Right(httpResponse)
-            )
-            await(connector.submitClaim(submitClaimRequest, defaultLanguage).value) shouldBe Right(httpResponse)
-          }
-        }
-      }
-    }
-
-    "return an error" when {
-      "internal server error" in {
-        List(
-          HttpResponse(500, emptyJsonBody)
-        ).foreach { httpResponse =>
-          withClue(s"For http response [${httpResponse.toString}]") {
-            mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
-              Right(httpResponse)
-            )
-            await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true
-          }
-        }
-      }
-      "the future fails" in {
-        mockPost(backEndUrl, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(
-          Left(new Throwable("boom"))
-        )
-        await(connector.submitClaim(submitClaimRequest, defaultLanguage).value).isLeft shouldBe true
-      }
+    "handling requests to submit claim" must {
+      behave like connectorBehaviour(
+        mockPost(url, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(_),
+        () => connector.submitClaim(submitClaimRequest, defaultLanguage)
+      )
     }
 
   }

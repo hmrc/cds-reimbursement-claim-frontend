@@ -50,30 +50,30 @@
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-    @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-    @pageHeading(title)
+        @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-    @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"${key}.paid-amount-label", formatAmountOfMoneyWithPoundSign(claim.paidAmount))), Some("govuk-body"))
+            @paragraph(Html(messages(s"${key}.paid-amount-label", formatAmountOfMoneyWithPoundSign(claim.paidAmount))), Some("govuk-body"))
 
-        @inputText(
-            form = form,
-            id = key,
-            name = key,
-            label = messages(s"$key.claim-amount"),
-            labelClasses = Some("govuk-label govuk-label--s"),
-            isPageHeading = false,
-            classes = Some("govuk-input govuk-input--width-5"),
-            hint = Some(s"${key}.claim-amount.hint"),
-            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
-        )
+            @inputText(
+                form = form,
+                id = key,
+                name = key,
+                label = s"$key.claim-amount",
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                classes = Some("govuk-input govuk-input--width-5"),
+                hint = Some(s"${key}.claim-amount.hint"),
+                prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
+            )
 
-        @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
+
+        }
 
     }
-
-}

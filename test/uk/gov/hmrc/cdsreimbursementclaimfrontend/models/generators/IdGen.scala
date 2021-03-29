@@ -21,7 +21,6 @@ import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
-import org.scalacheck.ScalacheckShapeless._
 
 object IdGen extends GenUtils {
 
@@ -29,9 +28,12 @@ object IdGen extends GenUtils {
 
   implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
 
-  implicit val eoriGen: Gen[Eori] = gen[Eori]
+  implicit val eoriGen: Gen[Eori] = Arbitrary(for {
+    c <- Gen.listOfN(2, Gen.alphaUpperChar)
+    n <- Gen.listOfN(12, Gen.numChar)
+  } yield Eori(s"${c.mkString}${n.mkString}")).arbitrary
 
-  implicit val mrn: Gen[MRN] = Arbitrary(for {
+  implicit val mrnGen: Gen[MRN] = Arbitrary(for {
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)

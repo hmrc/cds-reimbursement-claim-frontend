@@ -76,6 +76,7 @@
 
             @checkboxes(
                 field = form(s"$key.is-business-account"),
+                singleton = true,
                 legendAsHeading = false,
                 legend = "",
                 items = options,
@@ -104,8 +105,8 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
 
         }
 
-}
+    }

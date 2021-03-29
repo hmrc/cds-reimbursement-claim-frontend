@@ -51,6 +51,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 form = form,
                 legendContent = s"$key.date-of-import.label",
                 legendClasses = "govuk-fieldset__legend--s",
+                legendAsPageHeading = false,
                 id = key
             )
 
@@ -109,7 +110,6 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-
             @inputText(
                 form = form,
                 id = s"$key.declarant-email-address",
@@ -132,7 +132,8 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
+            @submitButton("button.continue")
 
-            @submitButton(messages("button.continue"))
         }
-}
+
+    }

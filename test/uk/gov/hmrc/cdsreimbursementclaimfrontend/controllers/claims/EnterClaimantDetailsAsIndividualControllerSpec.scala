@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 
 class EnterClaimantDetailsAsIndividualControllerSpec extends ControllerSpec {
 
@@ -53,90 +54,106 @@ class EnterClaimantDetailsAsIndividualControllerSpec extends ControllerSpec {
 
     "Name" should {
       "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(fullName, List.fill(512)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(fullName, alphaNumGen(512))).errors
         errors shouldBe Nil
       }
       "Reject names too long" in {
-        val errors = form.bind(goodData.updated(fullName, List.fill(513)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(fullName, alphaNumGen(513))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
     "Email" should {
       "Accept longest possible email" in {
-        val email  = List.fill(116)("a").mkString("") + "@abc.com" //Allthogether 124
+        val email  = List.fill(233)("a").mkString("") + "@abc.com" //Allthogether 124
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
         errors shouldBe Nil
       }
       "Reject email too long" in {
-        val email  = List.fill(117)("a").mkString("") + "@abc.com" //Allthogether 125
+        val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 125
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
     "Phone" should {
       "Accept longest possible number" in {
-        val errors = form.bind(goodData.updated(phone, List.fill(30)("1").mkString(""))).errors
+        val errors = form.bind(goodData.updated(phone, numStringGen(30))).errors
         errors shouldBe Nil
       }
       "Reject numbers too long" in {
-        val errors = form.bind(goodData.updated(phone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
+        val errors = form.bind(goodData.updated(phone, numStringGen(31))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }
 
     "Address Line 1" should {
       "Accept longest possible address line" in {
-        val errors = form.bind(goodData.updated(addressLine1, List.fill(35)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine1, alphaNumGen(35))).errors
         errors shouldBe Nil
       }
       "Reject address lines too long" in {
-        val errors = form.bind(goodData.updated(addressLine1, List.fill(36)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine1, alphaNumGen(36))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
       }
     }
 
     "Address Line 2" should {
       "Accept longest possible address line" in {
-        val errors = form.bind(goodData.updated(addressLine2, List.fill(35)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine2, alphaNumGen(35))).errors
         errors shouldBe Nil
       }
       "Reject address lines too long" in {
-        val errors = form.bind(goodData.updated(addressLine2, List.fill(36)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine2, alphaNumGen(36))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
       }
     }
 
     "Address Line 3" should {
       "Accept longest possible address line" in {
-        val errors = form.bind(goodData.updated(addressLine3, List.fill(35)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine3, alphaNumGen(35))).errors
         errors shouldBe Nil
       }
       "Reject address lines too long" in {
-        val errors = form.bind(goodData.updated(addressLine3, List.fill(36)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine3, alphaNumGen(36))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
       }
     }
 
     "Address Line 4" should {
       "Accept longest possible address line" in {
-        val errors = form.bind(goodData.updated(addressLine4, List.fill(35)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine4, alphaNumGen(35))).errors
         errors shouldBe Nil
       }
       "Reject address lines too long" in {
-        val errors = form.bind(goodData.updated(addressLine4, List.fill(36)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(addressLine4, alphaNumGen(36))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
       }
     }
 
     "Postcode" should {
       "Accept longest possible post code" in {
-        val errors = form.bind(goodData.updated(postCode, List.fill(9)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(postCode, "BD17 7DG")).errors
         errors shouldBe Nil
       }
+      "Reject post code too long after trim" in {
+        val errors = form.bind(goodData.updated(postCode, "BDD17 7DG")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooLong")
+      }
+      "Reject invalid post code" in {
+        val errors = form.bind(goodData.updated(postCode, "BDD7 7DG")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.pattern")
+      }
       "Reject post code if too long" in {
-        val errors = form.bind(goodData.updated(postCode, List.fill(10)("a").mkString(""))).errors
+        val errors = form.bind(goodData.updated(postCode, "BD17 7DGGA")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+      }
+      "Accept Anything outside of the UK" in {
+        val errors = form.bind(goodData.updated(countryCode, "IS").updated(postCode, "AA2")).errors
+        errors shouldBe Nil
+      }
+      "Reject Anything outside of the UK if it's too long" in {
+        val errors = form.bind(goodData.updated(countryCode, "IS").updated(postCode, "1234567890")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }

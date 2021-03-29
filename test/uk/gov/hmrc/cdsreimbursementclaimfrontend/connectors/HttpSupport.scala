@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.scalamock.handlers.{CallHandler4, CallHandler7}
+import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait HttpSupport { this: MockFactory =>
+trait HttpSupport { this: MockFactory with Matchers ⇒
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   val mockHttp: HttpClient = mock[HttpClient]
@@ -32,7 +32,7 @@ trait HttpSupport { this: MockFactory =>
   def mockGet[A](
     url: String
   )(
-    response: Either[Throwable, A]
+    response: Option[A]
   ): CallHandler4[String, HttpReads[A], HeaderCarrier, ExecutionContext, Future[A]] =
     (mockHttp
       .GET(_: String)( //TODO: make one for accepting only URL
@@ -47,18 +47,55 @@ trait HttpSupport { this: MockFactory =>
           _: HeaderCarrier,
           _: ExecutionContext
         ) ⇒
+          // use matchers here to get useful error messages when the following predicates
+          // are not satisfied - otherwise it is difficult to tell in the logs what went wrong
           u shouldBe url
           true
       })
       .returning(
-        response.fold[Future[A]](Future.failed, Future.successful)
+        response.fold(
+          Future.failed[A](new Exception("Test exception message"))
+        )(Future.successful)
+      )
+
+  def mockGetWithQueryWithHeaders[A](
+    url: String,
+    queryParams: Seq[(String, String)],
+    headers: Seq[(String, String)]
+  )(
+    response: Option[A]
+  ): Any =
+    (mockHttp
+      .GET(_: String, _: Seq[(String, String)], _: Seq[(String, String)])(
+        _: HttpReads[A],
+        _: HeaderCarrier,
+        _: ExecutionContext
+      ))
+      .expects(where {
+        (
+          u: String,
+          q: Seq[(String, String)],
+          hdrs: Seq[(String, String)],
+          _: HttpReads[A],
+          _: HeaderCarrier,
+          _: ExecutionContext
+        ) ⇒
+          // use matchers here to get useful error messages when the following predicates
+          // are not satisfied - otherwise it is difficult to tell in the logs what went wrong
+          u    shouldBe url
+          q    shouldBe queryParams.toSeq
+          hdrs shouldBe headers.toSeq
+          true
+      })
+      .returning(
+        response.fold(
+          Future.failed[A](new Exception("Test exception message"))
+        )(Future.successful)
       )
 
   def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(
-    result: Either[Throwable, HttpResponse]
-  ): CallHandler7[String, A, Seq[(String, String)], Writes[A], HttpReads[
-    HttpResponse
-  ], HeaderCarrier, ExecutionContext, Future[HttpResponse]] =
+    result: Option[HttpResponse]
+  ): Unit =
     (mockHttp
       .POST(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],
@@ -66,9 +103,30 @@ trait HttpSupport { this: MockFactory =>
         _: HeaderCarrier,
         _: ExecutionContext
       ))
+      .expects(url, body, headers.toSeq, *, *, *, *)
+      .returning(
+        result.fold[Future[HttpResponse]](
+          Future.failed(new Exception("Test exception message"))
+        )(Future.successful)
+      )
+
+  def mockPut[A](
+    url: String,
+    body: A,
+    headers: Seq[(String, String)] = Seq.empty
+  )(result: Option[HttpResponse]): Unit =
+    (mockHttp
+      .PUT(_: String, _: A, _: Seq[(String, String)])(
+        _: Writes[A],
+        _: HttpReads[HttpResponse],
+        _: HeaderCarrier,
+        _: ExecutionContext
+      ))
       .expects(url, body, headers, *, *, *, *)
       .returning(
-        result.fold[Future[HttpResponse]](Future.failed, Future.successful)
+        result.fold[Future[HttpResponse]](
+          Future.failed(new Exception("Test exception message"))
+        )(Future.successful)
       )
 
 }

@@ -20,7 +20,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.AutoCompleteType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController._
 
@@ -95,7 +94,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @fieldSet(messages(s"$key.importer-contact-address.label")) {
+            @fieldSet(messages(s"$key.importer-contact-address.label"), false) {
 
                 @inputText(
                     form = form,
@@ -147,18 +146,18 @@
                     labelClasses = Some("govuk-label govuk-label--s")
                 )
 
-
                 @countryCode(
                     Country.countryCodes,
                     selected = form.data.get(countryCodeKey),
                     label = messages(s"${key}.address.line6.label"),
                     hasErrors = form.error(countryCodeKey).nonEmpty,
-                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}"),
-                    autoComplete = AutoCompleteType.Country
+                    errorKey = form.error(countryCodeKey).map(e => s"${e.message}")
                 )
 
             }
 
-            @submitButton(messages("button.continue"))
+            @submitButton("button.continue")
+
         }
-}
+
+    }
