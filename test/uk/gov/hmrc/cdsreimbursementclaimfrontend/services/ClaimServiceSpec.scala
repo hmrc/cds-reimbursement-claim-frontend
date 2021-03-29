@@ -266,7 +266,7 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         val httpResponse    = HttpResponse(500, "")
         mockBusinessReputationConnector(Json.toJson(businessRequest))(Right(httpResponse))
         val response        = await(claimService.getBusinessAccountReputation(businessRequest).value)
-        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500, body: "))
+        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500"))
       }
 
       "Fail when the returned JSON cannot be parsed" in {
@@ -311,7 +311,7 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         val httpResponse = HttpResponse(500, "")
         mockPersonalReputationConnector(Json.toJson(personalRequest))(Right(httpResponse))
         val response     = await(claimService.getPersonalAccountReputation(personalRequest).value)
-        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500, body: "))
+        response shouldBe Left(Error("Call to Business Reputation Service (BARS) failed with: 500"))
       }
 
       "Fail when the returned JSON cannot be parsed" in {
