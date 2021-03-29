@@ -23,7 +23,8 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
 @()(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
@@ -82,23 +83,6 @@
         </ul>
 
 
-        <div class="space-document-type">
-        @details(messages(s"$key.details.heading"),
-         Html(s"""|
-                   |<ul class="govuk-list govuk-list--bullet">
-                   |<li> ${messages(s"$key.details.l1")} </li>
-                   |<li> ${messages(s"$key.details.l2")} </li>
-                   |<li> ${messages(s"$key.details.l3")} </li>
-                   |<li> ${messages(s"$key.details.l4")} </li>
-                   |<li> ${messages(s"$key.details.l5")} </li>
-                   |<li> ${messages(s"$key.details.l6")} </li>
-                   |<li> ${messages(s"$key.details.l7")} </li>
-                   |<li> ${messages(s"$key.details.l8")} </li>
-                   |<li> ${messages(s"$key.details.l9")} </li>
-                   |<li> ${messages(s"$key.details.l10")} </li>
-                   |</ul>
-                   |""".stripMargin
-         ))
-        </div>
+        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.landingDropDownContent)
 
     }

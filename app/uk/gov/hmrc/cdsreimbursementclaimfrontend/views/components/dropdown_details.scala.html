@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+@import play.api.i18n._
+@import play.twirl.api.Html
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
-import play.api.i18n.MessagesApi
-import play.api.test.FakeRequest
+@this(govukDetails: GovukDetails)
 
-class LandingPageControllerSpec extends ControllerSpec {
+@(summary:String, content:Html)(implicit messages: Messages)
 
-  lazy val controller: LandingPageController = instanceOf[LandingPageController]
-  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
-
-  "Landing Page Controller" when {
-    "displaying the landing page" must {
-      checkPageIsDisplayed(controller.landing()(FakeRequest()), messageFromMessageKey("landing.title"))
-    }
-  }
-
-}
+@govukDetails(Details(summary = HtmlContent(messages(summary)), content = HtmlContent(content)))

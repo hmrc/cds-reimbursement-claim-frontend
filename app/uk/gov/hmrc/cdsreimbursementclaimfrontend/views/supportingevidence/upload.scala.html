@@ -25,9 +25,10 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    details : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.details,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input
+    fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input,
+    dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
+    dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
 @(upscanUpload : UpscanUpload, link: Call)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
@@ -63,22 +64,7 @@
 
         @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-        @details(messages(s"$key"),
-            Html(s"""|
-                    |<ul class="govuk-list govuk-list--bullet">
-                    |<li>${messages(s"$key.details.l0")}</li>
-                    |<li>${messages(s"$key.details.l1")}</li>
-                    |<li>${messages(s"$key.details.l2")}</li>
-                    |<li>${messages(s"$key.details.l3")}</li>
-                    |<li>${messages(s"$key.details.l4")}</li>
-                    |<li>${messages(s"$key.details.l5")}</li>
-                    |<li>${messages(s"$key.details.l6")}</li>
-                    |<li>${messages(s"$key.details.l7")}</li>
-                    |<li>${messages(s"$key.details.l8")}</li>
-                    |<li>${messages(s"$key.details.l9")}</li>
-                    |</ul>
-                    |""".stripMargin
-        ))
+        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.uploadDropDownContent)
 
         <form action="@href" method="post" enctype="multipart/form-data">
 
