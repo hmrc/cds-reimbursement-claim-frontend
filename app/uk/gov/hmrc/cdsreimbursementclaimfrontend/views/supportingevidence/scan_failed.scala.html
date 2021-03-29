@@ -15,7 +15,7 @@
  *@
 
 @import play.api.i18n.Messages
-
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -24,6 +24,7 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
@@ -38,12 +39,14 @@
 
         <p class="govuk-body">@{messages(s"$key.p1")}</p>
 
-        <ul class="govuk-list govuk-list-bullet">
-            <li>@messages(s"$key.bullet1")</li>
-            <li>@messages(s"$key.bullet2")</li>
-            <li>@messages(s"$key.bullet3")</li>
-            <li>@messages(s"$key.bullet4")</li>
-        </ul>
+        @bulletList(
+            Seq(
+                Html(messages(s"$key.bullet1")),
+                Html(messages(s"$key.bullet2")),
+                Html(messages(s"$key.bullet3")),
+                Html(messages(s"$key.bullet4"))
+            )
+        )
 
         <p class="govuk-body">@{messages(s"$key.p2")}</p>
         <p class="govuk-body">@{messages(s"$key.p3")}</p>
