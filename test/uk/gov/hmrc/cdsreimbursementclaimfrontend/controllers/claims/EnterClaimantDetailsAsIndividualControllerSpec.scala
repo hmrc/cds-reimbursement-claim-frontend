@@ -16,10 +16,93 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Result
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
-class EnterClaimantDetailsAsIndividualControllerSpec extends ControllerSpec {
+import scala.concurrent.Future
+
+class EnterClaimantDetailsAsIndividualControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with ScalaCheckDrivenPropertyChecks {
+
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache)
+    )
+
+  lazy val controller: EnterClaimantDetailsAsIndividualController =
+    instanceOf[EnterClaimantDetailsAsIndividualController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  private def sessionWithClaimState(
+    maybeClaimantDetailsAsIndividualAnswer: Option[ClaimantDetailsAsIndividualAnswer]
+  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    val draftC285Claim      =
+      DraftC285Claim.newDraftC285Claim.copy(claimantDetailsAsIndividualAnswers = maybeClaimantDetailsAsIndividualAnswer)
+    val ggCredId            = sample[GGCredId]
+    val email               = sample[Email]
+    val eori                = sample[Eori]
+    val signedInUserDetails =
+      SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey,
+      draftC285Claim
+    )
+  }
+
+  "Enter Claimant Details As Individual controller" must {
+
+    "redirect to the start of the journey" when {
+
+      "there is no journey status in the session" in {
+
+        def performAction(): Future[Result] = controller.changeClaimantDetailsAsIndividual()(FakeRequest())
+
+        val answers = IncompleteClaimantDetailsAsIndividualAnswer.empty
+
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.StartController.start()
+        )
+
+      }
+
+    }
+  }
 
   "Form Validation" must {
     val form              = EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
