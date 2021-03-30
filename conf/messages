@@ -734,6 +734,7 @@ nonUkAddress-line2.error.tooLong=Enter a valid address line 2
 nonUkAddress-line3.error.tooLong=Enter a valid address line 3
 nonUkAddress-line4.error.tooLong=Enter a valid address line 4
 postcode.error.maxLength=Enter a valid postcode
+postcode.error.invalidCharacters=Enter a valid postcode
 countryCode.error.required=Enter a country
 
 #===================================================
