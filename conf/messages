@@ -529,7 +529,7 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 #  BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
-bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records.
+bank-details.help-text=These are the details of where your reimbursements will be made in the UK based on our records. If you change these bank details, you will need to provide a letter of authority that proves these changes are genuine.
 bank-details.account-name.label=Account name
 bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number
