@@ -65,6 +65,6 @@
             value = form(s"$id.year").value
         )
     ),
-    hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
+    hint = hintText.map(hint => Hint(content = Text(messages(s"${id}.${hint}")))),
     errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(s"${id}.${err.message}", err.args:_*))))
 ))
