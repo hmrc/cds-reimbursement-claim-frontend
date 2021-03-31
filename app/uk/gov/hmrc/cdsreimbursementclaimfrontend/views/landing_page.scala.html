@@ -69,8 +69,13 @@
         )
 
         <p class="govuk-body">
-         <a href="@{routes.StartController.start()}" role="button" draggable="false" class="button button-start">@messages(s"$key.start-button")</a>
-		</p>
+            <a href="@{routes.StartController.start()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
+                @messages(s"$key.start-button")
+                <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+                </svg>
+            </a>
+        </p>
 
         <h2 class="govuk-heading-l">@messages(s"$key.before.heading")</h2>
 
