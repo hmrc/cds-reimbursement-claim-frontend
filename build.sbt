@@ -52,7 +52,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(routesImport := Seq("_root_.controllers.Assets.Asset"))
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
-    majorVersion := 0,
+    majorVersion := 1,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(
