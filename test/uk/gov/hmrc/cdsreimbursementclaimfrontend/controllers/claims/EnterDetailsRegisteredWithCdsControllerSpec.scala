@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import org.jsoup.Jsoup
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -35,10 +36,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DeclarantDetails, DisplayDeclaration, DisplayResponseDetail, EstablishmentAddress}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 
 import scala.concurrent.Future
 
-class EnterClaimantDetailsAsIndividualControllerSpec
+class EnterDetailsRegisteredWithCdsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -50,18 +56,22 @@ class EnterClaimantDetailsAsIndividualControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterClaimantDetailsAsIndividualController =
-    instanceOf[EnterClaimantDetailsAsIndividualController]
+  lazy val controller: EnterDetailsRegisteredWithCdsController =
+    instanceOf[EnterDetailsRegisteredWithCdsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeClaimantDetailsAsIndividualAnswer: Option[ClaimantDetailsAsIndividualAnswer]
+    maybeClaimantDetailsAsIndividualAnswer: Option[ClaimantDetailsAsIndividualAnswer],
+    declarantType: Option[DeclarantType] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(claimantDetailsAsIndividualAnswers = maybeClaimantDetailsAsIndividualAnswer)
+      DraftC285Claim.newDraftC285Claim.copy(
+        claimantDetailsAsIndividualAnswers = maybeClaimantDetailsAsIndividualAnswer,
+        declarantTypeAnswer = declarantType.map(dt => CompleteDeclarantTypeAnswer(dt))
+      )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
@@ -76,6 +86,51 @@ class EnterClaimantDetailsAsIndividualControllerSpec
       draftC285Claim
     )
   }
+
+  implicit class SessionUpdater(sessionData: SessionData) {
+    def withDeclarantType(declarantType: DeclarantType): SessionData =
+      sessionData.journeyStatus match {
+        case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+          val answer   = Some(CompleteDeclarantTypeAnswer(declarantType))
+          val newClaim = draftClaim.copy(declarantTypeAnswer = answer)
+          sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
+        case _                                                         => fail("Failed to update DeclarantType")
+      }
+  }
+
+  implicit class UpdateSessionWithAcc14Data(sessionData: SessionData) {
+    def withAcc14Data(acc14Response: DisplayResponseDetail): SessionData =
+      sessionData.journeyStatus match {
+        case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+          val answer   = Some(DisplayDeclaration(acc14Response))
+          val newClaim = draftClaim.copy(displayDeclaration = answer)
+          sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
+        case _                                                         => fail("Failed to update DisplayResponseDetail")
+      }
+
+  }
+
+  def getEstablishmentAddress(prefix: String): EstablishmentAddress =
+    EstablishmentAddress(
+      addressLine1 = s"$prefix.addLine1",
+      addressLine2 = Some(s"$prefix.addLine2"),
+      addressLine3 = Some(s"$prefix.addLine3"),
+      postalCode = Some(s"$prefix.pc"),
+      countryCode = "GB"
+    )
+
+  def getContactDetails(prefix: String): ContactDetails =
+    ContactDetails(
+      contactName = Some(s"$prefix.JohnSmith"),
+      addressLine1 = Some(s"$prefix.addLine1"),
+      addressLine2 = Some(s"$prefix.addLine2"),
+      addressLine3 = Some(s"$prefix.addLine3"),
+      addressLine4 = Some(s"$prefix.addLine4"),
+      postalCode = Some(s"$prefix.postalCode"),
+      countryCode = Some("GB"),
+      telephone = Some(s"$prefix.telephone"),
+      emailAddress = Some(s"$prefix.email")
+    )
 
   "Enter Claimant Details As Individual controller" must {
 
@@ -104,23 +159,117 @@ class EnterClaimantDetailsAsIndividualControllerSpec
     }
   }
 
+  "enterClaimantDetailsAsIndividual" must {
+
+    def performAction() = controller.enterClaimantDetailsAsIndividual()(FakeRequest())
+
+    "Show data from Acc14.consigneeDetails.establishmentAddress if DeclarantType = Importer" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val consignee            = sample[ConsigneeDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(consigneeDetails = Some(consignee))
+
+      val answers = IncompleteClaimantDetailsAsIndividualAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.Importer)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe consignee.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
+    }
+
+    "Show data from Acc14.consigneeDetails.establishmentAddress if DeclarantType = AssociatedWithImporterCompany" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val consignee            = sample[ConsigneeDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(consigneeDetails = Some(consignee))
+
+      val answers = IncompleteClaimantDetailsAsIndividualAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.AssociatedWithImporterCompany)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe consignee.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
+    }
+
+    "Show data from Acc14.declarantDetails.establishmentAddress if DeclarantType = AssociatedWithRepresentativeCompany" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val declarant            = sample[DeclarantDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(declarantDetails = declarant)
+
+      val answers = IncompleteClaimantDetailsAsIndividualAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.AssociatedWithRepresentativeCompany)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe declarant.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
+    }
+
+  }
+
   "Form Validation" must {
-    val form              = EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
-    val fullName          = "enter-claimant-details-individual.individual-full-name"
-    val emailAddress      = "enter-claimant-details-individual.individual-email"
-    val phone             = "enter-claimant-details-individual.individual-phone-number"
+    val form              = EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
+    val fullName          = "enter-claimant-details-as-registered-with-cds.individual-full-name"
+    val emailAddress      = "enter-claimant-details-as-registered-with-cds.individual-email"
     val addressLine1      = "nonUkAddress-line1"
     val addressLine2      = "nonUkAddress-line2"
     val addressLine3      = "nonUkAddress-line3"
     val addressLine4      = "nonUkAddress-line4"
     val postCode          = "postcode"
     val countryCode       = "countryCode"
-    val addCompanyDetails = "enter-claimant-details-individual.add-company-details"
+    val addCompanyDetails = "enter-claimant-details-as-registered-with-cds.add-company-details"
 
     val goodData = Map(
       fullName          -> "Magnus Magnusson",
       emailAddress      -> "mangus@email.com",
-      phone             -> "0155555555",
       addressLine1      -> "57 Jex Belaran",
       addressLine2      -> "Eisraim Road",
       addressLine3      -> "",
@@ -155,17 +304,6 @@ class EnterClaimantDetailsAsIndividualControllerSpec
       "Reject email too long" in {
         val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 125
         val errors = form.bind(goodData.updated(emailAddress, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Phone" should {
-      "Accept longest possible number" in {
-        val errors = form.bind(goodData.updated(phone, numStringGen(30))).errors
-        errors shouldBe Nil
-      }
-      "Reject numbers too long" in {
-        val errors = form.bind(goodData.updated(phone, numStringGen(31))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
       }
     }

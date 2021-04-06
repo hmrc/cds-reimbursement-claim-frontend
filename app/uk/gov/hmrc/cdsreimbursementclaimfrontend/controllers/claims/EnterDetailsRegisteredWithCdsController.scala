@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.toClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAdd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -47,13 +46,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EnterClaimantDetailsAsIndividualController @Inject() (
+class EnterDetailsRegisteredWithCdsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterClaimantDetailAsIndividualPage: pages.enter_claimant_details_as_individual
+  enterClaimantDetailAsIndividualPage: pages.enter_claimant_details_as_registered_with_cds
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -107,7 +106,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
               case Some(claimantDetailsAsIndividual) =>
                 Ok(
                   enterClaimantDetailAsIndividualPage(
-                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
                       claimantDetailsAsIndividual
                     )
                   )
@@ -119,26 +118,19 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                       case Some(declarantTypeAnswer) =>
                         declarantTypeAnswer.declarantType match {
                           case Some(declarantType) =>
-                            declarantType match {
-                              case DeclarantType.Importer =>
-                                Ok(
-                                  enterClaimantDetailAsIndividualPage(
-                                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
-                                      .fill(
-                                        toClaimantDetailsAsIndividual(
-                                          declaration,
-                                          fillingOutClaim.signedInUserDetails.verifiedEmail
-                                        )
-                                      )
-                                  )
-                                )
-                              case _                      =>
-                                Ok(
-                                  enterClaimantDetailAsIndividualPage(
-                                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
-                                  )
-                                )
+                            val email                       = fillingOutClaim.signedInUserDetails.verifiedEmail
+                            val claimantDetailsAsIndividual = declarantType match {
+                              case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
+                                consigneeToClaimantDetails(declaration, email)
+                              case DeclarantType.AssociatedWithRepresentativeCompany                    =>
+                                declarantToClaimantDetails(declaration, email)
                             }
+                            Ok(
+                              enterClaimantDetailAsIndividualPage(
+                                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
+                                  .fill(claimantDetailsAsIndividual)
+                              )
+                            )
                           case None                =>
                             Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                         }
@@ -148,7 +140,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
                   case None              =>
                     Ok(
                       enterClaimantDetailAsIndividualPage(
-                        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+                        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
                       )
                     )
                 }
@@ -156,7 +148,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
           ifComplete =>
             Ok(
               enterClaimantDetailAsIndividualPage(
-                EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
                   ifComplete.claimantDetailsAsIndividual
                 )
               )
@@ -168,7 +160,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
   def enterClaimantDetailsAsIndividualSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
-        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -251,7 +243,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
               case Some(claimantDetailsAsIndividual) =>
                 Ok(
                   enterClaimantDetailAsIndividualPage(
-                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
                       claimantDetailsAsIndividual
                     ),
                     isAmend = true
@@ -260,7 +252,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
               case None                              =>
                 Ok(
                   enterClaimantDetailAsIndividualPage(
-                    EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm,
+                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm,
                     isAmend = true
                   )
                 )
@@ -268,7 +260,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
           ifComplete =>
             Ok(
               enterClaimantDetailAsIndividualPage(
-                EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm.fill(
+                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
                   ifComplete.claimantDetailsAsIndividual
                 ),
                 isAmend = true
@@ -281,7 +273,7 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
   def changeClaimantDetailsAsIndividualSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
-        EnterClaimantDetailsAsIndividualController.claimantDetailsAsIndividualForm
+        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -393,12 +385,11 @@ class EnterClaimantDetailsAsIndividualController @Inject() (
 
 }
 
-object EnterClaimantDetailsAsIndividualController {
+object EnterDetailsRegisteredWithCdsController {
 
   final case class ClaimantDetailsAsIndividual(
     fullName: String,
     emailAddress: Email,
-    phoneNumber: PhoneNumber,
     contactAddress: NonUkAddress,
     addCompanyDetails: Boolean
   )
@@ -410,34 +401,53 @@ object EnterClaimantDetailsAsIndividualController {
 
   val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
     mapping(
-      "enter-claimant-details-individual.individual-full-name"    -> nonEmptyText(maxLength = 512),
-      "enter-claimant-details-individual.individual-email"        -> Email.mappingMaxLength,
-      "enter-claimant-details-individual.individual-phone-number" -> PhoneNumber.mapping,
-      ""                                                          -> Address.nonUkAddressFormMapping,
-      "enter-claimant-details-individual.add-company-details"     -> of(BooleanFormatter.formatter)
+      "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
+      "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
+      ""                                                                   -> Address.nonUkAddressFormMapping,
+      "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 
-  def toClaimantDetailsAsIndividual(
+  def consigneeToClaimantDetails(
     displayDeclaration: DisplayDeclaration,
     verifiedEmail: Email
   ): ClaimantDetailsAsIndividual = {
-    val declaration = displayDeclaration.displayResponseDetail
-    val d           = DisplayDeclaration.DisplayDeclarationOps(displayDeclaration)
-    val a           = declaration.consigneeDetails.flatMap(p => p.contactDetails)
+    val declaration          = displayDeclaration.displayResponseDetail
+    val establishmentAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
     ClaimantDetailsAsIndividual(
-      d.consigneeName.getOrElse(""),
+      declaration.consigneeDetails.map(_.legalName).getOrElse(""),
       verifiedEmail,
-      PhoneNumber(d.consigneeTelephone.getOrElse("")),
       NonUkAddress(
-        a.flatMap(s => s.addressLine1).getOrElse(""),
-        a.flatMap(s => s.addressLine2),
+        establishmentAddress.map(_.addressLine1).getOrElse(""),
+        establishmentAddress.flatMap(_.addressLine2),
         None,
-        a.flatMap(s => s.addressLine3).getOrElse(""),
-        a.flatMap(s => s.postalCode).getOrElse(""),
-        Country(a.flatMap(s => s.countryCode).getOrElse(""))
+        establishmentAddress.flatMap(_.addressLine3).getOrElse(""),
+        establishmentAddress.flatMap(_.postalCode).getOrElse(""),
+        establishmentAddress.map(cc => Country(cc.countryCode)).getOrElse(Country.uk)
       ),
       addCompanyDetails = false
     )
   }
+
+  def declarantToClaimantDetails(
+    displayDeclaration: DisplayDeclaration,
+    verifiedEmail: Email
+  ): ClaimantDetailsAsIndividual = {
+    val declaration          = displayDeclaration.displayResponseDetail
+    val establishmentAddress = declaration.declarantDetails.establishmentAddress
+    ClaimantDetailsAsIndividual(
+      declaration.declarantDetails.legalName,
+      verifiedEmail,
+      NonUkAddress(
+        establishmentAddress.addressLine1,
+        establishmentAddress.addressLine2,
+        None,
+        establishmentAddress.addressLine3.getOrElse(""),
+        establishmentAddress.postalCode.getOrElse(""),
+        Country(establishmentAddress.countryCode)
+      ),
+      addCompanyDetails = false
+    )
+  }
+
 }

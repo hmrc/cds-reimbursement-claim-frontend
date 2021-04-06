@@ -126,7 +126,7 @@ class SelectBasisForClaimControllerSpec
             doc
               .select("a.govuk-back-link")
               .attr("href") shouldBe
-              routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual().url
+              routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual().url
         )
       }
 
@@ -157,7 +157,7 @@ class SelectBasisForClaimControllerSpec
             doc
               .select("a.govuk-back-link")
               .attr("href") shouldBe
-              routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual().url
+              routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual().url
         )
       }
 

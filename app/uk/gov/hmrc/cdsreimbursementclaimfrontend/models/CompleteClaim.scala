@@ -23,7 +23,7 @@ import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.ClaimantDetailsAsIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}

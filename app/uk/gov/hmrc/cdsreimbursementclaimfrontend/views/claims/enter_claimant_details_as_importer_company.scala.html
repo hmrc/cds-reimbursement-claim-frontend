@@ -41,7 +41,7 @@
     @addressKey = @{"nonUkAddress"}
 
     @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
 

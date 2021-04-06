@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.ClaimantDetailsAsIndividual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
