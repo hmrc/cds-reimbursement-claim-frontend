@@ -52,7 +52,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterClaimantDetailAsIndividualPage: pages.enter_claimant_details_as_individual
+  enterClaimantDetailAsIndividualPage: pages.enter_claimant_details_as_registered_with_cds
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -401,10 +401,10 @@ object EnterDetailsRegisteredWithCdsController {
 
   val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
     mapping(
-      "enter-claimant-details-individual.individual-full-name" -> nonEmptyText(maxLength = 512),
-      "enter-claimant-details-individual.individual-email"     -> Email.mappingMaxLength,
-      ""                                                       -> Address.nonUkAddressFormMapping,
-      "enter-claimant-details-individual.add-company-details"  -> of(BooleanFormatter.formatter)
+      "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
+      "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
+      ""                                                                   -> Address.nonUkAddressFormMapping,
+      "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
     )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
   )
 

@@ -28,11 +28,11 @@ POST        /who-is-the-declarant                                   uk.gov.hmrc.
 GET         /change-who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantType()
 POST        /change-who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit()
 
-GET         /enter-your-details-as-registered-with-CDS              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual()
-POST        /enter-your-details-as-registered-with-CDS              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividualSubmit()
+GET         /enter-your-details-as-registered-with-cds              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual()
+POST        /enter-your-details-as-registered-with-cds              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividualSubmit()
 
-GET         /change-your-details-as-registered-with-CDS             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual()
-POST        /change-your-details-as-registered-with-CDS             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividualSubmit()
+GET         /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual()
+POST        /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividualSubmit()
 
 GET         /enter-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
 POST        /enter-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit()

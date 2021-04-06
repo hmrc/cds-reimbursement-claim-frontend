@@ -182,13 +182,15 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val doc = Jsoup.parse(contentAsString(performAction()))
 
-      doc.getElementById("enter-claimant-details-individual.individual-full-name").`val`() shouldBe consignee.legalName
-      doc.getElementById("nonUkAddress-line1").`val`()                                     shouldBe establishmentAddress.addressLine1
-      doc.getElementById("nonUkAddress-line2").`val`()                                     shouldBe establishmentAddress.addressLine2.getOrElse(fail)
-      doc.getElementById("nonUkAddress-line3").`val`()                                     shouldBe ""
-      doc.getElementById("nonUkAddress-line4").`val`()                                     shouldBe establishmentAddress.addressLine3.getOrElse(fail)
-      doc.getElementById("postcode").`val`()                                               shouldBe establishmentAddress.postalCode.getOrElse(fail)
-      doc.select("#countryCode option[selected]").`val`()                                  shouldBe establishmentAddress.countryCode
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe consignee.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
     }
 
     "Show data from Acc14.consigneeDetails.establishmentAddress if DeclarantType = AssociatedWithImporterCompany" in {
@@ -210,13 +212,15 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val doc = Jsoup.parse(contentAsString(performAction()))
 
-      doc.getElementById("enter-claimant-details-individual.individual-full-name").`val`() shouldBe consignee.legalName
-      doc.getElementById("nonUkAddress-line1").`val`()                                     shouldBe establishmentAddress.addressLine1
-      doc.getElementById("nonUkAddress-line2").`val`()                                     shouldBe establishmentAddress.addressLine2.getOrElse(fail)
-      doc.getElementById("nonUkAddress-line3").`val`()                                     shouldBe ""
-      doc.getElementById("nonUkAddress-line4").`val`()                                     shouldBe establishmentAddress.addressLine3.getOrElse(fail)
-      doc.getElementById("postcode").`val`()                                               shouldBe establishmentAddress.postalCode.getOrElse(fail)
-      doc.select("#countryCode option[selected]").`val`()                                  shouldBe establishmentAddress.countryCode
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe consignee.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
     }
 
     "Show data from Acc14.declarantDetails.establishmentAddress if DeclarantType = AssociatedWithRepresentativeCompany" in {
@@ -238,28 +242,30 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val doc = Jsoup.parse(contentAsString(performAction()))
 
-      doc.getElementById("enter-claimant-details-individual.individual-full-name").`val`() shouldBe declarant.legalName
-      doc.getElementById("nonUkAddress-line1").`val`()                                     shouldBe establishmentAddress.addressLine1
-      doc.getElementById("nonUkAddress-line2").`val`()                                     shouldBe establishmentAddress.addressLine2.getOrElse(fail)
-      doc.getElementById("nonUkAddress-line3").`val`()                                     shouldBe ""
-      doc.getElementById("nonUkAddress-line4").`val`()                                     shouldBe establishmentAddress.addressLine3.getOrElse(fail)
-      doc.getElementById("postcode").`val`()                                               shouldBe establishmentAddress.postalCode.getOrElse(fail)
-      doc.select("#countryCode option[selected]").`val`()                                  shouldBe establishmentAddress.countryCode
+      doc
+        .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
+        .`val`()                                          shouldBe declarant.legalName
+      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe establishmentAddress.addressLine1
+      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe establishmentAddress.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe establishmentAddress.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()              shouldBe establishmentAddress.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`() shouldBe establishmentAddress.countryCode
     }
 
   }
 
   "Form Validation" must {
     val form              = EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
-    val fullName          = "enter-claimant-details-individual.individual-full-name"
-    val emailAddress      = "enter-claimant-details-individual.individual-email"
+    val fullName          = "enter-claimant-details-as-registered-with-cds.individual-full-name"
+    val emailAddress      = "enter-claimant-details-as-registered-with-cds.individual-email"
     val addressLine1      = "nonUkAddress-line1"
     val addressLine2      = "nonUkAddress-line2"
     val addressLine3      = "nonUkAddress-line3"
     val addressLine4      = "nonUkAddress-line4"
     val postCode          = "postcode"
     val countryCode       = "countryCode"
-    val addCompanyDetails = "enter-claimant-details-individual.add-company-details"
+    val addCompanyDetails = "enter-claimant-details-as-registered-with-cds.add-company-details"
 
     val goodData = Map(
       fullName          -> "Magnus Magnusson",
