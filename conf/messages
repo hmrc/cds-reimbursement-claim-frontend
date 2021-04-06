@@ -183,10 +183,10 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 enter-declarant-eori-number.input-label=Enter the EORI number
 
 #===================================================
-#  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
+#  ENTER CLAIMANT DETAILS AS REGISTERED WITH CDS
 #===================================================
-enter-claimant-details-individual.title=Enter your claimant details as an individual
-enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
+enter-claimant-details-individual.title=Enter your details as registered with CDS
+enter-claimant-details-individual.help-text=These are the details you used when registering with CDS.
 enter-claimant-details-individual.individual-full-name.label=Full name
 enter-claimant-details-individual.individual-full-name.help=This must be your legal name
 enter-claimant-details-individual.individual-full-name.error.required=Enter a full name
@@ -211,7 +211,7 @@ enter-claimant-details-individual.address.line5.label=Postcode
 enter-claimant-details-individual.address.line5.postcode.error.required=Enter a valid postcode
 enter-claimant-details-individual.address.line6.label=Country
 enter-claimant-details-individual.countryCode.error.required=Enter a country
-enter-claimant-details-individual.add-company-details.label=Do you want to add company details?
+enter-claimant-details-individual.add-company-details.label=Do you want to add contact details so we can contact you about this claim?
 enter-claimant-details-individual.add-company-details.no=No
 enter-claimant-details-individual.add-company-details.yes=Yes
 enter-claimant-details-individual.add-company-details.error.boolean=Choose if you want to add company details

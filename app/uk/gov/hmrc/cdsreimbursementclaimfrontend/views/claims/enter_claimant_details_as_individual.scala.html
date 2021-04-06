@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsIndividualController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -45,7 +45,7 @@
 
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsIndividualController.changeClaimantDetailsAsIndividualSubmit else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividualSubmit}
+    @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividualSubmit else routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividualSubmit}
     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
 
     @line1Key = @{s"$addressKey-line1"}
@@ -83,17 +83,6 @@
                 name = s"$key.individual-email",
                 label = s"$key.individual-email.label",
                 isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                labelClasses = Some("govuk-label govuk-label--s")
-            )
-
-            @inputText(
-                form = form,
-                id = s"$key.individual-phone-number",
-                name = s"$key.individual-phone-number",
-                label = s"$key.individual-phone-number.label",
-                isPageHeading = false,
-                hint = Some(s"$key.individual-phone-number.help"),
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
