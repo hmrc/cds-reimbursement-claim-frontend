@@ -57,7 +57,8 @@
                 legendContent = s"$key.date-of-import.label",
                 legendClasses = "govuk-fieldset__legend--s",
                 legendAsPageHeading = false,
-                id = key
+                id = key,
+                hintText = Some(messages(s"$key.date-of-import.help"))
             )
 
             @inputText(

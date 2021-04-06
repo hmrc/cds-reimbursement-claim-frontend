@@ -270,37 +270,16 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 #===================================================
 enter-declaration-details.title=Enter declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
-enter-declaration-details.error.required=This is error required
+enter-declaration-details.error.required=Enter a valid date of import  
+enter-declaration-details.error.invalid=Enter a valid date of import  
 enter-declaration-details.date-of-import.label=Date of import
-enter-declaration-details.hint=This is the date when the commodities arrived in the UK.
-
-enter-declaration-details.invalid=Enter a valid date
-
-enter-declaration-details.error.before1900=Enter a valid date of import silly
-enter-declaration-details.error.tooFarInFuture=Enter a date before today
-
-enter-declaration-details.day.error.dayAndYearRequired= Enter a valid date of import day and year 1
-enter-declaration-details.day.error.required= Enter a valid date of import day and year 2
-enter-declaration-details.error.dayAndYearRequired= Enter a valid date of import day and year 3
-
+enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
 enter-declaration-details.date-of-import.error.required= Enter a valid date of import
-
-
-enter-declaration-details.date-of-import.error.monthAndYearRequired = Enter a valid date of import
-
-enter-declaration-details.date-of-import.day.error.required= Enter a valid date of import
-enter-declaration-details.date-of-import.month.error.required= Enter a valid date of import
-enter-declaration-details.date-of-import.year.error.required=Enter a valid date of import
-
-enter-declaration-details.date-of-import.day.error.dayAndMonthRequired= Enter a valid date of import
-
-
-enter-declaration-details.date-of-import.month.error.monthAndYearRequired=Enter a valid date of import
-
+enter-declaration-details.error.before1900=Enter a valid date of import 
+enter-declaration-details.error.tooFarInFuture=Enter a date before today
 enter-declaration-details.place-of-import.label=Place of import
-enter-declaration-details.place-of-import.error.required=Enter a valid place of import 1
+enter-declaration-details.place-of-import.error.required=Enter a valid place of import
 enter-declaration-details.place-of-import.error.maxLength = Enter a valid place of import
-
 enter-declaration-details.place-of-import.help=This is where the commodities arrived in the UK. You can find the location on import documents.
 enter-declaration-details.importer-name.label=Importer name
 enter-declaration-details.importer-name.help=This is the legal name of the importer company or individual.
@@ -315,10 +294,6 @@ enter-declaration-details.declarant-email-address.label=Declarant email address
 enter-declaration-details.declarant-phone-number.label=Declarant phone number
 enter-declaration-details.declarant-phone-number.invalid=Enter a valid phone number
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
-
-
-
-
 enter-declaration-details.importer-name.error.required=Enter a valid importer name
 enter-declaration-details.importer-email-address.error.required=Enter a valid importer email address
 enter-declaration-details.importer-email-address.error.maxLength=Enter a valid importer email address
