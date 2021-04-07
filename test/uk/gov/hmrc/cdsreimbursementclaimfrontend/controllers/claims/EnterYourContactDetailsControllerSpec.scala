@@ -62,7 +62,7 @@ class EnterYourContactDetailsControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  val signedInUserEmail = "he.who.shall@not.be.named"
+  val signedInUserEmail = sample[Email]
 
   private def sessionWithClaimState(
     maybeClaimantDetailsAsImporterCompanyAnswer: Option[ContactDetailsAnswer]
@@ -73,7 +73,7 @@ class EnterYourContactDetailsControllerSpec
     val email               = sample[Email]
     val eori                = sample[Eori]
     val signedInUserDetails =
-      SignedInUserDetails(Some(email), eori, Email(signedInUserEmail), ContactName("Fred Bread"))
+      SignedInUserDetails(Some(email), eori, signedInUserEmail, ContactName("Fred Bread"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(
@@ -157,7 +157,7 @@ class EnterYourContactDetailsControllerSpec
         .`val`()                                                                    shouldBe contactDetails.contactName.getOrElse(fail)
       doc.getElementById("enter-your-contact-details.contact-phone-number").`val`() shouldBe contactDetails.telephone
         .getOrElse(fail)
-      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail.value
       doc.getElementById("nonUkAddress-line1").`val`()                              shouldBe contactDetails.addressLine1.getOrElse(fail)
       doc.getElementById("nonUkAddress-line2").`val`()                              shouldBe contactDetails.addressLine2.getOrElse(fail)
       doc.getElementById("nonUkAddress-line3").`val`()                              shouldBe ""
@@ -190,7 +190,7 @@ class EnterYourContactDetailsControllerSpec
         .`val`()                                                                    shouldBe contactDetails.contactName.getOrElse(fail)
       doc.getElementById("enter-your-contact-details.contact-phone-number").`val`() shouldBe contactDetails.telephone
         .getOrElse(fail)
-      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail.value
       doc.getElementById("nonUkAddress-line1").`val`()                              shouldBe contactDetails.addressLine1.getOrElse(fail)
       doc.getElementById("nonUkAddress-line2").`val`()                              shouldBe contactDetails.addressLine2.getOrElse(fail)
       doc.getElementById("nonUkAddress-line3").`val`()                              shouldBe ""
@@ -223,7 +223,7 @@ class EnterYourContactDetailsControllerSpec
         .`val`()                                                                    shouldBe contactDetails.contactName.getOrElse(fail)
       doc.getElementById("enter-your-contact-details.contact-phone-number").`val`() shouldBe contactDetails.telephone
         .getOrElse(fail)
-      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("enter-your-contact-details.contact-email").`val`()        shouldBe signedInUserEmail.value
       doc.getElementById("nonUkAddress-line1").`val`()                              shouldBe contactDetails.addressLine1.getOrElse(fail)
       doc.getElementById("nonUkAddress-line2").`val`()                              shouldBe contactDetails.addressLine2.getOrElse(fail)
       doc.getElementById("nonUkAddress-line3").`val`()                              shouldBe ""
