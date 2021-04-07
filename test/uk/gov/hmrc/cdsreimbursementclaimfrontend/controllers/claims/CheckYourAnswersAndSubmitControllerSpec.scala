@@ -126,7 +126,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = Some(completeDeclarantTypeAnswer),
     claimantDetailsAsIndividualAnswers = Some(completeClaimantDetailsAsIndividualAnswer),
-    claimantDetailsAsImporterCompanyAnswers = None,
+    contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     supportingEvidenceAnswers = Some(completeSupportingEvidenceAnswer),
