@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+import org.jsoup.Jsoup
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -25,20 +26,24 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.IncompleteClaimantDetailsAsImporterCompanyAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DeclarantDetails, DisplayDeclaration, DisplayResponseDetail, EstablishmentAddress}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
+import play.api.test.Helpers._
 import scala.concurrent.Future
 
-class EnterClaimantDetailsAsImporterCompanyControllerSpec
+class EnterYourContactDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -50,12 +55,14 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterClaimantDetailsAsImporterCompanyController =
-    instanceOf[EnterClaimantDetailsAsImporterCompanyController]
+  lazy val controller: EnterYourContactDetailsController =
+    instanceOf[EnterYourContactDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  val signedInUserEmail = "he.who.shall@not.be.named"
 
   private def sessionWithClaimState(
     maybeClaimantDetailsAsImporterCompanyAnswer: Option[ClaimantDetailsAsImporterCompanyAnswer]
@@ -67,7 +74,7 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec
     val email               = sample[Email]
     val eori                = sample[Eori]
     val signedInUserDetails =
-      SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+      SignedInUserDetails(Some(email), eori, Email(signedInUserEmail), ContactName("Fred Bread"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(
@@ -76,6 +83,156 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec
       journey,
       draftC285Claim
     )
+  }
+
+  implicit class UpdateSessionWithDeclarantType(sessionData: SessionData) {
+    def withDeclarantType(declarantType: DeclarantType): SessionData =
+      sessionData.journeyStatus match {
+        case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+          val answer   = Some(CompleteDeclarantTypeAnswer(declarantType))
+          val newClaim = draftClaim.copy(declarantTypeAnswer = answer)
+          sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
+        case _                                                         => fail("Failed to update DeclarantType")
+      }
+  }
+
+  implicit class UpdateSessionWithAcc14Data(sessionData: SessionData) {
+    def withAcc14Data(acc14Response: DisplayResponseDetail): SessionData =
+      sessionData.journeyStatus match {
+        case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+          val answer   = Some(DisplayDeclaration(acc14Response))
+          val newClaim = draftClaim.copy(displayDeclaration = answer)
+          sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
+        case _                                                         => fail("Failed to update DisplayResponseDetail")
+      }
+
+  }
+
+  def getEstablishmentAddress(prefix: String): EstablishmentAddress =
+    EstablishmentAddress(
+      addressLine1 = s"$prefix.addLine1",
+      addressLine2 = Some(s"$prefix.addLine2"),
+      addressLine3 = Some(s"$prefix.addLine3"),
+      postalCode = Some(s"$prefix.pc"),
+      countryCode = "GB"
+    )
+
+  def getContactDetails(prefix: String): ContactDetails =
+    ContactDetails(
+      contactName = Some(s"$prefix.JohnSmith"),
+      addressLine1 = Some(s"$prefix.addLine1"),
+      addressLine2 = Some(s"$prefix.addLine2"),
+      addressLine3 = Some(s"$prefix.addLine3"),
+      addressLine4 = Some(s"$prefix.addLine4"),
+      postalCode = Some(s"$prefix.postalCode"),
+      countryCode = Some("GB"),
+      telephone = Some(s"$prefix.telephone"),
+      emailAddress = Some(s"$prefix.email")
+    )
+
+  "enterContactDetails" must {
+
+    def performAction() = controller.enterClaimantDetailsAsImporterCompany()(FakeRequest())
+
+    "Show data from Acc14.consigneeDetails.contactDetails if DeclarantType = Importer" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val consignee            = sample[ConsigneeDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(consigneeDetails = Some(consignee))
+
+      val answers = IncompleteClaimantDetailsAsImporterCompanyAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.Importer)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-your-contact-details.importer-company-name")
+        .`val`()                                                                     shouldBe contactDetails.contactName.getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-phone-number").`val`() shouldBe contactDetails.telephone
+        .getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("nonUkAddress-line1").`val`()                               shouldBe contactDetails.addressLine1.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line2").`val`()                               shouldBe contactDetails.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()                               shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()                               shouldBe contactDetails.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()                                         shouldBe contactDetails.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`()                            shouldBe contactDetails.countryCode.getOrElse(fail)
+    }
+
+    "Show data from Acc14.consigneeDetails.contactDetails if DeclarantType = AssociatedWithImporterCompany" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val consignee            = sample[ConsigneeDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(consigneeDetails = Some(consignee))
+
+      val answers = IncompleteClaimantDetailsAsImporterCompanyAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.AssociatedWithImporterCompany)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-your-contact-details.importer-company-name")
+        .`val`()                                                                     shouldBe contactDetails.contactName.getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-phone-number").`val`() shouldBe contactDetails.telephone
+        .getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("nonUkAddress-line1").`val`()                               shouldBe contactDetails.addressLine1.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line2").`val`()                               shouldBe contactDetails.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()                               shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()                               shouldBe contactDetails.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()                                         shouldBe contactDetails.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`()                            shouldBe contactDetails.countryCode.getOrElse(fail)
+    }
+
+    "Show data from Acc14.declarantDetails.contactDetails if DeclarantType = AssociatedWithRepresentativeCompany" in {
+      val contactDetails       = getContactDetails("acc14.cons.cont")
+      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
+      val declarant            = sample[DeclarantDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val acc14Response        = sample[DisplayResponseDetail].copy(declarantDetails = declarant)
+
+      val answers = IncompleteClaimantDetailsAsImporterCompanyAnswer.empty
+      val session = sessionWithClaimState(Some(answers))._1
+        .withDeclarantType(DeclarantType.AssociatedWithRepresentativeCompany)
+        .withAcc14Data(acc14Response)
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val doc = Jsoup.parse(contentAsString(performAction()))
+
+      doc
+        .getElementById("enter-your-contact-details.importer-company-name")
+        .`val`()                                                                     shouldBe contactDetails.contactName.getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-phone-number").`val`() shouldBe contactDetails.telephone
+        .getOrElse(fail)
+      doc.getElementById("enter-your-contact-details.importer-email").`val`()        shouldBe signedInUserEmail
+      doc.getElementById("nonUkAddress-line1").`val`()                               shouldBe contactDetails.addressLine1.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line2").`val`()                               shouldBe contactDetails.addressLine2.getOrElse(fail)
+      doc.getElementById("nonUkAddress-line3").`val`()                               shouldBe ""
+      doc.getElementById("nonUkAddress-line4").`val`()                               shouldBe contactDetails.addressLine3.getOrElse(fail)
+      doc.getElementById("postcode").`val`()                                         shouldBe contactDetails.postalCode.getOrElse(fail)
+      doc.select("#countryCode option[selected]").`val`()                            shouldBe contactDetails.countryCode.getOrElse(fail)
+    }
+
   }
 
   "Enter Claimant Details As Importer Company controller" must {
@@ -106,10 +263,10 @@ class EnterClaimantDetailsAsImporterCompanyControllerSpec
   }
 
   "Form Validation" must {
-    val form         = EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
-    val fullName     = "enter-claimant-details-importer-company.importer-company-name"
-    val emailAddress = "enter-claimant-details-importer-company.importer-email"
-    val phone        = "enter-claimant-details-importer-company.importer-phone-number"
+    val form         = EnterYourContactDetailsController.claimantDetailsAsImporterCompanyForm
+    val fullName     = "enter-your-contact-details.importer-company-name"
+    val emailAddress = "enter-your-contact-details.importer-email"
+    val phone        = "enter-your-contact-details.importer-phone-number"
     val addressLine1 = "nonUkAddress-line1"
     val addressLine2 = "nonUkAddress-line2"
     val addressLine3 = "nonUkAddress-line3"

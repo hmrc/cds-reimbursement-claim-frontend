@@ -205,7 +205,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 _ =>
                   if (claimantDetailsAsIndividual.addCompanyDetails) {
                     Redirect(
-                      routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
+                      routes.EnterYourContactDetailsController.enterClaimantDetailsAsImporterCompany()
                     )
                   } else {
                     fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
@@ -371,7 +371,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       },
                       _ =>
                         Redirect(
-                          routes.EnterClaimantDetailsAsImporterCompanyController
+                          routes.EnterYourContactDetailsController
                             .changeClaimantDetailsAsImporterCompany()
                         )
                     )

@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController._
 
 @this(
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
@@ -37,10 +37,10 @@
 
 @(form : Form[ClaimantDetailsAsImporterCompany], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-claimant-details-importer-company"}
+    @key = @{"enter-your-contact-details"}
     @addressKey = @{"nonUkAddress"}
 
-    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
+    @postAction = @{if(isAmend) routes.EnterYourContactDetailsController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterYourContactDetailsController.enterClaimantDetailsAsImporterCompanySubmit}
     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
@@ -109,7 +109,7 @@
                 @inputText(
                     form = form,
                     id = line2Key,
-                    name = line3Key,
+                    name = line2Key,
                     label = s"$key.address.line2.label",
                     isPageHeading = false,
                     classes = Some("govuk-input--width-20"),

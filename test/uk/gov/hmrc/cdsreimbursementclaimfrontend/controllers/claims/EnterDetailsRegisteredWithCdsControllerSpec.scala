@@ -87,7 +87,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
     )
   }
 
-  implicit class SessionUpdater(sessionData: SessionData) {
+  implicit class UpdateSessionWithDeclarantType(sessionData: SessionData) {
     def withDeclarantType(declarantType: DeclarantType): SessionData =
       sessionData.journeyStatus match {
         case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>

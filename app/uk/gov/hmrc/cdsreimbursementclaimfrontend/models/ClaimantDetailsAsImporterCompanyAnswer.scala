@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.ClaimantDetailsAsImporterCompany
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ClaimantDetailsAsImporterCompany
 
 sealed trait ClaimantDetailsAsImporterCompanyAnswer extends Product with Serializable
 
