@@ -16,40 +16,376 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
+import play.api.mvc.Result
+import play.api.test.FakeRequest
+import play.api.test.Helpers.BAD_REQUEST
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.IncompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
-class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
+import java.time.LocalDate
+import scala.concurrent.Future
+
+class EnterDeclarationDetailsControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with ScalaCheckDrivenPropertyChecks {
+
+  override val overrideBindings: List[GuiceableModule] =
+    List[GuiceableModule](
+      bind[AuthConnector].toInstance(mockAuthConnector),
+      bind[SessionCache].toInstance(mockSessionCache)
+    )
+
+  lazy val controller: EnterDeclarationDetailsController = instanceOf[EnterDeclarationDetailsController]
+
+  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  private def sessionWithClaimState(
+    maybeDeclarationDetailsAnswer: Option[DeclarationDetailsAnswer]
+  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    val draftC285Claim      =
+      DraftC285Claim.newDraftC285Claim.copy(declarationDetailsAnswer = maybeDeclarationDetailsAnswer)
+    val ggCredId            = sample[GGCredId]
+    val signedInUserDetails = sample[SignedInUserDetails]
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey,
+      draftC285Claim
+    )
+  }
+
+  "Enter Declaration Details controller" must {
+
+    "redirect to the start of the journey" when {
+      "there is no journey status in the session" in {
+
+        def performAction(): Future[Result] = controller.changeDeclarationDetails()(FakeRequest())
+
+        val answers = IncompleteDeclarationDetailsAnswer.empty
+
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.StartController.start()
+        )
+      }
+    }
+
+    "show an error summary" when {
+
+      "the user does not select any options" in {
+
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.enterDeclarationDetailsSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
+        val place          = "Newtown"
+        val importerName   = "The Importer"
+        val importerEmail  = Email("importer@mac.com")
+        val importerPhone  = PhoneNumber("07954673645")
+        val declarantName  = "Gertrude Blunderbuss"
+        val declarantEmail = Email("GF@mac.com")
+        val declarantPhone = PhoneNumber("08689453645")
+
+        val answers = CompleteDeclarationDetailsAnswer(
+          EntryDeclarationDetails(
+            date,
+            place,
+            importerName,
+            importerEmail,
+            importerPhone,
+            declarantName,
+            declarantEmail,
+            declarantPhone
+          )
+        )
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            Seq.empty
+          ),
+          messageFromMessageKey("enter-declaration-details.title"),
+          doc => {
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(1) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(2) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.place-of-import.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(3) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-name.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(4) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-email-address.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(5) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-phone-number.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(6) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-name.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(7) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-email-address.error.required"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(8) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-phone-number.error.required"
+            )
+          },
+          BAD_REQUEST
+        )
+      }
+
+      "an invalid option value too long is submitted" in {
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.enterDeclarationDetailsSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
+        val place          = "Newtown"
+        val importerName   = "The Importer"
+        val importerEmail  = Email("importer@mac.com")
+        val importerPhone  = PhoneNumber("07954673645")
+        val declarantName  = "Gertrude Blunderbuss"
+        val declarantEmail = Email("GF@mac.com")
+        val declarantPhone = PhoneNumber("08689453645")
+
+        val answers = CompleteDeclarationDetailsAnswer(
+          EntryDeclarationDetails(
+            date,
+            place,
+            importerName,
+            importerEmail,
+            importerPhone,
+            declarantName,
+            declarantEmail,
+            declarantPhone
+          )
+        )
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            Seq(
+              "enter-declaration-details.place-of-import"         -> List.fill(71)("a").mkString(""),
+              "enter-declaration-details.importer-name"           -> List.fill(71)("a").mkString(""),
+              "enter-declaration-details.importer-email-address"  -> List.fill(250)("a").mkString(""),
+              "enter-declaration-details.importer-phone-number"   -> List.fill(31)("1").mkString(""),
+              "enter-declaration-details.declarant-name"          -> List.fill(71)("a").mkString(""),
+              "enter-declaration-details.declarant-email-address" -> List.fill(250)("a").mkString(""),
+              "enter-declaration-details.declarant-phone-number"  -> List.fill(31)("1").mkString("")
+            )
+          ),
+          messageFromMessageKey("enter-declaration-details.title"),
+          doc => {
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(2) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.place-of-import.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(3) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-name.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(4) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-email-address.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(5) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-phone-number.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(6) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-name.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(7) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-email-address.error.maxLength"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(8) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-phone-number.error.maxLength"
+            )
+          },
+          BAD_REQUEST
+        )
+
+      }
+
+      "a phone number with chars is submitted" in {
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.enterDeclarationDetailsSubmit()(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
+        val place          = "Newtown"
+        val importerName   = "The Importer"
+        val importerEmail  = Email("importer@mac.com")
+        val importerPhone  = PhoneNumber("07954673645")
+        val declarantName  = "Gertrude Blunderbuss"
+        val declarantEmail = Email("GF@mac.com")
+        val declarantPhone = PhoneNumber("08689453645")
+
+        val answers = CompleteDeclarationDetailsAnswer(
+          EntryDeclarationDetails(
+            date,
+            place,
+            importerName,
+            importerEmail,
+            importerPhone,
+            declarantName,
+            declarantEmail,
+            declarantPhone
+          )
+        )
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(
+            Seq(
+              "enter-declaration-details.importer-email-address"  -> "myemail",
+              "enter-declaration-details.importer-phone-number"   -> "123456789a",
+              "enter-declaration-details.declarant-email-address" -> "myotheremail",
+              "enter-declaration-details.declarant-phone-number"  -> "123456789a"
+            )
+          ),
+          messageFromMessageKey("enter-declaration-details.title"),
+          doc => {
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(4) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-email-address.invalid"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(5) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.importer-phone-number.invalid"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(7) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-email-address.invalid"
+            )
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(8) > a")
+              .text() shouldBe messageFromMessageKey(
+              s"enter-declaration-details.declarant-phone-number.invalid"
+            )
+          },
+          BAD_REQUEST
+        )
+
+      }
+
+    }
+  }
 
   "Form Validation" must {
     val form              = EnterDeclarationDetailsController.entryDeclarationDetailsForm
     val dateOfImportDay   = "enter-declaration-details.day"
     val dateOfImportMonth = "enter-declaration-details.month"
     val dateOfImportYear  = "enter-declaration-details.year"
-    val placeOfImport     = "enter-declaration-details.place-of-import"
-    val importerName      = "enter-declaration-details.importer-name"
-    val importerEmail     = "enter-declaration-details.importer-email-address"
-    val importerPhone     = "enter-declaration-details.importer-phone-number"
-    val declarantName     = "enter-declaration-details.declarant-name"
-    val declarantEmail    = "enter-declaration-details.declarant-email-address"
-    val declarantPhone    = "enter-declaration-details.declarant-phone-number"
 
     val goodData = Map(
       dateOfImportDay   -> "20",
       dateOfImportMonth -> "3",
-      dateOfImportYear  -> "1987",
-      placeOfImport     -> "London",
-      importerName      -> "John Johanson",
-      importerEmail     -> "john@email.com",
-      importerPhone     -> "01987032000",
-      declarantName     -> "Magnus Magnusson",
-      declarantEmail    -> "mangus@email.com",
-      declarantPhone    -> "0155555555"
+      dateOfImportYear  -> "1987"
     )
-
-    "accept good declaration details" in {
-      val errors = form.bind(goodData).errors
-      errors shouldBe Nil
-    }
 
     "Day of Import" should {
       "Reject days too big" in {
@@ -65,11 +401,6 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       "Reject valid days in 3 digits" in {
         val errors = form.bind(goodData.updated(dateOfImportDay, "015")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-      }
-
-      "Accept valid padded days" in {
-        val errors = form.bind(goodData.updated(dateOfImportDay, "05")).errors
-        errors shouldBe Nil
       }
 
       "Reject days with chars" in {
@@ -92,11 +423,6 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
       "Reject valid months in 3 digits" in {
         val errors = form.bind(goodData.updated(dateOfImportMonth, "012")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-      }
-
-      "Accept valid padded months" in {
-        val errors = form.bind(goodData.updated(dateOfImportMonth, "05")).errors
-        errors shouldBe Nil
       }
 
       "Reject months with chars" in {
@@ -129,96 +455,5 @@ class EnterDeclarationDetailsControllerSpec extends ControllerSpec {
 
     }
 
-    "Place of Import" should {
-      "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(placeOfImport, List.fill(70)("a").mkString(""))).errors
-        errors shouldBe Nil
-      }
-
-      "Reject names too long" in {
-        val errors = form.bind(goodData.updated(placeOfImport, List.fill(71)("a").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Importer name" should {
-      "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(70)("a").mkString(""))).errors
-        errors shouldBe Nil
-      }
-      "Reject names too long" in {
-        val errors = form.bind(goodData.updated(importerName, List.fill(71)("a").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Importer email" should {
-      "Accept longest possible email" in {
-        val email  = List.fill(233)("a").mkString("") + "@abc.com" //Allthogether 241
-        val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors shouldBe Nil
-      }
-      "Reject email too long" in {
-        val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 242
-        val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Importer phone" should {
-      "Accept longest possible number" in {
-        val errors = form.bind(goodData.updated(importerPhone, List.fill(30)("1").mkString(""))).errors
-        errors shouldBe Nil
-      }
-      "Reject numbers too long" in {
-        val errors = form.bind(goodData.updated(importerPhone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-
-      "Reject non-numbers" in {
-        val errors = form.bind(goodData.updated(importerPhone, "123456789a")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
-      }
-    }
-
-    "Declarant name" should {
-      "Accept longest possible names" in {
-        val errors = form.bind(goodData.updated(declarantName, List.fill(70)("a").mkString(""))).errors
-        errors shouldBe Nil
-      }
-      "Reject names too long" in {
-        val errors = form.bind(goodData.updated(declarantName, List.fill(71)("a").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Declarant email" should {
-      "Accept longest possible email" in {
-        val email  = List.fill(233)("a").mkString("") + "@abc.com" //Allthogether 241
-        val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors shouldBe Nil
-      }
-      "Reject email too long" in {
-        val email  = List.fill(234)("a").mkString("") + "@abc.com" //Allthogether 242
-        val errors = form.bind(goodData.updated(importerEmail, email)).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-    "Declarant phone" should {
-      "Accept longest possible number" in {
-        val errors = form.bind(goodData.updated(declarantPhone, List.fill(30)("1").mkString(""))).errors
-        errors shouldBe Nil
-      }
-      "Reject numbers too long" in {
-        val errors = form.bind(goodData.updated(declarantPhone, List.fill(31)("1").mkString(""))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-
-      "Reject non-numbers" in {
-        val errors = form.bind(goodData.updated(declarantPhone, "123456789a")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
-      }
-    }
   }
 }

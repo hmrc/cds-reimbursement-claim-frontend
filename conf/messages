@@ -271,44 +271,42 @@ countryCode.enter-claimant-details-importer-company.error.required=Enter a count
 enter-declaration-details.title=Enter declaration details
 enter-declaration-details.help-text=These are the import date and place of import related to the entry number: <strong>{0}</strong>.
 enter-declaration-details.error.required=Enter a valid date of import  
-enter-declaration-details.error.invalid=Enter a valid date of import  
+enter-declaration-details.error.invalid=Enter a valid date of import 
 enter-declaration-details.date-of-import.label=Date of import
 enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
-enter-declaration-details.date-of-import.error.required= Enter a valid date of import
+enter-declaration-details.date-of-import.error.required=Enter a valid date of import
 enter-declaration-details.error.before1900=Enter a valid date of import 
 enter-declaration-details.error.tooFarInFuture=Enter a date before today
 enter-declaration-details.place-of-import.label=Place of import
 enter-declaration-details.place-of-import.error.required=Enter a valid place of import
-enter-declaration-details.place-of-import.error.maxLength = Enter a valid place of import
+enter-declaration-details.place-of-import.error.maxLength =Enter a valid place of import
 enter-declaration-details.place-of-import.help=This is where the commodities arrived in the UK. You can find the location on import documents.
 enter-declaration-details.importer-name.label=Importer name
 enter-declaration-details.importer-name.help=This is the legal name of the importer company or individual.
+enter-declaration-details.importer-name.error.required=Enter a valid importer name
+enter-declaration-details.importer-name.error.maxLength = Enter a valid importer name
 enter-declaration-details.importer-email-address.label=Importer email address
+enter-declaration-details.importer-email-address.invalid = Enter a valid importer email address
+enter-declaration-details.importer-email-address.error.required=Enter a valid importer email address
+enter-declaration-details.importer-email-address.error.maxLength=Enter a valid importer email address
 enter-declaration-details.importer-phone-number.label=Importer phone number
 enter-declaration-details.importer-phone-number.invalid=Enter a valid importer phone number
 enter-declaration-details.importer-phone-number.help=For international numbers include the country code.
-enter-declaration-details.importer-email-address.invalid = Enter a valid importer email address
+enter-declaration-details.importer-phone-number.error.required=Enter a valid importer phone number
+enter-declaration-details.importer-phone-number.error.maxLength=Enter a valid importer phone number
 enter-declaration-details.declarant-name.label=Declarant name
 enter-declaration-details.declarant-name.help=This is the name of the person who made the declaration.
+enter-declaration-details.declarant-name.error.required=Enter a valid declarant name
+enter-declaration-details.declarant-name.error.maxLength=Enter a valid declarant name
 enter-declaration-details.declarant-email-address.label=Declarant email address
+enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
+enter-declaration-details.declarant-email-address.error.required=Enter a valid declarant email address
+enter-declaration-details.declarant-email-address.error.maxLength=Enter a valid declarant email address
 enter-declaration-details.declarant-phone-number.label=Declarant phone number
 enter-declaration-details.declarant-phone-number.invalid=Enter a valid phone number
 enter-declaration-details.declarant-phone-number.help=For international numbers include the country code.
-enter-declaration-details.importer-name.error.required=Enter a valid importer name
-enter-declaration-details.importer-email-address.error.required=Enter a valid importer email address
-enter-declaration-details.importer-email-address.error.maxLength=Enter a valid importer email address
-enter-declaration-details.importer-phone-number.error.required=Enter a valid importer phone number
-enter-declaration-details.importer-phone-number.error.maxLength=Enter a valid importer phone number
-enter-declaration-details.declarant-phone-number.error.maxLength=Enter a valid importer phone number
-enter-declaration-details.declarant-name.error.required=Enter a valid declarant name
-enter-declaration-details.declarant-email-address.error.required=Enter a valid declarant email address
-enter-declaration-details.declarant-email-address.error.maxLength=Enter a valid declarant email address
-enter-declaration-details.declarant-phone-number.error.required=Enter a valid declarant phone number
-enter-declaration-details.declarant-email-address.invalid = Enter a valid declarant email address
-
-enter-declaration-details.importer-name.error.maxLength = Enter a valid importer name
-enter-declaration-details.declarant-name.error.maxLength = Enter a valid declarant name
-
+enter-declaration-details.declarant-phone-number.error.required=Enter a valid phone number
+enter-declaration-details.declarant-phone-number.error.maxLength=Enter a valid declarant phone number
 
 #===================================================
 #  SELECT DECLARANT TYPE PAGE
@@ -431,8 +429,6 @@ enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 enter-commodities-details.error.maxLength=Enter commodity details
-enter-commodities-details.error.required=Describe details of the commodity
-enter-commodities-details.error.maxLength=You cannot enter more than 500 characters.
 
 #===================================================
 #  MAKE CLAIM PAGES
