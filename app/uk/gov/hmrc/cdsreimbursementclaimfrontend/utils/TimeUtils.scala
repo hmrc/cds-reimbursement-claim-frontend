@@ -52,6 +52,7 @@ object TimeUtils {
     extraValidation: List[LocalDate => Either[FormError, Unit]] = List.empty
   ): Formatter[LocalDate] =
     new Formatter[LocalDate] {
+
       def dateFieldStringValues(
         data: Map[String, String]
       ): Either[FormError, (String, String, String)] =
@@ -61,19 +62,7 @@ object TimeUtils {
                 yearString
               ) :: Nil =>
             Right((dayString, monthString, yearString))
-          case None :: Some(_) :: Some(_) :: Nil =>
-            Left(FormError(dayKey, "error.required"))
-          case Some(_) :: None :: Some(_) :: Nil =>
-            Left(FormError(monthKey, "error.required"))
-          case Some(_) :: Some(_) :: None :: Nil =>
-            Left(FormError(yearKey, "error.required"))
-          case Some(_) :: None :: None :: Nil    =>
-            Left(FormError(monthKey, "error.monthAndYearRequired"))
-          case None :: Some(_) :: None :: Nil    =>
-            Left(FormError(dayKey, "error.dayAndYearRequired"))
-          case None :: None :: Some(_) :: Nil    =>
-            Left(FormError(dayKey, "error.dayAndMonthRequired"))
-          case _                                 => Left(FormError(dateKey, "error.required"))
+          case _ => Left(FormError(dateKey, "error.required"))
         }
 
       def toValidInt(

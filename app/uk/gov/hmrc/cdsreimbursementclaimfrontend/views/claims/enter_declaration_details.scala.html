@@ -57,36 +57,37 @@
                 legendContent = s"$key.date-of-import.label",
                 legendClasses = "govuk-fieldset__legend--s",
                 legendAsPageHeading = false,
-                id = key
+                id = key,
+                hintText = Some(s"$key.date-of-import.help")
             )
 
             @inputText(
                 form = form,
                 id = s"$key.place-of-import",
                 name = s"$key.place-of-import",
-                label = messages(s"$key.place-of-import.label"),
+                label = s"$key.place-of-import.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(messages(s"$key.place-of-import.help"))
+                hint = Some(s"$key.place-of-import.help")
             )
 
             @inputText(
                 form = form,
                 id = s"$key.importer-name",
                 name = s"$key.importer-name",
-                label = messages(s"$key.importer-name.label"),
+                label = s"$key.importer-name.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(messages(s"$key.importer-name.help"))
+                hint = Some(s"$key.importer-name.help")
             )
 
             @inputText(
                 form = form,
                 id = s"$key.importer-email-address",
                 name = s"$key.importer-email-address",
-                label = messages(s"$key.importer-email-address.label"),
+                label = s"$key.importer-email-address.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20")
@@ -96,29 +97,29 @@
                 form = form,
                 id = s"$key.importer-phone-number",
                 name = s"$key.importer-phone-number",
-                label = messages(s"$key.importer-phone-number.label"),
+                label = s"$key.importer-phone-number.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(messages(s"$key.importer-phone-number.help"))
+                hint = Some(s"$key.importer-phone-number.help")
             )
 
             @inputText(
                 form = form,
                 id = s"$key.declarant-name",
                 name = s"$key.declarant-name",
-                label = messages(s"$key.declarant-name.label"),
+                label = s"$key.declarant-name.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(messages(s"$key.declarant-name.help"))
+                hint = Some(s"$key.declarant-name.help")
             )
 
             @inputText(
                 form = form,
                 id = s"$key.declarant-email-address",
                 name = s"$key.declarant-email-address",
-                label = messages(s"$key.declarant-email-address.label"),
+                label = s"$key.declarant-email-address.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20")
@@ -128,11 +129,11 @@
                 form = form,
                 id = s"$key.declarant-phone-number",
                 name = s"$key.declarant-phone-number",
-                label = messages(s"$key.declarant-phone-number.label"),
+                label = s"$key.declarant-phone-number.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(messages(s"$key.declarant-phone-number.help"))
+                hint = Some(s"$key.declarant-phone-number.help")
             )
 
             @submitButton("button.continue")
