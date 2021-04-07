@@ -34,11 +34,11 @@ POST        /enter-your-details-as-registered-with-cds              uk.gov.hmrc.
 GET         /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual()
 POST        /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividualSubmit()
 
-GET         /enter-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
-POST        /enter-claimant-details-as-company                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit()
+GET         /enter-your-contact-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetails()
+POST        /enter-your-contact-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetailsSubmit()
 
-GET         /change-claimant-details-as-company                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany()
-POST        /change-claimant-details-as-company                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit()
+GET         /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
+POST        /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
 
 GET         /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim()
 POST        /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit()

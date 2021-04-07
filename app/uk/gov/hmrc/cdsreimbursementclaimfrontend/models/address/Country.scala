@@ -40,9 +40,7 @@ object Country {
   type CountryCode = String
 
   val countryCodes: List[CountryCode] = {
-    val source = Source.fromInputStream(
-      getClass.getResourceAsStream("/resources/countries.txt")
-    )
+    val source = Source.fromInputStream(getClass.getResourceAsStream("/resources/countries.txt"))
     try source.getLines().toList
     finally source.close()
   }

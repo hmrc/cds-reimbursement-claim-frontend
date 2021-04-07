@@ -338,7 +338,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   _.copy(
                     declarantTypeAnswer = Some(updatedAnswers),
                     claimantDetailsAsIndividualAnswers = None,
-                    claimantDetailsAsImporterCompanyAnswers = None,
+                    contactDetailsAnswer = None,
                     reasonForBasisAndClaimAnswer = None,
                     basisOfClaimAnswer = None,
                     duplicateDeclarationDetailsAnswer = None,

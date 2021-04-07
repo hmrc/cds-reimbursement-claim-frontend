@@ -42,7 +42,7 @@ object DraftClaim {
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
-    claimantDetailsAsImporterCompanyAnswers: Option[ClaimantDetailsAsImporterCompanyAnswer],
+    contactDetailsAnswer: Option[ContactDetailsAnswer],
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],

@@ -64,6 +64,7 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
+  .settings(resourceDirectories in Test += baseDirectory.value / "conf" / "resources")
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)

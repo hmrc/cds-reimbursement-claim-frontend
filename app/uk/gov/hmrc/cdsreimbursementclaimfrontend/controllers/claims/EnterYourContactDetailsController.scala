@@ -26,15 +26,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController.toClaimantDetailsAsImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsImporterCompanyAnswer.{CompleteClaimantDetailsAsImporterCompanyAnswer, IncompleteClaimantDetailsAsImporterCompanyAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.{CompleteContactDetailsAnswer, IncompleteContactDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -46,24 +46,24 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EnterClaimantDetailsAsImporterCompanyController @Inject() (
+class EnterYourContactDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterClaimantDetailAsImporterCompanyPage: pages.enter_claimant_details_as_importer_company
+  enterYourContactDetailsPage: pages.enter_your_contact_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
-  private def withClaimantDetailsAsImporterCompanyAnswers(
+  private def withContactDetailsAnswers(
     f: (
       SessionData,
       FillingOutClaim,
-      ClaimantDetailsAsImporterCompanyAnswer
+      ContactDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -73,75 +73,69 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
               fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
             )
           ) =>
-        val maybeClaimantDetailsAsImporterCompany = draftClaim.fold(
-          _.claimantDetailsAsImporterCompanyAnswers
+        val maybeContactDetails = draftClaim.fold(
+          _.contactDetailsAnswer
         )
-        maybeClaimantDetailsAsImporterCompany.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteClaimantDetailsAsImporterCompanyAnswer.empty)
+        maybeContactDetails.fold[Future[Result]](
+          f(sessionData, fillingOutClaim, IncompleteContactDetailsAnswer.empty)
         )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
   private def addEmail(
     fillingOutClaim: FillingOutClaim,
-    claimantDetails: ClaimantDetailsAsImporterCompanyAnswer
-  ): ClaimantDetailsAsImporterCompanyAnswer =
+    claimantDetails: ContactDetailsAnswer
+  ): ContactDetailsAnswer =
     claimantDetails.fold(
       ifIncomplete =>
-        IncompleteClaimantDetailsAsImporterCompanyAnswer(
-          ifIncomplete.claimantDetailsAsImporterCompany.map(
+        IncompleteContactDetailsAnswer(
+          ifIncomplete.contactDetailsFormData.map(
             _.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
           )
         ),
       ifComplete =>
-        CompleteClaimantDetailsAsImporterCompanyAnswer(
-          ifComplete.claimantDetailsAsImporterCompany.copy(emailAddress =
-            fillingOutClaim.signedInUserDetails.verifiedEmail
-          )
+        CompleteContactDetailsAnswer(
+          ifComplete.contactDetailsFormData.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
         )
     )
 
-  def enterClaimantDetailsAsImporterCompany: Action[AnyContent] =
+  def enterContactDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsImporterCompanyAnswers { (_, fillingOutClaim, answers) =>
+      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
         answers.fold(
           ifIncomplete =>
-            ifIncomplete.claimantDetailsAsImporterCompany match {
-              case Some(claimantDetailsAsImporterCompany) =>
+            ifIncomplete.contactDetailsFormData match {
+              case Some(contactDetailsFormData) =>
                 Ok(
-                  enterClaimantDetailAsImporterCompanyPage(
-                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
-                      claimantDetailsAsImporterCompany
-                    )
+                  enterYourContactDetailsPage(
+                    EnterYourContactDetailsController.contactDetailsForm.fill(contactDetailsFormData)
                   )
                 )
-              case None                                   =>
+              case None                         =>
                 fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
                   case Some(displayDeclaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>
                         declarantTypeAnswer.declarantType match {
                           case Some(declarantType) =>
-                            declarantType match {
-                              case DeclarantType.Importer =>
-                                Ok(
-                                  enterClaimantDetailAsImporterCompanyPage(
-                                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
-                                      .fill(
-                                        toClaimantDetailsAsImporter(
-                                          displayDeclaration,
-                                          fillingOutClaim.signedInUserDetails.verifiedEmail
-                                        )
-                                      )
-                                  )
+                            val contactDetails = declarantType match {
+                              case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
+                                toContactDetailsFormData(
+                                  displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails),
+                                  fillingOutClaim.signedInUserDetails.verifiedEmail
                                 )
-                              case _                      =>
-                                Ok(
-                                  enterClaimantDetailAsImporterCompanyPage(
-                                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
-                                  )
+                              case DeclarantType.AssociatedWithRepresentativeCompany                    =>
+                                toContactDetailsFormData(
+                                  displayDeclaration.displayResponseDetail.declarantDetails.contactDetails,
+                                  fillingOutClaim.signedInUserDetails.verifiedEmail
                                 )
                             }
+                            Ok(
+                              enterYourContactDetailsPage(
+                                EnterYourContactDetailsController.contactDetailsForm
+                                  .fill(contactDetails)
+                              )
+                            )
                           case None                =>
                             Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                         }
@@ -150,17 +144,17 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
                     }
                   case None                     =>
                     Ok(
-                      enterClaimantDetailAsImporterCompanyPage(
-                        EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+                      enterYourContactDetailsPage(
+                        EnterYourContactDetailsController.contactDetailsForm
                       )
                     )
                 }
             },
           ifComplete =>
             Ok(
-              enterClaimantDetailAsImporterCompanyPage(
-                EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
-                  ifComplete.claimantDetailsAsImporterCompany
+              enterYourContactDetailsPage(
+                EnterYourContactDetailsController.contactDetailsForm.fill(
+                  ifComplete.contactDetailsFormData
                 )
               )
             )
@@ -168,28 +162,28 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
       }
     }
 
-  def enterClaimantDetailsAsImporterCompanySubmit: Action[AnyContent] =
+  def enterContactDetailsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsImporterCompanyAnswers { (_, fillingOutClaim, answers) =>
-        EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
+        EnterYourContactDetailsController.contactDetailsForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterClaimantDetailAsImporterCompanyPage(
+                enterYourContactDetailsPage(
                   requestFormWithErrors
                 )
               ),
-            claimantDetailsAsImporterCompany => {
+            contactDetailsFormData => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteClaimantDetailsAsImporterCompanyAnswer(
-                    claimantDetailsAsImporterCompany
+                  CompleteContactDetailsAnswer(
+                    contactDetailsFormData
                   ),
-                complete => complete.copy(claimantDetailsAsImporterCompany = claimantDetailsAsImporterCompany)
+                complete => complete.copy(contactDetailsFormData = contactDetailsFormData)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsImporterCompanyAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(contactDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -199,7 +193,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not capture importer company details", e)
+                  logger.warn("could not capture contact details", e)
                   errorHandler.errorResult()
                 },
                 _ =>
@@ -226,34 +220,34 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
       }
     }
 
-  def changeClaimantDetailsAsImporterCompany: Action[AnyContent] =
+  def changeContactDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsImporterCompanyAnswers { (_, _, answers) =>
+      withContactDetailsAnswers { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
-            ifIncomplete.claimantDetailsAsImporterCompany match {
-              case Some(claimantDetailsAsImporterCompany) =>
+            ifIncomplete.contactDetailsFormData match {
+              case Some(contactDetailsFormData) =>
                 Ok(
-                  enterClaimantDetailAsImporterCompanyPage(
-                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
-                      claimantDetailsAsImporterCompany
+                  enterYourContactDetailsPage(
+                    EnterYourContactDetailsController.contactDetailsForm.fill(
+                      contactDetailsFormData
                     ),
                     isAmend = true
                   )
                 )
-              case None                                   =>
+              case None                         =>
                 Ok(
-                  enterClaimantDetailAsImporterCompanyPage(
-                    EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm,
+                  enterYourContactDetailsPage(
+                    EnterYourContactDetailsController.contactDetailsForm,
                     isAmend = true
                   )
                 )
             },
           ifComplete =>
             Ok(
-              enterClaimantDetailAsImporterCompanyPage(
-                EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm.fill(
-                  ifComplete.claimantDetailsAsImporterCompany
+              enterYourContactDetailsPage(
+                EnterYourContactDetailsController.contactDetailsForm.fill(
+                  ifComplete.contactDetailsFormData
                 ),
                 isAmend = true
               )
@@ -262,28 +256,28 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
       }
     }
 
-  def changeClaimantDetailsAsImporterCompanySubmit: Action[AnyContent] =
+  def changeContactDetailsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsImporterCompanyAnswers { (_, fillingOutClaim, answers) =>
-        EnterClaimantDetailsAsImporterCompanyController.claimantDetailsAsImporterCompanyForm
+      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
+        EnterYourContactDetailsController.contactDetailsForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterClaimantDetailAsImporterCompanyPage(
+                enterYourContactDetailsPage(
                   requestFormWithErrors
                 )
               ),
-            claimantDetailsAsImporterCompany => {
+            contactDetailsFormData => {
               val updatedAnswers = answers.fold(
                 _ =>
-                  CompleteClaimantDetailsAsImporterCompanyAnswer(
-                    claimantDetailsAsImporterCompany
+                  CompleteContactDetailsAnswer(
+                    contactDetailsFormData
                   ),
-                complete => complete.copy(claimantDetailsAsImporterCompany = claimantDetailsAsImporterCompany)
+                complete => complete.copy(contactDetailsFormData = contactDetailsFormData)
               )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(claimantDetailsAsImporterCompanyAnswers = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.fold(_.copy(contactDetailsAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -293,7 +287,7 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not capture importer company details", e)
+                  logger.warn("could not capture contact details", e)
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
@@ -304,52 +298,48 @@ class EnterClaimantDetailsAsImporterCompanyController @Inject() (
     }
 }
 
-object EnterClaimantDetailsAsImporterCompanyController {
+object EnterYourContactDetailsController {
 
-  final case class ClaimantDetailsAsImporterCompany(
+  final case class ContactDetailsFormData(
     companyName: String,
     emailAddress: Email,
     phoneNumber: PhoneNumber,
     contactAddress: NonUkAddress
   )
 
-  object ClaimantDetailsAsImporterCompany {
-    implicit val format: OFormat[ClaimantDetailsAsImporterCompany] = Json.format[ClaimantDetailsAsImporterCompany]
+  object ContactDetailsFormData {
+    implicit val format: OFormat[ContactDetailsFormData] = Json.format[ContactDetailsFormData]
   }
 
   object ClaimantDetailsAsIndividual {
-    implicit val format: OFormat[ClaimantDetailsAsImporterCompany] = derived.oformat[ClaimantDetailsAsImporterCompany]()
+    implicit val format: OFormat[ContactDetailsFormData] = derived.oformat[ContactDetailsFormData]()
   }
 
-  val claimantDetailsAsImporterCompanyForm: Form[ClaimantDetailsAsImporterCompany] = Form(
+  val contactDetailsForm: Form[ContactDetailsFormData] = Form(
     mapping(
-      "enter-claimant-details-importer-company.importer-company-name" -> nonEmptyText(maxLength = 512),
-      "enter-claimant-details-importer-company.importer-email"        -> Email.mappingMaxLength,
-      "enter-claimant-details-importer-company.importer-phone-number" -> PhoneNumber.mapping,
-      ""                                                              -> Address.nonUkAddressFormMapping
-    )(ClaimantDetailsAsImporterCompany.apply)(ClaimantDetailsAsImporterCompany.unapply)
+      "enter-your-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-your-contact-details.contact-email"        -> Email.mappingMaxLength,
+      "enter-your-contact-details.contact-phone-number" -> PhoneNumber.mapping,
+      ""                                                -> Address.nonUkAddressFormMapping
+    )(ContactDetailsFormData.apply)(ContactDetailsFormData.unapply)
   )
 
-  def toClaimantDetailsAsImporter(
-    displayDeclaration: DisplayDeclaration,
+  def toContactDetailsFormData(
+    contactDetails: Option[ContactDetails],
     verifiedEmail: Email
-  ): ClaimantDetailsAsImporterCompany = {
-    val declaration  = displayDeclaration.displayResponseDetail
-    val maybeAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
-    ClaimantDetailsAsImporterCompany(
-      declaration.consigneeDetails.map(cd => cd.legalName).getOrElse(""),
+  ): ContactDetailsFormData =
+    ContactDetailsFormData(
+      contactDetails.flatMap(_.contactName).getOrElse(""),
       verifiedEmail,
-      PhoneNumber(
-        declaration.consigneeDetails.flatMap(cd => cd.contactDetails.flatMap(s => s.telephone)).getOrElse("")
-      ),
+      PhoneNumber(contactDetails.flatMap(_.telephone).getOrElse("")),
       NonUkAddress(
-        maybeAddress.map(s => s.addressLine1).getOrElse(""),
-        maybeAddress.flatMap(s => s.addressLine2),
+        contactDetails.flatMap(_.addressLine1).getOrElse(""),
+        contactDetails.flatMap(_.addressLine2),
         None,
-        maybeAddress.flatMap(s => s.addressLine3).getOrElse(""),
-        maybeAddress.flatMap(s => s.postalCode).getOrElse(""),
-        Country(maybeAddress.map(s => s.countryCode).getOrElse(""))
+        contactDetails.flatMap(_.addressLine3).getOrElse(""),
+        contactDetails.flatMap(_.postalCode).getOrElse(""),
+        contactDetails.flatMap(_.countryCode).map(Country(_)).getOrElse(Country.uk)
       )
     )
-  }
+
 }

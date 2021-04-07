@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController._
 
 @this(
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
@@ -35,12 +35,12 @@
  fieldSet : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.field_set
 )
 
-@(form : Form[ClaimantDetailsAsImporterCompany], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[ContactDetailsFormData], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-claimant-details-importer-company"}
+    @key = @{"enter-your-contact-details"}
     @addressKey = @{"nonUkAddress"}
 
-    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
+    @postAction = @{if(isAmend) routes.EnterYourContactDetailsController.changeContactDetailsSubmit else routes.EnterYourContactDetailsController.enterContactDetailsSubmit}
     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual}
 
     @title = @{messages(s"$key.title")}
@@ -65,9 +65,9 @@
 
             @inputText(
                 form = form,
-                id = s"$key.importer-company-name",
-                name = s"$key.importer-company-name",
-                label = s"${key}.importer-company-name.label",
+                id = s"$key.contact-name",
+                name = s"$key.contact-name",
+                label = s"${key}.contact-name.label",
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
@@ -75,9 +75,9 @@
 
             @inputText(
                 form = form,
-                id = s"$key.importer-email",
-                name = s"$key.importer-email",
-                label = s"$key.importer-email.label",
+                id = s"$key.contact-email",
+                name = s"$key.contact-email",
+                label = s"$key.contact-email.label",
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
@@ -85,11 +85,11 @@
 
             @inputText(
                 form = form,
-                id = s"$key.importer-phone-number",
-                name = s"$key.importer-phone-number",
-                label = s"$key.importer-phone-number.label",
+                id = s"$key.contact-phone-number",
+                name = s"$key.contact-phone-number",
+                label = s"$key.contact-phone-number.label",
                 isPageHeading = false,
-                hint = Some(s"$key.importer-phone-number.help"),
+                hint = Some(s"$key.contact-phone-number.help"),
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
@@ -109,7 +109,7 @@
                 @inputText(
                     form = form,
                     id = line2Key,
-                    name = line3Key,
+                    name = line2Key,
                     label = s"$key.address.line2.label",
                     isPageHeading = false,
                     classes = Some("govuk-input--width-20"),

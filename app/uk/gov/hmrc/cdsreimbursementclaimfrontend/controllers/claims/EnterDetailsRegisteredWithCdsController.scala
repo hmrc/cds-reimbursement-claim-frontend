@@ -187,7 +187,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 fillingOutClaim.draftClaim.fold(
                   _.copy(
                     claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
-                    claimantDetailsAsImporterCompanyAnswers = None
+                    contactDetailsAnswer = None
                   )
                 )
               }
@@ -204,9 +204,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 },
                 _ =>
                   if (claimantDetailsAsIndividual.addCompanyDetails) {
-                    Redirect(
-                      routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompany()
-                    )
+                    Redirect(routes.EnterYourContactDetailsController.enterContactDetails())
                   } else {
                     fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
                       case Some(referenceNumber) =>
@@ -329,7 +327,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       .fold(
                         _.copy(
                           claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
-                          claimantDetailsAsImporterCompanyAnswers = None
+                          contactDetailsAnswer = None
                         )
                       )
 
@@ -371,8 +369,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       },
                       _ =>
                         Redirect(
-                          routes.EnterClaimantDetailsAsImporterCompanyController
-                            .changeClaimantDetailsAsImporterCompany()
+                          routes.EnterYourContactDetailsController.changeContactDetails()
                         )
                     )
                   }

@@ -377,8 +377,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
+                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
                   content = Text(messages("cya.change")(lang)),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
                 )
@@ -395,8 +394,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
+                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
                   content = Text(messages("cya.change")(lang)),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
                 )
@@ -413,8 +411,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
+                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
                   content = Text(messages("cya.change")(lang)),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l2")(lang))
                 )
@@ -431,8 +428,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompany().url}",
+                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
                   content = Text(messages("cya.change")(lang)),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
                 )
