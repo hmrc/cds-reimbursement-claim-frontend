@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import play.api.libs.json.{Json, OFormat}
+import cats.implicits._
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -53,7 +54,9 @@ object DisplayDeclaration {
       declaration.declarantDetails.contactDetails.flatMap(details => details.telephone)
 
     def declarantContactAddress: Option[String] =
-      declaration.declarantDetails.contactDetails.map(details => declarantAddress(details).mkString(", "))
+      Option(declaration.declarantDetails.establishmentAddress).map(address =>
+        establishmentAddress(address).mkString(", ")
+      )
 
     def declarantAddress(contactDetails: ContactDetails): List[String] = {
       val lines = List(
@@ -67,16 +70,14 @@ object DisplayDeclaration {
       lines.collect { case Some(s) => s }
     }
 
-    def establishmentAddress(establishmentAddress: EstablishmentAddress): List[String] = {
-      val lines = List(
+    def establishmentAddress(establishmentAddress: EstablishmentAddress): List[String] =
+      List(
         Some(establishmentAddress.addressLine1),
         establishmentAddress.addressLine2,
         establishmentAddress.addressLine3,
         establishmentAddress.postalCode,
         Some(establishmentAddress.countryCode)
-      )
-      lines.collect { case Some(s) => s }
-    }
+      ).flattenOption
   }
 
   implicit val format: OFormat[DisplayDeclaration] = Json.format[DisplayDeclaration]
