@@ -571,17 +571,17 @@ supporting-evidence.choose-document-type.error.number=Choose a file type to supp
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
 supporting-evidence.choose-document-type.label=Choose document type
-supporting-evidence.choose-document-type.document-type.d0=Commercial Invoice
-supporting-evidence.choose-document-type.document-type.d1=Import and Export Declaration
-supporting-evidence.choose-document-type.document-type.d2=C88/E2
-supporting-evidence.choose-document-type.document-type.d3=Packing List
-supporting-evidence.choose-document-type.document-type.d4=Air Waybill
-supporting-evidence.choose-document-type.document-type.d5=Bill of Lading
-supporting-evidence.choose-document-type.document-type.d6=Substitute Entry
-supporting-evidence.choose-document-type.document-type.d7=Schedule of MRNs
-supporting-evidence.choose-document-type.document-type.d8=Proof of Authority
-supporting-evidence.choose-document-type.document-type.d9=Correspondence Trader
-supporting-evidence.choose-document-type.document-type.d10=Other documents
+supporting-evidence.choose-document-type.document-type.d0=C88/E2
+supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
+supporting-evidence.choose-document-type.document-type.d2=Packing List
+supporting-evidence.choose-document-type.document-type.d3=Air Waybill
+supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
+supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
+supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
+supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
+supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
+supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
+supporting-evidence.choose-document-type.document-type.d11=Other documents
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
