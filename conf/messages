@@ -141,7 +141,7 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
 enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
 enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
@@ -314,13 +314,14 @@ enter-declaration-details.declarant-phone-number.error.maxLength=Enter a valid d
 select-who-is-making-the-claim.title=Who is making this claim?
 select-who-is-making-the-claim.help-text=This person is responsible for the claim. They are the point of contact if we have a query about the claim.
 select-who-is-making-the-claim.importer=I am a private individual importer
-select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-select-who-is-making-the-claim.associate-with-representative-company=I am associated with a representative company on behalf of the importer
+select-who-is-making-the-claim.associate-with-importer-company=I work for an importer company
+select-who-is-making-the-claim.associate-with-representative-company=I work for a representative company on behalf of the importer
 select-who-is-making-the-claim.error.required=Select a declaration type
 select-who-is-making-the-claim.invalid=Select a declaration type
 select-who-is-making-the-claim.details.heading=What is an importer and a representative?
-select-who-is-making-the-claim.details.l0=An importer can be a person or company bringing the goods into the country.
-select-who-is-making-the-claim.details.l1=A representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-who-is-making-the-claim.details.l0=A private individual importer can be a private individual or company bringing goods into the country.
+select-who-is-making-the-claim.details.l1=An importer company is one that solely imports (not agents, private individuals or sole traders).
+select-who-is-making-the-claim.details.l2=A representative company can be a person or a company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
@@ -426,7 +427,7 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #===================================================
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
 enter-commodities-details.label=Enter commodity details
-enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 enter-commodities-details.error.maxLength=Enter commodity details
 
@@ -452,7 +453,7 @@ select-duties.duty.A95=Provisional Countervailing Duty - Code A95
 select-duties.duty.B05=Value Added Tax - Code B05
 
 enter-claim.title=Enter the claim amount for duty {0}
-enter-claim.help-text=This is to calculate your reimbursement as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
 enter-claim.paid-amount=Paid Amount
@@ -481,7 +482,7 @@ check-your-reimbursement-claim-total.help-text=These are the calculations based 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK.<br />To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
+enter-bank-details.help-text=This is where you would like reimbursements (repayments) to be made in the UK.<br />To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
@@ -525,6 +526,10 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
+
+
+
+
 supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
 supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
 supporting-evidence.upload.details.l2=Packing list (document that states packaging details in each shipment)
@@ -535,6 +540,10 @@ supporting-evidence.upload.details.l6=Schedule of MRNs (a list of previous MRN n
 supporting-evidence.upload.details.l7=Proof of authority (from importer for duty to be repaid)
 supporting-evidence.upload.details.l8=Correspondence trader (an email chain or letters between you and the trader)
 supporting-evidence.upload.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+
+
+
+
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
@@ -570,7 +579,11 @@ supporting-evidence.choose-document-type.title=Select the description of the fil
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.choose-document-type.label=Choose document type
+supporting-evidence.choose-document-type.label=Choose document Type
+
+
+
+
 supporting-evidence.choose-document-type.document-type.d0=C88/E2
 supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
 supporting-evidence.choose-document-type.document-type.d2=Packing List
@@ -583,6 +596,9 @@ supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
 supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
 supporting-evidence.choose-document-type.document-type.d11=Other
+
+
+
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
@@ -666,7 +682,7 @@ confirmation-of-submission.reimbursement-amount=Reimbursement amount
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
-confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will email you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will aim to email or write a letter to you to tell you the outcome within 30 working days. We will contact you to either:
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
