@@ -122,7 +122,8 @@ class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
       bulletList(
         Seq(
           Html(messages(s"$whoIsMakingTheClaimKey.l0")),
-          Html(messages(s"$whoIsMakingTheClaimKey.l1"))
+          Html(messages(s"$whoIsMakingTheClaimKey.l1")),
+          Html(messages(s"$whoIsMakingTheClaimKey.l2"))
         )
       )
     )
