@@ -29,7 +29,6 @@ object SupportingEvidenceDocumentType {
   case object AirWayBill extends SupportingEvidenceDocumentType
   case object BillOfLading extends SupportingEvidenceDocumentType
   case object SubstituteEntry extends SupportingEvidenceDocumentType
-  case object ScheduleOfMRNs extends SupportingEvidenceDocumentType
   case object ProofOfAuthority extends SupportingEvidenceDocumentType
   case object CorrespondenceTrader extends SupportingEvidenceDocumentType
   case object Other extends SupportingEvidenceDocumentType
