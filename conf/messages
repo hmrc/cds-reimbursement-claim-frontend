@@ -524,16 +524,17 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
-supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
-supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
-supporting-evidence.upload.details.l2=Packing list (document that states packaging details in each shipment)
-supporting-evidence.upload.details.l3=Air waybill (in your cargo documents)
-supporting-evidence.upload.details.l4=Bill of lading (this is a receipt of shipped goods)
-supporting-evidence.upload.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-supporting-evidence.upload.details.l6=Schedule of MRNs (a list of previous MRN numbers)
-supporting-evidence.upload.details.l7=Proof of authority (from importer for duty to be repaid)
-supporting-evidence.upload.details.l8=Correspondence trader (an email chain or letters between you and the trader)
-supporting-evidence.upload.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+supporting-evidence.upload.details.l0=Commercial Invoice (proof of sale and describes the commodities being sold; their price, description and quantity)
+supporting-evidence.upload.details.l1=Import and Export Declaration (proof of the import or export being declared)
+supporting-evidence.upload.details.l2=C88/E2 (proof to authorise imports from the country of destination)
+supporting-evidence.upload.details.l3=Packing List (a document that lists product type in each package)
+supporting-evidence.upload.details.l4=Air Waybill (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.upload.details.l5=Bill of Lading (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.upload.details.l6=Substitute Entry (a copy of the original customs declaration amended to show the correct details)
+supporting-evidence.upload.details.l7=Schedule of MRNs (a list of previous MRN numbers)
+supporting-evidence.upload.details.l8=Proof of Authority (in case you change your bank account details)
+supporting-evidence.upload.details.l9=Correspondence Trader (an email chain or letters between you and the trader)
+supporting-evidence.upload.details.l10=Other documents (if you have alternative supporting documents)
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
@@ -579,9 +580,8 @@ supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
 supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
 supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
 supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
-supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
-supporting-evidence.choose-document-type.document-type.d11=Other
+supporting-evidence.choose-document-type.document-type.d11=Other documents
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE

@@ -64,7 +64,8 @@ class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
           Html(messages(s"$supportingEvidenceUploadKey.l6")),
           Html(messages(s"$supportingEvidenceUploadKey.l7")),
           Html(messages(s"$supportingEvidenceUploadKey.l8")),
-          Html(messages(s"$supportingEvidenceUploadKey.l9"))
+          Html(messages(s"$supportingEvidenceUploadKey.l9")),
+          Html(messages(s"$supportingEvidenceUploadKey.l10"))
         )
       )
     )

@@ -32,7 +32,6 @@ object SupportingEvidenceDocumentType {
   case object ScheduleOfMRNs extends SupportingEvidenceDocumentType
   case object ProofOfAuthority extends SupportingEvidenceDocumentType
   case object CorrespondenceTrader extends SupportingEvidenceDocumentType
-  case object AdditionalSupportingDocuments extends SupportingEvidenceDocumentType
   case object Other extends SupportingEvidenceDocumentType
   case object ImportAndExportDeclaration extends SupportingEvidenceDocumentType
 
