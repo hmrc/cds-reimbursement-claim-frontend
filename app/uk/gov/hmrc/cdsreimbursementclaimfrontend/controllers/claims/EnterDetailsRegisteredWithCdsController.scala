@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
+import cats.syntax.either._
+import cats.syntax.option._
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
 import play.api.data.Form
@@ -27,10 +29,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
@@ -52,141 +54,98 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  enterClaimantDetailAsIndividualPage: pages.enter_claimant_details_as_registered_with_cds
+  detailsRegisteredWithCdsPage: pages.enter_claimant_details_as_registered_with_cds
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
-  private def withClaimantDetailsAsIndividualAnswers(
+  private def withDetailsRegisteredWithCdsAnswers(
     f: (
       SessionData,
       FillingOutClaim,
-      ClaimantDetailsAsIndividualAnswer
+      DetailsRegisteredWithCdsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
       case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
-        val maybeClaimantDetailsAsIndividualAnswer = draftClaim.fold(_.claimantDetailsAsIndividualAnswers)
-        maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
+        val maybeDetailsRegisteredWithCds = draftClaim.fold(_.detailsRegisteredWithCdsAnswer)
+        maybeDetailsRegisteredWithCds.fold[Future[Result]](
           f(
             sessionData,
             fillingOutClaim,
-            IncompleteClaimantDetailsAsIndividualAnswer.empty
+            IncompleteDetailsRegisteredWithCdsAnswer.empty
           )
-        )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
+        )(answer => f(sessionData, fillingOutClaim, answer))
       case _                                                                                    =>
         Redirect(baseRoutes.StartController.start())
     }
 
-  private def addEmail(
-    fillingOutClaim: FillingOutClaim,
-    claimantDetails: ClaimantDetailsAsIndividualAnswer
-  ): ClaimantDetailsAsIndividualAnswer =
-    claimantDetails.fold(
-      ifIncomplete =>
-        IncompleteClaimantDetailsAsIndividualAnswer(
-          ifIncomplete.claimantDetailsAsIndividual.map(
-            _.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
-          )
-        ),
-      ifComplete =>
-        CompleteClaimantDetailsAsIndividualAnswer(
-          ifComplete.claimantDetailsAsIndividual.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
-        )
-    )
-
-  def enterClaimantDetailsAsIndividual: Action[AnyContent] =
+  def enterDetailsRegisteredWithCds: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.claimantDetailsAsIndividual match {
-              case Some(claimantDetailsAsIndividual) =>
-                Ok(
-                  enterClaimantDetailAsIndividualPage(
-                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
-                      claimantDetailsAsIndividual
-                    )
-                  )
-                )
-              case None                              =>
-                fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
-                  case Some(declaration) =>
-                    fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
-                      case Some(declarantTypeAnswer) =>
-                        declarantTypeAnswer.declarantType match {
-                          case Some(declarantType) =>
-                            val email                       = fillingOutClaim.signedInUserDetails.verifiedEmail
-                            val claimantDetailsAsIndividual = declarantType match {
-                              case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
-                                consigneeToClaimantDetails(declaration, email)
-                              case DeclarantType.AssociatedWithRepresentativeCompany                    =>
-                                declarantToClaimantDetails(declaration, email)
-                            }
-                            Ok(
-                              enterClaimantDetailAsIndividualPage(
-                                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
-                                  .fill(claimantDetailsAsIndividual)
-                              )
-                            )
-                          case None                =>
-                            Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                        }
-                      case None                      =>
-                        Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                    }
-                  case None              =>
-                    Ok(
-                      enterClaimantDetailAsIndividualPage(
-                        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
-                      )
-                    )
+      withDetailsRegisteredWithCdsAnswers { (_, fillingOutClaim, answers) =>
+        val emptyForm = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm.asRight[Result]
+
+        def fillFormFromAcc14Data(
+          maybeDisplayDeclaration: Option[DisplayDeclaration]
+        ): Either[Result, Form[DetailsRegisteredWithCdsFormData]] =
+          maybeDisplayDeclaration match {
+            case Some(declaration) =>
+              fillingOutClaim.draftClaim
+                .fold(_.declarantTypeAnswer)
+                .flatMap(_.declarantType)
+                .fold(
+                  Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                    .asLeft[Form[DetailsRegisteredWithCdsFormData]]
+                ) { declarantType =>
+                  val email    = fillingOutClaim.signedInUserDetails.verifiedEmail
+                  val formData = declarantType match {
+                    case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
+                      consigneeToClaimantDetails(declaration, email)
+                    case DeclarantType.AssociatedWithRepresentativeCompany                    =>
+                      declarantToClaimantDetails(declaration, email)
+                  }
+                  emptyForm.map(_.fill(formData))
                 }
-            },
-          ifComplete =>
-            Ok(
-              enterClaimantDetailAsIndividualPage(
-                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
-                  ifComplete.claimantDetailsAsIndividual
-                )
-              )
-            )
-        )
+            case None              => //Acc14 was never called, this is an Entry Number/Chief Number
+              emptyForm
+          }
+
+        answers
+          .fold(_.detailsRegisteredWithCds, _.detailsRegisteredWithCds.some)
+          .fold(fillFormFromAcc14Data(fillingOutClaim.draftClaim.fold(_.displayDeclaration)))(completeAnswer =>
+            emptyForm.map(_.fill(completeAnswer))
+          )
+          .map(a => Ok(detailsRegisteredWithCdsPage(a)))
+          .merge
+
       }
     }
 
-  def enterClaimantDetailsAsIndividualSubmit: Action[AnyContent] =
+  def enterDetailsRegisteredWithCdsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
-        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
+      withDetailsRegisteredWithCdsAnswers { (_, fillingOutClaim, answers) =>
+        EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterClaimantDetailAsIndividualPage(
+                detailsRegisteredWithCdsPage(
                   requestFormWithErrors
                 )
               ),
-            claimantDetailsAsIndividual => {
+            detailsRegisteredWithCds => {
               val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteClaimantDetailsAsIndividualAnswer(
-                    claimantDetailsAsIndividual
-                  ),
-                complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                _ => CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCds),
+                complete => complete.copy(detailsRegisteredWithCds = detailsRegisteredWithCds)
               )
-              val newDraftClaim  = if (claimantDetailsAsIndividual.addCompanyDetails) {
-                fillingOutClaim.draftClaim.fold(
-                  _.copy(
-                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers)
-                  )
-                )
+              val newDraftClaim  = if (detailsRegisteredWithCds.addCompanyDetails) {
+                fillingOutClaim.draftClaim.fold(_.copy(detailsRegisteredWithCdsAnswer = Some(updatedAnswers)))
               } else {
                 fillingOutClaim.draftClaim.fold(
                   _.copy(
-                    claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
+                    detailsRegisteredWithCdsAnswer = Some(updatedAnswers),
                     contactDetailsAnswer = None
                   )
                 )
@@ -203,7 +162,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                   errorHandler.errorResult()
                 },
                 _ =>
-                  if (claimantDetailsAsIndividual.addCompanyDetails) {
+                  if (detailsRegisteredWithCds.addCompanyDetails) {
                     Redirect(routes.EnterYourContactDetailsController.enterContactDetails())
                   } else {
                     fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
@@ -232,75 +191,50 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
       }
     }
 
-  def changeClaimantDetailsAsIndividual: Action[AnyContent] =
+  def changeDetailsRegisteredWithCds: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsIndividualAnswers { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.claimantDetailsAsIndividual match {
-              case Some(claimantDetailsAsIndividual) =>
-                Ok(
-                  enterClaimantDetailAsIndividualPage(
-                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
-                      claimantDetailsAsIndividual
-                    ),
-                    isAmend = true
-                  )
-                )
-              case None                              =>
-                Ok(
-                  enterClaimantDetailAsIndividualPage(
-                    EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm,
-                    isAmend = true
-                  )
-                )
-            },
-          ifComplete =>
-            Ok(
-              enterClaimantDetailAsIndividualPage(
-                EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm.fill(
-                  ifComplete.claimantDetailsAsIndividual
-                ),
-                isAmend = true
-              )
-            )
-        )
+      withDetailsRegisteredWithCdsAnswers { (_, _, answers) =>
+        val emptyForm  = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
+        val filledForm = answers
+          .fold(_.detailsRegisteredWithCds, _.detailsRegisteredWithCds.some)
+          .fold(emptyForm)(emptyForm.fill(_))
+        Ok(detailsRegisteredWithCdsPage(filledForm, isAmend = true))
       }
     }
 
-  def changeClaimantDetailsAsIndividualSubmit: Action[AnyContent] =
+  def changeDetailsRegisteredWithCdsSubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withClaimantDetailsAsIndividualAnswers { (_, fillingOutClaim, answers) =>
-        EnterDetailsRegisteredWithCdsController.claimantDetailsAsIndividualForm
+      withDetailsRegisteredWithCdsAnswers { (_, fillingOutClaim, answers) =>
+        EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterClaimantDetailAsIndividualPage(
+                detailsRegisteredWithCdsPage(
                   requestFormWithErrors,
                   isAmend = true
                 )
               ),
-            claimantDetailsAsIndividual => {
+            detailsRegisteredWithCds => {
               val currentAnswer = answers.fold(
                 ifIncomplete =>
-                  ifIncomplete.claimantDetailsAsIndividual match {
+                  ifIncomplete.detailsRegisteredWithCds match {
                     case Some(value) => Some(value.addCompanyDetails)
                     case None        => None
                   },
-                ifComplete => Some(ifComplete.claimantDetailsAsIndividual.addCompanyDetails)
+                ifComplete => Some(ifComplete.detailsRegisteredWithCds.addCompanyDetails)
               )
 
-              (currentAnswer, Some(claimantDetailsAsIndividual.addCompanyDetails)) match {
+              (currentAnswer, Some(detailsRegisteredWithCds.addCompanyDetails)) match {
                 case (Some(o), Some(n)) =>
                   if (o === n) {
                     // just update this page and move back to the CYA
                     val updatedAnswers = answers.fold(
-                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
-                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                      _ => CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCds),
+                      complete => complete.copy(detailsRegisteredWithCds = detailsRegisteredWithCds)
                     )
                     val newDraftClaim  = fillingOutClaim.draftClaim
-                      .fold(_.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers)))
+                      .fold(_.copy(detailsRegisteredWithCdsAnswer = Some(updatedAnswers)))
 
                     val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -320,13 +254,13 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                     // and update the session
                     // and send them back to the CYA page
                     val updatedAnswers = answers.fold(
-                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
-                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                      _ => CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCds),
+                      complete => complete.copy(detailsRegisteredWithCds = detailsRegisteredWithCds)
                     )
                     val newDraftClaim  = fillingOutClaim.draftClaim
                       .fold(
                         _.copy(
-                          claimantDetailsAsIndividualAnswers = Some(updatedAnswers),
+                          detailsRegisteredWithCdsAnswer = Some(updatedAnswers),
                           contactDetailsAnswer = None
                         )
                       )
@@ -348,12 +282,12 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                   } else {
                     // this means that they do want to add importer company details now so send them to that page with change state
                     val updatedAnswers = answers.fold(
-                      _ => CompleteClaimantDetailsAsIndividualAnswer(claimantDetailsAsIndividual),
-                      complete => complete.copy(claimantDetailsAsIndividual = claimantDetailsAsIndividual)
+                      _ => CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCds),
+                      complete => complete.copy(detailsRegisteredWithCds = detailsRegisteredWithCds)
                     )
                     val newDraftClaim  = fillingOutClaim.draftClaim
                       .fold(
-                        _.copy(claimantDetailsAsIndividualAnswers = Some(updatedAnswers))
+                        _.copy(detailsRegisteredWithCdsAnswer = Some(updatedAnswers))
                       )
 
                     val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -384,34 +318,35 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
 
 object EnterDetailsRegisteredWithCdsController {
 
-  final case class ClaimantDetailsAsIndividual(
+  final case class DetailsRegisteredWithCdsFormData(
     fullName: String,
     emailAddress: Email,
     contactAddress: NonUkAddress,
     addCompanyDetails: Boolean
   )
 
-  object ClaimantDetailsAsIndividual {
-    implicit val format: OFormat[ClaimantDetailsAsIndividual] = derived.oformat[ClaimantDetailsAsIndividual]()
+  object DetailsRegisteredWithCdsFormData {
+    implicit val format: OFormat[DetailsRegisteredWithCdsFormData] =
+      derived.oformat[DetailsRegisteredWithCdsFormData]()
 
   }
 
-  val claimantDetailsAsIndividualForm: Form[ClaimantDetailsAsIndividual] = Form(
+  val detailsRegisteredWithCdsForm: Form[DetailsRegisteredWithCdsFormData] = Form(
     mapping(
       "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
       "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
       ""                                                                   -> Address.nonUkAddressFormMapping,
       "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
-    )(ClaimantDetailsAsIndividual.apply)(ClaimantDetailsAsIndividual.unapply)
+    )(DetailsRegisteredWithCdsFormData.apply)(DetailsRegisteredWithCdsFormData.unapply)
   )
 
   def consigneeToClaimantDetails(
     displayDeclaration: DisplayDeclaration,
     verifiedEmail: Email
-  ): ClaimantDetailsAsIndividual = {
+  ): DetailsRegisteredWithCdsFormData = {
     val declaration          = displayDeclaration.displayResponseDetail
     val establishmentAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
-    ClaimantDetailsAsIndividual(
+    DetailsRegisteredWithCdsFormData(
       declaration.consigneeDetails.map(_.legalName).getOrElse(""),
       verifiedEmail,
       NonUkAddress(
@@ -429,10 +364,10 @@ object EnterDetailsRegisteredWithCdsController {
   def declarantToClaimantDetails(
     displayDeclaration: DisplayDeclaration,
     verifiedEmail: Email
-  ): ClaimantDetailsAsIndividual = {
+  ): DetailsRegisteredWithCdsFormData = {
     val declaration          = displayDeclaration.displayResponseDetail
     val establishmentAddress = declaration.declarantDetails.establishmentAddress
-    ClaimantDetailsAsIndividual(
+    DetailsRegisteredWithCdsFormData(
       declaration.declarantDetails.legalName,
       verifiedEmail,
       NonUkAddress(

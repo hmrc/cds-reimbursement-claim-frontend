@@ -229,7 +229,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         checkIsRedirect(
           performAction(Seq("select-who-is-making-the-claim" -> "0")),
           routes.EnterDetailsRegisteredWithCdsController
-            .enterClaimantDetailsAsIndividual()
+            .enterDetailsRegisteredWithCds()
         )
       }
 

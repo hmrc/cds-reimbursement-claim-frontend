@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.{CompleteClaimantDetailsAsIndividualAnswer, IncompleteClaimantDetailsAsIndividualAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
@@ -41,7 +41,7 @@ object DraftClaim {
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    claimantDetailsAsIndividualAnswers: Option[ClaimantDetailsAsIndividualAnswer],
+    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer],
     contactDetailsAnswer: Option[ContactDetailsAnswer],
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
@@ -100,13 +100,13 @@ object DraftClaim {
       case None        => sys.error("no movement or entry reference number found")
     }
 
-    def claimantDetailsAsIndividual: Option[ClaimantDetailsAsIndividual] = draftClaim match {
+    def detailsRegisteredWithCds: Option[DetailsRegisteredWithCdsFormData] = draftClaim match {
       case dc: DraftC285Claim =>
-        dc.claimantDetailsAsIndividualAnswers match {
+        dc.detailsRegisteredWithCdsAnswer match {
           case Some(answer) =>
             answer match {
-              case complete: CompleteClaimantDetailsAsIndividualAnswer     => Some(complete.claimantDetailsAsIndividual)
-              case incomplete: IncompleteClaimantDetailsAsIndividualAnswer => incomplete.claimantDetailsAsIndividual
+              case complete: CompleteDetailsRegisteredWithCdsAnswer     => Some(complete.detailsRegisteredWithCds)
+              case incomplete: IncompleteDetailsRegisteredWithCdsAnswer => incomplete.detailsRegisteredWithCds
             }
           case None         => None
         }
