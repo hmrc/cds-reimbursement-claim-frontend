@@ -307,7 +307,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual()
+          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         )
       }
 
@@ -326,7 +326,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual()
+          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         )
       }
 

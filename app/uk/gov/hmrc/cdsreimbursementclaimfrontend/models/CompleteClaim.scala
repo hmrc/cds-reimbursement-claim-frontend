@@ -23,14 +23,14 @@ import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.ClaimantDetailsAsIndividual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
@@ -62,8 +62,8 @@ object CompleteClaim {
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
     completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
-    completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer,
-    maybeClaimantDetailsAsImporterCompanyAnswer: Option[CompleteContactDetailsAnswer],
+    completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
+    maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
@@ -110,7 +110,7 @@ object CompleteClaim {
                 validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
                 validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateClaimantDetailsAsIndividualAnswer(draftClaimantDetailsAsIndividualAnswer),
+                validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
@@ -167,7 +167,7 @@ object CompleteClaim {
                   draftMaybeDuplicateCompleteMovementReferenceNumberAnswer
                 ),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateClaimantDetailsAsIndividualAnswer(draftClaimantDetailsAsIndividualAnswer),
+                validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim),
@@ -383,15 +383,15 @@ object CompleteClaim {
       case None        => Valid(None)
     }
 
-  def validateClaimantDetailsAsIndividualAnswer(
-    maybeClaimantDetailsAsIndividualAnswer: Option[ClaimantDetailsAsIndividualAnswer]
-  ): Validation[CompleteClaimantDetailsAsIndividualAnswer] =
-    maybeClaimantDetailsAsIndividualAnswer match {
+  def validateDetailsRegisteredWithCdsAnswer(
+    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
+  ): Validation[CompleteDetailsRegisteredWithCdsAnswer] =
+    maybeDetailsRegisteredWithCdsAnswer match {
       case Some(value) =>
         value match {
-          case ClaimantDetailsAsIndividualAnswer.IncompleteClaimantDetailsAsIndividualAnswer(_) =>
+          case DetailsRegisteredWithCdsAnswer.IncompleteDetailsRegisteredWithCdsAnswer(_) =>
             invalid("incomplete claimant details type answer")
-          case c: CompleteClaimantDetailsAsIndividualAnswer                                     => Valid(c)
+          case c: CompleteDetailsRegisteredWithCdsAnswer                                  => Valid(c)
         }
       case None        => invalid("missing claimant details type answer")
     }
@@ -641,7 +641,7 @@ object CompleteClaim {
         }
     }
 
-    def claimantDetailsAsIndividual: ClaimantDetailsAsIndividual = completeClaim match {
+    def detailsRegisteredWithCds: DetailsRegisteredWithCdsFormData = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -649,7 +649,7 @@ object CompleteClaim {
             _,
             _,
             _,
-            claimantDetailsAsIndividualAnswer,
+            detailsRegisteredWithCdsAnswer,
             _,
             _,
             _,
@@ -662,7 +662,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        claimantDetailsAsIndividualAnswer.claimantDetailsAsIndividual
+        detailsRegisteredWithCdsAnswer.detailsRegisteredWithCds
     }
 
     def commodityDetails: String = completeClaim match {

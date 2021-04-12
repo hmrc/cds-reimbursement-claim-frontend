@@ -45,7 +45,7 @@
 
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividualSubmit else routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividualSubmit}
+    @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit}
     @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
 
     @line1Key = @{s"$addressKey-line1"}

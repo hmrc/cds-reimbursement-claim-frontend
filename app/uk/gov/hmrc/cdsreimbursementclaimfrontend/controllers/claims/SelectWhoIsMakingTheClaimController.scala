@@ -204,7 +204,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   logger.warn("could not capture declarant type", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterDetailsRegisteredWithCdsController.enterClaimantDetailsAsIndividual())
+                _ => Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
               )
             }
           )
@@ -337,7 +337,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                 fillingOutClaim.draftClaim.fold(
                   _.copy(
                     declarantTypeAnswer = Some(updatedAnswers),
-                    claimantDetailsAsIndividualAnswers = None,
+                    detailsRegisteredWithCdsAnswer = None,
                     contactDetailsAnswer = None,
                     reasonForBasisAndClaimAnswer = None,
                     basisOfClaimAnswer = None,

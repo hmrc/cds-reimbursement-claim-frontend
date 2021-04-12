@@ -401,18 +401,18 @@ class EnterYourContactDetailsControllerSpec
       }
     }
 
-    "Country Code" ignore { //TODO Ignored
-      "Accept 2 digits country code" in { //TODO fix the getClass.getResourceAsStream in Country.scala
+    "Country Code" must {
+      "Accept 2 digits country code" in {
         val errors = form.bind(goodData.updated(countryCode, "HU")).errors
         errors shouldBe Nil
       }
 
-      "Reject 1 digit" in { //TODO fix the getClass.getResourceAsStream in Country.scala
+      "Reject 1 digit" in {
         val errors = form.bind(goodData.updated(countryCode, "H")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.notFound")
       }
 
-      "Reject 3 digits" in { //TODO fix the getClass.getResourceAsStream in Country.scala
+      "Reject 3 digits" in {
         val errors = form.bind(goodData.updated(countryCode, "HUH")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.notFound")
       }

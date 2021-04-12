@@ -313,12 +313,12 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
-        value = Value(Text(completeClaim.claimantDetailsAsIndividual.fullName)),
+        value = Value(Text(completeClaim.detailsRegisteredWithCds.fullName)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual().url}",
+                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
               )
@@ -328,12 +328,12 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
       ),
       SummaryListRow(
         key = Key(Text(messages(s"$key.claimant-details.l1")(lang))),
-        value = Value(Text(completeClaim.claimantDetailsAsIndividual.emailAddress.value)),
+        value = Value(Text(completeClaim.detailsRegisteredWithCds.emailAddress.value)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual().url}",
+                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
               )
@@ -345,7 +345,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
         key = Key(Text(messages(s"$key.claimant-details.l3")(lang))),
         value = Value(
           Text(
-            completeClaim.claimantDetailsAsIndividual.contactAddress
+            completeClaim.detailsRegisteredWithCds.contactAddress
               .getAddressLines(messages.preferred(request))
               .mkString(", ")
           )
@@ -354,7 +354,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeClaimantDetailsAsIndividual().url}",
+                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
               )
