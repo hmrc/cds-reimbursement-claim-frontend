@@ -58,6 +58,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .start()
       .url
 
+  val feedbackSignOut: String =
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.FeedbackController.feedback().url
+
   val govUkUrl: String = getString("external-url.gov-uk")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")

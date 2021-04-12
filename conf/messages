@@ -64,7 +64,7 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
-exit-survey.link-text=What did you think of this service?
+exit-survey.link-text=<a href="{0}">What did you think of this service?</a>  This page will sign you out of this service where you can leave your feedback. 
 
 #===================================================
 #  MESSAGES FOR PAGES
