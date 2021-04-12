@@ -58,8 +58,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .start()
       .url
 
-  val feedbackSignOut: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.FeedbackController.feedback().url
+  private val feedbackBaseUrl = servicesConfig.baseUrl("feedback-survey-frontend")
+
+  private val serviceFeedBackUrl = s"$feedbackBaseUrl/feedback/CDSRC"
+
+  val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
 
   val govUkUrl: String = getString("external-url.gov-uk")
 
