@@ -58,9 +58,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .start()
       .url
 
-  private val feedbackBaseUrl = servicesConfig.baseUrl("feedback-survey-frontend")
-
-  private val serviceFeedBackUrl = s"$feedbackBaseUrl/feedback/CDSRC"
+  val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
+    config.get[String]("microservice.services.feedback.source")
 
   val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
 
