@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import org.jsoup.Jsoup
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -35,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
-
+import play.api.test.Helpers._
 import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
@@ -153,7 +154,20 @@ class CheckDeclarationDetailsControllerSpec
             declarationId = "declaration-id",
             acceptanceDate = "2020-10-20",
             procedureCode = "p-1",
-            consigneeDetails = None,
+            consigneeDetails = Some(
+              ConsigneeDetails(
+                consigneeEORI = "ConsigneeEori",
+                legalName = "Gorwand Ukram",
+                establishmentAddress = EstablishmentAddress(
+                  addressLine1 = "consigne-line-1",
+                  addressLine2 = None,
+                  addressLine3 = None,
+                  postalCode = None,
+                  countryCode = "GB"
+                ),
+                contactDetails = None
+              )
+            ),
             accountDetails = None,
             bankDetails = None,
             maskedBankDetails = None,
@@ -172,7 +186,7 @@ class CheckDeclarationDetailsControllerSpec
               declarantEORI = "F-1",
               legalName = "Fred Bread",
               establishmentAddress = EstablishmentAddress(
-                addressLine1 = "line-1",
+                addressLine1 = "declarant-line-1",
                 addressLine2 = None,
                 addressLine3 = None,
                 postalCode = None,
@@ -193,8 +207,10 @@ class CheckDeclarationDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
         }
 
+        val action = performAction()
+
         checkPageIsDisplayed(
-          performAction(),
+          action,
           messageFromMessageKey("check-declaration-details.title"),
           doc =>
             doc
@@ -202,6 +218,11 @@ class CheckDeclarationDetailsControllerSpec
               .attr("href") shouldBe
               routes.EnterMovementReferenceNumberController.enterMrn().url
         )
+
+        val content     = Jsoup.parse(contentAsString(action))
+        val tableValues = content.getElementsByClass("govuk-summary-list__value")
+        tableValues.get(4).text() shouldBe "consigne-line-1, GB"
+        tableValues.get(5).text() shouldBe "declarant-line-1, GB"
       }
 
       "there is a duplicate declaration" in {
@@ -286,7 +307,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
+          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         )
       }
 
@@ -305,7 +326,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual()
+          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         )
       }
 

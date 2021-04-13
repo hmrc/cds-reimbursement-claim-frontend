@@ -21,29 +21,32 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimantDetailsAsImporterCompanyController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
- formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
  countryCode: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.country_code,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- fieldSet : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.field_set
+ fieldSet : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.field_set,
+ radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[ClaimantDetailsAsImporterCompany], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-claimant-details-importer-company"}
+    @key = @{"enter-claimant-details-as-registered-with-cds"}
     @addressKey = @{"nonUkAddress"}
 
-    @postAction = @{if(isAmend) routes.EnterClaimantDetailsAsImporterCompanyController.changeClaimantDetailsAsImporterCompanySubmit else routes.EnterClaimantDetailsAsImporterCompanyController.enterClaimantDetailsAsImporterCompanySubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual}
-
     @title = @{messages(s"$key.title")}
+
+    @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit}
+    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
 
     @line1Key = @{s"$addressKey-line1"}
     @line2Key = @{s"$addressKey-line2"}
@@ -65,36 +68,26 @@
 
             @inputText(
                 form = form,
-                id = s"$key.importer-company-name",
-                name = s"$key.importer-company-name",
-                label = s"${key}.importer-company-name.label",
+                id = s"$key.individual-full-name",
+                name = s"$key.individual-full-name",
+                label = s"${key}.individual-full-name.label",
                 isPageHeading = false,
+                hint = Some(s"$key.individual-full-name.help"),
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
             @inputText(
                 form = form,
-                id = s"$key.importer-email",
-                name = s"$key.importer-email",
-                label = s"$key.importer-email.label",
+                id = s"$key.individual-email",
+                name = s"$key.individual-email",
+                label = s"$key.individual-email.label",
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @inputText(
-                form = form,
-                id = s"$key.importer-phone-number",
-                name = s"$key.importer-phone-number",
-                label = s"$key.importer-phone-number.label",
-                isPageHeading = false,
-                hint = Some(s"$key.importer-phone-number.help"),
-                classes = Some("govuk-input--width-20"),
-                labelClasses = Some("govuk-label govuk-label--s")
-            )
-
-            @fieldSet(messages(s"$key.importer-contact-address.label"), false) {
+            @fieldSet(messages(s"$key.individual-contact-address.label"), false) {
 
                 @inputText(
                     form = form,
@@ -109,7 +102,7 @@
                 @inputText(
                     form = form,
                     id = line2Key,
-                    name = line3Key,
+                    name = line2Key,
                     label = s"$key.address.line2.label",
                     isPageHeading = false,
                     classes = Some("govuk-input--width-20"),
@@ -156,7 +149,31 @@
 
             }
 
-            @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
+            @radios(
+                form = form,
+                name = s"$key.add-company-details",
+                classes = "govuk-fieldset__legend--s govuk-!-padding-top-6",
+                legend = messages(s"$key.add-company-details.label"),
+                legendAsHeading = false,
+                hintKey = None,
+                inline = true,
+                items = Seq(
+                    RadioItem(
+                        id = Some(s"$key.add-company-details-yes"),
+                        value = Some("true"),
+                        content = Text("Yes"),
+                        checked = form(s"$key.add-company-details").value.contains("true")
+                    ),
+                    RadioItem(
+                        id = Some(s"$key.add-company-details-no"),
+                        value = Some("false"),
+                        content = Text("No"),
+                        checked = form(s"$key.add-company-details").value.contains("false")
+                    )
+                )
+            )
+
+            @submitButton("button.continue")
 
         }
 

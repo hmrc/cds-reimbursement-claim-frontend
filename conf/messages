@@ -64,7 +64,7 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
-exit-survey.link-text=What did you think of this service?
+exit-survey.link-text=<a href="{0}">What did you think of this service?</a>  This page will sign you out of this service where you can leave your feedback. 
 
 #===================================================
 #  MESSAGES FOR PAGES
@@ -141,7 +141,7 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
 enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an entry (legacy) number found in your CHIEF documentation.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
 enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
@@ -183,44 +183,44 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 enter-declarant-eori-number.input-label=Enter the EORI number
 
 #===================================================
-#  ENTER CLAIMANT DETAILS AS INDIVIDUAL PAGE
+#  ENTER CLAIMANT DETAILS AS REGISTERED WITH CDS
 #===================================================
-enter-claimant-details-individual.title=Enter your claimant details as an individual
-enter-claimant-details-individual.help-text=These are the details if we need to contact you about this claim application.
-enter-claimant-details-individual.individual-full-name.label=Full name
-enter-claimant-details-individual.individual-full-name.help=This must be your legal name
-enter-claimant-details-individual.individual-full-name.error.required=Enter a full name
-enter-claimant-details-individual.individual-email.label=Email address
-enter-claimant-details-individual.individual-email.error.required=Enter a valid email address
-enter-claimant-details-individual.individual-email.error.maxLength=Enter a valid email address
-enter-claimant-details-individual.individual-email.invalid=Enter a valid email address
-enter-claimant-details-individual.individual-phone-number.error.required=Enter a valid phone number
-enter-claimant-details-individual.individual-phone-number.error.maxLength=Enter a valid phone number
-enter-claimant-details-individual.individual-phone-number.invalid=Enter a valid phone number
-enter-claimant-details-individual.individual-phone-number.label=Phone number
-enter-claimant-details-individual.individual-phone-number.help=For international numbers include the country code.
-enter-claimant-details-individual.individual-contact-address.label=Contact address
-enter-claimant-details-individual.address.line1.label=Address Line 1
-enter-claimant-details-individual.address.line1.error.required=Enter a address line 1
-enter-claimant-details-individual.address-line1.error.required=Enter an address line 1
-enter-claimant-details-individual.address.line2.label=Address Line 2 (optional)
-enter-claimant-details-individual.address.line3.label=Address Line 3 (optional)
-enter-claimant-details-individual.address.line4.label=Town or city
-enter-claimant-details-individual.address-line4.error.required=Enter a valid town or city
-enter-claimant-details-individual.address.line5.label=Postcode
-enter-claimant-details-individual.address.line5.postcode.error.required=Enter a valid postcode
-enter-claimant-details-individual.address.line6.label=Country
-enter-claimant-details-individual.countryCode.error.required=Enter a country
-enter-claimant-details-individual.add-company-details.label=Do you want to add company details?
-enter-claimant-details-individual.add-company-details.no=No
-enter-claimant-details-individual.add-company-details.yes=Yes
-enter-claimant-details-individual.add-company-details.error.boolean=Choose if you want to add company details
-enter-claimant-details-individual.add-company-details.error.required=Choose if you want to add company details
-enter-claimant-details-individual.individual-full-name.error.maxLength= Enter a valid full name
+enter-claimant-details-as-registered-with-cds.title=Enter your details as registered with CDS
+enter-claimant-details-as-registered-with-cds.help-text=These are the details you used when registering with CDS.
+enter-claimant-details-as-registered-with-cds.individual-full-name.label=Full name
+enter-claimant-details-as-registered-with-cds.individual-full-name.help=This must be your legal name
+enter-claimant-details-as-registered-with-cds.individual-full-name.error.required=Enter a full name
+enter-claimant-details-as-registered-with-cds.individual-email.label=Email address
+enter-claimant-details-as-registered-with-cds.individual-email.error.required=Enter a valid email address
+enter-claimant-details-as-registered-with-cds.individual-email.error.maxLength=Enter a valid email address
+enter-claimant-details-as-registered-with-cds.individual-email.invalid=Enter a valid email address
+enter-claimant-details-as-registered-with-cds.individual-phone-number.error.required=Enter a valid phone number
+enter-claimant-details-as-registered-with-cds.individual-phone-number.error.maxLength=Enter a valid phone number
+enter-claimant-details-as-registered-with-cds.individual-phone-number.invalid=Enter a valid phone number
+enter-claimant-details-as-registered-with-cds.individual-phone-number.label=Phone number
+enter-claimant-details-as-registered-with-cds.individual-phone-number.help=For international numbers include the country code.
+enter-claimant-details-as-registered-with-cds.individual-contact-address.label=Contact address
+enter-claimant-details-as-registered-with-cds.address.line1.label=Address Line 1
+enter-claimant-details-as-registered-with-cds.address.line1.error.required=Enter a address line 1
+enter-claimant-details-as-registered-with-cds.address-line1.error.required=Enter an address line 1
+enter-claimant-details-as-registered-with-cds.address.line2.label=Address Line 2 (optional)
+enter-claimant-details-as-registered-with-cds.address.line3.label=Address Line 3 (optional)
+enter-claimant-details-as-registered-with-cds.address.line4.label=Town or city
+enter-claimant-details-as-registered-with-cds.address-line4.error.required=Enter a valid town or city
+enter-claimant-details-as-registered-with-cds.address.line5.label=Postcode
+enter-claimant-details-as-registered-with-cds.address.line5.postcode.error.required=Enter a valid postcode
+enter-claimant-details-as-registered-with-cds.address.line6.label=Country
+enter-claimant-details-as-registered-with-cds.countryCode.error.required=Enter a country
+enter-claimant-details-as-registered-with-cds.add-company-details.label=Do you want to add contact details so we can contact you about this claim?
+enter-claimant-details-as-registered-with-cds.add-company-details.no=No
+enter-claimant-details-as-registered-with-cds.add-company-details.yes=Yes
+enter-claimant-details-as-registered-with-cds.add-company-details.error.boolean=Choose if you want to add company details
+enter-claimant-details-as-registered-with-cds.add-company-details.error.required=Choose if you want to add company details
+enter-claimant-details-as-registered-with-cds.individual-full-name.error.maxLength= Enter a valid full name
 postcode.error.required=Enter a valid postcode
 postcode.error.pattern=Enter a valid postcode
 postcode.error.tooLong=Enter a valid postcode
-countryCode.enter-claimant-details-individual.error.required=Enter a country
+countryCode.enter-claimant-details-as-registered-with-cds.error.required=Enter a country
 nonUkAddress-line1.error.pattern=Enter a valid address line 1
 nonUkAddress-line2.error.pattern=Enter a valid address line 2
 nonUkAddress-line3.error.pattern=Enter a valid address line 3
@@ -230,40 +230,40 @@ nonUkAddress-line4.error.pattern=Enter a valid town or city
 #===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
-enter-claimant-details-importer-company.help-text=These are the details if we need to contact you about this claim application.
-enter-claimant-details-importer-company.title=Enter your claimant details as an importer company
-enter-claimant-details-importer-company.caption=Company Claimant Details
-enter-claimant-details-importer-company.help-text=These are the details of the importer company associated with you.
-enter-claimant-details-importer-company.importer-company-name.label=Company name
-enter-claimant-details-importer-company.importer-company-name.error.required=Enter a company name
-enter-claimant-details-importer-company.importer-company-name.error.maxLength=Enter a valid company name
-enter-claimant-details-importer-company.importer-email.label=Email address
-enter-claimant-details-importer-company.importer-email.error.required=Enter a valid email
-enter-claimant-details-importer-company.importer-email.error.maxLength=Enter a valid email
-enter-claimant-details-importer-company.importer-email.invalid=Enter a valid email
-enter-claimant-details-importer-company.importer-phone-number.error.required=Enter a valid phone number
-enter-claimant-details-importer-company.importer-phone-number.error.maxLength=Enter a valid phone number
-enter-claimant-details-importer-company.importer-phone-number.invalid=Enter a valid phone number
-enter-claimant-details-importer-company.importer-phone-number.label=Phone number
-enter-claimant-details-importer-company.importer-phone-number.help=For international numbers include the country code.
-enter-claimant-details-importer-company.importer-contact-address.label=Contact address
-enter-claimant-details-importer-company.address.building.label=Building number or name
-enter-claimant-details-importer-company.nonUkAddress-building.error.required=Enter a building number or name
-enter-claimant-details-importer-company.address.line1.label=Address Line 1
-enter-claimant-details-importer-company.address.line1.error.required=Enter address line 1
-enter-claimant-details-importer-company.nonUkAddress-line1.error.required=Enter address line 1
-enter-claimant-details-importer-company.address.line2.label=Address Line 2 (optional)
-enter-claimant-details-importer-company.address.line3.label=Address Line 3 (optional)
-enter-claimant-details-importer-company.address.line4.label=Town or city
-enter-claimant-details-importer-company.nonUkAddress-line4.error.required=Enter a town or city
-enter-claimant-details-importer-company.address.line5.label=Postcode
-enter-claimant-details-importer-company.address.line6.label=Country
-enter-claimant-details-importer-company.countryCode.error.required=Enter a country
-enter-claimant-details-importer-company.add-company-details.label=<h2>Do you want to add company details?</h2>
-enter-claimant-details-importer-company.add-company-details.no=No
-enter-claimant-details-importer-company.add-company-details.yes=Yes
-enter-claimant-details-importer-company.add-company-details.error.required=Choose if you want to add company details
-countryCode.enter-claimant-details-importer-company.error.required=Enter a country
+enter-your-contact-details.help-text=These are the details if we need to contact you about this claim application.
+enter-your-contact-details.title=Enter your contact details
+enter-your-contact-details.caption=Contact Details
+enter-your-contact-details.help-text=These are the contact details if we need to get in touch about this claim.
+enter-your-contact-details.contact-name.label=Full Name
+enter-your-contact-details.contact-name.error.required=Enter your full name
+enter-your-contact-details.contact-name.error.maxLength=Enter a shorter name
+enter-your-contact-details.contact-email.label=Email address
+enter-your-contact-details.contact-email.error.required=Enter a valid email
+enter-your-contact-details.contact-email.error.maxLength=Enter a valid email
+enter-your-contact-details.contact-email.invalid=Enter a valid email
+enter-your-contact-details.contact-phone-number.error.required=Enter a valid phone number
+enter-your-contact-details.contact-phone-number.error.maxLength=Enter a valid phone number
+enter-your-contact-details.contact-phone-number.invalid=Enter a valid phone number
+enter-your-contact-details.contact-phone-number.label=Phone number
+enter-your-contact-details.contact-phone-number.help=For international numbers include the country code.
+enter-your-contact-details.importer-contact-address.label=Contact address
+enter-your-contact-details.address.building.label=Building number or name
+enter-your-contact-details.nonUkAddress-building.error.required=Enter a building number or name
+enter-your-contact-details.address.line1.label=Address Line 1
+enter-your-contact-details.address.line1.error.required=Enter address line 1
+enter-your-contact-details.nonUkAddress-line1.error.required=Enter address line 1
+enter-your-contact-details.address.line2.label=Address Line 2 (optional)
+enter-your-contact-details.address.line3.label=Address Line 3 (optional)
+enter-your-contact-details.address.line4.label=Town or city
+enter-your-contact-details.nonUkAddress-line4.error.required=Enter a town or city
+enter-your-contact-details.address.line5.label=Postcode
+enter-your-contact-details.address.line6.label=Country
+enter-your-contact-details.countryCode.error.required=Enter a country
+enter-your-contact-details.add-company-details.label=<h2>Do you want to add company details?</h2>
+enter-your-contact-details.add-company-details.no=No
+enter-your-contact-details.add-company-details.yes=Yes
+enter-your-contact-details.add-company-details.error.required=Choose if you want to add company details
+countryCode.enter-your-contact-details.error.required=Enter a country
 
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
@@ -314,13 +314,14 @@ enter-declaration-details.declarant-phone-number.error.maxLength=Enter a valid d
 select-who-is-making-the-claim.title=Who is making this claim?
 select-who-is-making-the-claim.help-text=This person is responsible for the claim. They are the point of contact if we have a query about the claim.
 select-who-is-making-the-claim.importer=I am a private individual importer
-select-who-is-making-the-claim.associate-with-importer-company=I am associated with the importer company
-select-who-is-making-the-claim.associate-with-representative-company=I am associated with a representative company on behalf of the importer
+select-who-is-making-the-claim.associate-with-importer-company=I work for an importer company
+select-who-is-making-the-claim.associate-with-representative-company=I work for a representative company on behalf of the importer
 select-who-is-making-the-claim.error.required=Select a declaration type
 select-who-is-making-the-claim.invalid=Select a declaration type
 select-who-is-making-the-claim.details.heading=What is an importer and a representative?
-select-who-is-making-the-claim.details.l0=An importer can be a person or company bringing the goods into the country.
-select-who-is-making-the-claim.details.l1=A representative company can be a person or company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-who-is-making-the-claim.details.l0=A private individual importer can be a private individual or company bringing goods into the country.
+select-who-is-making-the-claim.details.l1=An importer company is one that solely imports (not agents, private individuals or sole traders).
+select-who-is-making-the-claim.details.l2=A representative company can be a person or a company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
@@ -426,7 +427,7 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #===================================================
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
 enter-commodities-details.label=Enter commodity details
-enter-commodities-details.help-text=You can enter more than one commodity from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 enter-commodities-details.error.maxLength=Enter commodity details
 
@@ -452,7 +453,7 @@ select-duties.duty.A95=Provisional Countervailing Duty - Code A95
 select-duties.duty.B05=Value Added Tax - Code B05
 
 enter-claim.title=Enter the claim amount for duty {0}
-enter-claim.help-text=This is to calculate your reimbursement as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
 enter-claim.paid-amount=Paid Amount
@@ -470,7 +471,6 @@ check-claim.help-text=These are the calculations based on the information you ga
 check-claim.update=<a href="{0}">Update the calculation</a>
 check-claim.total=Total Reimbursement
 
-
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
@@ -481,7 +481,7 @@ check-your-reimbursement-claim-total.help-text=These are the calculations based 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.help-text=This is where you would like reimbursements to be made in the UK.<br />To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
+enter-bank-details.help-text=This is where you would like reimbursements (repayments) to be made in the UK.<br />To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 enter-bank-details.account-name.label=Bank account name
 enter-bank-details.account-name.help-text=The name registered within the account
 enter-bank-details.account-name.error.required=Enter a valid account name
@@ -510,7 +510,6 @@ enter-bank-details.error.account-does-not-exist=Account number must belong to an
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid Account Number
 enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 
-
 #===================================================
 #  BANK DETAILS PAGE
 #===================================================
@@ -525,16 +524,16 @@ bank-details.different-details-link=<a href="{0}">Enter different bank details</
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
-supporting-evidence.upload.details.l0=C88/E2 (proof to authorise imports from the country of origin)
-supporting-evidence.upload.details.l1=Commercial invoice (shows the value of the goods)
-supporting-evidence.upload.details.l2=Packing list (document that states packaging details in each shipment)
-supporting-evidence.upload.details.l3=Air waybill (in your cargo documents)
-supporting-evidence.upload.details.l4=Bill of lading (this is a receipt of shipped goods)
-supporting-evidence.upload.details.l5=Substitute entry (a form to declare a substitute when goods have been incorrectly declared)
-supporting-evidence.upload.details.l6=Schedule of MRNs (a list of previous MRN numbers)
-supporting-evidence.upload.details.l7=Proof of authority (from importer for duty to be repaid)
-supporting-evidence.upload.details.l8=Correspondence trader (an email chain or letters between you and the trader)
-supporting-evidence.upload.details.l9=Additional supporting documents (for example an import licence, insurance certificate, purchase order or letter of credit)
+supporting-evidence.upload.details.l0=Commercial Invoice (proof of sale and describes the commodities being sold; their price, description and quantity)
+supporting-evidence.upload.details.l1=Import and Export Declaration (proof of the import or export being declared)
+supporting-evidence.upload.details.l2=C88/E2 (proof to authorise imports from the country of destination)
+supporting-evidence.upload.details.l3=Packing List (a document that lists product type in each package)
+supporting-evidence.upload.details.l4=Air Waybill (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.upload.details.l5=Bill of Lading (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.upload.details.l6=Substitute Entry (a copy of the original customs declaration amended to show the correct details)
+supporting-evidence.upload.details.l8=Proof of Authority (in case you change your bank account details)
+supporting-evidence.upload.details.l9=Correspondence Trader (an email chain or letters between you and the trader)
+supporting-evidence.upload.details.l10=Other documents (if you have alternative supporting documents)
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
@@ -577,12 +576,10 @@ supporting-evidence.choose-document-type.document-type.d2=Packing List
 supporting-evidence.choose-document-type.document-type.d3=Air Waybill
 supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
 supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
-supporting-evidence.choose-document-type.document-type.d6=Schedule of MRNs
 supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
 supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
-supporting-evidence.choose-document-type.document-type.d9=Additional Supporting Documents
 supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
-supporting-evidence.choose-document-type.document-type.d11=Other
+supporting-evidence.choose-document-type.document-type.d11=Other documents
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
@@ -646,10 +643,8 @@ check-your-answers.attached-documents.h2=Attached documents
 check-your-answers.reason-basis.h2=Reason or basis for claim
 check-your-answers.claimant-details.h2=Claimant’s details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s company details
-
 check-your-answers.confirmation-statement.h2=Now send your application
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
-
 
 #===================================================
 # SUBMISSION ERROR PAGE
@@ -666,7 +661,7 @@ confirmation-of-submission.reimbursement-amount=Reimbursement amount
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
-confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will email you the outcome within 30 working days. We will contact you to either:
+confirmation-of-submission.what-next.p1=Your application will be reviewed by HMRC and we will aim to email or write a letter to you to tell you the outcome within 30 working days. We will contact you to either:
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected

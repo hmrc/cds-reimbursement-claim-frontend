@@ -116,7 +116,7 @@ class CheckDeclarationDetailsController @Inject() (
   def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withPossibleDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
       maybeDeclaration.fold(
-        Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
+        Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
       )(declaration =>
         Ok(
           checkDeclarationDetailsPage(
@@ -136,7 +136,7 @@ class CheckDeclarationDetailsController @Inject() (
   def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withDuplicateDeclaration { (_, fillingOutClaim, maybeDeclaration) =>
       maybeDeclaration.fold(
-        Redirect(routes.EnterClaimantDetailsAsIndividualController.enterClaimantDetailsAsIndividual())
+        Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
       )(declaration =>
         Ok(
           checkDeclarationDetailsPage(

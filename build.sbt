@@ -52,7 +52,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(routesImport := Seq("_root_.controllers.Assets.Asset"))
   .settings(TwirlKeys.templateImports := Seq.empty)
   .settings(
-    majorVersion := 0,
+    majorVersion := 1,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(
@@ -64,6 +64,7 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
+  .settings(resourceDirectories in Test += baseDirectory.value / "conf" / "resources")
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)

@@ -460,10 +460,8 @@ object SupportingEvidenceController {
                 documentType === 3 ||
                 documentType === 4 ||
                 documentType === 5 ||
-                documentType === 6 ||
                 documentType === 7 ||
                 documentType === 8 ||
-                documentType === 9 ||
                 documentType === 10 ||
                 documentType === 11
           )
@@ -475,26 +473,22 @@ object SupportingEvidenceController {
               case 3  => SupportingEvidenceDocumentType.AirWayBill
               case 4  => SupportingEvidenceDocumentType.BillOfLading
               case 5  => SupportingEvidenceDocumentType.SubstituteEntry
-              case 6  => SupportingEvidenceDocumentType.ScheduleOfMRNs
               case 7  => SupportingEvidenceDocumentType.ProofOfAuthority
               case 8  => SupportingEvidenceDocumentType.CorrespondenceTrader
-              case 9  => SupportingEvidenceDocumentType.AdditionalSupportingDocuments
               case 10 => SupportingEvidenceDocumentType.ImportAndExportDeclaration
               case 11 => SupportingEvidenceDocumentType.Other
             },
             {
-              case SupportingEvidenceDocumentType.C88E2                         => 0
-              case SupportingEvidenceDocumentType.CommercialInvoice             => 1
-              case SupportingEvidenceDocumentType.PackingList                   => 2
-              case SupportingEvidenceDocumentType.AirWayBill                    => 3
-              case SupportingEvidenceDocumentType.BillOfLading                  => 4
-              case SupportingEvidenceDocumentType.SubstituteEntry               => 5
-              case SupportingEvidenceDocumentType.ScheduleOfMRNs                => 6
-              case SupportingEvidenceDocumentType.ProofOfAuthority              => 7
-              case SupportingEvidenceDocumentType.CorrespondenceTrader          => 8
-              case SupportingEvidenceDocumentType.AdditionalSupportingDocuments => 9
-              case SupportingEvidenceDocumentType.ImportAndExportDeclaration    => 10
-              case SupportingEvidenceDocumentType.Other                         => 11
+              case SupportingEvidenceDocumentType.C88E2                      => 0
+              case SupportingEvidenceDocumentType.CommercialInvoice          => 1
+              case SupportingEvidenceDocumentType.PackingList                => 2
+              case SupportingEvidenceDocumentType.AirWayBill                 => 3
+              case SupportingEvidenceDocumentType.BillOfLading               => 4
+              case SupportingEvidenceDocumentType.SubstituteEntry            => 5
+              case SupportingEvidenceDocumentType.ProofOfAuthority           => 7
+              case SupportingEvidenceDocumentType.CorrespondenceTrader       => 8
+              case SupportingEvidenceDocumentType.ImportAndExportDeclaration => 10
+              case SupportingEvidenceDocumentType.Other                      => 11
             }
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)

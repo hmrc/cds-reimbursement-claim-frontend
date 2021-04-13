@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantDetailsAsIndividualAnswer.CompleteClaimantDetailsAsIndividualAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
@@ -43,7 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimantDetailsAsIndividualAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnwerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
@@ -109,15 +109,15 @@ class CheckYourAnswersAndSubmitControllerSpec
     )
   }
 
-  val mrn: MRN                                                                             = sample[MRN]
-  val completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer                             = sample[CompleteDeclarantTypeAnswer]
-  val completeClaimantDetailsAsIndividualAnswer: CompleteClaimantDetailsAsIndividualAnswer =
-    sample[CompleteClaimantDetailsAsIndividualAnswer]
-  val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                               = sample[CompleteBasisOfClaimAnswer]
-  val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                   = sample[CompleteSupportingEvidenceAnswer]
-  val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                           = sample[CompleteDutiesSelectedAnswer]
-  val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                       = sample[CompleteCommodityDetailsAnswer]
-  val completeClaimsAnswer: CompleteClaimsAnswer                                           = sample[CompleteClaimsAnswer]
+  val mrn: MRN                                                                          = sample[MRN]
+  val completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer                          = sample[CompleteDeclarantTypeAnswer]
+  val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
+    sample[CompleteDetailsRegisteredWithCdsAnswer]
+  val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
+  val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                = sample[CompleteSupportingEvidenceAnswer]
+  val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                        = sample[CompleteDutiesSelectedAnswer]
+  val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
+  val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(mrn))),
@@ -125,8 +125,8 @@ class CheckYourAnswersAndSubmitControllerSpec
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = Some(completeDeclarantTypeAnswer),
-    claimantDetailsAsIndividualAnswers = Some(completeClaimantDetailsAsIndividualAnswer),
-    claimantDetailsAsImporterCompanyAnswers = None,
+    detailsRegisteredWithCdsAnswer = Some(completeClaimantDetailsAsIndividualAnswer),
+    contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     supportingEvidenceAnswers = Some(completeSupportingEvidenceAnswer),
@@ -186,8 +186,8 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
     completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,
-    completeClaimantDetailsAsIndividualAnswer = completeClaimantDetailsAsIndividualAnswer,
-    maybeClaimantDetailsAsImporterCompanyAnswer = None,
+    completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
+    maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswers = completeSupportingEvidenceAnswer,

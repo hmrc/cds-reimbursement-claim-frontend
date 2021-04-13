@@ -18,9 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, ConsigneeBankDetails, DeclarantBankDetails, DisplayResponseDetail, MaskedBankDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, ConsigneeBankDetails, ConsigneeDetails, DeclarantBankDetails, DeclarantDetails, DisplayResponseDetail, MaskedBankDetails}
 
 object DisplayResponseDetailGen extends GenUtils {
+  implicit val consigneeDetailsGen: Gen[ConsigneeDetails]           = gen[ConsigneeDetails]
+  implicit val declarantDetailsGen: Gen[DeclarantDetails]           = gen[DeclarantDetails]
   implicit val consigneeBankDetailsGen: Gen[ConsigneeBankDetails]   = gen[ConsigneeBankDetails]
   implicit val declarantBankDetailsGen: Gen[DeclarantBankDetails]   = gen[DeclarantBankDetails]
   implicit val bankDetailsGen: Gen[BankDetails]                     = gen[BankDetails]

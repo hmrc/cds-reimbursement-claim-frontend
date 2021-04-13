@@ -46,7 +46,7 @@
             @errorSummary(form.errors)
 
             @pageHeading(title)
-    
+
             @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @inputSelect(
@@ -58,14 +58,19 @@
                 name = key,
                 items = Seq(
                     SelectItem(
-                        value = Some("0"),
-                        text  = messages(s"$key.document-type.d0"),
-                        selected = form(s"$key").value.contains("0")
-                    ),
-                    SelectItem(
                         value = Some("1"),
                         text  = messages(s"$key.document-type.d1"),
                         selected = form(s"$key").value.contains("1")
+                    ),
+                    SelectItem(
+                        value = Some("10"),
+                        text  = messages(s"$key.document-type.d10"),
+                        selected = form(s"$key").value.contains("10")
+                    ),
+                    SelectItem(
+                        value = Some("0"),
+                        text  = messages(s"$key.document-type.d0"),
+                        selected = form(s"$key").value.contains("0")
                     ),
                     SelectItem(
                         value = Some("2"),
@@ -88,11 +93,6 @@
                         selected = form(s"$key").value.contains("5")
                     ),
                     SelectItem(
-                        value = Some("6"),
-                        text  = messages(s"$key.document-type.d6"),
-                        selected = form(s"$key").value.contains("6")
-                    ),
-                    SelectItem(
                         value = Some("7"),
                         text  = messages(s"$key.document-type.d7"),
                         selected = form(s"$key").value.contains("7")
@@ -101,16 +101,6 @@
                         value = Some("8"),
                         text  = messages(s"$key.document-type.d8"),
                         selected = form(s"$key").value.contains("8")
-                    ),
-                    SelectItem(
-                        value = Some("9"),
-                        text  = messages(s"$key.document-type.d9"),
-                        selected = form(s"$key").value.contains("9")
-                    ),
-                    SelectItem(
-                        value = Some("10"),
-                        text  = messages(s"$key.document-type.d10"),
-                        selected = form(s"$key").value.contains("10")
                     ),
                     SelectItem(
                         value = Some("11"),
