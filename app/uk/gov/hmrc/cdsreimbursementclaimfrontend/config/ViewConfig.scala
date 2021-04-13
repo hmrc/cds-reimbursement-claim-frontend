@@ -58,6 +58,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .start()
       .url
 
+  val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
+    config.get[String]("microservice.services.feedback.source")
+
+  val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
+
   val govUkUrl: String = getString("external-url.gov-uk")
 
   val enableLanguageSwitching: Boolean = servicesConfig.getBoolean("enable-language-switching")
