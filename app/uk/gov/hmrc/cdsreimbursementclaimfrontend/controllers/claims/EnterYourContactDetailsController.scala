@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import julienrf.json.derived
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.libs.json.{Json, OFormat}
@@ -309,10 +308,6 @@ object EnterYourContactDetailsController {
 
   object ContactDetailsFormData {
     implicit val format: OFormat[ContactDetailsFormData] = Json.format[ContactDetailsFormData]
-  }
-
-  object ClaimantDetailsAsIndividual {
-    implicit val format: OFormat[ContactDetailsFormData] = derived.oformat[ContactDetailsFormData]()
   }
 
   val contactDetailsForm: Form[ContactDetailsFormData] = Form(

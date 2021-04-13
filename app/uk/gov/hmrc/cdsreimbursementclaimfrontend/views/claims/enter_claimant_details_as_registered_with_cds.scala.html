@@ -38,7 +38,7 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[ClaimantDetailsAsIndividual], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[DetailsRegisteredWithCdsFormData], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-claimant-details-as-registered-with-cds"}
     @addressKey = @{"nonUkAddress"}
