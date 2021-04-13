@@ -21,7 +21,8 @@ import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Forms.{bigDecimal, mapping}
-import play.api.data.{Form, FormError}
+import play.api.data.validation._
+import play.api.data.{Form, FormError, Mapping}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -767,18 +768,21 @@ object EnterClaimController {
 
   final case class ClaimAmount(amount: BigDecimal)
 
+  val moneyMapping: Mapping[BigDecimal] = bigDecimal(13, 2)
+    .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid("positive.numbers")))
+
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> bigDecimal(13, 2)
+        "enter-claim" -> moneyMapping
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> bigDecimal(13, 2),
-      "enter-claim.claim-amount" -> bigDecimal(13, 2)
+      "enter-claim.paid-amount"  -> moneyMapping,
+      "enter-claim.claim-amount" -> moneyMapping
     )(AmountPair.apply)(AmountPair.unapply)
       .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
