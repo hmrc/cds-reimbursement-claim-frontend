@@ -50,19 +50,22 @@
             classes = "govuk-input--width-2",
             name =  s"$id.day",
             label = Some(messages("date.day")),
-            value = form(s"$id.day").value
+            value = form(s"$id.day").value,
+            id = s"$id.day"
         ),
         InputItem(
             classes = "govuk-input--width-2",
             name = s"$id.month",
             label = Some(messages("date.month")),
-            value = form(s"$id.month").value
+            value = form(s"$id.month").value,
+            id = s"$id.month"
         ),
         InputItem(
             classes = "govuk-input--width-4",
             name = s"$id.year",
             label = Some(messages("date.year")),
-            value = form(s"$id.year").value
+            value = form(s"$id.year").value,
+            id = s"$id.year"
         )
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
