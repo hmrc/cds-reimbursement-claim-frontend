@@ -474,7 +474,6 @@ class EnterClaimControllerSpec
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        println(errors)
         errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
       }
     }
