@@ -42,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimantDetailsAsIndividualAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
@@ -50,6 +51,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.emailGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
@@ -543,6 +545,30 @@ class CheckYourAnswersAndSubmitControllerSpec
 
       }
 
+    }
+
+    "SubmissionError" should {
+      "render the error page when the submission fails" in {
+        def performAction() = controller.submissionError()(FakeRequest())
+
+        val ggCredId            = sample[GGCredId]
+        val email               = sample[Email]
+        val eori                = sample[Eori]
+        val signedInUserDetails =
+          SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+
+        val journeyStatus = SubmitClaimFailed(ggCredId, signedInUserDetails)
+        val session       = SessionData.empty.copy(journeyStatus = Some(journeyStatus))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        val page = performAction()
+        checkPageIsDisplayed(page, messages("submit-claim-error.title"))
+
+      }
     }
   }
 

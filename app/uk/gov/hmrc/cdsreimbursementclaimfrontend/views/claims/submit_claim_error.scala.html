@@ -32,10 +32,8 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
 
 @layout(pageTitle = Some(s"$title")) {
 
-@pageHeading(title)
-
+        @pageHeading(title)
         @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
-
         @paragraph(Html(messages(s"$key.p2", viewConfig.importExportUrl)), Some("govuk-body"))
 
 }
