@@ -445,6 +445,10 @@ class EnterClaimControllerSpec
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(12, 2))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
       }
+      "Reject negative numbers" in {
+        val errors = form.bind(goodData.updated(paidAmount, "-1")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
+      }
     }
 
     "claimAmount" should {
@@ -467,6 +471,11 @@ class EnterClaimControllerSpec
       "Reject claimAmount too long" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+      }
+      "Reject negative numbers" in {
+        val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
+        println(errors)
+        errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
       }
     }
 
@@ -503,6 +512,10 @@ class EnterClaimControllerSpec
         "Reject claimAmount too long" in {
           val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
           errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        }
+        "Reject negative numbers" in {
+          val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
+          errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
         }
       }
     }
