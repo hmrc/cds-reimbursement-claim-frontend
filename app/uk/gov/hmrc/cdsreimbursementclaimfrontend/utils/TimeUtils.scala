@@ -53,7 +53,6 @@ object TimeUtils {
   ): Formatter[LocalDate] =
     new Formatter[LocalDate] {
 
-
       def dateFieldStringValues(
         data: Map[String, String]
       ): Either[FormError, (String, String, String)] =
