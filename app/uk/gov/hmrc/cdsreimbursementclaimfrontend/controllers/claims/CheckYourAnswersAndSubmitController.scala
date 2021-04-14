@@ -111,6 +111,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
         result.fold(
           { e =>
             logger.warn("Error while trying to update session", e)
+
             errorHandler.errorResult()
           },
           {

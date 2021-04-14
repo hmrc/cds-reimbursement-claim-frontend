@@ -102,6 +102,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val contactCdsTeamUrl: String = getString("external-url.contact-cds-team")
 
+  val importExportUrl: String = getString("external-url.import-export")
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt

@@ -654,9 +654,9 @@ check-your-answers.confirmation-statement=By submitting this notification you ar
 #===================================================
 # SUBMISSION ERROR PAGE
 #===================================================
-submit-claim-error.title=Sorry, there is a problem with the service
-submit-claim-error.p1=Your claim might not have been sent to HMRC.
-submit-claim-error.p2=You’ll need to contact the CDS team to find out if your claim was successful.
+submit-claim-error.title=Claim submission failed
+submit-claim-error.p1=Sorry, your claim submission failed
+submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href="{0}" class="govuk-link" target="_blank">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 
 #===================================================
 # CONFIRMATION PAGE
