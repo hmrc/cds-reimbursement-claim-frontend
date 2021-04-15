@@ -58,6 +58,10 @@
                 name = key,
                 items = Seq(
                     SelectItem(
+                        value = Some(""),
+                        text  = messages(s"generic.defaultOption")
+                    ),
+                    SelectItem(
                         value = Some("1"),
                         text  = messages(s"$key.document-type.d1"),
                         selected = form(s"$key").value.contains("1")
