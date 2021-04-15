@@ -20,9 +20,8 @@ import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.data.Forms.{bigDecimal, mapping}
-import play.api.data.validation._
-import play.api.data.{Form, FormError, Mapping}
+import play.api.data.Forms.mapping
+import play.api.data.{Form, FormError}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -36,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.UUIDGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, DraftClaim, DutiesSelectedAnswer, Error, SessionData, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -768,21 +768,18 @@ object EnterClaimController {
 
   final case class ClaimAmount(amount: BigDecimal)
 
-  val moneyMapping: Mapping[BigDecimal] = bigDecimal(13, 2)
-    .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid("positive.numbers")))
-
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> moneyMapping
+        "enter-claim" -> moneyMapping(13, 2, "error.invalid")
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> moneyMapping,
-      "enter-claim.claim-amount" -> moneyMapping
+      "enter-claim.paid-amount"  -> moneyMapping(13, 2, "error.invalid"),
+      "enter-claim.claim-amount" -> moneyMapping(13, 2, "error.invalid")
     )(AmountPair.apply)(AmountPair.unapply)
       .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
   )

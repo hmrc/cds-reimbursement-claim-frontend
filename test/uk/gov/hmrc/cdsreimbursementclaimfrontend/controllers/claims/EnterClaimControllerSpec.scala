@@ -362,12 +362,12 @@ class EnterClaimControllerSpec
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-claim.paid-amount.error.real.precision"
+              s"enter-claim.paid-amount.error.invalid"
             )
             doc
               .select(".govuk-error-summary__list > li:nth-child(2) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-claim.claim-amount.error.real.precision"
+              s"enter-claim.claim-amount.error.invalid"
             )
           },
           BAD_REQUEST
@@ -435,19 +435,19 @@ class EnterClaimControllerSpec
       }
       "Reject paidAmount decimals only too many" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject paidAmount too many decimals" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject paidAmount too long" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(paidAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
     }
 
@@ -462,19 +462,19 @@ class EnterClaimControllerSpec
       }
       "Reject claimAmount decimals only too many" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject claimAmount too many decimals" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject claimAmount too long" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
       }
     }
 
@@ -500,21 +500,21 @@ class EnterClaimControllerSpec
           val errors = form.bind(goodData.updated(claimAmount, moneyGen(11, 2))).errors
           errors shouldBe Nil
         }
-        "Reject claimAmount decimals only too many" in {
+        "Reject claimAmount too many decimal digits" in {
           val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
         }
         "Reject claimAmount too many decimals" in {
           val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
         }
         "Reject claimAmount too long" in {
           val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.real.precision")
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
         }
         "Reject negative numbers" in {
           val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("positive.numbers")
+          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
         }
       }
     }
