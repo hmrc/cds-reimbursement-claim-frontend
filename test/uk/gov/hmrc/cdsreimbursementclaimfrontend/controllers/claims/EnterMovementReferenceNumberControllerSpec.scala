@@ -172,10 +172,31 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(Right(()))
         }
-        val doc             = Jsoup.parse(contentAsString(performAction()))
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
 
         doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
+
+      }
+
+      "show the back button when the user has come from the CYA page" in {
+        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("a.govuk-back-link").text should include("Back")
+        doc.getElementsByClass("govuk-back-link").attr("href") should include(
+          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        )
       }
     }
 

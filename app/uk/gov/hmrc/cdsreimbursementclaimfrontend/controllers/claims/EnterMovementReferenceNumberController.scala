@@ -285,70 +285,100 @@ class EnterMovementReferenceNumberController @Inject() (
                   isAmend = true
                 )
               ),
-            movementReferenceNumber =>
-              movementReferenceNumber.value match {
+            mrnOrEntryNumber =>
+              mrnOrEntryNumber.value match {
+
                 case Left(entryNumber) =>
-                  val updatedAnswers = answers.fold(
-                    _ =>
-                      CompleteMovementReferenceNumberAnswer(
-                        Left(entryNumber)
-                      ),
-                    complete => complete.copy(movementReferenceNumber = Left(entryNumber))
-                  )
-                  val newDraftClaim  =
-                    DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+                  val entryNumbersMatch = fillingOutClaim.draftClaim.movementReferenceNumber
+                    .map { a =>
+                      a match {
+                        case Left(cachedEntryNumber) => cachedEntryNumber.value =!= entryNumber.value
+                        case _                       => true
+                      }
+                    }
+                    .getOrElse(true)
 
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                  val result = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
-
-                  result.fold(
-                    e => {
-                      logger.warn("could not capture change in entry number", e)
-                      errorHandler.errorResult()
-                    },
-                    _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
-                  )
-                case Right(mrn)        =>
-                  val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
-                    _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
-                    complete => complete.copy(movementReferenceNumber = Right(mrn))
-                  )
-                  val newDraftClaim                                         =
-                    DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
-
-                  val result: EitherT[Future, models.Error, Unit] = for {
-                    maybeDisplayDeclaration <- claimService
-                                                 .getDisplayDeclaration(mrn)
-                                                 .leftMap(_ => Error("could not get declaration"))
-                    displayDeclaration      <-
-                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
-                    updatedJourney           =
-                      fillingOutClaim.copy(draftClaim =
-                        if (
-                          displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
-                        )
-                          newDraftClaim.copy(
-                            displayDeclaration = Some(displayDeclaration),
-                            movementReferenceNumberAnswer = Some(updatedAnswers)
-                          )
-                        else newDraftClaim
+                  entryNumbersMatch match {
+                    case true  =>
+                      val updatedAnswers = answers.fold(
+                        _ =>
+                          CompleteMovementReferenceNumberAnswer(
+                            Left(entryNumber)
+                          ),
+                        complete => complete.copy(movementReferenceNumber = Left(entryNumber))
                       )
-                    _                       <-
-                      EitherT
+                      val newDraftClaim  =
+                        DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+
+                      val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                      val result = EitherT
                         .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                         .leftMap((_: Unit) => Error("could not update session"))
-                  } yield ()
 
-                  result.fold(
-                    e => {
-                      logger.warn("could not capture change to mrn number", e)
-                      errorHandler.errorResult()
-                    },
-                    _ => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
-                  )
+                      result.fold(
+                        e => {
+                          logger.warn("could not capture change in entry number", e)
+                          errorHandler.errorResult()
+                        },
+                        _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                      )
+                    case false =>
+                      Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                  }
+
+                case Right(mrn) =>
+                  val mrnNumbersMatch = fillingOutClaim.draftClaim.movementReferenceNumber
+                    .map { a =>
+                      a match {
+                        case Right(cachedMrnNumber) => cachedMrnNumber.value =!= mrn.value
+                        case _                      => true
+                      }
+                    }
+                    .getOrElse(true)
+
+                  mrnNumbersMatch match {
+                    case true  =>
+                      val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
+                        _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
+                        complete => complete.copy(movementReferenceNumber = Right(mrn))
+                      )
+                      val newDraftClaim                                         =
+                        DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+
+                      val result: EitherT[Future, models.Error, Unit] = for {
+                        maybeDisplayDeclaration <- claimService
+                                                     .getDisplayDeclaration(mrn)
+                                                     .leftMap(_ => Error("could not get declaration"))
+                        displayDeclaration      <-
+                          EitherT
+                            .fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                        updatedJourney           =
+                          fillingOutClaim.copy(draftClaim =
+                            if (
+                              displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
+                            )
+                              newDraftClaim.copy(
+                                displayDeclaration = Some(displayDeclaration),
+                                movementReferenceNumberAnswer = Some(updatedAnswers)
+                              )
+                            else newDraftClaim
+                          )
+                        _                       <-
+                          EitherT
+                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                            .leftMap((_: Unit) => Error("could not update session"))
+                      } yield ()
+
+                      result.fold(
+                        e => {
+                          logger.warn("could not capture change to mrn number", e)
+                          errorHandler.errorResult()
+                        },
+                        _ => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
+                      )
+                    case false => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                  }
               }
           )
       }
