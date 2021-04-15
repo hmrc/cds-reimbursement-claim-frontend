@@ -11,3 +11,7 @@
 
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
+
+
+GET        /claim-for-reimbursement-of-import-duties/test-only/feature/:featureName/enable  @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.enable(featureName)
+GET        /claim-for-reimbursement-of-import-duties/test-only/feature/:featureName/disable @uk.gov.hmrc.cdsreimbursementclaimfrontend.testonly.controllers.FeatureSwitchController.disable(featureName)
