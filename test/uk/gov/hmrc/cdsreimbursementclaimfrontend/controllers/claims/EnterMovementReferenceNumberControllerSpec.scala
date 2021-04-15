@@ -197,6 +197,7 @@ class EnterMovementReferenceNumberControllerSpec
         doc.getElementsByClass("govuk-back-link").attr("href") should include(
           "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
         )
+
       }
     }
 

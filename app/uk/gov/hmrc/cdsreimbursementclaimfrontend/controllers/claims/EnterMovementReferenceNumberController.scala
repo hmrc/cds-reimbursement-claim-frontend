@@ -289,7 +289,7 @@ class EnterMovementReferenceNumberController @Inject() (
               mrnOrEntryNumber.value match {
 
                 case Left(entryNumber) =>
-                  val entryNumberDoesntMatch = fillingOutClaim.draftClaim.movementReferenceNumber
+                  val entryNumberChanged = fillingOutClaim.draftClaim.movementReferenceNumber
                     .map { a =>
                       a match {
                         case Left(cachedEntryNumber) => cachedEntryNumber.value =!= entryNumber.value
@@ -298,7 +298,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     }
                     .getOrElse(true)
 
-                  entryNumberDoesntMatch match {
+                  entryNumberChanged match {
                     case true  =>
                       val updatedAnswers = answers.fold(
                         _ =>
@@ -328,7 +328,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   }
 
                 case Right(mrn) =>
-                  val mrnNumberDoesntMatch = fillingOutClaim.draftClaim.movementReferenceNumber
+                  val mrnNumberChanged = fillingOutClaim.draftClaim.movementReferenceNumber
                     .map { a =>
                       a match {
                         case Right(cachedMrnNumber) => cachedMrnNumber.value =!= mrn.value
@@ -337,7 +337,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     }
                     .getOrElse(true)
 
-                  mrnNumberDoesntMatch match {
+                  mrnNumberChanged match {
                     case true  =>
                       val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
                         _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
