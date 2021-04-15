@@ -193,7 +193,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         val doc = Jsoup.parse(contentAsString(performAction()))
 
-        doc.select("a.govuk-back-link").text should include("Back")
+        doc.select("a.govuk-back-link").text                   should include("Back")
         doc.getElementsByClass("govuk-back-link").attr("href") should include(
           "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
         )
