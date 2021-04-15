@@ -65,6 +65,10 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 name = key,
                 items = Seq(
                     SelectItem(
+                        value = Some(""),
+                        text  = messages(s"generic.defaultOption")
+                    ),
+                    SelectItem(
                         value = Some("0"),
                         text  = messages(s"$key.reason.d0"),
                         selected = form(s"$key").value.contains("0")

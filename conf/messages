@@ -30,6 +30,7 @@ button.confirm-and-submit-claim=Confirm and submit claim
 
 generic.back=Back
 generic.errorPrefix=Error:
+generic.defaultOption=Choose
 
 cya.change=Change
 cya.delete=Delete

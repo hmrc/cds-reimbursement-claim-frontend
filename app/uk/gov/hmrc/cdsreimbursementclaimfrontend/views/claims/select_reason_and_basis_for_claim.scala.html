@@ -66,6 +66,10 @@
                 name = s"$key.basis",
                 items = Seq(
                     SelectItem(
+                        value = Some(""),
+                        text  = messages(s"generic.defaultOption")
+                    ),
+                    SelectItem(
                         value = Some("0"),
                         text  = messages(s"$key.basis.d0"),
                         selected = form(s"$key.basis").value.contains("0")
@@ -149,6 +153,10 @@
                 id = s"$key.reason",
                 name = s"$key.reason",
                 items = Seq(
+                    SelectItem(
+                        value = Some(""),
+                        text  = messages(s"generic.defaultOption")
+                    ),
                     SelectItem(
                         value = Some("0"),
                         text  = messages(s"$key.reason.d0"),
