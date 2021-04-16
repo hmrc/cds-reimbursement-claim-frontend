@@ -88,3 +88,4 @@ POST         /check-claim                                            uk.gov.hmrc
 GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
 POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
 
+GET         /enter-lead-mrn-or-entry-number                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterLeadMrnOrEntryNumberController.enterLeadMrnOrEntryNumberPagePlaceholder()

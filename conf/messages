@@ -514,6 +514,12 @@ enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid Account Number
 enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 
 #===================================================
+#  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
+#===================================================
+enter-lead-mrn-or-entry-number.title=What is your lead MRN or entry number?
+enter-lead-mrn-or-entry-number.heading=This page is just a placeholder for the ENTER LEAD MRN OR ENTRY NUMBER page.
+
+#===================================================
 #  BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
