@@ -86,7 +86,7 @@ we-only-support-gg.signIn.p1=<a href="{0}">Sign in</a> with the same Government 
 #===================================================
 landing.title=Claim for reimbursement of import duties
 landing.help.p1=You can use this service to apply to claim reimbursements on overpayments for import charges. These include Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties.
-landing.help.p2=In the near future, you will also be able to use this service to make multiple claims. Reimbursement via Current Month Adjustment (CMA) will also be available.
+landing.help.p2=You can use this service for multiple claims (bulk), and be reimbursed via either Current Month Adjustment (CMA) or by bank account transfer.
 landing.who.heading=Who can claim
 landing.who.p1=You can claim if you have a valid EORI number associated with your Government Gateway login, and one or more Movement Reference Number(s) (MRN) or an entry number.
 landing.who.p2=Find out <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">more about an EORI number (opens in new tab)</a> and an <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{1}">MRN (opens in new tab)</a>.
