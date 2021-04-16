@@ -149,6 +149,12 @@ enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 
 #===================================================
+#  ENTER MRN SCHEDULE PACEHOLDER PAGE
+#===================================================
+enter-mrn-schedule-placeholder.title=What is your Movement Reference Number (MRN)?
+enter-mrn-schedule-placeholder.help=This is a placeholder page for the schedule journey.
+
+#===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.title=What is your duplicated Movement Reference Number (MRN)?
