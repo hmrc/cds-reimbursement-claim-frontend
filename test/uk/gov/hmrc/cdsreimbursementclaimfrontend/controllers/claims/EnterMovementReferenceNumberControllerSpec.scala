@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -180,9 +180,50 @@ class EnterMovementReferenceNumberControllerSpec
 
       }
 
-      "show the back button when the user has come from the CYA page" in {
+      "show the back button when the user has come from the CYA page with an mrn number" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
         val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("a.govuk-back-link").text                   should include("Back")
+        doc.getElementsByClass("govuk-back-link").attr("href") should include(
+          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        )
+
+      }
+
+      "show the back button when the user has come from the CYA page with an entry number" in {
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("a.govuk-back-link").text                   should include("Back")
+        doc.getElementsByClass("govuk-back-link").attr("href") should include(
+          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        )
+
+      }
+
+      "continue to CYA page if the mrn number is unchanged" in {
+        //val entryNumberUnchanged = true
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
