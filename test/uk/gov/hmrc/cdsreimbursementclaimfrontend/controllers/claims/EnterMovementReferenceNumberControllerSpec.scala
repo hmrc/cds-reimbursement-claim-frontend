@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
+import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -33,11 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,15 +50,18 @@ class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+    with ScalaCheckDrivenPropertyChecks
+    with OptionValues {
 
   val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+  val mockClaimsService           = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
+      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService),
+      bind[ClaimService].toInstance(mockClaimsService)
     )
 
   def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
@@ -65,7 +71,12 @@ class EnterMovementReferenceNumberControllerSpec
       .returning(EitherT.fromEither[Future](response))
       .once()
 
-  lazy val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
+  def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimsService
+      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(*, *)
+      .returning(EitherT.fromEither[Future](response))
+  lazy val controller: EnterMovementReferenceNumberController                        = instanceOf[EnterMovementReferenceNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -172,11 +183,124 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(Right(()))
         }
-        val doc             = Jsoup.parse(contentAsString(performAction()))
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
 
         doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
+
       }
+
+      "show the back button when the user has come from the CYA page with an mrn number" in {
+        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("a.govuk-back-link").text                   should include("Back")
+        doc.getElementsByClass("govuk-back-link").attr("href") should include(
+          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        )
+
+      }
+
+      "show the back button when the user has come from the CYA page with an entry number" in {
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction()))
+
+        doc.select("a.govuk-back-link").text                   should include("Back")
+        doc.getElementsByClass("govuk-back-link").attr("href") should include(
+          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        )
+
+      }
+
+    }
+
+    "Change MRN submit" must {
+
+      "return to CYA page if the same MRN is submitted" in {
+        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result          = controller.changeMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
+        )
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+      }
+
+      "return to CYA page if the same entry number is submitted" in {
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result          = controller.changeMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
+        )
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+      }
+
+      "start a new claim if a different MRN is submitted" in {
+        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        val displayDeclaration = sample[DisplayDeclaration]
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
+          mockStoreSession(Right(()))
+        }
+        val result = controller.changeMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        )
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
+      }
+
+      "start a new claim if a different entry number is submitted" in {
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(Right(()))
+        }
+        val result          = controller.changeMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345178")
+        )
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+      }
+
     }
 
     "Form validation" must {
