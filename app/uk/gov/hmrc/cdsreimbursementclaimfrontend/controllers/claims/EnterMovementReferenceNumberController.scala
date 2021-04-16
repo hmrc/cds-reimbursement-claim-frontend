@@ -285,20 +285,20 @@ class EnterMovementReferenceNumberController @Inject() (
                   isAmend = true
                 )
               ),
-            mrnOrEntryNumber =>
+            mrnOrEntryNumber => {
+              import cats.implicits._
+              val mrnOrEntryValue = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
+              val numberChanged   = fillingOutClaim.draftClaim.movementReferenceNumber
+                .map {
+                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
+                  case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
+                }
+                .getOrElse(true)
+
               mrnOrEntryNumber.value match {
 
                 case Left(entryNumber) =>
-                  val entryNumberChanged = fillingOutClaim.draftClaim.movementReferenceNumber
-                    .map { a =>
-                      a match {
-                        case Left(cachedEntryNumber) => cachedEntryNumber.value =!= entryNumber.value
-                        case _                       => true
-                      }
-                    }
-                    .getOrElse(true)
-
-                  entryNumberChanged match {
+                  numberChanged match {
                     case true  =>
                       val updatedAnswers = answers.fold(
                         _ =>
@@ -328,16 +328,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   }
 
                 case Right(mrn) =>
-                  val mrnNumberChanged = fillingOutClaim.draftClaim.movementReferenceNumber
-                    .map { a =>
-                      a match {
-                        case Right(cachedMrnNumber) => cachedMrnNumber.value =!= mrn.value
-                        case _                      => true
-                      }
-                    }
-                    .getOrElse(true)
-
-                  mrnNumberChanged match {
+                  numberChanged match {
                     case true  =>
                       val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
                         _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
@@ -347,6 +338,7 @@ class EnterMovementReferenceNumberController @Inject() (
                         DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
 
                       val result: EitherT[Future, models.Error, Unit] = for {
+
                         maybeDisplayDeclaration <- claimService
                                                      .getDisplayDeclaration(mrn)
                                                      .leftMap(_ => Error("could not get declaration"))
@@ -380,6 +372,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     case false => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                   }
               }
+            }
           )
       }
     }

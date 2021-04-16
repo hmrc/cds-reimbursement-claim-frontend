@@ -34,11 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.CustomsDataStoreService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -52,12 +54,14 @@ class EnterMovementReferenceNumberControllerSpec
     with OptionValues {
 
   val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+  val mockClaimsService           = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
+      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService),
+      bind[ClaimService].toInstance(mockClaimsService)
     )
 
   def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
@@ -67,7 +71,12 @@ class EnterMovementReferenceNumberControllerSpec
       .returning(EitherT.fromEither[Future](response))
       .once()
 
-  lazy val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
+  def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
+    (mockClaimsService
+      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+      .expects(*, *)
+      .returning(EitherT.fromEither[Future](response))
+  lazy val controller: EnterMovementReferenceNumberController                        = instanceOf[EnterMovementReferenceNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -254,6 +263,26 @@ class EnterMovementReferenceNumberControllerSpec
         )
         status(result) shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+      }
+
+      "start a new claim if a different MRN is submitted" in {
+        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+
+        val displayDeclaration = sample[DisplayDeclaration]
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
+          mockStoreSession(Right(()))
+        }
+        val result = controller.changeMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        )
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
       "start a new claim if a different entry number is submitted" in {
