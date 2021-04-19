@@ -138,6 +138,18 @@ ineligible.title=Sorry, you are unable to make a claim
 ineligible.help=You are not eligible to make a claim. If you need help, you can contact <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> via the imports and exports general enquiries.
 
 #===================================================
+#  CHECK EORI DETAILS PAGE
+#===================================================
+check-eori-details.title=Check the EORI associated with the user ID is correct
+check-eori-details.eori-number.label=EORI
+check-eori-details.name.label=Name
+check-eori-details.gateway-id.label=Government Gateway user ID
+check-eori-details.eori-correct=Yes
+check-eori-details.eori-incorrect=No, sign in again
+check-eori-details.error.required=Select yes if these details are correct or no if they are incorrect
+check-eori-details.invalid=Select yes if these details are correct or no if they are incorrect
+
+#===================================================
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
