@@ -140,7 +140,7 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check the EORI associated with the user ID is correct
+check-eori-details.title=Check if this is the correct EORI
 check-eori-details.eori-number.label=EORI
 check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
