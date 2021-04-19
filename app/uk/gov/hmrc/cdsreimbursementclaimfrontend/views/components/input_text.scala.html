@@ -38,7 +38,8 @@
     hint: Option[String] = None,
     classes: Option[String] = None,
     labelClasses: Option[String] = None,
-    prefix: Option[PrefixOrSuffix] = None
+    prefix: Option[PrefixOrSuffix] = None,
+    autocomplete: Option[String] = None
 )(implicit messages: Messages)
 
 @govukInput(Input(
@@ -55,6 +56,7 @@
     )),
     value = form(name).value,
     inputType = inputType,
+	autocomplete = autocomplete,
     prefix = prefix,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
 ))
