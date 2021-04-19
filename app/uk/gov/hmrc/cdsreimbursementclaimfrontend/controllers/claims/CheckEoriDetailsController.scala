@@ -16,26 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Applicative
 import cats.syntax.eq._
 import com.google.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_eori_details
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import play.api.i18n.Messages
+
 import javax.inject.Singleton
-import play.twirl.api.HtmlFormat.Appendable
 
 @Singleton
 class CheckEoriDetailsController @Inject() (
@@ -53,41 +51,29 @@ class CheckEoriDetailsController @Inject() (
 
   protected def getPage(
     signedInUserDetails: SignedInUserDetails,
-    ggCredId: GGCredId,
     form: Form[CheckEoriDetailsAnswer]
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages
   ): Appendable = checkEoriDetailsPage(
     signedInUserDetails,
-    ggCredId,
     form,
     routes.CheckEoriDetailsController.submit(),
     routes.CheckDeclarationDetailsController.checkDetailsSubmit()
   )
 
   def show(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Applicative[Option]
-      .map2(
-        request.sessionData.flatMap(_.journeyStatus).collect { case FillingOutClaim(gg, _, _) => gg },
-        request.signedInUserDetails
-      ) { case (ggCredId, user) =>
-        Ok(getPage(user, ggCredId, checkEoriDetailsAnswerForm))
-      }
-      .getOrElse(Redirect(baseRoutes.StartController.start()))
-
+    request.signedInUserDetails
+      .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, checkEoriDetailsAnswerForm)))
   }
 
   def submit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Applicative[Option]
-      .map2(
-        request.signedInUserDetails,
-        request.sessionData.flatMap(_.journeyStatus).collect { case FillingOutClaim(gg, _, _) => gg }
-      ) { (user, ggCredId) =>
+    request.signedInUserDetails
+      .map { user =>
         checkEoriDetailsAnswerForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(getPage(user, ggCredId, formWithErrors)),
+            formWithErrors => BadRequest(getPage(user, formWithErrors)),
             formOk =>
               formOk match {
                 case EoriDetailsAreCorrect   => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())

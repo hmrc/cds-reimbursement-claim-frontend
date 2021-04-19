@@ -22,7 +22,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.CheckEoriDetailsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -36,7 +35,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(userDetails : SignedInUserDetails, ggCredId:GGCredId, form:Form[CheckEoriDetailsAnswer], postAction : Call, link : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(userDetails : SignedInUserDetails, form:Form[CheckEoriDetailsAnswer], postAction : Call, link : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-eori-details"}
 @title = @{messages(s"$key.title")}
@@ -47,7 +46,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(SummaryList(eoriDetailsHelper.eoriSummary(userDetails,ggCredId)))
+        @summary(SummaryList(eoriDetailsHelper.eoriSummary(userDetails)))
 
         @radios(
             form = form,
