@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
+import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Mode}
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -151,7 +152,7 @@ class EnterMovementReferenceNumberController @Inject() (
       MovementReferenceNumberAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
+    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match { // gets data out
       case Some(
             (
               sessionData,
@@ -272,7 +273,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   def changeMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) => //gives answers - saved before
         EnterMovementReferenceNumberController.movementReferenceNumberForm
           .bindFromRequest()
           .fold(
@@ -286,7 +287,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 )
               ),
             mrnOrEntryNumber => {
-              import cats.implicits._
+
               val mrnOrEntryValue = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
               val numberChanged   = fillingOutClaim.draftClaim.movementReferenceNumber
                 .map {
@@ -313,7 +314,9 @@ class EnterMovementReferenceNumberController @Inject() (
                       val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
                       val result = EitherT
-                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .liftF(
+                          updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
+                        ) //save mrn/entry number
                         .leftMap((_: Unit) => Error("could not update session"))
 
                       result.fold(
@@ -424,97 +427,135 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterDuplicateMovementReferenceNumberPage(
                   requestFormWithErrors.copy(errors =
-                    Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
+                    Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors)
+                    )
                   )
                 )
               ),
-            movementReferenceNumber =>
-              movementReferenceNumber.value match {
+            mrnOrEntryNumber => {
+
+              val mrnOrEntryValue = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
+              val numberChanged   = fillingOutClaim.draftClaim.movementReferenceNumber
+                .map {
+                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
+                  case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
+                  case _                       => false
+                }
+                .getOrElse(true)
+
+              mrnOrEntryNumber.value match {
+
                 case Left(entryNumber) =>
-                  val updatedAnswers = answers.fold(
-                    _ =>
-                      CompleteDuplicateMovementReferenceNumberAnswer(
-                        Some(Left(entryNumber))
-                      ),
-                    complete => complete.copy(duplicateMovementReferenceNumber = Some(Left(entryNumber)))
-                  )
-                  val newDraftClaim  =
-                    fillingOutClaim.draftClaim
-                      .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
 
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                  val cachedMrn: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber
+                    .map {
+                      case Right(mrn) => mrn.value.isEmpty
+                      case Left(_)    => true
+                    }
+                    .getOrElse(true)
 
-                  val result = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                  cachedMrn match {
+                    case false =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                    //error message
+                    case true  =>
+                      numberChanged match {
 
-                  result.fold(
-                    e => {
-                      logger.warn("could not capture entry number", e)
-                      errorHandler.errorResult()
-                    },
-                    _ => Redirect(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails())
-                  )
+                        case true  =>
+                          val updatedAnswers = answers.fold(
+                            _ =>
+                              CompleteDuplicateMovementReferenceNumberAnswer(
+                                Some(Left(entryNumber))
+                              ),
+                            complete => complete.copy(duplicateMovementReferenceNumber = Some(Left(entryNumber)))
+                          )
+                          val newDraftClaim  =
+                            fillingOutClaim.draftClaim
+                              .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
+
+                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                          val result = EitherT
+                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                            .leftMap((_: Unit) => Error("could not update session"))
+
+                          result.fold(
+                            e => {
+                              logger.warn("could not capture entry number", e)
+                              errorHandler.errorResult()
+                            },
+                            _ => Redirect(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails())
+                          )
+                        case false =>
+                          Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                      }
+                  }
                 case Right(mrn)        =>
-                  val updatedAnswers = answers.fold(
-                    _ =>
-                      CompleteDuplicateMovementReferenceNumberAnswer(
-                        Some(Right(mrn))
-                      ),
-                    complete => complete.copy(duplicateMovementReferenceNumber = Some(Right(mrn)))
-                  )
-                  val newDraftClaim  =
-                    fillingOutClaim.draftClaim
-                      .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
+                  numberChanged match {
+                    case true  =>
+                      val updatedAnswers = answers.fold(
+                        _ =>
+                          CompleteDuplicateMovementReferenceNumberAnswer(
+                            Some(Right(mrn))
+                          ),
+                        complete => complete.copy(duplicateMovementReferenceNumber = Some(Right(mrn)))
+                      )
+                      val newDraftClaim  =
+                        fillingOutClaim.draftClaim
+                          .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
 
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                      val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val updateSessionWithReference = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                      val updateSessionWithReference = EitherT
+                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .leftMap((_: Unit) => Error("could not update session"))
 
-                  val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
-                    .getDisplayDeclaration(mrn)
-                    .leftMap(_ => Error("could not get duplicate declaration"))
+                      val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
+                        .getDisplayDeclaration(mrn)
+                        .leftMap(_ => Error("could not get duplicate declaration"))
 
-                  val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
-                    maybeDisplayDeclaration <- getDeclaration
-                    _                       <- updateSessionWithReference
-                    mrnJourneyFlow          <-
-                      EitherT
-                        .fromEither[Future](
-                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
-                        )
-                        .leftMap(_ => Error("could not evaluate MRN flow"))
-                    displayDeclaration      <-
-                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
-                    _                       <- EitherT.liftF(
-                                                 updateSession(sessionStore, request)(
-                                                   _.copy(journeyStatus =
-                                                     Some(
-                                                       fillingOutClaim.copy(draftClaim =
-                                                         newDraftClaim.copy(
-                                                           duplicateDisplayDeclaration = Some(displayDeclaration),
-                                                           duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
+                      val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
+                        maybeDisplayDeclaration <- getDeclaration
+                        _                       <- updateSessionWithReference
+                        mrnJourneyFlow          <-
+                          EitherT
+                            .fromEither[Future](
+                              evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
+                            )
+                            .leftMap(_ => Error("could not evaluate MRN flow"))
+                        displayDeclaration      <-
+                          EitherT
+                            .fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                        _                       <- EitherT.liftF(
+                                                     updateSession(sessionStore, request)(
+                                                       _.copy(journeyStatus =
+                                                         Some(
+                                                           fillingOutClaim.copy(draftClaim =
+                                                             newDraftClaim.copy(
+                                                               duplicateDisplayDeclaration = Some(displayDeclaration),
+                                                               duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
+                                                             )
+                                                           )
                                                          )
                                                        )
                                                      )
                                                    )
-                                                 )
-                                               )
-                  } yield mrnJourneyFlow
+                      } yield mrnJourneyFlow
 
-                  result.fold(
-                    e => {
-                      logger.warn("could not get declaration information", e)
-                      Redirect(baseRoutes.IneligibleController.ineligible())
-                    },
-                    {
-                      case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
-                      case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
-                    }
-                  )
+                      result.fold(
+                        e => {
+                          logger.warn("could not get declaration information", e)
+                          Redirect(baseRoutes.IneligibleController.ineligible())
+                        },
+                        {
+                          case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
+                          case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
+                        }
+                      )
+                    case false => Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                  }
               }
+            }
           )
       }
     }
@@ -571,9 +612,12 @@ class EnterMovementReferenceNumberController @Inject() (
 
 object EnterMovementReferenceNumberController {
 
+  //          Invalid(ValidationError("error.mrn.invalid.entryNumber"))
+  //          Invalid(ValidationError("error.entryNumber.invalid.mrn))
+
   val movementReferenceNumberMapping: Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText
-      .verifying("invalid.number", str => MRN.isValid(str) | EntryNumber.isValid(str))
+      .verifying("invalid.number", str => MRN.isValid(str) && !EntryNumber.isValid(str) | EntryNumber.isValid(str))
       .transform[Either[EntryNumber, MRN]](
         str =>
           if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))
@@ -583,7 +627,8 @@ object EnterMovementReferenceNumberController {
           case Right(mrn)        => mrn.value
         }
       )
-  val movementReferenceNumberForm: Form[MovementReferenceNumber]        = Form(
+
+  val movementReferenceNumberForm: Form[MovementReferenceNumber] = Form(
     mapping(
       "enter-movement-reference-number" -> movementReferenceNumberMapping
     )(MovementReferenceNumber.apply)(MovementReferenceNumber.unapply)

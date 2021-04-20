@@ -39,7 +39,7 @@
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-        @formWithCSRF(routes.EnterMovementReferenceNumberController.enterDuplicateMrnSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterMovementReferenceNumberController.enterDuplicateMrnSubmit, 'novalidate -> "novalidate") {
 
             @errorSummary(form.errors)
 
