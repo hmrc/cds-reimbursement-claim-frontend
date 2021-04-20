@@ -30,7 +30,8 @@
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
-    inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
+    inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form : Form[_], entryNumber: EntryNumber, link : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
