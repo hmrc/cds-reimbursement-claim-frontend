@@ -504,7 +504,10 @@ class EnterClaimController @Inject() (
                       claim.fold {
                         logger.warn("Lost claim!")
                         errorHandler.errorResult()
-                      }(claim => BadRequest(enterEntryClaimPage(id, requestFormWithErrors, claim)))
+                      } { claim =>
+                        val updatedErrors = requestFormWithErrors.errors.map(d => d.copy(key = "enter-claim"))
+                        BadRequest(enterEntryClaimPage(id, requestFormWithErrors.copy(errors = updatedErrors), claim))
+                      }
                     },
                     amountPair => {
 
@@ -771,17 +774,17 @@ object EnterClaimController {
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> moneyMapping(13, 2, "error.invalid")
+        "enter-claim" -> moneyMapping(13, 2, "claim-amount.error.invalid")
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
   val entryClaimAmountForm: Form[AmountPair] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> moneyMapping(13, 2, "error.invalid"),
-      "enter-claim.claim-amount" -> moneyMapping(13, 2, "error.invalid")
+      "enter-claim.paid-amount"  -> moneyMapping(13, 2, "paid-amount.error.invalid"),
+      "enter-claim.claim-amount" -> moneyMapping(13, 2, "claim-amount.error.invalid")
     )(AmountPair.apply)(AmountPair.unapply)
-      .verifying("enter-claim.invalid.claim", a => a.claimAmount <= a.paidAmount)
+      .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
 
 }

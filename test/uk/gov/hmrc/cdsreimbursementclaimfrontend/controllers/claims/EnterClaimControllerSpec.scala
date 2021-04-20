@@ -47,14 +47,12 @@ class EnterClaimControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
-
+  lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  lazy val controller: EnterClaimController = instanceOf[EnterClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -409,7 +407,7 @@ class EnterClaimControllerSpec
 
   }
 
-  "Entry Claim Amount Validation" must {
+  "Entry Number Claim Amount Validation" must {
     val form        = EnterClaimController.entryClaimAmountForm
     val paidAmount  = "enter-claim.paid-amount"
     val claimAmount = "enter-claim.claim-amount"
@@ -435,19 +433,19 @@ class EnterClaimControllerSpec
       }
       "Reject paidAmount decimals only too many" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
       }
       "Reject paidAmount too many decimals" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
       }
       "Reject paidAmount too long" in {
         val errors = form.bind(goodData.updated(paidAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(paidAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
       }
     }
 
@@ -462,60 +460,74 @@ class EnterClaimControllerSpec
       }
       "Reject claimAmount decimals only too many" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
       }
       "Reject claimAmount too many decimals" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
       }
       "Reject claimAmount too long" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+      "Reject when claimAmount > paidAmount" in {
+        val data   = Map(
+          paidAmount  -> "100",
+          claimAmount -> "101.00"
+        )
+        val errors = form.bind(data).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
       }
     }
+  }
 
-    "MRN Claim Amount Validation" must {
-      val form        = EnterClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
-      val claimAmount = "enter-claim"
+  "MRN Claim Amount Validation" must {
+    val form        = EnterClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
+    val claimAmount = "enter-claim"
 
-      val goodData = Map(
-        claimAmount -> "0.01"
-      )
+    val goodData = Map(
+      claimAmount -> "0.01"
+    )
 
-      "accept good declaration details" in {
-        val errors = form.bind(goodData).errors
+    "accept good declaration details" in {
+      val errors = form.bind(goodData).errors
+      errors shouldBe Nil
+    }
+
+    "claimAmount" should {
+      "Accept shortest possible claimAmount" in {
+        val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 2))).errors
         errors shouldBe Nil
       }
-
-      "claimAmount" should {
-        "Accept shortest possible claimAmount" in {
-          val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 2))).errors
-          errors shouldBe Nil
-        }
-        "Accept longest possible claimAmount" in {
-          val errors = form.bind(goodData.updated(claimAmount, moneyGen(11, 2))).errors
-          errors shouldBe Nil
-        }
-        "Reject claimAmount too many decimal digits" in {
-          val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-        }
-        "Reject claimAmount too many decimals" in {
-          val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-        }
-        "Reject claimAmount too long" in {
-          val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-        }
-        "Reject negative numbers" in {
-          val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-          errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
-        }
+      "Accept longest possible claimAmount" in {
+        val errors = form.bind(goodData.updated(claimAmount, moneyGen(11, 2))).errors
+        errors shouldBe Nil
+      }
+      "Reject claimAmount too many decimal digits" in {
+        val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+      "Reject claimAmount too many decimals" in {
+        val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+      "Reject claimAmount too long" in {
+        val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+      "Reject negative numbers" in {
+        val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+      "Reject when claimAmount > paidAmount" in {
+        val testForm = EnterClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
+        val data     = Map(claimAmount -> "101.00")
+        val errors   = testForm.bind(data).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
       }
     }
   }
