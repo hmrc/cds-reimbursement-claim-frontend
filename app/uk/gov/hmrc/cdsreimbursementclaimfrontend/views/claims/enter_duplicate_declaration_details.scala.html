@@ -128,6 +128,8 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                 label =  s"$key.declarant-phone-number.label",
                 isPageHeading = false,
                 hint = Some(messages(s"$key.declarant-phone-number.help")),
+                inputType = "tel",
+                autocomplete = Some("tel"),
                 classes = Some("govuk-input--width-20"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
