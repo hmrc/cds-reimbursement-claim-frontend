@@ -443,7 +443,7 @@ class EnterMovementReferenceNumberController @Inject() (
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
               val numberHasChanged = fillingOutClaim.draftClaim.movementReferenceNumber
                 .map {
-                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryNumber
+                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
                   case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
                   case _                       => false
                 }
