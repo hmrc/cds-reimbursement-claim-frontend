@@ -159,9 +159,13 @@ enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
+enter-movement-reference-number.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN 
+enter-movement-reference-number.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
+enter-movement-reference-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
+enter-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 #===================================================
-#  ENTER MRN SCHEDULE PACEHOLDER PAGE
+#  ENTER MRN SCHEDULE PLACEHOLDER PAGE
 #===================================================
 enter-mrn-schedule-placeholder.title=What is your Movement Reference Number (MRN)?
 enter-mrn-schedule-placeholder.help=This is a placeholder page for the schedule journey.
