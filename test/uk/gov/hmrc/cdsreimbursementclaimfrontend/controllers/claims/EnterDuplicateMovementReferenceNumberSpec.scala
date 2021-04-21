@@ -136,7 +136,7 @@ class EnterDuplicateMovementReferenceNumberSpec
 
       }
 
-      "Not redirect if the same Entry Number is submitted" in {
+      "Fail if the same Entry Number is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
         val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -147,14 +147,24 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
         )
-        status(result) shouldBe 303
-        redirectLocation(
-          result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-duplicate-movement-reference-number"
-        //routes.BankAccountController.changeBankAccountDetails().url
+        status(result) shouldBe BAD_REQUEST
       }
 
-      "Not redirect if the same MRN is submitted" in {
+      "Fail on an Entry Number journey and an MRN is submitted" in {
+        val entryNumber     = EntryNumber("123456789A12345678")
+        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result          = controller.enterDuplicateMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10ABCDEFGHIJKLMNO0")
+        )
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Fail if the same MRN is submitted" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
         val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -165,10 +175,21 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10ABCDEFGHIJKLMNO0")
         )
-        status(result) shouldBe 303
-        redirectLocation(
-          result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-duplicate-movement-reference-number"
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "Fail if on an MRN journey and an entry number is submitted" in {
+        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
+        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val (session, _, _) = sessionWithClaimState(Some(answers))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result          = controller.enterDuplicateMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
+        )
+        status(result) shouldBe BAD_REQUEST
       }
 
       "Redirect to the enter duplicate declaration details page if a different Entry Number is submitted" in {
@@ -186,7 +207,7 @@ class EnterDuplicateMovementReferenceNumberSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-duplicate-declaration-details"
+        ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
       }
 
       "Redirect to the enter importer eori page if a different MRN Number is submitted" in {
@@ -207,7 +228,7 @@ class EnterDuplicateMovementReferenceNumberSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
+        ).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
     }
