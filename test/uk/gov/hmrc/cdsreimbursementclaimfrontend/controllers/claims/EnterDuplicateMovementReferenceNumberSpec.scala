@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -77,6 +78,8 @@ class EnterDuplicateMovementReferenceNumberSpec
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   private def sessionWithClaimState(
     maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer]
@@ -147,6 +150,11 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
         )
+
+        val doc   = Jsoup.parse(contentAsString(result))
+        val error = getGlobalErrors(doc).text()
+        error shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.enter-different-entry-number")
+
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -161,6 +169,9 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10ABCDEFGHIJKLMNO0")
         )
+        val doc             = Jsoup.parse(contentAsString(result))
+        val error           = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.entry-number-not-mrn")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -175,10 +186,13 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10ABCDEFGHIJKLMNO0")
         )
+        val doc             = Jsoup.parse(contentAsString(result))
+        val error           = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.enter-different-mrn")
         status(result) shouldBe BAD_REQUEST
       }
 
-      "Fail if on an MRN journey and an entry number is submitted" in {
+      "Fail on an MRN journey and an entry number is submitted" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
         val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -189,6 +203,9 @@ class EnterDuplicateMovementReferenceNumberSpec
         val result          = controller.enterDuplicateMrnSubmit()(
           FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
         )
+        val doc             = Jsoup.parse(contentAsString(result))
+        val error           = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.mrn-not-entry-number")
         status(result) shouldBe BAD_REQUEST
       }
 
