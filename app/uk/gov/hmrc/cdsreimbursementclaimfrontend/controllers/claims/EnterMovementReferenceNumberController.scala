@@ -433,6 +433,13 @@ class EnterMovementReferenceNumberController @Inject() (
               ),
             mrnOrEntryNumber => {
 
+              def addError(errorKey: String): Future[Result] = {
+                val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
+                  .fill(mrnOrEntryNumber)
+                  .withError("enter-movement-reference-number", s"invalid.$errorKey")
+                BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+              }
+
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
               val numberHasChanged = fillingOutClaim.draftClaim.movementReferenceNumber
                 .map {
@@ -454,11 +461,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
                   cachedMrnExists match {
                     case false =>
-                      val errorKey = "mrn-not-entry-number"
-                      val form     = EnterMovementReferenceNumberController.movementReferenceNumberForm
-                        .fill(mrnOrEntryNumber)
-                        .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                      BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+                      addError("mrn-not-entry-number")
 
                     case true =>
                       numberHasChanged match {
@@ -490,11 +493,7 @@ class EnterMovementReferenceNumberController @Inject() (
                           )
 
                         case false =>
-                          val errorKey = "enter-different-entry-number"
-                          val form     = EnterMovementReferenceNumberController.movementReferenceNumberForm
-                            .fill(mrnOrEntryNumber)
-                            .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                          BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+                          addError("enter-different-entry-number")
                       }
                   }
                 case Right(mrn)        =>
@@ -508,12 +507,9 @@ class EnterMovementReferenceNumberController @Inject() (
                   cachedEntryNumberExists match {
 
                     case false =>
-                      val errorKey = "entry-number-not-mrn"
-                      val form     = EnterMovementReferenceNumberController.movementReferenceNumberForm
-                        .fill(mrnOrEntryNumber)
-                        .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                      BadRequest(enterDuplicateMovementReferenceNumberPage(form))
-                    case true  =>
+                      addError("entry-number-not-mrn")
+
+                    case true =>
                       numberHasChanged match {
 
                         case true =>
@@ -582,11 +578,7 @@ class EnterMovementReferenceNumberController @Inject() (
                           )
 
                         case false =>
-                          val errorKey = "enter-different-mrn"
-                          val form     = EnterMovementReferenceNumberController.movementReferenceNumberForm
-                            .fill(mrnOrEntryNumber)
-                            .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                          BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+                          addError("enter-different-mrn")
                       }
                   }
               }
