@@ -65,7 +65,7 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
-exit-survey.link-text=<a href="{0}">What did you think of this service?</a>  This page will sign you out of this service where you can leave your feedback. 
+exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>  This page will sign you out of this service where you can leave your feedback. 
 
 #===================================================
 #  MESSAGES FOR PAGES
@@ -549,7 +549,7 @@ bank-details.help-text=These are the details of where your reimbursements will b
 bank-details.account-name.label=Account name
 bank-details.sort-code.label=Sort code
 bank-details.account-number.label=Account number
-bank-details.different-details-link=<a href="{0}">Enter different bank details</a>
+bank-details.different-details-link=<a href="{0}" class="govuk-link">Enter different bank details</a>
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
@@ -571,7 +571,7 @@ supporting-evidence.check-your-answers.help-text=You can add more files as evide
 supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
 supporting-evidence.check-your-answers.cya-change=Change
 supporting-evidence.check-your-answers.assistive=the file named {0}
-supporting-evidence.check-your-answers.add-another-file=<a href="{0}">Add another file</a>
+supporting-evidence.check-your-answers.add-another-file=<a href="{0}" class="govuk-link">Add another file</a>
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, and PDF.
