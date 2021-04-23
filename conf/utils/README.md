@@ -48,9 +48,10 @@ Invalid records:  2
 Given a spreadsheet with columns
 
 | English text                            | English text                         |
-|-----------------------------------------|:-------------------------------------|
+|-----------------------------------------|--------------------------------------|
 |Claim for reimbursement of import duties | Hawlio ad-daliad am dollau mewnforio |
-|en              | en                     |                                      |
+|en                                       | en                                   | 
+
 The script converts them into a file containing **key** and **Welsh translation** as follows
 ```
 landing.title=Hawlio ad-daliad am dollau mewnforio
