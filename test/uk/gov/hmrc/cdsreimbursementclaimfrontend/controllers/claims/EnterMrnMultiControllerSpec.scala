@@ -22,11 +22,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-class EnterMrnMultiPlaceholderControllerSpec extends ControllerSpec {
+class EnterMrnMultiControllerSpec extends ControllerSpec {
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  lazy val controller: EnterMrnMultiPlaceholderController = instanceOf[EnterMrnMultiPlaceholderController]
+  lazy val controller: EnterMrnMultiController = instanceOf[EnterMrnMultiController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 

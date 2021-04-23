@@ -97,5 +97,5 @@ POST         /check-claim                                            uk.gov.hmrc
 GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
 POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
 
-GET         /enter-mrn-multi-placeholder                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnMultiPlaceholderController.show()
-GET         /enter-mrn-schedule-placeholder                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnSchedulePlaceholderController.show()
+GET         /enter-mrn-multi-placeholder                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnMultiController.show()
+GET         /enter-mrn-schedule-placeholder                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnScheduleController.show()

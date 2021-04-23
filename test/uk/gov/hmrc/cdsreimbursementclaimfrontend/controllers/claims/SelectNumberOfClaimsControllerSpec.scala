@@ -282,7 +282,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "1")),
-          routes.EnterMrnMultiPlaceholderController.show()
+          routes.EnterMrnMultiController.show()
         )
       }
 
@@ -298,7 +298,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
-          routes.EnterMrnSchedulePlaceholderController.show()
+          routes.EnterMrnScheduleController.show()
         )
       }
 
@@ -314,7 +314,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
-          routes.EnterMrnSchedulePlaceholderController.show()
+          routes.EnterMrnScheduleController.show()
         )
       }
     }
