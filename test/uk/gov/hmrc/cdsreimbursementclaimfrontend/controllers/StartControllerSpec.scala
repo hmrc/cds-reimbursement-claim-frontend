@@ -166,7 +166,7 @@ class StartControllerSpec
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, claimRoutes.EnterMovementReferenceNumberController.enterMrn())
+          checkIsRedirect(result, claimRoutes.CheckEoriDetailsController.show())
 
         }
 
@@ -261,7 +261,7 @@ class StartControllerSpec
           }
 
           val result = performAction(authenticatedRequest)
-          checkIsRedirect(result, claimRoutes.EnterMovementReferenceNumberController.enterMrn())
+          checkIsRedirect(result, claimRoutes.CheckEoriDetailsController.show())
 
         }
 

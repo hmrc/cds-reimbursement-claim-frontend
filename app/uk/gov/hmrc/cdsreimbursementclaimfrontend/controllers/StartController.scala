@@ -250,7 +250,7 @@ class StartController @Inject() (
       },
       _ =>
         Redirect(
-          controllers.claims.routes.EnterMovementReferenceNumberController.enterMrn()
+          controllers.claims.routes.CheckEoriDetailsController.show()
         )
     )
   }

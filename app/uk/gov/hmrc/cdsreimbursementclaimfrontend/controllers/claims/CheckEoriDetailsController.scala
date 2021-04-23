@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_eori_details
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -41,6 +42,7 @@ class CheckEoriDetailsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
+  val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   checkEoriDetailsPage: check_eori_details
 )(implicit viewConfig: ViewConfig)
@@ -76,7 +78,11 @@ class CheckEoriDetailsController @Inject() (
             formWithErrors => BadRequest(getPage(user, formWithErrors)),
             formOk =>
               formOk match {
-                case EoriDetailsAreCorrect   => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                case EoriDetailsAreCorrect   =>
+                  featureSwitch.BulkClaim.isEnabled() match {
+                    case true  => Redirect(routes.SelectNumberOfClaimsController.show(false))
+                    case false => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  }
                 case EoriDetailsAreIncorrect => Redirect(viewConfig.ggSignOut)
               }
           )

@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -48,6 +49,7 @@ class CheckEoriDetailsControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+  lazy val featureSwitch                               = instanceOf[FeatureSwitchService]
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
 
@@ -112,7 +114,21 @@ class CheckEoriDetailsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "The user chooses the yes option" in {
+      "The user chooses the yes option with FeatureSwitch.Bulk enabled" in {
+        featureSwitch.BulkClaim.enable()
+        val (session, fillingOutClaim, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+        }
+
+        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
+        checkIsRedirect(result, routes.SelectNumberOfClaimsController.show(false))
+      }
+
+      "The user chooses the yes option with FeatureSwitch.Bulk disabled" in {
+        featureSwitch.BulkClaim.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {

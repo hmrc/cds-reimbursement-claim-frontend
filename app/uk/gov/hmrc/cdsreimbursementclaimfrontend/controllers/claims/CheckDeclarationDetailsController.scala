@@ -86,28 +86,8 @@ class CheckDeclarationDetailsController @Inject() (
 
   private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
     fillingOutClaim.draftClaim match {
-      case DraftClaim.DraftC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            importerEoriNumberAnswer,
-            declarantEoriNumberAnswer
-          ) =>
-        (importerEoriNumberAnswer, declarantEoriNumberAnswer) match {
+      case draftC285Claim: DraftClaim.DraftC285Claim =>
+        (draftC285Claim.importerEoriNumberAnswer, draftC285Claim.declarantEoriNumberAnswer) match {
           case (Some(_), Some(_)) => routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
           case _                  => routes.EnterMovementReferenceNumberController.enterMrn()
         }

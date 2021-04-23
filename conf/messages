@@ -149,6 +149,21 @@ check-eori-details.eori-incorrect=No, sign in again
 check-eori-details.error.required=Select yes if these details are correct or no if they are incorrect
 check-eori-details.invalid=Select yes if these details are correct or no if they are incorrect
 
+
+#===================================================
+#  SELECT NUMBER OF CLAIMS PAGE
+#===================================================
+select-number-of-claims.title=Select number of claims
+select-number-of-claims.help-text=You can make more than one claim. Multiple (bulk) claims must be from the same importer, have the same reason for overpayment and contain either MRNs or Entry numbers, but not mixed.
+select-number-of-claims.individual.title=Individual claim
+select-number-of-claims.bulk.title=Multiple (bulk) claims - manual entry of MRNs or Entry numbers
+select-number-of-claims.scheduled.title=Multiple (bulk) claims - upload a scheduled document
+select-number-of-claims.individual.hint=Enter one claim only using an MRN or Entry number for one declaration.
+select-number-of-claims.bulk.hint=You can enter a bulk claim by manually adding multiple MRNs or Entry numbers for each declaration.
+select-number-of-claims.scheduled.hint=You can enter a bulk claim by uploading a document with MRNs or Entry numbers for multiple declarations.
+select-number-of-claims.error.required=Select the number of claims
+select-number-of-claims.invalid=Select the number of claims
+
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
