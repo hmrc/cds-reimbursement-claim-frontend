@@ -391,28 +391,31 @@ class EnterMovementReferenceNumberController @Inject() (
                   enterDuplicateMovementReferenceNumberPage(
                     EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                       MovementReferenceNumber(duplicateMovementReferenceNumber)
-                    )
+                    ),
+                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
                   )
                 )
               case None                                   =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController.movementReferenceNumberForm
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm,
+                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
                   )
                 )
             },
           ifComplete =>
             ifComplete.duplicateMovementReferenceNumber.fold(
               errorHandler.errorResult()
-            )(duplicateMovementReferenceNumber =>
+            ) { duplicateMovementReferenceNumber =>
               Ok(
                 enterDuplicateMovementReferenceNumberPage(
                   EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                     MovementReferenceNumber(duplicateMovementReferenceNumber)
-                  )
+                  ),
+                  routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
                 )
               )
-            )
+            }
         )
       }
     }
@@ -428,7 +431,8 @@ class EnterMovementReferenceNumberController @Inject() (
                 enterDuplicateMovementReferenceNumberPage(
                   requestFormWithErrors.copy(errors =
                     Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
-                  )
+                  ),
+                  routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
                 )
               ),
             mrnOrEntryNumber => {
@@ -437,7 +441,12 @@ class EnterMovementReferenceNumberController @Inject() (
                 val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
                   .fill(mrnOrEntryNumber)
                   .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+                BadRequest(
+                  enterDuplicateMovementReferenceNumberPage(
+                    form,
+                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                  )
+                )
               }
 
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
