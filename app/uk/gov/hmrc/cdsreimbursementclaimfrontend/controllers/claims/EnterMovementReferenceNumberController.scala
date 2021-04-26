@@ -22,7 +22,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Mode}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import shapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -80,6 +80,7 @@ class EnterMovementReferenceNumberController @Inject() (
       case false => servicesConfig.getString("self.url") + startPage
     }
   }
+  lazy val backLink: Call          = routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
 
   private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
 
@@ -392,14 +393,14 @@ class EnterMovementReferenceNumberController @Inject() (
                     EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                       MovementReferenceNumber(duplicateMovementReferenceNumber)
                     ),
-                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                    backLink
                   )
                 )
               case None                                   =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
                     EnterMovementReferenceNumberController.movementReferenceNumberForm,
-                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                    backLink
                   )
                 )
             },
@@ -412,7 +413,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                     MovementReferenceNumber(duplicateMovementReferenceNumber)
                   ),
-                  routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                  backLink
                 )
               )
             }
@@ -432,7 +433,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   requestFormWithErrors.copy(errors =
                     Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
                   ),
-                  routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                  backLink
                 )
               ),
             mrnOrEntryNumber => {
@@ -444,7 +445,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 BadRequest(
                   enterDuplicateMovementReferenceNumberPage(
                     form,
-                    routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+                    backLink
                   )
                 )
               }
