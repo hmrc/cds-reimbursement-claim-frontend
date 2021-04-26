@@ -1,10 +1,14 @@
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
 
+GET         /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show(isAmend:Boolean=false)
+POST        /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
+
+GET         /change-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show(isAmend:Boolean=true)
+POST        /change-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
+
 GET         /enter-movement-reference-number                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrn()
 POST        /enter-movement-reference-number                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit()
-
-GET         /enter-mrn-schedule-placeholder                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnSchedulePlaceholderController.enterMrnSchedulePlaceholder()
 
 GET         /change-movement-reference-number                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrn()
 POST        /change-movement-reference-number                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrnSubmit()
@@ -93,4 +97,5 @@ POST         /check-claim                                            uk.gov.hmrc
 GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
 POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
 
-GET         /enter-lead-mrn-or-entry-number                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterLeadMrnOrEntryNumberController.enterLeadMrnOrEntryNumberPagePlaceholder()
+GET         /enter-mrn-multi                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnMultiController.show()
+GET         /enter-mrn-schedule                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnScheduleController.show()

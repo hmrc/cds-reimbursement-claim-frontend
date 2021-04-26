@@ -20,9 +20,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 
 @this(
-layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
 )
 
 @()(implicit request : Request[_], messages: Messages, viewConfig: ViewConfig)
@@ -32,8 +32,8 @@ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.parag
 
 @layout(pageTitle = Some(s"$title")) {
 
-@pageHeading(title)
+  @pageHeading(title)
 
-@paragraph(Html(messages(s"${key}.heading")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+  @paragraph(Html(messages(s"${key}.heading")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
 }

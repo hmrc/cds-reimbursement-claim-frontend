@@ -18,22 +18,35 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-class EnterMrnSchedulePlaceholderControllerSpec extends ControllerSpec {
+class EnterMrnMultiControllerSpec extends ControllerSpec {
 
-  lazy val controller: EnterMrnSchedulePlaceholderController = instanceOf[EnterMrnSchedulePlaceholderController]
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  lazy val controller: EnterMrnMultiController = instanceOf[EnterMrnMultiController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
-  " EnterMrnSchedulePlaceholderController controller" must {
+  " EnterMrnMultiPlaceholderController" must {
 
     "handling requests to display the enter mrn schedule placeholder page" must {
 
+      "redirect to the error page" when {
+        "the feature switch bulk claim is disabled" in {
+          featureSwitch.BulkClaim.disable()
+          val result = controller.show()(FakeRequest())
+          status(result) shouldBe NOT_FOUND
+        }
+      }
+
       "display the page" in {
+        featureSwitch.BulkClaim.enable()
         checkPageIsDisplayed(
-          controller.enterMrnSchedulePlaceholder()(FakeRequest()),
-          messageFromMessageKey("enter-mrn-schedule-placeholder.title")
+          controller.show()(FakeRequest()),
+          messageFromMessageKey("enter-lead-mrn-or-entry-number.title")
         )
       }
 

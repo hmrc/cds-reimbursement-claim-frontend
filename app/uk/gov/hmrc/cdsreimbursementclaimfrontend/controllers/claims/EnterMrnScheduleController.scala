@@ -18,19 +18,23 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import scala.concurrent.Future
 
 @Singleton
-class EnterLeadMrnOrEntryNumberController @Inject() (
-  cc: MessagesControllerComponents,
-  enterLeadMrnOrEntryNumberPage: views.html.claims.enter_lead_mrn_or_entry_number
-)(implicit viewConfig: ViewConfig)
+class EnterMrnScheduleController @Inject() (
+  featureSwitch: FeatureSwitchService,
+  enterMrnSchedulePage: views.html.claims.enter_mrn_schedule
+)(implicit viewConfig: ViewConfig, val errorHandler: ErrorHandler, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with Logging {
 
-  def enterLeadMrnOrEntryNumberPagePlaceholder(): Action[AnyContent] =
-    Action(implicit request => Ok(enterLeadMrnOrEntryNumberPage()))
+  def show(): Action[AnyContent] = featureSwitch.BulkClaim.action.async { implicit request =>
+    Future.successful(Ok(enterMrnSchedulePage()(request, cc.messagesApi.preferred(request), viewConfig)))
+  }
 }

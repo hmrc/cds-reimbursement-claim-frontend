@@ -82,6 +82,7 @@ object CompleteClaim {
       draftClaim match {
         case DraftClaim.DraftC285Claim(
               id,
+              _,
               Some(draftCompleteMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
               draftMaybeDuplicateCompleteMovementReferenceNumberAnswer,
               draftMaybeDeclarationDetailsAnswer,

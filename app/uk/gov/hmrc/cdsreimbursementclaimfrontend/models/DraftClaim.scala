@@ -36,6 +36,7 @@ object DraftClaim {
 
   final case class DraftC285Claim(
     id: UUID,
+    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
     movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
@@ -60,6 +61,7 @@ object DraftClaim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,
@@ -114,28 +116,8 @@ object DraftClaim {
     }
 
     def declarantType: Option[DeclarantType] = draftClaim match {
-      case DraftC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            declarantTypeAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        declarantTypeAnswer match {
+      case draftC285Claim: DraftC285Claim =>
+        draftC285Claim.declarantTypeAnswer match {
           case Some(value) =>
             value match {
               case DeclarantTypeAnswer.IncompleteDeclarantTypeAnswer(declarantType) => declarantType
@@ -146,28 +128,8 @@ object DraftClaim {
     }
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
-      case DraftC285Claim(
-            _,
-            movementReferenceNumberAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        movementReferenceNumberAnswer match {
+      case draftC285Claim: DraftC285Claim =>
+        draftC285Claim.movementReferenceNumberAnswer match {
           case Some(movementReferenceNumberAnswer) =>
             movementReferenceNumberAnswer match {
               case MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer(movementReferenceNumber) =>

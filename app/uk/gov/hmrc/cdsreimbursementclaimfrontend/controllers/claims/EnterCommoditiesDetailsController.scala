@@ -77,28 +77,8 @@ class EnterCommoditiesDetailsController @Inject() (
 
   private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
     fillingOutClaim.draftClaim match {
-      case DraftClaim.DraftC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            reasonForClaim,
-            _,
-            _,
-            _,
-            reasonForBasisAndClaimAnswer,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        (reasonForBasisAndClaimAnswer, reasonForClaim) match {
+      case draftC285Claim: DraftClaim.DraftC285Claim =>
+        (draftC285Claim.reasonForBasisAndClaimAnswer, draftC285Claim.basisOfClaimAnswer) match {
           case (Some(_), None) => routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
           case (None, Some(_)) => routes.SelectBasisForClaimController.selectBasisForClaim()
           case _               => sys.error("invalid data state: cannot have both reason and basis for claim and reason for claim")

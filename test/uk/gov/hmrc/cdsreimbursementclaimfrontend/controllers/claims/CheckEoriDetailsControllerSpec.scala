@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -48,6 +49,7 @@ class CheckEoriDetailsControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+  lazy val featureSwitch                               = instanceOf[FeatureSwitchService]
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
 
@@ -107,12 +109,26 @@ class CheckEoriDetailsControllerSpec
       }
     }
 
-    "Handle submissions" when {
+    "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "The user chooses the yes option" in {
+      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
+        featureSwitch.BulkClaim.enable()
+        val (session, fillingOutClaim, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+        }
+
+        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
+        checkIsRedirect(result, routes.SelectNumberOfClaimsController.show(false))
+      }
+
+      "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is disabled" in {
+        featureSwitch.BulkClaim.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -124,7 +140,7 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterMrn())
       }
 
-      "The user chooses the Eori is incorrect, logout option" in {
+      "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {

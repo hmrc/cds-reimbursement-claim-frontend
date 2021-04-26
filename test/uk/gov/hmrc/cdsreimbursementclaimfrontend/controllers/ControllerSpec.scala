@@ -158,9 +158,8 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   ): Unit = {
     import cats.instances.int._
     import cats.syntax.eq._
-    if (status(result) =!= SEE_OTHER) println(contentAsString(result))
-
-    status(result)           shouldBe SEE_OTHER
+    if (status(result) =!= SEE_OTHER)
+      status(result)         shouldBe SEE_OTHER
     redirectLocation(result) shouldBe Some(expectedRedirectUrl)
   }
 
