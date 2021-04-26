@@ -127,7 +127,7 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.SelectNumberOfClaimsController.show(false))
       }
 
-      "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is enabled" in {
+      "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is disabled" in {
         featureSwitch.BulkClaim.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
