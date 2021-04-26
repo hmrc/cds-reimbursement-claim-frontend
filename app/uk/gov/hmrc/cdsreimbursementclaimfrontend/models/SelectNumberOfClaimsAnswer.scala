@@ -20,12 +20,6 @@ import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 
-//case class SelectNumberOfClaimsAnswer(selectNumberOfClaimsChoice: Option[SelectNumberOfClaimsType])
-//
-//object SelectNumberOfClaimsAnswer {
-//  implicit val selectNumberOfClaimsAnswerFormat:OFormat[SelectNumberOfClaimsType] = Json.format[SelectNumberOfClaimsType]
-//}
-
 sealed trait SelectNumberOfClaimsAnswer extends Product with Serializable
 
 object SelectNumberOfClaimsAnswer {

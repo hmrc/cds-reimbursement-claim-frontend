@@ -109,12 +109,12 @@ class CheckEoriDetailsControllerSpec
       }
     }
 
-    "Handle submissions" when {
+    "Handle submissions" should {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "The user chooses the yes option with FeatureSwitch.Bulk enabled" in {
+      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
         featureSwitch.BulkClaim.enable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
@@ -127,7 +127,7 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.SelectNumberOfClaimsController.show(false))
       }
 
-      "The user chooses the yes option with FeatureSwitch.Bulk disabled" in {
+      "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is enabled" in {
         featureSwitch.BulkClaim.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
@@ -140,7 +140,7 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterMrn())
       }
 
-      "The user chooses the Eori is incorrect, logout option" in {
+      "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
