@@ -22,7 +22,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Mode}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import shapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -80,6 +80,7 @@ class EnterMovementReferenceNumberController @Inject() (
       case false => servicesConfig.getString("self.url") + startPage
     }
   }
+  lazy val backLink: Call          = routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
 
   private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
 
@@ -391,28 +392,31 @@ class EnterMovementReferenceNumberController @Inject() (
                   enterDuplicateMovementReferenceNumberPage(
                     EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                       MovementReferenceNumber(duplicateMovementReferenceNumber)
-                    )
+                    ),
+                    backLink
                   )
                 )
               case None                                   =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController.movementReferenceNumberForm
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm,
+                    backLink
                   )
                 )
             },
           ifComplete =>
             ifComplete.duplicateMovementReferenceNumber.fold(
               errorHandler.errorResult()
-            )(duplicateMovementReferenceNumber =>
+            ) { duplicateMovementReferenceNumber =>
               Ok(
                 enterDuplicateMovementReferenceNumberPage(
                   EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
                     MovementReferenceNumber(duplicateMovementReferenceNumber)
-                  )
+                  ),
+                  backLink
                 )
               )
-            )
+            }
         )
       }
     }
@@ -428,7 +432,8 @@ class EnterMovementReferenceNumberController @Inject() (
                 enterDuplicateMovementReferenceNumberPage(
                   requestFormWithErrors.copy(errors =
                     Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
-                  )
+                  ),
+                  backLink
                 )
               ),
             mrnOrEntryNumber => {
@@ -437,7 +442,12 @@ class EnterMovementReferenceNumberController @Inject() (
                 val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
                   .fill(mrnOrEntryNumber)
                   .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                BadRequest(enterDuplicateMovementReferenceNumberPage(form))
+                BadRequest(
+                  enterDuplicateMovementReferenceNumberPage(
+                    form,
+                    backLink
+                  )
+                )
               }
 
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
