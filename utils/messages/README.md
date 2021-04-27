@@ -1,5 +1,9 @@
 ## Create Welsh messages file
 
+### Background
+
+The scripts were created to parse inconsistent documents by its format. Going forward this is not the way we wish to deal with translations.  
+
 ### create-welsh-translations.py
 
 Given a spreadsheet with columns
