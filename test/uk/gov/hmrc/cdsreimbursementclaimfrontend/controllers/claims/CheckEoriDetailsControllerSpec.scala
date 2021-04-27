@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -72,6 +73,9 @@ class CheckEoriDetailsControllerSpec
     )
   }
 
+  def getBackLink(document: Document): String =
+    document.select("a.govuk-back-link").attr("href")
+
   "Check Eori Details Controller" must {
 
     "redirect to the start of the journey" when {
@@ -104,7 +108,8 @@ class CheckEoriDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("check-eori-details.title")
+          messageFromMessageKey("check-eori-details.title"),
+          doc => getBackLink(doc) shouldBe baseRoutes.LandingPageController.landing().url
         )
       }
     }
