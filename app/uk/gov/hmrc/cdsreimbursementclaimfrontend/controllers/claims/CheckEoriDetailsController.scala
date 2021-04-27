@@ -61,7 +61,7 @@ class CheckEoriDetailsController @Inject() (
     signedInUserDetails,
     form,
     routes.CheckEoriDetailsController.submit(),
-    routes.CheckDeclarationDetailsController.checkDetailsSubmit()
+    baseRoutes.LandingPageController.landing()
   )
 
   def show(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
