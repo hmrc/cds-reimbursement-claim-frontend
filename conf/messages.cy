@@ -1,4 +1,3 @@
-
 service.name=cds-reimbursement-claim-frontend
 service.title=Hawlio ad-daliad am dollau mewnforio
 service.signOut=Allgofnodi
@@ -63,10 +62,6 @@ footer.govukHelp.url=https://www.gov.uk/help
 exit-survey.link-text=Beth oedd eich barn am y gwasanaeth hwn?
 
 #===================================================
-#  MESSAGES FOR PAGES
-#===================================================
-
-#===================================================
 #  LANDING PAGE
 #===================================================
 landing.title=Hawlio ad-daliad am dollau mewnforio
@@ -74,7 +69,6 @@ landing.help.p1=Gallwch ddefnyddio’r gwasanaeth hwn i hawlio ad-daliad ar orda
 landing.help.p2=Yn y dyfodol agos, byddwch hefyd yn gallu defnyddio’r gwasanaeth hwn i wneud nifer o hawliadau. Bydd ad-daliadau drwy’r CMA hefyd ar gael.
 landing.who.heading=Pwy all hawlio
 landing.who.p1=Gallwch wneud hawliad os oes gennych rif EORI dilys yn gysylltiedig â’ch manylion mewngofnodi ar gyfer Porth y Llywodraeth, ac os oes gennych un neu fwy o Gyfeirnodau Symud (MRN) neu rif mewnforio.
-
 landing.who.p3=Fel datganydd hawliad, gallwch fod yn:
 landing.who.l1=mewnforiwr neu’n gynrychiolydd y mewnforiwr
 landing.who.l2=asiant, trefnydd anfon nwyddau neu’n gyfrifydd
@@ -134,7 +128,7 @@ enter-movement-reference-number.invalid=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.error.required=Nodwch rif MRN neu rif mewnforio dilys
 
 #===================================================
-
+#  MRN
 #===================================================
 mrn-not-linked-to-eori.title=Nid yw’r rhif MRN rydych  wedi’i nodi’n gysylltiedig â’ch rhif EORI
 mrn-not-linked-to-eori.caption=Cyfeirnod Symud
@@ -384,7 +378,6 @@ select-duties.duty.A95=Tollau Gwrthbwyso Dros Dro - Cod A95
 select-duties.duty.B05=Treth ar Werth - Cod B05
 
 enter-claim.title=Rhowch y swm rydych yn ei hawlio ar gyfer y doll {0}
-
 enter-claim.help-text=Mae hyn er mwyn cyfrifo eich ad-daliad fel rhan o’ch hawliad. Nid yw CThEM yn ad-dalu ffioedd asiantau.
 enter-claim.paid-amount-label=Swm a Dalwyd
 enter-claim.claim-amount=Swm yr hawliad
@@ -460,12 +453,10 @@ supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=A ydych ei
 supporting-evidence.check-your-answers.cya-change=Newid
 supporting-evidence.check-your-answers.assistive=y ffeil dan yr enw {0}
 supporting-evidence.check-your-answers.add-another-file=Ychwanegu ffeil arall
-
 supporting-evidence.upload.title=Uwchlwytho ffeiliau i ategu’ch cais
 supporting-evidence.upload.caption=Tystiolaeth ategol
 supporting-evidence.upload.error.required=Uwchlwytho ffeil gyda’ch tystiolaeth ategol
 supporting-evidence.upload.help-text=Uwchlwythwch dystiolaeth ategol rydych chi wedi’i chael ar gyfer nwyddau rydych wedi’u mewnforio. Gall ffeiliau fod hyd at 10MB. Rydym yn derbyn ffeiliau JPG, PNG a PDF.
-
 supporting-evidence.upload.amendReturn.help-text=Gall y ffeil fod hyd at 10MB. Fformat ffeil dilys: JPG, PNG, a PDF.
 file.error.required=Dewiswch ffeil yn cynnwys eich tystiolaeth ategol
 
@@ -572,7 +563,6 @@ confirmation-of-submission.what-next.link.1.start-another-claim=Dechrau hawliad 
 #===================================================
 #  ACCESSIBILITY - START
 #===================================================
-
 accessibility-statement.title=Datganiad hygyrchedd
 accessibility-statement.caption=Hawlio ad-daliad am dollau mewnforio
 accessibility-statement.heading1=Defnyddio’r gwasanaeth hwn
@@ -601,10 +591,6 @@ accessibility-statement.li2=chwyddo’r sgrin hyd at 300% heb i’r testun ddisg
 accessibility-statement.li3=mynd o ddechrau’r gwasanaeth i’r diwedd gan ddefnyddio bysellfwrdd yn unig
 accessibility-statement.li4=mynd o ddechrau’r gwasanaeth i’r diwedd gan ddefnyddio meddalwedd adnabod lleferydd
 accessibility-statement.li5=gwrando ar y gwasanaeth gan ddefnyddio darllenydd sgrin (gan gynnwys y fersiynau diweddaraf o JAWS, NVDA a VoiceOver)
-
-#===================================================
-#  ACCESSIBILITY - START
-#===================================================
 
 #===================================================
 #  NON-UK ADDRESS - START
