@@ -38,6 +38,14 @@ lazy val scoverageSettings =
     ScoverageKeys.coverageHighlighting := true
   )
 
+def orderTests(allTests: Seq[TestDefinition]):Seq[Tests.Group] = {
+    val sortedTests = allTests
+      .map{test => new Tests.Group(test.name, Seq(test), Tests.InProcess)}
+      .sortWith((a,_) => if(a.name.contains(".MessagesSpec")) false else true)
+      .flatMap(_.tests)
+    Seq(new Tests.Group("Tests", sortedTests, Tests.InProcess))
+}
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(
     play.sbt.PlayScala,
@@ -64,6 +72,7 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
+  .settings(Test / testGrouping := orderTests((definedTests in Test).value))
   .settings(resourceDirectories in Test += baseDirectory.value / "conf" / "resources")
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
