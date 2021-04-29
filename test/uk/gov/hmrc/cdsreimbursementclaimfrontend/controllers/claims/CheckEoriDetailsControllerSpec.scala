@@ -48,14 +48,16 @@ class CheckEoriDetailsControllerSpec
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
-  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+  lazy val featureSwitch                               = instanceOf[FeatureSwitchService]
+
+  val mockCustomsDataStoreService                      = mock[CustomsDataStoreService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
       bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
     )
-  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
 
