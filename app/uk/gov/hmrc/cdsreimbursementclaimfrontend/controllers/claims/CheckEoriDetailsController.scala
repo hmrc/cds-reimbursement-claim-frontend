@@ -45,7 +45,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class CheckEoriDetailsController @Inject()(
+class CheckEoriDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -57,7 +57,7 @@ class CheckEoriDetailsController @Inject()(
   val config: Configuration,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
- )(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -76,8 +76,8 @@ class CheckEoriDetailsController @Inject()(
     baseRoutes.LandingPageController.landing()
   )
 
-  private val runMode = config.getOptional[String]("run.mode")
-  private val isRunningLocal =
+  private val runMode              = config.getOptional[String]("run.mode")
+  private val isRunningLocal       =
     if (env.mode.toString === Mode.Test.toString) true else runMode.forall(_ === Mode.Dev.toString)
   private val customsEmailFrontend = "customs-email-frontend"
 
@@ -117,14 +117,14 @@ class CheckEoriDetailsController @Inject()(
                   (for {
                     maybeVerifiedEmail <-
                       customsDataStoreService.getEmailByEori(user.eori).leftMap(logError.andThen(returnErrorPage))
-                    verifiedEmail <- EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(customsEmailFrontendUrl))
-                    _ <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
-                      .leftMap(logError.andThen(returnErrorPage))
-                    result <- EitherT.rightT[Future, Result](
-                      if (featureSwitch.BulkClaim.isEnabled())
-                        Redirect(routes.SelectNumberOfClaimsController.show(false))
-                      else Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-                    )
+                    verifiedEmail      <- EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(customsEmailFrontendUrl))
+                    _                  <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
+                                            .leftMap(logError.andThen(returnErrorPage))
+                    result             <- EitherT.rightT[Future, Result](
+                                            if (featureSwitch.BulkClaim.isEnabled())
+                                              Redirect(routes.SelectNumberOfClaimsController.show(false))
+                                            else Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                                          )
                   } yield result).merge
 
                 case EoriDetailsAreIncorrect => Future.successful(Redirect(viewConfig.ggSignOut))
@@ -136,15 +136,15 @@ class CheckEoriDetailsController @Inject()(
   }
 
   private def withMovementReferenceNumberAnswer(
-                                                 f: (SessionData, FillingOutClaim, MovementReferenceNumberAnswer) => Future[Result]
-                                               )(implicit request: RequestWithSessionData[_]): Future[Result] =
+    f: (SessionData, FillingOutClaim, MovementReferenceNumberAnswer) => Future[Result]
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some((sessionData, fillingOutClaim@FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
+      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
         val maybeMovementReferenceNumberAnswers = draftClaim.fold(_.movementReferenceNumberAnswer)
         maybeMovementReferenceNumberAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteMovementReferenceNumberAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
-      case _ => Future.successful(Redirect(baseRoutes.StartController.start()))
+      case _                                                                                    => Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 }
 

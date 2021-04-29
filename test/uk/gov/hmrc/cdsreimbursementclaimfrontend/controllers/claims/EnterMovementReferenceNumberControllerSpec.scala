@@ -76,7 +76,8 @@ class EnterMovementReferenceNumberControllerSpec
       .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
       .expects(*, *)
       .returning(EitherT.fromEither[Future](response))
-  lazy val controller: EnterMovementReferenceNumberController                        = instanceOf[EnterMovementReferenceNumberController]
+
+  lazy val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -101,8 +102,6 @@ class EnterMovementReferenceNumberControllerSpec
 
   "Movement Reference Number Controller" when {
 
-    val verifiedEmail = "jex.belaran@xmail.com"
-
     "Enter MRN page" must {
 
       def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
@@ -113,61 +112,12 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
         val doc             = Jsoup.parse(contentAsString(performAction()))
 
         doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe ""
       }
-
-      "Show error page when customs-data-store request fails " in {
-        val answers         = IncompleteMovementReferenceNumberAnswer.empty
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Left(Error(new Exception("Boom"))))
-        }
-        checkIsTechnicalErrorPage(performAction())
-      }
-
-      "Check for redirect when customs-data-store does not return an email (no email associated for the given EORI)" in {
-        val answers         = IncompleteMovementReferenceNumberAnswer.empty
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Right(None))
-        }
-        checkIsRedirect(performAction(), "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim")
-      }
-
-      "Check for redirect when customs-data-store does return an email" in {
-        val answers         = IncompleteMovementReferenceNumberAnswer.empty
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
-          mockStoreSession(Right(()))
-        }
-        status(performAction()) shouldBe 200
-      }
-
-      "Check for redirect when customs-data-store does return an email, but storage fails" in {
-        val answers         = IncompleteMovementReferenceNumberAnswer.empty
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
-          mockStoreSession(Left(Error(new Exception("Wham"))))
-        }
-        checkIsTechnicalErrorPage(performAction())
-      }
-
     }
 
     "Change MRN page" must {
@@ -180,8 +130,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
 
         val doc = Jsoup.parse(contentAsString(performAction()))
@@ -198,8 +146,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
 
         val doc = Jsoup.parse(contentAsString(performAction()))
@@ -218,8 +164,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
-          mockStoreSession(Right(()))
         }
 
         val doc = Jsoup.parse(contentAsString(performAction()))
