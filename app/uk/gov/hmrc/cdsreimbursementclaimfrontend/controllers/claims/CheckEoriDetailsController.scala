@@ -64,8 +64,8 @@ class CheckEoriDetailsController @Inject()(
     with Logging {
 
   protected def getPage(
-    signedInUserDetails: SignedInUserDetails,
-    form: Form[CheckEoriDetailsAnswer]
+                         signedInUserDetails: SignedInUserDetails,
+                         form: Form[CheckEoriDetailsAnswer]
                        )(implicit
                          request: RequestWithSessionData[_],
                          messages: Messages
