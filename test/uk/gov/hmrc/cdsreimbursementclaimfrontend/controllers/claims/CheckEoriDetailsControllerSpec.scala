@@ -48,9 +48,9 @@ class CheckEoriDetailsControllerSpec
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
-  lazy val featureSwitch                               = instanceOf[FeatureSwitchService]
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  val mockCustomsDataStoreService                      = mock[CustomsDataStoreService]
+  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -134,6 +134,46 @@ class CheckEoriDetailsControllerSpec
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "Show error page when retrieve EORI by email request fails" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Left(Error(new Exception("Boom"))))
+        }
+
+        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+      }
+
+      "Redirect to Customs Email Frontend when no email associated for the given EORI" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(None))
+        }
+
+        checkIsRedirect(
+          performAction(Seq(CheckEoriDetailsController.dataKey -> "0")),
+          "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"
+        )
+      }
+
+      "Show error page when session storage fails" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
+          mockStoreSession(Left(Error(new Exception("Wham"))))
+        }
+
+        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+      }
 
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
         featureSwitch.BulkClaim.enable()

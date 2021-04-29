@@ -114,7 +114,7 @@ class CheckEoriDetailsController @Inject() (
                   def saveSession(verifiedEmail: VerifiedEmail): SessionData => SessionData =
                     _.copy(journeyStatus = Some(emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)))
 
-                  (for {
+                  val eitherErrorOrNextPage = for {
                     maybeVerifiedEmail <-
                       customsDataStoreService.getEmailByEori(user.eori).leftMap(logError.andThen(returnErrorPage))
                     verifiedEmail      <- EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(customsEmailFrontendUrl))
@@ -125,7 +125,9 @@ class CheckEoriDetailsController @Inject() (
                                               Redirect(routes.SelectNumberOfClaimsController.show(false))
                                             else Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                                           )
-                  } yield result).merge
+                  } yield result
+
+                  eitherErrorOrNextPage.merge
 
                 case EoriDetailsAreIncorrect => Future.successful(Redirect(viewConfig.ggSignOut))
               }
