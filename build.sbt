@@ -33,7 +33,7 @@ lazy val wartremoverSettings =
 lazy val scoverageSettings =
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;.*(config|testonly|views|utils).*;.*(BuildInfo|Routes).*;.*(models).*",
-    ScoverageKeys.coverageMinimum := 70.00,
+    ScoverageKeys.coverageMinimum := 81.00,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )

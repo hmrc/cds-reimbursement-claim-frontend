@@ -257,6 +257,7 @@ object SelectReasonForBasisAndClaimController {
             "invalid basis for claim",
             reason =>
               reason === 0 ||
+                // $COVERAGE-OFF$
                 reason === 1 ||
                 reason === 2 ||
                 reason === 3 ||
@@ -270,10 +271,12 @@ object SelectReasonForBasisAndClaimController {
                 reason === 11 ||
                 reason === 12 ||
                 reason === 13
+            // $COVERAGE-ON$
           )
           .transform[BasisOfClaim](
             {
               case 0  => BasisOfClaim.DuplicateEntry
+              // $COVERAGE-OFF$
               case 1  => BasisOfClaim.DutySuspension
               case 2  => BasisOfClaim.EndUseRelief
               case 3  => BasisOfClaim.IncorrectCommodityCode
@@ -287,9 +290,11 @@ object SelectReasonForBasisAndClaimController {
               case 11 => BasisOfClaim.Preference
               case 12 => BasisOfClaim.RGR
               case 13 => BasisOfClaim.ProofOfReturnRefundGiven
+              // $COVERAGE-ON$
             },
             {
               case BasisOfClaim.DuplicateEntry                         => 0
+              // $COVERAGE-OFF$
               case BasisOfClaim.DutySuspension                         => 1
               case BasisOfClaim.EndUseRelief                           => 2
               case BasisOfClaim.IncorrectCommodityCode                 => 3
@@ -303,6 +308,7 @@ object SelectReasonForBasisAndClaimController {
               case BasisOfClaim.Preference                             => 11
               case BasisOfClaim.RGR                                    => 12
               case BasisOfClaim.ProofOfReturnRefundGiven               => 13
+              // $COVERAGE-ON$
             }
           ),
         "select-reason-and-basis-for-claim.reason" -> number
@@ -310,20 +316,26 @@ object SelectReasonForBasisAndClaimController {
             "invalid basis for reason",
             reason =>
               reason === 0 ||
+                // $COVERAGE-OFF$
                 reason === 1 ||
                 reason === 2 ||
                 reason === 3
+            // $COVERAGE-ON$
           )
           .transform[ReasonForClaim](
             {
               case 0 => ReasonForClaim.MailForOrderGoods
+              // $COVERAGE-OFF$
               case 1 => ReasonForClaim.Overpayment
               case 2 => ReasonForClaim.SpecialGoods
+              // $COVERAGE-ON$
             },
             {
               case ReasonForClaim.MailForOrderGoods => 0
+              // $COVERAGE-OFF$
               case ReasonForClaim.Overpayment       => 1
               case ReasonForClaim.SpecialGoods      => 2
+              // $COVERAGE-ON$
             }
           )
       )(SelectReasonForClaimAndBasis.apply)(SelectReasonForClaimAndBasis.unapply)
