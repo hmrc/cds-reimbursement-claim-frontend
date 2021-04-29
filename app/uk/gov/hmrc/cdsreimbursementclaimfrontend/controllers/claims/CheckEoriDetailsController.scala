@@ -46,30 +46,30 @@ import scala.concurrent.Future
 
 @Singleton
 class CheckEoriDetailsController @Inject()(
-                                            val authenticatedAction: AuthenticatedAction,
-                                            val sessionDataAction: SessionDataAction,
-                                            val sessionStore: SessionCache,
-                                            val errorHandler: ErrorHandler,
-                                            val featureSwitch: FeatureSwitchService,
-                                            cc: MessagesControllerComponents,
-                                            val customsDataStoreService: CustomsDataStoreService,
-                                            val servicesConfig: ServicesConfig,
-                                            val config: Configuration,
-                                            val env: Environment,
-                                            checkEoriDetailsPage: check_eori_details
-                                          )(implicit viewConfig: ViewConfig)
+  val authenticatedAction: AuthenticatedAction,
+  val sessionDataAction: SessionDataAction,
+  val sessionStore: SessionCache,
+  val errorHandler: ErrorHandler,
+  val featureSwitch: FeatureSwitchService,
+  cc: MessagesControllerComponents,
+  val customsDataStoreService: CustomsDataStoreService,
+  val servicesConfig: ServicesConfig,
+  val config: Configuration,
+  val env: Environment,
+  checkEoriDetailsPage: check_eori_details
+ )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
 
   protected def getPage(
-                         signedInUserDetails: SignedInUserDetails,
-                         form: Form[CheckEoriDetailsAnswer]
-                       )(implicit
-                         request: RequestWithSessionData[_],
-                         messages: Messages
-                       ): Appendable = checkEoriDetailsPage(
+    signedInUserDetails: SignedInUserDetails,
+    form: Form[CheckEoriDetailsAnswer]
+  )(implicit
+    request: RequestWithSessionData[_],
+    messages: Messages
+  ): Appendable = checkEoriDetailsPage(
     signedInUserDetails,
     form,
     routes.CheckEoriDetailsController.submit(),
