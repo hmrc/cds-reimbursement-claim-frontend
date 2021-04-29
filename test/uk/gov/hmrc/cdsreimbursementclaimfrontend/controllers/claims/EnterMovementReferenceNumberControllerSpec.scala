@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,23 +53,14 @@ class EnterMovementReferenceNumberControllerSpec
     with ScalaCheckDrivenPropertyChecks
     with OptionValues {
 
-  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
-  val mockClaimsService           = mock[ClaimService]
+  val mockClaimsService = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService),
       bind[ClaimService].toInstance(mockClaimsService)
     )
-
-  def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
-    (mockCustomsDataStoreService
-      .getEmailByEori(_: Eori)(_: HeaderCarrier))
-      .expects(*, *)
-      .returning(EitherT.fromEither[Future](response))
-      .once()
 
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
