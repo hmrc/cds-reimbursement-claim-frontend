@@ -22,17 +22,7 @@ import play.api.libs.json.Format
 final case class SortCode(value: String) extends AnyVal
 
 object SortCode {
-
-  def withoutHyphensAndSpaces(maybeSortCode: String): SortCode =
-    SortCode(maybeSortCode.replaceAll("[-( )]+", ""))
-
-  def isValid(maybeSortCode: String): Boolean = {
-    val strippedSortCode: String = maybeSortCode.replaceAll("""[-( )]+""", "")
-    val regex                    = """\d{6}"""
-
-    strippedSortCode.matches(regex)
-  }
-
+  
   implicit val format: Format[SortCode] =
     implicitly[Format[String]].inmap(SortCode(_), _.value)
 
