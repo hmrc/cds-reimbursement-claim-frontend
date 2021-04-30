@@ -107,9 +107,9 @@ class CheckEoriDetailsController @Inject() (
                 case EoriDetailsAreCorrect =>
                   import Logging._
 
-                  def logError: Error => Unit = error => logger.warn(s"Error submitting Eori check", error)
+                  val logError: Error => Unit = error => logger.warn(s"Error submitting Eori check", error)
 
-                  def returnErrorPage: Unit => Result = _ => errorHandler.errorResult()
+                  val returnErrorPage: Unit => Result = _ => errorHandler.errorResult()
 
                   def saveSession(verifiedEmail: VerifiedEmail): SessionData => SessionData =
                     _.copy(journeyStatus = Some(emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)))
