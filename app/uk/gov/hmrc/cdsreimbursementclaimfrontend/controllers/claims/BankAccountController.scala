@@ -242,8 +242,8 @@ object BankAccountController {
 
   val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
   val sortCodeMapping: Mapping[SortCode] =
-    nonEmptyText(minLength = 6, maxLength = 6)
-      .transform[SortCode](s => SortCode(s.replaceAllLiterally(" ", "")), _.value)
+    nonEmptyText
+      .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
       .verifying("invalid", e => sortCodeRegex.test(e.value))
 
   val accountNameRegex: Predicate[String]      = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
