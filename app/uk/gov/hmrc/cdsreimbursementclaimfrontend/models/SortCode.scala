@@ -22,7 +22,7 @@ import play.api.libs.json.Format
 final case class SortCode(value: String) extends AnyVal
 
 object SortCode {
-  
+
   implicit val format: Format[SortCode] =
     implicitly[Format[String]].inmap(SortCode(_), _.value)
 
