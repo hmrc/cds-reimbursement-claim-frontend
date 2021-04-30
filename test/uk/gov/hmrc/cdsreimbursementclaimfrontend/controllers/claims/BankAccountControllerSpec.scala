@@ -442,13 +442,25 @@ class BankAccountControllerSpec
         val errors = form.bind(goodData.updated(sortCode, numStringGen(6))).errors
         errors shouldBe Nil
       }
+      "Accept sort code with spaces" in {
+        val errors = form.bind(goodData.updated(sortCode, "10 20 30")).errors
+        errors shouldBe Nil
+      }
+      "Accept sort code with dashes" in {
+        val errors = form.bind(goodData.updated(sortCode, "10-20-30")).errors
+        errors shouldBe Nil
+      }
+      "Accept sort code with a mixture of spaces and dashes" in {
+        val errors = form.bind(goodData.updated(sortCode, "10 -20--30")).errors
+        errors shouldBe Nil
+      }
       "Reject sortCode too short" in {
         val errors = form.bind(goodData.updated(sortCode, numStringGen(5))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
       }
       "Reject sortCode too long" in {
         val errors = form.bind(goodData.updated(sortCode, numStringGen(7))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid")
       }
     }
 

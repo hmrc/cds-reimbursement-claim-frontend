@@ -240,11 +240,10 @@ object BankAccountController {
       .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
       .verifying("invalid", e => accountNumberRegex.test(e.value))
 
-  val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
   val sortCodeMapping: Mapping[SortCode] =
-    nonEmptyText(minLength = 6, maxLength = 6)
-      .transform[SortCode](s => SortCode(s.replaceAllLiterally(" ", "")), _.value)
-      .verifying("invalid", e => sortCodeRegex.test(e.value))
+    nonEmptyText
+      .verifying("invalid", str => SortCode.isValid(str))
+      .transform[SortCode](str => SortCode.withoutHyphensAndSpaces(str), _.value)
 
   val accountNameRegex: Predicate[String]      = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
   val accountNameMapping: Mapping[AccountName] =
