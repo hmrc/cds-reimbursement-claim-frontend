@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeBankDetails, DisplayDeclaration, DisplayResponseDetail, MaskedBankDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
@@ -37,7 +37,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val bankAccount       = sample[BankAccountDetails]
       val completeC285Claim = sample[CompleteC285Claim]
         .copy(
-          completeMovementReferenceNumberAnswer = CompleteMovementReferenceNumberAnswer(Right(sample[MRN])),
+          completeMovementReferenceNumberAnswer = MovementReferenceNumber(Right(sample[MRN])),
           maybeCompleteBankAccountDetailAnswer = Some(CompleteBankAccountDetailAnswer(bankAccount))
         )
 
@@ -53,7 +53,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val displayResponseDetail                = sample[DisplayResponseDetail].copy(maskedBankDetails = Some(bankAccount))
       val completeC285Claim: CompleteC285Claim = sample[CompleteC285Claim]
         .copy(
-          completeMovementReferenceNumberAnswer = CompleteMovementReferenceNumberAnswer(Right(sample[MRN])),
+          completeMovementReferenceNumberAnswer = MovementReferenceNumber(Right(sample[MRN])),
           maybeDisplayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
           maybeCompleteBankAccountDetailAnswer = None
         )

@@ -29,10 +29,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -75,7 +75,7 @@ class EnterMovementReferenceNumberControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer]
+    maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = maybeMovementReferenceNumberAnswer)
@@ -98,8 +98,7 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
 
       "show the title" in {
-        val answers         = IncompleteMovementReferenceNumberAnswer.empty
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -116,7 +115,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "show the title and the MRN number" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -132,7 +131,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "show the back button when the user has come from the CYA page with an mrn number" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -150,7 +149,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "show the back button when the user has come from the CYA page with an entry number" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -172,7 +171,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "return to CYA page if the same MRN is submitted" in {
         val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -187,7 +186,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "return to CYA page if the same entry number is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -202,7 +201,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "start a new claim if a different MRN is submitted" in {
         val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
 
         val displayDeclaration = sample[DisplayDeclaration]
@@ -222,7 +221,7 @@ class EnterMovementReferenceNumberControllerSpec
 
       "start a new claim if a different entry number is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()

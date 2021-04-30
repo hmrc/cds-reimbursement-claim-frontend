@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountC
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
@@ -39,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
@@ -57,7 +57,7 @@ object CompleteClaim {
 
   final case class CompleteC285Claim(
     id: UUID,
-    completeMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer,
+    completeMovementReferenceNumberAnswer: MovementReferenceNumber,
     maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
@@ -84,7 +84,7 @@ object CompleteClaim {
         case DraftClaim.DraftC285Claim(
               id,
               _,
-              Some(draftCompleteMovementReferenceNumberAnswer: CompleteMovementReferenceNumberAnswer),
+              Some(draftCompleteMovementReferenceNumberAnswer: MovementReferenceNumber),
               draftMaybeDuplicateCompleteMovementReferenceNumberAnswer,
               draftMaybeDeclarationDetailsAnswer,
               draftDuplicateDeclarationDetailAnswer,
@@ -104,7 +104,7 @@ object CompleteClaim {
               draftDeclarantEoriNumberAnswer,
               Some(completeClaimsAnswer: CompleteClaimsAnswer)
             ) =>
-          draftCompleteMovementReferenceNumberAnswer.movementReferenceNumber match {
+          draftCompleteMovementReferenceNumberAnswer.value match {
             case Left(_) =>
               (
                 validateDuplicateMovementReferenceNumberAnswer(
@@ -762,7 +762,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        completeMovementReferenceNumberAnswer.movementReferenceNumber match {
+        completeMovementReferenceNumberAnswer.value match {
           case Left(_)  =>
             bankAccountDetails match {
               case Some(bankAccountDetailAnswer) => Some(bankAccountDetailAnswer.bankAccountDetails)
@@ -831,28 +831,8 @@ object CompleteClaim {
     }
 
     def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            movementReferenceNumber,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        movementReferenceNumber.movementReferenceNumber
+      case claim: CompleteC285Claim =>
+        claim.completeMovementReferenceNumberAnswer.value
     }
 
     def duplicateMovementReferenceNumber: Option[Either[EntryNumber, MRN]] = completeClaim match {

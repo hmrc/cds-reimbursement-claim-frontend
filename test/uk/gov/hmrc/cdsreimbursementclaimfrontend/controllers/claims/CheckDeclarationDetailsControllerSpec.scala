@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -37,6 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
+
 import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
@@ -63,7 +64,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         displayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(MRN("some mrn"))))
+        movementReferenceNumberAnswer = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -84,7 +85,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(MRN("some mrn"))))
+        movementReferenceNumberAnswer = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
