@@ -19,11 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment, Mode}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
-import shapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
@@ -38,12 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter,
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import cats.implicits.catsSyntaxEq
 
@@ -56,10 +53,6 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   claimService: ClaimService,
-  customsDataStoreService: CustomsDataStoreService,
-  servicesConfig: ServicesConfig,
-  config: Configuration,
-  env: Environment,
   cc: MessagesControllerComponents,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
@@ -69,46 +62,15 @@ class EnterMovementReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private val runMode              = config.getOptional[String]("run.mode")
-  private val isRunningLocal       =
-    if (env.mode.toString === Mode.Test.toString) true else runMode.forall(_ === Mode.Dev.toString)
-  private val customsEmailFrontend = "customs-email-frontend"
-  private val customsEmailFrontendUrl: String = {
-    val startPage = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
-    isRunningLocal match {
-      case true  => servicesConfig.baseUrl(customsEmailFrontend) + startPage
-      case false => servicesConfig.getString("self.url") + startPage
-    }
-  }
-  lazy val backLink: Call          = routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
-
-  private val emailLens = lens[FillingOutClaim].signedInUserDetails.verifiedEmail
+  lazy val backLink: Call = routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
 
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
   protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
-        (for {
-          maybeVerifiedEmail <- customsDataStoreService
-                                  .getEmailByEori(fillingOutClaim.signedInUserDetails.eori)
-                                  .leftMap { error =>
-                                    logger.warn("changeOrEnterMrn error calling customs-data-store", error)
-                                    errorHandler.errorResult()
-                                  }
-          verifiedEmail      <- EitherT.fromOption[Future](maybeVerifiedEmail, Redirect(customsEmailFrontendUrl))
-          _                  <- EitherT(
-                                  updateSession(sessionStore, request)(
-                                    _.copy(journeyStatus = Some(emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)))
-                                  )
-                                )
-                                  .leftMap { err =>
-                                    logger.warn("changeOrEnterMrn error saving session data", err)
-                                    errorHandler.errorResult()
-                                  }
-          result             <- EitherT.rightT[Future, Result](renderMrnPage(answers, isAmend))
-        } yield result).merge
+      withMovementReferenceNumberAnswer { (_, _, answers) =>
+        renderMrnPage(answers, isAmend)
       }
     }
 

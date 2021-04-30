@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -35,8 +36,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{CustomsDataStoreService, FeatureSwitchService}
+import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckEoriDetailsControllerSpec
@@ -45,12 +48,16 @@ class CheckEoriDetailsControllerSpec
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  val mockCustomsDataStoreService = mock[CustomsDataStoreService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[CustomsDataStoreService].toInstance(mockCustomsDataStoreService)
     )
-  lazy val featureSwitch                               = instanceOf[FeatureSwitchService]
 
   lazy val controller: CheckEoriDetailsController = instanceOf[CheckEoriDetailsController]
 
@@ -76,7 +83,16 @@ class CheckEoriDetailsControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
+  def mockGetEmail(response: Either[Error, Option[VerifiedEmail]]) =
+    (mockCustomsDataStoreService
+      .getEmailByEori(_: Eori)(_: HeaderCarrier))
+      .expects(*, *)
+      .returning(EitherT.fromEither[Future](response))
+      .once()
+
   "Check Eori Details Controller" must {
+
+    val verifiedEmail = "jex.belaran@xmail.com"
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
@@ -119,6 +135,46 @@ class CheckEoriDetailsControllerSpec
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
+      "Show error page when retrieve EORI by email request fails" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Left(Error(new Exception("Boom"))))
+        }
+
+        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+      }
+
+      "Redirect to Customs Email Frontend when no email associated for the given EORI" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(None))
+        }
+
+        checkIsRedirect(
+          performAction(Seq(CheckEoriDetailsController.dataKey -> "0")),
+          "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"
+        )
+      }
+
+      "Show error page when session storage fails" in {
+        val (session, _, _) = sessionWithClaimState()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetEmail(Right(Some(VerifiedEmail("someone@gmail.com", ""))))
+          mockStoreSession(Left(Error(new Exception("Wham"))))
+        }
+
+        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+      }
+
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
         featureSwitch.BulkClaim.enable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
@@ -126,6 +182,8 @@ class CheckEoriDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
         }
 
         val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
@@ -139,6 +197,8 @@ class CheckEoriDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
+          mockStoreSession(Right(()))
         }
 
         val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
