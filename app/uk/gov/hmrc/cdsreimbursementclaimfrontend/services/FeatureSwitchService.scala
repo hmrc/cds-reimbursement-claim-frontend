@@ -29,8 +29,8 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
 
   def forName(name: String): FeatureName = // scalastyle:ignore cyclomatic.complexity
     name match {
-      case CurrentMonthAdjustment.name => CurrentMonthAdjustment
-      case BulkClaim.name              => BulkClaim
+      case NorthernIreland.name => NorthernIreland
+      case BulkClaim.name       => BulkClaim
     }
 
   sealed trait FeatureName {
@@ -73,8 +73,7 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
       }
   }
 
-  case object CurrentMonthAdjustment extends { val name = "current-month-adjustment" } with FeatureName
-
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
 
+  case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
 }

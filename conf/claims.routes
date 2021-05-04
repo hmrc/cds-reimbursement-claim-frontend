@@ -49,6 +49,9 @@ POST        /enter-your-contact-details                             uk.gov.hmrc.
 GET         /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
 POST        /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
 
+GET         /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.show(isAmend:Boolean=false)
+POST        /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.submit()
+
 GET         /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim()
 POST        /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit()
 

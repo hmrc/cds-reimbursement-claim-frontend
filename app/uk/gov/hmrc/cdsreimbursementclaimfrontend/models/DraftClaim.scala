@@ -49,6 +49,7 @@ object DraftClaim {
     supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
+    claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
     reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
     displayDeclaration: Option[DisplayDeclaration],
     duplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -61,6 +62,7 @@ object DraftClaim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,
