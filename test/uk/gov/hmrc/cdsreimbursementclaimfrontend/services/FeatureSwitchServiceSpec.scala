@@ -29,20 +29,20 @@ import scala.concurrent.Future
 class FeatureSwitchServiceSpec extends ControllerSpec {
 
   "FeatureSwitchService" should {
-    val configuration = Configuration.from(Map("feature.current-month-adjustment" -> "abc"))
+    val configuration = Configuration.from(Map("feature.bulk-claim" -> "abc"))
     val featureSwitch = new FeatureSwitchService(configuration)
 
-    "enable and disable current-month-adjustment" in {
-      val cma = "current-month-adjustment"
-      featureSwitch.CurrentMonthAdjustment.enable()
-      featureSwitch.forName(cma).isEnabled() shouldBe true
-      featureSwitch.CurrentMonthAdjustment.disable()
-      featureSwitch.forName(cma).isEnabled() shouldBe false
+    "enable and disable bulk-claim" in {
+      val bulkClaim = "bulk-claim"
+      featureSwitch.BulkClaim.enable()
+      featureSwitch.forName(bulkClaim).isEnabled() shouldBe true
+      featureSwitch.BulkClaim.disable()
+      featureSwitch.forName(bulkClaim).isEnabled() shouldBe false
     }
 
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.CurrentMonthAdjustment.enable()
+      featureSwitch.BulkClaim.enable()
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents], instanceOf[ErrorHandler])
       val result         = testController.test()(FakeRequest())
@@ -52,7 +52,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec {
 
     "Disable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.CurrentMonthAdjustment.disable()
+      featureSwitch.BulkClaim.disable()
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents], instanceOf[ErrorHandler])
       val result         = testController.test()(FakeRequest())
@@ -65,7 +65,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec {
     val cc: MessagesControllerComponents,
     val errorHandler: ErrorHandler
   ) extends FrontendController(cc) {
-    def test(): Action[AnyContent] = fs.CurrentMonthAdjustment.action async {
+    def test(): Action[AnyContent] = fs.BulkClaim.action async {
       Future.successful(Ok("ok"))
     }
   }

@@ -95,6 +95,7 @@ object CompleteClaim {
               draftSupportingEvidence,
               _,
               draftCommodityAnswer,
+              _,
               draftReasonAndBasisOfClaimAnswer,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,

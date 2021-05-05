@@ -383,6 +383,18 @@ check-declaration-details.declarant-email.label=Declarant email
 check-declaration-details.declarant-telephone.label=Declarant telephone
 check-declaration-details.declarant-contact-address.label=Declarant contact address
 
+
+#===================================================
+#  CLAIM NORTHERN IRELAND PAGE
+#===================================================
+claim-northern-ireland.title=Were your commodities (goods) moved or imported into Northern Ireland?
+claim-northern-ireland.help-text=Were your commodities (goods) moved or imported into Northern Ireland?
+claim-northern-ireland.yes.title=Yes
+claim-northern-ireland.no.title=No
+claim-northern-ireland.error.required= Select either Yes or No to confirm whether or not the commodities (goods) were moved or imported into Northern Ireland.
+claim-northern-ireland.invalid= Select either Yes or No to confirm whether or not the commodities (goods) were moved or imported into Northern Ireland.
+
+
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================

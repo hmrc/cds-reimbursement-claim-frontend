@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAdd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -53,6 +54,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
+  val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   detailsRegisteredWithCdsPage: pages.enter_claimant_details_as_registered_with_cds
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
@@ -180,7 +182,11 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                                 }
                               case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                             }
-                          case Right(_) => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                          case Right(_) =>
+                            featureSwitch.NorthernIreland.isEnabled() match {
+                              case true  => Redirect(routes.ClaimNorthernIrelandController.show())
+                              case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                            }
                         }
                       case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                     }

@@ -1,0 +1,85 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.api.mvc.Call
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+ radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+)
+
+@(form: Form[ClaimNorthernIrelandAnswer], backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+
+    @key = @{"claim-northern-ireland"}
+    @title = @{messages(s"$key.title")}
+
+    @postAction = @{routes.SelectNumberOfClaimsController.submit}
+
+    @layout(pageTitle = Some(s"$title"), backLink = Some(backLink), signedInUserDetails = request.signedInUserDetails) {
+
+        @errorSummary(form.errors)
+
+        @pageHeading(title)
+
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+            @radios(
+                form = form,
+                name = key,
+                legend = title,
+                legendAsHeading = false,
+                hintKey = None,
+                classes = "govuk-visually-hidden",
+                inline = true,
+                items = Seq(
+                    RadioItem(
+                        id = Some(s"$key-yes"),
+                        value = Some("0"),
+                        content = Text(messages(s"$key.yes.title")),
+                        checked = (form.value == Some(Yes))
+                    ),
+                    RadioItem(
+                        id = Some(s"$key-no"),
+                        value = Some("1"),
+                        content = Text(messages(s"$key.no.title")),
+                        checked = (form.value == Some(No))
+                    )
+                )
+            )
+
+            @submitButton("button.continue")
+
+        }
+
+    }

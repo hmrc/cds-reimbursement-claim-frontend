@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Countr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -50,6 +51,7 @@ class EnterYourContactDetailsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
+  val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   enterYourContactDetailsPage: pages.enter_your_contact_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
@@ -209,7 +211,12 @@ class EnterYourContactDetailsController @Inject() (
                               }
                             case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                           }
-                        case Right(_) => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        case Right(_) =>
+                          featureSwitch.NorthernIreland.isEnabled() match {
+                            case true  => Redirect(routes.ClaimNorthernIrelandController.show())
+                            case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                          }
+
                       }
                     case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
                   }
