@@ -75,8 +75,13 @@ class ClaimNorthernIrelandController @Inject() (
         ClaimNorthernIrelandController.claimNorthernIrelandForm
           .bindFromRequest()
           .fold(
-            formWithErros =>
-              BadRequest(claimNorthernIrelandPage(formWithErros, routes.CheckEoriDetailsController.show())),
+            formWithErrors =>
+              BadRequest(
+                claimNorthernIrelandPage(
+                  formWithErrors,
+                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                )
+              ),
             formOk => {
               val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
