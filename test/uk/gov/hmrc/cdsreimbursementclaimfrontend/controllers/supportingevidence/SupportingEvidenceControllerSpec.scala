@@ -383,7 +383,155 @@ class SupportingEvidenceControllerSpec
       }
     }
 
-    //TODO: test submission
+    "handling requests to chose evidence document type" must {
+
+      def performAction(uploadReference: UploadReference)(data: Seq[(String, String)]): Future[Result] =
+        controller.chooseSupportingEvidenceDocumentTypeSubmit(uploadReference)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "fail" when {
+        "document type is missing" in {
+          val uploadReference = sample[UploadReference]
+          val answers = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
+
+          val (session, _, _) = sessionWithClaimState(Some(answers))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          status(performAction(uploadReference)(Seq.empty)) shouldBe BAD_REQUEST
+        }
+
+        "supporting evidence is missing for incomplete journey" in {
+          the[RuntimeException] thrownBy {
+            val uploadReference = sample[UploadReference]
+            val answers = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
+
+            val (session, _, _) = sessionWithClaimState(Some(answers))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+            }
+
+            await(performAction(uploadReference)(Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> "0")))
+          } should have message "could not find uploaded file"
+        }
+
+        "supporting evidence is missing for complete journey" in {
+          val uploadReference = sample[UploadReference]
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List.empty)
+
+          val (session, _, _) = sessionWithClaimState(Some(answers))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          val caught = intercept[RuntimeException] {
+            await(performAction(uploadReference)(Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> "0")))
+          }
+
+          caught.getMessage shouldBe s"could not find file upload with reference: $uploadReference"
+        }
+
+        "caught an error on session update" in {
+          val uploadReference = sample[UploadReference]
+          val uploadRequest = sample[UploadRequest]
+          val upscanUploadMeta = UpscanUploadMeta(
+            uploadReference.value,
+            uploadRequest
+          )
+          val upscanSuccess = sample[UpscanSuccess]
+
+          val supportingEvidence = SupportingEvidence(
+            uploadReference,
+            upscanUploadMeta,
+            LocalDateTime.now(),
+            upscanSuccess,
+            "file.pdf",
+            None
+          )
+
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List(supportingEvidence))
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedSupportingEvidence = supportingEvidence.copy(
+            documentType = Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
+          )
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(updatedSupportingEvidence))
+
+          val updatedDraftReturn = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Left(Error("boom")))
+          }
+
+          checkIsTechnicalErrorPage(
+            performAction(uploadReference)(Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> "8"))
+          )
+        }
+      }
+
+      "redirect to check your answers page" when {
+
+        "document type is successfully selected" in {
+          val uploadReference = sample[UploadReference]
+          val uploadRequest = sample[UploadRequest]
+          val upscanUploadMeta = UpscanUploadMeta(
+            uploadReference.value,
+            uploadRequest
+          )
+          val upscanSuccess = sample[UpscanSuccess]
+
+          val supportingEvidence = SupportingEvidence(
+            uploadReference,
+            upscanUploadMeta,
+            LocalDateTime.now(),
+            upscanSuccess,
+            "file.pdf",
+            None
+          )
+
+          val answers = IncompleteSupportingEvidenceAnswer(
+            evidences = List(supportingEvidence)
+          )
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedSupportingEvidence = supportingEvidence.copy(
+            documentType = Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
+          )
+
+          val updatedAnswers = answers.copy(List(updatedSupportingEvidence))
+
+          val updatedDraftReturn =
+            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData =
+            session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(uploadReference)(Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> "8")),
+            routes.SupportingEvidenceController.checkYourAnswers()
+          )
+        }
+      }
+
+    }
 
     "handling requests to delete supporting evidence" must {
 
@@ -440,7 +588,7 @@ class SupportingEvidenceControllerSpec
 
       "redirect to upload supporting evidence page" when {
 
-        "removing not yet stored evidence" in {
+        "removing new evidence" in {
           val uploadReference = sample[UploadReference]
           val uploadRequest = sample[UploadRequest]
           val upscanUploadMeta = UpscanUploadMeta(

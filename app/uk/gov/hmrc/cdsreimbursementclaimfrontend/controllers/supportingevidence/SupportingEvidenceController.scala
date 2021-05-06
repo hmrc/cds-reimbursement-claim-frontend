@@ -447,10 +447,12 @@ object SupportingEvidenceController {
     supportingEvidenceDocumentType: SupportingEvidenceDocumentType
   )
 
+  val chooseDocumentTypeDataKey = "supporting-evidence.choose-document-type"
+
   val chooseSupportEvidenceDocumentTypeForm: Form[ChooseSupportingEvidenceDocumentType] =
     Form(
       mapping(
-        "supporting-evidence.choose-document-type" -> number
+        chooseDocumentTypeDataKey -> number
           .verifying(
             "invalid supporting evidence document type",
             documentType =>
