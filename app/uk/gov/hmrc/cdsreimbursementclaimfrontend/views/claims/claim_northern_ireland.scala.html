@@ -42,7 +42,7 @@
     @key = @{"claim-northern-ireland"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{routes.SelectNumberOfClaimsController.submit}
+    @postAction = @{routes.ClaimNorthernIrelandController.submit}
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(backLink), signedInUserDetails = request.signedInUserDetails) {
 
