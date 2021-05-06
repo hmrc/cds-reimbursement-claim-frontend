@@ -385,6 +385,150 @@ class SupportingEvidenceControllerSpec
 
     //TODO: test submission
 
+    "handling requests to delete supporting evidence" must {
+
+      def performAction(uploadReference: UploadReference)(addNew: Boolean): Future[Result] =
+        controller.deleteSupportingEvidence(uploadReference, addNew)(FakeRequest())
+
+      "redirect to check your answers page" when {
+
+        "removing already stored evidence" in {
+          val uploadReference  = sample[UploadReference]
+          val uploadRequest    = sample[UploadRequest]
+          val upscanUploadMeta = UpscanUploadMeta(
+            uploadReference.value,
+            uploadRequest
+          )
+          val upscanSuccess    = sample[UpscanSuccess]
+
+          val supportingEvidence = SupportingEvidence(
+            uploadReference,
+            upscanUploadMeta,
+            LocalDateTime.now(),
+            upscanSuccess,
+            "file.pdf",
+            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
+          )
+
+          val answers = IncompleteSupportingEvidenceAnswer(
+            evidences = List(supportingEvidence)
+          )
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedAnswers =
+            answers.copy(evidences = List.empty)
+
+          val updatedDraftReturn          =
+            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData =
+            session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(uploadReference)(addNew = false),
+            routes.SupportingEvidenceController.checkYourAnswers()
+          )
+        }
+      }
+
+      "redirect to upload supporting evidence page" when {
+
+        "removing not yet stored evidence" in {
+          val uploadReference = sample[UploadReference]
+          val uploadRequest = sample[UploadRequest]
+          val upscanUploadMeta = UpscanUploadMeta(
+            uploadReference.value,
+            uploadRequest
+          )
+          val upscanSuccess = sample[UpscanSuccess]
+
+          val supportingEvidence = SupportingEvidence(
+            uploadReference,
+            upscanUploadMeta,
+            LocalDateTime.now(),
+            upscanSuccess,
+            "file.pdf",
+            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
+          )
+
+          val answers = IncompleteSupportingEvidenceAnswer(
+            evidences = List(supportingEvidence)
+          )
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedAnswers =
+            answers.copy(evidences = List.empty)
+
+          val updatedDraftReturn =
+            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData =
+            session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(uploadReference)(addNew = true),
+            routes.SupportingEvidenceController.uploadSupportingEvidence()
+          )
+        }
+      }
+
+      "show technical error page" when {
+
+        "update session fails" in {
+          val uploadReference = sample[UploadReference]
+          val uploadRequest = sample[UploadRequest]
+          val upscanUploadMeta = UpscanUploadMeta(
+            uploadReference.value,
+            uploadRequest
+          )
+          val upscanSuccess = sample[UpscanSuccess]
+
+          val supportingEvidence = SupportingEvidence(
+            uploadReference,
+            upscanUploadMeta,
+            LocalDateTime.now(),
+            upscanSuccess,
+            "file.pdf",
+            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
+          )
+
+          val answers = CompleteSupportingEvidenceAnswer(List(supportingEvidence))
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List.empty)
+
+          val updatedDraftReturn =
+            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData =
+            session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Left(Error("boom")))
+          }
+
+          checkIsTechnicalErrorPage(performAction(uploadReference)(addNew = true))
+        }
+      }
+    }
+
     "handling requests to check the upload status of the supporting evidence" must {
 
       def performAction(uploadReference: UploadReference): Future[Result] =
