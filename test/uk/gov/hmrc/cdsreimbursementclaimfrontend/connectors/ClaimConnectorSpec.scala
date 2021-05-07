@@ -17,12 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import com.typesafe.config.ConfigFactory
-import controllers.Assets.ACCEPT_LANGUAGE
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.i18n.Lang
+import play.api.test.Helpers.ACCEPT_LANGUAGE
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._

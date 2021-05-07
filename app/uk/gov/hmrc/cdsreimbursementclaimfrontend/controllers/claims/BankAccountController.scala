@@ -117,8 +117,8 @@ class BankAccountController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def enterBankAccountDetails: Action[AnyContent]  = enterOrchangeBankAccountDetails(false)
-  def changeBankAccountDetails: Action[AnyContent] = enterOrchangeBankAccountDetails(true)
+  def enterBankAccountDetails(): Action[AnyContent]  = enterOrchangeBankAccountDetails(false)
+  def changeBankAccountDetails(): Action[AnyContent] = enterOrchangeBankAccountDetails(true)
 
   protected def enterOrchangeBankAccountDetails(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Writes
@@ -33,23 +32,29 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
     url: String
   )(
     response: Option[A]
-  ): CallHandler4[String, HttpReads[A], HeaderCarrier, ExecutionContext, Future[A]] =
-    (mockHttp
-      .GET(_: String)( //TODO: make one for accepting only URL
-        _: HttpReads[A],
-        _: HeaderCarrier,
-        _: ExecutionContext
-      ))
+  ) =
+    (
+      mockHttp
+        .GET(_: String, _: Seq[(String, String)], _: Seq[(String, String)])(
+          _: HttpReads[A],
+          _: HeaderCarrier,
+          _: ExecutionContext
+        )
+      )
       .expects(where {
         (
           u: String,
+          q: Seq[(String, String)],
+          hdrs: Seq[(String, String)],
           _: HttpReads[A],
           _: HeaderCarrier,
           _: ExecutionContext
         ) ⇒
           // use matchers here to get useful error messages when the following predicates
           // are not satisfied - otherwise it is difficult to tell in the logs what went wrong
-          u shouldBe url
+          u    shouldBe url
+          q    shouldBe Seq.empty
+          hdrs shouldBe Seq.empty
           true
       })
       .returning(

@@ -107,7 +107,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
               | microservice.upscan-initiate.upscan-store.expiry-time = 1
           """.stripMargin
           )
-        ) ++ additionalConfig
+        ).withFallback(additionalConfig)
       )
       .disable[uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache]
       .overrides(metricsBinding :: overrideBindings: _*)
