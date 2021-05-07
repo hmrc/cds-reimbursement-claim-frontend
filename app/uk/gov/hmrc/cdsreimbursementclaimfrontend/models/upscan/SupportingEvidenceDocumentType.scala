@@ -35,4 +35,17 @@ object SupportingEvidenceDocumentType {
   case object ImportAndExportDeclaration extends SupportingEvidenceDocumentType
 
   implicit val format: OFormat[SupportingEvidenceDocumentType] = derived.oformat[SupportingEvidenceDocumentType]()
+
+  lazy val SupportingEvidenceDocumentTypes = IndexedSeq(
+    C88E2,
+    CommercialInvoice,
+    PackingList,
+    AirWayBill,
+    BillOfLading,
+    SubstituteEntry,
+    ProofOfAuthority,
+    CorrespondenceTrader,
+    ImportAndExportDeclaration,
+    Other
+  )
 }

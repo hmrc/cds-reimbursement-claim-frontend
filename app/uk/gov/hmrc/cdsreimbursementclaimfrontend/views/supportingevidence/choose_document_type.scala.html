@@ -21,8 +21,10 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.ChooseSupportingEvidenceDocumentType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
+@import cats.implicits.catsSyntaxOptionId
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -50,68 +52,23 @@
             @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @inputSelect(
-                label = s"${key}.label",
+                label = s"$key.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 form = form,
                 id = key,
                 name = key,
-                items = Seq(
-                    SelectItem(
-                        value = Some(""),
-                        text  = messages(s"generic.defaultOption")
-                    ),
-                    SelectItem(
-                        value = Some("1"),
-                        text  = messages(s"$key.document-type.d1"),
-                        selected = form(s"$key").value.contains("1")
-                    ),
-                    SelectItem(
-                        value = Some("10"),
-                        text  = messages(s"$key.document-type.d10"),
-                        selected = form(s"$key").value.contains("10")
-                    ),
-                    SelectItem(
-                        value = Some("0"),
-                        text  = messages(s"$key.document-type.d0"),
-                        selected = form(s"$key").value.contains("0")
-                    ),
-                    SelectItem(
-                        value = Some("2"),
-                        text  = messages(s"$key.document-type.d2"),
-                        selected = form(s"$key").value.contains("2")
-                    ),
-                    SelectItem(
-                        value = Some("3"),
-                        text  = messages(s"$key.document-type.d3"),
-                        selected = form(s"$key").value.contains("3")
-                    ),
-                    SelectItem(
-                        value = Some("4"),
-                        text  = messages(s"$key.document-type.d4"),
-                        selected = form(s"$key").value.contains("4")
-                    ),
-                    SelectItem(
-                        value = Some("5"),
-                        text  = messages(s"$key.document-type.d5"),
-                        selected = form(s"$key").value.contains("5")
-                    ),
-                    SelectItem(
-                        value = Some("7"),
-                        text  = messages(s"$key.document-type.d7"),
-                        selected = form(s"$key").value.contains("7")
-                    ),
-                    SelectItem(
-                        value = Some("8"),
-                        text  = messages(s"$key.document-type.d8"),
-                        selected = form(s"$key").value.contains("8")
-                    ),
-                    SelectItem(
-                        value = Some("11"),
-                        text  = messages(s"$key.document-type.d11"),
-                        selected = form(s"$key").value.contains("11")
+                items = SupportingEvidenceDocumentTypes.indices.foldLeft(Seq(SelectItem(
+                    value = Some(""),
+                    text = messages(s"generic.defaultOption")
+                ))) { (selectItems, key) =>
+                    val keyAsStr = key.toString
+                    selectItems :+ SelectItem(
+                        value = keyAsStr.some,
+                        text  = messages(s"$key.document-type.d$keyAsStr"),
+                        selected = form(s"$key").value.contains(keyAsStr)
                     )
-                )
+                }
             )
 
             @submitButton("button.saveAndContinue")
