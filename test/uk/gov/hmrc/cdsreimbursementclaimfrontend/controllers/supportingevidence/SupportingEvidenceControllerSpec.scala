@@ -178,25 +178,8 @@ class SupportingEvidenceControllerSpec
       "show check your answers page" when {
 
         "the number of uploads have reached the maximum allowed" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
-          )
-
           val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.fill(30)(supportingEvidence)
+            evidences = List.fill(30)(sample[SupportingEvidence])
           )
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -288,27 +271,8 @@ class SupportingEvidenceControllerSpec
               )
             )
 
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          // we have to do this because atm scalacheck-shapeless cannot generate an instance for a sealed trait with
-          // type hierarchy inside a case class
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
-          )
-
           val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.fill(2)(supportingEvidence)
+            evidences = List.fill(2)(sample[SupportingEvidence])
           )
 
           val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -454,25 +418,9 @@ class SupportingEvidenceControllerSpec
         }
 
         "caught an error on session update" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            None
-          )
-
-          val documentType    = sample[SupportingEvidenceDocumentType]
-          val documentTypeKey = dataKeyOf(documentType)
+          val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
+          val documentType       = sample[SupportingEvidenceDocumentType]
+          val documentTypeKey    = dataKeyOf(documentType)
 
           val answers                        = CompleteSupportingEvidenceAnswer(evidences = List(supportingEvidence))
           val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
@@ -494,7 +442,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsTechnicalErrorPage(
-            performAction(uploadReference)(
+            performAction(supportingEvidence.uploadReference)(
               Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
             )
           )
@@ -504,25 +452,9 @@ class SupportingEvidenceControllerSpec
       "redirect to check your answers page" when {
 
         "document type is successfully selected" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            None
-          )
-
-          val documentType    = sample[SupportingEvidenceDocumentType]
-          val documentTypeKey = dataKeyOf(documentType)
+          val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
+          val documentType       = sample[SupportingEvidenceDocumentType]
+          val documentTypeKey    = dataKeyOf(documentType)
 
           val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List(supportingEvidence)
@@ -549,7 +481,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(uploadReference)(
+            performAction(supportingEvidence.uploadReference)(
               Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
             ),
             routes.SupportingEvidenceController.checkYourAnswers()
@@ -567,22 +499,7 @@ class SupportingEvidenceControllerSpec
       "redirect to check your answers page" when {
 
         "removing already stored evidence" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
-          )
+          val supportingEvidence = sample[SupportingEvidence]
 
           val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List(supportingEvidence)
@@ -606,7 +523,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(uploadReference)(addNew = false),
+            performAction(supportingEvidence.uploadReference)(addNew = false),
             routes.SupportingEvidenceController.checkYourAnswers()
           )
         }
@@ -615,22 +532,7 @@ class SupportingEvidenceControllerSpec
       "redirect to upload supporting evidence page" when {
 
         "removing new evidence" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
-          )
+          val supportingEvidence = sample[SupportingEvidence]
 
           val answers = IncompleteSupportingEvidenceAnswer(
             evidences = List(supportingEvidence)
@@ -654,7 +556,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(uploadReference)(addNew = true),
+            performAction(supportingEvidence.uploadReference)(addNew = true),
             routes.SupportingEvidenceController.uploadSupportingEvidence()
           )
         }
@@ -663,22 +565,7 @@ class SupportingEvidenceControllerSpec
       "show technical error page" when {
 
         "update session fails" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            Some(SupportingEvidenceDocumentType.CorrespondenceTrader)
-          )
+          val supportingEvidence = sample[SupportingEvidence]
 
           val answers = CompleteSupportingEvidenceAnswer(List(supportingEvidence))
 
@@ -698,7 +585,7 @@ class SupportingEvidenceControllerSpec
             mockStoreSession(updatedSession)(Left(Error("boom")))
           }
 
-          checkIsTechnicalErrorPage(performAction(uploadReference)(addNew = true))
+          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(addNew = true))
         }
       }
     }
@@ -711,26 +598,12 @@ class SupportingEvidenceControllerSpec
       "show technical error page" when {
 
         "update of draft claim fails" in {
-          val uploadReference  = sample[UploadReference]
-          val uploadRequest    = sample[UploadRequest]
-          val upscanUploadMeta = UpscanUploadMeta(
-            uploadReference.value,
-            uploadRequest
-          )
-          val upscanSuccess    = sample[UpscanSuccess]
-
-          val supportingEvidence = SupportingEvidence(
-            uploadReference,
-            upscanUploadMeta,
-            LocalDateTime.now(),
-            upscanSuccess,
-            "file.pdf",
-            None
-          )
+          val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
+          val uploadReference    = supportingEvidence.uploadReference
 
           val uploadDetails        = sample[UploadDetails].copy(fileName = supportingEvidence.fileName)
           val updatedUpscanSuccess =
-            upscanSuccess.copy(uploadDetails = uploadDetails)
+            supportingEvidence.upscanSuccess.copy(uploadDetails = uploadDetails)
 
           val upscanUpload = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
 

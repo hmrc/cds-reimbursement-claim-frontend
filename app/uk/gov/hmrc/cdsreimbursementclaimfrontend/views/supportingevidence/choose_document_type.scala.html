@@ -61,12 +61,12 @@
                 items = SupportingEvidenceDocumentTypes.indices.foldLeft(Seq(SelectItem(
                     value = Some(""),
                     text = messages(s"generic.defaultOption")
-                ))) { (selectItems, key) =>
-                    val keyAsStr = key.toString
+                ))) { (selectItems, idx) =>
+                    val idxAsStr = idx.toString
                     selectItems :+ SelectItem(
-                        value = keyAsStr.some,
-                        text  = messages(s"$key.document-type.d$keyAsStr"),
-                        selected = form(s"$key").value.contains(keyAsStr)
+                        value = idxAsStr.some,
+                        text  = messages(s"$key.document-type.d$idxAsStr"),
+                        selected = form(s"$key").value.contains(idxAsStr)
                     )
                 }
             )
