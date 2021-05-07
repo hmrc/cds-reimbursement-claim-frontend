@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import controllers.Assets.NO_CONTENT
 import play.api.http.Status._
 import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json, Reads, Writes}

@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,12 +41,11 @@ trait SessionDataActionBase[R[_] <: Request[_], P[_] <: Request[_]] extends Acti
     request: R[A]
   ): P[A]
 
-  override protected def refine[A](
-    request: R[A]
-  ): Future[Either[Result, P[A]]] = {
+  override protected def refine[A](request: R[A]): Future[Either[Result, P[A]]] = {
+
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter
-        .fromHeadersAndSession(request.headers, Some(request.session))
+        .fromRequestAndSession(request, request.session)
 
     sessionStore
       .get()

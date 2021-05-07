@@ -29,8 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.{TestEnv
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{arb, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.DatabaseUpdate
 
 import java.util.UUID

@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 
 import cats.data.EitherT
-import controllers.Assets.SEE_OTHER
 import org.scalamock.handlers.CallHandler3
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
