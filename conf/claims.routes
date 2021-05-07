@@ -72,11 +72,11 @@ POST        /check-duplicate-declaration-details                      uk.gov.hmr
 
 GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
-GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails
-POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit
+GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails()
+POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit()
 
-GET         /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails
-POST        /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit
+GET         /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails()
+POST        /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit()
 
 GET         /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
 POST        /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
@@ -85,8 +85,8 @@ GET         /claim-submitted                                        uk.gov.hmrc.
 
 GET         /check-if-claim-was-sent                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
 
-GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails
-POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit
+GET         /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails()
+POST        /change-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit()
 
 GET         /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
 POST        /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
@@ -94,11 +94,11 @@ POST        /select-duties                                          uk.gov.hmrc.
 GET         /start-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
 GET         /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
 POST        /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
-GET         /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaim
-POST         /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSubmit
+GET         /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaim()
+POST         /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSubmit()
 
-GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails
-POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit
+GET         /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+POST        /enter-commodity-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit()
 
 GET         /enter-mrn-multi                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnMultiController.show()
 GET         /enter-mrn-schedule                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMrnScheduleController.show()
