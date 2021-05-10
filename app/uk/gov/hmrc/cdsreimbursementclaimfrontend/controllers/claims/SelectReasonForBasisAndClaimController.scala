@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{allClaimsIntToType, allClaimsTypeToInt, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.{CompleteReasonAndBasisOfClaimAnswer, IncompleteReasonAndBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -253,64 +254,8 @@ object SelectReasonForBasisAndClaimController {
     Form(
       mapping(
         "select-reason-and-basis-for-claim.basis"  -> number
-          .verifying(
-            "invalid basis for claim",
-            reason =>
-              reason === 0 ||
-                // $COVERAGE-OFF$
-                reason === 1 ||
-                reason === 2 ||
-                reason === 3 ||
-                reason === 4 ||
-                reason === 5 ||
-                reason === 6 ||
-                reason === 7 ||
-                reason === 8 ||
-                reason === 9 ||
-                reason === 10 ||
-                reason === 11 ||
-                reason === 12 ||
-                reason === 13
-            // $COVERAGE-ON$
-          )
-          .transform[BasisOfClaim](
-            {
-              case 0  => BasisOfClaim.DuplicateEntry
-              // $COVERAGE-OFF$
-              case 1  => BasisOfClaim.DutySuspension
-              case 2  => BasisOfClaim.EndUseRelief
-              case 3  => BasisOfClaim.IncorrectCommodityCode
-              case 4  => BasisOfClaim.IncorrectCpc
-              case 5  => BasisOfClaim.IncorrectValue
-              case 6  => BasisOfClaim.IncorrectEoriAndDefermentAccountNumber
-              case 7  => BasisOfClaim.InwardProcessingReliefFromCustomsDuty
-              case 8  => BasisOfClaim.Miscellaneous
-              case 9  => BasisOfClaim.OutwardProcessingRelief
-              case 10 => BasisOfClaim.PersonalEffects
-              case 11 => BasisOfClaim.Preference
-              case 12 => BasisOfClaim.RGR
-              case 13 => BasisOfClaim.ProofOfReturnRefundGiven
-              // $COVERAGE-ON$
-            },
-            {
-              case BasisOfClaim.DuplicateEntry                         => 0
-              // $COVERAGE-OFF$
-              case BasisOfClaim.DutySuspension                         => 1
-              case BasisOfClaim.EndUseRelief                           => 2
-              case BasisOfClaim.IncorrectCommodityCode                 => 3
-              case BasisOfClaim.IncorrectCpc                           => 4
-              case BasisOfClaim.IncorrectValue                         => 5
-              case BasisOfClaim.IncorrectEoriAndDefermentAccountNumber => 6
-              case BasisOfClaim.InwardProcessingReliefFromCustomsDuty  => 7
-              case BasisOfClaim.Miscellaneous                          => 8
-              case BasisOfClaim.OutwardProcessingRelief                => 9
-              case BasisOfClaim.PersonalEffects                        => 10
-              case BasisOfClaim.Preference                             => 11
-              case BasisOfClaim.RGR                                    => 12
-              case BasisOfClaim.ProofOfReturnRefundGiven               => 13
-              // $COVERAGE-ON$
-            }
-          ),
+          .verifying("invalid basis for claim", a => allClaimsTypes.map(_.value).contains(a))
+          .transform[BasisOfClaim](allClaimsIntToType, allClaimsTypeToInt),
         "select-reason-and-basis-for-claim.reason" -> number
           .verifying(
             "invalid basis for reason",
