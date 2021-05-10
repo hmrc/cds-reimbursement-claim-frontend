@@ -13,7 +13,7 @@ resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
 lazy val wartremoverSettings =
   Seq(
-    wartremoverErrors in (Compile, compile) ++= Warts.allBut(
+    Compile / compile / wartremoverErrors ++= Warts.allBut(
       Wart.DefaultArguments,
       Wart.ImplicitConversion,
       Wart.ImplicitParameter,
@@ -23,11 +23,11 @@ lazy val wartremoverSettings =
     ),
     WartRemover.autoImport.wartremoverExcluded += baseDirectory.value / "app" / "uk" / "gov" / "hmrc" / "cdsreimbursementclaimfrontend" / "models" / "ui",
     WartRemover.autoImport.wartremoverExcluded += target.value,
-    WartRemover.autoImport.wartremoverExcluded in (Compile, compile) ++=
-      routes.in(Compile).value ++
+    Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
+      (Compile / routes).value ++
         (baseDirectory.value ** "*.sc").get ++
         Seq(sourceManaged.value / "main" / "sbt-buildinfo" / "BuildInfo.scala"),
-    wartremoverErrors in (Test, compile) --= Seq(Wart.Any, Wart.NonUnitStatements, Wart.Null, Wart.PublicInference, Wart.Equals)
+    Test / compile / wartremoverErrors --= Seq(Wart.Any, Wart.NonUnitStatements, Wart.Null, Wart.PublicInference, Wart.Equals)
   )
 
 lazy val scoverageSettings =
@@ -61,10 +61,10 @@ lazy val microservice = Project(appName, file("."))
       "-language:postfixOps",
       "-Ypartial-unification"
     ),
-    scalacOptions in Test --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
+    Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard"),
     scalacOptions += "-P:silencer:pathFilters=routes"
   )
-  .settings(resourceDirectories in Test += baseDirectory.value / "conf" / "resources")
+  .settings( Test / resourceDirectories += baseDirectory.value / "conf" / "resources")
   .settings(publishingSettings: _*)
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
