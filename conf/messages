@@ -627,10 +627,10 @@ supporting-evidence.choose-document-type.document-type.d2=Packing List
 supporting-evidence.choose-document-type.document-type.d3=Air Waybill
 supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
 supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
-supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
-supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
-supporting-evidence.choose-document-type.document-type.d10=Import and Export Declaration
-supporting-evidence.choose-document-type.document-type.d11=Other documents
+supporting-evidence.choose-document-type.document-type.d6=Proof of Authority
+supporting-evidence.choose-document-type.document-type.d7=Correspondence Trader
+supporting-evidence.choose-document-type.document-type.d8=Import and Export Declaration
+supporting-evidence.choose-document-type.document-type.d9=Other documents
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE

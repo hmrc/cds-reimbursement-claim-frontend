@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, upscan => _, _}
@@ -447,51 +448,20 @@ object SupportingEvidenceController {
     supportingEvidenceDocumentType: SupportingEvidenceDocumentType
   )
 
+  val chooseDocumentTypeDataKey = "supporting-evidence.choose-document-type"
+
   val chooseSupportEvidenceDocumentTypeForm: Form[ChooseSupportingEvidenceDocumentType] =
     Form(
       mapping(
-        "supporting-evidence.choose-document-type" -> number
+        chooseDocumentTypeDataKey -> number
           .verifying(
             "invalid supporting evidence document type",
-            documentType =>
-              documentType === 0 ||
-                documentType === 1 ||
-                documentType === 2 ||
-                documentType === 3 ||
-                documentType === 4 ||
-                documentType === 5 ||
-                documentType === 7 ||
-                documentType === 8 ||
-                documentType === 10 ||
-                documentType === 11
+            documentTypeIndex => SupportingEvidenceDocumentTypes.indices.contains(documentTypeIndex)
           )
           .transform[SupportingEvidenceDocumentType](
-            {
-              case 0  => SupportingEvidenceDocumentType.C88E2
-              case 1  => SupportingEvidenceDocumentType.CommercialInvoice
-              case 2  => SupportingEvidenceDocumentType.PackingList
-              case 3  => SupportingEvidenceDocumentType.AirWayBill
-              case 4  => SupportingEvidenceDocumentType.BillOfLading
-              case 5  => SupportingEvidenceDocumentType.SubstituteEntry
-              case 7  => SupportingEvidenceDocumentType.ProofOfAuthority
-              case 8  => SupportingEvidenceDocumentType.CorrespondenceTrader
-              case 10 => SupportingEvidenceDocumentType.ImportAndExportDeclaration
-              case 11 => SupportingEvidenceDocumentType.Other
-            },
-            {
-              case SupportingEvidenceDocumentType.C88E2                      => 0
-              case SupportingEvidenceDocumentType.CommercialInvoice          => 1
-              case SupportingEvidenceDocumentType.PackingList                => 2
-              case SupportingEvidenceDocumentType.AirWayBill                 => 3
-              case SupportingEvidenceDocumentType.BillOfLading               => 4
-              case SupportingEvidenceDocumentType.SubstituteEntry            => 5
-              case SupportingEvidenceDocumentType.ProofOfAuthority           => 7
-              case SupportingEvidenceDocumentType.CorrespondenceTrader       => 8
-              case SupportingEvidenceDocumentType.ImportAndExportDeclaration => 10
-              case SupportingEvidenceDocumentType.Other                      => 11
-            }
+            documentTypeIndex => SupportingEvidenceDocumentTypes(documentTypeIndex),
+            documentType => SupportingEvidenceDocumentTypes.indexOf(documentType)
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )
-
 }
