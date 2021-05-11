@@ -98,7 +98,7 @@ class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
       )
     )
 
-  def basisDropDownContent()(implicit messages: Messages): Html =
+  def basisForClaimContent()(implicit messages: Messages): Html =
     html(
       bulletList(
         Seq(
@@ -112,7 +112,12 @@ class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
           Html(messages(s"$basisKey.l7")),
           Html(messages(s"$basisKey.l8")),
           Html(messages(s"$basisKey.l9")),
-          Html(messages(s"$basisKey.l10"))
+          Html(messages(s"$basisKey.l10")),
+          Html(messages(s"$basisKey.l11")),
+          Html(messages(s"$basisKey.l12")),
+          Html(messages(s"$basisKey.l13")),
+          Html(messages(s"$basisKey.l14")),
+          Html(messages(s"$basisKey.l15"))
         )
       )
     )

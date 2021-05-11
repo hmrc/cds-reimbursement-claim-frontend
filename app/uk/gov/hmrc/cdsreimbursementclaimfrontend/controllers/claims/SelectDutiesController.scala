@@ -90,7 +90,7 @@ class SelectDutiesController @Inject() (
     }
 
   private def dutiesForEntryFlow: List[Duty] =
-    TaxCode.listOfTaxCodes.map { code =>
+    TaxCode.allTaxCodes.map { code =>
       Duty(code)
     }
 
@@ -266,7 +266,7 @@ object SelectDutiesController {
         duties
       )
     } else {
-      DutiesSelected(TaxCode.listOfTaxCodes.map { code =>
+      DutiesSelected(TaxCode.allTaxCodes.map { code =>
         Duty(code)
       })
     }
