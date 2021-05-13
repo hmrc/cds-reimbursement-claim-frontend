@@ -22,8 +22,13 @@ import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.title_and_description
 
-class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets) extends HtmlUtil {
+class DropDownHelper @Inject() (
+  paragraph: paragraph_block,
+  bulletList: bullets,
+  titleAndDescription: title_and_description
+) extends HtmlUtil {
 
   val landingKey: String          = "landing.details"
   val supportingEvidenceUploadKey = "supporting-evidence.upload.details"
@@ -98,29 +103,12 @@ class DropDownHelper @Inject() (paragraph: paragraph_block, bulletList: bullets)
       )
     )
 
-  def basisForClaimContent()(implicit messages: Messages): Html =
-    html(
-      bulletList(
-        Seq(
-          Html(messages(s"$basisKey.l0")),
-          Html(messages(s"$basisKey.l1")),
-          Html(messages(s"$basisKey.l2")),
-          Html(messages(s"$basisKey.l3")),
-          Html(messages(s"$basisKey.l4")),
-          Html(messages(s"$basisKey.l5")),
-          Html(messages(s"$basisKey.l6")),
-          Html(messages(s"$basisKey.l7")),
-          Html(messages(s"$basisKey.l8")),
-          Html(messages(s"$basisKey.l9")),
-          Html(messages(s"$basisKey.l10")),
-          Html(messages(s"$basisKey.l11")),
-          Html(messages(s"$basisKey.l12")),
-          Html(messages(s"$basisKey.l13")),
-          Html(messages(s"$basisKey.l14")),
-          Html(messages(s"$basisKey.l15"))
-        )
-      )
-    )
+  def basisForClaimContent()(implicit messages: Messages): Html = {
+    val lines = (0 to 14).toList
+      .map(i => titleAndDescription(messages(s"$basisKey.b$i"), messages(s"$basisKey.l$i")))
+
+    html(bulletList(lines))
+  }
 
   def whoIsDropDownContent()(implicit messages: Messages): Html =
     html(

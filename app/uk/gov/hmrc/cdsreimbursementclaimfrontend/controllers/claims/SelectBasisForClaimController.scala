@@ -55,6 +55,7 @@ class SelectBasisForClaimController @Inject() (
     with Logging {
 
   implicit val dataExtractor: DraftC285Claim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
+  private val backLink                                                     = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
 
   def selectBasisForClaim(): Action[AnyContent] = show(false)
   def changeBasisForClaim(): Action[AnyContent] = show(true)
@@ -62,7 +63,6 @@ class SelectBasisForClaimController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answers) =>
-        val backLink     = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answers
@@ -81,17 +81,9 @@ class SelectBasisForClaimController @Inject() (
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                selectReasonForClaimPage(
-                  requestFormWithErrors,
-                  allClaimsTypes,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
-                  isAmend
-                )
-              ),
-            reasonForClaim => {
-              val updatedBasisClaim = CompleteBasisOfClaimAnswer(reasonForClaim.reasonForClaim)
+            formWithErrors => BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, backLink, isAmend)),
+            formOk => {
+              val updatedBasisClaim = CompleteBasisOfClaimAnswer(formOk.reasonForClaim)
               val newDraftClaim     =
                 fillingOutClaim.draftClaim
                   .fold(_.copy(basisOfClaimAnswer = Option(updatedBasisClaim), reasonForBasisAndClaimAnswer = None))
@@ -110,7 +102,7 @@ class SelectBasisForClaimController @Inject() (
                       case true  =>
                         Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                       case false =>
-                        reasonForClaim.reasonForClaim match {
+                        formOk.reasonForClaim match {
                           case BasisOfClaim.DuplicateEntry =>
                             Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
                           case _                           =>
