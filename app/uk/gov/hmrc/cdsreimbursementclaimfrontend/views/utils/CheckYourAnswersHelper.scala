@@ -24,13 +24,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, _}
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: MessagesApi) {
+class CheckYourAnswersHelper @Inject() (implicit
+  langs: Langs,
+  messages: MessagesApi,
+  val featureSwitch: FeatureSwitchService
+) {
 
   val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
 
@@ -438,6 +443,25 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
         )
       }
     ).flattenOption
+
+  def makeNorthernIrelandClaimSummary(): List[SummaryListRow] =
+    List(
+      SummaryListRow(
+        key = Key(Text(messages(s"$key.northern-ireland-claim.label")(lang))),
+        value = Value(Text("yes/no")),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label")(lang))
+              )
+            )
+          )
+        )
+      )
+    )
 
   def makeCommodityDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(

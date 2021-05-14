@@ -57,6 +57,9 @@ class ClaimNorthernIrelandController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
+  def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
+  def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
+
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
@@ -65,11 +68,20 @@ class ClaimNorthernIrelandController @Inject() (
         else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
-      Ok(claimNorthernIrelandPage(filledForm, backLink))
+      Ok(claimNorthernIrelandPage(filledForm, backLink, isAmend))
     }
   }
 
-  def submit(): Action[AnyContent] =
+  // select change answer => SelectBasisForClaimController
+  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false)
+
+  // 1. from cya page and change answer => SelectBasisForClaimController
+  def changeNorthernIrelandClaimSubmitChange(): Action[AnyContent] = submit(true)
+
+  //2. from cya page and leave answer => CheckYourAnswersAndSubmitController
+  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
+
+  def submit(isAmend: Boolean): Action[AnyContent] =
     (featureSwitch.NorthernIreland.action andThen authenticatedActionWithSessionData).async { implicit request =>
       withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
         ClaimNorthernIrelandController.claimNorthernIrelandForm
@@ -79,7 +91,8 @@ class ClaimNorthernIrelandController @Inject() (
               BadRequest(
                 claimNorthernIrelandPage(
                   formWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
+                  isAmend
                 )
               ),
             formOk => {
@@ -94,12 +107,17 @@ class ClaimNorthernIrelandController @Inject() (
                     logger.warn("could not capture select number of claims", e)
                     errorHandler.errorResult()
                   },
-                  _ => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                  _ =>
+                    isAmend match {
+                      case true  =>
+                        //Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                      case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                    }
                 )
 
             }
           )
-
       }
     }
 

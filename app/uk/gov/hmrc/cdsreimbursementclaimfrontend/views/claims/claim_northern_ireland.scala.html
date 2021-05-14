@@ -37,12 +37,13 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[ClaimNorthernIrelandAnswer], backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimNorthernIrelandAnswer], backLink: Call, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"claim-northern-ireland"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{routes.ClaimNorthernIrelandController.submit}
+    @postAction = @{if(isAmend) routes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
+        else routes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()}
 
     @layout(pageTitle = Some(s"$title"), backLink = Some(backLink), signedInUserDetails = request.signedInUserDetails) {
 
