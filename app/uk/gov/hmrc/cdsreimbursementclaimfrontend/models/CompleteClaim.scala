@@ -17,25 +17,27 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.data.NonEmptyList
 import cats.data.Validated.Valid
-import cats.implicits._
+import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.SupportingEvidenceAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
@@ -44,8 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 
 import java.util.UUID
 
@@ -66,7 +67,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
+    supportingEvidences: NonEmptyList[SupportingEvidence],
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
@@ -129,7 +130,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        completeSupportingEvidenceAnswer,
+                        supportingEvidences,
                         completeCommodityDetailsAnswer,
                         completeReasonAndBasisOfClaimAnswer,
                         completeBasisOfClaimAnswer
@@ -146,7 +147,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+                      supportingEvidences,
                       completeCommodityDetailsAnswer,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
@@ -326,18 +327,9 @@ object CompleteClaim {
     }
 
   def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
-  ): Validation[CompleteSupportingEvidenceAnswer] =
-    maybeSupportingEvidenceAnswer match {
-      case Some(value) =>
-        value match {
-          case SupportingEvidenceAnswer.IncompleteSupportingEvidenceAnswer(_)     =>
-            invalid("incomplete supporting evidence answer")
-          case completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer =>
-            Valid(completeSupportingEvidenceAnswer)
-        }
-      case None        => invalid("missing supporting evidence answer")
-    }
+    maybeSupportingEvidence: SupportingEvidenceAnswers
+  ): Validation[NonEmptyList[SupportingEvidence]] =
+    maybeSupportingEvidence toValidNel "missing supporting evidence answer"
 
   def validateBasisOfClaimAnswer(
     maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
@@ -345,9 +337,7 @@ object CompleteClaim {
     maybeBasisOfClaimAnswer match {
       case Some(value) =>
         value match {
-          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(
-                _
-              ) =>
+          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(_)     =>
             invalid("incomplete basis of claim answer")
           case completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer =>
             Valid(Some(completeBasisOfClaimAnswer))
@@ -855,7 +845,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        supportingEvidenceAnswers.evidences
+        supportingEvidenceAnswers.toList
     }
 
     def totalUKDutyClaim: String = completeClaim match {
@@ -908,7 +898,7 @@ object CompleteClaim {
             completeClaimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
-          TaxCode.listOfEUTaxCodes.map(t => t.toString).exists(p => p.contains(taxCode))
+          TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
           completeClaimsAnswer.claims.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )

@@ -21,10 +21,10 @@ import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.SupportingEvidenceAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
 
 import java.util.UUID
 
@@ -46,7 +46,7 @@ object DraftClaim {
     contactDetailsAnswer: Option[ContactDetailsAnswer],
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
+    supportingEvidenceAnswers: SupportingEvidenceAnswers,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
@@ -146,5 +146,4 @@ object DraftClaim {
 
   implicit val eq: Eq[DraftClaim]          = Eq.fromUniversalEquals
   implicit val format: OFormat[DraftClaim] = derived.oformat()
-
 }
