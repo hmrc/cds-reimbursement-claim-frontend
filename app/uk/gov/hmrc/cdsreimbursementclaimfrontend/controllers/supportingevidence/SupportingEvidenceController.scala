@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 
 import cats.data.{EitherT, NonEmptyList}
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Forms.{mapping, number}
@@ -229,7 +230,7 @@ class SupportingEvidenceController @Inject() (
             documentType => {
               val answers = for {
                 documents <- evidences.map(_.toList)
-                index     <- Option(documents.indexWhere(_.uploadReference == uploadReference)).filter(_ >= 0)
+                index     <- Option(documents.indexWhere(_.uploadReference === uploadReference)).filter(_ >= 0)
                 (x, xs)    = documents.splitAt(index)
                 updated    = documents(index).copy(documentType = Some(documentType.supportingEvidenceDocumentType))
                 items     <- NonEmptyList.fromList(x ++ xs.drop(1) :+ updated)
@@ -273,7 +274,7 @@ class SupportingEvidenceController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, evidences) =>
         def removeEvidence(evidences: NonEmptyList[SupportingEvidence]) =
-          NonEmptyList.fromList(evidences.filter(_.uploadReference != uploadReference))
+          NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(
           _.copy(supportingEvidenceAnswers = evidences flatMap removeEvidence)
@@ -311,7 +312,7 @@ class SupportingEvidenceController @Inject() (
     }
 
   def checkYourAnswersSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    authenticatedActionWithSessionData.async {
       Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers())
     }
 
@@ -325,7 +326,7 @@ class SupportingEvidenceController @Inject() (
     def listUploadedItems(evidences: NonEmptyList[SupportingEvidence]) =
       Ok(checkYourAnswersPage(evidences, maxUploads))
 
-    supportingEvidences.map(listUploadedItems).getOrElse(redirectToUploadEvidence)
+    supportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
   }
 }
 
