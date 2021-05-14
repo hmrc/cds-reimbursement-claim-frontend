@@ -133,18 +133,19 @@ class SupportingEvidenceController @Inject() (
 
   def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutReturn, evidences) =>
+      withUploadSupportingEvidenceAnswers { (_, fillingOutReturn, answers) =>
         val result = for {
           upscanUpload <- upscanService.getUpscanUpload(uploadReference)
           _            <- upscanUpload.upscanCallBack match {
-                            case Some(upscanSuccess: UpscanSuccess) =>
+                            case Some(upscanSuccess: UpscanSuccess)
+                                if answers.forall(_.forall(_.uploadReference =!= uploadReference)) =>
                               storeUpscanSuccess(
                                 upscanUpload,
                                 upscanSuccess,
-                                evidences,
+                                answers,
                                 fillingOutReturn
                               )
-                            case _                                  =>
+                            case _ =>
                               EitherT.pure[Future, Error](())
                           }
         } yield upscanUpload
