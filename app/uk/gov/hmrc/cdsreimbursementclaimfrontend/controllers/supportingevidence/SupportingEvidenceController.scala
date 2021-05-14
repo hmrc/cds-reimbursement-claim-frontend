@@ -187,18 +187,19 @@ class SupportingEvidenceController @Inject() (
     hc: HeaderCarrier
   ): EitherT[Future, Error, Unit] = {
 
-    def addNewEvidence(evidences: NonEmptyList[SupportingEvidence]): NonEmptyList[SupportingEvidence] =
-      evidences :+ SupportingEvidence(
-        upscanUpload.uploadReference,
-        upscanUpload.upscanUploadMeta,
-        upscanUpload.uploadedOn,
-        upscanCallBack,
-        upscanCallBack.fileName,
-        None
-      )
+    val newEvidence = SupportingEvidence(
+      upscanUpload.uploadReference,
+      upscanUpload.upscanUploadMeta,
+      upscanUpload.uploadedOn,
+      upscanCallBack,
+      upscanCallBack.fileName,
+      None
+    )
+
+    val evidences = supportingEvidenceAnswer.map(_ :+ newEvidence) orElse Some(NonEmptyList.one(newEvidence))
 
     val newDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(supportingEvidenceAnswers = supportingEvidenceAnswer map addNewEvidence)
+      _.copy(supportingEvidenceAnswers = evidences)
     )
 
     val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)

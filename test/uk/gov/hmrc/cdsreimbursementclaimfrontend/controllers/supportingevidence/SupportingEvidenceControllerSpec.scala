@@ -37,7 +37,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, UUIDGenerator}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
