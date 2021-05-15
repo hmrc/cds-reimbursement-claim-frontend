@@ -17,6 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 
 import cats.data.EitherT
+import cats.syntax.all._
+import org.scalatest.OptionValues
+//import org.scalacheck.Gen
 import org.scalamock.handlers.CallHandler3
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -24,9 +27,10 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{redirectLocation, status, _}
+import play.api.test.Helpers._ //{redirectLocation, status, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.SupportingEvidenceAnswers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -38,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, UUIDGenerator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess //{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -51,6 +55,7 @@ class SupportingEvidenceControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with OptionValues
     with ScalaCheckDrivenPropertyChecks {
 
   val mockUUIDGenerator: UUIDGenerator = mock[UUIDGenerator]
@@ -95,7 +100,7 @@ class SupportingEvidenceControllerSpec
       .returning(EitherT.fromEither[Future](result))
 
   private def sessionWithClaimState(
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer]
+    supportingEvidenceAnswers: SupportingEvidenceAnswers
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(supportingEvidenceAnswers = supportingEvidenceAnswers)
     val ggCredId            = sample[GGCredId]
@@ -112,13 +117,13 @@ class SupportingEvidenceControllerSpec
     )
   }
 
-  private def mockGetUpscanUpload(uploadReference: UploadReference)(
-    result: Either[Error, UpscanUpload]
-  ) =
-    (mockUpscanService
-      .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
-      .expects(uploadReference, *)
-      .returning(EitherT.fromEither[Future](result))
+//  private def mockGetUpscanUpload(uploadReference: UploadReference)(
+//    result: Either[Error, UpscanUpload]
+//  ) =
+//    (mockUpscanService
+//      .getUpscanUpload(_: UploadReference)(_: HeaderCarrier))
+//      .expects(uploadReference, *)
+//      .returning(EitherT.fromEither[Future](result))
 
   private def genUpscanUpload(uploadReference: UploadReference) = {
     val uploadRequest    = sample[UploadRequest]
@@ -144,7 +149,7 @@ class SupportingEvidenceControllerSpec
   )(pageTitleKey: String, titleArgs: String*)(
     performAction: (UploadReference, Seq[(String, String)]) => Future[Result],
     currentSession: SessionData = sessionWithClaimState(
-      Some(sample[CompleteSupportingEvidenceAnswer])
+      supportingEvidenceAnswers = sample[SupportingEvidenceAnswers]
     )._1
   ): Unit = {
     inSequence {
@@ -176,11 +181,10 @@ class SupportingEvidenceControllerSpec
       "show check your answers page" when {
 
         "the number of uploads have reached the maximum allowed" in {
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.fill(30)(sample[SupportingEvidence])
-          )
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val answers = sample(genSupportingEvidenceAnswersOfN(30))
+
+          val (session, _, _) = sessionWithClaimState(supportingEvidenceAnswers = answers)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -197,11 +201,10 @@ class SupportingEvidenceControllerSpec
       "show technical error page" when {
 
         "upscan initiate call fails" in {
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.empty
-          )
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val answers = sample[SupportingEvidenceAnswers]
+
+          val (session, _, _) = sessionWithClaimState(supportingEvidenceAnswers = answers)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -226,9 +229,9 @@ class SupportingEvidenceControllerSpec
 
           val uploadReference = sample[UploadReference]
 
-          val answers = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
+          val answers = sample(genSupportingEvidenceAnswersOfN(1))
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val (session, _, _) = sessionWithClaimState(answers)
 
           val upscanUpload = genUpscanUpload(uploadReference)
 
@@ -269,11 +272,9 @@ class SupportingEvidenceControllerSpec
               )
             )
 
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List.fill(2)(sample[SupportingEvidence])
-          )
+          val answers = sample(genSupportingEvidenceAnswersOfN(2))
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val (session, _, _) = sessionWithClaimState(answers)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -297,19 +298,12 @@ class SupportingEvidenceControllerSpec
 
         val uploadReference    = sample[UploadReference]
         val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
+        val answers            = List(supportingEvidence).toNel
 
         "a user has not answered the question before" in {
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(
-              sessionWithClaimState(
-                Some(
-                  IncompleteSupportingEvidenceAnswer(
-                    List(supportingEvidence)
-                  )
-                )
-              )._1
-            )
+            mockGetSession(sessionWithClaimState(answers)._1)
           }
           checkPageIsDisplayed(
             performAction(uploadReference),
@@ -323,17 +317,11 @@ class SupportingEvidenceControllerSpec
           val supportingEvidence =
             sample[SupportingEvidence].copy(documentType = Some(SupportingEvidenceDocumentType.CorrespondenceTrader))
 
+          val answers = List(supportingEvidence).toNel
+
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(
-              sessionWithClaimState(
-                Some(
-                  IncompleteSupportingEvidenceAnswer(
-                    List(supportingEvidence)
-                  )
-                )
-              )._1
-            )
+            mockGetSession(sessionWithClaimState(answers)._1)
           }
 
           checkPageIsDisplayed(
@@ -353,15 +341,15 @@ class SupportingEvidenceControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      def dataKeyOf(documentType: SupportingEvidenceDocumentType) =
+      def getDocTypeKey(documentType: SupportingEvidenceDocumentType) =
         SupportingEvidenceDocumentTypes.indexOf(documentType)
 
       "fail" when {
         "document type is missing" in {
           val uploadReference = sample[UploadReference]
-          val answers         = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
+          val answers         = sample[SupportingEvidenceAnswers]
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val (session, _, _) = sessionWithClaimState(answers)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -371,65 +359,39 @@ class SupportingEvidenceControllerSpec
           status(performAction(uploadReference)(Seq.empty)) shouldBe BAD_REQUEST
         }
 
-        "supporting evidence is missing for incomplete journey" in {
-          the[RuntimeException] thrownBy {
-            val uploadReference = sample[UploadReference]
-            val answers         = IncompleteSupportingEvidenceAnswer(evidences = List.empty)
-            val documentTypeKey = dataKeyOf(sample[SupportingEvidenceDocumentType])
-
-            val (session, _, _) = sessionWithClaimState(Some(answers))
-
-            inSequence {
-              mockAuthWithNoRetrievals()
-              mockGetSession(session)
-            }
-
-            await(
-              performAction(uploadReference)(
-                Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
-              )
-            )
-          } should have message "could not find uploaded file"
-        }
-
-        "supporting evidence is missing for complete journey" in {
+        "supporting evidence is not found" in {
           val uploadReference = sample[UploadReference]
-          val answers         = CompleteSupportingEvidenceAnswer(evidences = List.empty)
-          val documentTypeKey = dataKeyOf(sample[SupportingEvidenceDocumentType])
+          val documentTypeKey = getDocTypeKey(sample[SupportingEvidenceDocumentType])
 
-          val (session, _, _) = sessionWithClaimState(Some(answers))
+          val (session, _, _) = sessionWithClaimState(supportingEvidenceAnswers = None)
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
           }
 
-          val caught = intercept[RuntimeException] {
-            await(
-              performAction(uploadReference)(
-                Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
-              )
+          checkIsTechnicalErrorPage(
+            performAction(uploadReference)(
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
             )
-          }
-
-          caught.getMessage shouldBe s"could not find file upload with reference: $uploadReference"
+          )
         }
 
-        "caught an error on session update" in {
+        "an error caught on session update" in {
           val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
-          val documentType       = sample[SupportingEvidenceDocumentType]
-          val documentTypeKey    = dataKeyOf(documentType)
+          val answers            = List(supportingEvidence).toNel
 
-          val answers                        = CompleteSupportingEvidenceAnswer(evidences = List(supportingEvidence))
-          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+          val documentType    = sample[SupportingEvidenceDocumentType]
+          val documentTypeKey = getDocTypeKey(documentType)
+
+          val (session, journey, draftClaim) = sessionWithClaimState(answers)
 
           val updatedSupportingEvidence = supportingEvidence.copy(
             documentType = Some(documentType)
           )
 
-          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(updatedSupportingEvidence))
-
-          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedAnswers              = List(updatedSupportingEvidence).toNel
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = updatedAnswers)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
 
@@ -451,23 +413,17 @@ class SupportingEvidenceControllerSpec
 
         "document type is successfully selected" in {
           val supportingEvidence = sample[SupportingEvidence].copy(documentType = None)
+          val answers            = List(supportingEvidence).toNel
           val documentType       = sample[SupportingEvidenceDocumentType]
-          val documentTypeKey    = dataKeyOf(documentType)
+          val documentTypeKey    = getDocTypeKey(documentType)
 
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List(supportingEvidence)
-          )
+          val (session, journey, draftClaim) = sessionWithClaimState(answers)
 
-          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
-
-          val updatedSupportingEvidence = supportingEvidence.copy(
-            documentType = Some(documentType)
-          )
-
-          val updatedAnswers = answers.copy(List(updatedSupportingEvidence))
+          val updatedSupportingEvidence = supportingEvidence.copy(documentType = Some(documentType))
+          val updatedAnswers            = List(updatedSupportingEvidence).toNel
 
           val updatedDraftReturn          =
-            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+            draftClaim.copy(supportingEvidenceAnswers = updatedAnswers)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData =
             session.copy(journeyStatus = Some(updatedJourney))
@@ -486,7 +442,6 @@ class SupportingEvidenceControllerSpec
           )
         }
       }
-
     }
 
     "handling requests to delete supporting evidence" must {
@@ -498,18 +453,11 @@ class SupportingEvidenceControllerSpec
 
         "removing already stored evidence" in {
           val supportingEvidence = sample[SupportingEvidence]
+          val answers            = List(supportingEvidence).toNel
 
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List(supportingEvidence)
-          )
+          val (session, journey, draftClaim) = sessionWithClaimState(answers)
 
-          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
-
-          val updatedAnswers =
-            answers.copy(evidences = List.empty)
-
-          val updatedDraftReturn          =
-            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = None)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData =
             session.copy(journeyStatus = Some(updatedJourney))
@@ -530,19 +478,14 @@ class SupportingEvidenceControllerSpec
       "redirect to upload supporting evidence page" when {
 
         "removing new evidence" in {
-          val supportingEvidence = sample[SupportingEvidence]
+          val answers   = sample(genSupportingEvidenceAnswersOfN(2))
+          val evidences = answers.value
 
-          val answers = IncompleteSupportingEvidenceAnswer(
-            evidences = List(supportingEvidence)
-          )
+          val (session, journey, draftClaim) = sessionWithClaimState(answers)
 
-          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+          val updatedAnswers = evidences.tail.toNel
 
-          val updatedAnswers =
-            answers.copy(evidences = List.empty)
-
-          val updatedDraftReturn          =
-            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = updatedAnswers)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData =
             session.copy(journeyStatus = Some(updatedJourney))
@@ -554,7 +497,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(supportingEvidence.uploadReference)(addNew = true),
+            performAction(evidences.head.uploadReference)(addNew = true),
             routes.SupportingEvidenceController.uploadSupportingEvidence()
           )
         }
@@ -563,18 +506,14 @@ class SupportingEvidenceControllerSpec
       "show technical error page" when {
 
         "update session fails" in {
-          val supportingEvidence = sample[SupportingEvidence]
+          val evidence = sample[SupportingEvidence]
+          val answers  = List(evidence).toNel
 
-          val answers = CompleteSupportingEvidenceAnswer(List(supportingEvidence))
-
-          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
-
-          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List.empty)
-
-          val updatedDraftReturn          =
-            draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
-          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData =
+          val (session, journey, draftClaim) = sessionWithClaimState(answers)
+          val updatedDraftReturn             =
+            draftClaim.copy(supportingEvidenceAnswers = None)
+          val updatedJourney                 = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData    =
             session.copy(journeyStatus = Some(updatedJourney))
 
           inSequence {
@@ -583,10 +522,12 @@ class SupportingEvidenceControllerSpec
             mockStoreSession(updatedSession)(Left(Error("boom")))
           }
 
-          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(addNew = true))
+          checkIsTechnicalErrorPage(performAction(evidence.uploadReference)(addNew = true))
         }
       }
     }
+
+    /*
 
     "handling requests to check the upload status of the supporting evidence" must {
 
@@ -978,6 +919,7 @@ class SupportingEvidenceControllerSpec
       }
 
     }
+     */
   }
 
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import cats.data.NonEmptyList
 import org.scalacheck.{Arbitrary, Gen}
 
 object Generators {
@@ -42,6 +43,9 @@ object Generators {
     }
     finalIntegral + "." + finalFractional
   }
+
+  def genNonEmptyListOfN[A](n: Int, gen: Gen[A]): Gen[NonEmptyList[A]] =
+    Gen.listOfN(n, gen).map(NonEmptyList.fromListUnsafe)
 
   implicit val booleanGen: Gen[Boolean] = Gen.oneOf(true, false)
 

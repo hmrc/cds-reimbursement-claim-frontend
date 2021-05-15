@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.EitherT
+import cats.data.{EitherT, NonEmptyList}
 import org.scalamock.handlers.CallHandler3
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -58,7 +58,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -116,10 +116,10 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
   val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
-  val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                = sample[CompleteSupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                        = sample[CompleteDutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
+  val supportingEvidences: NonEmptyList[SupportingEvidence]                             = NonEmptyList.one(sample[SupportingEvidence])
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(mrn))),
@@ -131,7 +131,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
-    supportingEvidenceAnswers = Some(completeSupportingEvidenceAnswer),
+    supportingEvidenceAnswers = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
@@ -192,7 +192,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
-    supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+    supportingEvidences = supportingEvidences,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
     None,
     maybeDisplayDeclaration = Some(
@@ -538,7 +538,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(updatedSession)
           mockSubmitClaim(submitClaimRequest)(Right(submitClaimResponse))
-          mockStoreSession(justSubmittedJourney)(Left((Error("BOOM!"))))
+          mockStoreSession(justSubmittedJourney)(Left(Error("BOOM!")))
         }
 
         checkIsTechnicalErrorPage(performAction())
