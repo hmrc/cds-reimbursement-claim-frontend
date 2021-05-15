@@ -54,4 +54,7 @@ object UpscanGen extends GenUtils {
 
   def genSupportingEvidenceAnswersOf(gen: Gen[SupportingEvidence]*): Gen[SupportingEvidenceAnswers] =
     Gen.sequence(gen).map(evidences => NonEmptyList.fromList(evidences.asScala.toList))
+
+  def genSupportingEvidenceAnswersOpt: Gen[SupportingEvidenceAnswers] =
+    Gen.option(Gen.nonEmptyListOf(supportingEvidenceGen)).map(_.flatMap(NonEmptyList.fromList))
 }
