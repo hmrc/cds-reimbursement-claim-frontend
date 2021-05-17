@@ -89,10 +89,7 @@ class SelectDutiesController @Inject() (
       case None                     => makeBlankForm(List.empty, false).duties
     }
 
-  private def dutiesForEntryFlow: List[Duty] =
-    TaxCode.allTaxCodes.map { code =>
-      Duty(code)
-    }
+  val dutiesForEntryNumber: List[Duty] = TaxCode.ukAndEuTaxCodes.map(Duty(_))
 
   def selectDuties(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -119,7 +116,7 @@ class SelectDutiesController @Inject() (
                             SelectDutiesController
                               .selectDutiesForm(makeBlankForm(List.empty, fillingOutClaim.draftClaim.isMrnFlow))
                               .fill(DutiesSelected(List.empty)),
-                            dutiesForEntryFlow
+                            dutiesForEntryNumber
                           )
                         )
                       case Right(_) =>
@@ -164,7 +161,7 @@ class SelectDutiesController @Inject() (
                         SelectDutiesController
                           .selectDutiesForm(ifComplete.dutiesSelected)
                           .fill(ifComplete.dutiesSelected),
-                        dutiesForEntryFlow
+                        dutiesForEntryNumber
                       )
                     )
                   case Right(_) =>
