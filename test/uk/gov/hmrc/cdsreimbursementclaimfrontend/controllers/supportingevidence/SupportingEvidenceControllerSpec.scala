@@ -222,7 +222,6 @@ class SupportingEvidenceControllerSpec
         }
 
         "fails to update user session" in {
-          val uploadReference = sample[UploadReference]
           val evidence = sample[SupportingEvidence]
 
           val answers = CompleteSupportingEvidenceAnswer(evidences = List(evidence))
@@ -231,8 +230,8 @@ class SupportingEvidenceControllerSpec
 
           val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(evidence))
 
-          val updatedDraftReturn = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
-          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
 
           inSequence {
@@ -941,7 +940,7 @@ class SupportingEvidenceControllerSpec
 
     "handling actions on check your answer" must {
 
-      def performAction(isAmend: Boolean): Future[Result] = controller.checkYourAnswers(isAmend)(FakeRequest())
+      def performAction(): Future[Result] = controller.checkYourAnswers()(FakeRequest())
 
       "display the file upload page" when {
 
@@ -959,7 +958,7 @@ class SupportingEvidenceControllerSpec
           def stripUUID(endPoint: String): String =
             endPoint.split("/").dropRight(1).mkString("/")
 
-          val result              = performAction(isAmend = false)
+          val result              = performAction()
           val expectedRedirectUrl =
             routes.SupportingEvidenceController.uploadSupportingEvidence().url
 
@@ -984,7 +983,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(isAmend = false),
+            performAction(),
             routes.SupportingEvidenceController
               .uploadSupportingEvidence()
           )
@@ -1007,7 +1006,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkPageIsDisplayed(
-            performAction(isAmend = false),
+            performAction(),
             messageFromMessageKey(
               "supporting-evidence.check-your-answers.title"
             )

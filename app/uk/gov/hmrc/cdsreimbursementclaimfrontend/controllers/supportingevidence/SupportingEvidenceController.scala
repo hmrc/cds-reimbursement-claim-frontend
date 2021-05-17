@@ -98,13 +98,19 @@ class SupportingEvidenceController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def redirectCheckAnsersPage(isAmend: Boolean) =
+    Redirect(
+      if (isAmend) routes.SupportingEvidenceController.changeCheckYourAnswers()
+      else routes.SupportingEvidenceController.checkYourAnswers()
+    )
+
   def uploadSupportingEvidence(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
         if (answers.fold(_.evidences, _.evidences).length >= maxUploads)
-          Redirect(routes.SupportingEvidenceController.checkYourAnswers(isAmend))
+          redirectCheckAnsersPage(isAmend)
         else {
-          def purgeSession() = {
+          def changeAnswersState() = {
             val incomplete = answers.fold(
               incomplete => incomplete,
               complete => IncompleteSupportingEvidenceAnswer(complete.evidences)
@@ -124,7 +130,7 @@ class SupportingEvidenceController @Inject() (
           }
 
           val uploadUpscan = for {
-            _      <- if (isAmend) purgeSession() else EitherT.rightT[Future, Error](())
+            _      <- if (isAmend) changeAnswersState() else EitherT.rightT[Future, Error](())
             result <- upscanService
                         .initiate(
                           routes.SupportingEvidenceController
@@ -380,16 +386,22 @@ class SupportingEvidenceController @Inject() (
               Redirect(
                 routes.SupportingEvidenceController.uploadSupportingEvidence()
               )
-            else
-              Redirect(routes.SupportingEvidenceController.checkYourAnswers(isAmend))
+            else redirectCheckAnsersPage(isAmend)
         )
       }
     }
 
-  def checkYourAnswers(isAmend: Boolean): Action[AnyContent] =
+  def checkYourAnswers(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        checkYourAnswersHandler(answers, isAmend)
+        checkYourAnswersHandler(answers, isAmend = false)
+      }
+    }
+
+  def changeCheckYourAnswers(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
+        checkYourAnswersHandler(answers, isAmend = true)
       }
     }
 
