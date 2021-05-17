@@ -45,7 +45,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
     }
 
     "Return all excise codes for Northern Ireland" in {
-      val ndrcs = Random.shuffle(TaxCode.listOfNorthernIrelandTaxCodeStrings.toList).take(3).map { code =>
+      val ndrcs = Random.shuffle(TaxCode.listOfUKExciseCodeStrings.toList).take(3).map { code =>
         sample[NdrcDetails].copy(taxType = code)
       }
       val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
