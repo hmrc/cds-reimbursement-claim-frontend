@@ -84,21 +84,21 @@
 
     @userBanner = {
 
-        <div class="cds-user-banner">
-            <div>
-                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                    @signedInUserDetails.map{ user =>
+        @signedInUserDetails.map{ user =>
+            <div class="cds-user-banner">
+                <div>
+                    <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
                         <strong class="govuk-!-margin-right-1">
                             EORI @user.eori.value:</strong> @user.contactName.value
-                    }
-                </p>
+                    </p>
+                </div>
+                <div>
+                    <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+                        <a href='@{viewConfig.signOutUrl}?continue=@{StartController.start().url}' class="govuk-link">Sign out</a>
+                    </p>
+                </div>
             </div>
-            <div>
-                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                    <a href='@{viewConfig.signOutUrl}?continue=@{StartController.start().url}' class="govuk-link">Sign out</a>
-                </p>
-            </div>
-        </div>
+        }
         <div class="cds-user-banner cds-no-border">
             <div id="cdsr-back-link">
                 @backLink.map{ link => @backLinkComponent(link) }
