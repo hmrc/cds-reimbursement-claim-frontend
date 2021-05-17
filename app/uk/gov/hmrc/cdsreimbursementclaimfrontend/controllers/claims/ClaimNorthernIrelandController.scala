@@ -57,7 +57,10 @@ class ClaimNorthernIrelandController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
-  def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
+  // first selection from enter details as registered from CDS
+  def selectNorthernIrelandClaim(): Action[AnyContent] = show(true)
+
+  // coming from cya page
   def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
 
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen

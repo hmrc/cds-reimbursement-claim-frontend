@@ -453,7 +453,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
+                href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim()}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label")(lang))
               )

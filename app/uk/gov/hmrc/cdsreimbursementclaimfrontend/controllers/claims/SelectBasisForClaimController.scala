@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -45,6 +46,7 @@ class SelectBasisForClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
+  val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   selectReasonForClaimPage: pages.select_basis_for_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
@@ -62,7 +64,10 @@ class SelectBasisForClaimController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answers) =>
-        val backLink     = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+        val backLink     =
+          if (featureSwitch.NorthernIreland.isEnabled())
+            routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
+          else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answers
