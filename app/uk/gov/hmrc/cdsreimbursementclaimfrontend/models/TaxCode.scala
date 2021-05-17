@@ -174,7 +174,8 @@ object TaxCode {
   )
   val listOfNorthernIrelandTaxCodeStrings: HashSet[String] = HashSet(listOfNorthernIrelandTaxCodes.map(_.value): _*)
 
-  val allTaxCodes: List[TaxCode] = listOfUKTaxCodes ++ listOfEUTaxCodes ++ listOfNorthernIrelandTaxCodes
+  val ukAndEuTaxCodes: List[TaxCode] = listOfUKTaxCodes ++ listOfEUTaxCodes
+  val allTaxCodes: List[TaxCode]     = listOfUKTaxCodes ++ listOfEUTaxCodes ++ listOfNorthernIrelandTaxCodes
 
   val allTaxCodesMap: Map[String, TaxCode] = allTaxCodes.map(a => a.value -> a).toMap
 

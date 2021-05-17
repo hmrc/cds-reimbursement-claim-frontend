@@ -30,7 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.{CompleteDutiesSelectedAnswer, IncompleteDutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -237,6 +239,21 @@ class SelectDutiesControllerSpec
       }
 
     }
+
+    "TaxCodes" should {
+      "Depend on NDRC Details on the MRN journey" in {
+        val taxCode        = TaxCode.A20
+        val ndrcDetails    = sample[NdrcDetails].copy(taxType = taxCode.value)
+        val dutiesSelected = SelectDutiesController.makeBlankForm(List(ndrcDetails), true)
+        dutiesSelected.duties(0).taxCode shouldBe taxCode
+      }
+
+      "Return all UK and EU codes on the Entry Number Journey " in {
+        val dutiesSelected = SelectDutiesController.makeBlankForm(Nil, false)
+        dutiesSelected.duties.map(_.taxCode) shouldBe TaxCode.ukAndEuTaxCodes
+      }
+    }
+
   }
 
 }
