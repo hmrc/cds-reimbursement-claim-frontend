@@ -58,7 +58,7 @@ class ClaimNorthernIrelandController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
   // first selection from enter details as registered from CDS
-  def selectNorthernIrelandClaim(): Action[AnyContent] = show(true)
+  def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
 
   // coming from cya page
   def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
@@ -66,9 +66,7 @@ class ClaimNorthernIrelandController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
-      val backLink   =
-        if (isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers
-        else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      val backLink   = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
       Ok(claimNorthernIrelandPage(filledForm, backLink, isAmend))

@@ -52,9 +52,9 @@ POST        /change-your-contact-details                            uk.gov.hmrc.
 GET         /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
 POST        /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()
 
-GET         /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim()
-POST        /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmitChange()
-POST        /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
+GET         /change-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim()
+POST        /change-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmitChange()
+POST        /change-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
 
 GET         /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim()
 POST        /choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit()
