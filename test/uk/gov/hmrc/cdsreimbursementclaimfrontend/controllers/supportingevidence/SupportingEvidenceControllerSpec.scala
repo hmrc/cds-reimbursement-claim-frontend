@@ -172,7 +172,8 @@ class SupportingEvidenceControllerSpec
 
     "handling requests to upload supporting evidence" must {
 
-      def performAction(): Future[Result] = controller.uploadSupportingEvidence()(FakeRequest())
+      def performAction(isAmend: Boolean = false): Future[Result] =
+        controller.uploadSupportingEvidence(isAmend)(FakeRequest())
 
       "show check your answers page" when {
 
@@ -218,6 +219,29 @@ class SupportingEvidenceControllerSpec
             )
           }
           checkIsTechnicalErrorPage(performAction())
+        }
+
+        "fails to update user session" in {
+          val uploadReference = sample[UploadReference]
+          val evidence = sample[SupportingEvidence]
+
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List(evidence))
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(evidence))
+
+          val updatedDraftReturn = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Left(Error("Boom")))
+          }
+
+          checkIsTechnicalErrorPage(performAction(isAmend = true))
         }
       }
 
@@ -283,6 +307,50 @@ class SupportingEvidenceControllerSpec
           checkIsRedirect(
             performAction(),
             routes.SupportingEvidenceController.documentDidNotUpload()
+          )
+        }
+      }
+
+      "amend answers state to incomplete" when {
+        "user has decided to change form" in {
+          val uploadReference = sample[UploadReference]
+          val evidence        = sample[SupportingEvidence]
+
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List(evidence))
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val upscanUpload = genUpscanUpload(uploadReference)
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(evidence))
+
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+            mockUpscanInitiate(
+              routes.SupportingEvidenceController
+                .handleUpscanErrorRedirect(),
+              uploadReference =>
+                routes.SupportingEvidenceController
+                  .scanProgress(uploadReference)
+            )(Right(upscanUpload))
+          }
+
+          checkPageIsDisplayed(
+            performAction(isAmend = true),
+            messageFromMessageKey("supporting-evidence.upload.title"),
+            doc =>
+              doc
+                .select("a.govuk-back-link")
+                .attr("href") shouldBe
+                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.BankAccountController
+                  .checkBankAccountDetails()
+                  .url
           )
         }
       }
@@ -492,8 +560,8 @@ class SupportingEvidenceControllerSpec
 
     "handling requests to delete supporting evidence" must {
 
-      def performAction(uploadReference: UploadReference)(addNew: Boolean): Future[Result] =
-        controller.deleteSupportingEvidence(uploadReference, addNew)(FakeRequest())
+      def performAction(uploadReference: UploadReference)(isAmend: Boolean)(addNew: Boolean): Future[Result] =
+        controller.deleteSupportingEvidence(uploadReference, isAmend, addNew)(FakeRequest())
 
       "redirect to check your answers page" when {
 
@@ -522,7 +590,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(supportingEvidence.uploadReference)(addNew = false),
+            performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = false),
             routes.SupportingEvidenceController.checkYourAnswers()
           )
         }
@@ -555,7 +623,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(supportingEvidence.uploadReference)(addNew = true),
+            performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = true),
             routes.SupportingEvidenceController.uploadSupportingEvidence()
           )
         }
@@ -584,7 +652,7 @@ class SupportingEvidenceControllerSpec
             mockStoreSession(updatedSession)(Left(Error("boom")))
           }
 
-          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(addNew = true))
+          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = true))
         }
       }
     }
@@ -873,7 +941,7 @@ class SupportingEvidenceControllerSpec
 
     "handling actions on check your answer" must {
 
-      def performAction(): Future[Result] = controller.checkYourAnswers()(FakeRequest())
+      def performAction(isAmend: Boolean): Future[Result] = controller.checkYourAnswers(isAmend)(FakeRequest())
 
       "display the file upload page" when {
 
@@ -891,7 +959,7 @@ class SupportingEvidenceControllerSpec
           def stripUUID(endPoint: String): String =
             endPoint.split("/").dropRight(1).mkString("/")
 
-          val result              = performAction()
+          val result              = performAction(isAmend = false)
           val expectedRedirectUrl =
             routes.SupportingEvidenceController.uploadSupportingEvidence().url
 
@@ -916,7 +984,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(),
+            performAction(isAmend = false),
             routes.SupportingEvidenceController
               .uploadSupportingEvidence()
           )
@@ -939,7 +1007,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkPageIsDisplayed(
-            performAction(),
+            performAction(isAmend = false),
             messageFromMessageKey(
               "supporting-evidence.check-your-answers.title"
             )

@@ -98,18 +98,42 @@ class SupportingEvidenceController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  def uploadSupportingEvidence(): Action[AnyContent] =
+  def uploadSupportingEvidence(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
+      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
         if (answers.fold(_.evidences, _.evidences).length >= maxUploads)
-          Redirect(routes.SupportingEvidenceController.checkYourAnswers())
-        else
-          upscanService
-            .initiate(
-              routes.SupportingEvidenceController
-                .handleUpscanErrorRedirect(),
-              routes.SupportingEvidenceController.scanProgress
+          Redirect(routes.SupportingEvidenceController.checkYourAnswers(isAmend))
+        else {
+          def purgeSession() = {
+            val incomplete = answers.fold(
+              incomplete => incomplete,
+              complete => IncompleteSupportingEvidenceAnswer(complete.evidences)
             )
+
+            val newDraftClaim = fillingOutClaim.draftClaim.fold(
+              _.copy(supportingEvidenceAnswers = Some(incomplete))
+            )
+
+            val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+            EitherT(
+              updateSession(sessionStore, request)(
+                _.copy(journeyStatus = Some(newJourney))
+              )
+            )
+          }
+
+          val uploadUpscan = for {
+            _      <- if (isAmend) purgeSession() else EitherT.rightT[Future, Error](())
+            result <- upscanService
+                        .initiate(
+                          routes.SupportingEvidenceController
+                            .handleUpscanErrorRedirect(),
+                          routes.SupportingEvidenceController.scanProgress
+                        )
+          } yield result
+
+          uploadUpscan
             .fold(
               e => {
                 logger.warn("could not start upload supporting evidence", e)
@@ -123,6 +147,7 @@ class SupportingEvidenceController @Inject() (
                   )
                 )
             )
+        }
       }
     }
 
@@ -312,6 +337,7 @@ class SupportingEvidenceController @Inject() (
 
   def deleteSupportingEvidence(
     uploadReference: UploadReference,
+    isAmend: Boolean,
     addNew: Boolean
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -355,15 +381,15 @@ class SupportingEvidenceController @Inject() (
                 routes.SupportingEvidenceController.uploadSupportingEvidence()
               )
             else
-              Redirect(routes.SupportingEvidenceController.checkYourAnswers())
+              Redirect(routes.SupportingEvidenceController.checkYourAnswers(isAmend))
         )
       }
     }
 
-  def checkYourAnswers(): Action[AnyContent] =
+  def checkYourAnswers(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        checkYourAnswersHandler(answers)
+        checkYourAnswersHandler(answers, isAmend)
       }
     }
 
@@ -409,7 +435,8 @@ class SupportingEvidenceController @Inject() (
     }
 
   private def checkYourAnswersHandler(
-    answers: SupportingEvidenceAnswer
+    answers: SupportingEvidenceAnswer,
+    isAmend: Boolean
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     answers match {
 
@@ -424,7 +451,8 @@ class SupportingEvidenceController @Inject() (
         Ok(
           checkYourAnswersPage(
             CompleteSupportingEvidenceAnswer(supportingEvidences),
-            maxUploads
+            maxUploads,
+            isAmend
           )
         )
 
@@ -436,7 +464,8 @@ class SupportingEvidenceController @Inject() (
             CompleteSupportingEvidenceAnswer(
               supportingEvidences
             ),
-            maxUploads
+            maxUploads,
+            isAmend
           )
         )
     }

@@ -56,9 +56,7 @@ object SessionUpdates {
   object SessionProvider {
 
     private def instance[A](f: A => SessionData): SessionProvider[A] =
-      new SessionProvider[A] {
-        override def toSession(a: A): SessionData = f(a)
-      }
+      (a: A) => f(a)
 
     implicit def requestWithSessionDataInstance[A]: SessionProvider[RequestWithSessionData[A]] =
       instance(_.sessionData.getOrElse(SessionData.empty))
