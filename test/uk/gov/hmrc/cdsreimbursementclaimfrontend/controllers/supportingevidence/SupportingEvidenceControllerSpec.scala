@@ -172,7 +172,8 @@ class SupportingEvidenceControllerSpec
 
     "handling requests to upload supporting evidence" must {
 
-      def performAction(): Future[Result] = controller.uploadSupportingEvidence()(FakeRequest())
+      def performAction(isAmend: Boolean = false): Future[Result] =
+        controller.uploadSupportingEvidence(isAmend)(FakeRequest())
 
       "show check your answers page" when {
 
@@ -218,6 +219,28 @@ class SupportingEvidenceControllerSpec
             )
           }
           checkIsTechnicalErrorPage(performAction())
+        }
+
+        "fails to update user session" in {
+          val evidence = sample[SupportingEvidence]
+
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List(evidence))
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(evidence))
+
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Left(Error("Boom")))
+          }
+
+          checkIsTechnicalErrorPage(performAction(isAmend = true))
         }
       }
 
@@ -283,6 +306,50 @@ class SupportingEvidenceControllerSpec
           checkIsRedirect(
             performAction(),
             routes.SupportingEvidenceController.documentDidNotUpload()
+          )
+        }
+      }
+
+      "amend answers state to incomplete" when {
+        "user has decided to change form" in {
+          val uploadReference = sample[UploadReference]
+          val evidence        = sample[SupportingEvidence]
+
+          val answers = CompleteSupportingEvidenceAnswer(evidences = List(evidence))
+
+          val (session, journey, draftClaim) = sessionWithClaimState(Some(answers))
+
+          val upscanUpload = genUpscanUpload(uploadReference)
+
+          val updatedAnswers = IncompleteSupportingEvidenceAnswer(List(evidence))
+
+          val updatedDraftReturn          = draftClaim.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
+          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+            mockUpscanInitiate(
+              routes.SupportingEvidenceController
+                .handleUpscanErrorRedirect(),
+              uploadReference =>
+                routes.SupportingEvidenceController
+                  .scanProgress(uploadReference)
+            )(Right(upscanUpload))
+          }
+
+          checkPageIsDisplayed(
+            performAction(isAmend = true),
+            messageFromMessageKey("supporting-evidence.upload.title"),
+            doc =>
+              doc
+                .select("a.govuk-back-link")
+                .attr("href") shouldBe
+                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.BankAccountController
+                  .checkBankAccountDetails()
+                  .url
           )
         }
       }
@@ -492,8 +559,8 @@ class SupportingEvidenceControllerSpec
 
     "handling requests to delete supporting evidence" must {
 
-      def performAction(uploadReference: UploadReference)(addNew: Boolean): Future[Result] =
-        controller.deleteSupportingEvidence(uploadReference, addNew)(FakeRequest())
+      def performAction(uploadReference: UploadReference)(isAmend: Boolean)(addNew: Boolean): Future[Result] =
+        controller.deleteSupportingEvidence(uploadReference, isAmend, addNew)(FakeRequest())
 
       "redirect to check your answers page" when {
 
@@ -522,7 +589,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(supportingEvidence.uploadReference)(addNew = false),
+            performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = false),
             routes.SupportingEvidenceController.checkYourAnswers()
           )
         }
@@ -555,7 +622,7 @@ class SupportingEvidenceControllerSpec
           }
 
           checkIsRedirect(
-            performAction(supportingEvidence.uploadReference)(addNew = true),
+            performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = true),
             routes.SupportingEvidenceController.uploadSupportingEvidence()
           )
         }
@@ -584,7 +651,7 @@ class SupportingEvidenceControllerSpec
             mockStoreSession(updatedSession)(Left(Error("boom")))
           }
 
-          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(addNew = true))
+          checkIsTechnicalErrorPage(performAction(supportingEvidence.uploadReference)(isAmend = false)(addNew = true))
         }
       }
     }

@@ -626,7 +626,7 @@ class CheckYourAnswersHelper @Inject() (implicit langs: Langs, messages: Message
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
+                href = fileUploadRoutes.SupportingEvidenceController.changeCheckYourAnswers().url,
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1)(lang))
               )

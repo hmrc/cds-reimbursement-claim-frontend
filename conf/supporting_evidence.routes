@@ -1,16 +1,17 @@
-GET    /supporting-evidence/upload-supporting-evidence                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.uploadSupportingEvidence()
+GET         /supporting-evidence/upload-supporting-evidence                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.uploadSupportingEvidence(isAmend: Boolean ?= false)
 
-GET    /supporting-evidence/scan-progress/:id                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
-POST   /supporting-evidence/scan-progress                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgressSubmit(id : String)
+GET         /supporting-evidence/scan-progress/:id                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /supporting-evidence/scan-progress                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.scanProgressSubmit(id : String)
 
-GET    /supporting-evidence/select-supporting-evidence-type/:id           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
-POST   /supporting-evidence/select-supporting-evidence-type               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+GET         /supporting-evidence/select-supporting-evidence-type/:id        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /supporting-evidence/select-supporting-evidence-type            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
 
-GET    /supporting-evidence/delete-supporting-evidence/:id                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.deleteSupportingEvidence(id: uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference, addNew: Boolean)
+GET         /supporting-evidence/delete-supporting-evidence/:id             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.deleteSupportingEvidence(id: uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference, isAmend: Boolean, addNew: Boolean)
 
-GET    /supporting-evidence/check-your-answers                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.checkYourAnswers()
-POST   /supporting-evidence/check-your-answers                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.checkYourAnswersSubmit()
+GET         /supporting-evidence/check-your-answers                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.checkYourAnswers()
+POST        /supporting-evidence/check-your-answers                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.checkYourAnswersSubmit()
+GET         /supporting-evidence/change-check-your-answers                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.changeCheckYourAnswers()
 
-GET    /supporting-evidence/handle-upscan-error-redirect                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.handleUpscanErrorRedirect()
-GET    /supporting-evidence/document-did-not-upload                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.documentDidNotUpload()
-GET    /supporting-evidence/problem-with-document                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.handleUpscanCallBackFailures()
+GET         /supporting-evidence/handle-upscan-error-redirect               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.handleUpscanErrorRedirect()
+GET         /supporting-evidence/document-did-not-upload                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.documentDidNotUpload()
+GET         /supporting-evidence/problem-with-document                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.SupportingEvidenceController.handleUpscanCallBackFailures()
