@@ -72,8 +72,7 @@ class CheckEoriDetailsController @Inject() (
   ): Appendable = checkEoriDetailsPage(
     signedInUserDetails,
     form,
-    routes.CheckEoriDetailsController.submit(),
-    baseRoutes.LandingPageController.landing()
+    routes.CheckEoriDetailsController.submit()
   )
 
   private val runMode              = config.getOptional[String]("run.mode")

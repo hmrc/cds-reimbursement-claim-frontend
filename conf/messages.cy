@@ -62,48 +62,6 @@ footer.govukHelp.url=https://www.gov.uk/help
 exit-survey.link-text=Beth oedd eich barn am y gwasanaeth hwn?
 
 #===================================================
-#  LANDING PAGE
-#===================================================
-landing.title=Hawlio ad-daliad am dollau mewnforio
-landing.help.p1=Gallwch ddefnyddio’r gwasanaeth hwn i hawlio ad-daliad ar ordaliadau ar gyfer ffioedd mewnforio. Mae’r rhain yn cynnwys Tolldaliadau, Tollau Ecséis, Tollau Gwrthbwyso a tholldaliadau penodol eraill.
-landing.help.p2=Yn y dyfodol agos, byddwch hefyd yn gallu defnyddio’r gwasanaeth hwn i wneud nifer o hawliadau. Bydd ad-daliadau drwy’r CMA hefyd ar gael.
-landing.who.heading=Pwy all hawlio
-landing.who.p1=Gallwch wneud hawliad os oes gennych rif EORI dilys yn gysylltiedig â’ch manylion mewngofnodi ar gyfer Porth y Llywodraeth, ac os oes gennych un neu fwy o Gyfeirnodau Symud (MRN) neu rif mewnforio.
-landing.who.p3=Fel datganydd hawliad, gallwch fod yn:
-landing.who.l1=mewnforiwr neu’n gynrychiolydd y mewnforiwr
-landing.who.l2=asiant, trefnydd anfon nwyddau neu’n gyfrifydd
-landing.who.l3=unigolyn preifat
-landing.who.p4=Rhaid i chi wneud cais o fewn 3 blynedd o glirio’r nwyddau i gyrraedd y DU.
-landing.why.heading=Pam gwneud hawliad
-landing.why.p1=Dylech wneud hawliad os:
-landing.why.l1=yw’r swm rydych chi eisoes wedi’i dalu yn y datganiad mewnforio’n anghywir
-landing.why.l2=cafodd eich datganiad mewnforio ei wrthod, ac felly mae angen i chi hawlio’r cyfan neu ran o’r swm rydych eisoes wedi’i dalu yn ôl.
-landing.start-button=Dechrau nawr
-landing.before.heading=Cyn i chi ddechrau
-landing.before.p1=I ddefnyddio’r gwasanaeth hwn bydd angen y canlynol arnoch:
-landing.before.l1=Manylion Porth y Llywodraeth
-landing.before.l2=cysylltu eich rhif EORI â’ch cofrestriad CDS
-landing.before.l3=rhif MRN neu rif mewnforio
-landing.before.l4=gwybod y math o doll rydych am hawlio ad-daliad amdani
-landing.before.l5=rheswm dros ordalu
-landing.before.l6=Manylion y nwyddau
-landing.before.l7=eich manylion banc
-landing.before.l8=enw a chyfeiriad y datganydd
-landing.before.l9=y tollau neu’r swm TAW sy’n ddyledus ac a delir i CThEM
-landing.details.heading=Enghreifftiau o ddogfennau ategol
-landing.details.p1=Bydd angen tystiolaeth ategol arnoch sy’n ymwneud â nwyddau rydych wedi’u mewnforio. Gallwch sganio copïau ymlaen llaw er mwyn ei gwneud yn haws eu huwchlwytho yn y gwasanaeth hwn. Gallant fod yn unrhyw un o’r dogfennau hyn:
-landing.details.l1=C88/E2 (tystiolaeth i awdurdodi’r broses o fewnforio o’r wlad wreiddiol)
-landing.details.l2=anfoneb fasnachol (yn dangos gwerth y nwyddau)
-landing.details.l3=rhestr bacio (dogfen sy’n nodi manylion pacio pob llwyth)
-landing.details.l4=teithrestr awyr (yn nogfennau eich llwyth)
-landing.details.l5=bil llwytho (derbynneb o’r nwyddau sydd wedi’u cludo)
-landing.details.l6=ffurflen mewnforio nwyddau wrth-gefn (ffurflen i ddatgan bod nwyddau wrth-gefn ar gael pan fo nwyddau wedi’u datgan yn anghywir)
-landing.details.l7=rhestr MRN (rhestr o rifau MRN blaenorol)
-landing.details.l8=tystiolaeth o awdurdod (gan y mewnforiwr i ad-dalu’r tollau)
-landing.details.l9=gohebiaeth â’r masnachwr neu ohebiaeth fewnol (cadwyn o e-byst neu lythyrau rhyngoch chi a’r masnachwr)
-landing.details.l10=dogfennau ategol ychwanegol (er enghraifft trwydded mewnforio, tystysgrif yswiriant, archebion prynu neu lythyr credyd)
-
-#===================================================
 #  UNAUTHORISED PAGE
 #===================================================
 unauthorised.title=Mae’n ddrwg gennym – nid yw’r gwasanaeth hwn ar gael

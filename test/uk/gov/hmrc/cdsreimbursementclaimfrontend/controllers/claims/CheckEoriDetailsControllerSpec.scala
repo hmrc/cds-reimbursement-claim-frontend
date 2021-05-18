@@ -124,8 +124,7 @@ class CheckEoriDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("check-eori-details.title"),
-          doc => getBackLink(doc) shouldBe baseRoutes.LandingPageController.landing().url
+          messageFromMessageKey("check-eori-details.title")
         )
       }
     }
