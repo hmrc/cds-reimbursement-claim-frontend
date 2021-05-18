@@ -20,41 +20,19 @@ import javax.inject.Inject
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.title_and_description
 
 class DropDownHelper @Inject() (
-  paragraph: paragraph_block,
   bulletList: bullets,
   titleAndDescription: title_and_description
 ) extends HtmlUtil {
 
-  val landingKey: String          = "landing.details"
   val supportingEvidenceUploadKey = "supporting-evidence.upload.details"
   val reasonAndBasisBasisKey      = "select-reason-and-basis-for-claim.basis.details"
   val reasonAndBasisReasonKey     = "select-reason-and-basis-for-claim.reason.details"
   val basisKey                    = "select-basis-for-claim.details"
   val whoIsMakingTheClaimKey      = "select-who-is-making-the-claim.details"
-
-  def landingDropDownContent()(implicit messages: Messages): Html =
-    html(
-      paragraph(Html(messages(s"$landingKey.p1")), Some("govuk-body")),
-      bulletList(
-        Seq(
-          Html(messages(s"$landingKey.l1")),
-          Html(messages(s"$landingKey.l2")),
-          Html(messages(s"$landingKey.l3")),
-          Html(messages(s"$landingKey.l4")),
-          Html(messages(s"$landingKey.l5")),
-          Html(messages(s"$landingKey.l6")),
-          Html(messages(s"$landingKey.l7")),
-          Html(messages(s"$landingKey.l8")),
-          Html(messages(s"$landingKey.l9")),
-          Html(messages(s"$landingKey.l10"))
-        )
-      )
-    )
 
   def uploadDropDownContent()(implicit messages: Messages): Html =
     html(
