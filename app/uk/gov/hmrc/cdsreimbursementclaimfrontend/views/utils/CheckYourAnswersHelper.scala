@@ -20,7 +20,7 @@ import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, CompleteClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
@@ -444,11 +444,11 @@ class CheckYourAnswersHelper @Inject() (implicit
       }
     ).flattenOption
 
-  def makeNorthernIrelandClaimSummary(northernIrelandAnswer: ClaimNorthernIrelandAnswer): List[SummaryListRow] =
+  def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.northern-ireland-claim.label")(lang))),
-        value = Value(Text(northernIrelandAnswer.value.toString)),
+        value = Value(Text(completeClaim.northernIrelandAnswer.claimNorthernIrelandAnswer.toString)),
         actions = Some(
           Actions(
             items = Seq(

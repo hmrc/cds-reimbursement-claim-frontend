@@ -68,6 +68,7 @@ object CompleteClaim {
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
+    completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer,
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -95,7 +96,7 @@ object CompleteClaim {
               draftSupportingEvidence,
               _,
               draftCommodityAnswer,
-              _,
+              draftNorthernIrelandAnswer,
               draftReasonAndBasisOfClaimAnswer,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
@@ -117,6 +118,7 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
+                validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim)
               )
@@ -131,6 +133,7 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
+                        completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
                         completeBasisOfClaimAnswer
                       ) =>
@@ -148,6 +151,7 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
+                      completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
                       maybeDuplicateDisplayDeclaration = None,
@@ -175,6 +179,7 @@ object CompleteClaim {
                 validateBasisOfClaimAnswer(draftBasisForClaim),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
+                validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
                 validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
               )
@@ -188,6 +193,7 @@ object CompleteClaim {
                         completeBasisOfClaimAnswer,
                         completeSupportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
+                        completeNorthernIrelandAnswer,
                         completeImporterEoriNumberAnswer,
                         completeDeclarantEoriNumberAnswer
                       ) =>
@@ -205,6 +211,7 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
+                      completeNorthernIrelandAnswer,
                       None,
                       maybeDisplayDeclaration,
                       maybeDuplicateDisplayDeclaration,
@@ -309,6 +316,14 @@ object CompleteClaim {
             Valid(completeCommodityDetailsAnswers)
         }
       case None        => invalid("missing commodity details answer")
+    }
+
+  def validateNorthernIrelandAnswer(
+    maybeNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer]
+  ): Validation[CompleteNorthernIrelandAnswer] =
+    maybeNorthernIrelandAnswer match {
+      case Some(claimNorthernIrelandAnswer) => Valid(CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer))
+      case None                             => invalid("incomplete northern ireland answer")
     }
 
   def validateClaimsAnswer(
@@ -472,6 +487,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             maybeDisplayDeclaration,
             _,
             _,
@@ -483,6 +499,7 @@ object CompleteClaim {
 
     def maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
       case CompleteC285Claim(
+            _,
             _,
             _,
             _,
@@ -524,6 +541,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         duplicateDeclarationDetails match {
@@ -539,6 +557,7 @@ object CompleteClaim {
             _,
             _,
             declarationDetailAnswers,
+            _,
             _,
             _,
             _,
@@ -579,6 +598,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         declarantType.declarantType
@@ -595,6 +615,7 @@ object CompleteClaim {
             _,
             _,
             maybeBasisForClaim,
+            _,
             _,
             _,
             _,
@@ -635,6 +656,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         claimantDetailsAsImporterCompanyAnswer match {
@@ -652,6 +674,7 @@ object CompleteClaim {
             _,
             _,
             detailsRegisteredWithCdsAnswer,
+            _,
             _,
             _,
             _,
@@ -686,9 +709,35 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         commodityDetails.commodityDetails.value
+    }
+
+    def northernIrelandAnswer: CompleteNorthernIrelandAnswer = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            northernIrelandAnswer,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
+        northernIrelandAnswer
     }
 
     def bankDetails: Option[BankAccountController.BankAccountDetails] = completeClaim match {
@@ -703,6 +752,7 @@ object CompleteClaim {
             _,
             _,
             bankAccountDetails,
+            _,
             _,
             _,
             _,
@@ -767,6 +817,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         bankAccountDetails match {
@@ -798,6 +849,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         movementReferenceNumber.movementReferenceNumber
@@ -808,6 +860,7 @@ object CompleteClaim {
             _,
             _,
             duplicateMovementReferenceNumberAnswer,
+            _,
             _,
             _,
             _,
@@ -853,6 +906,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         supportingEvidenceAnswers.evidences
@@ -860,6 +914,7 @@ object CompleteClaim {
 
     def totalUKDutyClaim: String = completeClaim match {
       case CompleteC285Claim(
+            _,
             _,
             _,
             _,
@@ -905,6 +960,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             completeClaimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
@@ -916,6 +972,7 @@ object CompleteClaim {
 
     def totalClaim: String = completeClaim match {
       case CompleteC285Claim(
+            _,
             _,
             _,
             _,

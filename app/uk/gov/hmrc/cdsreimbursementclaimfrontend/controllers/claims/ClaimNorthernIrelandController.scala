@@ -73,16 +73,22 @@ class ClaimNorthernIrelandController @Inject() (
     }
   }
 
-  // select change answer => SelectBasisForClaimController
-  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false)
+  // select change answer => SelectBasisForClaimController is Amend = false
+  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false, false)
 
-  // 1. from cya page and change answer => SelectBasisForClaimController
-  def changeNorthernIrelandClaimSubmitChange(): Action[AnyContent] = submit(true)
+  def answerIsChange(answerTrue: Boolean): Either[Boolean, Boolean] =
+    if (answerTrue) Right(true)
+    else Left(false)
 
-  //2. from cya page and leave answer => CheckYourAnswersAndSubmitController
-  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
+  // 1. from cya page and change answer => SelectBasisForClaimController isAmend = true, isChange = true
+  //2. from cya page and leave answer => CheckYourAnswersAndSubmitController isAmend = true; isChange = false
+  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] =
+    answerIsChange(true) match {
+      case Right(a2) => submit(true, a2)
+      case Left(a1)  => submit(true, a1)
+    }
 
-  def submit(isAmend: Boolean): Action[AnyContent] =
+  def submit(isAmend: Boolean, isChange: Boolean): Action[AnyContent] =
     (featureSwitch.NorthernIreland.action andThen authenticatedActionWithSessionData).async { implicit request =>
       withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
         ClaimNorthernIrelandController.claimNorthernIrelandForm
@@ -111,8 +117,8 @@ class ClaimNorthernIrelandController @Inject() (
                   _ =>
                     isAmend match {
                       case true  =>
-                        //Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
-                        Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                        if (isChange) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                       case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                     }
                 )

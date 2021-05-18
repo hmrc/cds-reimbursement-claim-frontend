@@ -113,14 +113,14 @@ class ClaimNorthernIrelandControllerSpec
     "redirect to the error page" when {
       "the feature switch NorthernIreland is disabled" in {
         featureSwitch.NorthernIreland.disable()
-        val result = controller.show(false)(FakeRequest())
+        val result = controller.selectNorthernIrelandClaim()(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
     }
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
-        def performAction(): Future[Result] = controller.show(false)(FakeRequest())
+        def performAction(): Future[Result] = controller.selectNorthernIrelandClaim()(FakeRequest())
         val session                         = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -136,7 +136,7 @@ class ClaimNorthernIrelandControllerSpec
     }
 
     "display the page" when {
-      def performAction(isAmend: Boolean): Future[Result] = controller.show(isAmend)(FakeRequest())
+      def performAction(isAmend: Boolean): Future[Result] = controller.selectNorthernIrelandClaim()(FakeRequest())
 
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None)
@@ -216,11 +216,11 @@ class ClaimNorthernIrelandControllerSpec
       }
 
     }
-
+//
     "handle submit requests" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.changeNorthernIrelandClaimSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "user chooses the Yes option" in {
         val session        = getSessionWithPreviousAnswer(None)
@@ -274,7 +274,7 @@ class ClaimNorthernIrelandControllerSpec
     "show an error summary" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        controller.selectNorthernIrelandClaimSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "the user does not select an option and submits the page" in {
         val session = getSessionWithPreviousAnswer(None)
