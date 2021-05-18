@@ -559,7 +559,7 @@ enter-claim.paid-amount=Paid Amount
 enter-claim.paid-amount.error.invalid=Enter a valid paid amount
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.invalid=Enter a valid claim amount
-enter-claim.invalid.claim=Enter a claim amount which is less then or equal to the paid amount
+enter-claim.invalid.claim=Enter a claim amount which is less than or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
 check-claim.help-text=These are the calculations based on the information you gave us.
 check-claim.update=<a href="{0}" class="govuk-link">Update the calculation</a>
