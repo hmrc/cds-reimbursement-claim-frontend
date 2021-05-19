@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
@@ -57,10 +58,7 @@ class ClaimNorthernIrelandController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
-  // first selection from enter details as registered from CDS
   def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
-
-  // coming from cya page
   def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
 
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
@@ -73,22 +71,10 @@ class ClaimNorthernIrelandController @Inject() (
     }
   }
 
-  // select change answer => SelectBasisForClaimController is Amend = false
-  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false, false)
+  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false)
+  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
 
-  def answerIsChange(answerTrue: Boolean): Either[Boolean, Boolean] =
-    if (answerTrue) Right(true)
-    else Left(false)
-
-  // 1. from cya page and change answer => SelectBasisForClaimController isAmend = true, isChange = true
-  //2. from cya page and leave answer => CheckYourAnswersAndSubmitController isAmend = true; isChange = false
-  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] =
-    answerIsChange(true) match {
-      case Right(a2) => submit(true, a2)
-      case Left(a1)  => submit(true, a1)
-    }
-
-  def submit(isAmend: Boolean, isChange: Boolean): Action[AnyContent] =
+  def submit(isAmend: Boolean): Action[AnyContent] =
     (featureSwitch.NorthernIreland.action andThen authenticatedActionWithSessionData).async { implicit request =>
       withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
         ClaimNorthernIrelandController.claimNorthernIrelandForm
@@ -103,6 +89,12 @@ class ClaimNorthernIrelandController @Inject() (
                 )
               ),
             formOk => {
+
+              val newNiAnswer = fillingOutClaim.draftClaim
+                .fold(_.claimNorthernIrelandAnswer)
+
+              val answerChanged = newNiAnswer.isEmpty || newNiAnswer.exists(n => n.value =!= formOk.value)
+
               val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -117,7 +109,7 @@ class ClaimNorthernIrelandController @Inject() (
                   _ =>
                     isAmend match {
                       case true  =>
-                        if (isChange) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                         else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                       case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                     }

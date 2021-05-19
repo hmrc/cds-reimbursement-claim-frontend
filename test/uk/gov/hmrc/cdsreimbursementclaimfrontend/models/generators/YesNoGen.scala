@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import org.scalacheck.Gen
+import org.scalacheck.ScalacheckShapeless._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 
-final case class CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer: ClaimNorthernIrelandAnswer)
+object YesNoGen extends GenUtils {
 
-object CompleteNorthernIrelandAnswer {
-  implicit val format: OFormat[CompleteNorthernIrelandAnswer] =
-    derived.oformat[CompleteNorthernIrelandAnswer]()
+  implicit val yesNoGen: Gen[YesNo] = gen[YesNo]
+
 }

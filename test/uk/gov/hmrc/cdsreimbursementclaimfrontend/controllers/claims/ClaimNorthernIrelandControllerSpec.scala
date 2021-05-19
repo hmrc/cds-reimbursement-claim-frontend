@@ -136,7 +136,7 @@ class ClaimNorthernIrelandControllerSpec
     }
 
     "display the page" when {
-      def performAction(isAmend: Boolean): Future[Result] = controller.selectNorthernIrelandClaim()(FakeRequest())
+      def performAction(): Future[Result] = controller.selectNorthernIrelandClaim()(FakeRequest())
 
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None)
@@ -147,7 +147,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
@@ -166,7 +166,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
@@ -185,7 +185,7 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
             getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
@@ -204,10 +204,10 @@ class ClaimNorthernIrelandControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(true),
+          performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
-            getBackLink(doc)  shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+            getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
             isYesChecked(doc) shouldBe false
             isNoChecked(doc)  shouldBe true
           }
@@ -216,7 +216,7 @@ class ClaimNorthernIrelandControllerSpec
       }
 
     }
-//
+
     "handle submit requests" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
