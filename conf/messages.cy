@@ -98,14 +98,14 @@ ineligible.help=Nid ydych yn gymwys i wneud hawliad. Os oes angen cymorth arnoch
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=
-check-eori-details.eori-number.label=
-check-eori-details.name.label=
-check-eori-details.gateway-id.label=
-check-eori-details.eori-correct=
-check-eori-details.eori-incorrect=
-check-eori-details.error.required=
-check-eori-details.invalid=
+check-eori-details.title=Gwiriwch ai dyma’r EORI cywir
+check-eori-details.eori-number.label=EORI
+check-eori-details.name.label=Enw
+check-eori-details.gateway-id.label=Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth
+check-eori-details.eori-correct=Iawn
+check-eori-details.eori-incorrect=Na, mewngofnodwch eto
+check-eori-details.error.required=Dewiswch ‘Iawn’ os yw’r manylion hyn yn gywir neu ‘Na’ os ydynt yn anghywir
+check-eori-details.invalid=Dewiswch ‘Iawn’ os yw’r manylion hyn yn gywir neu ‘Na’ os ydynt yn anghywir
 
 
 #===================================================
@@ -181,7 +181,7 @@ enter-declarant-eori-number.input-label=Nodwch y rhif EORI
 #===================================================
 #  ENTER CLAIMANT DETAILS AS REGISTERED WITH CDS
 #===================================================
-enter-claimant-details-as-registered-with-cds.title=
+enter-claimant-details-as-registered-with-cds.title=Nodwch eich manylion fel y’u cofrestrwyd gyda’r Gwasanaeth Datgan Tollau (CDS)
 enter-claimant-details-as-registered-with-cds.help-text=
 enter-claimant-details-as-registered-with-cds.individual-full-name.label=
 enter-claimant-details-as-registered-with-cds.individual-full-name.help=Rhaid i hwn fod eich enw cyfreithiol
@@ -207,7 +207,7 @@ enter-claimant-details-as-registered-with-cds.address.line5.label=
 enter-claimant-details-as-registered-with-cds.address.line5.postcode.error.required=
 enter-claimant-details-as-registered-with-cds.address.line6.label=
 enter-claimant-details-as-registered-with-cds.countryCode.error.required=
-enter-claimant-details-as-registered-with-cds.add-company-details.label=
+enter-claimant-details-as-registered-with-cds.add-company-details.label=A hoffech ychwanegu manylion cyswllt er mwyn i ni allu cysylltu â chi ynglŷn â’r hawliad hwn?
 enter-claimant-details-as-registered-with-cds.add-company-details.no=
 enter-claimant-details-as-registered-with-cds.add-company-details.yes=
 enter-claimant-details-as-registered-with-cds.add-company-details.error.boolean=
@@ -227,10 +227,10 @@ nonUkAddress-line4.error.pattern=Nodwch dref neu ddinas ddilys
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
 enter-your-contact-details.help-text=
-enter-your-contact-details.title=
+enter-your-contact-details.title=Nodwch eich manylion cyswllt
 enter-your-contact-details.caption=
 enter-your-contact-details.help-text=
-enter-your-contact-details.contact-name.label=
+enter-your-contact-details.contact-name.label=Enw llawn
 enter-your-contact-details.contact-name.error.required=
 enter-your-contact-details.contact-name.error.maxLength=
 enter-your-contact-details.contact-email.label=
@@ -321,7 +321,7 @@ select-who-is-making-the-claim.error.required=Dewiswch fath o ddatganiad
 select-who-is-making-the-claim.invalid=Dewiswch fath o ddatganiad
 select-who-is-making-the-claim.details.heading=Beth yw mewnforiwr a chynrychiolydd?
 select-who-is-making-the-claim.details.l0=
-select-who-is-making-the-claim.details.l1=
+select-who-is-making-the-claim.details.l1=Mae cwmni mewnforio yn gwmni sy’n mewnforio yn unig (nid asiantau, unigolion preifat nac unig fasnachwyr).
 select-who-is-making-the-claim.details.l2=
 
 #===================================================
@@ -345,11 +345,11 @@ check-declaration-details.declarant-contact-address.label=Cyfeiriad cyswllt y da
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
-claim-northern-ireland.title=
+claim-northern-ireland.title=A gafodd eich nwyddau eu symud neu eu mewnforio i Ogledd Iwerddon?
 claim-northern-ireland.help-text=
 claim-northern-ireland.yes.title=
 claim-northern-ireland.no.title=
-claim-northern-ireland.error.required=
+claim-northern-ireland.error.required=Dewiswch naill ai ‘Iawn’ neu ‘Na’ i gadarnhau a gafodd y nwyddau eu symud neu eu mewnforio i Ogledd Iwerddon ai peidio.
 claim-northern-ireland.invalid=
 
 
@@ -609,9 +609,9 @@ enter-lead-mrn-or-entry-number.heading=
 #===================================================
 bank-details.title=Gwnewch yn siŵr bod y manylion banc hyn yn gywir
 bank-details.help-text=Dyma fanylion y banc lle bydd eich ad-daliadau’n cael eu gwneud yn y DU ar sail ein cofnodion.
-bank-details.account-name.label=
-bank-details.sort-code.label=
-bank-details.account-number.label=
+bank-details.account-name.label=Enw’r cyfrif
+bank-details.sort-code.label=Cod didoli
+bank-details.account-number.label=Rhif y cyfrif
 bank-details.different-details-link=Nodwch fanylion banc gwahanol
 
 #===================================================
@@ -735,8 +735,8 @@ check-your-answers.claim-calculation.h2=Cyfrifo’r hawliad
 check-your-answers.bank-details.h2=Manylion banc
 check-your-answers.attached-documents.h2=Dogfennau sydd wedi’u hatodi
 check-your-answers.reason-basis.h2=Rheswm neu sail dros yr hawliad
-check-your-answers.claimant-details.h2=
-check-your-answers.claimant-details-as-importer.h2=
+check-your-answers.claimant-details.h2=Manylion CDS yr hawliwr
+check-your-answers.claimant-details-as-importer.h2=Manylion cyswllt yr hawliwr
 check-your-answers.confirmation-statement.h2=Nawr anfonwch eich cais
 check-your-answers.confirmation-statement=Drwy anfon yr hysbysiad hwn, rydych yn cadarnhau, hyd eithaf eich gwybodaeth, fod y manylion rydych yn eu rhoi’n gywir.
 
