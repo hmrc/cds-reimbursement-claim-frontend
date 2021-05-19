@@ -15,11 +15,12 @@ final case class Translation(key: String, text: String)
 
 object WelshTranslation {
 
-  val fileEn = Source.fromFile("conf/messages").getLines().toList
-  val fileCy = Source.fromFile("conf/messages.cy").getLines().toList
-  val messagesEn = linesToMap(fileEn)
-  val messagesCy = linesToMap(fileCy)
+  def fileEn = Source.fromFile("conf/messages").getLines().toList
+  def fileCy = Source.fromFile("conf/messages.cy").getLines().toList
+  def messagesEn = linesToMap(fileEn)
+  def messagesCy = linesToMap(fileCy)
 
+  val csvSeparatorCharacter = ';'  //Using semicolon, because the text can contain commas, and then you have to use quotes ... just complicates things
 
   /**
    * Generates 2 new files:
@@ -36,7 +37,7 @@ object WelshTranslation {
               case Some(welshText) =>
                 translation.key + "=" + welshText
               case None =>
-                newlinesToTranslate += s"${translation.key},${translation.text}"
+                newlinesToTranslate += s"${translation.key}$csvSeparatorCharacter${translation.text}"
                 translation.key + "="
             }
           case None =>
@@ -47,7 +48,7 @@ object WelshTranslation {
     val newWelshLanguageFile = newWelshLines.mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
 
     val changedTranslations = gitDiffLanguageFileChanges()
-      .map { change => s"${change.translation.key},${change.translation.text}"}
+      .map { change => s"${change.translation.key}$csvSeparatorCharacter${change.translation.text}"}
 
     val translationTeamFile = (newlinesToTranslate.toList ::: changedTranslations).mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
 
