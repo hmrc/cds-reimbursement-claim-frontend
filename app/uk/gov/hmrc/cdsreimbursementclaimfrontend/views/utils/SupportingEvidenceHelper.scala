@@ -31,7 +31,7 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
 
   private val key = "supporting-evidence.check-your-answers"
 
-  def makeUploadedFilesRows(supportingEvidences: List[SupportingEvidence]): List[SummaryListRow] =
+  def makeUploadedFilesRows(supportingEvidences: List[SupportingEvidence], isAmend: Boolean): List[SummaryListRow] =
     supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
         key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),
@@ -41,7 +41,7 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
             items = Seq(
               ActionItem(
                 href =
-                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, addNew = false).url}",
+                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, isAmend, addNew = false).url}",
                 content = Text(messages("cya.remove")(lang))
               )
             )

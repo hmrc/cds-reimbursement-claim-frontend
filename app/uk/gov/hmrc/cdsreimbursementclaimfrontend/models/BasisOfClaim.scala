@@ -30,17 +30,17 @@ object BasisOfClaim {
   case object IncorrectValue extends BasisOfClaim(5, "Incorrect Value")
   case object IncorrectEoriAndDefermentAccountNumber extends BasisOfClaim(6, "Incorrect EORI & Deferment Acc. Num.")
   case object InwardProcessingReliefFromCustomsDuty extends BasisOfClaim(7, "IP")
-  case object Miscellaneous extends BasisOfClaim(8, "Miscellaneous")
-  case object OutwardProcessingRelief extends BasisOfClaim(9, "OPR")
-  case object PersonalEffects extends BasisOfClaim(10, "Personal Effects")
-  case object Preference extends BasisOfClaim(11, "Preference")
-  case object RGR extends BasisOfClaim(12, "RGR")
-  case object ProofOfReturnRefundGiven extends BasisOfClaim(13, "Proof of Return/Refund Given")
+  case object OutwardProcessingRelief extends BasisOfClaim(8, "OPR")
+  case object PersonalEffects extends BasisOfClaim(9, "Personal Effects")
+  case object Preference extends BasisOfClaim(10, "Preference")
+  case object RGR extends BasisOfClaim(11, "RGR")
+  case object ProofOfReturnRefundGiven extends BasisOfClaim(12, "Proof of Return/Refund Given")
   case object EvidenceThatGoodsHaveNotEnteredTheEU
-      extends BasisOfClaim(14, "Evidence that goods have not entered the EU") //Northern Ireland only
-  case object IncorrectExciseValue extends BasisOfClaim(15, "Incorrect excise value") //Northern Ireland only
+      extends BasisOfClaim(13, "Evidence that goods have not entered the EU") //Northern Ireland only
+  case object IncorrectExciseValue extends BasisOfClaim(14, "Incorrect excise value") //Northern Ireland only
   case object CorrectionToRiskClassification
-      extends BasisOfClaim(16, "Correction to risk classification") //Northern Ireland only
+      extends BasisOfClaim(15, "Correction to risk classification") //Northern Ireland only
+  case object Miscellaneous extends BasisOfClaim(16, "Miscellaneous")
 
   val allClaimsTypes: List[BasisOfClaim]               = List(
     DuplicateEntry,
@@ -51,7 +51,6 @@ object BasisOfClaim {
     IncorrectValue,
     IncorrectEoriAndDefermentAccountNumber,
     InwardProcessingReliefFromCustomsDuty,
-    Miscellaneous,
     OutwardProcessingRelief,
     PersonalEffects,
     Preference,
@@ -59,7 +58,8 @@ object BasisOfClaim {
     ProofOfReturnRefundGiven,
     EvidenceThatGoodsHaveNotEnteredTheEU,
     IncorrectExciseValue,
-    CorrectionToRiskClassification
+    CorrectionToRiskClassification,
+    Miscellaneous
   )
   val allClaimsIntToType: Map[Int, BasisOfClaim]       = allClaimsTypes.map(a => a.value -> a).toMap
   val allClaimsTypeToInt: Map[BasisOfClaim, Int]       = allClaimsTypes.map(a => a -> a.value).toMap

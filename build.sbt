@@ -73,3 +73,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(scalafmtOnCompile := true)
+
+lazy val welshExport = taskKey[Unit]("Generate Welsh Translations'")
+
+welshExport := WelshTranslation.welshExport()

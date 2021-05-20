@@ -145,7 +145,7 @@ object SelectBasisForClaimController {
       .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
       .getOrElse(Nil)
     val hasNorthernIrelandExciseCodes =
-      receivedExciseCodes.toSet.intersect(TaxCode.listOfNorthernIrelandTaxCodeStrings).size > 0
+      receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).size > 0
 
     isNorthernIrelandJourney match {
       case ClaimNorthernIrelandAnswer.No  =>

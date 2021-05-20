@@ -35,12 +35,12 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(userDetails : SignedInUserDetails, form:Form[CheckEoriDetailsAnswer], postAction : Call, link : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(userDetails : SignedInUserDetails, form:Form[CheckEoriDetailsAnswer], postAction : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-eori-details"}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = Some(userDetails)) {
+@layout(pageTitle = Some(s"$title"), backLink = None, signedInUserDetails = Some(userDetails)) {
 
     @pageHeading(title)
 

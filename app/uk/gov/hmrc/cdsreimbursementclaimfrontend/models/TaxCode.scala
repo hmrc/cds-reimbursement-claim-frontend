@@ -109,7 +109,7 @@ object TaxCode {
   val listOfUKTaxCodes: List[TaxCode] = List(A00, A20, A30, A35, A40, A45, B00)
   val listOfEUTaxCodes: List[TaxCode] = List(A50, A70, A80, A85, A90, A95, B05)
 
-  val listOfNorthernIrelandTaxCodes: List[TaxCode]         = List(
+  val listOfUKExciseCodes: List[TaxCode]         = List(
     NI407,
     NI411,
     NI412,
@@ -172,9 +172,10 @@ object TaxCode {
     NI99C,
     NI99D
   )
-  val listOfNorthernIrelandTaxCodeStrings: HashSet[String] = HashSet(listOfNorthernIrelandTaxCodes.map(_.value): _*)
+  val listOfUKExciseCodeStrings: HashSet[String] = HashSet(listOfUKExciseCodes.map(_.value): _*)
 
-  val allTaxCodes: List[TaxCode] = listOfUKTaxCodes ++ listOfEUTaxCodes ++ listOfNorthernIrelandTaxCodes
+  val ukAndEuTaxCodes: List[TaxCode] = listOfUKTaxCodes ++ listOfEUTaxCodes
+  val allTaxCodes: List[TaxCode]     = listOfUKTaxCodes ++ listOfEUTaxCodes ++ listOfUKExciseCodes
 
   val allTaxCodesMap: Map[String, TaxCode] = allTaxCodes.map(a => a.value -> a).toMap
 
