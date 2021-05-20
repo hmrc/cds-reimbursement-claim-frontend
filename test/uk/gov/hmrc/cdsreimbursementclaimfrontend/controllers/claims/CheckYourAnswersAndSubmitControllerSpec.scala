@@ -137,6 +137,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
+    claimNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer.claimNorthernIrelandAnswer),
     displayDeclaration = Some(
       DisplayDeclaration(
         displayResponseDetail = DisplayResponseDetail(
