@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
-import play.api.i18n.{Lang, Langs, MessagesApi}
+import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
@@ -32,12 +32,9 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class CheckYourAnswersHelper @Inject() (implicit
-  langs: Langs,
-  messages: MessagesApi,
+  messages: Messages,
   val featureSwitch: FeatureSwitchService
 ) {
-
-  val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
 
   private val key = "check-your-answers"
 
@@ -45,15 +42,15 @@ class CheckYourAnswersHelper @Inject() (implicit
     val referenceNumber = number match {
       case Left(value)  =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.entry-reference-number.label")(lang))),
+          key = Key(Text(messages(s"$key.entry-reference-number.label"))),
           value = Value(Text(value.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.entry-reference-number.label")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.entry-reference-number.label"))
                 )
               )
             )
@@ -61,15 +58,15 @@ class CheckYourAnswersHelper @Inject() (implicit
         )
       case Right(value) =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.mrn.label")(lang))),
+          key = Key(Text(messages(s"$key.mrn.label"))),
           value = Value(Text(value.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.mrn.label")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.mrn.label"))
                 )
               )
             )
@@ -85,15 +82,15 @@ class CheckYourAnswersHelper @Inject() (implicit
         val rows = List(
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l0")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l0"))),
               value = Value(Text(details.dateOfImport.checkYourDetailsDisplayFormat)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l0")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l0"))
                     )
                   )
                 )
@@ -102,15 +99,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l1")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l1"))),
               value = Value(Text(details.placeOfImport)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l1")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l1"))
                     )
                   )
                 )
@@ -119,15 +116,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l2")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l2"))),
               value = Value(Text(details.importerName)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l2")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l2"))
                     )
                   )
                 )
@@ -136,15 +133,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l3")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l3"))),
               value = Value(Text(details.importerEmailAddress.value)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l3")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l3"))
                     )
                   )
                 )
@@ -153,15 +150,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l4")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l4"))),
               value = Value(Text(details.importerPhoneNumber.value)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l4")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l4"))
                     )
                   )
                 )
@@ -170,15 +167,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l5")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l5"))),
               value = Value(Text(details.declarantName)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l5")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l5"))
                     )
                   )
                 )
@@ -187,15 +184,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l6")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l6"))),
               value = Value(Text(details.declarantEmailAddress.value)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l6")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l6"))
                     )
                   )
                 )
@@ -204,15 +201,15 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.entryDeclarationDetails.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l7")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l7"))),
               value = Value(Text(details.declarantPhoneNumber.value)),
               actions = Some(
                 Actions(
                   items = Seq(
                     ActionItem(
                       href = s"${routes.EnterDeclarationDetailsController.changeDeclarationDetails().url}",
-                      content = Text(messages("cya.change")(lang)),
-                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l7")(lang))
+                      content = Text(messages("cya.change")),
+                      visuallyHiddenText = Some(messages(s"$key.declaration-details.l7"))
                     )
                   )
                 )
@@ -225,14 +222,14 @@ class CheckYourAnswersHelper @Inject() (implicit
         val rows: List[Option[SummaryListRow]] = List(
           completeClaim.maybeDisplayDeclaration.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l0")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l0"))),
               value = Value(Text(details.displayResponseDetail.acceptanceDate)),
               actions = None
             )
           },
           completeClaim.maybeDisplayDeclaration.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l8")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l8"))),
               value = Value(Text(formatAmountOfMoneyWithPoundSign(details.totalPaidCharges))),
               actions = None
             )
@@ -240,7 +237,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.consigneeName.map { name =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l2")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l2"))),
                 value = Value(Text(name)),
                 actions = None
               )
@@ -249,7 +246,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.consigneeEmail.map { email =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l3")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l3"))),
                 value = Value(Text(email)),
                 actions = None
               )
@@ -258,7 +255,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.consigneeTelephone.map { tel =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l4")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l4"))),
                 value = Value(Text(tel)),
                 actions = None
               )
@@ -267,7 +264,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.consigneeAddress.map { address =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l10")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l10"))),
                 value = Value(Text(address)),
                 actions = None
               )
@@ -275,7 +272,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           },
           completeClaim.maybeDisplayDeclaration.map { details =>
             SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l5")(lang))),
+              key = Key(Text(messages(s"$key.declaration-details.l5"))),
               value = Value(Text(details.declarantName)),
               actions = None
             )
@@ -283,7 +280,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.declarantContactAddress.map { address =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l9")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l9"))),
                 value = Value(Text(address)),
                 actions = None
               )
@@ -292,7 +289,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.declarantTelephoneNumber.map { tel =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l7")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l7"))),
                 value = Value(Text(tel)),
                 actions = None
               )
@@ -301,7 +298,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           completeClaim.maybeDisplayDeclaration.flatMap { details =>
             details.declarantEmailAddress.map { email =>
               SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l6")(lang))),
+                key = Key(Text(messages(s"$key.declaration-details.l6"))),
                 value = Value(Text(email)),
                 actions = None
               )
@@ -317,37 +314,37 @@ class CheckYourAnswersHelper @Inject() (implicit
   ): List[SummaryListRow] =
     List(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+        key = Key(Text(messages(s"$key.claimant-details.l0"))),
         value = Value(Text(completeClaim.detailsRegisteredWithCds.fullName)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
               )
             )
           )
         )
       ),
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l1")(lang))),
+        key = Key(Text(messages(s"$key.claimant-details.l1"))),
         value = Value(Text(completeClaim.detailsRegisteredWithCds.emailAddress.value)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
               )
             )
           )
         )
       ),
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l3")(lang))),
+        key = Key(Text(messages(s"$key.claimant-details.l3"))),
         value = Value(
           Text(
             completeClaim.detailsRegisteredWithCds.contactAddress
@@ -360,8 +357,8 @@ class CheckYourAnswersHelper @Inject() (implicit
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
               )
             )
           )
@@ -376,15 +373,15 @@ class CheckYourAnswersHelper @Inject() (implicit
     List(
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l0"))),
           value = Value(Text(details.companyName)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l0")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
                 )
               )
             )
@@ -393,15 +390,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l1")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l1"))),
           value = Value(Text(details.emailAddress.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l1")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
                 )
               )
             )
@@ -410,15 +407,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l2")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l2"))),
           value = Value(Text(details.phoneNumber.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l2")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l2"))
                 )
               )
             )
@@ -427,15 +424,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       },
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l3")(lang))),
+          key = Key(Text(messages(s"$key.claimant-details.l3"))),
           value = Value(Text(details.contactAddress.getAddressLines(messages.preferred(request)).mkString(", "))),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l3")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
                 )
               )
             )
@@ -447,15 +444,15 @@ class CheckYourAnswersHelper @Inject() (implicit
   def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.northern-ireland-claim.label")(lang))),
+        key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
         value = Value(Text(completeClaim.northernIrelandAnswer.claimNorthernIrelandAnswer.toString)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label"))
               )
             )
           )
@@ -466,15 +463,15 @@ class CheckYourAnswersHelper @Inject() (implicit
   def makeCommodityDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.commodities-details.label")(lang))),
+        key = Key(Text(messages(s"$key.commodities-details.label"))),
         value = Value(Text(completeClaim.commodityDetails)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.commodities-details.label")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.commodities-details.label"))
               )
             )
           )
@@ -487,30 +484,30 @@ class CheckYourAnswersHelper @Inject() (implicit
       case Left(value)  =>
         List(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l0")(lang))),
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
             value = Value(Text(value.basisForClaim.string)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
                     href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
-                    content = Text(messages("cya.change")(lang)),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0")(lang))
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
                   )
                 )
               )
             )
           ),
           SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l1")(lang))),
+            key = Key(Text(messages(s"$key.reason-and-basis.l1"))),
             value = Value(Text(value.reasonForClaim.repr)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
                     href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
-                    content = Text(messages("cya.change")(lang)),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1")(lang))
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1"))
                   )
                 )
               )
@@ -520,15 +517,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       case Right(value) =>
         List(
           SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l0")(lang))),
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
             value = Value(Text(value.toString)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
                     href = s"${routes.SelectBasisForClaimController.changeBasisForClaim().url}",
-                    content = Text(messages("cya.change")(lang)),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0")(lang))
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
                   )
                 )
               )
@@ -540,45 +537,45 @@ class CheckYourAnswersHelper @Inject() (implicit
   def makeClaimCalculationSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
     List(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claim-uk-duty.label")(lang))),
+        key = Key(Text(messages(s"$key.claim-uk-duty.label"))),
         value = Value(Text(completeClaim.totalUKDutyClaim)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label"))
               )
             )
           )
         )
       ),
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claim-eu-duty.label")(lang))),
+        key = Key(Text(messages(s"$key.claim-eu-duty.label"))),
         value = Value(Text(completeClaim.totalEuDutyClaim)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label"))
               )
             )
           )
         )
       ),
       SummaryListRow(
-        key = Key(Text(messages(s"$key.total-claim.label")(lang))),
+        key = Key(Text(messages(s"$key.total-claim.label"))),
         value = Value(Text(completeClaim.totalClaim)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterClaimController.checkClaim().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.total-claim.label")(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.total-claim.label"))
               )
             )
           )
@@ -590,15 +587,15 @@ class CheckYourAnswersHelper @Inject() (implicit
     List(
       completeClaim.bankDetails.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.bank-details.account-name.label")(lang))),
+          key = Key(Text(messages(s"$key.bank-details.account-name.label"))),
           value = Value(Text(details.accountName.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-name.label")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-name.label"))
                 )
               )
             )
@@ -607,15 +604,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       },
       completeClaim.bankDetails.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.bank-details.sort-code.label")(lang))),
+          key = Key(Text(messages(s"$key.bank-details.sort-code.label"))),
           value = Value(Text(details.sortCode.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.bank-details.sort-code.label")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.sort-code.label"))
                 )
               )
             )
@@ -624,15 +621,15 @@ class CheckYourAnswersHelper @Inject() (implicit
       },
       completeClaim.bankDetails.map { details =>
         SummaryListRow(
-          key = Key(Text(messages(s"$key.bank-details.account-number.label")(lang))),
+          key = Key(Text(messages(s"$key.bank-details.account-number.label"))),
           value = Value(Text(details.accountNumber.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
-                  content = Text(messages("cya.change")(lang)),
-                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-number.label")(lang))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.bank-details.account-number.label"))
                 )
               )
             )
@@ -644,15 +641,15 @@ class CheckYourAnswersHelper @Inject() (implicit
   def makeSupportingEvidenceSummary(supportingEvidences: List[SupportingEvidence]): List[SummaryListRow] =
     supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
-        key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),
+        key = Key(Text(messages(s"$key.file-label", fileIndex + 1))),
         value = Value(Text(document.fileName)),
         actions = Some(
           Actions(
             items = Seq(
               ActionItem(
                 href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
-                content = Text(messages("cya.change")(lang)),
-                visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1)(lang))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1))
               )
             )
           )
