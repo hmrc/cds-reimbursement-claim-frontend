@@ -197,7 +197,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
-    completeNorthernIrelandAnswer = completeNorthernIrelandAnswer,
+    completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
     maybeDisplayDeclaration = Some(
       DisplayDeclaration(

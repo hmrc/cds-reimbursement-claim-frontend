@@ -68,7 +68,7 @@ object CompleteClaim {
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
-    completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer,
+    completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -118,7 +118,7 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
-                validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
+                //validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim)
               )
@@ -133,7 +133,7 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
-                        completeNorthernIrelandAnswer,
+                        //completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
                         completeBasisOfClaimAnswer
                       ) =>
@@ -151,7 +151,8 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
-                      completeNorthernIrelandAnswer,
+                      //completeNorthernIrelandAnswer,
+                      None,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
                       maybeDuplicateDisplayDeclaration = None,
@@ -211,7 +212,7 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
-                      completeNorthernIrelandAnswer,
+                      Some(completeNorthernIrelandAnswer),
                       None,
                       maybeDisplayDeclaration,
                       maybeDuplicateDisplayDeclaration,
@@ -715,7 +716,7 @@ object CompleteClaim {
         commodityDetails.commodityDetails.value
     }
 
-    def northernIrelandAnswer: CompleteNorthernIrelandAnswer = completeClaim match {
+    def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
