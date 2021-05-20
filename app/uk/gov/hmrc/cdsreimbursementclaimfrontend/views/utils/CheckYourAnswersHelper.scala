@@ -31,13 +31,14 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class CheckYourAnswersHelper @Inject() (implicit
-  messages: Messages,
   val featureSwitch: FeatureSwitchService
 ) {
 
   private val key = "check-your-answers"
 
-  def makeReferenceNumberRowSummary(number: Either[EntryNumber, MRN]): List[SummaryListRow] = {
+  def makeReferenceNumberRowSummary(
+    number: Either[EntryNumber, MRN]
+  )(implicit messages: Messages): List[SummaryListRow] = {
     val referenceNumber = number match {
       case Left(value)  =>
         SummaryListRow(
@@ -75,7 +76,7 @@ class CheckYourAnswersHelper @Inject() (implicit
     List(referenceNumber)
   }
 
-  def makeDeclarationDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeDeclarationDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     completeClaim.movementReferenceNumber match {
       case Left(_)  =>
         val rows = List(
@@ -307,9 +308,7 @@ class CheckYourAnswersHelper @Inject() (implicit
         rows.flattenOption
     }
 
-  def makeClaimantDetailsSummary(
-    completeClaim: CompleteClaim
-  ): List[SummaryListRow] =
+  def makeClaimantDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.claimant-details.l0"))),
@@ -366,7 +365,7 @@ class CheckYourAnswersHelper @Inject() (implicit
 
   def makeClaimantDetailsAsImporterSummary(
     completeClaim: CompleteClaim
-  ): List[SummaryListRow] =
+  )(implicit messages: Messages): List[SummaryListRow] =
     List(
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
@@ -438,7 +437,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       }
     ).flattenOption
 
-  def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
@@ -457,7 +456,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeCommodityDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeCommodityDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.commodities-details.label"))),
@@ -476,7 +475,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeBasisAndOrReasonForClaim(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeBasisAndOrReasonForClaim(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     completeClaim.basisForClaim match {
       case Left(value)  =>
         List(
@@ -531,7 +530,7 @@ class CheckYourAnswersHelper @Inject() (implicit
         )
     }
 
-  def makeClaimCalculationSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeClaimCalculationSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.claim-uk-duty.label"))),
@@ -580,7 +579,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeBankDetailsSummary(completeClaim: CompleteClaim): List[SummaryListRow] =
+  def makeBankDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       completeClaim.bankDetails.map { details =>
         SummaryListRow(
@@ -635,7 +634,9 @@ class CheckYourAnswersHelper @Inject() (implicit
       }
     ).flattenOption
 
-  def makeSupportingEvidenceSummary(supportingEvidences: List[SupportingEvidence]): List[SummaryListRow] =
+  def makeSupportingEvidenceSummary(supportingEvidences: List[SupportingEvidence])(implicit
+    messages: Messages
+  ): List[SummaryListRow] =
     supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
         key = Key(Text(messages(s"$key.file-label", fileIndex + 1))),
