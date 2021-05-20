@@ -442,7 +442,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       List(
         SummaryListRow(
           key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
-          value = Value(Text(claimNorthernIrelandAnswer.toString)),
+          value = Value(Text(claimNorthernIrelandAnswer.claimNorthernIrelandAnswer.toString)),
           actions = Some(
             Actions(
               items = Seq(

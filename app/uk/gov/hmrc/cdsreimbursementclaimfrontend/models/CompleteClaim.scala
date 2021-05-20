@@ -118,7 +118,7 @@ object CompleteClaim {
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateSupportingEvidenceAnswer(draftSupportingEvidence),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
-                //validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
+                validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim)
               )
@@ -133,7 +133,7 @@ object CompleteClaim {
                         completeBankAccountDetailAnswer,
                         completeSupportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
-                        //completeNorthernIrelandAnswer,
+                        completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
                         completeBasisOfClaimAnswer
                       ) =>
@@ -151,8 +151,7 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
-                      //completeNorthernIrelandAnswer,
-                      None,
+                      completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
                       maybeDisplayDeclaration = None,
                       maybeDuplicateDisplayDeclaration = None,
@@ -212,7 +211,7 @@ object CompleteClaim {
                       completeBankAccountDetailAnswer,
                       completeSupportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
-                      Some(completeNorthernIrelandAnswer),
+                      completeNorthernIrelandAnswer,
                       None,
                       maybeDisplayDeclaration,
                       maybeDuplicateDisplayDeclaration,
@@ -321,10 +320,10 @@ object CompleteClaim {
 
   def validateNorthernIrelandAnswer(
     maybeNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer]
-  ): Validation[CompleteNorthernIrelandAnswer] =
+  ): Validation[Option[CompleteNorthernIrelandAnswer]] =
     maybeNorthernIrelandAnswer match {
-      case Some(claimNorthernIrelandAnswer) => Valid(CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer))
-      case None                             => invalid("incomplete northern ireland answer")
+      case Some(claimNorthernIrelandAnswer) => Valid(Some(CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer)))
+      case None                             => Valid(None)
     }
 
   def validateClaimsAnswer(
