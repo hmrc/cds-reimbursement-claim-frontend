@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -51,6 +52,10 @@ class SelectBasisForClaimControllerSpec
     )
 
   lazy val controller: SelectBasisForClaimController = instanceOf[SelectBasisForClaimController]
+
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  val featureSwitchDisabled = featureSwitch.NorthernIreland.disable()
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -101,10 +106,39 @@ class SelectBasisForClaimControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
+      "the user has not answered this question before and the NI feature switch is enabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        featureSwitch.NorthernIreland.enable()
+        val answers                         = IncompleteBasisOfClaimAnswer.empty
 
-        val answers = IncompleteBasisOfClaimAnswer.empty
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select("a.govuk-back-link")
+              .attr("href") shouldBe
+              routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim().url
+        )
+      }
+
+      "the user has not answered this question before and the NI feature switch is disabled" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        featureSwitch.NorthernIreland.disable()
+        val answers                         = IncompleteBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumberAnswer =
@@ -130,9 +164,42 @@ class SelectBasisForClaimControllerSpec
         )
       }
 
-      "the user has answered this question before" in {
+      "the user has answered this question before and the NI feature switch is enabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
 
+        featureSwitch.NorthernIreland.enable()
+        val endUseRelief = BasisOfClaim.EndUseRelief
+
+        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
+
+        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+          .copy(movementReferenceNumberAnswer =
+            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-basis-for-claim.title"),
+          doc =>
+            doc
+              .select("a.govuk-back-link")
+              .attr("href") shouldBe
+              routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim().url
+        )
+      }
+
+      "the user has answered this question before and the NI feature switch is disabled" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+
+        featureSwitch.NorthernIreland.disable()
         val endUseRelief = BasisOfClaim.EndUseRelief
 
         val answers = CompleteBasisOfClaimAnswer(endUseRelief)

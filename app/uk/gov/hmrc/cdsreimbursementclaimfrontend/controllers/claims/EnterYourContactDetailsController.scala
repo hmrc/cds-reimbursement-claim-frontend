@@ -213,7 +213,7 @@ class EnterYourContactDetailsController @Inject() (
                           }
                         case Right(_) =>
                           featureSwitch.NorthernIreland.isEnabled() match {
-                            case true  => Redirect(routes.ClaimNorthernIrelandController.show())
+                            case true  => Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim())
                             case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                           }
 

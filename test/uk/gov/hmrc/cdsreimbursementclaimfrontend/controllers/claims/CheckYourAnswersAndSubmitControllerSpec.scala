@@ -47,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnwerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
@@ -119,6 +120,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                = sample[CompleteSupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                        = sample[CompleteDutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
+  val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
   val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
@@ -135,6 +137,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
+    claimNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer.claimNorthernIrelandAnswer),
     displayDeclaration = Some(
       DisplayDeclaration(
         displayResponseDetail = DisplayResponseDetail(
@@ -194,6 +197,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
+    completeNorthernIrelandAnswer = completeNorthernIrelandAnswer,
     None,
     maybeDisplayDeclaration = Some(
       DisplayDeclaration(

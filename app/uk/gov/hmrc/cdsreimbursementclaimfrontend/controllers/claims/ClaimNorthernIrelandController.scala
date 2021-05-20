@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
@@ -57,19 +58,23 @@ class ClaimNorthernIrelandController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
+  def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
+  def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
+
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
-      val backLink   =
-        if (isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers
-        else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      val backLink   = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
-      Ok(claimNorthernIrelandPage(filledForm, backLink))
+      Ok(claimNorthernIrelandPage(filledForm, backLink, isAmend))
     }
   }
 
-  def submit(): Action[AnyContent] =
+  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false)
+  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
+
+  def submit(isAmend: Boolean): Action[AnyContent] =
     (featureSwitch.NorthernIreland.action andThen authenticatedActionWithSessionData).async { implicit request =>
       withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
         ClaimNorthernIrelandController.claimNorthernIrelandForm
@@ -79,10 +84,17 @@ class ClaimNorthernIrelandController @Inject() (
               BadRequest(
                 claimNorthernIrelandPage(
                   formWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
+                  isAmend
                 )
               ),
             formOk => {
+
+              val newNiAnswer = fillingOutClaim.draftClaim
+                .fold(_.claimNorthernIrelandAnswer)
+
+              val answerChanged = newNiAnswer.isEmpty || newNiAnswer.exists(n => n.value =!= formOk.value)
+
               val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -94,12 +106,17 @@ class ClaimNorthernIrelandController @Inject() (
                     logger.warn("could not capture select number of claims", e)
                     errorHandler.errorResult()
                   },
-                  _ => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                  _ =>
+                    isAmend match {
+                      case true  =>
+                        if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                      case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                    }
                 )
 
             }
           )
-
       }
     }
 
