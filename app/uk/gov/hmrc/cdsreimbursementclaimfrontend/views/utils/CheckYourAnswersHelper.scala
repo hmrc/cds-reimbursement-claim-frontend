@@ -17,10 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
@@ -309,8 +308,7 @@ class CheckYourAnswersHelper @Inject() (implicit
     }
 
   def makeClaimantDetailsSummary(
-    completeClaim: CompleteClaim,
-    request: RequestWithSessionData[_]
+    completeClaim: CompleteClaim
   ): List[SummaryListRow] =
     List(
       SummaryListRow(
@@ -348,7 +346,7 @@ class CheckYourAnswersHelper @Inject() (implicit
         value = Value(
           Text(
             completeClaim.detailsRegisteredWithCds.contactAddress
-              .getAddressLines(messages.preferred(request))
+              .getAddressLines(messages)
               .mkString(", ")
           )
         ),
@@ -367,8 +365,7 @@ class CheckYourAnswersHelper @Inject() (implicit
     )
 
   def makeClaimantDetailsAsImporterSummary(
-    completeClaim: CompleteClaim,
-    request: RequestWithSessionData[_]
+    completeClaim: CompleteClaim
   ): List[SummaryListRow] =
     List(
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
@@ -425,7 +422,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       completeClaim.claimantDetailsAsImporterCompany.map { details =>
         SummaryListRow(
           key = Key(Text(messages(s"$key.claimant-details.l3"))),
-          value = Value(Text(details.contactAddress.getAddressLines(messages.preferred(request)).mkString(", "))),
+          value = Value(Text(details.contactAddress.getAddressLines(messages).mkString(", "))),
           actions = Some(
             Actions(
               items = Seq(
