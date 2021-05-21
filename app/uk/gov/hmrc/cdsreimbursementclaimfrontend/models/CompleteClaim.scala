@@ -68,7 +68,7 @@ object CompleteClaim {
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
-    completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer,
+    completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -320,10 +320,10 @@ object CompleteClaim {
 
   def validateNorthernIrelandAnswer(
     maybeNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer]
-  ): Validation[CompleteNorthernIrelandAnswer] =
+  ): Validation[Option[CompleteNorthernIrelandAnswer]] =
     maybeNorthernIrelandAnswer match {
-      case Some(claimNorthernIrelandAnswer) => Valid(CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer))
-      case None                             => invalid("incomplete northern ireland answer")
+      case Some(claimNorthernIrelandAnswer) => Valid(Some(CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer)))
+      case None                             => Valid(None)
     }
 
   def validateClaimsAnswer(
@@ -715,7 +715,7 @@ object CompleteClaim {
         commodityDetails.commodityDetails.value
     }
 
-    def northernIrelandAnswer: CompleteNorthernIrelandAnswer = completeClaim match {
+    def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,

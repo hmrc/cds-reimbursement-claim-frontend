@@ -438,17 +438,19 @@ class CheckYourAnswersHelper @Inject() (implicit
     ).flattenOption
 
   def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
-    List(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
-        value = Value(Text(completeClaim.northernIrelandAnswer.claimNorthernIrelandAnswer.toString)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label"))
+    completeClaim.northernIrelandAnswer.fold(List.empty[SummaryListRow])(claimNorthernIrelandAnswer =>
+      List(
+        SummaryListRow(
+          key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
+          value = Value(Text(claimNorthernIrelandAnswer.claimNorthernIrelandAnswer.toString)),
+          actions = Some(
+            Actions(
+              items = Seq(
+                ActionItem(
+                  href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label"))
+                )
               )
             )
           )
