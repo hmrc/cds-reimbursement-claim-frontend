@@ -550,27 +550,26 @@ select-duties.duty.99B=Any petroleum gas, or other gaseous hydrocarbon supplied 
 select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 select-duties.duty.99D=Electricity
 
+
+#===================================================
+#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
+#===================================================
+
 enter-claim.title=Enter the claim amount for duty {0}
 enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
-enter-claim.claim-amount.error.invalid=Enter a valid claim amount
+enter-claim.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim for.
 enter-claim.paid-amount=Paid Amount
-enter-claim.paid-amount.error.invalid=Enter a valid paid amount
+enter-claim.paid-amount.error.invalid=You have entered an invalid paid amount. Enter a valid paid amount you wish to claim for
 enter-claim.error.required=Enter an amount to claim
-enter-claim.error.invalid=Enter a valid claim amount
+enter-claim.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.invalid.claim=Enter a claim amount which is less than or equal to the paid amount
 check-claim.title=Your reimbursement claim totals
 check-claim.help-text=These are the calculations based on the information you gave us.
 check-claim.update=<a href="{0}" class="govuk-link">Update the calculation</a>
 check-claim.total=Total Reimbursement
-
-#===================================================
-#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
-#===================================================
-check-your-reimbursement-claim-total.title=Your reimbursement claim total
-check-your-reimbursement-claim-total.help-text=These are the calculations based on the information you gave us.
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
