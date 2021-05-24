@@ -20,11 +20,11 @@ import cats.syntax.all._
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.{EntryDeclarationDetails, entryDeclarationDetailsForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import play.api.inject.bind
@@ -80,7 +80,6 @@ class EnterDeclarationDetailsControllerSpec
     )
   }
 
-  // TODO: create session generator
   private def sessionWithDuplicateDeclaration(
     maybeDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
@@ -428,6 +427,68 @@ class EnterDeclarationDetailsControllerSpec
         }
       }
     }
+
+    "follow up with the next declaration filling page" when {
+      "current form is submitted" in new TableDrivenPropertyChecks {
+        def performAction(declaration: EntryDeclarationDetails): Action[AnyContent] => Future[Result] = { action =>
+          val data = entryDeclarationDetailsForm.fillAndValidate(declaration).data.toSeq
+          action()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        }
+
+        val testCases = Table(
+          ("An action", "Page to redirect"),
+          (controller.enterDeclarationDetailsSubmit(), routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()),
+          (controller.changeDeclarationDetailsSubmit(), routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+        )
+
+        forAll(testCases) { (action, redirectPage) =>
+          val declarationDetails = sample[EntryDeclarationDetails]
+          val answers = IncompleteDeclarationDetailsAnswer(declarationDetails.some)
+
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
+
+          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+            mockStoreSession(Right(()))
+          }
+
+          checkIsRedirect(
+            performAction(declarationDetails)(action),
+            redirectPage
+          )
+        }
+      }
+    }
+
+    "redirect to enter commodities details" when {
+      "duplicate declaration is submitted" in {
+        def performAction(declaration: EntryDeclarationDetails): Future[Result] = {
+          val data = entryDeclarationDetailsForm.fillAndValidate(declaration).data.toSeq
+          controller.enterDuplicateDeclarationDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        }
+
+        val declarationDetails = sample[EntryDeclarationDetails]
+        val answers = IncompleteDuplicateDeclarationDetailAnswer(declarationDetails.some)
+
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(declarationDetails),
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+        )
+      }
+    }
   }
 
   "Form Validation" must {
@@ -509,6 +570,5 @@ class EnterDeclarationDetailsControllerSpec
       }
 
     }
-
   }
 }

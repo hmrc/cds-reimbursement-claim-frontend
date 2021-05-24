@@ -23,9 +23,9 @@ object EmailGen {
 
   implicit val emailGen: Gen[Email] = {
     for {
-      name   <- genNonEmptyStr(Gen.alphaChar, max = 15)
+      name   <- genNonEmptyStr(Gen.alphaLowerChar, max = 15)
       at      = "@"
-      domain <- genNonEmptyStr(Gen.alphaChar, max = 10)
+      domain <- genNonEmptyStr(Gen.alphaLowerChar, max = 10)
       dotCom  = ".com"
     } yield Email(Seq(name, at, domain, dotCom).mkString)
   }
