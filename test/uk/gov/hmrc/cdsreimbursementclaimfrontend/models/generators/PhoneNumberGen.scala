@@ -24,5 +24,5 @@ object PhoneNumberGen {
   implicit val phoneNumberGen: Gen[PhoneNumber] = genUkPhoneNumber
 
   def genUkPhoneNumber: Gen[PhoneNumber] =
-    Gen.listOfN(10, Gen.numChar).map(numbers => PhoneNumber(numbers.foldLeft("0")(_ + _)))
+    Gen.listOfN(10, Gen.numChar).map(numbers => PhoneNumber(numbers.foldLeft("0")((s, ch) => s"$s$ch")))
 }
