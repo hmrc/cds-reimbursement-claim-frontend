@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(govukCharacterCount: govukCharacterCount)
 
@@ -35,7 +36,7 @@
     label: String                      = "",
     labelClasses: Option[String]       = None,
     isPageHeading: Boolean             = false,
-    hint: Option[Hint]                 = None
+    hint: Option[String]                 = None
 )(implicit messages: Messages)
 
 @govukCharacterCount(
@@ -49,7 +50,9 @@
             content = Text(messages(label)),
             classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
         ),
-        hint = hint,
+        hint = hint.map(hintKey => Hint(
+            content = HtmlContent(messages(hintKey))
+        )),
         errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(s"${name}.${err.message}", err.args:_*))))
     )
 )

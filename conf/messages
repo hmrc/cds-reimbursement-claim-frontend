@@ -464,9 +464,10 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #===================================================
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
 enter-commodities-details.label=Enter commodity details
-enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim. This will help reduce delays in your claim being processed.
+enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim.<br /><br />This will help reduce delays in your claim being processed.
 enter-commodities-details.error.required=Enter commodity details
 enter-commodities-details.error.maxLength=Enter commodity details
+enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -636,7 +637,8 @@ supporting-evidence.check-your-answers.assistive=the file named {0}
 supporting-evidence.check-your-answers.add-another-file=<a href="{0}" class="govuk-link">Add another file</a>
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
-supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB. We accept these file types JPG, PNG, and PDF.
+supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB.
+supporting-evidence.upload.hint=We accept these file types JPG, PNG, and PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
