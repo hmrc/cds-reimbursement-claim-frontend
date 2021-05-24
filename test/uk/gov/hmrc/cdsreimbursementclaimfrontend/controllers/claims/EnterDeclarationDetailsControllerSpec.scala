@@ -17,8 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.syntax.all._
+import org.scalatest.OptionValues
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.http.Status.OK
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.{EntryDeclarationDetails, entryDeclarationDetailsForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
@@ -26,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import play.api.mvc.{Action, AnyContent, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.BAD_REQUEST
+import play.api.test.Helpers.{BAD_REQUEST, defaultAwaitTimeout, status}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -41,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
@@ -49,6 +52,7 @@ class EnterDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with OptionValues
     with ScalaCheckDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
@@ -97,12 +101,16 @@ class EnterDeclarationDetailsControllerSpec
     )
   }
 
+  def performAction(declaration: EntryDeclarationDetails)(action: Action[AnyContent]): Future[Result] =
+    performAction(entryDeclarationDetailsForm.fillAndValidate(declaration).data.toSeq)(action)
+
+  def performAction(data: Seq[(String, String)] = Seq.empty)(action: Action[AnyContent]): Future[Result] =
+    action()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
   "Enter Declaration Details controller" must {
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
-
-        def performAction(): Future[Result] = controller.changeDeclarationDetails()(FakeRequest())
 
         val answers = IncompleteDeclarationDetailsAnswer.empty
 
@@ -114,7 +122,7 @@ class EnterDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(),
+          performAction()(controller.changeDeclarationDetails()),
           baseRoutes.StartController.start()
         )
       }
@@ -123,11 +131,6 @@ class EnterDeclarationDetailsControllerSpec
     "show an error summary" when {
 
       "the user does not select any options" in {
-
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarationDetailsSubmit()(
-            FakeRequest().withFormUrlEncodedBody(data: _*)
-          )
 
         val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
@@ -145,9 +148,7 @@ class EnterDeclarationDetailsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(
-            Seq.empty
-          ),
+          performAction()(controller.enterDeclarationDetailsSubmit()),
           messageFromMessageKey("enter-declaration-details.title"),
           doc => {
             doc
@@ -196,10 +197,6 @@ class EnterDeclarationDetailsControllerSpec
       }
 
       "an invalid option value too long is submitted" in {
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarationDetailsSubmit()(
-            FakeRequest().withFormUrlEncodedBody(data: _*)
-          )
 
         val answers = CompleteDeclarationDetailsAnswer(
           sample[EntryDeclarationDetails]
@@ -229,7 +226,7 @@ class EnterDeclarationDetailsControllerSpec
               "enter-declaration-details.declarant-email-address" -> List.fill(250)("a").mkString(""),
               "enter-declaration-details.declarant-phone-number"  -> List.fill(31)("1").mkString("")
             )
-          ),
+          )(controller.enterDeclarationDetailsSubmit()),
           messageFromMessageKey("enter-declaration-details.title"),
           doc => {
             doc
@@ -274,10 +271,6 @@ class EnterDeclarationDetailsControllerSpec
       }
 
       "a phone number with chars is submitted" in {
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarationDetailsSubmit()(
-            FakeRequest().withFormUrlEncodedBody(data: _*)
-          )
 
         val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
@@ -302,7 +295,7 @@ class EnterDeclarationDetailsControllerSpec
               "enter-declaration-details.declarant-email-address" -> "myotheremail",
               "enter-declaration-details.declarant-phone-number"  -> "123456789a"
             )
-          ),
+          )(controller.enterDeclarationDetailsSubmit()),
           messageFromMessageKey("enter-declaration-details.title"),
           doc => {
             doc
@@ -333,39 +326,40 @@ class EnterDeclarationDetailsControllerSpec
     }
 
     "redirect to enter reference page" when {
+
       "MRN is provided instead Entry number to fill declaration" in new TableDrivenPropertyChecks {
         val testCases = Table(
           ("Controller action", "Maybe Answers"),
           (
-            (data: Seq[(String, String)]) => controller.enterDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDeclarationDetails()),
             IncompleteDeclarationDetailsAnswer(None)
           ),
           (
-            (data: Seq[(String, String)]) => controller.enterDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDeclarationDetails()),
             IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
           ),
           (
-            (data: Seq[(String, String)]) => controller.enterDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDeclarationDetails()),
             CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
           ),
           (
-            (data: Seq[(String, String)]) => controller.enterDeclarationDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDeclarationDetailsSubmit()),
             CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
           ),
           (
-            (data: Seq[(String, String)]) => controller.changeDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.changeDeclarationDetails()),
             IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
           ),
           (
-            (data: Seq[(String, String)]) => controller.changeDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.changeDeclarationDetails()),
             IncompleteDeclarationDetailsAnswer(None)
           ),
           (
-            (data: Seq[(String, String)]) => controller.changeDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.changeDeclarationDetails()),
             CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
           ),
           (
-            (data: Seq[(String, String)]) => controller.changeDeclarationDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.changeDeclarationDetailsSubmit()),
             IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
           )
         )
@@ -375,8 +369,11 @@ class EnterDeclarationDetailsControllerSpec
 
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim.copy(movementReferenceNumberAnswer =
-            Some(IncompleteMovementReferenceNumberAnswer(mrn.asRight[EntryNumber].some))))
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumberAnswer =
+              Some(IncompleteMovementReferenceNumberAnswer(mrn.asRight[EntryNumber].some))
+            )
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -394,26 +391,29 @@ class EnterDeclarationDetailsControllerSpec
         val testCases = Table(
           ("Controller action", "Maybe Answers"),
           (
-            (data: Seq[(String, String)]) => controller.enterDuplicateDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDuplicateDeclarationDetails()),
             IncompleteDuplicateDeclarationDetailAnswer(sample[EntryDeclarationDetails].some)
           ),
           (
-            (data: Seq[(String, String)]) => controller.enterDuplicateDeclarationDetails()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDuplicateDeclarationDetails()),
             IncompleteDuplicateDeclarationDetailAnswer(None)
           ),
           (
-            (data: Seq[(String, String)]) => controller.enterDuplicateDeclarationDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*)),
+            (data: Seq[(String, String)]) => performAction(data)(controller.enterDuplicateDeclarationDetailsSubmit()),
             CompleteDuplicateDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
           )
         )
 
-        forAll(testCases) { (action, answers) =>
+        forAll(testCases) { (action, answer) =>
           val mrn = sample[MRN]
 
-          val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answers))
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answer))
 
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim.copy(movementReferenceNumberAnswer =
-            Some(IncompleteMovementReferenceNumberAnswer(mrn.asRight[EntryNumber].some))))
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumberAnswer =
+              Some(IncompleteMovementReferenceNumberAnswer(mrn.asRight[EntryNumber].some))
+            )
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -428,22 +428,20 @@ class EnterDeclarationDetailsControllerSpec
       }
     }
 
-    "follow up with the next declaration filling page" when {
+    "follow up with the next enter declaration page" when {
       "current form is submitted" in new TableDrivenPropertyChecks {
-        def performAction(declaration: EntryDeclarationDetails): Action[AnyContent] => Future[Result] = { action =>
-          val data = entryDeclarationDetailsForm.fillAndValidate(declaration).data.toSeq
-          action()(FakeRequest().withFormUrlEncodedBody(data: _*))
-        }
-
         val testCases = Table(
           ("An action", "Page to redirect"),
-          (controller.enterDeclarationDetailsSubmit(), routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()),
+          (
+            controller.enterDeclarationDetailsSubmit(),
+            routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+          ),
           (controller.changeDeclarationDetailsSubmit(), routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
         )
 
         forAll(testCases) { (action, redirectPage) =>
           val declarationDetails = sample[EntryDeclarationDetails]
-          val answers = IncompleteDeclarationDetailsAnswer(declarationDetails.some)
+          val answers            = IncompleteDeclarationDetailsAnswer(declarationDetails.some)
 
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
@@ -465,13 +463,8 @@ class EnterDeclarationDetailsControllerSpec
 
     "redirect to enter commodities details" when {
       "duplicate declaration is submitted" in {
-        def performAction(declaration: EntryDeclarationDetails): Future[Result] = {
-          val data = entryDeclarationDetailsForm.fillAndValidate(declaration).data.toSeq
-          controller.enterDuplicateDeclarationDetailsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-        }
-
         val declarationDetails = sample[EntryDeclarationDetails]
-        val answers = IncompleteDuplicateDeclarationDetailAnswer(declarationDetails.some)
+        val answers            = IncompleteDuplicateDeclarationDetailAnswer(declarationDetails.some)
 
         val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answers))
 
@@ -484,35 +477,40 @@ class EnterDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(declarationDetails),
+          performAction(declarationDetails)(controller.enterDuplicateDeclarationDetailsSubmit()),
           routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
         )
       }
     }
 
-    "load enter declaration details form" when {
-      "user is adding new or changing existing data" in new TableDrivenPropertyChecks {
-        def performAction(data: Seq[(String, String)]): Action[AnyContent] => Future[Result] = { action =>
-          action()(FakeRequest().withFormUrlEncodedBody(data: _*))
-        }
-
+    "show enter declaration details form" when {
+      "the user is adding new or changing existing data" in new TableDrivenPropertyChecks {
         val testCases = Table(
           ("Action", "Answers"),
-          (controller.enterDeclarationDetails(), IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)),
+          (
+            controller.enterDeclarationDetails(),
+            IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
+          ),
           (controller.enterDeclarationDetails(), IncompleteDeclarationDetailsAnswer(None)),
           (controller.enterDeclarationDetails(), CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])),
-          (controller.changeDeclarationDetails(), IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)),
+          (
+            controller.changeDeclarationDetails(),
+            IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
+          ),
           (controller.changeDeclarationDetails(), IncompleteDeclarationDetailsAnswer(None)),
           (controller.changeDeclarationDetails(), CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails]))
         )
 
-        forAll(testCases) { (action, answers) =>
+        forAll(testCases) { (action, answer) =>
           val entryNumber = sample[EntryNumber]
 
-          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answer))
 
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim.copy(movementReferenceNumberAnswer =
-            Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))))
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumberAnswer =
+              Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))
+            )
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -524,6 +522,101 @@ class EnterDeclarationDetailsControllerSpec
             messageFromMessageKey("enter-declaration-details.title")
           )
         }
+      }
+
+      "the user is adding duplicate declaration" in new TableDrivenPropertyChecks {
+        val testCases = Table(
+          ("Action", "Answers"),
+          (
+            controller.enterDuplicateDeclarationDetails(),
+            IncompleteDuplicateDeclarationDetailAnswer(sample[EntryDeclarationDetails].some)
+          ),
+          (controller.enterDuplicateDeclarationDetails(), IncompleteDuplicateDeclarationDetailAnswer(None)),
+          (
+            controller.enterDuplicateDeclarationDetails(),
+            CompleteDuplicateDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)
+          ),
+          (controller.enterDuplicateDeclarationDetails(), CompleteDuplicateDeclarationDetailsAnswer(None))
+        )
+
+        forAll(testCases) { (action, answer) =>
+          val entryNumber = sample[EntryNumber]
+
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answer))
+
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumberAnswer =
+              Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          }
+
+          status(performAction(Seq())(action)) shouldBe OK
+        }
+      }
+    }
+
+    "reject to submit invalid form" when {
+      "the users is entering or editing declaration" in new TableDrivenPropertyChecks {
+        val actions = Table(
+          "An action",
+          controller.enterDeclarationDetailsSubmit(),
+          controller.changeDeclarationDetailsSubmit()
+        )
+
+        forAll(actions) { action =>
+          val entryNumber        = sample[EntryNumber]
+          val declarationDetails = sample[EntryDeclarationDetails].copy(
+            declarantPhoneNumber = PhoneNumber("a")
+          )
+
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(
+            Some(IncompleteDeclarationDetailsAnswer(declarationDetails.some))
+          )
+
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumberAnswer =
+              Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))
+            )
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          }
+
+          status(performAction(declarationDetails)(action)) shouldBe BAD_REQUEST
+        }
+      }
+
+      "the user is entering duplicate declaration" in {
+        val entryNumber        = sample[EntryNumber]
+        val declarationDetails = sample[EntryDeclarationDetails].copy(
+          declarantPhoneNumber = PhoneNumber("a")
+        )
+
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(
+          Some(IncompleteDuplicateDeclarationDetailAnswer(declarationDetails.some))
+        )
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim =
+          draftC285Claim.copy(movementReferenceNumberAnswer =
+            Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))
+          )
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        status(
+          performAction(declarationDetails)(controller.enterDuplicateDeclarationDetailsSubmit())
+        ) shouldBe BAD_REQUEST
       }
     }
   }

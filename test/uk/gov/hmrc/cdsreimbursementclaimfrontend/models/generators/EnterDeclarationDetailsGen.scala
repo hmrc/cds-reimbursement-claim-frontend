@@ -35,5 +35,11 @@ object EnterDeclarationDetailsGen extends GenUtils {
   implicit val dateOfImportArb: Arbitrary[DateOfImport] =
     Arbitrary(dateOfImportGen)
 
+  implicit val phoneNumberArb: Arbitrary[PhoneNumber] =
+    Arbitrary(phoneNumberGen)
+
+  implicit val emailArb: Arbitrary[Email] =
+    Arbitrary(emailGen)
+
   implicit val entryDeclarationDetailsGen: Gen[EntryDeclarationDetails] = gen[EntryDeclarationDetails]
 }

@@ -35,12 +35,10 @@ object IdGen extends GenUtils {
   } yield Eori(s)).arbitrary
 
   implicit val mrnGen: Gen[MRN] =
-    Arbitrary(referenceGen.map(ref => MRN(ref.mkString(""))))
-      .arbitrary
+    Arbitrary(referenceGen.map(ref => MRN(ref.mkString("")))).arbitrary
 
   implicit val entryNumberGen: Gen[EntryNumber] =
-    Arbitrary(referenceGen.map(ref => EntryNumber(ref.mkString(""))))
-      .arbitrary
+    Arbitrary(referenceGen.map(ref => EntryNumber(ref.mkString("")))).arbitrary
 
   private def referenceGen = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
