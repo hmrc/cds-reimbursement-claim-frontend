@@ -16,12 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import org.scalacheck.ScalacheckShapeless._
 
-object EmailGen extends GenUtils {
-  implicit val emailGen: Gen[Email] = gen[Email]
+object EmailGen {
 
+  implicit val emailGen: Gen[Email] = {
+    for {
+      name   <- genNonEmptyStr(Gen.alphaChar, max = 15)
+      at      = "@"
+      domain <- genNonEmptyStr(Gen.alphaChar, max = 10)
+      dotCom  = ".com"
+    } yield Email(Seq(name, at, domain, dotCom).mkString)
+  }
+
+  implicit val emailArb: Arbitrary[Email] =
+    Arbitrary(emailGen)
+
+  private def genNonEmptyStr(gen: Gen[Char], max: Int): Gen[String] =
+    Gen.chooseNum(1, max) flatMap (Gen.listOfN(_, gen).map(_.mkString))
 }

@@ -21,9 +21,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
@@ -36,13 +34,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen.entryDeclarationDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class EnterDeclarationDetailsControllerSpec
@@ -112,27 +110,7 @@ class EnterDeclarationDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
-        val place          = "Newtown"
-        val importerName   = "The Importer"
-        val importerEmail  = Email("importer@mac.com")
-        val importerPhone  = PhoneNumber("07954673645")
-        val declarantName  = "Gertrude Blunderbuss"
-        val declarantEmail = Email("GF@mac.com")
-        val declarantPhone = PhoneNumber("08689453645")
-
-        val answers = CompleteDeclarationDetailsAnswer(
-          EntryDeclarationDetails(
-            date,
-            place,
-            importerName,
-            importerEmail,
-            importerPhone,
-            declarantName,
-            declarantEmail,
-            declarantPhone
-          )
-        )
+        val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumberAnswer =
@@ -204,26 +182,8 @@ class EnterDeclarationDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
-        val place          = "Newtown"
-        val importerName   = "The Importer"
-        val importerEmail  = Email("importer@mac.com")
-        val importerPhone  = PhoneNumber("07954673645")
-        val declarantName  = "Gertrude Blunderbuss"
-        val declarantEmail = Email("GF@mac.com")
-        val declarantPhone = PhoneNumber("08689453645")
-
         val answers = CompleteDeclarationDetailsAnswer(
-          EntryDeclarationDetails(
-            date,
-            place,
-            importerName,
-            importerEmail,
-            importerPhone,
-            declarantName,
-            declarantEmail,
-            declarantPhone
-          )
+          sample[EntryDeclarationDetails]
         )
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
@@ -300,27 +260,7 @@ class EnterDeclarationDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val date           = DateOfImport(LocalDate.of(2020, 10, 31))
-        val place          = "Newtown"
-        val importerName   = "The Importer"
-        val importerEmail  = Email("importer@mac.com")
-        val importerPhone  = PhoneNumber("07954673645")
-        val declarantName  = "Gertrude Blunderbuss"
-        val declarantEmail = Email("GF@mac.com")
-        val declarantPhone = PhoneNumber("08689453645")
-
-        val answers = CompleteDeclarationDetailsAnswer(
-          EntryDeclarationDetails(
-            date,
-            place,
-            importerName,
-            importerEmail,
-            importerPhone,
-            declarantName,
-            declarantEmail,
-            declarantPhone
-          )
-        )
+        val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumberAnswer =
