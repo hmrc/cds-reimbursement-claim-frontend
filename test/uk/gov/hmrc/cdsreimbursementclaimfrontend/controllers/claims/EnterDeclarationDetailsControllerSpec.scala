@@ -489,6 +489,43 @@ class EnterDeclarationDetailsControllerSpec
         )
       }
     }
+
+    "load enter declaration details form" when {
+      "user is adding new or changing existing data" in new TableDrivenPropertyChecks {
+        def performAction(data: Seq[(String, String)]): Action[AnyContent] => Future[Result] = { action =>
+          action()(FakeRequest().withFormUrlEncodedBody(data: _*))
+        }
+
+        val testCases = Table(
+          ("Action", "Answers"),
+          (controller.enterDeclarationDetails(), IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)),
+          (controller.enterDeclarationDetails(), IncompleteDeclarationDetailsAnswer(None)),
+          (controller.enterDeclarationDetails(), CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])),
+          (controller.changeDeclarationDetails(), IncompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails].some)),
+          (controller.changeDeclarationDetails(), IncompleteDeclarationDetailsAnswer(None)),
+          (controller.changeDeclarationDetails(), CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails]))
+        )
+
+        forAll(testCases) { (action, answers) =>
+          val entryNumber = sample[EntryNumber]
+
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
+
+          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim.copy(movementReferenceNumberAnswer =
+            Some(IncompleteMovementReferenceNumberAnswer(entryNumber.asLeft[MRN].some))))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          }
+
+          checkPageIsDisplayed(
+            performAction(Seq())(action),
+            messageFromMessageKey("enter-declaration-details.title")
+          )
+        }
+      }
+    }
   }
 
   "Form Validation" must {

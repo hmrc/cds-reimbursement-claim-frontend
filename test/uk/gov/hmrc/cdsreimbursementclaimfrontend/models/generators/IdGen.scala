@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen extends GenUtils {
@@ -31,13 +31,21 @@ object IdGen extends GenUtils {
   implicit val eoriGen: Gen[Eori] = Arbitrary(for {
     c <- Gen.listOfN(2, Gen.alphaUpperChar)
     n <- Gen.listOfN(12, Gen.numChar)
-  } yield Eori(s"${c.mkString}${n.mkString}")).arbitrary
+    s <- Gen.const((c ++ n).mkString(""))
+  } yield Eori(s)).arbitrary
 
-  implicit val mrnGen: Gen[MRN] = Arbitrary(for {
+  implicit val mrnGen: Gen[MRN] =
+    Arbitrary(referenceGen.map(ref => MRN(ref.mkString(""))))
+      .arbitrary
+
+  implicit val entryNumberGen: Gen[EntryNumber] =
+    Arbitrary(referenceGen.map(ref => EntryNumber(ref.mkString(""))))
+      .arbitrary
+
+  private def referenceGen = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)
     d2      <- Gen.listOfN(1, Gen.numChar)
-  } yield MRN(s"${d1.mkString("")}${letter2.mkString("")}${word.mkString("")}${d2.mkString("")}")).arbitrary
-
+  } yield d1 ++ letter2 ++ word ++ d2
 }
