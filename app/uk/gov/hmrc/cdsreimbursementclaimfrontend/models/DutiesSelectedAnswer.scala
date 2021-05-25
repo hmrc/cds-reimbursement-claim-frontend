@@ -16,60 +16,40 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.data.NonEmptyList
 import cats.kernel.Eq
 import julienrf.json.derived
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
+import play.api.libs.json.{Format, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
-sealed trait DutiesSelectedAnswer extends Product with Serializable
+final case class DutiesSelectedAnswer(duties: NonEmptyList[Duty]) extends AnyVal
 
 object DutiesSelectedAnswer {
-
-  final case class IncompleteDutiesSelectedAnswer(
-    maybeDutiesSelected: Option[DutiesSelected]
-  ) extends DutiesSelectedAnswer
-
-  object IncompleteDutiesSelectedAnswer {
-    val empty: IncompleteDutiesSelectedAnswer           = IncompleteDutiesSelectedAnswer(None)
-    implicit val eq: Eq[IncompleteDutiesSelectedAnswer] = Eq.fromUniversalEquals[IncompleteDutiesSelectedAnswer]
-
-    implicit val format: OFormat[IncompleteDutiesSelectedAnswer] =
-      derived.oformat[IncompleteDutiesSelectedAnswer]()
-  }
-
-  final case class CompleteDutiesSelectedAnswer(
-    dutiesSelected: DutiesSelected
-  ) extends DutiesSelectedAnswer
-
-  object CompleteDutiesSelectedAnswer {
-    implicit val format: OFormat[CompleteDutiesSelectedAnswer] =
-      derived.oformat[CompleteDutiesSelectedAnswer]()
-  }
-
-  implicit class DutiesToClaimAgainstAnswerOps(
-    private val a: DutiesSelectedAnswer
-  ) extends AnyVal {
-    def fold[A](
-      ifIncomplete: IncompleteDutiesSelectedAnswer => A,
-      ifComplete: CompleteDutiesSelectedAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteDutiesSelectedAnswer => ifIncomplete(i)
-        case c: CompleteDutiesSelectedAnswer   => ifComplete(c)
-      }
-
-    def duties: List[Duty] = a match {
-      case IncompleteDutiesSelectedAnswer(maybeDutiesSelected) =>
-        maybeDutiesSelected match {
-          case Some(value) => value.duties
-          case None        => List.empty
-        }
-      case CompleteDutiesSelectedAnswer(dutiesSelected)        => dutiesSelected.duties
-    }
-  }
-
   implicit val eq: Eq[DutiesSelectedAnswer] = Eq.fromUniversalEquals[DutiesSelectedAnswer]
 
-  implicit val format: OFormat[DutiesSelectedAnswer] =
-    derived.oformat[DutiesSelectedAnswer]()
+  implicit val nelFormat: Format[NonEmptyList[Duty]] = Format(NonEmptyListOps.reads, NonEmptyListOps.writes)
+
+  implicit val format: OFormat[DutiesSelectedAnswer] = derived.oformat[DutiesSelectedAnswer]()
+
+}
+
+import play.api.libs.json._
+object NonEmptyListOps {
+
+  def reads[T : Reads]: Reads[NonEmptyList[T]] =
+    Reads
+      .of[List[T]]
+      .collect(
+        JsonValidationError("expected a NonEmptyList but got an empty list")
+      ) { case head :: tail =>
+        NonEmptyList(head, tail)
+      }
+
+  def writes[T : Writes]: Writes[NonEmptyList[T]] =
+    Writes
+      .of[List[T]]
+      .contramap(_.toList)
+
+  def format[T : Format]: Format[NonEmptyList[T]] = Format(reads, writes)
+
 }

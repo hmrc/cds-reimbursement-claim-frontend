@@ -142,193 +142,89 @@ class EnterClaimController @Inject() (
                 fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer)
               val numberOfClaims                                          = ifIncomplete.claims.size
               maybeDutiesSelectedAnswer match {
-                case Some(dutiesSelectedAnswer) =>
-                  dutiesSelectedAnswer match {
-                    case DutiesSelectedAnswer.IncompleteDutiesSelectedAnswer(maybeDutiesSelected) =>
-                      maybeDutiesSelected match {
-                        case Some(dutiesSelected) =>
-                          if (dutiesSelected.duties.size === numberOfClaims) {
-                            Redirect(routes.EnterClaimController.checkClaim()) // there is no change
-                          } else if (dutiesSelected.duties.size <= numberOfClaims) {
+                case Some(dutiesSelected) =>
+                  if (dutiesSelected.duties.size === numberOfClaims) {
+                    Redirect(routes.EnterClaimController.checkClaim()) // there is no change
+                  } else if (dutiesSelected.duties.size <= numberOfClaims) {
 
-                            val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
-                            val updatedClaims  = ifIncomplete.claims.filterNot(p => taxCodes.contains(p.taxCode))
-                            val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
+                    val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
+                    val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.exists(_ === p.taxCode))
+                    val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
+                    val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                    val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                            val newDraftClaim =
-                              fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                    val result = EitherT
+                      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                      .leftMap((_: Unit) => Error("could not update session"))
 
-                            val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                    result.fold(
+                      e => {
+                        logger.warn("could not update claims", e)
+                        errorHandler.errorResult()
+                      },
+                      _ => Redirect(routes.EnterClaimController.checkClaim())
+                    )
+                  } else {
+                    // number of duties is greater than the number of claims
+                    // augment claims structure, update session, and redirect to that one
+                    val newTaxCodes: Set[String]     = dutiesSelected.duties.map(s => s.taxCode.toString).toList.toSet
+                    val currentTaxCodes: Set[String] = ifIncomplete.claims.map(s => s.taxCode).toSet
+                    val newTaxCode: Set[String]      = newTaxCodes.diff(currentTaxCodes)
+                    if (newTaxCode.isEmpty) {
+                      logger.warn("Should have picked up the new tax code to claim against")
+                      errorHandler.errorResult()
+                    } else {
 
-                            val result = EitherT
-                              .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                              .leftMap((_: Unit) => Error("could not update session"))
+                      val newClaims: List[Claim] = fillingOutClaim.draftClaim.movementReferenceNumber match {
+                        case Some(value) =>
+                          value match {
+                            case Left(_)  =>
+                              makeEntryClaims(newTaxCode.toList)
+                            case Right(_) =>
+                              val maybeNdrcDetails: Option[List[NdrcDetails]] = fillingOutClaim.draftClaim
+                                .fold(_.displayDeclaration)
+                                .flatMap(declaration => declaration.displayResponseDetail.ndrcDetails)
 
-                            result.fold(
-                              e => {
-                                logger.warn("could not update claims", e)
-                                errorHandler.errorResult()
-                              },
-                              _ => Redirect(routes.EnterClaimController.checkClaim())
-                            )
-                          } else {
-                            // number of duties is greater than the number of claims
-                            // augment claims structure, update session, and redirect to that one
-                            val newTaxCodes: Set[String]     = dutiesSelected.duties.map(s => s.taxCode.toString).toSet
-                            val currentTaxCodes: Set[String] = ifIncomplete.claims.map(s => s.taxCode).toSet
-                            val newTaxCode: Set[String]      = newTaxCodes.diff(currentTaxCodes)
-                            if (newTaxCode.isEmpty) {
-                              logger.warn("Should have picked up the new tax code to claim against")
-                              errorHandler.errorResult()
-                            } else {
-
-                              val newClaims: List[Claim] = fillingOutClaim.draftClaim.movementReferenceNumber match {
-                                case Some(value) =>
-                                  value match {
-                                    case Left(_)  =>
-                                      makeEntryClaims(newTaxCode.toList)
-                                    case Right(_) =>
-                                      val maybeNdrcDetails: Option[List[NdrcDetails]] = fillingOutClaim.draftClaim
-                                        .fold(_.displayDeclaration)
-                                        .flatMap(declaration => declaration.displayResponseDetail.ndrcDetails)
-
-                                      val maybeNewDutiesToClaim =
-                                        newTaxCode.map(s => TaxCode.fromString(s)).toList.sequence
-                                      val newDutiesToClaim      = maybeNewDutiesToClaim match {
-                                        case Some(value) => value.map(s => Duty(s))
-                                        case None        => List.empty
-                                      }
-
-                                      maybeNdrcDetails match {
-                                        case (Some(ndrc)) => makeNewSelectedClaims(newDutiesToClaim, ndrc)
-                                        case _            => sys.error("could not create new claim")
-                                      }
-                                  }
-                                case None        => List.empty ///TODO: change to error?
+                              val maybeNewDutiesToClaim =
+                                newTaxCode.map(s => TaxCode.fromString(s)).toList.sequence
+                              val newDutiesToClaim      = maybeNewDutiesToClaim match {
+                                case Some(value) => value.map(s => Duty(s))
+                                case None        => List.empty
                               }
 
-                              val updatedClaims = ifIncomplete.claims ::: newClaims
-
-                              val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
-
-                              val newDraftClaim =
-                                fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
-
-                              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                              val result = EitherT
-                                .liftF(
-                                  updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
-                                )
-                                .leftMap((_: Unit) => Error("could not update session"))
-
-                              result.fold(
-                                e => {
-                                  logger.warn("could not update claims", e)
-                                  errorHandler.errorResult()
-                                },
-                                _ =>
-                                  newClaims.headOption.fold {
-                                    logger.warn("Could not add new claims")
-                                    errorHandler.errorResult()
-                                  }(newClaim => Redirect(routes.EnterClaimController.enterClaim(newClaim.id)))
-                              )
-                            }
+                              maybeNdrcDetails match {
+                                case (Some(ndrc)) => makeNewSelectedClaims(newDutiesToClaim, ndrc)
+                                case _            => sys.error("could not create new claim")
+                              }
                           }
-                        case None                 => Redirect(routes.SelectDutiesController.selectDuties())
+                        case None        => List.empty ///TODO: change to error?
                       }
-                    case DutiesSelectedAnswer.CompleteDutiesSelectedAnswer(dutiesSelected)        =>
-                      if (dutiesSelected.duties.size === numberOfClaims) {
-                        Redirect(routes.EnterClaimController.checkClaim())
-                      } else if (dutiesSelected.duties.size <= numberOfClaims) {
-                        // we need to remove that claim
-                        val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
-                        val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.contains(p.taxCode))
-                        //update session and work which is the next one to fill in
-                        val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
 
-                        val newDraftClaim =
-                          fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                      val updatedClaims  = ifIncomplete.claims ::: newClaims
+                      val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
+                      val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
+                      val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                        val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                        val result = EitherT
-                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                          .leftMap((_: Unit) => Error("could not update session"))
-
-                        result.fold(
-                          e => {
-                            logger.warn("could not update claims", e)
-                            errorHandler.errorResult()
-                          },
-                          _ => Redirect(routes.EnterClaimController.checkClaim())
+                      val result = EitherT
+                        .liftF(
+                          updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
                         )
-                      } else {
-                        // number of duties is greater than the number of claims
-                        // augment claims structure, update session, and redirect to that one
-                        val newTaxCodes: Set[String]     = dutiesSelected.duties.map(s => s.taxCode.toString).toSet
-                        val currentTaxCodes: Set[String] = ifIncomplete.claims.map(s => s.taxCode).toSet
-                        val newTaxCode: Set[String]      = newTaxCodes.diff(currentTaxCodes)
-                        if (newTaxCode.isEmpty) {
-                          logger.warn("Should have picked up the new tax code to claim against")
+                        .leftMap((_: Unit) => Error("could not update session"))
+
+                      result.fold(
+                        e => {
+                          logger.warn("could not update claims", e)
                           errorHandler.errorResult()
-                        } else {
-
-                          val newClaims: List[Claim] = fillingOutClaim.draftClaim.movementReferenceNumber match {
-                            case Some(value) =>
-                              value match {
-                                case Left(_)  =>
-                                  makeEntryClaims(newTaxCode.toList)
-                                case Right(_) =>
-                                  val maybeNdrcDetails: Option[List[NdrcDetails]] = fillingOutClaim.draftClaim
-                                    .fold(_.displayDeclaration)
-                                    .flatMap(declaration => declaration.displayResponseDetail.ndrcDetails)
-
-                                  val maybeNewDutiesToClaim =
-                                    newTaxCode.map(s => TaxCode.fromString(s)).toList.sequence
-                                  val newDutiesToClaim      = maybeNewDutiesToClaim match {
-                                    case Some(value) => value.map(s => Duty(s))
-                                    case None        => List.empty
-                                  }
-
-                                  maybeNdrcDetails match {
-                                    case (Some(ndrc)) => makeNewSelectedClaims(newDutiesToClaim, ndrc)
-                                    case _            => sys.error("could not create new claim")
-                                  }
-                              }
-                            case None        => List.empty ///TODO: change to error?
-                          }
-
-                          val updatedClaims = ifIncomplete.claims ::: newClaims
-
-                          val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
-
-                          val newDraftClaim =
-                            fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
-
-                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                          val result = EitherT
-                            .liftF(
-                              updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
-                            )
-                            .leftMap((_: Unit) => Error("could not update session"))
-
-                          result.fold(
-                            e => {
-                              logger.warn("could not update claims", e)
-                              errorHandler.errorResult()
-                            },
-                            _ =>
-                              newClaims.headOption.fold {
-                                logger.warn("Could not add new claims")
-                                errorHandler.errorResult()
-                              }(newClaim => Redirect(routes.EnterClaimController.enterClaim(newClaim.id)))
-                          )
-                        }
-                      }
+                        },
+                        _ =>
+                          newClaims.headOption.fold {
+                            logger.warn("Could not add new claims")
+                            errorHandler.errorResult()
+                          }(newClaim => Redirect(routes.EnterClaimController.enterClaim(newClaim.id)))
+                      )
+                    }
                   }
-                case None                       => Redirect(routes.SelectDutiesController.selectDuties())
+                case None                 => Redirect(routes.SelectDutiesController.selectDuties())
               }
             } else {
 
@@ -338,7 +234,7 @@ class EnterClaimController @Inject() (
                     case Left(_) =>
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer)) match {
                         case Some(selectedDuties) =>
-                          makeEntryClaims(selectedDuties.duties.map(s => s.taxCode.toString))
+                          makeEntryClaims(selectedDuties.duties.toList.map(s => s.taxCode.toString))
                         case _                    => List.empty
                       }
 
@@ -349,7 +245,7 @@ class EnterClaimController @Inject() (
 
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer), maybeNdrcDetails) match {
                         case (Some(selectedDuties), Some(ndrcDetails)) =>
-                          makeClaims(selectedDuties.duties, ndrcDetails)
+                          makeClaims(selectedDuties.duties.toList, ndrcDetails)
                         case _                                         => List.empty
                       }
                   }
@@ -362,9 +258,7 @@ class EnterClaimController @Inject() (
                   complete => complete.copy(claims = claims)
                 )
 
-                val newDraftClaim =
-                  fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
-
+                val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
                 val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
                 val result = EitherT

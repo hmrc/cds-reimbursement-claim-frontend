@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.kernel.Eq
 import play.api.libs.json._
 import julienrf.json.derived
 
@@ -74,6 +75,8 @@ object BasisOfClaim {
 
   implicit def classToNameString(in: BasisOfClaim): String =
     allClaimsTypesPartialFunctions.drop(1).foldLeft(allClaimsTypesPartialFunctions(0))(_ orElse _)(in)
+
+  implicit val eq: Eq[BasisOfClaim] = Eq.fromUniversalEquals[BasisOfClaim]
 
   implicit val basisOfClaimformat: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()
 }
