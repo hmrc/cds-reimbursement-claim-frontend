@@ -360,7 +360,7 @@ select-basis-for-claim.title=Select the basis for claim
 select-basis-for-claim.error.number=Select the basis for claim
 select-basis-for-claim.error.required=Select the basis for claim
 select-basis-for-claim.select-label=Choose which basis for claim
-select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.  If you believe you are entitled to an excise claim that is not listed below, please <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
 select-basis-for-claim.details.b0=Duplicate MRN:
