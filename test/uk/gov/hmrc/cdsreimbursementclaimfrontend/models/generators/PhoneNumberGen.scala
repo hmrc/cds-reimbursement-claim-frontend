@@ -17,10 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.gen
-import org.scalacheck.ScalacheckShapeless._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
-object SignedInUserDetailsGen { this: GenUtils =>
-  implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
+object PhoneNumberGen {
+
+  implicit val phoneNumberGen: Gen[PhoneNumber] = genUkPhoneNumber
+
+  def genUkPhoneNumber: Gen[PhoneNumber] =
+    Gen.listOfN(10, Gen.numChar).map(numbers => PhoneNumber(numbers.foldLeft("0")((s, ch) => s"$s$ch")))
 }

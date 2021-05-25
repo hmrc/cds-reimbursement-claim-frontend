@@ -34,6 +34,7 @@ object DateOfImport {
     } yield f
     result.toOption
   }
+
   implicit class DateOfImportOps(private val dateOfImport: DateOfImport) {
     def checkYourDetailsDisplayFormat: String = displayFormat(dateOfImport.value.toString).getOrElse("")
   }
@@ -41,4 +42,6 @@ object DateOfImport {
   implicit val format: Format[DateOfImport] =
     implicitly[Format[LocalDate]].inmap(DateOfImport(_), _.value)
 
+  implicit def localDateToDateOfImport(localDate: LocalDate): DateOfImport =
+    DateOfImport(localDate)
 }
