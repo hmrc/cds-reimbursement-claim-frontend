@@ -42,8 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.DutiesSelectedAnswer
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -168,7 +168,7 @@ class SelectDutiesControllerSpec
       }
 
       "the user has answered this question before with a single choice" in {
-        val previousAnswer = DutiesSelectedAnswer(NonEmptyList.of(Duty(TaxCode.A00)))
+        val previousAnswer = NonEmptyList.of(Duty(TaxCode.A00))
         val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
 
         inSequence {
@@ -188,9 +188,8 @@ class SelectDutiesControllerSpec
         )
       }
 
-      "the user has answered this question before with a multiple choicea" in {
-        val previousAnswer =
-          DutiesSelectedAnswer(NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00)))
+      "the user has answered this question before with a multiple choices" in {
+        val previousAnswer = NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
         val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
 
         inSequence {
@@ -209,6 +208,37 @@ class SelectDutiesControllerSpec
           }
         )
       }
+
+      "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
+        val previousTaxCodes = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
+        val previousAnswer   = NonEmptyList.fromList(previousTaxCodes.map(Duty(_))).getOrElse(fail)
+        val newTaxCodes      = Random.shuffle(TaxCode.listOfUKExciseCodes).take(3)
+        val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
+        val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
+        )
+        val basisOfClaim     = CompleteBasisOfClaimAnswer(IncorrectExciseValue)
+
+        val session =
+          getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer(), Some(acc14), basisOfClaim)._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-duties.title"),
+          doc => {
+            isA00Checked(doc) shouldBe false
+            isA30Checked(doc) shouldBe false
+            isA90Checked(doc) shouldBe false
+            isB00Checked(doc) shouldBe false
+          }
+        )
+      }
+
     }
 
     "handle submit requests" when {
@@ -217,7 +247,7 @@ class SelectDutiesControllerSpec
         controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "user chooses a valid option" in {
-        val answers        = DutiesSelectedAnswer(NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A20)))
+        val answers        = NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A20))
         val session        = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
         val updatedSession = updateSession(session, answers)
 

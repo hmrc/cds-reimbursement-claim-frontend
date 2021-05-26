@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.instances.future.catsStdInstancesForFuture
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.catsSyntaxEq
+import cats.instances.future.catsStdInstancesForFuture
 import cats.syntax.option._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -28,19 +28,21 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
 
 @Singleton
 class SelectDutiesController @Inject() (
@@ -69,7 +71,7 @@ class SelectDutiesController @Inject() (
             Redirect(baseRoutes.IneligibleController.ineligible())
           },
           dutiesAvailable => {
-            val emptyForm  = selectDutiesForm(DutiesSelectedAnswer(dutiesAvailable))
+            val emptyForm  = selectDutiesForm(dutiesAvailable)
             val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
             Ok(selectDutiesPage(filledForm, dutiesAvailable, isAmend))
           }
@@ -86,7 +88,7 @@ class SelectDutiesController @Inject() (
             Redirect(baseRoutes.IneligibleController.ineligible())
           },
           dutiesAvailable =>
-            selectDutiesForm(DutiesSelectedAnswer(dutiesAvailable))
+            selectDutiesForm(dutiesAvailable)
               .bindFromRequest()
               .fold(
                 formWithErrors => BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable)),
@@ -129,7 +131,7 @@ object SelectDutiesController {
       .getOrElse(Nil)
 
     wasIncorrectExciseCodeSelected match {
-      case true  =>
+      case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
         val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
         NonEmptyList.fromList(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
       case false =>
@@ -155,7 +157,7 @@ object SelectDutiesController {
           "" -> nonEmptyText
             .verifying(
               "invalid tax code",
-              code => allAvailableDuties.duties.map(_.taxCode.value).exists(_ === code)
+              code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
             )
             .transform[TaxCode](
               (x: String) => TaxCode.allTaxCodesMap(x),
@@ -163,9 +165,7 @@ object SelectDutiesController {
             )
         )(Duty.apply)(Duty.unapply)
       ).verifying("error.required", _.nonEmpty)
-    )(taxCodes => DutiesSelectedAnswer(NonEmptyList.of(taxCodes.head, taxCodes.tail: _*)))(dsa =>
-      DutiesSelectedAnswer.unapply(dsa).map(_.toList)
-    )
+    )(taxCodes => NonEmptyList.of(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
   )
 
 }

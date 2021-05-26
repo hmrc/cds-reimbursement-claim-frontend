@@ -17,19 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
-import cats.kernel.Eq
-import julienrf.json.derived
-import play.api.libs.json.{Format, OFormat}
+import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
-final case class DutiesSelectedAnswer(duties: NonEmptyList[Duty]) extends AnyVal
-
 object DutiesSelectedAnswer {
-  implicit val eq: Eq[DutiesSelectedAnswer] = Eq.fromUniversalEquals[DutiesSelectedAnswer]
+
+  type DutiesSelectedAnswer = NonEmptyList[Duty]
 
   implicit val nelFormat: Format[NonEmptyList[Duty]] = Format(NonEmptyListOps.reads, NonEmptyListOps.writes)
-
-  implicit val format: OFormat[DutiesSelectedAnswer] = derived.oformat[DutiesSelectedAnswer]()
 
 }
 

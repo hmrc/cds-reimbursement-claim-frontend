@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
@@ -135,7 +134,7 @@ class EnterClaimControllerSpec
       "number of claims match duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer = DutiesSelectedAnswer(NonEmptyList.of(Duty(TaxCode.A00)))
+        val dutiesSelectedAnswer = NonEmptyList.of(Duty(TaxCode.A00))
 
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
@@ -165,7 +164,7 @@ class EnterClaimControllerSpec
       "number of claims is more than duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer = DutiesSelectedAnswer(NonEmptyList.of(Duty(TaxCode.A00)))
+        val dutiesSelectedAnswer = NonEmptyList.of(Duty(TaxCode.A00))
 
         val claim1 = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")

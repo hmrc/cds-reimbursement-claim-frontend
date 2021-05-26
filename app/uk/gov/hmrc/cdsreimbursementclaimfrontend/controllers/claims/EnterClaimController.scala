@@ -29,11 +29,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{AmountPair, ClaimAmount}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.UUIDGenerator
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, DraftClaim, DutiesSelectedAnswer, Error, SessionData, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, DraftClaim, Error, SessionData, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -143,11 +144,11 @@ class EnterClaimController @Inject() (
               val numberOfClaims                                          = ifIncomplete.claims.size
               maybeDutiesSelectedAnswer match {
                 case Some(dutiesSelected) =>
-                  if (dutiesSelected.duties.size === numberOfClaims) {
+                  if (dutiesSelected.size === numberOfClaims) {
                     Redirect(routes.EnterClaimController.checkClaim()) // there is no change
-                  } else if (dutiesSelected.duties.size <= numberOfClaims) {
+                  } else if (dutiesSelected.size <= numberOfClaims) {
 
-                    val taxCodes       = dutiesSelected.duties.map(s => s.taxCode.toString)
+                    val taxCodes       = dutiesSelected.map(s => s.taxCode.toString)
                     val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.exists(_ === p.taxCode))
                     val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
                     val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
@@ -167,7 +168,7 @@ class EnterClaimController @Inject() (
                   } else {
                     // number of duties is greater than the number of claims
                     // augment claims structure, update session, and redirect to that one
-                    val newTaxCodes: Set[String]     = dutiesSelected.duties.map(s => s.taxCode.toString).toList.toSet
+                    val newTaxCodes: Set[String]     = dutiesSelected.map(s => s.taxCode.toString).toList.toSet
                     val currentTaxCodes: Set[String] = ifIncomplete.claims.map(s => s.taxCode).toSet
                     val newTaxCode: Set[String]      = newTaxCodes.diff(currentTaxCodes)
                     if (newTaxCode.isEmpty) {
@@ -234,7 +235,7 @@ class EnterClaimController @Inject() (
                     case Left(_) =>
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer)) match {
                         case Some(selectedDuties) =>
-                          makeEntryClaims(selectedDuties.duties.toList.map(s => s.taxCode.toString))
+                          makeEntryClaims(selectedDuties.toList.map(s => s.taxCode.toString))
                         case _                    => List.empty
                       }
 
@@ -245,7 +246,7 @@ class EnterClaimController @Inject() (
 
                       (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer), maybeNdrcDetails) match {
                         case (Some(selectedDuties), Some(ndrcDetails)) =>
-                          makeClaims(selectedDuties.duties.toList, ndrcDetails)
+                          makeClaims(selectedDuties.toList, ndrcDetails)
                         case _                                         => List.empty
                       }
                   }
