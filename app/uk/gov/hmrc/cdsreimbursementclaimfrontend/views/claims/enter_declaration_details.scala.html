@@ -40,9 +40,8 @@
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterMovementReferenceNumberController.enterMrn}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

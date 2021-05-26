@@ -75,16 +75,6 @@ class EnterCommoditiesDetailsController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  private def handleBackLink(fillingOutClaim: FillingOutClaim): Call =
-    fillingOutClaim.draftClaim match {
-      case draftC285Claim: DraftClaim.DraftC285Claim =>
-        (draftC285Claim.reasonForBasisAndClaimAnswer, draftC285Claim.basisOfClaimAnswer) match {
-          case (Some(_), None) => routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-          case (None, Some(_)) => routes.SelectBasisForClaimController.selectBasisForClaim()
-          case _               => sys.error("invalid data state: cannot have both reason and basis for claim and reason for claim")
-        }
-    }
-
   def enterCommoditiesDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCommoditiesDetails { (_, fillingOutClaim, answers) =>
@@ -94,15 +84,13 @@ class EnterCommoditiesDetailsController @Inject() (
               case Some(commodityDetails) =>
                 Ok(
                   enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
-                    handleBackLink(fillingOutClaim)
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails)
                   )
                 )
               case None                   =>
                 Ok(
                   enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm,
-                    handleBackLink(fillingOutClaim)
+                    EnterCommoditiesDetailsController.commoditiesDetailsForm
                   )
                 )
             },
@@ -111,8 +99,7 @@ class EnterCommoditiesDetailsController @Inject() (
               enterCommoditiesDetailsPage(
                 EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
                   ifComplete.commodityDetails
-                ),
-                handleBackLink(fillingOutClaim)
+                )
               )
             )
         )
@@ -129,8 +116,7 @@ class EnterCommoditiesDetailsController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterCommoditiesDetailsPage(
-                  requestFormWithErrors,
-                  handleBackLink(fillingOutClaim)
+                  requestFormWithErrors
                 )
               ),
             commodityDetails => {
@@ -173,7 +159,6 @@ class EnterCommoditiesDetailsController @Inject() (
                 Ok(
                   enterCommoditiesDetailsPage(
                     EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
-                    handleBackLink(fillingOutClaim),
                     isAmend = true
                   )
                 )
@@ -181,7 +166,6 @@ class EnterCommoditiesDetailsController @Inject() (
                 Ok(
                   enterCommoditiesDetailsPage(
                     EnterCommoditiesDetailsController.commoditiesDetailsForm,
-                    handleBackLink(fillingOutClaim),
                     isAmend = true
                   )
                 )
@@ -192,7 +176,6 @@ class EnterCommoditiesDetailsController @Inject() (
                 EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
                   ifComplete.commodityDetails
                 ),
-                handleBackLink(fillingOutClaim),
                 true
               )
             )
@@ -211,7 +194,6 @@ class EnterCommoditiesDetailsController @Inject() (
               BadRequest(
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors,
-                  handleBackLink(fillingOutClaim),
                   true
                 )
               ),

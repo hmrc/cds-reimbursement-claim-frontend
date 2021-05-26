@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.Form
-@import play.api.mvc.Call
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -37,16 +36,15 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[ClaimNorthernIrelandAnswer], backLink: Call, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimNorthernIrelandAnswer], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"claim-northern-ireland"}
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
         else routes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

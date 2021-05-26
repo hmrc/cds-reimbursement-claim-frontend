@@ -41,7 +41,6 @@
     @addressKey = @{"nonUkAddress"}
 
     @postAction = @{if(isAmend) routes.EnterYourContactDetailsController.changeContactDetailsSubmit else routes.EnterYourContactDetailsController.enterContactDetailsSubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds}
 
     @title = @{messages(s"$key.title")}
 
@@ -53,7 +52,7 @@
 
     @countryCodeKey = @{"countryCode"}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

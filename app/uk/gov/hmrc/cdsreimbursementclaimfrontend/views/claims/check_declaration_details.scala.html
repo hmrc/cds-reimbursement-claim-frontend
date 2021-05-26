@@ -32,12 +32,12 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(declaration : DisplayDeclaration, postAction : Call, link : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration : DisplayDeclaration, postAction : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"check-declaration-details"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.Form
-@import play.api.mvc.Call
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -36,15 +35,14 @@
     dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
-@(form: Form[SelectReasonForClaimAndBasis], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaimAndBasis], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
  @key = @{"select-reason-and-basis-for-claim"}
  @title = @{messages(s"$key.title")}
 
  @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
- @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

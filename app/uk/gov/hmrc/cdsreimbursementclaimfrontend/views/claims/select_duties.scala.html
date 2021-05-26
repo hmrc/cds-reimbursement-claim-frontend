@@ -41,7 +41,6 @@
   @title = @{messages(s"$key.title")}
 
   @postAction = @{if(isAmend) routes.SelectDutiesController.selectDutiesSubmit else routes.SelectDutiesController.selectDutiesSubmit}
-  @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
 
     @options = @{duties.zipWithIndex.map { case (duty, index ) =>
                 CheckboxItem(
@@ -53,7 +52,7 @@
         }
     }
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

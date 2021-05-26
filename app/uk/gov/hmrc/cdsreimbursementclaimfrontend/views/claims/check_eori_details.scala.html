@@ -40,7 +40,7 @@
 @key = @{"check-eori-details"}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), backLink = None, signedInUserDetails = Some(userDetails)) {
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = Some(userDetails)) {
 
     @pageHeading(title)
 

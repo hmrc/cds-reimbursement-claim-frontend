@@ -101,8 +101,7 @@ class CheckDeclarationDetailsController @Inject() (
         Ok(
           checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
-            handleBackLink(fillingOutClaim)
+            routes.CheckDeclarationDetailsController.checkDetailsSubmit()
           )
         )
       )
@@ -121,8 +120,7 @@ class CheckDeclarationDetailsController @Inject() (
         Ok(
           checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit(),
-            handleBackLink(fillingOutClaim)
+            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
           )
         )
       )

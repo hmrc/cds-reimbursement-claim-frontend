@@ -14,9 +14,18 @@ const CDSR = {
     errorInputElement: document.querySelector('#file-upload-error'),
     errorsShowing: false,
 
+    backLinkContainer: document.querySelector('#cdsr-back-link'),
+
     countrySelectElement: document.querySelector("#countryCode"),
 
     Init: () => {
+
+        // Add back link
+
+        if (CDSR.backLinkContainer) {
+            const backLink = `<a href="history.back()" class="govuk-back-link">Back</a>`;
+            CDSR.backLinkContainer.innerHTML = backLink;
+        }
 
         // Initialise file upload check
 

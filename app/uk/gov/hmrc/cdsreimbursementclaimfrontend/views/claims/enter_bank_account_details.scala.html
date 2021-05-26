@@ -41,7 +41,6 @@
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterClaimController.checkClaim}
 
     @options = @{List(
                 CheckboxItem(
@@ -53,7 +52,7 @@
         }
 
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

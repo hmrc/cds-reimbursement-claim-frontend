@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -35,12 +34,12 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(completeClaim : CompleteClaim, link : Call)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

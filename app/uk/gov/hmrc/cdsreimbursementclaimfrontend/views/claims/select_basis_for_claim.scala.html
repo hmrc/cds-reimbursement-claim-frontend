@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.Form
-@import play.api.mvc.Call
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -40,7 +39,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], backLink : Call, isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
      @key = @{"select-basis-for-claim"}
      @title = @{messages(s"$key.title")}
@@ -56,9 +55,8 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
     }
 
     @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit() else routes.SelectBasisForClaimController.selectBasisForClaimSubmit()}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else backLink}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 
