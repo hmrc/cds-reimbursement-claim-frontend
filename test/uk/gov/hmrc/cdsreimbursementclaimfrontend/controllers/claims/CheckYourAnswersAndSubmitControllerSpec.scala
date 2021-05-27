@@ -124,7 +124,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
-    movementReferenceNumberAnswer = Some(MovementReferenceNumber(Right(mrn))),
+    movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),
     duplicateMovementReferenceNumberAnswer = None,
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
@@ -186,7 +186,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
     id = filledDraftC285Claim.id,
-    completeMovementReferenceNumberAnswer = MovementReferenceNumber(Right(mrn)),
+    movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
     maybeCompleteDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,

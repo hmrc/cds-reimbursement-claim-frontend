@@ -85,7 +85,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = maybeMovementReferenceNumberAnswer)
+      DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumber = maybeMovementReferenceNumberAnswer)
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)

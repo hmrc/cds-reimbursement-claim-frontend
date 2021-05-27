@@ -112,7 +112,7 @@ class SelectBasisForClaimControllerSpec
         val answers                         = IncompleteBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -139,7 +139,7 @@ class SelectBasisForClaimControllerSpec
         val answers                         = IncompleteBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -169,7 +169,7 @@ class SelectBasisForClaimControllerSpec
         val answers = CompleteBasisOfClaimAnswer(endUseRelief)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -199,7 +199,7 @@ class SelectBasisForClaimControllerSpec
         val answers = CompleteBasisOfClaimAnswer(endUseRelief)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -231,7 +231,7 @@ class SelectBasisForClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -271,7 +271,7 @@ class SelectBasisForClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -302,7 +302,7 @@ class SelectBasisForClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -336,7 +336,7 @@ class SelectBasisForClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -376,7 +376,7 @@ class SelectBasisForClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             basisOfClaimAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 

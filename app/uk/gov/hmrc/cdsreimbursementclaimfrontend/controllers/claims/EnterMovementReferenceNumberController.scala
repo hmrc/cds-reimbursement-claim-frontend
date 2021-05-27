@@ -112,7 +112,7 @@ class EnterMovementReferenceNumberController @Inject() (
             )
           ) =>
         val maybeMovementReferenceNumberAnswers = draftClaim.fold(
-          _.movementReferenceNumberAnswer
+          _.movementReferenceNumber
         )
         maybeMovementReferenceNumberAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, None)
@@ -139,7 +139,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 case entryMovementReferenceNumber @ MovementReferenceNumber(Left(_))  =>
                   val newDraftClaim =
                     fillingOutClaim.draftClaim
-                      .fold(_.copy(movementReferenceNumberAnswer = Option(entryMovementReferenceNumber)))
+                      .fold(_.copy(movementReferenceNumber = Option(entryMovementReferenceNumber)))
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -157,7 +157,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 case mrnMovementReferenceNumber @ MovementReferenceNumber(Right(mrn)) =>
                   val newDraftClaim =
                     fillingOutClaim.draftClaim
-                      .fold(_.copy(movementReferenceNumberAnswer = Option(mrnMovementReferenceNumber)))
+                      .fold(_.copy(movementReferenceNumber = Option(mrnMovementReferenceNumber)))
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -242,7 +242,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     case true  =>
                       val newDraftClaim =
                         DraftC285Claim.newDraftC285Claim
-                          .copy(movementReferenceNumberAnswer = Option(entryMovementReferenceNumber))
+                          .copy(movementReferenceNumber = Option(entryMovementReferenceNumber))
 
                       val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -268,7 +268,7 @@ class EnterMovementReferenceNumberController @Inject() (
                     case true  =>
                       val newDraftClaim =
                         DraftC285Claim.newDraftC285Claim
-                          .copy(movementReferenceNumberAnswer = Option(mrnMovementReferenceNumber))
+                          .copy(movementReferenceNumber = Option(mrnMovementReferenceNumber))
 
                       val result: EitherT[Future, models.Error, Unit] = for {
 

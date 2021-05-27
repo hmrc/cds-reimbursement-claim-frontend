@@ -38,7 +38,7 @@ object DraftClaim {
   final case class DraftC285Claim(
     id: UUID,
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
-    movementReferenceNumberAnswer: Option[MovementReferenceNumber],
+    movementReferenceNumber: Option[MovementReferenceNumber],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
@@ -132,7 +132,7 @@ object DraftClaim {
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case draftC285Claim: DraftC285Claim =>
-        draftC285Claim.movementReferenceNumberAnswer.map(_.value)
+        draftC285Claim.movementReferenceNumber.map(_.value)
     }
   }
 

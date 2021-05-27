@@ -63,7 +63,7 @@ class EnterClaimControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         claimsAnswer = maybeClaimsAnswer,
-        movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+        movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -205,7 +205,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -228,7 +228,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -328,7 +328,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -376,7 +376,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)

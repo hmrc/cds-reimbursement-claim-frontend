@@ -64,7 +64,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         displayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumberAnswer = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
+        movementReferenceNumber = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -85,7 +85,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumberAnswer = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
+        movementReferenceNumber = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]

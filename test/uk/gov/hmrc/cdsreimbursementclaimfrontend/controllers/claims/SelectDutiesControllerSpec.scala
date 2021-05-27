@@ -77,7 +77,7 @@ class SelectDutiesControllerSpec
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
-      movementReferenceNumberAnswer = Some(movementReferenceNumber),
+      movementReferenceNumber = Some(movementReferenceNumber),
       displayDeclaration = displayDeclaration,
       basisOfClaimAnswer = Some(basisOfClaim)
     )

@@ -57,7 +57,7 @@ object CompleteClaim {
 
   final case class CompleteC285Claim(
     id: UUID,
-    completeMovementReferenceNumberAnswer: MovementReferenceNumber,
+    movementReferenceNumber: MovementReferenceNumber,
     maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
@@ -84,7 +84,7 @@ object CompleteClaim {
         case DraftClaim.DraftC285Claim(
               id,
               _,
-              Some(draftCompleteMovementReferenceNumberAnswer: MovementReferenceNumber),
+              Some(movementReferenceNumber: MovementReferenceNumber),
               draftMaybeDuplicateCompleteMovementReferenceNumberAnswer,
               draftMaybeDeclarationDetailsAnswer,
               draftDuplicateDeclarationDetailAnswer,
@@ -104,7 +104,7 @@ object CompleteClaim {
               draftDeclarantEoriNumberAnswer,
               Some(completeClaimsAnswer: CompleteClaimsAnswer)
             ) =>
-          draftCompleteMovementReferenceNumberAnswer.value match {
+          movementReferenceNumber.value match {
             case Left(_) =>
               (
                 validateDuplicateMovementReferenceNumberAnswer(
@@ -139,7 +139,7 @@ object CompleteClaim {
                       ) =>
                     CompleteC285Claim(
                       id = id,
-                      completeMovementReferenceNumberAnswer = draftCompleteMovementReferenceNumberAnswer,
+                      movementReferenceNumber = movementReferenceNumber,
                       maybeCompleteDuplicateMovementReferenceNumberAnswer =
                         completeMaybeDuplicateEntryReferenceNumberAnswer,
                       maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
@@ -199,7 +199,7 @@ object CompleteClaim {
                       ) =>
                     CompleteC285Claim(
                       id = id,
-                      completeMovementReferenceNumberAnswer = draftCompleteMovementReferenceNumberAnswer,
+                      movementReferenceNumber = movementReferenceNumber,
                       maybeCompleteDuplicateMovementReferenceNumberAnswer =
                         completeMaybeDuplicateMovementReferenceNumberAnswer,
                       maybeCompleteDeclarationDetailsAnswer = None,
@@ -832,7 +832,7 @@ object CompleteClaim {
 
     def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
       case claim: CompleteC285Claim =>
-        claim.completeMovementReferenceNumberAnswer.value
+        claim.movementReferenceNumber.value
     }
 
     def duplicateMovementReferenceNumber: Option[Either[EntryNumber, MRN]] = completeClaim match {

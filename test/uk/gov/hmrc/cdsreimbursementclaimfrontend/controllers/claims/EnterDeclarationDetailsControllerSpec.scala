@@ -136,7 +136,7 @@ class EnterDeclarationDetailsControllerSpec
         val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
         val draftC285Claim                = sessionWithDeclaration(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithDeclaration(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -202,7 +202,7 @@ class EnterDeclarationDetailsControllerSpec
         )
 
         val draftC285Claim                = sessionWithDeclaration(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithDeclaration(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -272,7 +272,7 @@ class EnterDeclarationDetailsControllerSpec
         val answers = CompleteDeclarationDetailsAnswer(sample[EntryDeclarationDetails])
 
         val draftC285Claim                = sessionWithDeclaration(Some(answers))._3
-          .copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithDeclaration(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -365,7 +365,7 @@ class EnterDeclarationDetailsControllerSpec
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
           val updatedJourney = fillingOutClaim.copy(draftClaim =
-            draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(mrn.asRight[EntryNumber])))
+            draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(mrn.asRight[EntryNumber])))
           )
 
           inSequence {
@@ -403,7 +403,7 @@ class EnterDeclarationDetailsControllerSpec
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answer))
 
           val updatedJourney = fillingOutClaim.copy(draftClaim =
-            draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(mrn.asRight[EntryNumber])))
+            draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(mrn.asRight[EntryNumber])))
           )
 
           inSequence {
@@ -498,7 +498,7 @@ class EnterDeclarationDetailsControllerSpec
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answer))
 
           val updatedJourney = fillingOutClaim.copy(draftClaim =
-            draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
+            draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
           )
 
           inSequence {
@@ -534,7 +534,7 @@ class EnterDeclarationDetailsControllerSpec
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answer))
 
           val updatedJourney = fillingOutClaim.copy(draftClaim =
-            draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
+            draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
           )
 
           inSequence {
@@ -566,7 +566,7 @@ class EnterDeclarationDetailsControllerSpec
           )
 
           val updatedJourney = fillingOutClaim.copy(draftClaim =
-            draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
+            draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
           )
 
           inSequence {
@@ -589,7 +589,7 @@ class EnterDeclarationDetailsControllerSpec
         )
 
         val updatedJourney = fillingOutClaim.copy(draftClaim =
-          draftC285Claim.copy(movementReferenceNumberAnswer = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
+          draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(entryNumber.asLeft[MRN])))
         )
 
         inSequence {

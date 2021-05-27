@@ -112,7 +112,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -143,7 +143,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -176,7 +176,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -216,7 +216,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -247,7 +247,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -282,7 +282,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
