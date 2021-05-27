@@ -17,34 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
-import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
 object DutiesSelectedAnswer {
 
-  type DutiesSelectedAnswer = NonEmptyList[Duty]
-
-  implicit val nelFormat: Format[NonEmptyList[Duty]] = Format(NonEmptyListOps.reads, NonEmptyListOps.writes)
-
-}
-
-import play.api.libs.json._
-object NonEmptyListOps {
-
-  def reads[T : Reads]: Reads[NonEmptyList[T]] =
-    Reads
-      .of[List[T]]
-      .collect(
-        JsonValidationError("expected a NonEmptyList but got an empty list")
-      ) { case head :: tail =>
-        NonEmptyList(head, tail)
-      }
-
-  def writes[T : Writes]: Writes[NonEmptyList[T]] =
-    Writes
-      .of[List[T]]
-      .contramap(_.toList)
-
-  def format[T : Format]: Format[NonEmptyList[T]] = Format(reads, writes)
+  def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
+  def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
 
 }

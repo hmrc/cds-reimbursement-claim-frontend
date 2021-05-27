@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.NonEmptyList
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -37,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{m
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -134,7 +133,7 @@ class EnterClaimControllerSpec
       "number of claims match duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer = NonEmptyList.of(Duty(TaxCode.A00))
+        val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
 
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
@@ -164,7 +163,7 @@ class EnterClaimControllerSpec
       "number of claims is more than duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer = NonEmptyList.of(Duty(TaxCode.A00))
+        val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
 
         val claim1 = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")

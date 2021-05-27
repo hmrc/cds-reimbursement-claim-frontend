@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.NonEmptyList
 import cats.{Functor, Id}
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -42,8 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
+
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -168,7 +167,7 @@ class SelectDutiesControllerSpec
       }
 
       "the user has answered this question before with a single choice" in {
-        val previousAnswer = NonEmptyList.of(Duty(TaxCode.A00))
+        val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
         val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
 
         inSequence {
@@ -189,7 +188,7 @@ class SelectDutiesControllerSpec
       }
 
       "the user has answered this question before with a multiple choices" in {
-        val previousAnswer = NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
+        val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
         val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
 
         inSequence {
@@ -211,7 +210,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
         val previousTaxCodes = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
-        val previousAnswer   = NonEmptyList.fromList(previousTaxCodes.map(Duty(_))).getOrElse(fail)
+        val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail)
         val newTaxCodes      = Random.shuffle(TaxCode.listOfUKExciseCodes).take(3)
         val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -247,7 +246,7 @@ class SelectDutiesControllerSpec
         controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "user chooses a valid option" in {
-        val answers        = NonEmptyList.of(Duty(TaxCode.A00), Duty(TaxCode.A20))
+        val answers        = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A20))
         val session        = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
         val updatedSession = updateSession(session, answers)
 
@@ -288,9 +287,7 @@ class SelectDutiesControllerSpec
           doc =>
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
-              .text() shouldBe messageFromMessageKey(
-              s"select-duties.error.required"
-            ),
+              .text() shouldBe messageFromMessageKey(s"select-duties.error.required"),
           BAD_REQUEST
         )
       }
@@ -301,7 +298,7 @@ class SelectDutiesControllerSpec
       "Return all UK and EU duties for an Entry Number" in {
         val session         = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable shouldBe NonEmptyList.fromList(TaxCode.ukAndEuTaxCodes.map(Duty(_))).toRight(fail())
+        dutiesAvailable shouldBe DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_))).toRight(fail())
       }
 
       "Return Acc14 duties for an MRN" in {
