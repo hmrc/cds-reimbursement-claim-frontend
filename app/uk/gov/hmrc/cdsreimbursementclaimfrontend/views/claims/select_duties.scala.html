@@ -20,10 +20,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.DutiesSelected
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import cats.data.NonEmptyList
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -35,20 +36,20 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelected], duties : List[Duty], isAmend : Boolean = false)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], isAmend:Boolean = false)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
 
-  @postAction = @{if(isAmend) routes.SelectDutiesController.selectDutiesSubmit else routes.SelectDutiesController.selectDutiesSubmit}
+  @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
   @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.EnterCommoditiesDetailsController.enterCommoditiesDetails}
 
-    @options = @{duties.zipWithIndex.map { case (duty, index ) =>
+    @options = @{dutiesToDisplay.map { duty =>
                 CheckboxItem(
-                    name = Some(s"${key}[$index]"),
-                    value = index.toString,
+                    name = Some(s"${key}[]"),
+                    value = duty.taxCode.value,
                     content = Text(messages(s"${key}.duty.${duty.taxCode}")),
-                    checked = form.data.exists(_._2 == index.toString)
+                    checked = form.data.exists(_._2 == duty.taxCode.value)
             )
         }
     }
@@ -67,7 +68,7 @@
                 field = form(s"$key"),
                 legendAsHeading = false,
                 legend = title,
-                items = options,
+                items = options.toList,
                 hint = None
             )
 

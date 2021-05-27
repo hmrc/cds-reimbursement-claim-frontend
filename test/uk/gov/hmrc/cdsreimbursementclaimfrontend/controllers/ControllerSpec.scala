@@ -141,7 +141,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def checkIsTechnicalErrorPage(
     result: Future[Result]
-  ): Unit = {
+  ): Any = {
     import cats.instances.int._
     import cats.syntax.eq._
     if (status(result) =!= INTERNAL_SERVER_ERROR) println(contentAsString(result))
@@ -155,7 +155,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkIsRedirect(
     result: Future[Result],
     expectedRedirectUrl: String
-  ): Unit = {
+  ): Any = {
     import cats.instances.int._
     import cats.syntax.eq._
     if (status(result) =!= SEE_OTHER)
@@ -172,9 +172,9 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkPageIsDisplayed(
     result: Future[Result],
     expectedTitle: String,
-    contentChecks: Document => Unit = _ => (),
+    contentChecks: Document => Any = _ => (),
     expectedStatus: Int = OK
-  ): Unit = {
+  ): Any = {
     (status(result), redirectLocation(result)) shouldBe (expectedStatus -> None)
     status(result)                             shouldBe expectedStatus
 
