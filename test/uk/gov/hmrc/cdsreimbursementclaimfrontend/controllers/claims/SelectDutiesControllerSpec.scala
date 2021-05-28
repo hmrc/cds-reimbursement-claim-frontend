@@ -302,7 +302,7 @@ class SelectDutiesControllerSpec
       }
 
       "Return Acc14 duties for an MRN" in {
-        val taxCodes        = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
+        val taxCodes        = Random.shuffle(TaxCode.allTaxCodes).take(20)
         val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
