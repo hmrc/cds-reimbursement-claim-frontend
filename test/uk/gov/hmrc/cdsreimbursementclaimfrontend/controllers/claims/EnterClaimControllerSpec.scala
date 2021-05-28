@@ -307,7 +307,7 @@ class EnterClaimControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BankAccountController.enterBankAccountDetails()
+          routes.BankAccountController.checkBankAccountDetails()
         )
       }
 
