@@ -25,12 +25,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -112,7 +112,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -143,7 +143,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -176,7 +176,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -216,7 +216,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -247,7 +247,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -282,7 +282,7 @@ class EnterCommoditiesDetailsControllerSpec
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))

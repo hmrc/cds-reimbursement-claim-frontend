@@ -25,6 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
@@ -201,7 +202,7 @@ class EnterYourContactDetailsController @Inject() (
                   fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
                     case Some(referenceNumber) =>
                       referenceNumber match {
-                        case Left(_)  =>
+                        case MovementReferenceNumber(Left(_))  =>
                           fillingOutClaim.draftClaim.declarantType match {
                             case Some(declarantType) =>
                               declarantType match {
@@ -211,7 +212,7 @@ class EnterYourContactDetailsController @Inject() (
                               }
                             case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                           }
-                        case Right(_) =>
+                        case MovementReferenceNumber(Right(_)) =>
                           featureSwitch.NorthernIreland.isEnabled() match {
                             case true  => Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim())
                             case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())

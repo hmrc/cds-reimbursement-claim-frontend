@@ -641,14 +641,8 @@ class EnterClaimController @Inject() (
           _ =>
             fillingOutClaim.draftClaim
               .fold(_.movementReferenceNumber)
-              .fold {
-                logger.warn("could not find movement reference number")
-                errorHandler.errorResult()
-              }(referenceNumber =>
-                referenceNumber.fold(
-                  _ => Redirect(routes.BankAccountController.enterBankAccountDetails()),
-                  _ => Redirect(routes.BankAccountController.checkBankAccountDetails())
-                )
+              .fold(Redirect(routes.BankAccountController.enterBankAccountDetails()))(_ =>
+                Redirect(routes.BankAccountController.checkBankAccountDetails())
               )
         )
 

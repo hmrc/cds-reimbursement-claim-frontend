@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -37,7 +38,7 @@ object DraftClaim {
   final case class DraftC285Claim(
     id: UUID,
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
-    movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
+    movementReferenceNumber: Option[MovementReferenceNumber],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
@@ -131,16 +132,7 @@ object DraftClaim {
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case draftC285Claim: DraftC285Claim =>
-        draftC285Claim.movementReferenceNumberAnswer match {
-          case Some(movementReferenceNumberAnswer) =>
-            movementReferenceNumberAnswer match {
-              case MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer(movementReferenceNumber) =>
-                movementReferenceNumber
-              case MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer(movementReferenceNumber)   =>
-                Some(movementReferenceNumber)
-            }
-          case None                                => None
-        }
+        draftC285Claim.movementReferenceNumber.map(_.value)
     }
   }
 

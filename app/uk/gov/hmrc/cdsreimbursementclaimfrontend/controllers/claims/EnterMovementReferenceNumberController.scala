@@ -21,6 +21,7 @@ import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -31,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.{CompleteMovementReferenceNumberAnswer, IncompleteMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import cats.implicits.catsSyntaxEq
+import play.api.libs.json.{Json, OFormat}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -74,45 +75,33 @@ class EnterMovementReferenceNumberController @Inject() (
       }
     }
 
-  protected def renderMrnPage(answers: MovementReferenceNumberAnswer, isAmend: Boolean)(implicit
+  protected def renderMrnPage(answers: Option[MovementReferenceNumber], isAmend: Boolean)(implicit
     request: RequestWithSessionData[_]
   ): Result =
-    answers.fold(
-      ifIncomplete =>
-        ifIncomplete.movementReferenceNumber match {
-          case Some(movementReferenceNumber) =>
-            Ok(
-              enterMovementReferenceNumberPage(
-                EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-                  MovementReferenceNumber(movementReferenceNumber)
-                ),
-                isAmend = isAmend
-              )
-            )
-          case None                          =>
-            Ok(
-              enterMovementReferenceNumberPage(
-                EnterMovementReferenceNumberController.movementReferenceNumberForm,
-                isAmend = isAmend
-              )
-            )
-        },
-      ifComplete =>
+    answers match {
+      case Some(movementReferenceNumber) =>
         Ok(
           enterMovementReferenceNumberPage(
             EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-              MovementReferenceNumber(ifComplete.movementReferenceNumber)
+              movementReferenceNumber
             ),
             isAmend = isAmend
           )
         )
-    )
+      case None                          =>
+        Ok(
+          enterMovementReferenceNumberPage(
+            EnterMovementReferenceNumberController.movementReferenceNumberForm,
+            isAmend = isAmend
+          )
+        )
+    }
 
   private def withMovementReferenceNumberAnswer(
     f: (
       SessionData,
       FillingOutClaim,
-      MovementReferenceNumberAnswer
+      Option[MovementReferenceNumber]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
@@ -123,17 +112,17 @@ class EnterMovementReferenceNumberController @Inject() (
             )
           ) =>
         val maybeMovementReferenceNumberAnswers = draftClaim.fold(
-          _.movementReferenceNumberAnswer
+          _.movementReferenceNumber
         )
         maybeMovementReferenceNumberAnswers.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteMovementReferenceNumberAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
+          f(sessionData, fillingOutClaim, None)
+        )(answer => f(sessionData, fillingOutClaim, Some(answer)))
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
   def enterMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+      withMovementReferenceNumberAnswer { (_, fillingOutClaim, _) =>
         EnterMovementReferenceNumberController.movementReferenceNumberForm
           .bindFromRequest()
           .fold(
@@ -146,17 +135,11 @@ class EnterMovementReferenceNumberController @Inject() (
                 )
               ),
             movementReferenceNumber =>
-              movementReferenceNumber.value match {
-                case Left(entryNumber) =>
-                  val updatedAnswers = answers.fold(
-                    _ =>
-                      CompleteMovementReferenceNumberAnswer(
-                        Left(entryNumber)
-                      ),
-                    complete => complete.copy(movementReferenceNumber = Left(entryNumber))
-                  )
-                  val newDraftClaim  =
-                    fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumberAnswer = Some(updatedAnswers)))
+              movementReferenceNumber match {
+                case entryMovementReferenceNumber @ MovementReferenceNumber(Left(_))  =>
+                  val newDraftClaim =
+                    fillingOutClaim.draftClaim
+                      .fold(_.copy(movementReferenceNumber = Option(entryMovementReferenceNumber)))
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -171,16 +154,10 @@ class EnterMovementReferenceNumberController @Inject() (
                     },
                     _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
                   )
-                case Right(mrn)        =>
-                  val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
-                    _ =>
-                      CompleteMovementReferenceNumberAnswer(
-                        Right(mrn)
-                      ),
-                    complete => complete.copy(movementReferenceNumber = Right(mrn))
-                  )
-                  val newDraftClaim                                         =
-                    fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumberAnswer = Some(updatedAnswers)))
+                case mrnMovementReferenceNumber @ MovementReferenceNumber(Right(mrn)) =>
+                  val newDraftClaim =
+                    fillingOutClaim.draftClaim
+                      .fold(_.copy(movementReferenceNumber = Option(mrnMovementReferenceNumber)))
 
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -209,8 +186,7 @@ class EnterMovementReferenceNumberController @Inject() (
                                                      Some(
                                                        fillingOutClaim.copy(draftClaim =
                                                          newDraftClaim.copy(
-                                                           displayDeclaration = Some(displayDeclaration),
-                                                           movementReferenceNumberAnswer = Some(updatedAnswers)
+                                                           displayDeclaration = Some(displayDeclaration)
                                                          )
                                                        )
                                                      )
@@ -236,7 +212,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   def changeMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+      withMovementReferenceNumberAnswer { (_, fillingOutClaim, _) =>
         EnterMovementReferenceNumberController.movementReferenceNumberForm
           .bindFromRequest()
           .fold(
@@ -259,20 +235,14 @@ class EnterMovementReferenceNumberController @Inject() (
                 }
                 .getOrElse(true)
 
-              mrnOrEntryNumber.value match {
+              mrnOrEntryNumber match {
 
-                case Left(entryNumber) =>
+                case entryMovementReferenceNumber @ MovementReferenceNumber(Left(_)) =>
                   numberChanged match {
                     case true  =>
-                      val updatedAnswers = answers.fold(
-                        _ =>
-                          CompleteMovementReferenceNumberAnswer(
-                            Left(entryNumber)
-                          ),
-                        complete => complete.copy(movementReferenceNumber = Left(entryNumber))
-                      )
-                      val newDraftClaim  =
-                        DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+                      val newDraftClaim =
+                        DraftC285Claim.newDraftC285Claim
+                          .copy(movementReferenceNumber = Option(entryMovementReferenceNumber))
 
                       val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -293,15 +263,12 @@ class EnterMovementReferenceNumberController @Inject() (
                       Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                   }
 
-                case Right(mrn) =>
+                case mrnMovementReferenceNumber @ MovementReferenceNumber(Right(mrn)) =>
                   numberChanged match {
                     case true  =>
-                      val updatedAnswers: CompleteMovementReferenceNumberAnswer = answers.fold(
-                        _ => CompleteMovementReferenceNumberAnswer(Right(mrn)),
-                        complete => complete.copy(movementReferenceNumber = Right(mrn))
-                      )
-                      val newDraftClaim                                         =
-                        DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = Some(updatedAnswers))
+                      val newDraftClaim =
+                        DraftC285Claim.newDraftC285Claim
+                          .copy(movementReferenceNumber = Option(mrnMovementReferenceNumber))
 
                       val result: EitherT[Future, models.Error, Unit] = for {
 
@@ -317,8 +284,7 @@ class EnterMovementReferenceNumberController @Inject() (
                               displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI === fillingOutClaim.signedInUserDetails.eori.value
                             )
                               newDraftClaim.copy(
-                                displayDeclaration = Some(displayDeclaration),
-                                movementReferenceNumberAnswer = Some(updatedAnswers)
+                                displayDeclaration = Some(displayDeclaration)
                               )
                             else newDraftClaim
                           )
@@ -639,5 +605,9 @@ object EnterMovementReferenceNumberController {
       FormError("enter-movement-reference-number", List("invalid"))
 
   final case class MovementReferenceNumber(value: Either[EntryNumber, MRN]) extends AnyVal
+
+  object MovementReferenceNumber {
+    implicit val format: OFormat[MovementReferenceNumber] = Json.format[MovementReferenceNumber]
+  }
 
 }

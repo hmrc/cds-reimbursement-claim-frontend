@@ -32,8 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, MovementReferenceNumberAnswer, SessionData, SignedInUserDetails, VerifiedEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SessionData, SignedInUserDetails, VerifiedEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{CustomsDataStoreService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_eori_details
@@ -95,7 +94,7 @@ class CheckEoriDetailsController @Inject() (
   }
 
   def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withMovementReferenceNumberAnswer { (_, fillingOutClaim, _) =>
+    withSessionData { (_, fillingOutClaim) =>
       request.signedInUserDetails
         .map { user =>
           checkEoriDetailsAnswerForm
@@ -136,16 +135,13 @@ class CheckEoriDetailsController @Inject() (
     }
   }
 
-  private def withMovementReferenceNumberAnswer(
-    f: (SessionData, FillingOutClaim, MovementReferenceNumberAnswer) => Future[Result]
+  private def withSessionData(
+    f: (SessionData, FillingOutClaim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
-        val maybeMovementReferenceNumberAnswers = draftClaim.fold(_.movementReferenceNumberAnswer)
-        maybeMovementReferenceNumberAnswers.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteMovementReferenceNumberAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-      case _                                                                                    => Future.successful(Redirect(baseRoutes.StartController.start()))
+      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim))) =>
+        f(sessionData, fillingOutClaim)
+      case _                                                                           => Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 }
 
