@@ -33,8 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.UUIDGenerator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN, UUIDGenerator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, DraftClaim, Error, SessionData, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -50,14 +51,13 @@ class EnterClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
-  cc: MessagesControllerComponents,
   val config: Configuration,
   uuidGenerator: UUIDGenerator,
+  featureSwitch: FeatureSwitchService,
   enterClaimPage: pages.enter_claim,
   enterEntryClaimPage: pages.enter_entry_claim,
   checkClaimPage: pages.check_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
@@ -121,7 +121,7 @@ class EnterClaimController @Inject() (
         uuidGenerator.nextId(),
         ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentMethod).getOrElse(""),
         ndrcDetails.find(n => n.taxType === duty.taxCode.toString).map(s => s.paymentReference).getOrElse(""),
-        duty.taxCode.toString,
+        duty.taxCode.toString(),
         ndrcDetails
           .find(n => n.taxType === duty.taxCode.toString)
           .map(s => BigDecimal(s.amount))
@@ -130,6 +130,21 @@ class EnterClaimController @Inject() (
         isFilled = false
       )
     }
+
+  private def mapFlow(
+    draftClaim: DraftClaim
+  )(f: EntryNumber => Result, g: MRN => Result)(implicit request: RequestWithSessionData[AnyContent]): Result =
+    draftClaim.movementReferenceNumber.fold {
+      logger.warn("Could not find movement or entry reference number")
+      errorHandler.errorResult()
+    }(
+      _.fold(
+        entryNumber =>
+          if (featureSwitch.EntryNumber.isEnabled()) f(entryNumber)
+          else NotFound(errorHandler.notFoundTemplate(request)),
+        g(_)
+      )
+    )
 
   //TODO: need to work: if # duties select now does not match the number of claims then work if the duties is greater than #claims we need to augment the claims with one more claims
   // if the # duties is now less than the number of claims, filter out the one that does not match the tax codes and remove that and update session data structures
@@ -233,9 +248,9 @@ class EnterClaimController @Inject() (
                 case Some(value) =>
                   value match {
                     case Left(_) =>
-                      (fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer)) match {
+                      fillingOutClaim.draftClaim.fold(_.dutiesSelectedAnswer) match {
                         case Some(selectedDuties) =>
-                          makeEntryClaims(selectedDuties.toList.map(s => s.taxCode.toString))
+                          makeEntryClaims(selectedDuties.toList.map(s => s.taxCode.toString()))
                         case _                    => List.empty
                       }
 
@@ -298,47 +313,33 @@ class EnterClaimController @Inject() (
               errorHandler.errorResult()
             }(claim =>
               if (claim.claimAmount === BigDecimal(0.0)) {
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(value) =>
-                    value match {
-                      case Left(_)  =>
-                        Ok(enterEntryClaimPage(id, EnterClaimController.entryClaimAmountForm, claim))
-                      case Right(_) =>
-                        Ok(enterClaimPage(id, EnterClaimController.mrnClaimAmountForm(claim.paidAmount), claim))
-                    }
-                  case None        =>
-                    logger.warn("Could not find movement or entry reference number")
-                    errorHandler.errorResult()
-                }
+                mapFlow(fillingOutClaim.draftClaim)(
+                  _ => Ok(enterEntryClaimPage(id, EnterClaimController.entryClaimAmountForm, claim)),
+                  _ => Ok(enterClaimPage(id, EnterClaimController.mrnClaimAmountForm(claim.paidAmount), claim))
+                )
               } else {
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(value) =>
-                    value match {
-                      case Left(_)  =>
-                        Ok(
-                          enterEntryClaimPage(
-                            id,
-                            EnterClaimController.entryClaimAmountForm.fill(
-                              AmountPair(claim.paidAmount, claim.claimAmount)
-                            ),
-                            claim
-                          )
-                        )
-                      case Right(_) =>
-                        Ok(
-                          enterClaimPage(
-                            id,
-                            EnterClaimController
-                              .mrnClaimAmountForm(claim.paidAmount)
-                              .fill(ClaimAmount(claim.claimAmount)),
-                            claim
-                          )
-                        )
-                    }
-                  case None        =>
-                    logger.warn("Could not find movement or entry reference number")
-                    errorHandler.errorResult()
-                }
+                mapFlow(fillingOutClaim.draftClaim)(
+                  _ =>
+                    Ok(
+                      enterEntryClaimPage(
+                        id,
+                        EnterClaimController.entryClaimAmountForm.fill(
+                          AmountPair(claim.paidAmount, claim.claimAmount)
+                        ),
+                        claim
+                      )
+                    ),
+                  _ =>
+                    Ok(
+                      enterClaimPage(
+                        id,
+                        EnterClaimController
+                          .mrnClaimAmountForm(claim.paidAmount)
+                          .fill(ClaimAmount(claim.claimAmount)),
+                        claim
+                      )
+                    )
+                )
               }
             )
           },
@@ -348,34 +349,28 @@ class EnterClaimController @Inject() (
               logger.warn("Could not find claim")
               errorHandler.errorResult()
             }(claim =>
-              fillingOutClaim.draftClaim.movementReferenceNumber match {
-                case Some(value) =>
-                  value match {
-                    case Left(_)  =>
-                      Ok(
-                        enterEntryClaimPage(
-                          id,
-                          EnterClaimController.entryClaimAmountForm.fill(
-                            AmountPair(claim.paidAmount, claim.claimAmount)
-                          ),
-                          claim
-                        )
-                      )
-                    case Right(_) =>
-                      Ok(
-                        enterClaimPage(
-                          id,
-                          EnterClaimController
-                            .mrnClaimAmountForm(claim.paidAmount)
-                            .fill(ClaimAmount(claim.claimAmount)),
-                          claim
-                        )
-                      )
-                  }
-                case None        =>
-                  logger.warn("Could not find movement or entry reference number")
-                  errorHandler.errorResult()
-              }
+              mapFlow(fillingOutClaim.draftClaim)(
+                _ =>
+                  Ok(
+                    enterEntryClaimPage(
+                      id,
+                      EnterClaimController.entryClaimAmountForm.fill(
+                        AmountPair(claim.paidAmount, claim.claimAmount)
+                      ),
+                      claim
+                    )
+                  ),
+                _ =>
+                  Ok(
+                    enterClaimPage(
+                      id,
+                      EnterClaimController
+                        .mrnClaimAmountForm(claim.paidAmount)
+                        .fill(ClaimAmount(claim.claimAmount)),
+                      claim
+                    )
+                  )
+              )
             )
           }
         )

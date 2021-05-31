@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -238,8 +238,11 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "Form validation" must {
-      val form   = EnterMovementReferenceNumberController.movementReferenceNumberForm
-      val mrnKey = "enter-movement-reference-number"
+      val featureSwitch = instanceOf[FeatureSwitchService]
+      val form          = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
+      val mrnKey        = "enter-movement-reference-number"
+
+      featureSwitch.EntryNumber.enable()
 
       "accept valid MRN" in {
         val errors = form.bind(Map(mrnKey -> "10ABCDEFGHIJKLMNO0")).errors

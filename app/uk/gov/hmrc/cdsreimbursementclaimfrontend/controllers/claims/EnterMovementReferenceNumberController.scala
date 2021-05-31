@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter,
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -52,12 +52,11 @@ class EnterMovementReferenceNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   claimService: ClaimService,
-  cc: MessagesControllerComponents,
+  featureSwitch: FeatureSwitchService,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -82,16 +81,18 @@ class EnterMovementReferenceNumberController @Inject() (
       case Some(movementReferenceNumber) =>
         Ok(
           enterMovementReferenceNumberPage(
-            EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-              movementReferenceNumber
-            ),
+            EnterMovementReferenceNumberController
+              .movementReferenceNumberForm(featureSwitch)
+              .fill(
+                movementReferenceNumber
+              ),
             isAmend = isAmend
           )
         )
       case None                          =>
         Ok(
           enterMovementReferenceNumberPage(
-            EnterMovementReferenceNumberController.movementReferenceNumberForm,
+            EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch),
             isAmend = isAmend
           )
         )
@@ -123,7 +124,8 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withMovementReferenceNumberAnswer { (_, fillingOutClaim, _) =>
-        EnterMovementReferenceNumberController.movementReferenceNumberForm
+        EnterMovementReferenceNumberController
+          .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -134,78 +136,77 @@ class EnterMovementReferenceNumberController @Inject() (
                   )
                 )
               ),
-            movementReferenceNumber =>
-              movementReferenceNumber match {
-                case entryMovementReferenceNumber @ MovementReferenceNumber(Left(_))  =>
-                  val newDraftClaim =
-                    fillingOutClaim.draftClaim
-                      .fold(_.copy(movementReferenceNumber = Option(entryMovementReferenceNumber)))
+            {
+              case entryMovementReferenceNumber @ MovementReferenceNumber(Left(_))  =>
+                val newDraftClaim =
+                  fillingOutClaim.draftClaim
+                    .fold(_.copy(movementReferenceNumber = Option(entryMovementReferenceNumber)))
 
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val result = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                val result = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
 
-                  result.fold(
-                    e => {
-                      logger.warn("could not capture entry number", e)
-                      errorHandler.errorResult()
-                    },
-                    _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
-                  )
-                case mrnMovementReferenceNumber @ MovementReferenceNumber(Right(mrn)) =>
-                  val newDraftClaim =
-                    fillingOutClaim.draftClaim
-                      .fold(_.copy(movementReferenceNumber = Option(mrnMovementReferenceNumber)))
+                result.fold(
+                  e => {
+                    logger.warn("could not capture entry number", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                )
+              case mrnMovementReferenceNumber @ MovementReferenceNumber(Right(mrn)) =>
+                val newDraftClaim =
+                  fillingOutClaim.draftClaim
+                    .fold(_.copy(movementReferenceNumber = Option(mrnMovementReferenceNumber)))
 
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  val updateSessionWithReference = EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                val updateSessionWithReference = EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
 
-                  val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
-                    .getDisplayDeclaration(mrn)
-                    .leftMap(_ => Error("could not get declaration"))
+                val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
+                  .getDisplayDeclaration(mrn)
+                  .leftMap(_ => Error("could not get declaration"))
 
-                  val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
-                    maybeDisplayDeclaration <- getDeclaration
-                    _                       <- updateSessionWithReference
-                    mrnJourneyFlow          <-
-                      EitherT
-                        .fromEither[Future](
-                          evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
-                        )
-                        .leftMap(_ => Error("could not evaluate MRN flow"))
-                    displayDeclaration      <-
-                      EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
-                    _                       <- EitherT.liftF(
-                                                 updateSession(sessionStore, request)(
-                                                   _.copy(journeyStatus =
-                                                     Some(
-                                                       fillingOutClaim.copy(draftClaim =
-                                                         newDraftClaim.copy(
-                                                           displayDeclaration = Some(displayDeclaration)
-                                                         )
+                val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
+                  maybeDisplayDeclaration <- getDeclaration
+                  _                       <- updateSessionWithReference
+                  mrnJourneyFlow          <-
+                    EitherT
+                      .fromEither[Future](
+                        evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeDisplayDeclaration)
+                      )
+                      .leftMap(_ => Error("could not evaluate MRN flow"))
+                  displayDeclaration      <-
+                    EitherT.fromOption[Future](maybeDisplayDeclaration, Error("could not unbox display declaration"))
+                  _                       <- EitherT.liftF(
+                                               updateSession(sessionStore, request)(
+                                                 _.copy(journeyStatus =
+                                                   Some(
+                                                     fillingOutClaim.copy(draftClaim =
+                                                       newDraftClaim.copy(
+                                                         displayDeclaration = Some(displayDeclaration)
                                                        )
                                                      )
                                                    )
                                                  )
                                                )
-                  } yield mrnJourneyFlow
+                                             )
+                } yield mrnJourneyFlow
 
-                  result.fold(
-                    e => {
-                      logger.warn("could not get declaration information", e)
-                      Redirect(baseRoutes.IneligibleController.ineligible())
-                    },
-                    {
-                      case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
-                      case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
-                    }
-                  )
-              }
+                result.fold(
+                  e => {
+                    logger.warn("could not get declaration information", e)
+                    Redirect(baseRoutes.IneligibleController.ineligible())
+                  },
+                  {
+                    case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
+                    case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
+                  }
+                )
+            }
           )
       }
     }
@@ -213,7 +214,8 @@ class EnterMovementReferenceNumberController @Inject() (
   def changeMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withMovementReferenceNumberAnswer { (_, fillingOutClaim, _) =>
-        EnterMovementReferenceNumberController.movementReferenceNumberForm
+        EnterMovementReferenceNumberController
+          .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -228,12 +230,10 @@ class EnterMovementReferenceNumberController @Inject() (
             mrnOrEntryNumber => {
 
               val mrnOrEntryValue = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
-              val numberChanged   = fillingOutClaim.draftClaim.movementReferenceNumber
-                .map {
-                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
-                  case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
-                }
-                .getOrElse(true)
+              val numberChanged   = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
+                case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
+                case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
+              }
 
               mrnOrEntryNumber match {
 
@@ -318,16 +318,18 @@ class EnterMovementReferenceNumberController @Inject() (
               case Some(duplicateMovementReferenceNumber) =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-                      MovementReferenceNumber(duplicateMovementReferenceNumber)
-                    ),
+                    EnterMovementReferenceNumberController
+                      .movementReferenceNumberForm(featureSwitch)
+                      .fill(
+                        MovementReferenceNumber(duplicateMovementReferenceNumber)
+                      ),
                     backLink
                   )
                 )
               case None                                   =>
                 Ok(
                   enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController.movementReferenceNumberForm,
+                    EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch),
                     backLink
                   )
                 )
@@ -338,9 +340,11 @@ class EnterMovementReferenceNumberController @Inject() (
             ) { duplicateMovementReferenceNumber =>
               Ok(
                 enterDuplicateMovementReferenceNumberPage(
-                  EnterMovementReferenceNumberController.movementReferenceNumberForm.fill(
-                    MovementReferenceNumber(duplicateMovementReferenceNumber)
-                  ),
+                  EnterMovementReferenceNumberController
+                    .movementReferenceNumberForm(featureSwitch)
+                    .fill(
+                      MovementReferenceNumber(duplicateMovementReferenceNumber)
+                    ),
                   backLink
                 )
               )
@@ -352,7 +356,8 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterDuplicateMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withDuplicateMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
-        EnterMovementReferenceNumberController.movementReferenceNumberForm
+        EnterMovementReferenceNumberController
+          .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -367,7 +372,8 @@ class EnterMovementReferenceNumberController @Inject() (
             mrnOrEntryNumber => {
 
               def renderPageWithError(errorKey: String): Future[Result] = {
-                val form = EnterMovementReferenceNumberController.movementReferenceNumberForm
+                val form = EnterMovementReferenceNumberController
+                  .movementReferenceNumberForm(featureSwitch)
                   .fill(mrnOrEntryNumber)
                   .withError("enter-movement-reference-number", s"invalid.$errorKey")
                 BadRequest(
@@ -379,23 +385,19 @@ class EnterMovementReferenceNumberController @Inject() (
               }
 
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
-              val numberHasChanged = fillingOutClaim.draftClaim.movementReferenceNumber
-                .map {
-                  case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
-                  case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
-                  case _                       => false
-                }
-                .getOrElse(true)
+              val numberHasChanged = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
+                case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
+                case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
+                case _                       => false
+              }
 
               mrnOrEntryNumber.value match {
 
                 case Left(entryNumber) =>
-                  val cachedMrnExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber
-                    .map {
-                      case Right(mrn) => mrn.value.isEmpty
-                      case Left(_)    => true
-                    }
-                    .getOrElse(true)
+                  val cachedMrnExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
+                    case Right(mrn) => mrn.value.isEmpty
+                    case Left(_)    => true
+                  }
 
                   cachedMrnExists match {
                     case false =>
@@ -435,12 +437,10 @@ class EnterMovementReferenceNumberController @Inject() (
                       }
                   }
                 case Right(mrn)        =>
-                  val cachedEntryNumberExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber
-                    .map {
-                      case Right(_)          => true
-                      case Left(entryNumber) => entryNumber.value.isEmpty
-                    }
-                    .getOrElse(true)
+                  val cachedEntryNumberExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
+                    case Right(_)          => true
+                    case Left(entryNumber) => entryNumber.value.isEmpty
+                  }
 
                   cachedEntryNumberExists match {
 
@@ -577,9 +577,12 @@ class EnterMovementReferenceNumberController @Inject() (
 
 object EnterMovementReferenceNumberController {
 
-  val movementReferenceNumberMapping: Mapping[Either[EntryNumber, MRN]] =
+  def movementReferenceNumberMapping(featureSwitch: FeatureSwitchService): Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText
-      .verifying("invalid.number", str => MRN.isValid(str) && !EntryNumber.isValid(str) | EntryNumber.isValid(str))
+      .verifying(
+        "invalid.number",
+        str => EntryNumber.isValid(str) && featureSwitch.EntryNumber.isEnabled || MRN.isValid(str)
+      )
       .transform[Either[EntryNumber, MRN]](
         str =>
           if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))
@@ -590,11 +593,12 @@ object EnterMovementReferenceNumberController {
         }
       )
 
-  val movementReferenceNumberForm: Form[MovementReferenceNumber] = Form(
-    mapping(
-      "enter-movement-reference-number" -> movementReferenceNumberMapping
-    )(MovementReferenceNumber.apply)(MovementReferenceNumber.unapply)
-  )
+  val movementReferenceNumberForm: FeatureSwitchService => Form[MovementReferenceNumber] = featureSwitch =>
+    Form(
+      mapping(
+        "enter-movement-reference-number" -> movementReferenceNumberMapping(featureSwitch)
+      )(MovementReferenceNumber.apply)(MovementReferenceNumber.unapply)
+    )
 
   def processFormErrors(errors: Seq[FormError]): FormError =
     if (errors.exists(fe => fe.message === "error.required")) {

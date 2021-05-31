@@ -34,7 +34,7 @@ class EnterMrnScheduleController @Inject() (
     extends FrontendController(cc)
     with Logging {
 
-  def show(): Action[AnyContent] = featureSwitch.BulkClaim.action.async { implicit request =>
+  def show(): Action[AnyContent] = featureSwitch.BulkClaim.hideIfNotEnabled.async { implicit request =>
     Future.successful(Ok(enterMrnSchedulePage()(request, cc.messagesApi.preferred(request), viewConfig)))
   }
 }
