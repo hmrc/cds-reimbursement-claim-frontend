@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
 import uk.gov.hmrc.http.HeaderCarrier
