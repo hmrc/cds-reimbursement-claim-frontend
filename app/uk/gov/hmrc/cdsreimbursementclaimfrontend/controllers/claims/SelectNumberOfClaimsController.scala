@@ -78,7 +78,7 @@ class SelectNumberOfClaimsController @Inject() (
         Redirect(baseRoutes.StartController.start())
     }
 
-  def show(): Action[AnyContent] = (featureSwitch.BulkClaim.action andThen
+  def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withSelectNumberOfClaimsAnswers { (_, _, answers) =>
       val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
@@ -89,8 +89,8 @@ class SelectNumberOfClaimsController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] = (featureSwitch.BulkClaim.action andThen authenticatedActionWithSessionData).async {
-    implicit request =>
+  def submit(): Action[AnyContent] =
+    (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
       withSelectNumberOfClaimsAnswers { (_, fillingOutClaim, _) =>
         SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
           .bindFromRequest()
@@ -122,7 +122,7 @@ class SelectNumberOfClaimsController @Inject() (
           )
 
       }
-  }
+    }
 
 }
 

@@ -27,12 +27,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
@@ -64,20 +64,20 @@ class SelectDutiesControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  def getMRNAnswer(): MovementReferenceNumberAnswer         = CompleteMovementReferenceNumberAnswer(Right(sample[MRN]))
-  def getEntryNumberAnswer(): MovementReferenceNumberAnswer = CompleteMovementReferenceNumberAnswer(
+  def getMRNAnswer(): MovementReferenceNumber         = MovementReferenceNumber(Right(sample[MRN]))
+  def getEntryNumberAnswer(): MovementReferenceNumber = MovementReferenceNumber(
     Left(sample[EntryNumber])
   )
 
   private def getSessionWithPreviousAnswer(
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
-    movementReferenceNumberAnswer: MovementReferenceNumberAnswer,
+    movementReferenceNumber: MovementReferenceNumber,
     displayDeclaration: Option[DisplayDeclaration] = None,
     basisOfClaim: BasisOfClaimAnswer = CompleteBasisOfClaimAnswer(PersonalEffects)
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
-      movementReferenceNumberAnswer = Some(movementReferenceNumberAnswer),
+      movementReferenceNumber = Some(movementReferenceNumber),
       displayDeclaration = displayDeclaration,
       basisOfClaimAnswer = Some(basisOfClaim)
     )
@@ -267,7 +267,6 @@ class SelectDutiesControllerSpec
     }
 
     "show an error summary" when {
-
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
@@ -302,7 +301,7 @@ class SelectDutiesControllerSpec
       }
 
       "Return Acc14 duties for an MRN" in {
-        val taxCodes        = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
+        val taxCodes        = Random.shuffle(TaxCode.allTaxCodes).take(20)
         val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))

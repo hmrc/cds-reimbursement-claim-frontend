@@ -30,10 +30,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.displayDeclarationGen
@@ -41,7 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, CustomsDataStoreService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -82,10 +82,10 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
   def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   private def sessionWithClaimState(
-    maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer]
+    maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumberAnswer = maybeMovementReferenceNumberAnswer)
+      DraftC285Claim.newDraftC285Claim.copy(movementReferenceNumber = maybeMovementReferenceNumberAnswer)
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -126,7 +126,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "show the title" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -141,7 +141,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Fail if the same Entry Number is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -160,7 +160,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Fail on an Entry Number journey and an MRN is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -177,7 +177,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Fail if the same MRN is submitted" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -194,7 +194,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Fail on an MRN journey and an entry number is submitted" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -211,7 +211,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Redirect to the enter duplicate declaration details page if a different Entry Number is submitted" in {
         val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = CompleteMovementReferenceNumberAnswer(Left(entryNumber))
+        val answers         = MovementReferenceNumber(Left(entryNumber))
         val (session, _, _) = sessionWithClaimState(Some(answers))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -229,7 +229,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Redirect to the enter importer eori page if a different MRN Number is submitted" in {
         val mrn                = MRN("10AAAAAAAAAAAAAAA1")
-        val answers            = CompleteMovementReferenceNumberAnswer(Right(mrn))
+        val answers            = MovementReferenceNumber(Right(mrn))
         val (session, _, _)    = sessionWithClaimState(Some(answers))
         val displayDeclaration = sample[DisplayDeclaration]
         inSequence {
@@ -250,8 +250,11 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     }
 
     "Form validation" must {
-      val form   = EnterMovementReferenceNumberController.movementReferenceNumberForm
-      val mrnKey = "enter-movement-reference-number"
+      val featureSwitch = instanceOf[FeatureSwitchService]
+      val form          = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
+      val mrnKey        = "enter-movement-reference-number"
+
+      featureSwitch.EntryNumber.enable()
 
       "accept valid MRN" in {
         val errors = form.bind(Map(mrnKey -> "10ABCDEFGHIJKLMNO0")).errors

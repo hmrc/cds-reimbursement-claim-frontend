@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -37,7 +38,7 @@ object DraftClaim {
   final case class DraftC285Claim(
     id: UUID,
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
-    movementReferenceNumberAnswer: Option[MovementReferenceNumberAnswer],
+    movementReferenceNumber: Option[MovementReferenceNumber],
     duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
@@ -95,14 +96,9 @@ object DraftClaim {
         case a: DraftC285Claim => draftC285Claim(a)
       }
 
-    def isMrnFlow: Boolean = draftClaim.movementReferenceNumber match {
-      case Some(value) =>
-        value match {
-          case Left(_)  => false
-          case Right(_) => true
-        }
-      case None        => sys.error("no movement or entry reference number found")
-    }
+    def isMrnFlow: Boolean =
+      draftClaim.movementReferenceNumber
+        .fold(sys.error("no movement or entry reference number found"))(_.isRight)
 
     def detailsRegisteredWithCds: Option[DetailsRegisteredWithCdsFormData] = draftClaim match {
       case dc: DraftC285Claim =>
@@ -131,16 +127,7 @@ object DraftClaim {
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {
       case draftC285Claim: DraftC285Claim =>
-        draftC285Claim.movementReferenceNumberAnswer match {
-          case Some(movementReferenceNumberAnswer) =>
-            movementReferenceNumberAnswer match {
-              case MovementReferenceNumberAnswer.IncompleteMovementReferenceNumberAnswer(movementReferenceNumber) =>
-                movementReferenceNumber
-              case MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer(movementReferenceNumber)   =>
-                Some(movementReferenceNumber)
-            }
-          case None                                => None
-        }
+        draftC285Claim.movementReferenceNumber.map(_.value)
     }
   }
 

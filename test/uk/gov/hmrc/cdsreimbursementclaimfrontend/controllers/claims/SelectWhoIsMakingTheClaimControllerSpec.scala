@@ -25,12 +25,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarantTypeAnswer, IncompleteDeclarantTypeAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -111,9 +111,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val answers = IncompleteDeclarantTypeAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -137,9 +135,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val answers = CompleteDeclarantTypeAnswer(declarantType)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -154,6 +150,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
           messageFromMessageKey("select-who-is-making-the-claim.title")
         )
       }
+
     }
 
     "handle submit requests" when {
@@ -172,7 +169,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -204,7 +201,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -239,7 +236,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -279,7 +276,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 

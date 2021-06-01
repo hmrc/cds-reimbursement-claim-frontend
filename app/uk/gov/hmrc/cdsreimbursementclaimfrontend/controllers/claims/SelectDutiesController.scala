@@ -136,8 +136,7 @@ object SelectDutiesController {
       case false =>
         fillingOutClaim.draftClaim.isMrnFlow match {
           case true  =>
-            val receivedUkAndEuCodes = acc14TaxCodes.intersect(TaxCode.ukAndEuTaxCodes)
-            DutiesSelectedAnswer(receivedUkAndEuCodes.map(Duty(_)))
+            DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
               .toRight(Error("No UK or EU tax codes were received from Acc14"))
           case false =>
             DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_)))
