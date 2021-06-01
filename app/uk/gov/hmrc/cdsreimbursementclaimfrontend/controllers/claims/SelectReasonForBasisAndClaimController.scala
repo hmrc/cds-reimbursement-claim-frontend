@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{allClaimsI
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.{CompleteReasonAndBasisOfClaimAnswer, IncompleteReasonAndBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -44,10 +45,9 @@ class SelectReasonForBasisAndClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
-  val errorHandler: ErrorHandler,
-  cc: MessagesControllerComponents,
+  featureSwitch: FeatureSwitchService,
   selectReasonForClaimAndBasisPage: pages.select_reason_and_basis_for_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -77,7 +77,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
     }
 
   def selectReasonForClaimAndBasis(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
@@ -110,7 +110,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
     }
 
   def selectReasonForClaimAndBasisSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
       withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
         SelectReasonForBasisAndClaimController.reasonForClaimForm
           .bindFromRequest()
@@ -155,7 +155,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
     }
 
   def changeReasonForClaimAndBasis(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
       withSelectReasonForClaim { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
@@ -191,7 +191,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
     }
 
   def changeReasonForClaimAndBasisSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
       withSelectReasonForClaim { (_, fillingOutClaim, answers) =>
         SelectReasonForBasisAndClaimController.reasonForClaimForm
           .bindFromRequest()
@@ -200,7 +200,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimAndBasisPage(
                   requestFormWithErrors,
-                  true
+                  isAmend = true
                 )
               ),
             reasonForClaimAndBasis => {

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc.Results.NotFound
@@ -31,6 +32,7 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
     name match {
       case NorthernIreland.name => NorthernIreland
       case BulkClaim.name       => BulkClaim
+      case EntryNumber.name     => EntryNumber
     }
 
   sealed trait FeatureName {
@@ -54,17 +56,14 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
       val _ = sys.props += (systemPropertyName -> value.toString)
     }
 
-    def action(implicit
+    def hideIfNotEnabled(implicit
       errorHandler: ErrorHandler,
       cc: MessagesControllerComponents
     ): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
       new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 
         def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-          isEnabled() match {
-            case true  => None
-            case false => Some(NotFound(errorHandler.notFoundTemplate(input)))
-          }
+          Option(isEnabled()).filter(_ === false) map (_ => NotFound(errorHandler.notFoundTemplate(input)))
         }
 
         override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
@@ -76,4 +75,6 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
 
   case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
+
+  case object EntryNumber extends { val name = "entry-number" } with FeatureName
 }

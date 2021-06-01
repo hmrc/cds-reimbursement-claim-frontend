@@ -27,6 +27,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
@@ -35,9 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.CompleteDutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -117,13 +117,13 @@ class CheckYourAnswersAndSubmitControllerSpec
     sample[CompleteDetailsRegisteredWithCdsAnswer]
   val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
   val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                = sample[CompleteSupportingEvidenceAnswer]
-  val completeDutiesSelectedAnswer: CompleteDutiesSelectedAnswer                        = sample[CompleteDutiesSelectedAnswer]
+  val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
   val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
-    movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Right(mrn))),
+    movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),
     duplicateMovementReferenceNumberAnswer = None,
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
@@ -185,7 +185,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
     id = filledDraftC285Claim.id,
-    completeMovementReferenceNumberAnswer = CompleteMovementReferenceNumberAnswer(Right(mrn)),
+    movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
     maybeCompleteDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,

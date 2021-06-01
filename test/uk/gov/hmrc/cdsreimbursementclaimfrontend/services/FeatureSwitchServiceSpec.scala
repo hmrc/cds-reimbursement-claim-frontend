@@ -65,7 +65,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec {
     val cc: MessagesControllerComponents,
     val errorHandler: ErrorHandler
   ) extends FrontendController(cc) {
-    def test(): Action[AnyContent] = fs.BulkClaim.action async {
+    def test(): Action[AnyContent] = fs.BulkClaim.hideIfNotEnabled async {
       Future.successful(Ok("ok"))
     }
   }

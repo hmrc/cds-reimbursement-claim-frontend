@@ -25,19 +25,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.CompleteDutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumberAnswer.CompleteMovementReferenceNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -64,7 +63,7 @@ class EnterClaimControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         claimsAnswer = maybeClaimsAnswer,
-        movementReferenceNumberAnswer = Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
+        movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -134,7 +133,7 @@ class EnterClaimControllerSpec
       "number of claims match duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer = CompleteDutiesSelectedAnswer(DutiesSelected(List(Duty(TaxCode.A00))))
+        val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
 
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
@@ -164,8 +163,7 @@ class EnterClaimControllerSpec
       "number of claims is more than duties selected" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val dutiesSelectedAnswer =
-          CompleteDutiesSelectedAnswer(DutiesSelected(List(Duty(TaxCode.A00))))
+        val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
 
         val claim1 = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
@@ -207,9 +205,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -232,9 +228,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -313,7 +307,7 @@ class EnterClaimControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.BankAccountController.enterBankAccountDetails()
+          routes.BankAccountController.checkBankAccountDetails()
         )
       }
 
@@ -334,9 +328,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -384,9 +376,7 @@ class EnterClaimControllerSpec
         val answers = IncompleteClaimsAnswer(List(claim))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumberAnswer =
-            Some(CompleteMovementReferenceNumberAnswer(Left(EntryNumber("entry-num"))))
-          )
+          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
