@@ -64,10 +64,9 @@ class ClaimNorthernIrelandController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
-      val backLink   = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
-      Ok(claimNorthernIrelandPage(filledForm, backLink, isAmend))
+      Ok(claimNorthernIrelandPage(filledForm, isAmend))
     }
   }
 
@@ -84,7 +83,6 @@ class ClaimNorthernIrelandController @Inject() (
               BadRequest(
                 claimNorthernIrelandPage(
                   formWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
                   isAmend
                 )
               ),

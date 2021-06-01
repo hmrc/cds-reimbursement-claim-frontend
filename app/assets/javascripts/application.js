@@ -23,7 +23,7 @@ const CDSR = {
         // Add back link
 
         if (CDSR.backLinkContainer) {
-            const backLink = `<a href="history.back()" class="govuk-back-link">Back</a>`;
+            const backLink = `<a href="javascript:history.back()" class="govuk-back-link">Back</a>`;
             CDSR.backLinkContainer.innerHTML = backLink;
         }
 

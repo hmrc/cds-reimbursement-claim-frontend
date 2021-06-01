@@ -247,25 +247,6 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           result
         ).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
-
-      "show the back button" in {
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = CompleteMovementReferenceNumberAnswer(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val doc = Jsoup.parse(contentAsString(performAction()))
-
-        doc.select("a.govuk-back-link").text                   should include("Back")
-        doc.getElementsByClass("govuk-back-link").attr("href") should include(
-          "/claim-for-reimbursement-of-import-duties/enter-reason-for-claim-and-basis"
-        )
-
-      }
-
     }
 
     "Form validation" must {

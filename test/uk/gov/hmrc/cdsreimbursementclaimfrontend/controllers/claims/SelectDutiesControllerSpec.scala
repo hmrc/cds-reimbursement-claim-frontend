@@ -125,12 +125,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterCommoditiesDetailsController.enterCommoditiesDetails().url
+          messageFromMessageKey("select-duties.title")
         )
       }
 
@@ -154,12 +149,7 @@ class SelectDutiesControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterCommoditiesDetailsController.enterCommoditiesDetails().url
+          messageFromMessageKey("select-duties.title")
         )
       }
 

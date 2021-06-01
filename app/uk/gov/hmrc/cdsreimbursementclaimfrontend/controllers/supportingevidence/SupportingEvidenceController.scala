@@ -148,8 +148,7 @@ class SupportingEvidenceController @Inject() (
               uploadUpscan =>
                 Ok(
                   uploadPage(
-                    uploadUpscan,
-                    claimRoutes.BankAccountController.checkBankAccountDetails()
+                    uploadUpscan
                   )
                 )
             )

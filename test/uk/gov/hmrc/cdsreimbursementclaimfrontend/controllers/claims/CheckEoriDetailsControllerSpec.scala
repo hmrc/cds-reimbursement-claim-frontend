@@ -186,7 +186,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
-        checkIsRedirect(result, routes.SelectNumberOfClaimsController.show(false))
+        checkIsRedirect(result, routes.SelectNumberOfClaimsController.show())
       }
 
       "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is disabled" in {

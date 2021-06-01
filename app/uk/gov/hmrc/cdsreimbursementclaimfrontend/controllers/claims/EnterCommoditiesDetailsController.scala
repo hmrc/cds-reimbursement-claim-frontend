@@ -77,7 +77,7 @@ class EnterCommoditiesDetailsController @Inject() (
 
   def enterCommoditiesDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+      withCommoditiesDetails { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
             ifIncomplete.commodityDetails match {
@@ -151,7 +151,7 @@ class EnterCommoditiesDetailsController @Inject() (
 
   def changeCommoditiesDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+      withCommoditiesDetails { (_, _, answers) =>
         answers.fold(
           ifIncomplete =>
             ifIncomplete.commodityDetails match {
