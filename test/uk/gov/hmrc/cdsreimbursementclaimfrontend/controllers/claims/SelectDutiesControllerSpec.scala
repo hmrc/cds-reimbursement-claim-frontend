@@ -124,7 +124,7 @@ class SelectDutiesControllerSpec
 
       "there is no journey status in the session" in {
 
-        def performAction(): Future[Result] = controller.selectDuties(false)(FakeRequest())
+        def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
         val session = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
 
@@ -144,7 +144,7 @@ class SelectDutiesControllerSpec
 
     "display the page" when {
 
-      def performAction(): Future[Result] = controller.selectDuties(false)(FakeRequest())
+      def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1

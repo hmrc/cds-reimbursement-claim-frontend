@@ -91,8 +91,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           selectWhoIsMakingTheClaimPage(
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                               declarantType
-                            ),
-                            routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+                            )
                           )
                         ),
                       _ =>
@@ -100,8 +99,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           selectWhoIsMakingTheClaimPage(
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                               declarantType
-                            ),
-                            routes.CheckDeclarationDetailsController.checkDetails()
+                            )
                           )
                         )
                     )
@@ -114,15 +112,13 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       _ =>
                         Ok(
                           selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
                           )
                         ),
                       _ =>
                         Ok(
                           selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            routes.CheckDeclarationDetailsController.checkDetails()
+                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
                           )
                         )
                     )
@@ -138,8 +134,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       selectWhoIsMakingTheClaimPage(
                         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                           ifComplete.declarantType
-                        ),
-                        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+                        )
                       )
                     ),
                   _ =>
@@ -147,8 +142,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       selectWhoIsMakingTheClaimPage(
                         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                           ifComplete.declarantType
-                        ),
-                        routes.CheckDeclarationDetailsController.checkDetails()
+                        )
                       )
                     )
                 )
@@ -171,15 +165,13 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                     _ =>
                       BadRequest(
                         selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors,
-                          routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+                          requestFormWithErrors
                         )
                       ),
                     _ =>
                       BadRequest(
                         selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors,
-                          routes.CheckDeclarationDetailsController.checkDetails()
+                          requestFormWithErrors
                         )
                       )
                   )
@@ -227,7 +219,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                               declarantType
                             ),
-                            routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
                             isAmend = true
                           )
                         ),
@@ -237,7 +228,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                               declarantType
                             ),
-                            routes.CheckDeclarationDetailsController.checkDetails(),
                             isAmend = true
                           )
                         )
@@ -252,7 +242,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         Ok(
                           selectWhoIsMakingTheClaimPage(
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
                             isAmend = true
                           )
                         ),
@@ -260,7 +249,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         Ok(
                           selectWhoIsMakingTheClaimPage(
                             SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            routes.CheckDeclarationDetailsController.checkDetails(),
                             isAmend = true
                           )
                         )
@@ -278,7 +266,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                           ifComplete.declarantType
                         ),
-                        routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
                         isAmend = true
                       )
                     ),
@@ -288,7 +275,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
                           ifComplete.declarantType
                         ),
-                        routes.CheckDeclarationDetailsController.checkDetails(),
                         isAmend = true
                       )
                     )
@@ -313,7 +299,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       BadRequest(
                         selectWhoIsMakingTheClaimPage(
                           requestFormWithErrors,
-                          routes.EnterDeclarationDetailsController.enterDeclarationDetails(),
                           isAmend = true
                         )
                       ),
@@ -321,7 +306,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       BadRequest(
                         selectWhoIsMakingTheClaimPage(
                           requestFormWithErrors,
-                          routes.CheckDeclarationDetailsController.checkDetails(),
                           isAmend = true
                         )
                       )

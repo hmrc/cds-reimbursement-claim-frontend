@@ -46,7 +46,6 @@
     @title = @{messages(s"$key.title")}
 
     @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit}
-    @link = @{if(isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers else routes.SelectWhoIsMakingTheClaimController.selectDeclarantType}
 
     @line1Key = @{s"$addressKey-line1"}
     @line2Key = @{s"$addressKey-line2"}
@@ -56,7 +55,7 @@
 
     @countryCodeKey = @{"countryCode"}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(link), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

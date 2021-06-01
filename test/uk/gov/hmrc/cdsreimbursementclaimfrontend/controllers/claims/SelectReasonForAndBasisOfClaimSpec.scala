@@ -120,12 +120,7 @@ class SelectReasonForAndBasisOfClaimSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
+          messageFromMessageKey("select-reason-and-basis-for-claim.title")
         )
       }
 
@@ -150,51 +145,10 @@ class SelectReasonForAndBasisOfClaimSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
+          messageFromMessageKey("select-reason-and-basis-for-claim.title")
         )
       }
-
-      "the user has come from the CYA page and is amending their answer" in {
-
-        def performAction(): Future[Result] = controller.changeReasonForClaimAndBasis()(FakeRequest())
-
-        val mailForOrderGoods = ReasonForClaim.MailForOrderGoods
-        val basisOfClaim      = BasisOfClaim.Miscellaneous
-
-        val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(
-            reasonForBasisAndClaimAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-reason-and-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
-        )
-
-      }
-
     }
-
     "handle submit requests" when {
 
       "user chooses a valid option" in {

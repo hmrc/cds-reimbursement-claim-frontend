@@ -15,7 +15,6 @@
  *@
 
 @import play.api.data.Form
-@import play.api.mvc.Call
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -37,14 +36,14 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectNumberOfClaimsType], backLink: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectNumberOfClaimsType])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"select-number-of-claims"}
     @title = @{messages(s"$key.title")}
 
     @postAction = @{routes.SelectNumberOfClaimsController.submit}
 
-    @layout(pageTitle = Some(s"$title"), backLink = Some(backLink), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @errorSummary(form.errors)
 

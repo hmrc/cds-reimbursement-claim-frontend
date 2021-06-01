@@ -270,14 +270,7 @@ class SupportingEvidenceControllerSpec
 
           checkPageIsDisplayed(
             performAction(),
-            messageFromMessageKey("supporting-evidence.upload.title"),
-            doc =>
-              doc
-                .select("a.govuk-back-link")
-                .attr("href") shouldBe
-                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.BankAccountController
-                  .checkBankAccountDetails()
-                  .url
+            messageFromMessageKey("supporting-evidence.upload.title")
           )
         }
       }
@@ -342,14 +335,7 @@ class SupportingEvidenceControllerSpec
 
           checkPageIsDisplayed(
             performAction(isAmend = true),
-            messageFromMessageKey("supporting-evidence.upload.title"),
-            doc =>
-              doc
-                .select("a.govuk-back-link")
-                .attr("href") shouldBe
-                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes.BankAccountController
-                  .checkBankAccountDetails()
-                  .url
+            messageFromMessageKey("supporting-evidence.upload.title")
           )
         }
       }

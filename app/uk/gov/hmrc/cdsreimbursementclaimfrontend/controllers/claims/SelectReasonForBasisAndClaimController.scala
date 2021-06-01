@@ -87,15 +87,13 @@ class SelectReasonForBasisAndClaimController @Inject() (
                   selectReasonForClaimAndBasisPage(
                     SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                       selectReasonForClaimAndBasis
-                    ),
-                    routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                    )
                   )
                 )
               case None                               =>
                 Ok(
                   selectReasonForClaimAndBasisPage(
-                    SelectReasonForBasisAndClaimController.reasonForClaimForm,
-                    routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                    SelectReasonForBasisAndClaimController.reasonForClaimForm
                   )
                 )
             },
@@ -104,8 +102,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
               selectReasonForClaimAndBasisPage(
                 SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                   ifComplete.selectReasonForBasisAndClaim
-                ),
-                routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                )
               )
             )
         )
@@ -121,8 +118,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 selectReasonForClaimAndBasisPage(
-                  requestFormWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+                  requestFormWithErrors
                 )
               ),
             reasonForClaimAndBasis => {
@@ -170,7 +166,6 @@ class SelectReasonForBasisAndClaimController @Inject() (
                     SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                       selectReasonForClaimAndBasis
                     ),
-                    routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
                     isAmend = true
                   )
                 )
@@ -178,7 +173,6 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 Ok(
                   selectReasonForClaimAndBasisPage(
                     SelectReasonForBasisAndClaimController.reasonForClaimForm,
-                    routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
                     isAmend = true
                   )
                 )
@@ -189,7 +183,6 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 SelectReasonForBasisAndClaimController.reasonForClaimForm.fill(
                   ifComplete.selectReasonForBasisAndClaim
                 ),
-                routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
                 isAmend = true
               )
             )
@@ -207,7 +200,6 @@ class SelectReasonForBasisAndClaimController @Inject() (
               BadRequest(
                 selectReasonForClaimAndBasisPage(
                   requestFormWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
                   isAmend = true
                 )
               ),

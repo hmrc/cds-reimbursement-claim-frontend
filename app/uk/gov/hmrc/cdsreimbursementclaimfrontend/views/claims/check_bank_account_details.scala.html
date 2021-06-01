@@ -39,7 +39,7 @@
     @key = @{"bank-details"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, backLink = Some(routes.EnterClaimController.checkClaim())) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
         @pageHeading(title)
 

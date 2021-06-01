@@ -78,17 +78,14 @@ class SelectNumberOfClaimsController @Inject() (
         Redirect(baseRoutes.StartController.start())
     }
 
-  def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
+  def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withSelectNumberOfClaimsAnswers { (_, _, answers) =>
-      val backLink   =
-        if (isAmend) routes.CheckYourAnswersAndSubmitController.checkAllAnswers
-        else routes.CheckEoriDetailsController.show()
       val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
       val filledForm = answers
         .fold(_.selectNumberOfClaimsChoice, _.selectNumberOfClaimsChoice.some)
         .fold(emptyForm)(emptyForm.fill(_))
-      Ok(selectNumberOfClaimsPage(filledForm, backLink))
+      Ok(selectNumberOfClaimsPage(filledForm))
     }
   }
 
@@ -98,8 +95,7 @@ class SelectNumberOfClaimsController @Inject() (
         SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
           .bindFromRequest()
           .fold(
-            formWithErros =>
-              BadRequest(selectNumberOfClaimsPage(formWithErros, routes.CheckEoriDetailsController.show())),
+            formWithErros => BadRequest(selectNumberOfClaimsPage(formWithErros)),
             formOk => {
               val updatedAnswers = CompleteSelectNumberOfClaimsAnswer(formOk)
               val newDraftClaim  =

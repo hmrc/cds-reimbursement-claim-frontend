@@ -307,8 +307,7 @@ class EnterDeclarationDetailsController @Inject() (
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
                           EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(reference),
-                          entryNumber,
-                          routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                          entryNumber
                         )
                       )
                     case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -320,8 +319,7 @@ class EnterDeclarationDetailsController @Inject() (
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
                           EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                          entryNumber,
-                          routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                          entryNumber
                         )
                       )
                     case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
@@ -335,16 +333,14 @@ class EnterDeclarationDetailsController @Inject() (
                     Ok(
                       enterDuplicateDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm,
-                        entryNumber,
-                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                        entryNumber
                       )
                     )
                   )(entryDeclarationDetails =>
                     Ok(
                       enterDuplicateDeclarationDetailsPage(
                         EnterDeclarationDetailsController.entryDeclarationDetailsForm.fill(entryDeclarationDetails),
-                        entryNumber,
-                        routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+                        entryNumber
                       )
                     )
                   )
@@ -368,8 +364,7 @@ class EnterDeclarationDetailsController @Inject() (
                     BadRequest(
                       enterDuplicateDeclarationDetailsPage(
                         requestFormWithErrors,
-                        entryNumber,
-                        routes.EnterMovementReferenceNumberController.enterMrn()
+                        entryNumber
                       )
                     )
                   case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())

@@ -119,14 +119,14 @@ class SelectNumberOfClaimsControllerSpec
     "redirect to the error page" when {
       "the feature switch bulk claim is disabled" in {
         featureSwitch.BulkClaim.disable()
-        val result = controller.show(false)(FakeRequest())
+        val result = controller.show()(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
     }
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
-        def performAction(): Future[Result] = controller.show(false)(FakeRequest())
+        def performAction(): Future[Result] = controller.show()(FakeRequest())
         val session                         = getSessionWithPreviousAnswer(None)
 
         inSequence {
@@ -142,7 +142,7 @@ class SelectNumberOfClaimsControllerSpec
     }
 
     "display the page" when {
-      def performAction(isAmend: Boolean): Future[Result] = controller.show(isAmend)(FakeRequest())
+      def performAction(): Future[Result] = controller.show()(FakeRequest())
 
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None)
@@ -153,10 +153,9 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
-            getBackLink(doc)         shouldBe routes.CheckEoriDetailsController.show().url
             isIndividualChecked(doc) shouldBe false
             isBulkChecked(doc)       shouldBe false
             isScheduledChecked(doc)  shouldBe false
@@ -173,10 +172,9 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
-            getBackLink(doc)         shouldBe routes.CheckEoriDetailsController.show().url
             isIndividualChecked(doc) shouldBe true
             isBulkChecked(doc)       shouldBe false
             isScheduledChecked(doc)  shouldBe false
@@ -194,10 +192,9 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
-            getBackLink(doc)         shouldBe routes.CheckEoriDetailsController.show().url
             isIndividualChecked(doc) shouldBe false
             isBulkChecked(doc)       shouldBe true
             isScheduledChecked(doc)  shouldBe false
@@ -215,38 +212,15 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(false),
+          performAction(),
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
-            getBackLink(doc)         shouldBe routes.CheckEoriDetailsController.show().url
             isIndividualChecked(doc) shouldBe false
             isBulkChecked(doc)       shouldBe false
             isScheduledChecked(doc)  shouldBe true
           }
         )
       }
-
-      "the user has come from the CYA page and is amending their answer" in {
-        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsType.Scheduled))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(true),
-          messageFromMessageKey("select-number-of-claims.title"),
-          doc => {
-            getBackLink(doc)         shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
-            isIndividualChecked(doc) shouldBe false
-            isBulkChecked(doc)       shouldBe false
-            isScheduledChecked(doc)  shouldBe true
-          }
-        )
-
-      }
-
     }
 
     "handle submit requests" when {

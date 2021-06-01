@@ -61,7 +61,7 @@ class SelectDutiesController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[DutiesSelectedAnswer] = _.dutiesSelectedAnswer
 
-  def selectDuties(isAmend: Boolean): Action[AnyContent] =
+  def selectDuties(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[DutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
         getAvailableDuties(fillingOutClaim).fold(
@@ -72,7 +72,7 @@ class SelectDutiesController @Inject() (
           dutiesAvailable => {
             val emptyForm  = selectDutiesForm(dutiesAvailable)
             val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
-            Ok(selectDutiesPage(filledForm, dutiesAvailable, isAmend))
+            Ok(selectDutiesPage(filledForm, dutiesAvailable))
           }
         )
       }

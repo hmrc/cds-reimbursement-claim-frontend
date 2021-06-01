@@ -57,7 +57,6 @@ class SelectBasisForClaimController @Inject() (
     with Logging {
 
   implicit val dataExtractor: DraftC285Claim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
-  private val backLink                                                     = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
 
   def selectBasisForClaim(): Action[AnyContent] = show(false)
   def changeBasisForClaim(): Action[AnyContent] = show(true)
@@ -65,16 +64,12 @@ class SelectBasisForClaimController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answers) =>
-        val backLink     =
-          if (featureSwitch.NorthernIreland.isEnabled())
-            routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
-          else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
         val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answers
           .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
           .fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
-        Ok(selectReasonForClaimPage(filledForm, radioOptions, backLink, isAmend))
+        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend))
       }
     }
 
@@ -87,7 +82,7 @@ class SelectBasisForClaimController @Inject() (
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, backLink, isAmend)),
+            formWithErrors => BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, isAmend)),
             formOk => {
               val updatedBasisClaim = CompleteBasisOfClaimAnswer(formOk.reasonForClaim)
               val newDraftClaim     =

@@ -150,7 +150,6 @@ class ClaimNorthernIrelandControllerSpec
           performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
-            getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
             isYesChecked(doc) shouldBe false
             isNoChecked(doc)  shouldBe false
           }
@@ -169,7 +168,6 @@ class ClaimNorthernIrelandControllerSpec
           performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
-            getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
             isYesChecked(doc) shouldBe true
             isNoChecked(doc)  shouldBe false
           }
@@ -188,7 +186,6 @@ class ClaimNorthernIrelandControllerSpec
           performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
-            getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
             isYesChecked(doc) shouldBe false
             isNoChecked(doc)  shouldBe true
           }
@@ -207,7 +204,6 @@ class ClaimNorthernIrelandControllerSpec
           performAction(),
           messageFromMessageKey("claim-northern-ireland.title"),
           doc => {
-            getBackLink(doc)  shouldBe routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
             isYesChecked(doc) shouldBe false
             isNoChecked(doc)  shouldBe true
           }

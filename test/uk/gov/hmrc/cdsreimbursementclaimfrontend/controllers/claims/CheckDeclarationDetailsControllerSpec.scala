@@ -212,12 +212,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           action,
-          messageFromMessageKey("check-declaration-details.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterMovementReferenceNumberController.enterMrn().url
+          messageFromMessageKey("check-declaration-details.title")
         )
 
         val content     = Jsoup.parse(contentAsString(action))
@@ -280,12 +275,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("check-declaration-details.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterMovementReferenceNumberController.enterMrn().url
+          messageFromMessageKey("check-declaration-details.title")
         )
       }
 

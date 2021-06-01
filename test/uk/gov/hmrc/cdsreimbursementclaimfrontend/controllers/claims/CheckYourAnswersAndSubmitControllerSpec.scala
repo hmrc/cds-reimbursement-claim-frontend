@@ -28,7 +28,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
@@ -268,32 +267,6 @@ class CheckYourAnswersAndSubmitControllerSpec
           )
 
         }
-
-        "show the CYA page if the user has completely filled the claim" in {
-
-          val draftClaim = filledDraftC285Claim
-
-          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
-
-          val (session, _, _) = sessionWithCompleteClaimState()
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = Some(completelyFilledOutClaim)))
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey("check-your-answers.title"),
-            doc =>
-              doc
-                .select("a.govuk-back-link")
-                .attr("href") shouldBe
-                fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url
-          )
-
-        }
-
       }
 
       "show the confirmation page" in {

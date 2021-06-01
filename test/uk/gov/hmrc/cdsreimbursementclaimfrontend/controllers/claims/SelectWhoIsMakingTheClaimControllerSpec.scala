@@ -123,12 +123,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-who-is-making-the-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
+          messageFromMessageKey("select-who-is-making-the-claim.title")
         )
       }
 
@@ -152,47 +147,9 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-who-is-making-the-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
+          messageFromMessageKey("select-who-is-making-the-claim.title")
         )
       }
-
-      "the user has come from the CYA page and is amending their answer" in {
-
-        def performAction(): Future[Result] = controller.changeDeclarantType()(FakeRequest())
-
-        val declarantType = DeclarantType.Importer
-
-        val answers: CompleteDeclarantTypeAnswer = CompleteDeclarantTypeAnswer(declarantType)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(
-            declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-who-is-making-the-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
-        )
-
-      }
-
     }
 
     "handle submit requests" when {

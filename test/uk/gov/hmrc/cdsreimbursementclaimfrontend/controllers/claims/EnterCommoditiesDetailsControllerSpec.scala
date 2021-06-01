@@ -125,12 +125,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-commodities-details.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.SelectBasisForClaimController.selectBasisForClaim().url
+          messageFromMessageKey("enter-commodities-details.title")
         )
       }
 
@@ -157,12 +152,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-commodities-details.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.SelectBasisForClaimController.selectBasisForClaim().url
+          messageFromMessageKey("enter-commodities-details.title")
         )
       }
 
@@ -190,15 +180,9 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-commodities-details.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+          messageFromMessageKey("enter-commodities-details.title")
         )
-
       }
-
     }
 
     "handle submit requests" when {

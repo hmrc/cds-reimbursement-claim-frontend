@@ -124,12 +124,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim().url
+          messageFromMessageKey("select-basis-for-claim.title")
         )
       }
 
@@ -151,12 +146,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
+          messageFromMessageKey("select-basis-for-claim.title")
         )
       }
 
@@ -181,12 +171,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim().url
+          messageFromMessageKey("select-basis-for-claim.title")
         )
       }
 
@@ -211,12 +196,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe
-              routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds().url
+          messageFromMessageKey("select-basis-for-claim.title")
         )
       }
 
@@ -244,11 +224,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title"),
-          doc =>
-            doc
-              .select("a.govuk-back-link")
-              .attr("href") shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+          messageFromMessageKey("select-basis-for-claim.title")
         )
 
       }
