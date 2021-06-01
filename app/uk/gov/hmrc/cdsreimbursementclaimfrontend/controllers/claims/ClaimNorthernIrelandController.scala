@@ -61,12 +61,12 @@ class ClaimNorthernIrelandController @Inject() (
   def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
   def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
 
-  def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.action andThen
+  def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
       val backLink   = routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
-      val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+      val filledForm = answers.fold(emptyForm)(emptyForm.fill)
       Ok(claimNorthernIrelandPage(filledForm, backLink, isAmend))
     }
   }
@@ -75,49 +75,50 @@ class ClaimNorthernIrelandController @Inject() (
   def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
 
   def submit(isAmend: Boolean): Action[AnyContent] =
-    (featureSwitch.NorthernIreland.action andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
-        ClaimNorthernIrelandController.claimNorthernIrelandForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              BadRequest(
-                claimNorthernIrelandPage(
-                  formWithErrors,
-                  routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
-                  isAmend
-                )
-              ),
-            formOk => {
+    (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
+      implicit request =>
+        withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
+          ClaimNorthernIrelandController.claimNorthernIrelandForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                BadRequest(
+                  claimNorthernIrelandPage(
+                    formWithErrors,
+                    routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds(),
+                    isAmend
+                  )
+                ),
+              formOk => {
 
-              val newNiAnswer = fillingOutClaim.draftClaim
-                .fold(_.claimNorthernIrelandAnswer)
+                val newNiAnswer = fillingOutClaim.draftClaim
+                  .fold(_.claimNorthernIrelandAnswer)
 
-              val answerChanged = newNiAnswer.isEmpty || newNiAnswer.exists(n => n.value =!= formOk.value)
+                val answerChanged = newNiAnswer.isEmpty || newNiAnswer.exists(n => n.value =!= formOk.value)
 
-              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
+                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-                .fold(
-                  e => {
-                    logger.warn("could not capture select number of claims", e)
-                    errorHandler.errorResult()
-                  },
-                  _ =>
-                    isAmend match {
-                      case true  =>
-                        if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
-                        else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-                      case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
-                    }
-                )
+                EitherT
+                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap((_: Unit) => Error("could not update session"))
+                  .fold(
+                    e => {
+                      logger.warn("could not capture select number of claims", e)
+                      errorHandler.errorResult()
+                    },
+                    _ =>
+                      isAmend match {
+                        case true  =>
+                          if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                          else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                        case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                      }
+                  )
 
-            }
-          )
-      }
+              }
+            )
+        }
     }
 
 }
