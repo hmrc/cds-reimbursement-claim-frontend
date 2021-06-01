@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
+import cats.instances.future.catsStdInstancesForFuture
+import cats.syntax.option._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
@@ -25,21 +27,21 @@ import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.makeBlankForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer.{CompleteDutiesSelectedAnswer, IncompleteDutiesSelectedAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutiesSelectedAnswer, Error, SessionData, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectDutiesController @Inject() (
@@ -54,194 +56,59 @@ class SelectDutiesController @Inject() (
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
+    with SessionDataExtractor
     with SessionUpdates {
 
-  private def withSelectedDutiesAnswer(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      DutiesSelectedAnswer
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
-          ) =>
-        val maybeDutiesSelectedAnswer = draftClaim.fold(
-          _.dutiesSelectedAnswer
-        )
-        maybeDutiesSelectedAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDutiesSelectedAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
-
-  private def duties(fillingOutClaim: FillingOutClaim): List[Duty] =
-    fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
-      case Some(displayDeclaration) =>
-        displayDeclaration.displayResponseDetail.ndrcDetails match {
-          case Some(ndrcDetails) => makeBlankForm(ndrcDetails, fillingOutClaim.draftClaim.isMrnFlow).duties
-          case None              => List.empty
-        }
-      case None                     => makeBlankForm(List.empty, false).duties
-    }
-
-  val dutiesForEntryNumber: List[Duty] = TaxCode.ukAndEuTaxCodes.map(Duty(_))
+  implicit val dataExtractor: DraftC285Claim => Option[DutiesSelectedAnswer] = _.dutiesSelectedAnswer
 
   def selectDuties(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSelectedDutiesAnswer { (_, fillingOutClaim, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.maybeDutiesSelected match {
-              case Some(dutiesSelected) =>
-                Ok(
-                  selectDutiesPage(
-                    SelectDutiesController
-                      .selectDutiesForm(DutiesSelected(duties(fillingOutClaim)))
-                      .fill(dutiesSelected),
-                    duties(fillingOutClaim)
-                  )
-                )
-              case None                 =>
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(referenceNumber) =>
-                    referenceNumber match {
-                      case Left(_)  =>
-                        Ok(
-                          selectDutiesPage(
-                            SelectDutiesController
-                              .selectDutiesForm(makeBlankForm(List.empty, fillingOutClaim.draftClaim.isMrnFlow))
-                              .fill(DutiesSelected(List.empty)),
-                            dutiesForEntryNumber
-                          )
-                        )
-                      case Right(_) =>
-                        val ndrcDetails: List[NdrcDetails] =
-                          fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
-                            case Some(displayDeclaration) =>
-                              displayDeclaration.displayResponseDetail.ndrcDetails match {
-                                case Some(ndrcDetails) => ndrcDetails
-                                case None              => List.empty
-                              }
-                            case None                     => List.empty
-                          }
-
-                        if (ndrcDetails.nonEmpty) {
-                          Ok(
-                            selectDutiesPage(
-                              SelectDutiesController
-                                .selectDutiesForm(makeBlankForm(ndrcDetails, fillingOutClaim.draftClaim.isMrnFlow))
-                                .fill(DutiesSelected(List.empty)),
-                              duties(fillingOutClaim)
-                            )
-                          )
-                        } else {
-                          logger.warn(
-                            s"ACC-14 response returned no NDRC details: Num of ndrc entries: ${ndrcDetails.size} | Ndrc tax codes: ${ndrcDetails
-                              .map(s => s.taxType)
-                              .mkString("|")}"
-                          )
-                          Redirect(baseRoutes.IneligibleController.ineligible())
-                        }
-                    }
-                  case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
-                }
-            },
-          ifComplete =>
-            fillingOutClaim.draftClaim.movementReferenceNumber match {
-              case Some(value) =>
-                value match {
-                  case Left(_)  =>
-                    Ok(
-                      selectDutiesPage(
-                        SelectDutiesController
-                          .selectDutiesForm(ifComplete.dutiesSelected)
-                          .fill(ifComplete.dutiesSelected),
-                        dutiesForEntryNumber
-                      )
-                    )
-                  case Right(_) =>
-                    Ok(
-                      selectDutiesPage(
-                        SelectDutiesController
-                          .selectDutiesForm(ifComplete.dutiesSelected)
-                          .fill(ifComplete.dutiesSelected),
-                        duties(fillingOutClaim)
-                      )
-                    )
-                }
-              case None        =>
-                logger.warn("Could not find movement or entry reference number")
-                errorHandler.errorResult()
-            }
+      withAnswers[DutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
+        getAvailableDuties(fillingOutClaim).fold(
+          error => {
+            logger.warn("No Available duties: ", error)
+            Redirect(baseRoutes.IneligibleController.ineligible())
+          },
+          dutiesAvailable => {
+            val emptyForm  = selectDutiesForm(dutiesAvailable)
+            val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
+            Ok(selectDutiesPage(filledForm, dutiesAvailable))
+          }
         )
       }
     }
 
   def selectDutiesSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSelectedDutiesAnswer { (_, fillingOutClaim, currentAnswers) =>
-        SelectDutiesController
-          .selectDutiesForm {
-            fillingOutClaim.draftClaim.movementReferenceNumber match {
-              case Some(value) =>
-                value match {
-                  case Left(_)  => makeBlankForm(List.empty, false)
-                  case Right(_) => DutiesSelected(duties(fillingOutClaim))
+      withAnswers[DutiesSelectedAnswer] { (fillingOutClaim, _) =>
+        getAvailableDuties(fillingOutClaim).fold(
+          error => {
+            logger.warn("No Available duties: ", error)
+            Redirect(baseRoutes.IneligibleController.ineligible())
+          },
+          dutiesAvailable =>
+            selectDutiesForm(dutiesAvailable)
+              .bindFromRequest()
+              .fold(
+                formWithErrors => BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable)),
+                dutiesSelected => {
+                  val newDraftClaim  =
+                    fillingOutClaim.draftClaim.fold(_.copy(dutiesSelectedAnswer = Some(dutiesSelected)))
+                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+                  EitherT
+                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                    .leftMap((_: Unit) => Error("could not update session"))
+                    .fold(
+                      e => {
+                        logger.warn("could not get duties selected ", e)
+                        errorHandler.errorResult()
+                      },
+                      _ => Redirect(routes.EnterClaimController.startClaim())
+                    )
                 }
-              case None        =>
-                sys.error("could not find movement or entry reference number")
-            }
-          }
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                selectDutiesPage(
-                  requestFormWithErrors
-                    .fill(
-                      DutiesSelected(
-                        currentAnswers.fold(
-                          _.maybeDutiesSelected.getOrElse(DutiesSelected(List.empty)).duties,
-                          _.dutiesSelected.duties
-                        )
-                      )
-                    ),
-                  duties(fillingOutClaim)
-                )
-              ),
-            dutiesSelected => {
-
-              val updatedAnswers = currentAnswers.fold(
-                _ =>
-                  CompleteDutiesSelectedAnswer(
-                    dutiesSelected
-                  ),
-                complete => complete.copy(dutiesSelected = dutiesSelected)
               )
-
-              val newDraftClaim =
-                fillingOutClaim.draftClaim.fold(_.copy(dutiesSelectedAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not get duties selected ", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.EnterClaimController.startClaim())
-              )
-            }
-          )
+        )
       }
     }
 
@@ -249,51 +116,53 @@ class SelectDutiesController @Inject() (
 
 object SelectDutiesController {
 
-  def makeBlankForm(ndrcDetails: List[NdrcDetails], isMrnFlow: Boolean): DutiesSelected =
-    if (isMrnFlow) {
-      val duties: List[Duty] = ndrcDetails.map { n =>
-        TaxCode.fromString(n.taxType) match {
-          case Some(taxCode) =>
-            Duty(taxCode)
-          case None          =>
-            sys.error(s"invalid data received from ACC-14: NDRC details tax type not recognised: ${n.taxType}")
-        }
-      }
-      DutiesSelected(duties)
-    } else {
-      DutiesSelected(TaxCode.ukAndEuTaxCodes.map(Duty(_)))
-    }
+  def getAvailableDuties(fillingOutClaim: FillingOutClaim): Either[Error, DutiesSelectedAnswer] = {
+    val wasIncorrectExciseCodeSelected = fillingOutClaim.draftClaim
+      .fold(_.basisOfClaimAnswer)
+      .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
+      .map(_ === IncorrectExciseValue)
+      .getOrElse(false)
 
-  def selectDutiesForm(dutiesSelected: DutiesSelected): Form[DutiesSelected] = Form(
+    val acc14TaxCodes = fillingOutClaim.draftClaim
+      .fold(_.displayDeclaration)
+      .flatMap(_.displayResponseDetail.ndrcDetails)
+      .map(_.map(n => TaxCode.fromString(n.taxType)).flatten(Option.option2Iterable))
+      .getOrElse(Nil)
+
+    wasIncorrectExciseCodeSelected match {
+      case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
+        val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
+        DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
+      case false =>
+        fillingOutClaim.draftClaim.isMrnFlow match {
+          case true  =>
+            val receivedUkAndEuCodes = acc14TaxCodes.intersect(TaxCode.ukAndEuTaxCodes)
+            DutiesSelectedAnswer(receivedUkAndEuCodes.map(Duty(_)))
+              .toRight(Error("No UK or EU tax codes were received from Acc14"))
+          case false =>
+            DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_)))
+              .toRight(Error("Eu and Uk tax codes were empty"))
+        }
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
     mapping(
       "select-duties" -> list(
         mapping(
-          "" -> number
+          "" -> nonEmptyText
             .verifying(
               "invalid tax code",
-              code =>
-                code === 0 ||
-                  code === 1 ||
-                  code === 2 ||
-                  code === 3 ||
-                  code === 4 ||
-                  code === 5 ||
-                  code === 6 ||
-                  code === 7 ||
-                  code === 8 ||
-                  code === 9 ||
-                  code === 10 ||
-                  code === 11 ||
-                  code === 12 ||
-                  code === 13
+              code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
             )
             .transform[TaxCode](
-              (x: Int) => dutiesSelected.duties(x).taxCode,
-              (t: TaxCode) => dutiesSelected.duties.indexOf(Duty(t))
+              (x: String) => TaxCode.allTaxCodesMap(x),
+              (t: TaxCode) => t.value
             )
         )(Duty.apply)(Duty.unapply)
       ).verifying("error.required", _.nonEmpty)
-    )(DutiesSelected.apply)(DutiesSelected.unapply)
+    )(taxCodes => DutiesSelectedAnswer(taxCodes.head, taxCodes.tail: _*))(dsa => Some(dsa.toList))
   )
 
 }

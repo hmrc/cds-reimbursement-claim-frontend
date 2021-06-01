@@ -16,60 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.kernel.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.{DutiesSelected, Duty}
-
-sealed trait DutiesSelectedAnswer extends Product with Serializable
+import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
 object DutiesSelectedAnswer {
 
-  final case class IncompleteDutiesSelectedAnswer(
-    maybeDutiesSelected: Option[DutiesSelected]
-  ) extends DutiesSelectedAnswer
+  def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
+  def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
 
-  object IncompleteDutiesSelectedAnswer {
-    val empty: IncompleteDutiesSelectedAnswer           = IncompleteDutiesSelectedAnswer(None)
-    implicit val eq: Eq[IncompleteDutiesSelectedAnswer] = Eq.fromUniversalEquals[IncompleteDutiesSelectedAnswer]
-
-    implicit val format: OFormat[IncompleteDutiesSelectedAnswer] =
-      derived.oformat[IncompleteDutiesSelectedAnswer]()
-  }
-
-  final case class CompleteDutiesSelectedAnswer(
-    dutiesSelected: DutiesSelected
-  ) extends DutiesSelectedAnswer
-
-  object CompleteDutiesSelectedAnswer {
-    implicit val format: OFormat[CompleteDutiesSelectedAnswer] =
-      derived.oformat[CompleteDutiesSelectedAnswer]()
-  }
-
-  implicit class DutiesToClaimAgainstAnswerOps(
-    private val a: DutiesSelectedAnswer
-  ) extends AnyVal {
-    def fold[A](
-      ifIncomplete: IncompleteDutiesSelectedAnswer => A,
-      ifComplete: CompleteDutiesSelectedAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteDutiesSelectedAnswer => ifIncomplete(i)
-        case c: CompleteDutiesSelectedAnswer   => ifComplete(c)
-      }
-
-    def duties: List[Duty] = a match {
-      case IncompleteDutiesSelectedAnswer(maybeDutiesSelected) =>
-        maybeDutiesSelected match {
-          case Some(value) => value.duties
-          case None        => List.empty
-        }
-      case CompleteDutiesSelectedAnswer(dutiesSelected)        => dutiesSelected.duties
-    }
-  }
-
-  implicit val eq: Eq[DutiesSelectedAnswer] = Eq.fromUniversalEquals[DutiesSelectedAnswer]
-
-  implicit val format: OFormat[DutiesSelectedAnswer] =
-    derived.oformat[DutiesSelectedAnswer]()
 }

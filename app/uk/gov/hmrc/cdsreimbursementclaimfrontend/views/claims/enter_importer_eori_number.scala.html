@@ -43,7 +43,7 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help")), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(routes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(), 'novalidate -> "novalidate") {
 
