@@ -45,7 +45,7 @@
 @(id : UUID, form : Form[AmountPair], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"enter-claim"}
-  @title = @{messages(s"$key.title", messages(s"select-duties.duty.${claim.taxCode}"))}
+  @title = @{messages(s"$key.title", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}"))}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
