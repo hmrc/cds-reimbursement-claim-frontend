@@ -556,7 +556,7 @@ select-duties.duty.99D=Electricity
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
 
-enter-claim.title=Enter the claim amount for duty {0}
+enter-claim.title=Enter the claim amount for duty {0} - {1}
 enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
 enter-claim.claim-amount=Claim Amount
