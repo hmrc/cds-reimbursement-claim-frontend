@@ -33,8 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -71,7 +72,7 @@ class SelectDutiesController @Inject() (
           },
           dutiesAvailable => {
             val emptyForm  = selectDutiesForm(dutiesAvailable)
-            val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
+            val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill)
             Ok(selectDutiesPage(filledForm, dutiesAvailable))
           }
         )
@@ -120,8 +121,7 @@ object SelectDutiesController {
     val wasIncorrectExciseCodeSelected = fillingOutClaim.draftClaim
       .fold(_.basisOfClaimAnswer)
       .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
-      .map(_ === IncorrectExciseValue)
-      .getOrElse(false)
+      .exists(_ === IncorrectExciseValue)
 
     val acc14TaxCodes = fillingOutClaim.draftClaim
       .fold(_.displayDeclaration)
