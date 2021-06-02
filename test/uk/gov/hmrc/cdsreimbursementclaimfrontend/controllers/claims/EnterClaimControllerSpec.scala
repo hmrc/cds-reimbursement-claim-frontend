@@ -224,7 +224,7 @@ class EnterClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(claim.id),
-          messageFromMessageKey("enter-claim.title", "Customs Duty")
+          messageFromMessageKey("enter-claim.title", claim.taxCode, "Customs Duty")
         )
       }
 
@@ -247,7 +247,7 @@ class EnterClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(claim.id),
-          messageFromMessageKey("enter-claim.title", "Customs Duty")
+          messageFromMessageKey("enter-claim.title", claim.taxCode, "Customs Duty")
         )
       }
 
@@ -354,7 +354,7 @@ class EnterClaimControllerSpec
               "enter-claim.claim-amount" -> "dfsfs"
             )
           ),
-          messageFromMessageKey("enter-claim.title", "Customs Duty"),
+          messageFromMessageKey("enter-claim.title", claim.taxCode, "Customs Duty"),
           doc => {
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
@@ -395,7 +395,7 @@ class EnterClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(claim.id),
-          messageFromMessageKey("enter-claim.title", "Customs Duty")
+          messageFromMessageKey("enter-claim.title", claim.taxCode, "Customs Duty")
         )
 
       }
