@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
+import cats.data.NonEmptyList
 import play.api.i18n.{Lang, Langs, MessagesApi}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -31,10 +32,10 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   private val key = "check-claim"
 
-  def claimSummary(claims: List[Claim]): List[SummaryListRow] =
+  def claimSummary(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
     makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
 
-  def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
+  def makeClaimSummaryRows(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
         key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
@@ -42,7 +43,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
       )
     }
 
-  def makeClaimTotalRow(claims: List[Claim]): SummaryListRow =
+  def makeClaimTotalRow(claims: ClaimsAnswer): SummaryListRow =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
       value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claims.total)))

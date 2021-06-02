@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
@@ -120,7 +119,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
-  val completeClaimsAnswer: CompleteClaimsAnswer                                        = sample[CompleteClaimsAnswer]
+  val completeClaimsAnswer: ClaimsAnswer                                                = sample[ClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),

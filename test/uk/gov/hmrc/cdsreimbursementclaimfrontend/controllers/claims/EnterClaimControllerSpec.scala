@@ -28,7 +28,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
@@ -94,9 +93,7 @@ class EnterClaimControllerSpec
 
         val id = UUID.randomUUID()
 
-        val answers = IncompleteClaimsAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -117,11 +114,9 @@ class EnterClaimControllerSpec
       "there  are no claims" in {
         def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
-        val answers = IncompleteClaimsAnswer.empty
+        val draftC285Claim = sessionWithClaimState(None)._3
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
-
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -145,7 +140,7 @@ class EnterClaimControllerSpec
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -178,7 +173,7 @@ class EnterClaimControllerSpec
         val claim2 = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim1, claim2))
+        val answers = ClaimsAnswer(claim1, claim2)
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -209,7 +204,7 @@ class EnterClaimControllerSpec
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
@@ -232,7 +227,7 @@ class EnterClaimControllerSpec
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
@@ -270,7 +265,7 @@ class EnterClaimControllerSpec
             taxCode = "A00"
           )
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -303,7 +298,7 @@ class EnterClaimControllerSpec
             taxCode = "A00"
           )
 
-        val answers = CompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val (session, _, _) = sessionWithClaimState(Some(answers))
 
@@ -332,7 +327,7 @@ class EnterClaimControllerSpec
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
@@ -380,7 +375,7 @@ class EnterClaimControllerSpec
         val claim = sample[Claim]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = "A00")
 
-        val answers = IncompleteClaimsAnswer(List(claim))
+        val answers = ClaimsAnswer(claim)
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))

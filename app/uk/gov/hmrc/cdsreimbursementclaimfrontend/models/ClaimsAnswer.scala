@@ -16,55 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.kernel.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
-
-sealed trait ClaimsAnswer extends Product with Serializable
+import cats.data.NonEmptyList
 
 object ClaimsAnswer {
 
-  final case class IncompleteClaimsAnswer(
-    claims: List[Claim]
-  ) extends ClaimsAnswer
+  def apply(head: Claim, tail: Claim*): NonEmptyList[Claim] = NonEmptyList.of(head, tail: _*)
+  def apply(l: List[Claim]): Option[NonEmptyList[Claim]]    = NonEmptyList.fromList(l)
 
-  object IncompleteClaimsAnswer {
-    val empty: IncompleteClaimsAnswer           = IncompleteClaimsAnswer(List.empty)
-    implicit val eq: Eq[IncompleteClaimsAnswer] = Eq.fromUniversalEquals[IncompleteClaimsAnswer]
-
-    implicit val format: OFormat[IncompleteClaimsAnswer] =
-      derived.oformat[IncompleteClaimsAnswer]()
-  }
-
-  final case class CompleteClaimsAnswer(
-    claims: List[Claim]
-  ) extends ClaimsAnswer
-
-  object CompleteClaimsAnswer {
-    implicit val eq: Eq[CompleteClaimsAnswer]          = Eq.fromUniversalEquals[CompleteClaimsAnswer]
-    implicit val format: OFormat[CompleteClaimsAnswer] =
-      derived.oformat[CompleteClaimsAnswer]()
-  }
-
-  implicit class ClaimAnswersOps(
-    private val a: ClaimsAnswer
-  ) extends AnyVal {
-
-    def fold[A](
-      ifIncomplete: IncompleteClaimsAnswer => A,
-      ifComplete: CompleteClaimsAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteClaimsAnswer => ifIncomplete(i)
-        case c: CompleteClaimsAnswer   => ifComplete(c)
-      }
-
-    def total: BigDecimal = a match {
-      case IncompleteClaimsAnswer(claims) => claims.map(c => c.claimAmount).sum
-      case CompleteClaimsAnswer(claims)   => claims.map(c => c.claimAmount).sum
-    }
-  }
-
-  implicit val eq: Eq[ClaimsAnswer]          = Eq.fromUniversalEquals[ClaimsAnswer]
-  implicit val format: OFormat[ClaimsAnswer] = derived.oformat[ClaimsAnswer]()
 }
