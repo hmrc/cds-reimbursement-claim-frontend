@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -37,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -45,6 +47,7 @@ class EnterClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with BeforeAndAfterEach
     with ScalaCheckDrivenPropertyChecks {
   lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
   override val overrideBindings: List[GuiceableModule] =
@@ -52,6 +55,10 @@ class EnterClaimControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  override def beforeEach(): Unit = featureSwitch.EntryNumber.enable()
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
