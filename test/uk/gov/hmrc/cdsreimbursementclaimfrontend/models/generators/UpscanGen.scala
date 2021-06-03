@@ -22,9 +22,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import org.scalacheck.ScalacheckShapeless._
+import org.scalatest.OptionValues
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 
-object UpscanGen extends GenUtils {
+object UpscanGen extends GenUtils with OptionValues {
 
   implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
 
@@ -46,12 +47,13 @@ object UpscanGen extends GenUtils {
   implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
 
   implicit val supportingEvidenceAnswersGen: Gen[SupportingEvidenceAnswer] =
-    Gen.chooseNum(1, 9) flatMap genSupportingEvidenceAnswerOfN
+    for {
+      n         <- Gen.chooseNum(1, 9)
+      evidences <- genSupportingEvidenceAnswerOfN(n)
+    } yield evidences.value
 
-  def genSupportingEvidenceAnswerOfN(n: Int): Gen[SupportingEvidenceAnswer] =
-    Gen.listOfN(n, supportingEvidenceGen).map { evidences =>
-      NonEmptyList.of[SupportingEvidence](evidences.head, evidences.tail: _*)
-    }
+  def genSupportingEvidenceAnswerOfN(n: Int): Gen[Option[SupportingEvidenceAnswer]] =
+    Gen.listOfN(n, supportingEvidenceGen).map(NonEmptyList.fromList)
 
   def genSupportingEvidenceAnswerOpt: Gen[Option[SupportingEvidenceAnswer]] =
     Gen.option(supportingEvidenceAnswersGen)
