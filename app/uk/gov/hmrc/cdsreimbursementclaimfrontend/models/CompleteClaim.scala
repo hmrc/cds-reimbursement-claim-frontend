@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import julienrf.json.derived
@@ -67,7 +66,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidences: NonEmptyList[SupportingEvidence],
+    supportingEvidences: SupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -343,7 +342,7 @@ object CompleteClaim {
 
   def validateSupportingEvidenceAnswer(
     maybeSupportingEvidence: Option[SupportingEvidenceAnswer]
-  ): Validation[NonEmptyList[SupportingEvidence]] =
+  ): Validation[SupportingEvidenceAnswer] =
     maybeSupportingEvidence toValidNel "missing supporting evidence answer"
 
   def validateBasisOfClaimAnswer(
