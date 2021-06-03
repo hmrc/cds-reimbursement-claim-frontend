@@ -92,7 +92,7 @@ class EnterClaimController @Inject() (
                 Ok(enterEntryClaimPage(id, form, claim))
             }
           case None        =>
-            Redirect(routes.SelectDutiesController.selectDuties())
+            Ok("This claim no longer exists") //TODO replace this with the a proper error page
         }
       }
     }
@@ -106,7 +106,7 @@ class EnterClaimController @Inject() (
           case Some(claims) =>
             claims.find(_.id === id) match {
               case None        =>
-                Redirect(routes.EnterClaimController.startClaim()) //TODO test this
+                Redirect(routes.EnterClaimController.startClaim())
               case Some(claim) =>
                 fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
                   case true  =>
@@ -114,6 +114,7 @@ class EnterClaimController @Inject() (
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
+                          println(formWithErrors)
                           val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
                           BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
                         },
