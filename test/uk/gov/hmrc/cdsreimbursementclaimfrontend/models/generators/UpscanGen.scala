@@ -16,22 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import cats.data.NonEmptyList
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import org.scalacheck.ScalacheckShapeless._
+import org.scalatest.OptionValues
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 
-object UpscanGen extends GenUtils {
+object UpscanGen extends GenUtils with OptionValues {
 
   implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
-
-  implicit val completeUploadSupportingEvidenceAnswersGen: Gen[CompleteSupportingEvidenceAnswer] =
-    gen[CompleteSupportingEvidenceAnswer]
-
-  implicit val incompleteUploadSupportingEvidenceAnswersGen: Gen[IncompleteSupportingEvidenceAnswer] =
-    gen[IncompleteSupportingEvidenceAnswer]
 
   implicit val supportingEvidenceGen: Gen[SupportingEvidence] =
     gen[SupportingEvidence]
@@ -49,4 +45,16 @@ object UpscanGen extends GenUtils {
   implicit val supportingDocumentTypeGen: Gen[SupportingEvidenceDocumentType] = gen[SupportingEvidenceDocumentType]
 
   implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
+
+  implicit val supportingEvidenceAnswersGen: Gen[SupportingEvidenceAnswer] =
+    for {
+      n         <- Gen.chooseNum(1, 9)
+      evidences <- genSupportingEvidenceAnswerOfN(n)
+    } yield evidences.value
+
+  def genSupportingEvidenceAnswerOfN(n: Int): Gen[Option[SupportingEvidenceAnswer]] =
+    Gen.listOfN(n, supportingEvidenceGen).map(NonEmptyList.fromList)
+
+  def genSupportingEvidenceAnswerOpt: Gen[Option[SupportingEvidenceAnswer]] =
+    Gen.option(supportingEvidenceAnswersGen)
 }

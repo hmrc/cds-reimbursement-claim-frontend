@@ -35,9 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DutiesSelectedAnswer, SupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -57,7 +57,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -115,7 +114,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
   val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
-  val completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer                = sample[CompleteSupportingEvidenceAnswer]
+  val supportingEvidences: SupportingEvidenceAnswer                                     = sample[SupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
@@ -131,7 +130,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
-    supportingEvidenceAnswers = Some(completeSupportingEvidenceAnswer),
+    supportingEvidenceAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
@@ -193,7 +192,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
-    supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+    supportingEvidences = supportingEvidences,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
@@ -514,7 +513,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(updatedSession)
           mockSubmitClaim(submitClaimRequest)(Right(submitClaimResponse))
-          mockStoreSession(justSubmittedJourney)(Left((Error("BOOM!"))))
+          mockStoreSession(justSubmittedJourney)(Left(Error("BOOM!")))
         }
 
         checkIsTechnicalErrorPage(performAction())

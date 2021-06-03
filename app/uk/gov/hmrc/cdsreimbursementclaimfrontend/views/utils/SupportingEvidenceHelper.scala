@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -31,8 +31,8 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
 
   private val key = "supporting-evidence.check-your-answers"
 
-  def makeUploadedFilesRows(supportingEvidences: List[SupportingEvidence], isAmend: Boolean): List[SummaryListRow] =
-    supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
+  def makeUploadedFilesRows(uploadedEvidences: SupportingEvidenceAnswer): List[SummaryListRow] =
+    uploadedEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
         key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),
         value = Value(Text(document.fileName)),
@@ -41,13 +41,12 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
             items = Seq(
               ActionItem(
                 href =
-                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, isAmend, addNew = false).url}",
+                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, addNew = false).url}",
                 content = Text(messages("cya.remove")(lang))
               )
             )
           )
         )
       )
-    }
-
+    }.toList
 }

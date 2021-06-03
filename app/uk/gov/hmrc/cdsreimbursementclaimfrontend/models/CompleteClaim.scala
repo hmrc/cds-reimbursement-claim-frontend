@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import cats.data.Validated.Valid
-import cats.implicits._
+import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
@@ -40,11 +40,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.CompleteSupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 
 import java.util.UUID
 
@@ -65,7 +65,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidenceAnswers: CompleteSupportingEvidenceAnswer,
+    supportingEvidences: SupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -92,7 +92,7 @@ object CompleteClaim {
               draftClaimantDetailsAsImporterCompanyAnswer,
               draftBankAccountDetailAnswer,
               draftBasisForClaim,
-              draftSupportingEvidence,
+              draftSupportingEvidences,
               _,
               draftCommodityAnswer,
               draftNorthernIrelandAnswer,
@@ -115,7 +115,7 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateSupportingEvidenceAnswer(draftSupportingEvidence),
+                validateSupportingEvidenceAnswer(draftSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
@@ -130,7 +130,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        completeSupportingEvidenceAnswer,
+                        supportingEvidences,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
@@ -148,7 +148,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidenceAnswers = completeSupportingEvidenceAnswer,
+                      supportingEvidences,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
@@ -176,7 +176,7 @@ object CompleteClaim {
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
                 validateBasisOfClaimAnswer(draftBasisForClaim),
-                validateSupportingEvidenceAnswer(draftSupportingEvidence),
+                validateSupportingEvidenceAnswer(draftSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
@@ -190,7 +190,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
                         completeBasisOfClaimAnswer,
-                        completeSupportingEvidenceAnswer,
+                        supportingEvidences,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeImporterEoriNumberAnswer,
@@ -208,7 +208,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      completeSupportingEvidenceAnswer,
+                      supportingEvidences,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       None,
@@ -332,18 +332,9 @@ object CompleteClaim {
     }
 
   def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
-  ): Validation[CompleteSupportingEvidenceAnswer] =
-    maybeSupportingEvidenceAnswer match {
-      case Some(value) =>
-        value match {
-          case SupportingEvidenceAnswer.IncompleteSupportingEvidenceAnswer(_)     =>
-            invalid("incomplete supporting evidence answer")
-          case completeSupportingEvidenceAnswer: CompleteSupportingEvidenceAnswer =>
-            Valid(completeSupportingEvidenceAnswer)
-        }
-      case None        => invalid("missing supporting evidence answer")
-    }
+    maybeSupportingEvidence: Option[SupportingEvidenceAnswer]
+  ): Validation[SupportingEvidenceAnswer] =
+    maybeSupportingEvidence toValidNel "missing supporting evidence answer"
 
   def validateBasisOfClaimAnswer(
     maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
@@ -351,9 +342,7 @@ object CompleteClaim {
     maybeBasisOfClaimAnswer match {
       case Some(value) =>
         value match {
-          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(
-                _
-              ) =>
+          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(_)     =>
             invalid("incomplete basis of claim answer")
           case completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer =>
             Valid(Some(completeBasisOfClaimAnswer))
@@ -870,7 +859,7 @@ object CompleteClaim {
             _,
             _,
             _,
-            supportingEvidenceAnswers,
+            supportingEvidences,
             _,
             _,
             _,
@@ -880,7 +869,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        supportingEvidenceAnswers.evidences
+        supportingEvidences.toList
     }
 
     def totalUKDutyClaim: String = completeClaim match {
@@ -906,7 +895,7 @@ object CompleteClaim {
             completeClaimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
-          TaxCode.listOfUKTaxCodes.map(t => t.toString).exists(p => p.contains(taxCode))
+          TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
           completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
@@ -935,7 +924,7 @@ object CompleteClaim {
             completeClaimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
-          TaxCode.listOfEUTaxCodes.map(t => t.toString).exists(p => p.contains(taxCode))
+          TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
           completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )

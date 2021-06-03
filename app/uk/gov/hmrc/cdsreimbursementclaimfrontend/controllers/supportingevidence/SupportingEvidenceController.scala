@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 
-import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
+import cats.data.{EitherT, NonEmptyList}
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import configs.ConfigReader
-import configs.syntax._
 import play.api.Configuration
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
@@ -31,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer.{CompleteSupportingEvidenceAnswer, IncompleteSupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -67,92 +65,42 @@ class SupportingEvidenceController @Inject() (
     with Logging
     with SessionUpdates {
 
-  private def getUpscanInitiateConfig[A : ConfigReader](key: String): A =
-    config.underlying
-      .get[A](s"microservice.services.upscan-initiate.$key")
-      .value
-
-  private val maxUploads: Int = getUpscanInitiateConfig[Int]("max-uploads")
+  private val maxUploads =
+    config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
 
   private def withUploadSupportingEvidenceAnswers(
     f: (
       SessionData,
       FillingOutClaim,
-      SupportingEvidenceAnswer
+      Option[SupportingEvidenceAnswer]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              s,
-              r @ FillingOutClaim(_, _, c: DraftClaim)
-            )
-          ) =>
-        val maybeSupportingEvidenceAnswers = c.fold(
-          _.supportingEvidenceAnswers
-        )
-        maybeSupportingEvidenceAnswers.fold[Future[Result]](
-          f(s, r, IncompleteSupportingEvidenceAnswer.empty)
-        )(f(s, r, _))
+      case Some((s, r @ FillingOutClaim(_, _, c: DraftClaim))) =>
+        f(s, r, c.fold(draftC285Claim = _.supportingEvidenceAnswer))
 
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
-  private def redirectCheckAnsersPage(isAmend: Boolean) =
-    Redirect(
-      if (isAmend) routes.SupportingEvidenceController.changeCheckYourAnswers()
-      else routes.SupportingEvidenceController.checkYourAnswers()
-    )
-
-  def uploadSupportingEvidence(isAmend: Boolean): Action[AnyContent] =
+  def uploadSupportingEvidence(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
-        if (answers.fold(_.evidences, _.evidences).length >= maxUploads)
-          redirectCheckAnsersPage(isAmend)
-        else {
-          def changeAnswersState() = {
-            val incomplete = answers.fold(
-              incomplete => incomplete,
-              complete => IncompleteSupportingEvidenceAnswer(complete.evidences)
+      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
+        if (answers.exists(_.length >= maxUploads))
+          Redirect(routes.SupportingEvidenceController.checkYourAnswers())
+        else
+          upscanService
+            .initiate(
+              routes.SupportingEvidenceController
+                .handleUpscanErrorRedirect(),
+              routes.SupportingEvidenceController.scanProgress
             )
-
-            val newDraftClaim = fillingOutClaim.draftClaim.fold(
-              _.copy(supportingEvidenceAnswers = Some(incomplete))
-            )
-
-            val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-            EitherT(
-              updateSession(sessionStore, request)(
-                _.copy(journeyStatus = Some(newJourney))
-              )
-            )
-          }
-
-          val uploadUpscan = for {
-            _      <- if (isAmend) changeAnswersState() else EitherT.rightT[Future, Error](())
-            result <- upscanService
-                        .initiate(
-                          routes.SupportingEvidenceController
-                            .handleUpscanErrorRedirect(),
-                          routes.SupportingEvidenceController.scanProgress
-                        )
-          } yield result
-
-          uploadUpscan
             .fold(
               e => {
                 logger.warn("could not start upload supporting evidence", e)
                 errorHandler.errorResult()
               },
-              uploadUpscan =>
-                Ok(
-                  uploadPage(
-                    uploadUpscan
-                  )
-                )
+              uploadUpscan => Ok(uploadPage(uploadUpscan))
             )
-        }
       }
     }
 
@@ -176,42 +124,36 @@ class SupportingEvidenceController @Inject() (
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, fillingOutReturn, answers) =>
-        answers match {
-          case _: CompleteSupportingEvidenceAnswer =>
-            Redirect(routes.SupportingEvidenceController.checkYourAnswers())
+        val result = for {
+          upscanUpload <- upscanService.getUpscanUpload(uploadReference)
+          _            <- upscanUpload.upscanCallBack match {
+                            case Some(upscanSuccess: UpscanSuccess)
+                                if answers.forall(_.forall(_.uploadReference =!= uploadReference)) =>
+                              storeUpscanSuccess(
+                                upscanUpload,
+                                upscanSuccess,
+                                answers,
+                                fillingOutReturn
+                              )
+                            case _ => EitherT.pure[Future, Error](())
+                          }
+        } yield upscanUpload
 
-          case incompleteAnswers: IncompleteSupportingEvidenceAnswer =>
-            val result = for {
-              upscanUpload <- upscanService.getUpscanUpload(uploadReference)
-              _            <- upscanUpload.upscanCallBack match {
-                                case Some(upscanSuccess: UpscanSuccess) =>
-                                  storeUpscanSuccess(
-                                    upscanUpload,
-                                    upscanSuccess,
-                                    incompleteAnswers,
-                                    fillingOutReturn
-                                  )
-                                case _                                  =>
-                                  EitherT.pure[Future, Error](())
-                              }
-            } yield upscanUpload
-
-            result.fold(
-              e => {
-                logger.warn(s"could not update the status of upscan upload to uploaded : $e")
-                errorHandler.errorResult()
-              },
-              upscanUpload =>
-                upscanUpload.upscanCallBack match {
-                  case Some(_: UpscanSuccess) =>
-                    Redirect(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference))
-                  case Some(_: UpscanFailure) =>
-                    Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures())
-                  case None                   =>
-                    Ok(scanProgressPage(upscanUpload))
-                }
-            )
-        }
+        result.fold(
+          e => {
+            logger.warn(s"could not update the status of upscan upload to uploaded : $e")
+            errorHandler.errorResult()
+          },
+          upscanUpload =>
+            upscanUpload.upscanCallBack match {
+              case Some(_: UpscanSuccess) =>
+                Redirect(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference))
+              case Some(_: UpscanFailure) =>
+                Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures())
+              case None                   =>
+                Ok(scanProgressPage(upscanUpload))
+            }
+        )
       }
     }
 
@@ -228,109 +170,76 @@ class SupportingEvidenceController @Inject() (
   private def storeUpscanSuccess(
     upscanUpload: UpscanUpload,
     upscanCallBack: UpscanSuccess,
-    answers: IncompleteSupportingEvidenceAnswer,
+    supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
     fillingOutClaim: FillingOutClaim
   )(implicit
     request: RequestWithSessionData[_],
     hc: HeaderCarrier
   ): EitherT[Future, Error, Unit] = {
-    val newAnswers =
-      upscanCallBack match {
-        case success: UpscanSuccess =>
-          val supportingEvidence =
-            SupportingEvidence(
-              upscanUpload.uploadReference,
-              upscanUpload.upscanUploadMeta,
-              upscanUpload.uploadedOn,
-              success,
-              success.fileName,
-              None
-            )
-          answers.copy(evidences = supportingEvidence :: answers.evidences)
 
-      }
-
-    val newDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(supportingEvidenceAnswers = Some(newAnswers))
+    val newEvidence = SupportingEvidence(
+      upscanUpload.uploadReference,
+      upscanUpload.upscanUploadMeta,
+      upscanUpload.uploadedOn,
+      upscanCallBack,
+      upscanCallBack.fileName,
+      None
     )
+
+    val evidences = supportingEvidenceAnswer.map(_ :+ newEvidence) orElse Some(SupportingEvidenceAnswer(newEvidence))
+
+    val newDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(supportingEvidenceAnswer = evidences))
     val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-    EitherT(
-      updateSession(sessionStore, request)(
-        _.copy(journeyStatus = Some(newJourney))
-      )
-    )
+    EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
   }
 
   def chooseSupportingEvidenceDocumentType(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        answers match {
-          case _: IncompleteSupportingEvidenceAnswer | _: CompleteSupportingEvidenceAnswer =>
-            Ok(
-              chooseDocumentTypePage(
-                SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
-                uploadReference
-              )
-            )
-        }
-      }
+      Ok(
+        chooseDocumentTypePage(
+          SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
+          uploadReference
+        )
+      )
     }
 
   def chooseSupportingEvidenceDocumentTypeSubmit(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
+      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, maybeEvidences) =>
         SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
           .bindFromRequest()
           .fold(
             requestFormWithErrors => BadRequest(chooseDocumentTypePage(requestFormWithErrors, uploadReference)),
             documentType => {
-              val updatedAnswers = answers.fold(
-                incomplete => {
-                  val evidences: List[SupportingEvidence] =
-                    incomplete.evidences.filter(p => p.uploadReference === uploadReference)
-                  val s: SupportingEvidence               = evidences.headOption match {
-                    case Some(fileUpload) =>
-                      fileUpload.copy(documentType = Some(documentType.supportingEvidenceDocumentType))
-                    case None             =>
-                      sys.error("could not find uploaded file")
-                  }
-                  incomplete.copy(
-                    evidences = incomplete.evidences
-                      .filterNot(_.uploadReference === uploadReference) :+ s
-                  )
-                },
-                { complete =>
-                  val fu: List[SupportingEvidence] =
-                    complete.evidences.filter(p => p.uploadReference === uploadReference)
-                  val s: SupportingEvidence        = fu.headOption match {
-                    case Some(fileUpload) =>
-                      fileUpload.copy(documentType = Some(documentType.supportingEvidenceDocumentType))
-                    case None             =>
-                      sys.error(s"could not find file upload with reference: $uploadReference")
-                  }
-                  val newEvidences                 = complete.evidences.filterNot(_.uploadReference === uploadReference)
-                  IncompleteSupportingEvidenceAnswer(
-                    newEvidences :+ s
-                  )
-                }
-              )
-              val newDraftClaim  = fillingOutClaim.draftClaim.fold(
-                _.copy(supportingEvidenceAnswers = Some(updatedAnswers))
-              )
-              val newJourney     = fillingOutClaim.copy(draftClaim = newDraftClaim)
+              val answers = for {
+                documents <- maybeEvidences.map(_.toList)
+                index     <- Option(documents.indexWhere(_.uploadReference === uploadReference)).filter(_ >= 0)
+                (x, xs)    = documents.splitAt(index)
+                updated    = documents(index).copy(documentType = Some(documentType.supportingEvidenceDocumentType))
+                items     <- NonEmptyList.fromList(x ++ xs.drop(1) :+ updated)
+              } yield items
 
               val result = for {
-                _ <- EitherT(
-                       updateSession(sessionStore, request)(
-                         _.copy(journeyStatus = Some(newJourney))
-                       )
-                     )
+                evidences <-
+                  EitherT
+                    .fromOption[Future](answers, Error(s"could not find file upload with reference: $uploadReference"))
+                _         <- EitherT(
+                               updateSession(sessionStore, request)(
+                                 _.copy(
+                                   journeyStatus = fillingOutClaim
+                                     .copy(draftClaim =
+                                       fillingOutClaim.draftClaim.fold(_.copy(supportingEvidenceAnswer = evidences.some))
+                                     )
+                                     .some
+                                 )
+                               )
+                             )
               } yield ()
 
               result.fold(
                 e => {
-                  logger.warn("Could not update session", e)
+                  logger.warn("Error assigning evidence document type", e)
                   errorHandler.errorResult()
                 },
                 _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers())
@@ -342,30 +251,18 @@ class SupportingEvidenceController @Inject() (
 
   def deleteSupportingEvidence(
     uploadReference: UploadReference,
-    isAmend: Boolean,
     addNew: Boolean
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
-        val updatedAnswers = answers.fold(
-          incomplete =>
-            incomplete.copy(
-              evidences = incomplete.evidences
-                .filterNot(_.uploadReference === uploadReference)
-            ),
-          { complete =>
-            val newEvidences = complete.evidences
-              .filterNot(_.uploadReference === uploadReference)
-            IncompleteSupportingEvidenceAnswer(
-              newEvidences
-            )
-          }
-        )
+      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, maybeEvidences) =>
+        def removeEvidence(evidences: NonEmptyList[SupportingEvidence]) =
+          NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(
-          _.copy(supportingEvidenceAnswers = Some(updatedAnswers))
+          _.copy(supportingEvidenceAnswer = maybeEvidences flatMap removeEvidence)
         )
-        val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+        val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
         val result = for {
           _ <- EitherT(
@@ -381,104 +278,30 @@ class SupportingEvidenceController @Inject() (
             errorHandler.errorResult()
           },
           _ =>
-            if (addNew)
-              Redirect(
-                routes.SupportingEvidenceController.uploadSupportingEvidence()
-              )
-            else redirectCheckAnsersPage(isAmend)
+            Redirect(
+              if (addNew) routes.SupportingEvidenceController.uploadSupportingEvidence()
+              else routes.SupportingEvidenceController.checkYourAnswers()
+            )
         )
       }
     }
 
   def checkYourAnswers(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        checkYourAnswersHandler(answers, isAmend = false)
-      }
-    }
+      withUploadSupportingEvidenceAnswers { (_, _, maybeSupportingEvidences) =>
+        def redirectToUploadEvidence =
+          Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
-  def changeCheckYourAnswers(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        checkYourAnswersHandler(answers, isAmend = true)
+        def listUploadedItems(evidences: NonEmptyList[SupportingEvidence]) =
+          Ok(checkYourAnswersPage(evidences, maxUploads))
+
+        maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
     }
 
   def checkYourAnswersSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, answers) =>
-        val updatedAnswers: SupportingEvidenceAnswer = answers match {
-          case IncompleteSupportingEvidenceAnswer(
-                evidences
-              ) =>
-            CompleteSupportingEvidenceAnswer(
-              evidences
-            )
-          case CompleteSupportingEvidenceAnswer(
-                evidences
-              ) =>
-            CompleteSupportingEvidenceAnswer(
-              evidences
-            )
-        }
-
-        val newDraftClaim: DraftClaim.DraftC285Claim = fillingOutClaim.draftClaim.fold(
-          _.copy(supportingEvidenceAnswers = Some(updatedAnswers))
-        )
-        val newJourney                               = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-        val result = for {
-          _ <- EitherT(
-                 updateSession(sessionStore, request)(
-                   _.copy(journeyStatus = Some(newJourney))
-                 )
-               )
-        } yield ()
-
-        result.fold(
-          e => {
-            logger.warn("Could not update session", e)
-            errorHandler.errorResult()
-          },
-          _ => Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-        )
-      }
-    }
-
-  private def checkYourAnswersHandler(
-    answers: SupportingEvidenceAnswer,
-    isAmend: Boolean
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    answers match {
-
-      case IncompleteSupportingEvidenceAnswer(
-            supportingEvidences
-          ) if supportingEvidences.isEmpty =>
-        Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
-
-      case IncompleteSupportingEvidenceAnswer(
-            supportingEvidences
-          ) =>
-        Ok(
-          checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswer(supportingEvidences),
-            maxUploads,
-            isAmend
-          )
-        )
-
-      case CompleteSupportingEvidenceAnswer(
-            supportingEvidences
-          ) =>
-        Ok(
-          checkYourAnswersPage(
-            CompleteSupportingEvidenceAnswer(
-              supportingEvidences
-            ),
-            maxUploads,
-            isAmend
-          )
-        )
+    authenticatedActionWithSessionData.async {
+      Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers())
     }
 }
 
