@@ -24,8 +24,8 @@
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    fileInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.file_input,
     dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
     dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
@@ -71,16 +71,13 @@
                 <input type="hidden" id="@k" name="@k" value="@v">
             }
 
-            @fileInput(
-                fieldId = field,
-                label = Html(title),
-                labelClass = Some("govuk-label govuk-label--s"),
-                inputClass = Some("govuk-file-upload"),
-                hasErrors = false,
-                errorKey = None,
-                helpText = Some(Html(messages(s"${key}.hint"))),
-                helpTextClass = Some("govuk-hint"),
-                labelAsHeading = false
+            @inputFile(
+                id = field,
+                name = field,
+                label = s"$key.title",
+                labelClasses = Some("govuk-label govuk-label--s"),
+                isPageHeading = false,
+                hint = Some(s"$key.hint")
             )
 
             <div class="govuk-!-margin-bottom-9">
