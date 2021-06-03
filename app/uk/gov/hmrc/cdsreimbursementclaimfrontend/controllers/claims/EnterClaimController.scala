@@ -29,8 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{AmountPair, ClaimAmount}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.{CompleteClaimsAnswer, IncompleteClaimsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN, UUIDGenerator}
@@ -163,7 +163,7 @@ class EnterClaimController @Inject() (
                     Redirect(routes.EnterClaimController.checkClaim()) // there is no change
                   } else if (dutiesSelected.size <= numberOfClaims) {
 
-                    val taxCodes       = dutiesSelected.map(s => s.taxCode.toString)
+                    val taxCodes       = dutiesSelected.map(s => s.taxCode.toString())
                     val updatedClaims  = ifIncomplete.claims.filter(p => taxCodes.exists(_ === p.taxCode))
                     val updatedAnswers = IncompleteClaimsAnswer(updatedClaims)
                     val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(updatedAnswers)))
@@ -183,7 +183,7 @@ class EnterClaimController @Inject() (
                   } else {
                     // number of duties is greater than the number of claims
                     // augment claims structure, update session, and redirect to that one
-                    val newTaxCodes: Set[String]     = dutiesSelected.map(s => s.taxCode.toString).toList.toSet
+                    val newTaxCodes: Set[String]     = dutiesSelected.map(s => s.taxCode.toString()).toList.toSet
                     val currentTaxCodes: Set[String] = ifIncomplete.claims.map(s => s.taxCode).toSet
                     val newTaxCode: Set[String]      = newTaxCodes.diff(currentTaxCodes)
                     if (newTaxCode.isEmpty) {

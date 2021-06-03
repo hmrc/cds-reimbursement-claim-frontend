@@ -23,9 +23,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DutiesSelectedAnswer, SupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceAnswer
 
 import java.util.UUID
 
@@ -47,7 +47,7 @@ object DraftClaim {
     contactDetailsAnswer: Option[ContactDetailsAnswer],
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
-    supportingEvidenceAnswers: Option[SupportingEvidenceAnswer],
+    supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
