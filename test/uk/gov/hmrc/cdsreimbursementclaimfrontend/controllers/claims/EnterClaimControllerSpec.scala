@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
@@ -39,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{m
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutiesSelectedAnswer, SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.util.UUID
@@ -364,8 +365,9 @@ class EnterClaimControllerSpec
     }
 
     "an invalid option value is submitted" in {
-      val claim = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = "A00")
+      val taxCode = TaxCode.A00
+      val claim   = sample[Claim]
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
 
       val answers = ClaimsAnswer(claim)
 
@@ -384,7 +386,7 @@ class EnterClaimControllerSpec
             "enter-claim.claim-amount" -> "dfsfs"
           )
         ),
-        messageFromMessageKey("enter-claim.title", "Customs Duty"),
+        messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
         doc => {
           doc
             .select(".govuk-error-summary__list > li:nth-child(1) > a")
