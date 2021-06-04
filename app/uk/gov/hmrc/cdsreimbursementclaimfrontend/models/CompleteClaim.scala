@@ -66,7 +66,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidences: SupportingEvidenceAnswer,
+    supportingEvidenceAnswer: SupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -131,7 +131,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        supportingEvidences,
+                        supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
@@ -149,7 +149,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidences,
+                      supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
@@ -191,7 +191,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
                         completeBasisOfClaimAnswer,
-                        supportingEvidences,
+                        supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeImporterEoriNumberAnswer,
@@ -209,7 +209,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidences,
+                      supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       None,
@@ -341,9 +341,9 @@ object CompleteClaim {
     }
 
   def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidence: Option[SupportingEvidenceAnswer]
+    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
   ): Validation[SupportingEvidenceAnswer] =
-    maybeSupportingEvidence toValidNel "missing supporting evidence answer"
+    maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
 
   def validateBasisOfClaimAnswer(
     maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
