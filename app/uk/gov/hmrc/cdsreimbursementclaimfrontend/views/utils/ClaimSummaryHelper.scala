@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.data.NonEmptyList
 import play.api.i18n.{Lang, Langs, MessagesApi}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._

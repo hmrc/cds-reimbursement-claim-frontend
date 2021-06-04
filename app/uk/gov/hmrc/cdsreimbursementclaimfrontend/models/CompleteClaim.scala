@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 import java.util.UUID
 
@@ -55,25 +56,25 @@ sealed trait CompleteClaim extends Product with Serializable {
 object CompleteClaim {
 
   final case class CompleteC285Claim(
-                                      id: UUID,
-                                      movementReferenceNumber: MovementReferenceNumber,
-                                      maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
-                                      maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
-                                      maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
-                                      completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
-                                      completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
-                                      maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
-                                      maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
-                                      maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-                                      supportingEvidenceAnswer: SupportingEvidenceAnswer,
-                                      completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
-                                      completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
-                                      maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
-                                      maybeDisplayDeclaration: Option[DisplayDeclaration],
-                                      maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
-                                      importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
-                                      declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-                                      claimsAnswer: ClaimsAnswer
+    id: UUID,
+    movementReferenceNumber: MovementReferenceNumber,
+    maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
+    maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
+    maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
+    completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
+    completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
+    maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
+    maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
+    maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
+    supportingEvidenceAnswer: SupportingEvidenceAnswer,
+    completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
+    completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
+    maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
+    maybeDisplayDeclaration: Option[DisplayDeclaration],
+    maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
+    importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
+    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
+    claimsAnswer: ClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {

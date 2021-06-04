@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
@@ -76,21 +76,30 @@ class EnterClaimControllerSpec
   ): (SessionData, FillingOutClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val acc14               = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+    val draftC285Claim      =
+      generateDraftC285Claim(maybeClaimsAnswer, maybeDutiesSelectedAnswer, ndrcDetails, movementReferenceNumber)
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(journeyStatus = Some(journey)),
+      journey
+    )
+  }
+
+  private def generateDraftC285Claim(
+    maybeClaimsAnswer: Option[ClaimsAnswer],
+    maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
+    ndrcDetails: Option[List[NdrcDetails]] = None,
+    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer()
+  ): DraftC285Claim = {
+    val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = ndrcDetails))
     )
 
-    val draftC285Claim = DraftC285Claim.newDraftC285Claim.copy(
+    DraftC285Claim.newDraftC285Claim.copy(
       movementReferenceNumber = Some(movementReferenceNumber),
       claimsAnswer = maybeClaimsAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
       displayDeclaration = Some(acc14)
-    )
-
-    val journey = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey
     )
   }
 
@@ -439,6 +448,37 @@ class EnterClaimControllerSpec
         performAction(),
         baseRoutes.StartController.start()
       )
+    }
+  }
+
+  "generateClaimsFromDuties" must {
+
+    "Return an error if there are no duties" in {
+      val draftC285Claim = generateDraftC285Claim(None)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Left(
+        Error("No duties in session when arriving on ClaimController")
+      )
+    }
+
+    "Return previous claims from the session" in {
+      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(1)
+      val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
+      val claims               = selectedTaxCodes.map(taxCode =>
+        sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+      )
+      val claimAnswers         = ClaimsAnswer(claims)
+
+      val draftC285Claim = generateDraftC285Claim(claimAnswers, dutiesSelectedAnswer)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Right(claims)
+    }
+
+    "Generate new claims from duties" in {
+      val numberOfDuties       = 10
+      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
+      val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
+      val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
     }
   }
 

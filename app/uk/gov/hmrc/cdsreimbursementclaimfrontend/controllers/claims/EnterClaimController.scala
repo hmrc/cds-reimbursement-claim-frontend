@@ -32,14 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -64,7 +64,8 @@ class EnterClaimController @Inject() (
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        generateClaimsFromDuties(fillingOutClaim).map(ClaimsAnswer(_)) match {
+        val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+        generateClaimsFromDuties(draftC285Claim).map(ClaimsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
             Redirect(routes.SelectDutiesController.selectDuties())
@@ -114,7 +115,6 @@ class EnterClaimController @Inject() (
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          println(formWithErrors)
                           val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
                           BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
                         },
@@ -146,8 +146,8 @@ class EnterClaimController @Inject() (
 
   def checkClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (_, anwers) =>
-        anwers match {
+      withAnswers[ClaimsAnswer] { (_, answers) =>
+        answers match {
           case Some(claims) => Ok(checkClaimPage(claims))
           case None         => Redirect(routes.EnterClaimController.startClaim())
         }
@@ -229,10 +229,9 @@ object EnterClaimController {
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
-  def generateClaimsFromDuties(fillingOutClaim: FillingOutClaim): Either[Error, List[Claim]] = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    val claims         = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
-    val ndrcDetails    = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
+  def generateClaimsFromDuties(draftC285Claim: DraftC285Claim): Either[Error, List[Claim]] = {
+    val claims      = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
+    val ndrcDetails = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
     draftC285Claim.dutiesSelectedAnswer
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
