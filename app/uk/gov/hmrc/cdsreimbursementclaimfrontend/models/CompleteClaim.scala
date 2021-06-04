@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer.CompleteClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
@@ -46,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 import java.util.UUID
 
@@ -74,7 +74,7 @@ object CompleteClaim {
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
     declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-    completeClaimsAnswer: CompleteClaimsAnswer
+    claimsAnswer: ClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -102,7 +102,7 @@ object CompleteClaim {
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
-              Some(completeClaimsAnswer: CompleteClaimsAnswer)
+              Some(claimsAnswer)
             ) =>
           movementReferenceNumber.value match {
             case Left(_) =>
@@ -157,7 +157,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration = None,
                       None,
                       None,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -217,7 +217,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
                       completeDeclarantEoriNumberAnswer,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -326,17 +326,9 @@ object CompleteClaim {
       case None                             => Valid(None)
     }
 
-  def validateClaimsAnswer(
-    maybeClaimsAnswer: Option[ClaimsAnswer]
-  ): Validation[CompleteClaimsAnswer] =
+  def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
     maybeClaimsAnswer match {
-      case Some(value) =>
-        value match {
-          case ClaimsAnswer.IncompleteClaimsAnswer(_)     =>
-            invalid("incomplete claims answer")
-          case completeClaimsAnswer: CompleteClaimsAnswer =>
-            Valid(completeClaimsAnswer)
-        }
+      case Some(value) => Valid(value)
       case None        => invalid("missing supporting evidence answer")
     }
 
@@ -901,12 +893,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.claims.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -930,12 +922,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.claims.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -959,9 +951,9 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(completeClaimsAnswer.claims.map(c => c.claimAmount).sum)
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(claimsAnswer.toList.map(_.claimAmount).sum)
     }
 
   }
