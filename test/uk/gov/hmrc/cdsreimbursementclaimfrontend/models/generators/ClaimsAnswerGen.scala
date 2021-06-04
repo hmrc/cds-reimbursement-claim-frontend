@@ -24,6 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer
 object ClaimsAnswerGen extends GenUtils {
 
   implicit val claimGen: Gen[Claim]                       = gen[Claim]
-  implicit val completeClaimsAnswerGen: Gen[ClaimsAnswer] = gen[ClaimsAnswer]
+  implicit val claimsAnswerGen: Gen[ClaimsAnswer] = gen[ClaimsAnswer]
 
 }

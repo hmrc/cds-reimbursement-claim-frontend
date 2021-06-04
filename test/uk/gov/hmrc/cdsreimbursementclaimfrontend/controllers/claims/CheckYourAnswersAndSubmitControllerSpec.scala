@@ -118,7 +118,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
-  val completeClaimsAnswer: ClaimsAnswer                                                = sample[ClaimsAnswer]
+  val claimsAnswer: ClaimsAnswer                                                = sample[ClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),
@@ -178,7 +178,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateDisplayDeclaration = None,
     importerEoriNumberAnswer = None,
     declarantEoriNumberAnswer = None,
-    claimsAnswer = Some(completeClaimsAnswer)
+    claimsAnswer = Some(claimsAnswer)
   )
 
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
@@ -239,7 +239,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeDuplicateDisplayDeclaration = None,
     importerEoriNumber = None,
     declarantEoriNumber = None,
-    completeClaimsAnswer
+    claimsAnswer
   )
 
   "Check Your Answers And Submit Controller" when {

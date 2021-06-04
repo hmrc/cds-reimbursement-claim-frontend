@@ -55,25 +55,25 @@ sealed trait CompleteClaim extends Product with Serializable {
 object CompleteClaim {
 
   final case class CompleteC285Claim(
-    id: UUID,
-    movementReferenceNumber: MovementReferenceNumber,
-    maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
-    maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
-    maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
-    completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
-    completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
-    maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
-    maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
-    maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidenceAnswer: SupportingEvidenceAnswer,
-    completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
-    completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
-    maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
-    maybeDisplayDeclaration: Option[DisplayDeclaration],
-    maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
-    importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
-    declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-    completeClaimsAnswer: ClaimsAnswer
+                                      id: UUID,
+                                      movementReferenceNumber: MovementReferenceNumber,
+                                      maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
+                                      maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
+                                      maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
+                                      completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
+                                      completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
+                                      maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
+                                      maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
+                                      maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
+                                      supportingEvidenceAnswer: SupportingEvidenceAnswer,
+                                      completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
+                                      completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
+                                      maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
+                                      maybeDisplayDeclaration: Option[DisplayDeclaration],
+                                      maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
+                                      importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
+                                      declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
+                                      claimsAnswer: ClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -101,7 +101,7 @@ object CompleteClaim {
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
-              Some(completeClaimsAnswer)
+              Some(claimsAnswer)
             ) =>
           movementReferenceNumber.value match {
             case Left(_) =>
@@ -156,7 +156,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration = None,
                       None,
                       None,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -216,7 +216,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
                       completeDeclarantEoriNumberAnswer,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -892,12 +892,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -921,12 +921,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -950,9 +950,9 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(completeClaimsAnswer.toList.map(_.claimAmount).sum)
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(claimsAnswer.toList.map(_.claimAmount).sum)
     }
 
   }
