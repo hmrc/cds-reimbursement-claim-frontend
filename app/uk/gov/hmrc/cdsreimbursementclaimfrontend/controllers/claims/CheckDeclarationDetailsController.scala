@@ -20,8 +20,8 @@ import com.google.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
@@ -53,17 +53,10 @@ class CheckDeclarationDetailsController @Inject() (
       Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              s,
-              r @ FillingOutClaim(_, _, c: DraftClaim)
-            )
-          ) =>
-        val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
-        f(s, r, maybeDisplayDeclaration)
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+      val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
+      f(s, r, maybeDisplayDeclaration)
+    })
 
   private def withDuplicateDeclaration(
     f: (
@@ -72,17 +65,10 @@ class CheckDeclarationDetailsController @Inject() (
       Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              s,
-              r @ FillingOutClaim(_, _, c: DraftClaim)
-            )
-          ) =>
-        val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
-        f(s, r, maybeDisplayDeclaration)
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+      val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
+      f(s, r, maybeDisplayDeclaration)
+    })
 
   def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withPossibleDeclaration { (_, _, maybeDeclaration) =>

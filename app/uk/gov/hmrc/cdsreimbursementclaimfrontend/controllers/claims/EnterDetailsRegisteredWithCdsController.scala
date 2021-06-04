@@ -28,11 +28,11 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -71,19 +71,16 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
       DetailsRegisteredWithCdsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim))) =>
-        val maybeDetailsRegisteredWithCds = draftClaim.fold(_.detailsRegisteredWithCdsAnswer)
-        maybeDetailsRegisteredWithCds.fold[Future[Result]](
-          f(
-            sessionData,
-            fillingOutClaim,
-            IncompleteDetailsRegisteredWithCdsAnswer.empty
-          )
-        )(answer => f(sessionData, fillingOutClaim, answer))
-      case _                                                                                    =>
-        Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+      val maybeDetailsRegisteredWithCds = draftClaim.fold(_.detailsRegisteredWithCdsAnswer)
+      maybeDetailsRegisteredWithCds.fold[Future[Result]](
+        f(
+          sessionData,
+          fillingOutClaim,
+          IncompleteDetailsRegisteredWithCdsAnswer.empty
+        )
+      )(answer => f(sessionData, fillingOutClaim, answer))
+    })
 
   def enterDetailsRegisteredWithCds: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

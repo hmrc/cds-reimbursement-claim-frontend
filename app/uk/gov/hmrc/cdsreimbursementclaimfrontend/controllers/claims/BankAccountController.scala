@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import java.util.function.Predicate
-
 import cats.data.EitherT
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
@@ -28,9 +26,9 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.{CompleteBankAccountDetailAnswer, IncompleteBankAccountDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
@@ -44,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -81,18 +80,11 @@ class BankAccountController @Inject() (
   private def withMaskedBankDetails(
     f: (SessionData, FillingOutClaim, Option[MaskedBankDetails]) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              s,
-              r @ FillingOutClaim(_, _, c: DraftClaim)
-            )
-          ) =>
-        val maybeMaskedBankDetails: Option[MaskedBankDetails] =
-          c.fold(_.displayDeclaration.flatMap(p => p.displayResponseDetail.maskedBankDetails))
-        f(s, r, maybeMaskedBankDetails)
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+      val maybeMaskedBankDetails: Option[MaskedBankDetails] =
+        c.fold(_.displayDeclaration.flatMap(p => p.displayResponseDetail.maskedBankDetails))
+      f(s, r, maybeMaskedBankDetails)
+    })
 
   private def withBankAccountDetailsAnswers(
     f: (
@@ -101,21 +93,14 @@ class BankAccountController @Inject() (
       BankAccountDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
-          ) =>
-        val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswer] = draftClaim.fold(
-          _.bankAccountDetailsAnswer
-        )
-        maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+      val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswer] = draftClaim.fold(
+        _.bankAccountDetailsAnswer
+      )
+      maybeClaimantDetailsAsIndividualAnswer.fold[Future[Result]](
+        f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswer.empty)
+      )(f(sessionData, fillingOutClaim, _))
+    })
 
   def enterBankAccountDetails(): Action[AnyContent]  = enterOrchangeBankAccountDetails(false)
   def changeBankAccountDetails(): Action[AnyContent] = enterOrchangeBankAccountDetails(true)

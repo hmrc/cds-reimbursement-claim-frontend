@@ -70,12 +70,10 @@ class EnterClaimController @Inject() (
       ClaimsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeClaimsAnswer = draftClaim.fold(
           _.claimsAnswer
@@ -83,8 +81,7 @@ class EnterClaimController @Inject() (
         maybeClaimsAnswer.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteClaimsAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   private def makeEntryClaims(taxCodes: List[String]): List[Claim] =
     taxCodes.map { details =>

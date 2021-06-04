@@ -24,11 +24,11 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.{CompleteContactDetailsAnswer, IncompleteContactDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -68,12 +68,10 @@ class EnterYourContactDetailsController @Inject() (
       ContactDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeContactDetails = draftClaim.fold(
           _.contactDetailsAnswer
@@ -81,8 +79,7 @@ class EnterYourContactDetailsController @Inject() (
         maybeContactDetails.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteContactDetailsAnswer.empty)
         )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   private def addEmail(
     fillingOutClaim: FillingOutClaim,

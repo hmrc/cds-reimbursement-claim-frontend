@@ -24,8 +24,8 @@ import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswer, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
@@ -59,12 +59,10 @@ class EnterCommoditiesDetailsController @Inject() (
       CommoditiesDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeCommoditiesDetailsAnswers = draftClaim.fold(
           _.commoditiesDetailsAnswer
@@ -72,8 +70,7 @@ class EnterCommoditiesDetailsController @Inject() (
         maybeCommoditiesDetailsAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteCommoditiesDetailsAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   def enterCommoditiesDetails: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
