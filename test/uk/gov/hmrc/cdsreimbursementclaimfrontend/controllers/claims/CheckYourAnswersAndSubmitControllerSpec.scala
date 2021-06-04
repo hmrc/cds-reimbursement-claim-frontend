@@ -192,7 +192,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
-    supportingEvidences = supportingEvidences,
+    supportingEvidenceAnswer = supportingEvidences,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
