@@ -108,12 +108,8 @@ class StartController @Inject() (
       JustSubmittedClaim
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            justSubmittedClaim: JustSubmittedClaim
-          ) =>
-        f(sessionData, justSubmittedClaim)
+    request.unapply({ case (sessionData, justSubmittedClaim: JustSubmittedClaim) =>
+      f(sessionData, justSubmittedClaim)
     })
 
   def weOnlySupportGG(): Action[AnyContent] =

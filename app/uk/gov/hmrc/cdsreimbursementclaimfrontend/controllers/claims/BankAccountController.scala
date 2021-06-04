@@ -64,42 +64,18 @@ class BankAccountController @Inject() (
     with SessionUpdates {
 
   private def continuePage(implicit request: RequestWithSessionData[AnyContent]): Call = {
-    val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence()
-    val checkYourAnswers = fileUploadRoutes.SupportingEvidenceController.checkYourAnswers()
+    lazy val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence()
+    lazy val checkYourAnswers = fileUploadRoutes.SupportingEvidenceController.checkYourAnswers()
 
     val maybeEvidences = for {
       session   <- request.sessionData
-      evidences <- session.journeyStatus.collect { case FillingOutClaim(_, _, draft: DraftClaim) =>
-                     draft.fold(_.supportingEvidenceAnswer)
+      claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim) =>
+                     draftClaim
                    }
+      evidences <- claim.fold(_.supportingEvidenceAnswer)
     } yield evidences
 
     maybeEvidences.fold(uploadEvidence)(_ => checkYourAnswers)
-  }
-
-  def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withMaskedBankDetails { (_, _, answers) =>
-      answers.fold(Redirect(routes.BankAccountController.enterBankAccountDetails())) { maskedBankDetails =>
-        (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
-          case (Some(cmbd), _)    =>
-            Ok(
-              checkBankAccountDetailsPage(
-                BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber),
-                continuePage.url
-              )
-            )
-          case (None, Some(dmbd)) =>
-            Ok(
-              checkBankAccountDetailsPage(
-                BankAccount(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber),
-                continuePage.url
-              )
-            )
-          case (None, None)       =>
-            Redirect(routes.BankAccountController.enterBankAccountDetails())
-        }
-      }
-    }
   }
 
   private def withMaskedBankDetails(
@@ -126,6 +102,31 @@ class BankAccountController @Inject() (
         f(sessionData, fillingOutClaim, IncompleteBankAccountDetailAnswer.empty)
       )(f(sessionData, fillingOutClaim, _))
     })
+
+  def checkBankAccountDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withMaskedBankDetails { (_, _, answers) =>
+      answers.fold(Redirect(routes.BankAccountController.enterBankAccountDetails())) { maskedBankDetails =>
+        (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
+          case (Some(cmbd), _)    =>
+            Ok(
+              checkBankAccountDetailsPage(
+                BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber),
+                continuePage.url
+              )
+            )
+          case (None, Some(dmbd)) =>
+            Ok(
+              checkBankAccountDetailsPage(
+                BankAccount(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber),
+                continuePage.url
+              )
+            )
+          case (None, None)       =>
+            Redirect(routes.BankAccountController.enterBankAccountDetails())
+        }
+      }
+    }
+  }
 
   def enterBankAccountDetails(): Action[AnyContent]  = enterOrchangeBankAccountDetails(false)
   def changeBankAccountDetails(): Action[AnyContent] = enterOrchangeBankAccountDetails(true)

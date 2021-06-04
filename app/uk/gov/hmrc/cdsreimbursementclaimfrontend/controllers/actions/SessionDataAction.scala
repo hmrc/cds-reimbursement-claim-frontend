@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
+import cats.Applicative
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.MessagesApi
 import play.api.mvc.Results.Redirect
@@ -24,9 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 final case class RequestWithSessionData[A](
   sessionData: Option[SessionData],
@@ -44,11 +44,17 @@ final case class RequestWithSessionData[A](
     case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
   }
 
-  def unapply(matchExpression: PartialFunction[(SessionData, JourneyStatus), Future[Result]]): Future[Result] =
+  def unapply[F[_]](
+    matchExpression: PartialFunction[(SessionData, JourneyStatus), F[Result]],
+    applyIfNone: => Result = startNewJourney
+  )(implicit F: Applicative[F]): F[Result] =
     sessionData
       .flatMap(session => session.journeyStatus.map(session -> _))
       .collect(matchExpression)
-      .getOrElse(Redirect(baseRoutes.StartController.start()))
+      .getOrElse(F.pure(applyIfNone))
+
+  def startNewJourney: Result =
+    Redirect(baseRoutes.StartController.start())
 }
 
 @Singleton

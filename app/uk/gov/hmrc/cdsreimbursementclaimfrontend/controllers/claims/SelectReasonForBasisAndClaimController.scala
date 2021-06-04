@@ -60,17 +60,11 @@ class SelectReasonForBasisAndClaimController @Inject() (
       ReasonAndBasisOfClaimAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            s,
-            r @ FillingOutClaim(_, _, c: DraftClaim)
-          ) =>
-        val maybeReasonForClaim = c.fold(
-          _.reasonForBasisAndClaimAnswer
-        )
-        maybeReasonForClaim.fold[Future[Result]](
-          f(s, r, IncompleteReasonAndBasisOfClaimAnswer.empty)
-        )(f(s, r, _))
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+      val maybeReasonForClaim = c.fold(_.reasonForBasisAndClaimAnswer)
+      maybeReasonForClaim.fold[Future[Result]](
+        f(s, r, IncompleteReasonAndBasisOfClaimAnswer.empty)
+      )(f(s, r, _))
     })
 
   def selectReasonForClaimAndBasis(): Action[AnyContent] =
