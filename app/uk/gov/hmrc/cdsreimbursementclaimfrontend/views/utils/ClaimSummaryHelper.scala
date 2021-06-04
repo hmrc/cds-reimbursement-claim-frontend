@@ -30,7 +30,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
 
-  private val key = "check-claim"
+  private val key = "check-claim-summary"
 
   def claimSummary(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
     makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)

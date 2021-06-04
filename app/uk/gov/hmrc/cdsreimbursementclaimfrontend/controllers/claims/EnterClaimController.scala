@@ -51,7 +51,7 @@ class EnterClaimController @Inject() (
   val config: Configuration,
   enterClaimPage: pages.enter_claim,
   enterEntryClaimPage: pages.enter_entry_claim,
-  checkClaimPage: pages.check_claim
+  checkClaimSummaryPage: pages.check_claim_summary
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -144,17 +144,17 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def checkClaim(): Action[AnyContent] =
+  def checkClaimSummary(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (_, anwers) =>
-        anwers match {
-          case Some(claims) => Ok(checkClaimPage(claims))
+      withAnswers[ClaimsAnswer] { (_, answers) =>
+        answers match {
+          case Some(claims) => Ok(checkClaimSummaryPage(claims))
           case None         => Redirect(routes.EnterClaimController.startClaim())
         }
       }
     }
 
-  def checkClaimSubmit(): Action[AnyContent] =
+  def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
         fillingOutClaim.draftClaim
@@ -176,7 +176,7 @@ class EnterClaimController @Inject() (
       case Some(claim) =>
         Redirect(routes.EnterClaimController.enterClaim(claim.id))
       case None        =>
-        Redirect(routes.EnterClaimController.checkClaim())
+        Redirect(routes.EnterClaimController.checkClaimSummary())
     }
 
   protected def updateClaimAnswer(claimAnswer: ClaimsAnswer, fillingOutClaim: FillingOutClaim, nextPage: Result)(

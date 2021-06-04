@@ -553,9 +553,8 @@ select-duties.duty.99D=Electricity
 
 
 #===================================================
-#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
+#  ENTER CLAIM PAGE
 #===================================================
-
 enter-claim.title=Enter the claim amount for duty {0} - {1}
 enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=<strong>Paid Amount: {0}</strong>
@@ -567,10 +566,26 @@ enter-claim.paid-amount.error.invalid=You have entered an invalid paid amount. E
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.invalid.claim=Enter a claim amount which is less than or equal to the paid amount
-check-claim.title=Your reimbursement claim totals
-check-claim.help-text=These are the calculations based on the information you gave us.
-check-claim.update=<a href="{0}" class="govuk-link">Update the calculation</a>
-check-claim.total=Total Reimbursement
+
+#===================================================
+#  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
+#===================================================
+check-claim-summary.title=Check the reimbursement claim totals for all MRNs
+check-claim-summary.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.uk-duty.label=UK Duty
+check-claim-summary.eu-duty.label=EU Duty
+check-claim-summary.excise-duty.label=Excise Duty
+check-claim-summary.duty=Duty
+check-claim-summary.reimbursement=Reimbursement
+check-claim-summary.make-change=Make a change
+check-claim-summary.change-amount=Change amount
+check-claim-summary.overall-total=Overall total
+check-claim-summary.total=Total Reimbursement
+check-claim-summary.are-duties-correct=Are these duties correct?
+check-claim-summary.yes=Yes
+check-claim-summary.no=No, select different duties
+check-claim-summary.update=<a href="{0}" class="govuk-link">Update the calculation</a>
+
 
 #===================================================
 #  ENTER BANK DETAILS PAGE

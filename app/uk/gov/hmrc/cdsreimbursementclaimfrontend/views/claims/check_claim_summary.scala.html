@@ -18,8 +18,8 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import cats.data.NonEmptyList
 
@@ -36,7 +36,7 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 
 @(claims : NonEmptyList[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
-    @key = @{"check-claim"}
+    @key = @{"check-claim-summary"}
     @title = @{messages(s"$key.title")}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
@@ -45,9 +45,7 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @paragraph(Html(messages(s"${key}.update", routes.SelectDutiesController.selectDuties().url)), Some("govuk-body"))
-
-        @formWithCSRF(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
             @summary(SummaryList(claimSummaryHelper.claimSummary(claims).toList))
             @submitButton(messages("button.continue"))
         }

@@ -541,7 +541,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaim().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label"))
               )
@@ -556,7 +556,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaim().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label"))
               )
@@ -571,7 +571,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaim().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.total-claim.label"))
               )
