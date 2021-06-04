@@ -21,6 +21,7 @@
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import cats.data.NonEmptyList
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,7 +34,7 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(claims : List[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(claims : NonEmptyList[Claim])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"check-claim"}
     @title = @{messages(s"$key.title")}
@@ -47,7 +48,7 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
         @paragraph(Html(messages(s"${key}.update", routes.SelectDutiesController.selectDuties().url)), Some("govuk-body"))
 
         @formWithCSRF(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
-            @summary(SummaryList(claimSummaryHelper.claimSummary(claims)))
+            @summary(SummaryList(claimSummaryHelper.claimSummary(claims).toList))
             @submitButton(messages("button.continue"))
         }
 
