@@ -77,10 +77,20 @@ object CompleteClaim {
     claimsAnswer: ClaimsAnswer
   ) extends CompleteClaim
 
+  object Serge{
+
+  sealed trait Claim
+  case class DraftClaim extends Claim
+  case class CompleteClaim extends Claim
+  enum ClaimStatus { Draft, Complete }
+  case class Claim(status: ClaimStatus)
+}
   object CompleteC285Claim {
 
     def fromDraftClaim(draftClaim: DraftClaim): Either[Error, CompleteC285Claim] =
       draftClaim match {
+        case DraftMRNC285SingleClaim()
+        case DraftEntryC285SingleClaim()
         case DraftClaim.DraftC285Claim(
               id,
               _,

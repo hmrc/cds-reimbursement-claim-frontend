@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EnterC285SingleDeclarationDetailsController @Inject()(
+class ChangeC285SingleDeclarationDetailsController @Inject()(
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -49,7 +49,7 @@ class EnterC285SingleDeclarationDetailsController @Inject()(
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging
-    with DeclarationDetailsController[DraftMRNC285SingleClaim] {
+    with DeclarationDetailsController[FillingOutClaim] {
 
   override def validJourney(
     request: RequestWithSessionData[_]
@@ -63,7 +63,7 @@ class EnterC285SingleDeclarationDetailsController @Inject()(
   override protected val enterDeclarationDetailsCall: Call        =
     routes.EnterDeclarationDetailsController.enterDeclarationDetails()
   override protected val enterDeclarationDetailsSubmitCall: Call  =
-    routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit()
+    routes.CheckYourAnswersAndSubmitController.checkAllAnswers()
 
 
 }

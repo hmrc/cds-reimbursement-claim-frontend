@@ -30,13 +30,49 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 import java.util.UUID
 
+
+sealed abstract class Ref(value : String)
+
+object Ref{
+  final case class MRN(value : String) extends Ref(value)
+  final case class ERN(value : String) extends Ref(value)
+}
+
+sealed trait DraftClaim2
+
+object DraftClaim2{
+
+
+}
+
+sealed trait Journey
+
+object Journey{
+  final case class Single(ref: Ref) extends Journey
+  final case class Bulk() extends Journey
+  final case class Schedule() extends Journey
+  final case class CMA() extends Journey
+}
+
+
 sealed trait DraftClaim extends Product with Serializable {
   val id: UUID
 }
 
 object DraftClaim {
 
-  final  case class DRraftCE787
+  final  case class DraftMRNC285SingleClaim(
+
+                                        ) extends DraftClaim
+
+  final  case class DraftEntryC285SingleClaim(
+
+                                           ) extends DraftClaim
+
+  final  case class DraftC285BulkClaim(
+
+                                        )
+
 
   final case class DraftC285Claim(
     id: UUID,

@@ -20,7 +20,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 //TODO: Change JourneyStatus to a specific type that represents the claim type e.g. DraftC285SingleClaim
-trait DeclarationDetailsController[A <: JourneyStatus] { //DraftC285Single, DraftC285Bulk
+trait DeclarationDetailsController[A <: JourneyStatus] {
   this: FrontendController with Logging with WithAuthAndSessionDataAction with SessionUpdates =>
 
   val featureSwitch: FeatureSwitchService

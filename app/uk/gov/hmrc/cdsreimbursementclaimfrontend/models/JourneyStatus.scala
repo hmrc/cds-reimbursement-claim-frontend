@@ -46,7 +46,8 @@ object JourneyStatus {
 
   final case class SubmitClaimFailed(
     ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails
+    signedInUserDetails: SignedInUserDetails,
+    completeClaim: CompleteClaim
   ) extends JourneyStatus
 
   final case object NonGovernmentGatewayJourney extends JourneyStatus
