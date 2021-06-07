@@ -133,7 +133,8 @@ class EnterClaimController @Inject() (
                         },
                         formOk => {
                           val newClaim =
-                            claim.copy(paidAmount = formOk.paidAmount, claimAmount = claim.claimAmount, isFilled = true)
+                            claim
+                              .copy(paidAmount = formOk.paidAmount, claimAmount = formOk.claimAmount, isFilled = true)
                           replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
                         }
                       )
