@@ -60,12 +60,10 @@ class EnterDeclarantEoriNumberController @Inject() (
       DeclarantEoriNumberAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeDeclarantEoriNumberAnswer = draftClaim.fold(
           _.declarantEoriNumberAnswer
@@ -73,8 +71,7 @@ class EnterDeclarantEoriNumberController @Inject() (
         maybeDeclarantEoriNumberAnswer.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteDeclarantEoriNumberAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   def enterDeclarantEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withImporterEoriNumberAnswer { (_, _, answers) =>
@@ -170,7 +167,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
     (maybeDisplayDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
       case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>
-        (displayDeclaration.displayResponseDetail.consigneeDetails) match {
+        displayDeclaration.displayResponseDetail.consigneeDetails match {
           case Some(consigneeDetails) =>
             if (
               (consigneeDetails.consigneeEORI === importerEoriNumber.value.value) && (declarationEori.value.value === displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)

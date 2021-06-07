@@ -191,15 +191,13 @@ class CheckYourAnswersAndSubmitController @Inject() (
   )(
     f: (SessionData, FillingOutClaim, CompleteClaim) => Future[Result]
   ): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(
-                _,
-                _,
-                draftClaim: DraftC285Claim
-              )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(
+              _,
+              _,
+              draftClaim: DraftC285Claim
             )
           ) =>
         CompleteC285Claim
@@ -209,11 +207,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
               logger.warn(s"could not make a complete claim", e)
               errorHandler.errorResult()(request)
             },
-            s => (f(sessionData, fillingOutClaim, s))
+            s => f(sessionData, fillingOutClaim, s)
           )
-      case _ =>
-        Redirect(baseRoutes.StartController.start())
-    }
+    })
 
 }
 

@@ -44,10 +44,10 @@
 
     @options = @{List(
                 CheckboxItem(
-                    name = Some(s"${key}[]"),
+                    name = Some(s"$key[]"),
                     value = "true",
                     content = Text("Is business account"),
-                    checked = form.data.exists(_._2 == true)
+                    checked = form.data.exists(_._2 == "true")
             ))
         }
 

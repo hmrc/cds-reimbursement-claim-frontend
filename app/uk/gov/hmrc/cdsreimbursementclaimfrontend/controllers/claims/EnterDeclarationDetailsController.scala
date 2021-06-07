@@ -63,12 +63,10 @@ class EnterDeclarationDetailsController @Inject() (
       DeclarationDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeDeclarationAnswers = draftClaim.fold(
           _.declarationDetailsAnswer
@@ -76,8 +74,7 @@ class EnterDeclarationDetailsController @Inject() (
         maybeDeclarationAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, IncompleteDeclarationDetailsAnswer.empty)
         )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   private def withDuplicateDeclarationDetails(
     f: (

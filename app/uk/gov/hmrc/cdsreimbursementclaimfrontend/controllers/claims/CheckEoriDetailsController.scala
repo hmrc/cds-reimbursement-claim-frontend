@@ -138,11 +138,9 @@ class CheckEoriDetailsController @Inject() (
   private def withSessionData(
     f: (SessionData, FillingOutClaim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some((sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim))) =>
-        f(sessionData, fillingOutClaim)
-      case _                                                                           => Future.successful(Redirect(baseRoutes.StartController.start()))
-    }
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim)) =>
+      f(sessionData, fillingOutClaim)
+    })
 }
 
 object CheckEoriDetailsController {

@@ -28,22 +28,25 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber, BankAccountDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountNumber, BankAccountDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes.SupportingEvidenceController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeBankDetails, DeclarantBankDetails, DisplayDeclaration, DisplayResponseDetail, MaskedBankDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.supportingEvidenceAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswer, Error, SessionData, SignedInUserDetails, SortCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswer, Error, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -83,13 +86,20 @@ class BankAccountControllerSpec
     )
 
   private def sessionWithClaimState(
-    maybeBankAccountDetails: Option[BankAccountDetailsAnswer]
+    maybeBankAccountDetails: Option[BankAccountDetailsAnswer],
+    supportingEvidences: Option[SupportingEvidenceAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(bankAccountDetailsAnswer = maybeBankAccountDetails)
+
+    val draftC285Claim =
+      DraftC285Claim.newDraftC285Claim.copy(
+        bankAccountDetailsAnswer = maybeBankAccountDetails,
+        supportingEvidenceAnswer = supportingEvidences
+      )
+
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+
     (
       SessionData.empty.copy(
         journeyStatus = Some(journey)
@@ -187,19 +197,14 @@ class BankAccountControllerSpec
 
     "Business Bank Account" should {
 
-      val businessBankAccount = BankAccountDetails(
-        accountName = AccountName("Some Account"),
-        isBusinessAccount = Some(true),
-        sortCode = SortCode("123456"),
-        accountNumber = AccountNumber("12345678")
-      )
+      val businessBankAccount = sample(genBusinessBankAccountDetails)
 
-      "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in {
+      "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in {
         val businessResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = CompleteBankAccountDetailAnswer(businessBankAccount)
         val (session, _, _)    = sessionWithClaimState(Some(answers))
-        val updatedBankAccount = businessBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedBankAccount = businessBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
@@ -212,6 +217,27 @@ class BankAccountControllerSpec
         val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
+      }
+
+      "Let skip upload supporting evidence page once users already uploaded evidences" in {
+        val businessResponse         =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
+        val bankDetailsAnswer        = CompleteBankAccountDetailAnswer(businessBankAccount)
+        val supportingEvidenceAnswer = sample[SupportingEvidenceAnswer]
+        val (session, _, _)          = sessionWithClaimState(Some(bankDetailsAnswer), Some(supportingEvidenceAnswer))
+        val updatedBankAccount       = businessBankAccount.copy(accountNumber = sample[AccountNumber])
+        val updatedSession           = updateSession(session, updatedBankAccount)
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+          mockBusinessReputation(Right(businessResponse))
+        }
+        val form                     = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request                  = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result                   = controller.enterBankAccountDetailsSubmit(request)
+
+        checkIsRedirect(result, SupportingEvidenceController.checkYourAnswers())
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in {
@@ -298,19 +324,14 @@ class BankAccountControllerSpec
 
     "Personal Bank Account" should {
 
-      val personalBankAccount = BankAccountDetails(
-        accountName = AccountName("Some Account"),
-        isBusinessAccount = None,
-        sortCode = SortCode("123456"),
-        accountNumber = AccountNumber("12345678")
-      )
+      val personalBankAccount = sample(genPersonalBankAccountDetails)
 
-      "Let users through when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
+      "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
         val personalResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = CompleteBankAccountDetailAnswer(personalBankAccount)
         val (session, _, _)    = sessionWithClaimState(Some(answers))
-        val updatedBankAccount = personalBankAccount.copy(accountNumber = AccountNumber("87654321"))
+        val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
@@ -323,6 +344,31 @@ class BankAccountControllerSpec
         val result             = controller.enterBankAccountDetailsSubmit(request)
 
         checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
+      }
+
+      "Let skip supporting evidence upload page once users already has uploaded evidences" in {
+        val personalResponse =
+          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
+
+        val bankAccountAnswer = CompleteBankAccountDetailAnswer(personalBankAccount)
+        val evidenceAnswer    = sample[SupportingEvidenceAnswer]
+
+        val (session, _, _)    = sessionWithClaimState(Some(bankAccountAnswer), Some(evidenceAnswer))
+        val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
+        val updatedSession     = updateSession(session, updatedBankAccount)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+          mockPersonalReputation(Right(personalResponse))
+        }
+
+        val form    = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result  = controller.enterBankAccountDetailsSubmit(request)
+
+        checkIsRedirect(result, SupportingEvidenceController.checkYourAnswers())
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in {

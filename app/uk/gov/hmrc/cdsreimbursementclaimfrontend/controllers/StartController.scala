@@ -108,16 +108,9 @@ class StartController @Inject() (
       JustSubmittedClaim
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              justSubmittedClaim: JustSubmittedClaim
-            )
-          ) =>
-        f(sessionData, justSubmittedClaim)
-      case _ => Redirect(routes.StartController.start())
-    }
+    request.unapply({ case (sessionData, justSubmittedClaim: JustSubmittedClaim) =>
+      f(sessionData, justSubmittedClaim)
+    })
 
   def weOnlySupportGG(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>

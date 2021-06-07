@@ -18,31 +18,42 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.MessagesApi
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 final case class RequestWithSessionData[A](
   sessionData: Option[SessionData],
   authenticatedRequest: AuthenticatedRequest[A]
 ) extends WrappedRequest[A](authenticatedRequest)
     with PreferredMessagesProvider {
-  override def messagesApi: MessagesApi                =
-    authenticatedRequest.request.messagesApi
-  val userType: Option[UserType]                       = sessionData.flatMap(_.userType)
-  val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus) match {
-    case Some(value) =>
-      value match {
-        case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => Some(signedInUserDetails)
-        case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => Some(signedInUserDetails)
-        case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => Some(signedInUserDetails)
-        case JourneyStatus.NonGovernmentGatewayJourney                      => None
-      }
-    case None        => None
+
+  override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
+
+  val userType: Option[UserType] = sessionData.flatMap(_.userType)
+
+  val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus).collect {
+    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
+    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
+    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
   }
+
+  def unapply(
+    matchExpression: PartialFunction[(SessionData, JourneyStatus), Future[Result]],
+    applyIfNone: => Result = startNewJourney
+  ): Future[Result] =
+    sessionData
+      .flatMap(session => session.journeyStatus.map(session -> _))
+      .collect(matchExpression)
+      .getOrElse(Future.successful(applyIfNone))
+
+  def startNewJourney: Result =
+    Redirect(baseRoutes.StartController.start())
 }
 
 @Singleton
