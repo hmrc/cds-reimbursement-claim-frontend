@@ -542,7 +542,7 @@ class SupportingEvidenceControllerSpec
             None
           )
 
-          val updatedAnswer = answer.map(_ :+ newSupportingEvidence)
+          val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
           val newDraftClaim = draftClaim.fold(
             _.copy(supportingEvidenceAnswer = updatedAnswer)
