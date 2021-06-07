@@ -45,15 +45,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterClaimController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
-  val config: Configuration,
-  enterClaimPage: pages.enter_claim,
-  enterEntryClaimPage: pages.enter_entry_claim,
-  checkClaimPage: pages.check_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+                                       val authenticatedAction: AuthenticatedAction,
+                                       val sessionDataAction: SessionDataAction,
+                                       val sessionStore: SessionCache,
+                                       val config: Configuration,
+                                       enterClaimPage: pages.enter_claim,
+                                       enterEntryClaimPage: pages.enter_entry_claim,
+                                       checkClaimPage: pages.check_claim
+                                     )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
+  extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
@@ -86,10 +86,17 @@ class EnterClaimController @Inject() (
           case Some(claim) =>
             fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
               case true  =>
-                val form = mrnClaimAmountForm(claim.paidAmount).fill(ClaimAmount(claim.claimAmount))
+                val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+                val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
                 Ok(enterClaimPage(id, form, claim))
               case false =>
-                val form = entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount))
+                val form = Either
+                  .cond(
+                    claim.isFilled,
+                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
+                    entryClaimAmountForm
+                  )
+                  .merge
                 Ok(enterEntryClaimPage(id, form, claim))
             }
           case None        =>
