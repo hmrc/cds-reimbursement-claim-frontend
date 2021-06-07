@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.data.NonEmptyList
 import play.api.i18n.{Lang, Langs, MessagesApi}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimsAnswer, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -32,8 +32,33 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   private val key = "check-claim-summary"
 
+  def makeClaimSummary(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
+    if (isUKTax(claims.map(t => t.taxCode).toString())) {
+      makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
+    } else if (isEuTax(claims.map(t => t.taxCode).toString())) {
+      makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
+    } else
+      makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
+
   def claimSummary(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
-    makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
+    makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims) // copy of list with element appended
+
+  //make into hashset
+  //for loop over all claims
+  // check for each category
+  // if uk -> Make summary + total
+  // if eu -> Make summary + total
+  // if excise -> Make summary + total
+  // Make overall total summary row
+
+  def isUKTax(taxCode: String): Boolean =
+    TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+
+  def isEuTax(taxCode: String): Boolean =
+    TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+
+  def isExciseTax(taxCode: String): Boolean =
+    TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
 
   def makeClaimSummaryRows(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
     claims.map { claim =>
