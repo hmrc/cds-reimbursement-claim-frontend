@@ -45,15 +45,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterClaimController @Inject() (
-                                       val authenticatedAction: AuthenticatedAction,
-                                       val sessionDataAction: SessionDataAction,
-                                       val sessionStore: SessionCache,
-                                       val config: Configuration,
-                                       enterClaimPage: pages.enter_claim,
-                                       enterEntryClaimPage: pages.enter_entry_claim,
-                                       checkClaimPage: pages.check_claim
-                                     )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-  extends FrontendController(cc)
+  val authenticatedAction: AuthenticatedAction,
+  val sessionDataAction: SessionDataAction,
+  val sessionStore: SessionCache,
+  val config: Configuration,
+  enterClaimPage: pages.enter_claim,
+  enterEntryClaimPage: pages.enter_entry_claim,
+  checkClaimPage: pages.check_claim
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
