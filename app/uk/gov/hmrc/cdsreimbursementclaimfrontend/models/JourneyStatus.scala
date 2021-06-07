@@ -26,6 +26,11 @@ sealed trait JourneyStatus extends Product with Serializable
 
 object JourneyStatus {
 
+  final case class DeterminingClaimType(
+    ggCredId: GGCredId,
+    signedInUserDetails: SignedInUserDetails
+  ) extends JourneyStatus
+
   final case class FillingOutClaim(
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,

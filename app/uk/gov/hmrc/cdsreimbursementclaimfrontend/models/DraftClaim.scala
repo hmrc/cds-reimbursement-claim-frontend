@@ -36,6 +36,8 @@ sealed trait DraftClaim extends Product with Serializable {
 
 object DraftClaim {
 
+  final  case class DRraftCE787
+
   final case class DraftC285Claim(
     id: UUID,
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],

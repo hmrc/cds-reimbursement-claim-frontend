@@ -1,3 +1,13 @@
+->          /c285-single                                            c285_single.Routes
+->          /c285-bulk                                              c285_bulk.Routes
+->          /c285-bulk-schedule                                     c285_bulk_schedule.Routes
+->          /c285-cma                                               c285_cma.Routes
+
+
+# Common endpoints across all journeys here
+
+## Duties, Supporting Evidence, final CYA page and submission confirmation page
+
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
 
