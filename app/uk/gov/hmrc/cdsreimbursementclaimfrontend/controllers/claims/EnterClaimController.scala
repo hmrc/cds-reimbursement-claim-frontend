@@ -86,10 +86,17 @@ class EnterClaimController @Inject() (
           case Some(claim) =>
             fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
               case true  =>
-                val form = mrnClaimAmountForm(claim.paidAmount).fill(ClaimAmount(claim.claimAmount))
+                val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+                val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
                 Ok(enterClaimPage(id, form, claim))
               case false =>
-                val form = entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount))
+                val form = Either
+                  .cond(
+                    claim.isFilled,
+                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
+                    entryClaimAmountForm
+                  )
+                  .merge
                 Ok(enterEntryClaimPage(id, form, claim))
             }
           case None        =>
