@@ -30,30 +30,30 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DutiesSelectedAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnwerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnwerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.emailGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
@@ -118,7 +118,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
-  val completeClaimsAnswer: ClaimsAnswer                                                = sample[ClaimsAnswer]
+  val claimsAnswer: ClaimsAnswer                                                        = sample[ClaimsAnswer]
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),
@@ -178,7 +178,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateDisplayDeclaration = None,
     importerEoriNumberAnswer = None,
     declarantEoriNumberAnswer = None,
-    claimsAnswer = Some(completeClaimsAnswer)
+    claimsAnswer = Some(claimsAnswer)
   )
 
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
@@ -192,7 +192,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
-    supportingEvidences = supportingEvidences,
+    supportingEvidenceAnswer = supportingEvidences,
     completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
@@ -239,7 +239,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeDuplicateDisplayDeclaration = None,
     importerEoriNumber = None,
     declarantEoriNumber = None,
-    completeClaimsAnswer
+    claimsAnswer
   )
 
   "Check Your Answers And Submit Controller" when {

@@ -46,7 +46,7 @@ object UpscanGen extends GenUtils with OptionValues {
 
   implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
 
-  implicit val supportingEvidenceAnswersGen: Gen[SupportingEvidenceAnswer] =
+  implicit val supportingEvidenceAnswerGen: Gen[SupportingEvidenceAnswer] =
     for {
       n         <- Gen.chooseNum(1, 9)
       evidences <- genSupportingEvidenceAnswerOfN(n)
@@ -56,5 +56,5 @@ object UpscanGen extends GenUtils with OptionValues {
     Gen.listOfN(n, supportingEvidenceGen).map(NonEmptyList.fromList)
 
   def genSupportingEvidenceAnswerOpt: Gen[Option[SupportingEvidenceAnswer]] =
-    Gen.option(supportingEvidenceAnswersGen)
+    Gen.option(supportingEvidenceAnswerGen)
 }
