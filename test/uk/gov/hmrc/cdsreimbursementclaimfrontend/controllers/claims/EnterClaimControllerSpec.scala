@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
@@ -68,7 +68,7 @@ class EnterClaimControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def getSessionWithPreviousAnswer(
+  private def createSessionWithPreviousAnswers(
     maybeClaimsAnswer: Option[ClaimsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
@@ -76,21 +76,30 @@ class EnterClaimControllerSpec
   ): (SessionData, FillingOutClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val acc14               = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+    val draftC285Claim      =
+      generateDraftC285Claim(maybeClaimsAnswer, maybeDutiesSelectedAnswer, ndrcDetails, movementReferenceNumber)
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(journeyStatus = Some(journey)),
+      journey
+    )
+  }
+
+  private def generateDraftC285Claim(
+    maybeClaimsAnswer: Option[ClaimsAnswer],
+    maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
+    ndrcDetails: Option[List[NdrcDetails]] = None,
+    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer()
+  ): DraftC285Claim = {
+    val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = ndrcDetails))
     )
 
-    val draftC285Claim = DraftC285Claim.newDraftC285Claim.copy(
+    DraftC285Claim.newDraftC285Claim.copy(
       movementReferenceNumber = Some(movementReferenceNumber),
       claimsAnswer = maybeClaimsAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
       displayDeclaration = Some(acc14)
-    )
-
-    val journey = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
-      journey
     )
   }
 
@@ -118,7 +127,7 @@ class EnterClaimControllerSpec
     def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
@@ -131,7 +140,7 @@ class EnterClaimControllerSpec
     }
 
     "Redirect to select duties if they were not selected previously" in {
-      val session = getSessionWithPreviousAnswer(None, None)._1
+      val session = createSessionWithPreviousAnswers(None, None)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -152,7 +161,7 @@ class EnterClaimControllerSpec
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
       )
       val answers              = ClaimsAnswer(claim).getOrElse(fail())
-      val session              = getSessionWithPreviousAnswer(Some(answers), dutiesSelectedAnswer)._1
+      val session              = createSessionWithPreviousAnswers(Some(answers), dutiesSelectedAnswer)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -169,7 +178,7 @@ class EnterClaimControllerSpec
     "Redirect to the enterClaim page if we have no claim for a duty" in {
       val taxCode              = TaxCode.A20
       val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(taxCode))
-      val session              = getSessionWithPreviousAnswer(None, Some(dutiesSelectedAnswer))._1
+      val session              = createSessionWithPreviousAnswers(None, Some(dutiesSelectedAnswer))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -192,7 +201,7 @@ class EnterClaimControllerSpec
       val claim                = sample[Claim]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
 
-      val session = getSessionWithPreviousAnswer(Some(ClaimsAnswer(claim)), Some(dutiesSelectedAnswer))._1
+      val session = createSessionWithPreviousAnswers(Some(ClaimsAnswer(claim)), Some(dutiesSelectedAnswer))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -214,7 +223,7 @@ class EnterClaimControllerSpec
     def performAction(id: UUID): Future[Result] = controller.enterClaim(id)(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
@@ -228,7 +237,7 @@ class EnterClaimControllerSpec
 
     //TODO finish error page
     "render an error when the claim id doesn't exist anymore" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -246,7 +255,7 @@ class EnterClaimControllerSpec
         .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
       val answers = ClaimsAnswer(claim)
 
-      val session = getSessionWithPreviousAnswer(Some(answers))._1
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -265,7 +274,7 @@ class EnterClaimControllerSpec
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
       val answers = ClaimsAnswer(claim)
 
-      val session = getSessionWithPreviousAnswer(Some(answers))._1
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -287,7 +296,7 @@ class EnterClaimControllerSpec
       controller.enterClaimSubmit(id)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
@@ -310,7 +319,7 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session        = getSessionWithPreviousAnswer(Some(answers), None, None, getMRNAnswer())._1
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer())._1
       val updatedAnswer  = claim.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
@@ -332,7 +341,8 @@ class EnterClaimControllerSpec
     }
 
     "user enters a valid paid and claim amount on the Entry Number journey" in {
-      val claim = sample[Claim]
+      val updatedClaimAmount = "5.00"
+      val claim              = sample[Claim]
         .copy(
           claimAmount = BigDecimal(1.00).setScale(2),
           paidAmount = BigDecimal(10.00).setScale(2),
@@ -342,8 +352,8 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session        = getSessionWithPreviousAnswer(Some(answers), None, None, getEntryNumberAnswer())._1
-      val updatedAnswer  = claim.copy(claimAmount = BigDecimal(1.00).setScale(2), isFilled = true)
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer())._1
+      val updatedAnswer  = claim.copy(claimAmount = BigDecimal(updatedClaimAmount).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
       inSequence {
@@ -357,7 +367,7 @@ class EnterClaimControllerSpec
           claim.id,
           Seq(
             "enter-claim.paid-amount"  -> "10.00",
-            "enter-claim.claim-amount" -> "5.00"
+            "enter-claim.claim-amount" -> updatedClaimAmount
           )
         ),
         routes.EnterClaimController.checkClaim()
@@ -371,7 +381,7 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session = getSessionWithPreviousAnswer(Some(answers), None, None, getEntryNumberAnswer())._1
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer())._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -410,7 +420,7 @@ class EnterClaimControllerSpec
     def performAction(): Future[Result] = controller.checkClaim()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
@@ -429,7 +439,7 @@ class EnterClaimControllerSpec
     def performAction(): Future[Result] = controller.checkClaimSubmit()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = getSessionWithPreviousAnswer(None)._1
+      val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
@@ -439,6 +449,37 @@ class EnterClaimControllerSpec
         performAction(),
         baseRoutes.StartController.start()
       )
+    }
+  }
+
+  "generateClaimsFromDuties" must {
+
+    "Return an error if there are no duties" in {
+      val draftC285Claim = generateDraftC285Claim(None)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Left(
+        Error("No duties in session when arriving on ClaimController")
+      )
+    }
+
+    "Return previous claims from the session" in {
+      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(1)
+      val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
+      val claims               = selectedTaxCodes.map(taxCode =>
+        sample[Claim]
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+      )
+      val claimAnswers         = ClaimsAnswer(claims)
+
+      val draftC285Claim = generateDraftC285Claim(claimAnswers, dutiesSelectedAnswer)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Right(claims)
+    }
+
+    "Generate new claims from duties" in {
+      val numberOfDuties       = 10
+      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
+      val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
+      val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
+      EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
     }
   }
 

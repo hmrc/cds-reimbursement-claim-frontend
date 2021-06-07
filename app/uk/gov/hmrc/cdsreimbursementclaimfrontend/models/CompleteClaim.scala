@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 import java.util.UUID
 
@@ -65,7 +66,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidences: SupportingEvidenceAnswer,
+    supportingEvidenceAnswer: SupportingEvidenceAnswer,
     completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -73,7 +74,7 @@ object CompleteClaim {
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
     declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-    completeClaimsAnswer: ClaimsAnswer
+    claimsAnswer: ClaimsAnswer
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -101,7 +102,7 @@ object CompleteClaim {
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
-              Some(completeClaimsAnswer)
+              Some(claimsAnswer)
             ) =>
           movementReferenceNumber.value match {
             case Left(_) =>
@@ -130,7 +131,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        supportingEvidences,
+                        supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer,
@@ -148,7 +149,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidences,
+                      supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
@@ -156,7 +157,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration = None,
                       None,
                       None,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -190,7 +191,7 @@ object CompleteClaim {
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
                         completeBasisOfClaimAnswer,
-                        supportingEvidences,
+                        supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeImporterEoriNumberAnswer,
@@ -208,7 +209,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       completeBasisOfClaimAnswer,
                       completeBankAccountDetailAnswer,
-                      supportingEvidences,
+                      supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       None,
@@ -216,7 +217,7 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
                       completeDeclarantEoriNumberAnswer,
-                      completeClaimsAnswer
+                      claimsAnswer
                     )
                 }
                 .toEither
@@ -332,9 +333,9 @@ object CompleteClaim {
     }
 
   def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidence: Option[SupportingEvidenceAnswer]
+    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
   ): Validation[SupportingEvidenceAnswer] =
-    maybeSupportingEvidence toValidNel "missing supporting evidence answer"
+    maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
 
   def validateBasisOfClaimAnswer(
     maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
@@ -892,12 +893,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -921,12 +922,12 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
         def isUKTax(taxCode: String): Boolean =
           TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          completeClaimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 
@@ -950,9 +951,9 @@ object CompleteClaim {
             _,
             _,
             _,
-            completeClaimsAnswer
+            claimsAnswer
           ) =>
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(completeClaimsAnswer.toList.map(_.claimAmount).sum)
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(claimsAnswer.toList.map(_.claimAmount).sum)
     }
 
   }

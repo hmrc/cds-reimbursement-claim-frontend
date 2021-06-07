@@ -32,8 +32,8 @@ final case class Claim(
 )
 
 object Claim {
-  implicit class ListClaimOps(private val claims: NonEmptyList[Claim]) {
-    def total: BigDecimal = claims.map(c => c.claimAmount).toList.sum
+  implicit class ListClaimOps(val claims: NonEmptyList[Claim]) {
+    def total: BigDecimal = claims.map(_.claimAmount).toList.sum
   }
   implicit val format: OFormat[Claim] = Json.format[Claim]
 }

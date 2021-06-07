@@ -30,8 +30,6 @@ package object models {
 
   // formats
 
-  type ClaimsAnswer = NonEmptyList[Claim]
-
   def nelReads[A : Reads]: Reads[NonEmptyList[A]] =
     Reads.of[List[A]].collect(JsonValidationError("Expected a non empty list but got an empty list")) { case x :: xs =>
       NonEmptyList(x, xs)

@@ -32,14 +32,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, ClaimsAnswer, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -64,7 +64,8 @@ class EnterClaimController @Inject() (
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        generateClaimsFromDuties(fillingOutClaim).map(ClaimsAnswer(_)) match {
+        val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+        generateClaimsFromDuties(draftC285Claim).map(ClaimsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
             Redirect(routes.SelectDutiesController.selectDuties())
@@ -85,10 +86,17 @@ class EnterClaimController @Inject() (
           case Some(claim) =>
             fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
               case true  =>
-                val form = mrnClaimAmountForm(claim.paidAmount).fill(ClaimAmount(claim.claimAmount))
+                val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+                val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
                 Ok(enterClaimPage(id, form, claim))
               case false =>
-                val form = entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount))
+                val form = Either
+                  .cond(
+                    claim.isFilled,
+                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
+                    entryClaimAmountForm
+                  )
+                  .merge
                 Ok(enterEntryClaimPage(id, form, claim))
             }
           case None        =>
@@ -114,7 +122,6 @@ class EnterClaimController @Inject() (
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          println(formWithErrors)
                           val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
                           BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
                         },
@@ -133,7 +140,8 @@ class EnterClaimController @Inject() (
                         },
                         formOk => {
                           val newClaim =
-                            claim.copy(paidAmount = formOk.paidAmount, claimAmount = claim.claimAmount, isFilled = true)
+                            claim
+                              .copy(paidAmount = formOk.paidAmount, claimAmount = formOk.claimAmount, isFilled = true)
                           replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
                         }
                       )
@@ -229,10 +237,9 @@ object EnterClaimController {
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
-  def generateClaimsFromDuties(fillingOutClaim: FillingOutClaim): Either[Error, List[Claim]] = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    val claims         = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
-    val ndrcDetails    = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
+  def generateClaimsFromDuties(draftC285Claim: DraftC285Claim): Either[Error, List[Claim]] = {
+    val claims      = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
+    val ndrcDetails = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
     draftC285Claim.dutiesSelectedAnswer
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
