@@ -41,7 +41,7 @@
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
 
         @formWithCSRF(routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(uploadReference), 'novalidate -> "novalidate") {
 
