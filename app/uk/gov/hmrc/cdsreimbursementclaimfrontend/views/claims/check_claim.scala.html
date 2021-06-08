@@ -45,10 +45,9 @@ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @paragraph(Html(messages(s"${key}.update", routes.SelectDutiesController.selectDuties().url)), Some("govuk-body"))
-
         @formWithCSRF(routes.EnterClaimController.checkClaimSubmit, 'novalidate -> "novalidate") {
             @summary(SummaryList(claimSummaryHelper.claimSummary(claims).toList))
+            @paragraph(Html(messages(s"${key}.update", routes.SelectDutiesController.selectDuties().url)), Some("govuk-body"))
             @submitButton(messages("button.continue"))
         }
 
