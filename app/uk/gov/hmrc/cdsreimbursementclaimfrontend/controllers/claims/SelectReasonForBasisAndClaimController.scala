@@ -25,8 +25,8 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{allClaimsIntToType, allClaimsTypeToInt, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.{CompleteReasonAndBasisOfClaimAnswer, IncompleteReasonAndBasisOfClaimAnswer}
@@ -60,21 +60,12 @@ class SelectReasonForBasisAndClaimController @Inject() (
       ReasonAndBasisOfClaimAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              s,
-              r @ FillingOutClaim(_, _, c: DraftClaim)
-            )
-          ) =>
-        val maybeReasonForClaim = c.fold(
-          _.reasonForBasisAndClaimAnswer
-        )
-        maybeReasonForClaim.fold[Future[Result]](
-          f(s, r, IncompleteReasonAndBasisOfClaimAnswer.empty)
-        )(f(s, r, _))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+      val maybeReasonForClaim = c.fold(_.reasonForBasisAndClaimAnswer)
+      maybeReasonForClaim.fold[Future[Result]](
+        f(s, r, IncompleteReasonAndBasisOfClaimAnswer.empty)
+      )(f(s, r, _))
+    })
 
   def selectReasonForClaimAndBasis(): Action[AnyContent] =
     (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>

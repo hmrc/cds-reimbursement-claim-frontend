@@ -103,12 +103,10 @@ class EnterMovementReferenceNumberController @Inject() (
       Option[MovementReferenceNumber]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
+    request.unapply({
+      case (
+            sessionData,
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
           ) =>
         val maybeMovementReferenceNumberAnswers = draftClaim.fold(
           _.movementReferenceNumber
@@ -116,8 +114,7 @@ class EnterMovementReferenceNumberController @Inject() (
         maybeMovementReferenceNumberAnswers.fold[Future[Result]](
           f(sessionData, fillingOutClaim, None)
         )(answer => f(sessionData, fillingOutClaim, Some(answer)))
-      case _ => Redirect(baseRoutes.StartController.start())
-    }
+    })
 
   def enterMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

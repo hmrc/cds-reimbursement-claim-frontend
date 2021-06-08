@@ -65,7 +65,7 @@ class ClaimNorthernIrelandController @Inject() (
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
       val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
-      val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+      val filledForm = answers.fold(emptyForm)(emptyForm.fill)
       Ok(claimNorthernIrelandPage(filledForm, isAmend))
     }
   }
