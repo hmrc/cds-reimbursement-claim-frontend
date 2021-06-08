@@ -924,10 +924,39 @@ object CompleteClaim {
             _,
             claimsAnswer
           ) =>
-        def isUKTax(taxCode: String): Boolean =
+        def isEuTax(taxCode: String): Boolean =
           TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
         MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+          claimsAnswer.filter(p => isEuTax(p.taxCode)).map(s => s.claimAmount).sum
+        )
+    }
+
+    def totalExciseDutyClaim: String = completeClaim match {
+      case CompleteC285Claim(
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            claimsAnswer
+          ) =>
+        def isExciseTax(taxCode: String): Boolean =
+          TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+        MoneyUtils.formatAmountOfMoneyWithPoundSign(
+          claimsAnswer.filter(p => isExciseTax(p.taxCode)).map(s => s.claimAmount).sum
         )
     }
 

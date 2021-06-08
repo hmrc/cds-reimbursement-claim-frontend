@@ -565,6 +565,21 @@ class CheckYourAnswersHelper @Inject() (implicit
         )
       ),
       SummaryListRow(
+        key = Key(Text(messages(s"$key.claim-excise-duty.label"))),
+        value = Value(Text(completeClaim.totalExciseDutyClaim)),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.claim-excise-duty.label"))
+              )
+            )
+          )
+        )
+      ),
+      SummaryListRow(
         key = Key(Text(messages(s"$key.total-claim.label"))),
         value = Value(Text(completeClaim.totalClaim)),
         actions = Some(
