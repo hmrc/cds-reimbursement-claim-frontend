@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionAndJourneyExtractor, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -58,6 +58,7 @@ class SelectDutiesController @Inject() (
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
+    with SessionAndJourneyExtractor
     with SessionUpdates {
 
   implicit val dataExtractor: DraftC285Claim => Option[DutiesSelectedAnswer] = _.dutiesSelectedAnswer
@@ -81,7 +82,7 @@ class SelectDutiesController @Inject() (
 
   def selectDutiesSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[DutiesSelectedAnswer] { (fillingOutClaim, _) =>
+      withAnswersAndRoutes[DutiesSelectedAnswer] { (fillingOutClaim, _, router) =>
         getAvailableDuties(fillingOutClaim).fold(
           error => {
             logger.warn("No Available duties: ", error)
@@ -105,7 +106,7 @@ class SelectDutiesController @Inject() (
                         logger.warn("could not get duties selected ", e)
                         errorHandler.errorResult()
                       },
-                      _ => Redirect(routes.EnterClaimController.startClaim())
+                      _ => Redirect(router.nextPageForselectDuties)
                     )
                 }
               )

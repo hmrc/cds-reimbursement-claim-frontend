@@ -131,6 +131,7 @@ object SelectNumberOfClaimsController {
     case object Individual extends SelectNumberOfClaimsType(0)
     case object Bulk extends SelectNumberOfClaimsType(1)
     case object Scheduled extends SelectNumberOfClaimsType(2)
+    case object CMA extends SelectNumberOfClaimsType(3)
 
     val allClaimsTypes: List[SelectNumberOfClaimsType]         = List(Individual, Bulk, Scheduled)
     val allClaimsIntToType: Map[Int, SelectNumberOfClaimsType] = allClaimsTypes.map(a => a.value -> a).toMap
