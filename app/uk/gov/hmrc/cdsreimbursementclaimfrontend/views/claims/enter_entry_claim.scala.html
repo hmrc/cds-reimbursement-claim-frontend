@@ -47,7 +47,7 @@
   @key = @{"enter-claim"}
   @title = @{messages(s"$key.title", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}"))}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
 
         @errorSummary(form.errors)
 
