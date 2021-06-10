@@ -68,32 +68,10 @@ class EnterMovementReferenceNumberController @Inject() (
   protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withMovementReferenceNumberAnswer { (_, _, answers) =>
-        renderMrnPage(answers, isAmend)
+        val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
+        val form      = answers.fold(emptyForm)(emptyForm.fill _)
+        Ok(enterMovementReferenceNumberPage(form, isAmend))
       }
-    }
-
-  protected def renderMrnPage(answers: Option[MovementReferenceNumber], isAmend: Boolean)(implicit
-    request: RequestWithSessionData[_]
-  ): Result =
-    answers match {
-      case Some(movementReferenceNumber) =>
-        Ok(
-          enterMovementReferenceNumberPage(
-            EnterMovementReferenceNumberController
-              .movementReferenceNumberForm(featureSwitch)
-              .fill(
-                movementReferenceNumber
-              ),
-            isAmend = isAmend
-          )
-        )
-      case None                          =>
-        Ok(
-          enterMovementReferenceNumberPage(
-            EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch),
-            isAmend = isAmend
-          )
-        )
     }
 
   private def withMovementReferenceNumberAnswer(
