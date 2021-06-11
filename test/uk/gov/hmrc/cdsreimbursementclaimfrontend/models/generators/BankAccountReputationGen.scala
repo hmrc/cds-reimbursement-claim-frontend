@@ -16,18 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsAddress, BarsBusinessAssessRequest, BarsPersonalAssessRequest, BarsSubject}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, CommonBarsResponse, PersonalCompleteResponse, ReputationErrorResponse}
-import org.scalacheck.ScalacheckShapeless._
 
-object BankAccountReputationGen extends GenUtils {
-  implicit val barsAddressGen: Gen[BarsAddress]                             = gen[BarsAddress]
-  implicit val barsSubjectGen: Gen[BarsSubject]                             = gen[BarsSubject]
-  implicit val barsBusinessAssessRequestGen: Gen[BarsBusinessAssessRequest] = gen[BarsBusinessAssessRequest]
-  implicit val barsPersonalAssessRequestGen: Gen[BarsPersonalAssessRequest] = gen[BarsPersonalAssessRequest]
-  implicit val businessCompleteResponseGen: Gen[BusinessCompleteResponse]   = gen[BusinessCompleteResponse]
-  implicit val personalCompleteResponseGen: Gen[PersonalCompleteResponse]   = gen[PersonalCompleteResponse]
-  implicit val commonBarsResponseGen: Gen[CommonBarsResponse]               = gen[CommonBarsResponse]
-  implicit val reputationErrorResponseGen: Gen[ReputationErrorResponse]     = gen[ReputationErrorResponse]
+object BankAccountReputationGen {
+
+  implicit val arbitraryAddress: Typeclass[BarsAddress]                                 = gen[BarsAddress]
+  implicit val arbitraryBarsSubject: Typeclass[BarsSubject]                             = gen[BarsSubject]
+  implicit val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest]     = gen[BarsBusinessAssessRequest]
+  implicit val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] = gen[BarsPersonalAssessRequest]
+  implicit val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse]   = gen[BusinessCompleteResponse]
+  implicit val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse]   = gen[PersonalCompleteResponse]
+  implicit val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse]     = gen[ReputationErrorResponse]
+  implicit val arbitraryCommonBarsResponse: Typeclass[CommonBarsResponse]               = gen[CommonBarsResponse]
 }

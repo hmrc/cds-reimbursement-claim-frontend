@@ -14,33 +14,37 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.stringGen
+import org.scalacheck.magnolia.Typeclass
 
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 import java.util.UUID
 
-trait GenUtils {
+package object generators {
 
-  def gen[A](implicit arb: Arbitrary[A]): Gen[A] = arb.arbitrary
+  implicit val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
+    Gen.oneOf(true, false)
+  )
 
-  implicit val stringArb: Arbitrary[String] = Arbitrary(stringGen)
+  implicit val arbitraryString: Typeclass[String] = Arbitrary(
+    Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
+  )
 
-  implicit val longArb: Arbitrary[Long] = Arbitrary(
+  implicit val arbitraryLong: Arbitrary[Long] = Arbitrary(
     Gen.choose(-5e13.toLong, 5e13.toLong)
   )
 
-  implicit val bigDecimalGen: Arbitrary[BigDecimal] = Arbitrary(
+  implicit val arbitraryBigDecimal: Arbitrary[BigDecimal] = Arbitrary(
     Gen.choose(0L, 1e9.toLong).map(BigDecimal(_))
   )
 
-  implicit val localDateArb: Arbitrary[LocalDate] = Arbitrary(
-    Gen.chooseNum(0L, 10000L).map(LocalDate.ofEpochDay(_))
+  implicit val arbitraryLocalDate: Arbitrary[LocalDate] = Arbitrary(
+    Gen.chooseNum(0L, 10000L).map(LocalDate.ofEpochDay)
   )
 
-  implicit val localDateTimeArb: Arbitrary[LocalDateTime] =
+  implicit val arbitraryLocalDateTime: Arbitrary[LocalDateTime] =
     Arbitrary(
       Gen
         .chooseNum(0L, 10000L)
@@ -50,13 +54,12 @@ trait GenUtils {
         )
     )
 
-  implicit val uuidArb: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
-
-  implicit val instantArb: Arbitrary[Instant] =
+  implicit val arbitraryInstant: Arbitrary[Instant] =
     Arbitrary(
       Gen
         .chooseNum(0L, 10000L)
         .map(Instant.ofEpochMilli)
     )
 
+  implicit val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 }

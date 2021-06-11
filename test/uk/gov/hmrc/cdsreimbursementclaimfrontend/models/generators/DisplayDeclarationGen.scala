@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
-object DisplayDeclarationGen extends GenUtils {
-  implicit val displayDeclarationGen: Gen[DisplayDeclaration] = gen[DisplayDeclaration]
+object DisplayDeclarationGen {
+
+  implicit val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] = gen[DisplayDeclaration]
 }

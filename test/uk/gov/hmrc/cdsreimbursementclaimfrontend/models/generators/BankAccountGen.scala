@@ -17,63 +17,59 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber, BankAccountDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
-object BankAccountGen extends GenUtils {
+object BankAccountGen {
 
-  implicit val accountNameGen: Gen[AccountName] =
+  implicit val arbitraryAccountName: Typeclass[AccountName] = Arbitrary(
     Gen
       .nonEmptyListOf(Gen.alphaChar)
       .map(_.take(40).mkString)
       .map(AccountName(_))
+  )
 
-  implicit val accountNameArb: Arbitrary[AccountName] =
-    Arbitrary(accountNameGen)
-
-  implicit val sortCodeGen: Gen[SortCode] =
+  implicit val arbitrarySortCode: Typeclass[SortCode] = Arbitrary(
     Gen
       .listOfN(6, Gen.numChar)
       .map(_.mkString)
       .map(SortCode(_))
+  )
 
-  implicit val sortCodeArb: Arbitrary[SortCode] =
-    Arbitrary(sortCodeGen)
-
-  implicit val accountNumberGen: Gen[AccountNumber] =
+  implicit val arbitraryAccountNumber: Typeclass[AccountNumber] = Arbitrary(
     Gen
       .listOfN(8, Gen.numChar)
       .map(_.mkString)
       .map(AccountNumber(_))
+  )
 
-  implicit val accountNumberArb: Arbitrary[AccountNumber] =
-    Arbitrary(accountNumberGen)
-
-  implicit val bankAccountDetailsGen: Gen[BankAccountDetails] =
+  implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     gen[BankAccountDetails]
 
-  def genPersonalBankAccountDetails: Gen[BankAccountDetails] =
+  def arbitraryPersonalBankAccountDetails: Typeclass[BankAccountDetails] = Arbitrary(
     for {
-      name          <- accountNameGen
-      sortCode      <- sortCodeGen
-      accountNumber <- accountNumberGen
+      name          <- arbitraryAccountName.arbitrary
+      sortCode      <- arbitrarySortCode.arbitrary
+      accountNumber <- arbitraryAccountNumber.arbitrary
     } yield BankAccountDetails(
       accountName = name,
       isBusinessAccount = None,
       sortCode = sortCode,
       accountNumber = accountNumber
     )
+  )
 
-  def genBusinessBankAccountDetails: Gen[BankAccountDetails] =
+  def genBusinessBankAccountDetails: Typeclass[BankAccountDetails] = Arbitrary(
     for {
-      name          <- accountNameGen
-      sortCode      <- sortCodeGen
-      accountNumber <- accountNumberGen
+      name          <- arbitraryAccountName.arbitrary
+      sortCode      <- arbitrarySortCode.arbitrary
+      accountNumber <- arbitraryAccountNumber.arbitrary
     } yield BankAccountDetails(
       accountName = name,
       isBusinessAccount = Some(true),
       sortCode = sortCode,
       accountNumber = accountNumber
     )
+  )
 }
