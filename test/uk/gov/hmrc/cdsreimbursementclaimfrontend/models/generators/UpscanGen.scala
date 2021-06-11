@@ -25,14 +25,11 @@ import org.scalacheck.ScalacheckShapeless._
 import org.scalatest.OptionValues
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 
-object UpscanGen extends GenUtils with OptionValues {
+object UpscanGen extends OptionValues {
 
-  implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
+  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
 
-  implicit val supportingEvidenceGen: Gen[SupportingEvidence] =
-    gen[SupportingEvidence]
-
-  implicit val uploadRequestGen: Gen[UploadRequest] = gen[UploadRequest]
+  implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
   implicit val upscanUploadGen: Gen[UpscanUpload] = gen[UpscanUpload]
 
@@ -46,15 +43,16 @@ object UpscanGen extends GenUtils with OptionValues {
 
   implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
 
-  implicit val supportingEvidenceAnswerGen: Gen[SupportingEvidenceAnswer] =
+  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
-      evidences <- genSupportingEvidenceAnswerOfN(n)
+      evidences <- arbitrarySupportingEvidenceAnswerOfN(n).arbitrary
     } yield evidences.value
+  )
 
-  def genSupportingEvidenceAnswerOfN(n: Int): Gen[Option[SupportingEvidenceAnswer]] =
-    Gen.listOfN(n, supportingEvidenceGen).map(NonEmptyList.fromList)
+  def arbitrarySupportingEvidenceAnswerOpt: Typeclass[Option[SupportingEvidenceAnswer]] =
+    Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  def genSupportingEvidenceAnswerOpt: Gen[Option[SupportingEvidenceAnswer]] =
-    Gen.option(supportingEvidenceAnswerGen)
+  def arbitrarySupportingEvidenceAnswerOfN(n: Int): Typeclass[Option[SupportingEvidenceAnswer]] =
+    Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
 }

@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import org.scalacheck.ScalacheckShapeless._
 
-object DraftClaimGen extends HigherPriorityDraftClaimGen with GenUtils
+object DraftClaimGen extends HigherPriorityDraftClaimGen
 
 trait HigherPriorityDraftClaimGen extends LowerPriorityDraftClaimGen { this: GenUtils =>
   implicit val draftClaimGen: Gen[DraftClaim] = gen[DraftClaim]

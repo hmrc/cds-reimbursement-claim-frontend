@@ -26,5 +26,4 @@ object DetailsRegisteredWithCdsAnwerGen extends GenUtils {
     gen[DetailsRegisteredWithCdsFormData]
   implicit val completeDetailsRegisteredWithCdsAnswerGen: Gen[CompleteDetailsRegisteredWithCdsAnswer] =
     gen[CompleteDetailsRegisteredWithCdsAnswer]
-
 }

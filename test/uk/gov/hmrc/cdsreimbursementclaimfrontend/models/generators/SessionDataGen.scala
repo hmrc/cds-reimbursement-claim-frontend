@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
-object SessionDataGen extends GenUtils {
+object SessionDataGen {
 
   implicit val sessionDataGen: Gen[SessionData] = gen[SessionData]
 

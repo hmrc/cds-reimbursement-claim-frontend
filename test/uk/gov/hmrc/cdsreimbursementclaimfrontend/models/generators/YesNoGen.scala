@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 
-object YesNoGen extends GenUtils {
+object YesNoGen {
 
   implicit val yesNoGen: Gen[YesNo] = gen[YesNo]
 

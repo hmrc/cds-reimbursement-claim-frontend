@@ -21,9 +21,8 @@ import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
-object ClaimsAnswerGen extends GenUtils {
+object ClaimsAnswerGen {
 
-  implicit val claimGen: Gen[Claim]               = gen[Claim]
-  implicit val claimsAnswerGen: Gen[ClaimsAnswer] = gen[ClaimsAnswer]
-
+  implicit val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
+  implicit val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
 }

@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 
-object SubmitClaimGen extends GenUtils {
+object SubmitClaimGen {
 
   implicit val subClaimRequestGen: Gen[SubmitClaimRequest] = gen[SubmitClaimRequest]
 

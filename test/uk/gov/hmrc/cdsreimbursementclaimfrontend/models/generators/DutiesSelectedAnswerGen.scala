@@ -21,7 +21,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
-object DutiesSelectedAnswerGen extends GenUtils {
+object DutiesSelectedAnswerGen {
 
   implicit val dutiesSelectedAnswerGen: Gen[NonEmptyList[Duty]] = gen[NonEmptyList[Duty]]
 

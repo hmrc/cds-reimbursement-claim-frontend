@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 
-object UserTypeGen extends GenUtils {
+object UserTypeGen {
 
   implicit val userTypeGen: Gen[UserType] = gen[UserType]
 

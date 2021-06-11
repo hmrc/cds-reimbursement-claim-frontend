@@ -21,7 +21,7 @@ import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteNorthernIrelandAnswer
 
-object NorthernIrelandAnswerGen extends GenUtils {
+object NorthernIrelandAnswerGen {
 
   implicit val northernIrelandAnswerGen: Gen[ClaimNorthernIrelandAnswer]            = gen[ClaimNorthernIrelandAnswer]
   implicit val completeNorthernIrelandAnswerGen: Gen[CompleteNorthernIrelandAnswer] = gen[CompleteNorthernIrelandAnswer]

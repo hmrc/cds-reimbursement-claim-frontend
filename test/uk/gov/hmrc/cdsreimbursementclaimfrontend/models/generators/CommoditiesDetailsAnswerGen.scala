@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 
-object CommoditiesDetailsAnswerGen extends GenUtils {
+object CommoditiesDetailsAnswerGen {
 
   implicit val completeCommodityDetailsAnswerGen: Gen[CompleteCommodityDetailsAnswer] =
     gen[CompleteCommodityDetailsAnswer]

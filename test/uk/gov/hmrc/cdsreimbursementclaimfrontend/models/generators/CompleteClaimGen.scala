@@ -21,7 +21,7 @@ import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 
-object CompleteClaimGen extends HigherPriorityCompleteReturnGen with GenUtils
+object CompleteClaimGen extends HigherPriorityCompleteReturnGen
 
 trait HigherPriorityCompleteReturnGen extends LowerPriorityCompleteReturnGen { this: GenUtils =>
   implicit val completeClaimGen: Gen[CompleteClaim] = gen[CompleteClaim]

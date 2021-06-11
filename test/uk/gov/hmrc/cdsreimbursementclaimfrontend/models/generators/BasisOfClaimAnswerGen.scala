@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 
-object BasisOfClaimAnswerGen extends GenUtils {
+object BasisOfClaimAnswerGen {
 
   implicit val completeBasisOfClaimAnswerGen: Gen[CompleteBasisOfClaimAnswer] = gen[CompleteBasisOfClaimAnswer]
 

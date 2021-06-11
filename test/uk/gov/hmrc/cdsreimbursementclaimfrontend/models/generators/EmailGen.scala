@@ -21,14 +21,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 
 object EmailGen {
 
-  implicit val emailGen: Gen[Email] = {
+  implicit val arbitraryEmail: Typeclass[Email] = Arbitrary(
     for {
       name   <- genNonEmptyStr(Gen.alphaLowerChar, max = 15)
       at      = "@"
       domain <- genNonEmptyStr(Gen.alphaLowerChar, max = 10)
       dotCom  = ".com"
     } yield Email(Seq(name, at, domain, dotCom).mkString)
-  }
+  )
 
   private def genNonEmptyStr(gen: Gen[Char], max: Int): Gen[String] =
     Gen.chooseNum(1, max) flatMap (Gen.listOfN(_, gen).map(_.mkString))

@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalamock.scalatest.MockFactory
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.inject.bind
@@ -44,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.supportingEvidenceAnswerGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetailsAnswer, Error, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
@@ -137,7 +138,7 @@ class BankAccountControllerSpec
       case _                                                         => fail()
     }
 
-  def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
+  def getGlobalErrors(doc: Document): Elements = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   "Bank Account Controller" when {
 
@@ -324,7 +325,7 @@ class BankAccountControllerSpec
 
     "Personal Bank Account" should {
 
-      val personalBankAccount = sample(genPersonalBankAccountDetails)
+      val personalBankAccount = sample(arbitraryPersonalBankAccountDetails)
 
       "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
         val personalResponse   =

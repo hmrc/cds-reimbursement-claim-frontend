@@ -27,19 +27,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 import java.time.LocalDate
 
-object EnterDeclarationDetailsGen extends GenUtils {
+object EnterDeclarationDetailsGen {
 
-  implicit val dateOfImportGen: Gen[DateOfImport] =
-    gen[LocalDate].map(DateOfImport(_))
+  implicit val arbitraryDateOfImport: Typeclass[DateOfImport] = Arbitrary(
+    arbitraryLocalDate.arbitrary.map(DateOfImport(_))
+  )
 
-  implicit val dateOfImportArb: Arbitrary[DateOfImport] =
-    Arbitrary(dateOfImportGen)
-
-  implicit val phoneNumberArb: Arbitrary[PhoneNumber] =
-    Arbitrary(phoneNumberGen)
-
-  implicit val emailArb: Arbitrary[Email] =
-    Arbitrary(emailGen)
-
-  implicit val entryDeclarationDetailsGen: Gen[EntryDeclarationDetails] = gen[EntryDeclarationDetails]
+  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryDeclarationDetails] =
+    gen[EntryDeclarationDetails]
 }

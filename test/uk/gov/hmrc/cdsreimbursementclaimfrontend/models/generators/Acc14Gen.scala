@@ -20,6 +20,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import org.scalacheck.Gen
 import org.scalacheck.ScalacheckShapeless._
 
-object Acc14Gen extends GenUtils {
-  implicit val ndrcGen: Gen[NdrcDetails] = gen[NdrcDetails]
+object Acc14Gen {
+  implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = gen[NdrcDetails]
 }

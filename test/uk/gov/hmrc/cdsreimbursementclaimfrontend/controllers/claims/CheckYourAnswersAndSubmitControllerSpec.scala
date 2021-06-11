@@ -49,13 +49,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnwerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.emailGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier

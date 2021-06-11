@@ -22,25 +22,27 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
-object IdGen extends GenUtils {
+object IdGen {
 
-  implicit val ggCredIdGen: Gen[GGCredId] = gen[GGCredId]
+  implicit val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
 
   implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
 
-  implicit val eoriGen: Gen[Eori] = Arbitrary(for {
+  implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(for {
     c <- Gen.listOfN(2, Gen.alphaUpperChar)
     n <- Gen.listOfN(12, Gen.numChar)
     s <- Gen.const((c ++ n).mkString(""))
-  } yield Eori(s)).arbitrary
+  } yield Eori(s))
 
-  implicit val mrnGen: Gen[MRN] =
-    Arbitrary(referenceGen.map(ref => MRN(ref.mkString("")))).arbitrary
+  implicit val arbitraryMrn: Typeclass[MRN] = Arbitrary(
+    genReference.map(ref => MRN(ref.mkString("")))
+  )
 
-  implicit val entryNumberGen: Gen[EntryNumber] =
-    Arbitrary(referenceGen.map(ref => EntryNumber(ref.mkString("")))).arbitrary
+  implicit val entryNumberGen: Typeclass[EntryNumber] = Arbitrary(
+    genReference.map(ref => EntryNumber(ref.mkString("")))
+  )
 
-  private def referenceGen = for {
+  private def genReference = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)
