@@ -29,6 +29,25 @@ object EnterDeclarationDetailsGen {
     arbitraryLocalDate.arbitrary.map(DateOfImport(_))
   )
 
-  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryDeclarationDetails] =
-    gen[EntryDeclarationDetails]
+  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryDeclarationDetails] = Arbitrary(
+    for {
+      dateOfImport          <- arbitraryDateOfImport.arbitrary
+      placeOfImport         <- arbitraryString.arbitrary.map(_.take(70))
+      importerName          <- arbitraryString.arbitrary.map(_.take(70))
+      importerEmailAddress  <- arbitraryEmail.arbitrary
+      importerPhoneNumber   <- arbitraryPhoneNumber.arbitrary
+      declarantName         <- arbitraryString.arbitrary.map(_.take(70))
+      declarantEmailAddress <- arbitraryEmail.arbitrary
+      declarantPhoneNumber  <- arbitraryPhoneNumber.arbitrary
+    } yield EntryDeclarationDetails(
+      dateOfImport,
+      placeOfImport,
+      importerName,
+      importerEmailAddress,
+      importerPhoneNumber,
+      declarantName,
+      declarantEmailAddress,
+      declarantPhoneNumber
+    )
+  )
 }
