@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import org.scalacheck.Arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.arb
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen.journeyStatusGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData}
 
 import scala.concurrent.Future
@@ -48,9 +46,6 @@ trait RedirectToStartBehaviour {
       }
 
       "the journey status in session is not valid" in {
-        implicit val journeyStatusArb: Arbitrary[JourneyStatus] =
-          arb(journeyStatusGen)
-
         forAll { j: JourneyStatus =>
           whenever(!isValidJourneyStatus(j)) {
             inSequence {

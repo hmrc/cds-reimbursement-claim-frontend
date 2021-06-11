@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 
-object CommoditiesDetailsAnswerGen extends GenUtils {
+object CommoditiesDetailsAnswerGen {
 
-  implicit val completeCommodityDetailsAnswerGen: Gen[CompleteCommodityDetailsAnswer] =
+  implicit val arbitraryCompleteCommodityDetailsAnswer: Typeclass[CompleteCommodityDetailsAnswer] =
     gen[CompleteCommodityDetailsAnswer]
 
 }

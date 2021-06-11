@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.ScalacheckShapeless._
 import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.magnolia._
 import play.api.libs.json._
 
-object JsValueGen extends GenUtils {
-  implicit val jsValueGen: Gen[JsValue] = Gen.lzy(Arbitrary.arbitrary[String].map(JsString))
+object JsValueGen {
+
+  implicit val arbitraryJsValue: Typeclass[JsValue] = Arbitrary(
+    Gen.lzy(Arbitrary.arbitrary[String].map(JsString))
+  )
 }

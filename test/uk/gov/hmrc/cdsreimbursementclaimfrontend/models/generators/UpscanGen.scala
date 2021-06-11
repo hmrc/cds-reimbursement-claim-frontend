@@ -17,44 +17,42 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
-import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-import org.scalacheck.ScalacheckShapeless._
 import org.scalatest.OptionValues
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 
-object UpscanGen extends GenUtils with OptionValues {
+object UpscanGen extends OptionValues {
 
-  implicit val signedInUserDetailsGen: Gen[SignedInUserDetails] = gen[SignedInUserDetails]
+  implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
-  implicit val supportingEvidenceGen: Gen[SupportingEvidence] =
-    gen[SupportingEvidence]
+  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
 
-  implicit val uploadRequestGen: Gen[UploadRequest] = gen[UploadRequest]
+  implicit val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
 
-  implicit val upscanUploadGen: Gen[UpscanUpload] = gen[UpscanUpload]
+  implicit val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
 
-  implicit val upscanSuccessGen: Gen[UpscanSuccess] = gen[UpscanSuccess]
+  implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
-  implicit val upscanFailureGen: Gen[UpscanFailure] = gen[UpscanFailure]
+  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val upscanUploadMetaGen: Gen[UpscanUploadMeta] = gen[UpscanUploadMeta]
+  implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
+    gen[SupportingEvidenceDocumentType]
 
-  implicit val supportingDocumentTypeGen: Gen[SupportingEvidenceDocumentType] = gen[SupportingEvidenceDocumentType]
+  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
 
-  implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
-
-  implicit val supportingEvidenceAnswerGen: Gen[SupportingEvidenceAnswer] =
+  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
-      evidences <- genSupportingEvidenceAnswerOfN(n)
+      evidences <- arbitrarySupportingEvidenceAnswerOfN(n).arbitrary
     } yield evidences.value
+  )
 
-  def genSupportingEvidenceAnswerOfN(n: Int): Gen[Option[SupportingEvidenceAnswer]] =
-    Gen.listOfN(n, supportingEvidenceGen).map(NonEmptyList.fromList)
+  def arbitrarySupportingEvidenceAnswerOpt: Typeclass[Option[SupportingEvidenceAnswer]] =
+    Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  def genSupportingEvidenceAnswerOpt: Gen[Option[SupportingEvidenceAnswer]] =
-    Gen.option(supportingEvidenceAnswerGen)
+  def arbitrarySupportingEvidenceAnswerOfN(n: Int): Typeclass[Option[SupportingEvidenceAnswer]] =
+    Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
 }
