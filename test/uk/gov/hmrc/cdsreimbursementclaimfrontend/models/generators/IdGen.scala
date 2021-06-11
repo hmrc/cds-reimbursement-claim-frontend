@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
@@ -26,7 +26,7 @@ object IdGen {
 
   implicit val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
 
-  implicit val uploadReferenceGen: Gen[UploadReference] = gen[UploadReference]
+  implicit val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
 
   implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(for {
     c <- Gen.listOfN(2, Gen.alphaUpperChar)

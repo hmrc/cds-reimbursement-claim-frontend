@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 
 object SubmitClaimGen {
 
-  implicit val subClaimRequestGen: Gen[SubmitClaimRequest] = gen[SubmitClaimRequest]
+  implicit val arbitrarySubClaimRequest: Typeclass[SubmitClaimRequest] = gen[SubmitClaimRequest]
 
 }

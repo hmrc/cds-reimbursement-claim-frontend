@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.VerifiedEmail
-import org.scalacheck.ScalacheckShapeless._
 
-object VerifiedEmailGen extends GenUtils {
-  implicit val verifiedEmailGen: Gen[VerifiedEmail] = gen[VerifiedEmail]
+object VerifiedEmailGen {
+  implicit val arbitraryVerifiedEmail: Typeclass[VerifiedEmail] = gen[VerifiedEmail]
 }

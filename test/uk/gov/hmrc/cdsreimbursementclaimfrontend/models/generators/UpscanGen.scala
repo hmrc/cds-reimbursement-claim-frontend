@@ -17,11 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
-import org.scalacheck.Gen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-import org.scalacheck.ScalacheckShapeless._
 import org.scalatest.OptionValues
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
 
@@ -31,17 +30,18 @@ object UpscanGen extends OptionValues {
 
   implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
-  implicit val upscanUploadGen: Gen[UpscanUpload] = gen[UpscanUpload]
+  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val upscanSuccessGen: Gen[UpscanSuccess] = gen[UpscanSuccess]
+  implicit val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
 
-  implicit val upscanFailureGen: Gen[UpscanFailure] = gen[UpscanFailure]
+  implicit val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
 
-  implicit val upscanUploadMetaGen: Gen[UpscanUploadMeta] = gen[UpscanUploadMeta]
+  implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
-  implicit val supportingDocumentTypeGen: Gen[SupportingEvidenceDocumentType] = gen[SupportingEvidenceDocumentType]
+  implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
+    gen[SupportingEvidenceDocumentType]
 
-  implicit val uploadDetailsGen: Gen[UploadDetails] = gen[UploadDetails]
+  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
 
   implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
     for {

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber, BankAccountDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
@@ -44,7 +44,7 @@ object BankAccountGen {
       .map(AccountNumber(_))
   )
 
-  implicit val bankAccountDetailsGen: Gen[BankAccountDetails] =
+  implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     gen[BankAccountDetails]
 
   def arbitraryPersonalBankAccountDetails: Typeclass[BankAccountDetails] = Arbitrary(

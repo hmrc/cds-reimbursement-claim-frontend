@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 
 object YesNoGen {
 
-  implicit val yesNoGen: Gen[YesNo] = gen[YesNo]
-
+  implicit val arbitraryYesNo: Typeclass[YesNo] = gen[YesNo]
 }

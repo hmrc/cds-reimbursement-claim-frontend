@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 
 object UserTypeGen {
 
-  implicit val userTypeGen: Gen[UserType] = gen[UserType]
+  implicit val arbitraryUserTypeGen: Typeclass[UserType] = gen[UserType]
 
 }

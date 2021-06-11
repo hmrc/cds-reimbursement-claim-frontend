@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, ConsigneeBankDetails, ConsigneeDetails, DeclarantBankDetails, DeclarantDetails, DisplayResponseDetail, MaskedBankDetails}
+import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 
 object DisplayResponseDetailGen {
 
