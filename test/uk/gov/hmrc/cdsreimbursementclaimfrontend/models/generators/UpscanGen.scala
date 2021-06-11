@@ -26,11 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEviden
 
 object UpscanGen extends OptionValues {
 
-  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
-
   implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
-  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
+  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
 
   implicit val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
 
@@ -38,10 +36,12 @@ object UpscanGen extends OptionValues {
 
   implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
+  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
+
   implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
     gen[SupportingEvidenceDocumentType]
 
-  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
+  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
 
   implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
     for {
