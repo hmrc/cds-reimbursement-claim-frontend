@@ -198,7 +198,7 @@ class BankAccountControllerSpec
 
     "Business Bank Account" should {
 
-      val businessBankAccount = sample(genBusinessBankAccountDetails)
+      val businessBankAccount = sample[BankAccountDetails].copy(isBusinessAccount = Some(true))
 
       "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in {
         val businessResponse   =
@@ -325,7 +325,7 @@ class BankAccountControllerSpec
 
     "Personal Bank Account" should {
 
-      val personalBankAccount = sample(arbitraryPersonalBankAccountDetails)
+      val personalBankAccount = sample[BankAccountDetails].copy(isBusinessAccount = None)
 
       "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in {
         val personalResponse   =

@@ -46,30 +46,4 @@ object BankAccountGen {
 
   implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     gen[BankAccountDetails]
-
-  def arbitraryPersonalBankAccountDetails: Typeclass[BankAccountDetails] = Arbitrary(
-    for {
-      name          <- arbitraryAccountName.arbitrary
-      sortCode      <- arbitrarySortCode.arbitrary
-      accountNumber <- arbitraryAccountNumber.arbitrary
-    } yield BankAccountDetails(
-      accountName = name,
-      isBusinessAccount = None,
-      sortCode = sortCode,
-      accountNumber = accountNumber
-    )
-  )
-
-  def genBusinessBankAccountDetails: Typeclass[BankAccountDetails] = Arbitrary(
-    for {
-      name          <- arbitraryAccountName.arbitrary
-      sortCode      <- arbitrarySortCode.arbitrary
-      accountNumber <- arbitraryAccountNumber.arbitrary
-    } yield BankAccountDetails(
-      accountName = name,
-      isBusinessAccount = Some(true),
-      sortCode = sortCode,
-      accountNumber = accountNumber
-    )
-  )
 }
