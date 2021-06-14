@@ -63,19 +63,19 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
-  protected def changeOrEnterMrn(isCYA: Boolean): Action[AnyContent] =
+  protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
         val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
-        Ok(enterMovementReferenceNumberPage(form, isCYA))
+        Ok(enterMovementReferenceNumberPage(form, isAmend))
       }
     }
 
   def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
   def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
 
-  def mrnSubmit(isCYA: Boolean): Action[AnyContent] =
+  def mrnSubmit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController
@@ -86,7 +86,10 @@ class EnterMovementReferenceNumberController @Inject() (
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors
-                    .copy(errors = Seq(EnterMovementReferenceNumberController.processFormErrors(formWithErrors.errors)))
+                    .copy(errors =
+                      Seq(EnterMovementReferenceNumberController.processFormErrors(formWithErrors.errors))
+                    ),
+                  isAmend
                 )
               ),
             mrnOrEntryNumber => {
@@ -96,7 +99,7 @@ class EnterMovementReferenceNumberController @Inject() (
               }
               val previousValue                  = previousAnswer.map(_.stringValue).getOrElse("")
               val currentValue                   = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
-              (previousValue === currentValue && isCYA) match {
+              (previousValue === currentValue && isAmend) match {
                 case true  =>
                   Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                 case false =>

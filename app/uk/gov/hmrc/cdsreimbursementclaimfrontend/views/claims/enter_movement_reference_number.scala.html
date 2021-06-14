@@ -33,16 +33,16 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(form: Form[MovementReferenceNumber], isCYA: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MovementReferenceNumber], isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-movement-reference-number"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isCYA) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
+    @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
-        @if(isCYA){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
+        @if(isAmend){ @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
