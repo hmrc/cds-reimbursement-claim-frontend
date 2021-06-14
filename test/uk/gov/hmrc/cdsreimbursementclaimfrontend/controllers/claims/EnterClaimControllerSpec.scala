@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.{Functor, Id}
+import org.scalacheck.magnolia.gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -38,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerG
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
@@ -170,7 +172,7 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
 
     }
@@ -336,7 +338,7 @@ class EnterClaimControllerSpec
             "enter-claim" -> "5.00"
           )
         ),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
     }
 
@@ -370,7 +372,7 @@ class EnterClaimControllerSpec
             "enter-claim.claim-amount" -> updatedClaimAmount
           )
         ),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
     }
 
@@ -417,7 +419,7 @@ class EnterClaimControllerSpec
 
   "checkClaim page" must {
 
-    def performAction(): Future[Result] = controller.checkClaim()(FakeRequest())
+    def performAction(): Future[Result] = controller.checkClaimSummary()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
       val session = createSessionWithPreviousAnswers(None)._1
@@ -436,7 +438,7 @@ class EnterClaimControllerSpec
 
   "checkClaimSubmit page" must {
 
-    def performAction(): Future[Result] = controller.checkClaimSubmit()(FakeRequest())
+    def performAction(): Future[Result] = controller.checkClaimSummarySubmit()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
       val session = createSessionWithPreviousAnswers(None)._1
@@ -455,8 +457,8 @@ class EnterClaimControllerSpec
   "generateClaimsFromDuties" must {
 
     "Return an error if there are no duties" in {
-      val draftC285Claim = generateDraftC285Claim(None)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Left(
+      val fillingOutClaim = sample[FillingOutClaim]
+      EnterClaimController.generateClaimsFromDuties(fillingOutClaim) shouldBe Left(
         Error("No duties in session when arriving on ClaimController")
       )
     }
@@ -470,16 +472,16 @@ class EnterClaimControllerSpec
       )
       val claimAnswers         = ClaimsAnswer(claims)
 
-      val draftC285Claim = generateDraftC285Claim(claimAnswers, dutiesSelectedAnswer)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Right(claims)
+      val fillingOutClaim = sample[FillingOutClaim]
+      EnterClaimController.generateClaimsFromDuties(fillingOutClaim) shouldBe Right(claims)
     }
 
     "Generate new claims from duties" in {
       val numberOfDuties       = 10
       val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
-      val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
+      val fillingOutClaim      = sample[FillingOutClaim]
+      EnterClaimController.generateClaimsFromDuties(fillingOutClaim).getOrElse(fail).size shouldBe numberOfDuties
     }
   }
 

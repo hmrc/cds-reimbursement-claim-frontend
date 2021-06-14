@@ -581,8 +581,8 @@ check-claim-summary.total=Total Reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.required=Select yes if these details are correct or no if they are incorrect
-check-claim-summary.invalid=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.error.required=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.error.invalid=Select yes if these details are correct or no if they are incorrect
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
