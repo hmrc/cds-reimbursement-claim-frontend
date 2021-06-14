@@ -63,19 +63,19 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
-  protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
+  protected def changeOrEnterMrn(isCYA: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
         val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
-        Ok(enterMovementReferenceNumberPage(form, isAmend))
+        Ok(enterMovementReferenceNumberPage(form, isCYA))
       }
     }
 
-  def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit()
-  def changeMrnSubmit(): Action[AnyContent] = mrnSubmit()
+  def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
+  def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
 
-  def mrnSubmit(): Action[AnyContent] =
+  def mrnSubmit(isCYA:Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController
@@ -96,8 +96,8 @@ class EnterMovementReferenceNumberController @Inject() (
               }
               val previousValue                  = previousAnswer.map(_.stringValue).getOrElse("")
               val currentValue                   = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
-              (previousValue === currentValue) match {
-                case true  =>  //TODO This is wrong, should not work like this
+              (previousValue === currentValue && isCYA) match {
+                case true  =>
                   Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                 case false =>
                   mrnOrEntryNumber match {
