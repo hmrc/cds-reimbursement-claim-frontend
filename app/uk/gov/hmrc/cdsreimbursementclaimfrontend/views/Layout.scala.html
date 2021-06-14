@@ -37,6 +37,7 @@
     headBlock: Option[Html] = None,
     scriptsBlock: Option[Html] = None,
     timeOut: Boolean = true,
+    suppressBackLink: Boolean = false,
     signedInUserDetails: Option[SignedInUserDetails] = None
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -97,7 +98,9 @@
             </div>
         }
         <div class="cds-user-banner cds-no-border">
-            <div id="cdsr-back-link"></div>
+            @if(!suppressBackLink) {
+                <div id="cdsr-back-link"></div>
+            }
             <div>
                 @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
             </div>

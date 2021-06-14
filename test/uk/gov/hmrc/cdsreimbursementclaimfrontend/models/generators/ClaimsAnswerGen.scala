@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
-object ClaimsAnswerGen extends GenUtils {
+object ClaimsAnswerGen {
 
-  implicit val claimGen: Gen[Claim]               = gen[Claim]
-  implicit val claimsAnswerGen: Gen[ClaimsAnswer] = gen[ClaimsAnswer]
-
+  implicit val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
+  implicit val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
 }

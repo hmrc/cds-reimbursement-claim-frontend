@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, defaultAwaitTimeout, status}
 import play.api.inject.bind
@@ -41,11 +40,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen.entryDeclarationDetailsGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -61,6 +61,10 @@ class EnterDeclarationDetailsControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  featureSwitch.EntryNumber.enable()
 
   lazy val controller: EnterDeclarationDetailsController = instanceOf[EnterDeclarationDetailsController]
 

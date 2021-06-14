@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 
-object SubmissionResponseGen extends GenUtils {
-  implicit val submissionResponseGen: Gen[SubmitClaimResponse] = gen[SubmitClaimResponse]
-  implicit val submitClaimRequestGen: Gen[SubmitClaimRequest]  = gen[SubmitClaimRequest]
-  implicit val submitClaimErrorGen: Gen[SubmitClaimError]      = gen[SubmitClaimError]
+object SubmissionResponseGen {
+  implicit val arbitrarySubmissionResponse: Typeclass[SubmitClaimResponse] = gen[SubmitClaimResponse]
+  implicit val arbitrarySubmitClaimRequest: Typeclass[SubmitClaimRequest]  = gen[SubmitClaimRequest]
+  implicit val arbitrarySubmitClaimError: Typeclass[SubmitClaimError]      = gen[SubmitClaimError]
 }
