@@ -75,7 +75,7 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
   def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
 
-  def mrnSubmit(isCYA:Boolean): Action[AnyContent] =
+  def mrnSubmit(isCYA: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController

@@ -207,11 +207,11 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "Update an Entry Number" in {
-        val featureSwitch = instanceOf[FeatureSwitchService]
+        val featureSwitch       = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
-        val originalEntryNumber             = EntryNumber("123456789A55555555")
-        val answers         = MovementReferenceNumber(Left(originalEntryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val originalEntryNumber = EntryNumber("123456789A55555555")
+        val answers             = MovementReferenceNumber(Left(originalEntryNumber))
+        val (session, _, _)     = sessionWithClaimState(Some(answers))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -225,11 +225,11 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "Update an Entry Number, but do not change it" in {
-        val featureSwitch = instanceOf[FeatureSwitchService]
+        val featureSwitch       = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
-        val originalEntryNumber             = EntryNumber("123456789A55555555")
-        val answers         = MovementReferenceNumber(Left(originalEntryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val originalEntryNumber = EntryNumber("123456789A55555555")
+        val answers             = MovementReferenceNumber(Left(originalEntryNumber))
+        val (session, _, _)     = sessionWithClaimState(Some(answers))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -262,8 +262,8 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "Update an MRN, Eori is importer's Eori" in {
-        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = MovementReferenceNumber(Right(mrn))
+        val mrn               = MRN("10AAAAAAAAAAAAAAA1")
+        val answers           = MovementReferenceNumber(Right(mrn))
         val (session, foc, _) = sessionWithClaimState(Some(answers))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
@@ -284,8 +284,8 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "Update an MRN, but don't change it, Eori is importer's Eori" in {
-        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = MovementReferenceNumber(Right(mrn))
+        val mrn               = MRN("10AAAAAAAAAAAAAAA1")
+        val answers           = MovementReferenceNumber(Right(mrn))
         val (session, foc, _) = sessionWithClaimState(Some(answers))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
@@ -342,7 +342,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result          = performAction("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
@@ -356,7 +356,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result          = performAction("enter-movement-reference-number" -> "123456789A12345678")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
@@ -375,7 +375,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
       }
 
@@ -390,7 +390,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result          = performAction("enter-movement-reference-number" -> "123456789A12345178")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
