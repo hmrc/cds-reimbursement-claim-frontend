@@ -157,11 +157,15 @@ class EnterClaimController @Inject() (
 
   def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
+      withAnswers[ClaimsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
         EnterClaimController.checkClaimAnswerForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(checkClaimSummaryPage(claims, formWithErrors)),
+            formWithErrors =>
+              fillingOutClaim.draftClaim
+                .fold(_.claimsAnswer)
+                .map(claims => Future.successful(BadRequest(checkClaimSummaryPage(claims, formWithErrors))))
+                .getOrElse(Future.successful(errorHandler.errorResult())),
             {
               case ClaimAnswersAreCorrect   =>
                 fillingOutClaim.draftClaim
@@ -176,7 +180,6 @@ class EnterClaimController @Inject() (
                     }
                   )
               case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
-
             }
           )
       }
@@ -267,7 +270,7 @@ object EnterClaimController {
     duty.taxCode.value,
     BigDecimal(0.0),
     BigDecimal(0.0),
-    false
+    isFilled = false
   )
 
   private def claimFromNdrc(ndrc: NdrcDetails): Claim = Claim(
@@ -277,7 +280,7 @@ object EnterClaimController {
     ndrc.taxType,
     BigDecimal(ndrc.amount),
     BigDecimal(0.0),
-    false
+    isFilled = false
   )
 
   sealed trait CheckClaimAnswer extends Product with Serializable
