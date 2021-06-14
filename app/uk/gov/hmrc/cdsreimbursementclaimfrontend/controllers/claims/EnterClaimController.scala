@@ -21,7 +21,7 @@ import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
-import play.api.data.Forms.mapping
+import play.api.data.Forms.{mapping, number}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -149,7 +149,7 @@ class EnterClaimController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (_, answers) =>
         answers match {
-          case Some(claims) => Ok(checkClaimSummaryPage(claims))
+          case Some(claims) => Ok(checkClaimSummaryPage(claims, checkClaimAnswerForm))
           case None         => Redirect(routes.EnterClaimController.startClaim())
         }
       }
@@ -158,15 +158,25 @@ class EnterClaimController @Inject() (
   def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        fillingOutClaim.draftClaim
-          .fold(_.movementReferenceNumber)
-          .fold {
-            logger.warn("could not find movement reference number")
-            errorHandler.errorResult()
-          }(referenceNumber =>
-            referenceNumber.value match {
-              case Left(_)  => Redirect(routes.BankAccountController.enterBankAccountDetails())
-              case Right(_) => Redirect(routes.BankAccountController.checkBankAccountDetails())
+        EnterClaimController.checkClaimAnswerForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => BadRequest(checkClaimSummaryPage(claims, formWithErrors)),
+            {
+              case ClaimAnswersAreCorrect   =>
+                fillingOutClaim.draftClaim
+                  .fold(_.movementReferenceNumber)
+                  .fold {
+                    logger.warn("could not find movement reference number")
+                    errorHandler.errorResult()
+                  }(referenceNumber =>
+                    referenceNumber.value match {
+                      case Left(_)  => Redirect(routes.BankAccountController.enterBankAccountDetails())
+                      case Right(_) => Redirect(routes.BankAccountController.checkBankAccountDetails())
+                    }
+                  )
+              case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
+
             }
           )
       }
@@ -269,5 +279,29 @@ object EnterClaimController {
     BigDecimal(0.0),
     false
   )
+
+  sealed trait CheckClaimAnswer extends Product with Serializable
+
+  case object ClaimAnswersAreCorrect extends CheckClaimAnswer
+  case object ClaimAnswersAreIncorrect extends CheckClaimAnswer
+
+  val dataKey = "check-claim-summary"
+
+  val checkClaimAnswerForm: Form[CheckClaimAnswer] =
+    Form(
+      mapping(
+        dataKey -> number
+          .verifying("invalid", a => a === 0 || a === 1)
+          .transform[CheckClaimAnswer](
+            value =>
+              if (value === 0) ClaimAnswersAreCorrect
+              else ClaimAnswersAreIncorrect,
+            {
+              case ClaimAnswersAreCorrect   => 0
+              case ClaimAnswersAreIncorrect => 1
+            }
+          )
+      )(identity)(Some(_))
+    )
 
 }

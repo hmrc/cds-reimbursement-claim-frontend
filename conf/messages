@@ -575,17 +575,14 @@ check-claim-summary.help-text=These are the calculations based on the informatio
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
-check-claim-summary.duty.label=Duty
-check-claim-summary.reimbursement.label=Reimbursement
-check-claim-summary.make-change.label=Make a change
+check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.overall-total=Overall total
 check-claim-summary.total=Total Reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.update=<a href="{0}" class="govuk-link">Update the calculation</a>
-
+check-claim-summary.required=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.invalid=Select yes if these details are correct or no if they are incorrect
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
