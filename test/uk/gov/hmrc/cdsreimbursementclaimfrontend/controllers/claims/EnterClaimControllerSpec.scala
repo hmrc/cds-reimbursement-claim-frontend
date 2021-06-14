@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerG
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
@@ -480,7 +480,7 @@ class EnterClaimControllerSpec
       val numberOfDuties       = 10
       val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
-      val fillingOutClaim      = sample[FillingOutClaim]
+      val fillingOutClaim = sample[FillingOutClaim]
       EnterClaimController.generateClaimsFromDuties(fillingOutClaim).getOrElse(fail).size shouldBe numberOfDuties
     }
   }
