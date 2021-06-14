@@ -465,8 +465,8 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
 enter-commodities-details.label=Enter commodity details
 enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim.<br /><br />This will help reduce delays in your claim being processed.
-enter-commodities-details.error.required=Enter commodity details
-enter-commodities-details.error.maxLength=Enter commodity details
+enter-commodities-details.error.required=Enter details about the commodities you would like to be reimbursed for
+enter-commodities-details.error.maxLength=You have exceeded the maximum number of characters allowed (500)
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 #===================================================
