@@ -98,7 +98,7 @@
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 
-            @fieldSet(messages(s"$key.importer-contact-address.label"), false) {
+            @fieldSet(s"$key.importer-contact-address.label", false) {
 
                 @inputText(
                     form = form,
