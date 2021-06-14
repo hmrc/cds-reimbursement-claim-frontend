@@ -170,7 +170,8 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "Enter MRN submit" must {
-      def performAction(data: (String, String)*): Future[Result] = controller.enterMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.enterMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "start a new claim with an invalid Entry Number/MRN" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
@@ -182,7 +183,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(Right(()))
         }
         val result = performAction("enter-movement-reference-number" -> entryNumber.value)
 
@@ -203,15 +203,15 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction("enter-movement-reference-number" -> entryNumber.value)
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
       "start a new claim with an MRN, Eori is importer's Eori" in {
         val (session, foc, _) = sessionWithClaimState(None)
 
-        val consigneeDetails = sample[ConsigneeDetails].copy(consigneeEORI =  foc.signedInUserDetails.eori.value)
-        val displayDeclaration            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
         )
 
@@ -224,15 +224,15 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
       "start a new claim with an MRN, Eori is not the importer's Eori" in {
         val (session, _, _) = sessionWithClaimState(None)
 
-        val consigneeDetails = sample[ConsigneeDetails].copy(consigneeEORI =  sample[Eori].value)
-        val displayDeclaration            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = sample[Eori].value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
         )
 
@@ -245,11 +245,9 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
 
-        status(result) shouldBe 303
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
       }
-
-
 
     }
 
