@@ -48,5 +48,5 @@
 
         @paragraph(Html(messages(s"$key.different-details-link", routes.BankAccountController.enterBankAccountDetails().url)), Some("govuk-body"))
 
-        @buttonLink(messages("button.continue"), Some(continuePageUrl))
+        @buttonLink("button.continue", Some(continuePageUrl))
     }
