@@ -344,7 +344,7 @@ class EnterDeclarationDetailsController @Inject() (
                 case Right(_)          =>
                   Redirect(
                     routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
-                  ) //FIXME double check this
+                  )
               }
         )
       }
