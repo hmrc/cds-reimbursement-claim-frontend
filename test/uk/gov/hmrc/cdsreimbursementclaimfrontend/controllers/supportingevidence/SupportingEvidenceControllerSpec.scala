@@ -180,7 +180,7 @@ class SupportingEvidenceControllerSpec
 
         "the number of uploads have reached the maximum allowed" in {
 
-          val answer          = sample(genSupportingEvidenceAnswerOfN(30))
+          val answer          = sample(arbitrarySupportingEvidenceAnswerOfN(30))
           val (session, _, _) = sessionWithClaimState(supportingEvidenceAnswer = answer)
 
           inSequence {
@@ -222,7 +222,7 @@ class SupportingEvidenceControllerSpec
         "number of uploads has not exceeded limit" in {
 
           val uploadReference = sample[UploadReference]
-          val answer          = sample(genSupportingEvidenceAnswerOfN(1))
+          val answer          = sample(arbitrarySupportingEvidenceAnswerOfN(1))
           val (session, _, _) = sessionWithClaimState(answer)
           val upscanUpload    = genUpscanUpload(uploadReference)
 
@@ -256,7 +256,7 @@ class SupportingEvidenceControllerSpec
               )
             )
 
-          val answer          = sample(genSupportingEvidenceAnswerOfN(2))
+          val answer          = sample(arbitrarySupportingEvidenceAnswerOfN(2))
           val (session, _, _) = sessionWithClaimState(answer)
 
           inSequence {
@@ -464,7 +464,7 @@ class SupportingEvidenceControllerSpec
 
         "removing new evidence" in {
 
-          val answer = sample(genSupportingEvidenceAnswerOfN(2))
+          val answer = sample(arbitrarySupportingEvidenceAnswerOfN(2))
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -529,7 +529,7 @@ class SupportingEvidenceControllerSpec
 
           val upscanUpload = genUpscanUpload(uploadReference).copy(upscanCallBack = Some(updatedUpscanSuccess))
 
-          val answer = sample(genSupportingEvidenceAnswerOpt)
+          val answer = sample(arbitrarySupportingEvidenceAnswerOpt)
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -649,7 +649,7 @@ class SupportingEvidenceControllerSpec
           val updatedUpscanSuccess = upscanSuccess.copy(uploadDetails = uploadDetails)
 
           val uploadReference = sample[UploadReference]
-          val answer          = sample(genSupportingEvidenceAnswerOpt)
+          val answer          = sample(arbitrarySupportingEvidenceAnswerOpt)
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 

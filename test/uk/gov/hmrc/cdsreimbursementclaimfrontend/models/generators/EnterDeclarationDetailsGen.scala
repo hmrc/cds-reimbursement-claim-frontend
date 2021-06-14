@@ -16,30 +16,38 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DateOfImport
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
-import java.time.LocalDate
+object EnterDeclarationDetailsGen {
 
-object EnterDeclarationDetailsGen extends GenUtils {
+  implicit val arbitraryDateOfImport: Typeclass[DateOfImport] = Arbitrary(
+    arbitraryLocalDate.arbitrary.map(DateOfImport(_))
+  )
 
-  implicit val dateOfImportGen: Gen[DateOfImport] =
-    gen[LocalDate].map(DateOfImport(_))
-
-  implicit val dateOfImportArb: Arbitrary[DateOfImport] =
-    Arbitrary(dateOfImportGen)
-
-  implicit val phoneNumberArb: Arbitrary[PhoneNumber] =
-    Arbitrary(phoneNumberGen)
-
-  implicit val emailArb: Arbitrary[Email] =
-    Arbitrary(emailGen)
-
-  implicit val entryDeclarationDetailsGen: Gen[EntryDeclarationDetails] = gen[EntryDeclarationDetails]
+  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryDeclarationDetails] = Arbitrary(
+    for {
+      dateOfImport          <- arbitraryDateOfImport.arbitrary
+      placeOfImport         <- arbitraryString.arbitrary.map(_.take(70))
+      importerName          <- arbitraryString.arbitrary.map(_.take(70))
+      importerEmailAddress  <- arbitraryEmail.arbitrary
+      importerPhoneNumber   <- arbitraryPhoneNumber.arbitrary
+      declarantName         <- arbitraryString.arbitrary.map(_.take(70))
+      declarantEmailAddress <- arbitraryEmail.arbitrary
+      declarantPhoneNumber  <- arbitraryPhoneNumber.arbitrary
+    } yield EntryDeclarationDetails(
+      dateOfImport,
+      placeOfImport,
+      importerName,
+      importerEmailAddress,
+      importerPhoneNumber,
+      declarantName,
+      declarantEmailAddress,
+      declarantPhoneNumber
+    )
+  )
 }

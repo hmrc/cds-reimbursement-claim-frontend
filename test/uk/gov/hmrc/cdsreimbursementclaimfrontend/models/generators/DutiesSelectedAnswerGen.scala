@@ -17,12 +17,11 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
-object DutiesSelectedAnswerGen extends GenUtils {
+object DutiesSelectedAnswerGen {
 
-  implicit val dutiesSelectedAnswerGen: Gen[NonEmptyList[Duty]] = gen[NonEmptyList[Duty]]
+  implicit val arbitraryDutiesSelectedAnswerGen: Typeclass[NonEmptyList[Duty]] = gen[NonEmptyList[Duty]]
 
 }

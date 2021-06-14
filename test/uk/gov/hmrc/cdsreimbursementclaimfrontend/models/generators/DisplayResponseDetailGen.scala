@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.ScalacheckShapeless._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, ConsigneeBankDetails, ConsigneeDetails, DeclarantBankDetails, DeclarantDetails, DisplayResponseDetail, MaskedBankDetails}
+import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 
-object DisplayResponseDetailGen extends GenUtils {
-  implicit val consigneeDetailsGen: Gen[ConsigneeDetails]           = gen[ConsigneeDetails]
-  implicit val declarantDetailsGen: Gen[DeclarantDetails]           = gen[DeclarantDetails]
-  implicit val consigneeBankDetailsGen: Gen[ConsigneeBankDetails]   = gen[ConsigneeBankDetails]
-  implicit val declarantBankDetailsGen: Gen[DeclarantBankDetails]   = gen[DeclarantBankDetails]
-  implicit val bankDetailsGen: Gen[BankDetails]                     = gen[BankDetails]
-  implicit val maskedBankDetailsGen: Gen[MaskedBankDetails]         = gen[MaskedBankDetails]
-  implicit val displayResponseDetailGen: Gen[DisplayResponseDetail] = gen[DisplayResponseDetail]
+object DisplayResponseDetailGen {
+
+  implicit val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails]           = gen[ConsigneeDetails]
+  implicit val arbitraryDeclarantDetails: Typeclass[DeclarantDetails]           = gen[DeclarantDetails]
+  implicit val arbitraryConsigneeBankDetails: Typeclass[ConsigneeBankDetails]   = gen[ConsigneeBankDetails]
+  implicit val arbitraryDeclarantBankDetails: Typeclass[DeclarantBankDetails]   = gen[DeclarantBankDetails]
+  implicit val arbitraryBankDetails: Typeclass[BankDetails]                     = gen[BankDetails]
+  implicit val arbitraryMaskedBankDetails: Typeclass[MaskedBankDetails]         = gen[MaskedBankDetails]
+  implicit val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] = gen[DisplayResponseDetail]
 }

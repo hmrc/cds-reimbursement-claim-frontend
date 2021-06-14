@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -35,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.displayDeclarationGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -79,7 +80,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  def getGlobalErrors(doc: Document) = doc.getElementsByClass("govuk-error-summary__list").select("li")
+  def getGlobalErrors(doc: Document): Elements = doc.getElementsByClass("govuk-error-summary__list").select("li")
 
   private def sessionWithClaimState(
     maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber]

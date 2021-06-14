@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 object PhoneNumberGen {
 
-  implicit val phoneNumberGen: Gen[PhoneNumber] = genUkPhoneNumber
+  implicit val arbitraryPhoneNumber: Typeclass[PhoneNumber] = Arbitrary(genUkPhoneNumber)
 
   def genUkPhoneNumber: Gen[PhoneNumber] =
     Gen.listOfN(10, Gen.numChar).map(numbers => PhoneNumber(numbers.foldLeft("0")((s, ch) => s"$s$ch")))
