@@ -336,7 +336,7 @@ class EnterClaimControllerSpec
             "enter-claim" -> "5.00"
           )
         ),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
     }
 
@@ -370,7 +370,7 @@ class EnterClaimControllerSpec
             "enter-claim.claim-amount" -> updatedClaimAmount
           )
         ),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
     }
 

@@ -65,7 +65,8 @@ class EnterClaimController @Inject() (
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        generateClaimsFromDuties(fillingOutClaim).map(ClaimsAnswer(_)) match {
+        val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+        generateClaimsFromDuties(draftC285Claim).map(ClaimsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
             Redirect(routes.SelectDutiesController.selectDuties())
@@ -243,10 +244,9 @@ object EnterClaimController {
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
-  def generateClaimsFromDuties(fillingOutClaim: FillingOutClaim): Either[Error, List[Claim]] = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    val claims         = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
-    val ndrcDetails    = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
+  def generateClaimsFromDuties(draftC285Claim: DraftC285Claim): Either[Error, List[Claim]] = {
+    val claims      = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
+    val ndrcDetails = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
     draftC285Claim.dutiesSelectedAnswer
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
