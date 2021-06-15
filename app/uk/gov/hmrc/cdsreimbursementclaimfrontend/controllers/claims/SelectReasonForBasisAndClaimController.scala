@@ -135,7 +135,7 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 _ =>
                   reasonForClaimAndBasis.basisForClaim match {
                     case BasisOfClaim.DuplicateEntry =>
-                      Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                      Redirect(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn())
                     case _                           => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
                   }
               )
