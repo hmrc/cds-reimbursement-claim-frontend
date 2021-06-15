@@ -170,7 +170,7 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.EnterClaimController.checkClaim()
+        routes.EnterClaimController.checkClaimSummary()
       )
 
     }
@@ -417,7 +417,7 @@ class EnterClaimControllerSpec
 
   "checkClaim page" must {
 
-    def performAction(): Future[Result] = controller.checkClaim()(FakeRequest())
+    def performAction(): Future[Result] = controller.checkClaimSummary()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
       val session = createSessionWithPreviousAnswers(None)._1
@@ -436,7 +436,7 @@ class EnterClaimControllerSpec
 
   "checkClaimSubmit page" must {
 
-    def performAction(): Future[Result] = controller.checkClaimSubmit()(FakeRequest())
+    def performAction(): Future[Result] = controller.checkClaimSummarySubmit()(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
       val session = createSessionWithPreviousAnswers(None)._1
