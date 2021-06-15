@@ -105,7 +105,7 @@ class SelectBasisForClaimController @Inject() (
                       case false =>
                         formOk.reasonForClaim match {
                           case BasisOfClaim.DuplicateEntry =>
-                            Redirect(routes.EnterMovementReferenceNumberController.enterDuplicateMrn())
+                            Redirect(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn())
                           case _                           =>
                             Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
                         }

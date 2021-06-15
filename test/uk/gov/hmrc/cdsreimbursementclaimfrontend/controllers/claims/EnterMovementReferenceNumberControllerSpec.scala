@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.{Functor, Id}
 import cats.data.EitherT
 import cats.implicits._
+import cats.{Functor, Id}
 import org.jsoup.Jsoup
 import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -30,17 +30,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.MovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -253,7 +252,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(Right(()))
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
@@ -276,7 +274,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(Right(()))
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
@@ -319,7 +316,6 @@ class EnterMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(Right(()))
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
@@ -331,7 +327,10 @@ class EnterMovementReferenceNumberControllerSpec
 
     }
 
-    "Change MRN submit" must {
+    "We update an Entry/MRN coming from the Check Your Answer page (changeMrnSubmit)" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.changeMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "return to CYA page if the same MRN is submitted" in {
         val mrn             = MRN("10AAAAAAAAAAAAAAA1")
@@ -341,10 +340,9 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = controller.changeMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
-        )
-        status(result) shouldBe 303
+        val result          = performAction("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
+
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
@@ -356,10 +354,9 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = controller.changeMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345678")
-        )
-        status(result) shouldBe 303
+        val result          = performAction("enter-movement-reference-number" -> "123456789A12345678")
+
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
@@ -376,11 +373,10 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = controller.changeMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
-        )
-        status(result) shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
+        val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+
+        status(result)                 shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
       }
 
       "start a new claim if a different entry number is submitted" in {
@@ -392,10 +388,9 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          = controller.changeMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody("enter-movement-reference-number" -> "123456789A12345178")
-        )
-        status(result) shouldBe 303
+        val result          = performAction("enter-movement-reference-number" -> "123456789A12345178")
+
+        status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 

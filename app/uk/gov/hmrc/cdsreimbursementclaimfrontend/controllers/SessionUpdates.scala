@@ -27,6 +27,8 @@ import scala.concurrent.Future
 
 trait SessionUpdates {
 
+  type SessionDataTransform = SessionData => SessionData
+
   def updateSession[R](sessionCache: SessionCache, request: R)(
     update: SessionData => SessionData
   )(implicit
