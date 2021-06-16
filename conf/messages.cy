@@ -54,7 +54,7 @@ date.year=Blwyddyn
 
 signed-out.title=Rydych wedi allgofnodi
 signed-out.p1=Er mwyn cael mynediad at y gwasanaeth hawlio ad-daliad am dollau mewnforio, bydd angen i chi fewngofnodi eto.
-signed-out.p2=Gallwch <a href=”{0}”>fewngofnodi</a> i’ch cyfrif.
+signed-out.p2=Gallwch <a href="{0}">fewngofnodi</a> i’ch cyfrif.
 signed-out.button=Ewch i GOV.UK
 
 timed-out.title=Er eich diogelwch, gwnaethom eich allgofnodi
@@ -87,13 +87,13 @@ we-only-support-gg.signIn.p1=<a href="{0}">Mewngofnodwch</a> gyda’r un Dynodyd
 #===================================================
 unauthorised.title=Mae’n ddrwg gennym – nid yw’r gwasanaeth hwn ar gael
 unauthorised.help=Mae’n rhaid i chi gael rhif EORI sy’n cysylltu â’ch cofrestriad CDS cyn i chi allu defnyddio’r gwasanaeth hwn. Yna, bydd y rhif hwn yn cael ei gysylltu â’ch manylion ar Borth y Llywodraeth.
-unauthorised.help-text=Rhagor o wybodaeth am <a href="{0}" target="_blank">Sut mae cael rhif EORI.</a>
+unauthorised.help-text=Rhagor o wybodaeth am <a href="{0}" target="_blank">Sut mae cael rhif EORI</a>.
 
 #===================================================
 #  INELIGIBLE PAGE
 #===================================================
 ineligible.title=Mae’n ddrwg gennym, ni allwch hawlio.
-ineligible.help=Nid ydych yn gymwys i wneud hawliad. Os oes angen cymorth arnoch, gallwch gysylltu â’r <a target="_blank" href="{0}">tîm CDS</a> (yn agor tab newydd) drwy’r adran cwestiynau cyffredinol mewnforio ac allforio.
+ineligible.help=Nid ydych yn gymwys i wneud hawliad. Os oes angen cymorth arnoch, gallwch gysylltu â’r <a href="{0}" target="_blank">tîm CDS (yn agor tab newydd)</a> drwy’r adran cwestiynau cyffredinol mewnforio ac allforio.
 
 #===================================================
 #  CHECK EORI DETAILS PAGE
@@ -127,7 +127,7 @@ select-number-of-claims.invalid=Dewiswch nifer yr hawliadau
 #===================================================
 enter-movement-reference-number.title=Beth yw’ch Cyfeirnod Symud (MRN)?
 enter-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017
-enter-movement-reference-number.help-text=Bydd y Cyfeirnod Symud (MRN) yn cael ei roi ar ôl datgan mewnforio. <a target="_blank href="{0}">Rhagor o wybodaeth am y rhif yma (yn agor mewn tab newydd)</a>. Hefyd, gallwch ychwanegu rhif (waddol) mewnforio o’ch dogfennaeth CHIEF.
+enter-movement-reference-number.help-text=Bydd y Cyfeirnod Symud (MRN) yn cael ei roi ar ôl datgan mewnforio. <a href="{0}" target="_blank">Rhagor o wybodaeth am y rhif yma (yn agor mewn tab newydd)</a>. Hefyd, gallwch ychwanegu rhif (waddol) mewnforio o’ch dogfennaeth CHIEF.
 enter-movement-reference-number.enter-mrn.label=Nodwch y rhif MRN neu’r rhif mewnforio
 enter-movement-reference-number.invalid.number=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.invalid=Nodwch rif MRN neu rif mewnforio dilys
@@ -328,7 +328,7 @@ select-who-is-making-the-claim.details.l2=Gall cwmni cynrychioladol fod yn unigo
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Gwiriwch fod y manylion hyn yn gywir
-check-declaration-details.help-text=Dyma fanylion y datganiad a roddir gan Gyfeirnod MRN: <strong>{0}</strong> Os yw’r manylion hyn yn anghywir, gallwch eu newid drwy <a target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">gysylltu â’r tîm CDS (yn agor mewn tab newydd)</a> drwy’r adran cwestiynau cyffredinol mewnforio ac allforio.
+check-declaration-details.help-text=Dyma fanylion y datganiad a roddir gan Gyfeirnod MRN: <strong>{0}</strong> Os yw’r manylion hyn yn anghywir, gallwch eu newid drwy <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" target="_blank">gysylltu â’r tîm CDS (yn agor mewn tab newydd)</a> drwy’r adran cwestiynau cyffredinol mewnforio ac allforio.
 check-declaration-details.mrn-number.label=Rhif MRN
 check-declaration-details.import-date.label=Dyddiad y mewnforio
 check-declaration-details.paid-charges.label=Costau a dalwyd
@@ -576,7 +576,7 @@ check-claim.total=Cyfanswm yr ad-daliad
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Nodwch fanylion y cyfrif banc
-enter-bank-details.help-text=Dyma le hoffech i ad-daliadau gael eu gwneud yn y DU. I ddefnyddio’r manylion banc hyn eto, <a href="{0}" target=">cysylltwch â’r tîm CDS</a> drwy’r adran cwestiynau cyffredin mewnforio ac allforio.
+enter-bank-details.help-text=Dyma le hoffech i ad-daliadau gael eu gwneud yn y DU. I ddefnyddio’r manylion banc hyn eto, <a href="{0}" target="_blank">cysylltwch â’r tîm CDS</a> drwy’r adran cwestiynau cyffredin mewnforio ac allforio.
 enter-bank-details.account-name.label=Enw’r cyfrif banc
 enter-bank-details.account-name.help-text=Yr enw sydd wedi’i gofrestru yn y cyfrif
 enter-bank-details.account-name.error.required=Nodwch enw cyfrif dilys
@@ -780,17 +780,17 @@ accessibility-statement.p1=Mae’r datganiad hygyrchedd hwn yn esbonio pa mor hy
 accessibility-statement.p2=Gall hawlwyr ddefnyddio’r gwasanaeth i wneud cais am ad-daliadau ar ordaliadau ar gyfer ffioedd mewnforio, gan gynnwys Tolldaliadau, Tollau Ecséis, Tollau Gwrthbwyso a tholldaliadau penodol eraill. Gallant ddefnyddio’r gwasanaeth os yw’r swm sydd eisoes wedi’i dalu yn y datganiad mewnforio yn anghywir neu os cafodd y datganiad mewnforio ei wrthod, ac felly mae angen iddynt hawlio’r cyfan neu ran o’r swm sydd eisoes wedi’i dalu’n ôl.
 accessibility-statement.p3=Mae’r gwasanaeth hwn yn cael ei redeg gan Gyllid a Thollau EM (CThEM).
 accessibility-statement.p4=Rydym am i gymaint o bobl â phosibl allu defnyddio’r gwasanaeth hwn. Mae hyn yn golygu y dylech allu:
-accessibility-statement.p5=Rydym hefyd wedi sicrhau bod y testun a ddefnyddir yn y gwasanaeth mor syml â phosibl i’w ddeall. Mae gan <a href="{0}">AbilityNetgyngor</a>ar wneud eich dyfais yn haws i’w defnyddio os oes gennych anabledd.
-accessibility-statement.p6=Mae CThEM wedi ymrwymo i wneud y ffurflenni hyn yn hygyrch, yn unol â Rheoliadau Hygyrchedd Cyrff Sector Cyhoeddus (Gwefannau a Chymwysiadau Symudol) (Rhif 2) 2018. Cafodd y gwasanaeth ei brofi ar 1 Mawrth 2021 ac roedd yn cydymffurfio â <a href="{0}"> safon AAA Canllawiau Hygyrchedd Cynnwys ar y We, fersiwn 2.1.</a> Mae wedi’i ymestyn ers hynny. Ni allwn fod yn sicr ei fod yn cydymffurfio’n llawn. Bydd y gwasanaeth llawn yn cael ei brofi gan CThEM o fewn y tri mis nesaf.
-accessibility-statement.p7=Rydym bob amser yn ceisio gwella hygyrchedd y gwasanaeth hwn. Os byddwch yn dod o hyd i unrhyw broblemau nad ydynt wedi’u rhestru ar y dudalen hon, neu os ydych o’r farn nad ydym yn bodloni gofynion hygyrchedd, <a target="_blank" href="{0}"rhowch wybod am y broblem hygyrchedd (yn agor ffenestr neu dab newydd).</a>
-accessibility-statement.p8=Mae’r Comisiwn Cydraddoldeb a Hawliau Dynol (EHRC) yn gyfrifol am orfodi Rheoliadau Hygyrchedd Cyrff Sector Cyhoeddus (Gwefannau a Chymwysiadau Symudol) (Rhif 2) 2018 (y ‘rheoliadau hygyrchedd’). Os ydych chi’n anhapus â’r ffordd rydyn ni’n ymateb i’ch cwyn,<a href="{0}">cysylltwch â’r Gwasanaeth Cynghori a Chefnogi Cydraddoldeb (EASS)</a>, neu
+accessibility-statement.p5=Rydym hefyd wedi sicrhau bod y testun a ddefnyddir yn y gwasanaeth mor syml â phosibl i’w ddeall. Mae gan <a href="{0}">AbilityNetgyngor</a> ar wneud eich dyfais yn haws i’w defnyddio os oes gennych anabledd.
+accessibility-statement.p6=Mae CThEM wedi ymrwymo i wneud y ffurflenni hyn yn hygyrch, yn unol â Rheoliadau Hygyrchedd Cyrff Sector Cyhoeddus (Gwefannau a Chymwysiadau Symudol) (Rhif 2) 2018. Cafodd y gwasanaeth ei brofi ar 1 Mawrth 2021 ac roedd yn cydymffurfio â <a href="{0}">safon AAA Canllawiau Hygyrchedd Cynnwys ar y We, fersiwn 2.1</a>. Mae wedi’i ymestyn ers hynny. Ni allwn fod yn sicr ei fod yn cydymffurfio’n llawn. Bydd y gwasanaeth llawn yn cael ei brofi gan CThEM o fewn y tri mis nesaf.
+accessibility-statement.p7=Rydym bob amser yn ceisio gwella hygyrchedd y gwasanaeth hwn. Os byddwch yn dod o hyd i unrhyw broblemau nad ydynt wedi’u rhestru ar y dudalen hon, neu os ydych o’r farn nad ydym yn bodloni gofynion hygyrchedd, <a href="{0}" target="_blank">rhowch wybod am y broblem hygyrchedd (yn agor ffenestr neu dab newydd)</a>.
+accessibility-statement.p8=Mae’r Comisiwn Cydraddoldeb a Hawliau Dynol (EHRC) yn gyfrifol am orfodi Rheoliadau Hygyrchedd Cyrff Sector Cyhoeddus (Gwefannau a Chymwysiadau Symudol) (Rhif 2) 2018 (y ‘rheoliadau hygyrchedd’). Os ydych chi’n anhapus â’r ffordd rydyn ni’n ymateb i’ch cwyn, <a href="{0}">cysylltwch â’r Gwasanaeth Cynghori a Chefnogi Cydraddoldeb (EASS)</a>, neu
 accessibility-statement.p82=<a href="{0}">Gomisiwn Cydraddoldeb Gogledd Iwerddon (ECNI)</a> os ydych chi’n byw yng Ngogledd Iwerddon.
 accessibility-statement.p9=Rydym yn cynnig gwasanaeth ‘text relay’ os ydych yn fyddar, â nam ar eich clyw neu os oes gennych nam ar eich lleferydd.
 accessibility-statement.p10=Gallwn ddarparu dehonglydd Iaith Arwyddion Prydain (BSL), neu gallwch drefnu ymweliad gan un o ymgynghorwyr CThEM i’ch helpu i gwblhau’r gwasanaeth.
-accessibility-statement.p11=Gwybodaeth am sut i <a href="{0}">gysylltu â ni.</a>
-accessibility-statement.p12=Profwyd y gwasanaeth ar 1 Mawrth 2021 a gwiriwyd ei fod yn cydymffurfio â safon ‘AA’ Canllawiau Hygyrchedd Cynnwys y We, fersiwn 2.1. Cafodd ei adeiladu gan ddefnyddio rhannau a brofwyd gan y <a href="{0}">Ganolfan Hygyrchedd Digidol.</a>
+accessibility-statement.p11=Gwybodaeth am sut i <a href="{0}">gysylltu â ni</a>.
+accessibility-statement.p12=Profwyd y gwasanaeth ar 1 Mawrth 2021 a gwiriwyd ei fod yn cydymffurfio â safon ‘AA’ Canllawiau Hygyrchedd Cynnwys y We, fersiwn 2.1. Cafodd ei adeiladu gan ddefnyddio rhannau a brofwyd gan y <a href="{0}">Ganolfan Hygyrchedd Digidol</a>.
 accessibility-statement.p13=Paratowyd y dudalen hon ar 28 Ionawr 2021. Cafodd ei diweddaru ddiwethaf ar 28 Ionawr 2021.
-accessibility-statement.p14=<a href="{0}">Cael cymorth gyda’r dudalen hon.</a>
+accessibility-statement.p14=<a href="{0}">Cael cymorth gyda’r dudalen hon</a>.
 accessibility-statement.li1=newid lliwiau
 accessibility-statement.li2=chwyddo’r sgrin hyd at 300% heb i’r testun ddisgyn oddi ar y sgrin
 accessibility-statement.li3=mynd o ddechrau’r gwasanaeth i’r diwedd gan ddefnyddio bysellfwrdd yn unig
