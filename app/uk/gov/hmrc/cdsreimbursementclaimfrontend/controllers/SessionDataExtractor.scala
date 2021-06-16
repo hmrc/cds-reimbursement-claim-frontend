@@ -16,11 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.syntax.all._
 import play.api.mvc.{Result, Results}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import scala.concurrent.Future
 
@@ -36,5 +40,46 @@ trait SessionDataExtractor extends Results {
       case _                                                                     =>
         Future.successful(Redirect(routes.StartController.start()))
     }
+
+  def withAnswersAndRoutes[T](
+    f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
+  )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
+    request.sessionData.flatMap(_.journeyStatus) match {
+      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+        val numOfClaims = getNumberOfClaims(draftClaim)
+        val refType     = getMovementReferenceNumber(draftClaim)
+        val router      = getRoutes(numOfClaims, refType)
+        draftClaim
+          .fold(extractor(_))
+          .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
+      case _                                                                     =>
+        Future.successful(Redirect(baseRoutes.StartController.start()))
+    }
+
+  def getNumberOfClaims(draftClaim: DraftClaim): Option[SelectNumberOfClaimsType] =
+    draftClaim
+      .fold(identity)
+      .selectNumberOfClaimsAnswer
+      .flatMap(
+        _.fold(_.selectNumberOfClaimsChoice, a => Option(a.selectNumberOfClaimsChoice))
+      )
+
+  def getMovementReferenceNumber(draftClaim: DraftClaim): Option[MovementReferenceNumber] =
+    draftClaim.fold(identity).movementReferenceNumber
+
+  def getRoutes(
+    numberOfClaims: Option[SelectNumberOfClaimsType],
+    mrnOrEntryNmber: Option[MovementReferenceNumber]
+  ): ReimbursementRoutes =
+    (mrnOrEntryNmber.map(_.value), numberOfClaims)
+      .mapN {
+        case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
+        case (Left(_), SelectNumberOfClaimsType.Individual)  => ERNSingleRoutes
+        case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
+        case (Left(_), SelectNumberOfClaimsType.Bulk)        => ERNBulkRoutes
+        case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
+        case (Left(_), SelectNumberOfClaimsType.Scheduled)   => ERNScheduledRoutes
+      }
+      .getOrElse(DefaultRoutes)
 
 }

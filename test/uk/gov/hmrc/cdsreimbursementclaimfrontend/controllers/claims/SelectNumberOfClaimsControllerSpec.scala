@@ -256,7 +256,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "1")),
-          routes.EnterMrnMultiController.show()
+          routes.EnterMovementReferenceNumberController.enterBulkMrn()
         )
       }
 

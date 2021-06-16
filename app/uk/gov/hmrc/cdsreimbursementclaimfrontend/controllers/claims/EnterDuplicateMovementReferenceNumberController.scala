@@ -211,7 +211,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                             .getDisplayDeclaration(mrn)
                             .leftMap(_ => Error("could not get duplicate declaration"))
 
-                          val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
+                          val result: EitherT[Future, Error, MrnJourney] = for {
                             maybeDisplayDeclaration <- getDeclaration
                             _                       <- updateSessionWithReference
                             mrnJourneyFlow          <-
@@ -251,8 +251,9 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                               Redirect(baseRoutes.IneligibleController.ineligible())
                             },
                             {
-                              case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
-                              case Right(_) =>
+                              case _: MrnImporter        =>
+                                Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
+                              case _: ThirdPartyImporter =>
                                 Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
                             }
                           )

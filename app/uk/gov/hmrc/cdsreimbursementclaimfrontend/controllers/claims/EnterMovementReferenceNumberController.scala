@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.lang.SuppressWarnings
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -60,24 +61,32 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
+  def enterBulkMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
+  def changeBulkMrn(): Action[AnyContent] = changeOrEnterMrn(true)
+
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
   protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
+      withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
+        val router    =
+          getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Some(MovementReferenceNumber(Right(MRN("")))))
         val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
-        Ok(enterMovementReferenceNumberPage(form, isAmend))
+        Ok(enterMovementReferenceNumberPage(form, isAmend, router.subKey))
       }
     }
 
   def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
   def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
 
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def mrnSubmit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
+        val numOfClaims = getNumberOfClaims(fillingOutClaim.draftClaim)
+        val router      = getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN("")))))
         EnterMovementReferenceNumberController
           .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
@@ -89,7 +98,8 @@ class EnterMovementReferenceNumberController @Inject() (
                     .copy(errors =
                       Seq(EnterMovementReferenceNumberController.processFormErrors(formWithErrors.errors))
                     ),
-                  isAmend
+                  isAmend,
+                  router.subKey
                 )
               ),
             mrnOrEntryNumber => {
@@ -109,7 +119,7 @@ class EnterMovementReferenceNumberController @Inject() (
                         .leftMap(_ => Error("Could not save Entry Number"))
                         .fold(
                           errorRedirect,
-                          _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                          _ => Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(null))
                         )
                     case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
                       val result = for {
@@ -131,10 +141,8 @@ class EnterMovementReferenceNumberController @Inject() (
                       } yield mrnJourneyFlow
                       result.fold(
                         errorRedirect,
-                        {
-                          case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
-                          case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
-                        }
+                        journey =>
+                          Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(journey))
                       )
                   }
               }
@@ -203,23 +211,24 @@ object EnterMovementReferenceNumberController {
   def evaluateMrnJourneyFlow(
     signedInUserDetails: SignedInUserDetails,
     maybeDisplayDeclaration: Option[DisplayDeclaration]
-  ): Either[Error, Either[MrnImporter, ThirdPartyImporter]] =
+  ): Either[Error, MrnJourney] =
     maybeDisplayDeclaration match {
       case Some(displayDeclaration) =>
         (
           displayDeclaration.displayResponseDetail.consigneeDetails,
           Some(displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
         ) match {
-          case (None, _)                                        => Right(Right(ThirdPartyImporter(displayDeclaration)))
+          case (None, _)                                        => Right(ThirdPartyImporter(displayDeclaration))
           case (Some(consigneeDetails), Some(declarantDetails)) =>
             if (consigneeDetails.consigneeEORI === signedInUserDetails.eori.value)
-              Right(Left(MrnImporter(displayDeclaration)))
+              Right(MrnImporter(displayDeclaration))
             else if (
               consigneeDetails.consigneeEORI =!= signedInUserDetails.eori.value || declarantDetails =!= signedInUserDetails.eori.value
             )
-              Right(Right(ThirdPartyImporter(displayDeclaration)))
-            else Right(Right(ThirdPartyImporter(displayDeclaration)))
-          case _                                                => Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
+              Right(ThirdPartyImporter(displayDeclaration))
+            else Right(ThirdPartyImporter(displayDeclaration))
+          case _                                                =>
+            Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
         }
 
       case None => Left(Error("received no declaration information"))
