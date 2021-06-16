@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -72,12 +72,19 @@ class EnterClaimControllerSpec
     maybeClaimsAnswer: Option[ClaimsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
-    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer()
+    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer(),
+    checkClaimAnswer: Option[CheckClaimAnswer] = None
   ): (SessionData, FillingOutClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val draftC285Claim      =
-      generateDraftC285Claim(maybeClaimsAnswer, maybeDutiesSelectedAnswer, ndrcDetails, movementReferenceNumber)
+      generateDraftC285Claim(
+        maybeClaimsAnswer,
+        maybeDutiesSelectedAnswer,
+        ndrcDetails,
+        movementReferenceNumber,
+        checkClaimAnswer
+      )
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
       SessionData.empty.copy(journeyStatus = Some(journey)),
@@ -89,7 +96,8 @@ class EnterClaimControllerSpec
     maybeClaimsAnswer: Option[ClaimsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
-    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer()
+    movementReferenceNumber: MovementReferenceNumber = getMRNAnswer(),
+    checkClaimAnswer: Option[CheckClaimAnswer] = None
   ): DraftC285Claim = {
     val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = ndrcDetails))
@@ -99,7 +107,8 @@ class EnterClaimControllerSpec
       movementReferenceNumber = Some(movementReferenceNumber),
       claimsAnswer = maybeClaimsAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
-      displayDeclaration = Some(acc14)
+      displayDeclaration = Some(acc14),
+      checkClaimAnswer = checkClaimAnswer
     )
   }
 
@@ -319,7 +328,7 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer())._1
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
       val updatedAnswer  = claim.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
@@ -352,7 +361,7 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer())._1
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer(), None)._1
       val updatedAnswer  = claim.copy(claimAmount = BigDecimal(updatedClaimAmount).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
@@ -381,7 +390,7 @@ class EnterClaimControllerSpec
 
       val answers = ClaimsAnswer(claim)
 
-      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer())._1
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer(), None)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -456,25 +465,81 @@ class EnterClaimControllerSpec
     def performAction(data: Seq[(String, String)]): Future[Result] =
       controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "Redirect to CheckBankAccountDetails if user says details are correct and FeatureSwitch.EntryNumber is disabled" in {
-      featureSwitch.EntryNumber.disable()
+    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
+
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
 
       val answers = ClaimsAnswer(claim)
 
-      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer())._1
+      val session =
+        createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), Some(ClaimAnswersAreCorrect))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
-        mockStoreSession(session)(Right(()))
       }
-      val result = performAction(Seq(EnterClaimController.dataKey -> "0"))
+      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails()
+      )
+    }
+
+    "Redirect to EnterBankAccountDetails if user says details are correct on the entry number journey" in {
+      featureSwitch.EntryNumber.enable()
+      val taxCode = TaxCode.A00
+      val claim   = sample[Claim]
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+
+      val answers = ClaimsAnswer(claim)
+
+      val session =
+        createSessionWithPreviousAnswers(
+          Some(answers),
+          None,
+          None,
+          getEntryNumberAnswer(),
+          Some(ClaimAnswersAreCorrect)
+        )._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
+      checkIsRedirect(
+        result,
+        routes.BankAccountController.enterBankAccountDetails()
+      )
+    }
+
+    "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in {
+
+      val taxCode = TaxCode.A00
+      val claim   = sample[Claim]
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+
+      val answers = ClaimsAnswer(claim)
+
+      val session =
+        createSessionWithPreviousAnswers(
+          Some(answers),
+          None,
+          None,
+          getMRNAnswer(),
+          Some(ClaimAnswersAreIncorrect)
+        )._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+      val result = performAction(Seq(EnterClaimController.messageKey -> "1"))
+      checkIsRedirect(
+        result,
+        routes.SelectDutiesController.selectDuties()
       )
     }
   }

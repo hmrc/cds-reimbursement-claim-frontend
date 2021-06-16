@@ -46,9 +46,9 @@ object Claim {
 
     def ukClaimTotal: BigDecimal = claims.filter(claim => isUkClaim(claim)).map(_.claimAmount).sum
 
-    def containsUkClaim(claims: NonEmptyList[Claim]): Boolean     = !ukClaims(claims).isEmpty
-    def containsEuClaim(claims: NonEmptyList[Claim]): Boolean     = !euClaims(claims).isEmpty
-    def containsExciseClaim(claims: NonEmptyList[Claim]): Boolean = !exciseClaims(claims).isEmpty
+    def containsUkClaim(claims: NonEmptyList[Claim]): Boolean     = ukClaims(claims).nonEmpty
+    def containsEuClaim(claims: NonEmptyList[Claim]): Boolean     = euClaims(claims).nonEmpty
+    def containsExciseClaim(claims: NonEmptyList[Claim]): Boolean = exciseClaims(claims).nonEmpty
 
   }
 
