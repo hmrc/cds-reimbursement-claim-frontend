@@ -188,7 +188,7 @@ class EnterClaimController @Inject() (
 
               result.fold(
                 e => {
-                  logger.warn("could not get claims details", e)
+                  logger.warn("could not get radio button details", e)
                   errorHandler.errorResult()
                 },
                 _ =>
@@ -310,12 +310,12 @@ object EnterClaimController {
 
   implicit val checkClaimAnswerFormat: OFormat[CheckClaimAnswer] = derived.oformat[CheckClaimAnswer]()
 
-  val dataKey = "check-claim-summary"
+  val messageKey = "check-claim-summary"
 
   val checkClaimAnswerForm: Form[CheckClaimAnswer] =
     Form(
       mapping(
-        dataKey -> number
+        messageKey -> number
           .verifying("invalid", a => a === 0 || a === 1)
           .transform[CheckClaimAnswer](
             value =>

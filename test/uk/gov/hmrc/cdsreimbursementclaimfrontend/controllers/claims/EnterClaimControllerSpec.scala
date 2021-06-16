@@ -480,7 +480,7 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.dataKey -> "0"))
+      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails()
@@ -508,7 +508,7 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.dataKey -> "0"))
+      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
         routes.BankAccountController.enterBankAccountDetails()
@@ -536,7 +536,7 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.dataKey -> "1"))
+      val result = performAction(Seq(EnterClaimController.messageKey -> "1"))
       checkIsRedirect(
         result,
         routes.SelectDutiesController.selectDuties()
