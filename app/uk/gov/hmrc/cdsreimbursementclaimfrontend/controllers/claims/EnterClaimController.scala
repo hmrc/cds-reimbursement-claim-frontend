@@ -194,9 +194,9 @@ class EnterClaimController @Inject() (
                 _ =>
                   claims match {
                     case ClaimAnswersAreCorrect =>
-                      if (featureSwitch.EntryNumber.isEnabled())
-                        Redirect(routes.BankAccountController.enterBankAccountDetails())
-                      else Redirect(routes.BankAccountController.checkBankAccountDetails())
+                      if (fillingOutClaim.draftClaim.fold(_.isMrnFlow))
+                        Redirect(routes.BankAccountController.checkBankAccountDetails())
+                      else Redirect(routes.BankAccountController.enterBankAccountDetails())
 
                     case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
                   }

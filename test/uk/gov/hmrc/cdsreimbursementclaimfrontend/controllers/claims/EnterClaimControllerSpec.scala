@@ -465,8 +465,8 @@ class EnterClaimControllerSpec
     def performAction(data: Seq[(String, String)]): Future[Result] =
       controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "Redirect to CheckBankAccountDetails if user says details are correct and FeatureSwitch.EntryNumber is disabled" in {
-      featureSwitch.EntryNumber.disable()
+    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
+
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
@@ -487,7 +487,7 @@ class EnterClaimControllerSpec
       )
     }
 
-    "Redirect to EnterBankAccountDetails if user says details are correct and FeatureSwitch.EntryNumber is enabled" in {
+    "Redirect to EnterBankAccountDetails if user says details are correct on the entry number journey" in {
       featureSwitch.EntryNumber.enable()
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
@@ -515,8 +515,8 @@ class EnterClaimControllerSpec
       )
     }
 
-    "Redirect to SelectDuties if user says details are incorrect and FeatureSwitch.EntryNumber is disabled" in {
-      featureSwitch.EntryNumber.enable()
+    "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in {
+
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
@@ -528,7 +528,7 @@ class EnterClaimControllerSpec
           Some(answers),
           None,
           None,
-          getEntryNumberAnswer(),
+          getMRNAnswer(),
           Some(ClaimAnswersAreIncorrect)
         )._1
 
