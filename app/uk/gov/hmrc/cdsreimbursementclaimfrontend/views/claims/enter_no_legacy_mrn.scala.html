@@ -1,0 +1,70 @@
+@*
+* Copyright 2021 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+        inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+        backLinkComponent: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.back_link,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
+)
+
+@(form: Form[MovementReferenceNumber], isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{ "enter-no-legacy-mrn" }
+
+@title = @{ messages(s"$key.title") }
+
+@postAction = @{ if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit }
+
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+
+    @if(isAmend) { @backLinkComponent(routes.CheckYourAnswersAndSubmitController.checkAllAnswers) }
+
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+        @errorSummary(form.errors)
+
+        @pageHeading(title)
+
+        @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+
+        @paragraph(Html(messages(s"$key.details")), Some("govuk-body govuk-!-margin-bottom-8 govuk-inset-text"))
+
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = s"",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.help")
+        )
+
+        @submitButton("button.continue")
+    }
+}

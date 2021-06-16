@@ -50,7 +50,7 @@
 
             @pageHeading(title)
 
-            @paragraph(Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+            @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
 
             @inputText(
                 form = form,
@@ -60,7 +60,7 @@
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(s"${key}.help")
+                hint = Some(s"$key.help")
             )
 
             @submitButton("button.continue")

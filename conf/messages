@@ -138,6 +138,17 @@ enter-movement-reference-number.invalid.enter-different-entry-number=Enter a dif
 enter-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 #===================================================
+#  ENTER NO LEGACY MRN PAGE
+#===================================================
+enter-no-legacy-mrn.title=Enter the Movement Reference Number (MRN)
+enter-no-legacy-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-no-legacy-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-no-legacy-mrn.details=We are currently not accepting Entry numbers. If you only have Entry number please refer to C285 Chief.
+enter-no-legacy-mrn.error.required=Enter a valid MRN
+enter-no-legacy-mrn.invalid.number=Enter a valid MRN
+enter-no-legacy-mrn.invalid=Enter a valid MRN
+
+#===================================================
 #  ENTER MRN SCHEDULE PLACEHOLDER PAGE
 #===================================================
 enter-mrn-schedule-placeholder.title=What is your Movement Reference Number (MRN)?
