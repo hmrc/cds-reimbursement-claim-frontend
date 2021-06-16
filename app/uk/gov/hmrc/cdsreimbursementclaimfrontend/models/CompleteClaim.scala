@@ -100,7 +100,8 @@ object CompleteClaim {
               maybeDuplicateDisplayDeclaration,
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
-              Some(claimsAnswer)
+              Some(claimsAnswer),
+              _
             ) =>
           movementReferenceNumber.value match {
             case Left(_) =>

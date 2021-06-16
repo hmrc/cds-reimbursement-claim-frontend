@@ -49,7 +49,7 @@
     messages(s"$key.title")
 }
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
 
     @errorSummary(form.errors)
     @pageHeading(title)

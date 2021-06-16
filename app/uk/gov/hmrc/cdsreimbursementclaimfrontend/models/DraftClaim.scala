@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
@@ -56,13 +57,15 @@ object DraftClaim {
     duplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
-    claimsAnswer: Option[ClaimsAnswer]
+    claimsAnswer: Option[ClaimsAnswer],
+    checkClaimAnswer: Option[CheckClaimAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
     val newDraftC285Claim: DraftC285Claim        =
       DraftC285Claim(
         UUID.randomUUID(),
+        None,
         None,
         None,
         None,

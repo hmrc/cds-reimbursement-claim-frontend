@@ -415,7 +415,7 @@ class EnterClaimControllerSpec
 
   }
 
-  "checkClaim page" must {
+  "checkSummaryClaim page" must {
 
     def performAction(): Future[Result] = controller.checkClaimSummary()(FakeRequest())
 
@@ -431,10 +431,9 @@ class EnterClaimControllerSpec
         baseRoutes.StartController.start()
       )
     }
-
   }
 
-  "checkClaimSubmit page" must {
+  "checkClaimSummarySubmit page" must {
 
     def performAction(): Future[Result] = controller.checkClaimSummarySubmit()(FakeRequest())
 
@@ -448,6 +447,34 @@ class EnterClaimControllerSpec
       checkIsRedirect(
         performAction(),
         baseRoutes.StartController.start()
+      )
+    }
+  }
+
+  "checkClaimSummarySubmit page" must {
+
+    def performAction(data: Seq[(String, String)]): Future[Result] =
+      controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+    "Redirect to CheckBankAccountDetails if user says details are correct and FeatureSwitch.EntryNumber is disabled" in {
+      featureSwitch.EntryNumber.disable()
+      val taxCode = TaxCode.A00
+      val claim   = sample[Claim]
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+
+      val answers = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer())._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockStoreSession(session)(Right(()))
+      }
+      val result = performAction(Seq(EnterClaimController.dataKey -> "0"))
+      checkIsRedirect(
+        result,
+        routes.BankAccountController.checkBankAccountDetails()
       )
     }
   }

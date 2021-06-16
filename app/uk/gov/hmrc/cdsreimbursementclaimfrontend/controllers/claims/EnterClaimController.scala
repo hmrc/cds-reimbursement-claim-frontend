@@ -19,9 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
+import julienrf.json.derived
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
+import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -34,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -49,6 +52,7 @@ class EnterClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
+  val featureSwitch: FeatureSwitchService,
   val config: Configuration,
   enterClaimPage: pages.enter_claim,
   enterEntryClaimPage: pages.enter_entry_claim,
@@ -87,10 +91,17 @@ class EnterClaimController @Inject() (
           case Some(claim) =>
             fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
               case true  =>
-                val form = mrnClaimAmountForm(claim.paidAmount).fill(ClaimAmount(claim.claimAmount))
+                val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+                val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
                 Ok(enterClaimPage(id, form, claim))
               case false =>
-                val form = entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount))
+                val form = Either
+                  .cond(
+                    claim.isFilled,
+                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
+                    entryClaimAmountForm
+                  )
+                  .merge
                 Ok(enterEntryClaimPage(id, form, claim))
             }
           case None        =>
@@ -135,7 +146,8 @@ class EnterClaimController @Inject() (
                         },
                         formOk => {
                           val newClaim =
-                            claim.copy(paidAmount = formOk.paidAmount, claimAmount = claim.claimAmount, isFilled = true)
+                            claim
+                              .copy(paidAmount = formOk.paidAmount, claimAmount = formOk.claimAmount, isFilled = true)
                           replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
                         }
                       )
@@ -167,20 +179,28 @@ class EnterClaimController @Inject() (
                 .fold(_.claimsAnswer)
                 .map(claims => Future.successful(BadRequest(checkClaimSummaryPage(claims, formWithErrors))))
                 .getOrElse(Future.successful(errorHandler.errorResult())),
-            {
-              case ClaimAnswersAreCorrect   =>
-                fillingOutClaim.draftClaim
-                  .fold(_.movementReferenceNumber)
-                  .fold {
-                    logger.warn("could not find movement reference number")
-                    errorHandler.errorResult()
-                  }(referenceNumber =>
-                    referenceNumber.value match {
-                      case Left(_)  => Redirect(routes.BankAccountController.enterBankAccountDetails())
-                      case Right(_) => Redirect(routes.BankAccountController.checkBankAccountDetails())
-                    }
-                  )
-              case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
+            { claims =>
+              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkClaimAnswer = Some(claims)))
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
+
+              result.fold(
+                e => {
+                  logger.warn("could not get claims details", e)
+                  errorHandler.errorResult()
+                },
+                _ =>
+                  claims match {
+                    case ClaimAnswersAreCorrect =>
+                      if (featureSwitch.EntryNumber.isEnabled())
+                        Redirect(routes.BankAccountController.enterBankAccountDetails())
+                      else Redirect(routes.BankAccountController.checkBankAccountDetails())
+
+                    case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
+                  }
+              )
             }
           )
       }
@@ -287,6 +307,8 @@ object EnterClaimController {
 
   case object ClaimAnswersAreCorrect extends CheckClaimAnswer
   case object ClaimAnswersAreIncorrect extends CheckClaimAnswer
+
+  implicit val checkClaimAnswerFormat: OFormat[CheckClaimAnswer] = derived.oformat[CheckClaimAnswer]()
 
   val dataKey = "check-claim-summary"
 
