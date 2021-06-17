@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+object LanguageHelper {
 
-sealed trait MrnJourney extends Product with Serializable
-
-object MrnJourney {
-  final case class MrnImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case class ThirdPartyImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case object ErnImporter extends MrnJourney
+  def lang(level1: String, level2: Option[String], level3: String): List[String] = {
+    val default = s"$level1.$level3"
+    level2 match {
+      case Some(l2) => List(s"$level1.$l2.$level3", default)
+      case None     => List(default)
+    }
+  }
 }

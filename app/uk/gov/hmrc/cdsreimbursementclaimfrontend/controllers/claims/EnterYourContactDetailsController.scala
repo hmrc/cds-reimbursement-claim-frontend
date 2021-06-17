@@ -215,7 +215,8 @@ class EnterYourContactDetailsController @Inject() (
                           }
 
                       }
-                    case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case None                  =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
               )
             }

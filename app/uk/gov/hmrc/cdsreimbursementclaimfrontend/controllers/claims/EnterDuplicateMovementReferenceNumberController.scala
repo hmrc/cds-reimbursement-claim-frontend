@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
@@ -211,7 +211,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                             .getDisplayDeclaration(mrn)
                             .leftMap(_ => Error("could not get duplicate declaration"))
 
-                          val result: EitherT[Future, Error, Either[MrnImporter, ThirdPartyImporter]] = for {
+                          val result: EitherT[Future, Error, MrnJourney] = for {
                             maybeDisplayDeclaration <- getDeclaration
                             _                       <- updateSessionWithReference
                             mrnJourneyFlow          <-
@@ -251,8 +251,9 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                               Redirect(baseRoutes.IneligibleController.ineligible())
                             },
                             {
-                              case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
-                              case Right(_) =>
+                              case _: MrnImporter =>
+                                Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
+                              case _              =>
                                 Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
                             }
                           )
