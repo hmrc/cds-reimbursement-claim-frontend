@@ -43,7 +43,7 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
-trait ERNRoutes extends ReferenceNumberTypeRoutes {
+trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
   def nextPageForEnterMRN(importer: MrnJourney): Call =
     claimRoutes.EnterDeclarationDetailsController.enterDeclarationDetails()
 }
@@ -54,8 +54,8 @@ object ReimbursementRoutes {
 case object DefaultRoutes extends MRNRoutes with SingleRoutes
 
 case object MRNSingleRoutes extends MRNRoutes with SingleRoutes
-case object ERNSingleRoutes extends ERNRoutes with SingleRoutes
+case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes
 case object MRNBulkRoutes extends MRNRoutes with BulkRoutes
-case object ERNBulkRoutes extends ERNRoutes with BulkRoutes
+case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
-case object ERNScheduledRoutes extends ERNRoutes with ScheduledRoutes
+case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes

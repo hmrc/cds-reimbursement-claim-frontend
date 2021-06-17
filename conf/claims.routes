@@ -12,8 +12,11 @@ GET         /bulk/enter-movement-reference-number                   uk.gov.hmrc.
 POST        /enter-movement-reference-number                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit()
 
 GET         /change-movement-reference-number                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrn()
-GET         /bulk/echange-movement-reference-number                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeBulkMrn()
+GET         /bulk/change-movement-reference-number                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeBulkMrn()
 POST        /change-movement-reference-number                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrnSubmit()
+
+GET         /:journey/change-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterScheduleMrn(journey:JourneyBindable)
+
 
 GET         /enter-duplicate-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
 POST        /enter-duplicate-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit()

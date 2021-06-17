@@ -60,8 +60,12 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
-  def enterBulkMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
-  def changeBulkMrn(): Action[AnyContent] = changeOrEnterMrn(true)
+  @SuppressWarnings(Array("UnusedMethodParameter"))
+  def enterScheduleMrn(@SuppressWarnings(Array("unused")) journey: JourneyBindable): Action[AnyContent] = Action.async {
+    Ok("")
+  }
+  def enterBulkMrn(): Action[AnyContent]                                                                = changeOrEnterMrn(false)
+  def changeBulkMrn(): Action[AnyContent]                                                               = changeOrEnterMrn(true)
 
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)

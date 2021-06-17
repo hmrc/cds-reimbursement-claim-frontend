@@ -74,11 +74,11 @@ trait SessionDataExtractor extends Results {
     (mrnOrEntryNmber.map(_.value), numberOfClaims)
       .mapN {
         case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
-        case (Left(_), SelectNumberOfClaimsType.Individual)  => ERNSingleRoutes
+        case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
         case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
-        case (Left(_), SelectNumberOfClaimsType.Bulk)        => ERNBulkRoutes
+        case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
         case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
-        case (Left(_), SelectNumberOfClaimsType.Scheduled)   => ERNScheduledRoutes
+        case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
       }
       .getOrElse(DefaultRoutes)
 
