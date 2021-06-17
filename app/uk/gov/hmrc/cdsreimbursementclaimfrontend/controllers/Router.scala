@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
@@ -39,8 +39,8 @@ trait ReferenceNumberTypeRoutes extends Product with Serializable {
 }
 trait MRNRoutes extends ReferenceNumberTypeRoutes {
   def nextPageForEnterMRN(importer: MrnJourney): Call = importer match {
-    case _: MrnImporter        => claimRoutes.CheckDeclarationDetailsController.checkDetails()
-    case _: ThirdPartyImporter => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails()
+    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
 trait ERNRoutes extends ReferenceNumberTypeRoutes {

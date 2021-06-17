@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, _}
@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.lang.SuppressWarnings
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -81,7 +80,6 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
   def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
   def mrnSubmit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
@@ -119,7 +117,8 @@ class EnterMovementReferenceNumberController @Inject() (
                         .leftMap(_ => Error("Could not save Entry Number"))
                         .fold(
                           errorRedirect,
-                          _ => Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(null))
+                          _ =>
+                            Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(ErnImporter))
                         )
                     case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
                       val result = for {
