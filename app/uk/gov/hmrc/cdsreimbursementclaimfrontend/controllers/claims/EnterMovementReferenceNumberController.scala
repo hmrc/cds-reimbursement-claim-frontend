@@ -70,10 +70,11 @@ class EnterMovementReferenceNumberController @Inject() (
   )(form: Form[MovementReferenceNumber], isAmend: Boolean)(implicit
     request: RequestWithSessionData[AnyContent]
   ): HtmlFormat.Appendable =
-    feature.EntryNumber.cond(enterMovementReferenceNumberPage(form, isAmend))(enterNoLegacyMrnPage(form, isAmend))
+    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend)
+    else enterNoLegacyMrnPage(form, isAmend)
 
   private def resolveMessagesKey(feature: FeatureSwitchService): String =
-    feature.EntryNumber.cond(ifEnabled = enterMovementReferenceNumberKey)(ifDisabled = enterNoLegacyMrnKey)
+    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberKey else enterNoLegacyMrnKey
 
   protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -193,13 +194,7 @@ object EnterMovementReferenceNumberController {
 
   def movementReferenceNumberMapping(isEntryNumberEnabled: Boolean): Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText
-      .verifying(
-        "invalid.number",
-        str => {
-          println(str)
-          EntryNumber.isValid(str) && isEntryNumberEnabled || MRN.isValid(str)
-        }
-      )
+      .verifying("invalid.number", str => EntryNumber.isValid(str) && isEntryNumberEnabled || MRN.isValid(str))
       .transform[Either[EntryNumber, MRN]](
         str =>
           if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))

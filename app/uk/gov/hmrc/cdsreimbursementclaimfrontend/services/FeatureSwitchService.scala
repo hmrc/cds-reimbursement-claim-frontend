@@ -70,9 +70,6 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
 
         override protected def executionContext: ExecutionContext = cc.executionContext
       }
-
-    def cond[A](ifEnabled: => A)(ifDisabled: => A): A =
-      if (isEnabled()) ifEnabled else ifDisabled
   }
 
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName

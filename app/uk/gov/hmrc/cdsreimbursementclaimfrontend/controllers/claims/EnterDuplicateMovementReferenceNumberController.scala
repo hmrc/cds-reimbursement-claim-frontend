@@ -19,11 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
+import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.{enterDuplicateMovementReferenceNumberKey, enterNoLegacyDuplicateMrnKey}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -46,7 +48,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   claimService: ClaimService,
   featureSwitch: FeatureSwitchService,
-  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
+  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number,
+  enterNoLegacyDuplicateMrn: pages.enter_no_legacy_duplicate_mrn
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -57,15 +60,16 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   def enterDuplicateMrn(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withDuplicateMovementReferenceNumberAnswer { (_, _, answers) =>
+        val messagesKey = resolveMessagesKey(featureSwitch)
         answers.fold(
           ifIncomplete =>
             ifIncomplete.duplicateMovementReferenceNumber match {
               case Some(duplicateMovementReferenceNumber) =>
                 Ok(
-                  enterDuplicateMovementReferenceNumberPage(
+                  resolveEnterDuplicateMrnPageFor(featureSwitch)(
                     EnterMovementReferenceNumberController
                       .movementReferenceNumberForm(
-                        enterMovementReferenceNumberKey,
+                        messagesKey,
                         featureSwitch.EntryNumber.isEnabled()
                       )
                       .fill(
@@ -75,9 +79,9 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                 )
               case None                                   =>
                 Ok(
-                  enterDuplicateMovementReferenceNumberPage(
+                  resolveEnterDuplicateMrnPageFor(featureSwitch)(
                     EnterMovementReferenceNumberController.movementReferenceNumberForm(
-                      enterMovementReferenceNumberKey,
+                      messagesKey,
                       featureSwitch.EntryNumber.isEnabled()
                     )
                   )
@@ -88,10 +92,10 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
               errorHandler.errorResult()
             ) { duplicateMovementReferenceNumber =>
               Ok(
-                enterDuplicateMovementReferenceNumberPage(
+                resolveEnterDuplicateMrnPageFor(featureSwitch)(
                   EnterMovementReferenceNumberController
                     .movementReferenceNumberForm(
-                      enterMovementReferenceNumberKey,
+                      messagesKey,
                       featureSwitch.EntryNumber.isEnabled()
                     )
                     .fill(
@@ -107,20 +111,18 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   def enterDuplicateMrnSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withDuplicateMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
+        val messagesKey = resolveMessagesKey(featureSwitch)
         EnterMovementReferenceNumberController
-          .movementReferenceNumberForm(
-            enterMovementReferenceNumberKey,
-            featureSwitch.EntryNumber.isEnabled()
-          )
+          .movementReferenceNumberForm(messagesKey, featureSwitch.EntryNumber.isEnabled())
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterDuplicateMovementReferenceNumberPage(
+                resolveEnterDuplicateMrnPageFor(featureSwitch)(
                   requestFormWithErrors.copy(errors =
                     Seq(
                       EnterMovementReferenceNumberController
-                        .processFormErrors(enterMovementReferenceNumberKey, requestFormWithErrors.errors)
+                        .processFormErrors(messagesKey, requestFormWithErrors.errors)
                     )
                   )
                 )
@@ -129,14 +131,11 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
               def renderPageWithError(errorKey: String): Future[Result] = {
                 val form = EnterMovementReferenceNumberController
-                  .movementReferenceNumberForm("enter-movement-reference-number", featureSwitch.EntryNumber.isEnabled())
+                  .movementReferenceNumberForm(messagesKey, featureSwitch.EntryNumber.isEnabled())
                   .fill(mrnOrEntryNumber)
-                  .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                BadRequest(
-                  enterDuplicateMovementReferenceNumberPage(
-                    form
-                  )
-                )
+                  .withError(messagesKey, s"invalid.$errorKey")
+
+                BadRequest(resolveEnterDuplicateMrnPageFor(featureSwitch)(form))
               }
 
               val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
@@ -148,7 +147,10 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
               mrnOrEntryNumber.value match {
 
-                case Left(entryNumber) =>
+                case Left(_) if !featureSwitch.EntryNumber.isEnabled() =>
+                  renderPageWithError("mrn-not-entry-number")
+
+                case Left(entryNumber) if featureSwitch.EntryNumber.isEnabled() =>
                   val cachedMrnExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
                     case Right(mrn) => mrn.value.isEmpty
                     case Left(_)    => true
@@ -191,7 +193,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                           renderPageWithError("enter-different-entry-number")
                       }
                   }
-                case Right(mrn)        =>
+                case Right(mrn)                                                 =>
                   val cachedEntryNumberExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
                     case Right(_)          => true
                     case Left(entryNumber) => entryNumber.value.isEmpty
@@ -306,4 +308,18 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
       case _ => Redirect(baseRoutes.StartController.start())
     }
 
+  private def resolveEnterDuplicateMrnPageFor(
+    feature: FeatureSwitchService
+  )(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[AnyContent]): HtmlFormat.Appendable =
+    if (feature.EntryNumber.isEnabled()) enterDuplicateMovementReferenceNumberPage(form)
+    else enterNoLegacyDuplicateMrn(form)
+
+  private def resolveMessagesKey(feature: FeatureSwitchService): String =
+    if (feature.EntryNumber.isEnabled()) enterDuplicateMovementReferenceNumberKey else enterNoLegacyDuplicateMrnKey
+}
+
+object EnterDuplicateMovementReferenceNumberController {
+
+  val enterNoLegacyDuplicateMrnKey             = "enter-no-legacy-duplicate-mrn"
+  val enterDuplicateMovementReferenceNumberKey = "enter-duplicate-movement-reference-number"
 }
