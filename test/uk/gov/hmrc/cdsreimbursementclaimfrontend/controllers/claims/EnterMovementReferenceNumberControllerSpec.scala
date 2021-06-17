@@ -103,7 +103,7 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
+      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Single)(FakeRequest())
 
       "show the title" in {
         val (session, _, _) = sessionWithClaimState(None, Individual)
@@ -119,7 +119,7 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "Change MRN page" must {
-      def performAction(): Future[Result] = controller.changeMrn()(FakeRequest())
+      def performAction(): Future[Result] = controller.changeJourneyMrn(JourneyBindable.Single)(FakeRequest())
 
       "show the title and the MRN number" in {
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")

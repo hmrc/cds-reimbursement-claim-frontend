@@ -64,8 +64,8 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(false, journey)
   def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(true, journey)
 
-  def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
-  def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
+//  def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
+//  def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
   protected def changeOrEnterMrn(
     isAmend: Boolean,
@@ -91,7 +91,7 @@ class EnterMovementReferenceNumberController @Inject() (
           .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
           .fold(
-            formWithErrors => {
+            formWithErrors =>
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors
@@ -101,8 +101,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   isAmend,
                   getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN(""))))).subKey
                 )
-              )
-            },
+              ),
             mrnOrEntryNumber => {
               val errorRedirect: Error => Result = e => {
                 logger.warn("Mrn or Entry Number submission failed: ", e)

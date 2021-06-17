@@ -240,7 +240,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "0")),
-          routes.EnterMovementReferenceNumberController.enterMrn
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
         )
       }
 

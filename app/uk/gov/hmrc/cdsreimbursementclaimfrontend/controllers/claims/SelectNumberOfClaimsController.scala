@@ -96,7 +96,8 @@ class SelectNumberOfClaimsController @Inject() (
                   },
                   _ =>
                     formOk match {
-                      case Individual => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                      case Individual =>
+                        Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                       case Bulk       =>
                         Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Bulk))
                       case Scheduled  => Redirect(routes.EnterMrnScheduleController.show())

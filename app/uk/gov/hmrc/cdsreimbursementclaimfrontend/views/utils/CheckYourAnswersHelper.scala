@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
@@ -48,7 +48,8 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
+                  href =
+                    s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(JourneyBindable.Single).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.entry-reference-number.label"))
                 )
@@ -64,7 +65,8 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeMrn.url}",
+                  href =
+                    s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(JourneyBindable.Single).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.mrn.label"))
                 )
