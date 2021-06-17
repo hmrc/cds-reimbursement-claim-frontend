@@ -64,13 +64,7 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(false, journey)
   def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(true, journey)
 
-//  def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
-//  def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
-
-  protected def changeOrEnterMrn(
-    isAmend: Boolean,
-    journey: JourneyBindable = JourneyBindable.Single
-  ): Action[AnyContent] =
+  protected def changeOrEnterMrn(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
         val router    = localRouter(journey)

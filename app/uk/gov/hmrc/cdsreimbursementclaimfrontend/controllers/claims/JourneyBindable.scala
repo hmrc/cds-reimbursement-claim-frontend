@@ -30,7 +30,6 @@ object JourneyBindable {
     case "single"   => Single
     case "bulk"     => Bulk
     case "schedule" => Schedule
-    case ""         => Single
   }
 
   implicit lazy val pathBindable: PathBindable[JourneyBindable] = new PathBindable[JourneyBindable] {
