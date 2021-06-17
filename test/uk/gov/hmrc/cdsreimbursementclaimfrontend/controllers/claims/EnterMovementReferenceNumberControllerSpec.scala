@@ -436,7 +436,7 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterBulkMrn()(FakeRequest())
+      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Bulk)(FakeRequest())
 
       "show the title" in {
         val (session, _, _) = sessionWithClaimState(None, Bulk)

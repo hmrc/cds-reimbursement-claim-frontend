@@ -24,9 +24,10 @@ import play.api.data._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.evaluateMrnJourneyFlow
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNBulkRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
@@ -60,21 +61,19 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
-  @SuppressWarnings(Array("UnusedMethodParameter"))
-  def enterScheduleMrn(@SuppressWarnings(Array("unused")) journey: JourneyBindable): Action[AnyContent] = Action.async {
-    Ok("")
-  }
-  def enterBulkMrn(): Action[AnyContent]                                                                = changeOrEnterMrn(false)
-  def changeBulkMrn(): Action[AnyContent]                                                               = changeOrEnterMrn(true)
+  def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(false, journey)
+  def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(true, journey)
 
   def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
   def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
 
-  protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
+  protected def changeOrEnterMrn(
+    isAmend: Boolean,
+    journey: JourneyBindable = JourneyBindable.Single
+  ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
-        val router    =
-          getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Some(MovementReferenceNumber(Right(MRN("")))))
+      withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
+        val router    = localRouter(journey)
         val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
         Ok(enterMovementReferenceNumberPage(form, isAmend, router.subKey))
@@ -88,12 +87,11 @@ class EnterMovementReferenceNumberController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         val numOfClaims = getNumberOfClaims(fillingOutClaim.draftClaim)
-        val router      = getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN("")))))
         EnterMovementReferenceNumberController
           .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
           .fold(
-            formWithErrors =>
+            formWithErrors => {
               BadRequest(
                 enterMovementReferenceNumberPage(
                   formWithErrors
@@ -101,9 +99,10 @@ class EnterMovementReferenceNumberController @Inject() (
                       Seq(EnterMovementReferenceNumberController.processFormErrors(formWithErrors.errors))
                     ),
                   isAmend,
-                  router.subKey
+                  getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN(""))))).subKey
                 )
-              ),
+              )
+            },
             mrnOrEntryNumber => {
               val errorRedirect: Error => Result = e => {
                 logger.warn("Mrn or Entry Number submission failed: ", e)
@@ -175,6 +174,13 @@ class EnterMovementReferenceNumberController @Inject() (
     val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
     update
   }
+
+  def localRouter(journey: JourneyBindable): ReimbursementRoutes =
+    journey match {
+      case JourneyBindable.Single   => MRNSingleRoutes
+      case JourneyBindable.Bulk     => MRNBulkRoutes
+      case JourneyBindable.Schedule => MRNScheduledRoutes
+    }
 
 }
 
