@@ -94,17 +94,15 @@ class SelectNumberOfClaimsController @Inject() (
                     logger.warn("could not capture select number of claims", e)
                     errorHandler.errorResult()
                   },
-                  _ =>
-                    formOk match {
-                      case Individual =>
-                        Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                      case Bulk       =>
-                        Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Bulk))
-                      case Scheduled  =>
-                        Redirect(
-                          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Schedule)
-                        )
+                  _ => {
+                    val redirectUrl = formOk match {
+                      case Individual => JourneyBindable.Single
+                      case Bulk       => JourneyBindable.Bulk
+                      case Scheduled  => JourneyBindable.Schedule
+
                     }
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+                  }
                 )
             }
           )

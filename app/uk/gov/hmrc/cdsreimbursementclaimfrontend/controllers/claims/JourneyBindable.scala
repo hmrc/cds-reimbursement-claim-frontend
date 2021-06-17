@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import play.api.mvc.PathBindable
 
-sealed abstract class JourneyBindable(val value: String)
+sealed abstract class JourneyBindable(val value: String) extends Product with Serializable
 
 object JourneyBindable {
 
