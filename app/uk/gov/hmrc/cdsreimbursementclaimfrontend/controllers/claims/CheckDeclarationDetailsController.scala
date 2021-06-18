@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
@@ -23,9 +24,13 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
 import play.api.libs.json.OFormat
 import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -35,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
@@ -44,20 +49,23 @@ class CheckDeclarationDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
+  // val config: Configuration,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
+  implicit val dataExtractor: DraftC285Claim => Option[CheckDeclarationDetailsAnswer] = _.checkDeclarationDetailsAnswer
   private def withPossibleDeclaration(
     f: (
       SessionData,
       FillingOutClaim,
       Option[DisplayDeclaration]
     ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+  )(implicit request: RequestWithSessionData[_]): Future[Result]                      =
     request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
       val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
       f(s, r, maybeDisplayDeclaration)
@@ -90,10 +98,45 @@ class CheckDeclarationDetailsController @Inject() (
     }
   }
 
-  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-    /// here we go ...
+  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[CheckDeclarationDetailsAnswer] { (fillingOutClaim, _) =>
+      CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            fillingOutClaim.draftClaim
+              .fold(_.checkDeclarationDetailsAnswer)
+              .map(answer => Future.successful(BadRequest(checkDeclarationDetailsPage(declaration, _, formWithErrors))))
+              .getOrElse(Future.successful(errorHandler.errorResult())),
+          { answer =>
+            val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
+            val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+            val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              .leftMap(_ => Error("could not update session"))
+
+            result.fold(
+              e => {
+                logger.warn("could not get radio button details", e)
+                errorHandler.errorResult()
+              },
+              _ =>
+                answer match {
+                  case DeclarationAnswersAreCorrect =>
+                    Redirect(routes.BankAccountController.checkBankAccountDetails())
+
+                  case DeclarationAnswersAreIncorrect =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn())
+                }
+            )
+          }
+        )
+
+    }
   }
+  //Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+  /// here we go ...
+  // }
 
   def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withDuplicateDeclaration { (_, _, maybeDeclaration) =>
