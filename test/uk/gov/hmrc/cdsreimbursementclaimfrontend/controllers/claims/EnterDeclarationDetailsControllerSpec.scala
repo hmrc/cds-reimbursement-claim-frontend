@@ -379,7 +379,7 @@ class EnterDeclarationDetailsControllerSpec
 
           checkIsRedirect(
             action(Seq()),
-            routes.EnterMovementReferenceNumberController.enterMrn()
+            routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
           )
         }
       }
@@ -417,7 +417,7 @@ class EnterDeclarationDetailsControllerSpec
 
           checkIsRedirect(
             action(Seq()),
-            routes.EnterMovementReferenceNumberController.enterMrn()
+            routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
           )
         }
       }

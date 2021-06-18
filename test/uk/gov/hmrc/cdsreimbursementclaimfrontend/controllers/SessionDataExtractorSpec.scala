@@ -22,14 +22,18 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, MovementReferenceNumber, SessionData}
 
 import scala.concurrent.Future
 
@@ -48,7 +52,19 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       }
   }
 
-  "SessionDataExtractor" should {
+  class SessionAndRouterTester() extends SessionDataExtractor {
+    def method(expectedData: Option[ClaimNorthernIrelandAnswer], expecterRouter: ReimbursementRoutes)(implicit
+      extractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer],
+      request: RequestWithSessionData[_]
+    ) =
+      withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (_, data, router) =>
+        expectedData   shouldBe data
+        expecterRouter shouldBe router
+        Future.successful(Ok(""))
+      }
+  }
+
+  "withAnswers" should {
     "extract the data successfuly" in {
       val sessionTester                                                       = new SessionTester()
       val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
@@ -79,6 +95,30 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       val result = sessionTester.method(dataExtractor, request)
       status(result) shouldBe 303
     }
+  }
+
+  "withAnswersAndRoutes" should {
+    "extract the data and the router successfuly" in {
+      val sessionTester                                                       = new SessionAndRouterTester()
+      val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+
+      val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
+      val msgReq               = fakeRequest2MessageRequest(FakeRequest())
+      val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
+      val draftC285Claim       =
+        sample[DraftC285Claim].copy(
+          selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(SelectNumberOfClaimsType.Bulk)),
+          movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("123456789")))),
+          claimNorthernIrelandAnswer = expectedData
+        )
+      val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
+      val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+      val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
+
+      val result = sessionTester.method(expectedData, EntryBulkRoutes)(dataExtractor, request)
+      status(result) shouldBe 200
+    }
+
   }
 
 }

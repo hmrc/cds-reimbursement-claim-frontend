@@ -24,12 +24,13 @@ import play.api.data._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.evaluateMrnJourneyFlow
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNBulkRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, _}
@@ -60,15 +61,16 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
-  def enterMrn(): Action[AnyContent]  = changeOrEnterMrn(false)
-  def changeMrn(): Action[AnyContent] = changeOrEnterMrn(true)
+  def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(false, journey)
+  def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(true, journey)
 
-  protected def changeOrEnterMrn(isAmend: Boolean): Action[AnyContent] =
+  protected def changeOrEnterMrn(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
+        val router    = localRouter(journey)
         val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
-        Ok(enterMovementReferenceNumberPage(form, isAmend))
+        Ok(enterMovementReferenceNumberPage(form, isAmend, router.subKey))
       }
     }
 
@@ -78,6 +80,7 @@ class EnterMovementReferenceNumberController @Inject() (
   def mrnSubmit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
+        val numOfClaims = getNumberOfClaims(fillingOutClaim.draftClaim)
         EnterMovementReferenceNumberController
           .movementReferenceNumberForm(featureSwitch)
           .bindFromRequest()
@@ -89,7 +92,8 @@ class EnterMovementReferenceNumberController @Inject() (
                     .copy(errors =
                       Seq(EnterMovementReferenceNumberController.processFormErrors(formWithErrors.errors))
                     ),
-                  isAmend
+                  isAmend,
+                  getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN(""))))).subKey
                 )
               ),
             mrnOrEntryNumber => {
@@ -109,7 +113,8 @@ class EnterMovementReferenceNumberController @Inject() (
                         .leftMap(_ => Error("Could not save Entry Number"))
                         .fold(
                           errorRedirect,
-                          _ => Redirect(routes.EnterDeclarationDetailsController.enterDeclarationDetails())
+                          _ =>
+                            Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(ErnImporter))
                         )
                     case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
                       val result = for {
@@ -131,10 +136,8 @@ class EnterMovementReferenceNumberController @Inject() (
                       } yield mrnJourneyFlow
                       result.fold(
                         errorRedirect,
-                        {
-                          case Left(_)  => Redirect(routes.CheckDeclarationDetailsController.checkDetails())
-                          case Right(_) => Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
-                        }
+                        journey =>
+                          Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(journey))
                       )
                   }
               }
@@ -164,6 +167,13 @@ class EnterMovementReferenceNumberController @Inject() (
     val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
     update
   }
+
+  def localRouter(journey: JourneyBindable): ReimbursementRoutes =
+    journey match {
+      case JourneyBindable.Single   => MRNSingleRoutes
+      case JourneyBindable.Bulk     => MRNBulkRoutes
+      case JourneyBindable.Schedule => MRNScheduledRoutes
+    }
 
 }
 
@@ -203,23 +213,24 @@ object EnterMovementReferenceNumberController {
   def evaluateMrnJourneyFlow(
     signedInUserDetails: SignedInUserDetails,
     maybeDisplayDeclaration: Option[DisplayDeclaration]
-  ): Either[Error, Either[MrnImporter, ThirdPartyImporter]] =
+  ): Either[Error, MrnJourney] =
     maybeDisplayDeclaration match {
       case Some(displayDeclaration) =>
         (
           displayDeclaration.displayResponseDetail.consigneeDetails,
           Some(displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI)
         ) match {
-          case (None, _)                                        => Right(Right(ThirdPartyImporter(displayDeclaration)))
+          case (None, _)                                        => Right(ThirdPartyImporter(displayDeclaration))
           case (Some(consigneeDetails), Some(declarantDetails)) =>
             if (consigneeDetails.consigneeEORI === signedInUserDetails.eori.value)
-              Right(Left(MrnImporter(displayDeclaration)))
+              Right(MrnImporter(displayDeclaration))
             else if (
               consigneeDetails.consigneeEORI =!= signedInUserDetails.eori.value || declarantDetails =!= signedInUserDetails.eori.value
             )
-              Right(Right(ThirdPartyImporter(displayDeclaration)))
-            else Right(Right(ThirdPartyImporter(displayDeclaration)))
-          case _                                                => Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
+              Right(ThirdPartyImporter(displayDeclaration))
+            else Right(ThirdPartyImporter(displayDeclaration))
+          case _                                                =>
+            Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
         }
 
       case None => Left(Error("received no declaration information"))

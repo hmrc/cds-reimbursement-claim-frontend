@@ -100,7 +100,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           )
                         )
                     )
-                  case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case None                          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 }
               case None                =>
                 fillingOutClaim.draftClaim.movementReferenceNumber match {
@@ -119,7 +120,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           )
                         )
                     )
-                  case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case None                          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 }
             },
           ifComplete =>
@@ -143,7 +145,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       )
                     )
                 )
-              case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+              case None                          =>
+                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
             }
         )
       }
@@ -172,7 +175,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         )
                       )
                   )
-                case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                case None                          =>
+                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
               },
             declarantTypeAnswer => {
               val updatedAnswers = answers.fold(
@@ -229,7 +233,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           )
                         )
                     )
-                  case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case None                          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 }
               case None                =>
                 fillingOutClaim.draftClaim.movementReferenceNumber match {
@@ -250,7 +255,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                           )
                         )
                     )
-                  case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case None                          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 }
             },
           ifComplete =>
@@ -276,7 +282,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                       )
                     )
                 )
-              case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+              case None                          =>
+                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
             }
         )
       }
@@ -307,7 +314,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                         )
                       )
                   )
-                case None                          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                case None                          =>
+                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
               },
             declarantTypeAnswer => {
               val updatedAnswers = answers.fold(

@@ -137,6 +137,10 @@ enter-movement-reference-number.invalid.mrn-not-entry-number=Enter a valid MRN, 
 enter-movement-reference-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
 enter-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
+enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
+
 #===================================================
 #  ENTER MRN SCHEDULE PLACEHOLDER PAGE
 #===================================================

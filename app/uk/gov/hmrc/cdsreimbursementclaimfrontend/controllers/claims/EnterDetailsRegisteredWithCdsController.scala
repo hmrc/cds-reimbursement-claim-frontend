@@ -185,7 +185,8 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                               case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
                             }
                         }
-                      case None                  => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                      case None                  =>
+                        Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                     }
                   }
               )

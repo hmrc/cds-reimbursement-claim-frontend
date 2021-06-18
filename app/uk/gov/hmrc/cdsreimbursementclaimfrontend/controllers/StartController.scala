@@ -24,6 +24,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
@@ -96,7 +97,7 @@ class StartController @Inject() (
         },
         _ =>
           Redirect(
-            controllers.claims.routes.EnterMovementReferenceNumberController.enterMrn()
+            controllers.claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
           )
       )
     }

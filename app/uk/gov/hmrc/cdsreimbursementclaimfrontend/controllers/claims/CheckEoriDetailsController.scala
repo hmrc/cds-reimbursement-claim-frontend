@@ -121,7 +121,11 @@ class CheckEoriDetailsController @Inject() (
                     result             <- EitherT.rightT[Future, Result](
                                             if (featureSwitch.BulkClaim.isEnabled())
                                               Redirect(routes.SelectNumberOfClaimsController.show())
-                                            else Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                                            else
+                                              Redirect(
+                                                routes.EnterMovementReferenceNumberController
+                                                  .enterJourneyMrn(JourneyBindable.Single)
+                                              )
                                           )
                   } yield result
 
