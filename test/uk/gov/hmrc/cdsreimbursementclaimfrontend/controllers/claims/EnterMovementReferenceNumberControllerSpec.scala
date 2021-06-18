@@ -119,7 +119,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
         }
 
-        val doc             = Jsoup.parse(contentAsString(performAction()))
+        val doc = Jsoup.parse(contentAsString(performAction()))
 
         doc.select("h1").text                                    should include(messageFromMessageKey(s"$key.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe ""

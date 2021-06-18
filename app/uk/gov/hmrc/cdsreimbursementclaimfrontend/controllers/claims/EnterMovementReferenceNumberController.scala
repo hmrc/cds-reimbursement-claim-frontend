@@ -63,17 +63,19 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
-  private def resolveEnterMrnPageFor(feature: FeatureSwitchService)
-                                    (form: Form[MovementReferenceNumber], isAmend: Boolean)
-                                    (implicit request: RequestWithSessionData[AnyContent]): HtmlFormat.Appendable =
-    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend)
-    else enterNoLegacyMrnPage(form, isAmend)
+  private def resolveEnterMrnPageFor(
+    feature: FeatureSwitchService
+  )(form: Form[MovementReferenceNumber], isAmend: Boolean, subKey: Option[String])(implicit
+    request: RequestWithSessionData[AnyContent]
+  ): HtmlFormat.Appendable =
+    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend, subKey)
+    else enterNoLegacyMrnPage(form, isAmend, subKey)
 
   private def resolveMessagesKey(feature: FeatureSwitchService): String =
     if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberKey else enterNoLegacyMrnKey
 
-  def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(false, journey)
-  def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(true, journey)
+  def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
+  def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(isAmend = true, journey)
 
   protected def changeOrEnterMrn(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -83,7 +85,7 @@ class EnterMovementReferenceNumberController @Inject() (
           resolveMessagesKey(featureSwitch),
           featureSwitch.EntryNumber.isEnabled()
         )
-        val form      = previousAnswer.fold(emptyForm)(emptyForm.fill _)
+        val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
         Ok(resolveEnterMrnPageFor(featureSwitch)(form, isAmend, router.subKey))
       }
     }

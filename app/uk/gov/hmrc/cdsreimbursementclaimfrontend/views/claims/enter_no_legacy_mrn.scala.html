@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -32,11 +33,11 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(form: Form[MovementReferenceNumber], isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MovementReferenceNumber], isAmend: Boolean, subKey:Option[String])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{ "enter-no-legacy-mrn" }
 
-@title = @{ messages(s"$key.title") }
+@title = @{ messages(lang(key,subKey,"title")) }
 
 @postAction = @{ if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit else routes.EnterMovementReferenceNumberController.enterMrnSubmit }
 
@@ -50,9 +51,9 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(lang(key,subKey,"help-text"), viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @paragraph(Html(messages(s"$key.details")), Some("govuk-body govuk-!-margin-bottom-8 govuk-inset-text"))
+        @paragraph(Html(messages(lang(key, subKey, "details"))), Some("govuk-body govuk-!-margin-bottom-8 govuk-inset-text"))
 
         @inputText(
             form = form,
