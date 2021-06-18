@@ -21,7 +21,7 @@ import cats.implicits._
 import cats.{Functor, Id}
 import org.jsoup.Jsoup
 import org.scalatest.OptionValues
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -30,6 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.{enterMovementReferenceNumberKey, enterNoLegacyMrnKey}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -51,7 +52,7 @@ class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks
+    with TableDrivenPropertyChecks
     with OptionValues {
 
   val mockClaimsService = mock[ClaimService]
@@ -62,6 +63,9 @@ class EnterMovementReferenceNumberControllerSpec
       bind[SessionCache].toInstance(mockSessionCache),
       bind[ClaimService].toInstance(mockClaimsService)
     )
+
+  val featureSwitch = instanceOf[FeatureSwitchService]
+  val keys          = Table("Key", enterNoLegacyMrnKey, enterMovementReferenceNumberKey)
 
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
@@ -98,7 +102,9 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
 
-      "show the title" in {
+      "show the title" in forAll(keys) { key =>
+        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+
         val (session, _, _) = sessionWithClaimState(None)
         inSequence {
           mockAuthWithNoRetrievals()
@@ -106,7 +112,7 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val doc             = Jsoup.parse(contentAsString(performAction()))
 
-        doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
+        doc.select("h1").text                                    should include(messageFromMessageKey(s"$key.title"))
         doc.select("#enter-movement-reference-number").`val`() shouldBe ""
       }
     }
@@ -114,7 +120,9 @@ class EnterMovementReferenceNumberControllerSpec
     "Change MRN page" must {
       def performAction(): Future[Result] = controller.changeMrn()(FakeRequest())
 
-      "show the title and the MRN number" in {
+      "show the title and the MRN number" in forAll(keys) { key =>
+        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+
         val mrn             = MRN("10ABCDEFGHIJKLMNO0")
         val answers         = MovementReferenceNumber(Right(mrn))
         val (session, _, _) = sessionWithClaimState(Some(answers))
@@ -125,9 +133,8 @@ class EnterMovementReferenceNumberControllerSpec
 
         val doc = Jsoup.parse(contentAsString(performAction()))
 
-        doc.select("h1").text                                    should include(messageFromMessageKey("enter-movement-reference-number.title"))
-        doc.select("#enter-movement-reference-number").`val`() shouldBe mrn.value
-
+        doc.select("h1").text          should include(messageFromMessageKey(s"$key.title"))
+        doc.select(s"#$key").`val`() shouldBe mrn.value
       }
 
       "show the back button when the user has come from the CYA page with an mrn number" in {
@@ -397,30 +404,34 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "Form validation" must {
-      val featureSwitch = instanceOf[FeatureSwitchService]
-      val form          = EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
-      val mrnKey        = "enter-movement-reference-number"
 
-      featureSwitch.EntryNumber.enable()
+      def form(key: String, isEntryNumberEnabled: Boolean) =
+        EnterMovementReferenceNumberController.movementReferenceNumberForm(key, isEntryNumberEnabled)
 
-      "accept valid MRN" in {
-        val errors = form.bind(Map(mrnKey -> "10ABCDEFGHIJKLMNO0")).errors
+      val keys = Table("Key", enterNoLegacyMrnKey, enterMovementReferenceNumberKey)
+
+      "accept valid MRN" in forAll(keys) { key =>
+        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> "10ABCDEFGHIJKLMNO0")).errors
         errors shouldBe Nil
       }
 
       "accept valid Entry Number (Chief Number)" in {
-        val errors = form.bind(Map(mrnKey -> "123456789A12345678")).errors
+        val errors = form(enterMovementReferenceNumberKey, isEntryNumberEnabled = true)
+          .bind(Map(enterMovementReferenceNumberKey -> "123456789A12345678"))
+          .errors
         errors shouldBe Nil
       }
 
-      "reject 19 characters" in {
-        val errors = form.bind(Map(mrnKey -> "910ABCDEFGHIJKLMNO0")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
+      "reject 19 characters" in forAll(keys) { key =>
+        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> "910ABCDEFGHIJKLMNO0")).errors
+        errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
       "reject 17 characters" in {
-        val errors = form.bind(Map(mrnKey -> "123456789A1234567")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
+        val errors = form(enterMovementReferenceNumberKey, isEntryNumberEnabled = true)
+          .bind(Map(enterMovementReferenceNumberKey -> "123456789A1234567"))
+          .errors
+        errors.headOption.value.messages shouldBe List("invalid.number")
       }
     }
   }
