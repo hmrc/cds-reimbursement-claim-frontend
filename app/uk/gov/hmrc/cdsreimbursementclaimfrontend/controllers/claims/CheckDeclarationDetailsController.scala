@@ -16,7 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
+import julienrf.json.derived
+import play.api.data.Form
+import play.api.data.Forms.{mapping, number}
+import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -87,6 +92,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+    /// here we go ...
   }
 
   def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
@@ -108,4 +114,34 @@ class CheckDeclarationDetailsController @Inject() (
     Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
   }
 
+}
+
+object CheckDeclarationDetailsController {
+
+  sealed trait CheckDeclarationDetailsAnswer extends Product with Serializable
+
+  case object DeclarationAnswersAreCorrect extends CheckDeclarationDetailsAnswer
+  case object DeclarationAnswersAreIncorrect extends CheckDeclarationDetailsAnswer
+
+  implicit val declarationDetailsAnswerFormat: OFormat[CheckDeclarationDetailsAnswer] =
+    derived.oformat[CheckDeclarationDetailsAnswer]()
+
+  val messageKey = "check-declaration-details"
+
+  val checkDeclarationDetailsAnswerForm: Form[CheckDeclarationDetailsAnswer] =
+    Form(
+      mapping(
+        messageKey -> number
+          .verifying("invalid", a => a === 0 || a === 1)
+          .transform[CheckDeclarationDetailsAnswer](
+            value =>
+              if (value === 0) DeclarationAnswersAreCorrect
+              else DeclarationAnswersAreIncorrect,
+            {
+              case DeclarationAnswersAreCorrect   => 0
+              case DeclarationAnswersAreIncorrect => 1
+            }
+          )
+      )(identity)(Some(_))
+    )
 }

@@ -340,7 +340,11 @@ check-declaration-details.declarant-name.label=Declarant name
 check-declaration-details.declarant-email.label=Declarant email
 check-declaration-details.declarant-telephone.label=Declarant telephone
 check-declaration-details.declarant-contact-address.label=Declarant contact address
-
+check-declaration-details.is-information-correct=Is this MRN information correct?
+check-declaration-details.yes=Yes
+check-declaration-details.no=No, enter a different MRN
+check-declaration-details.error.invalid=Select yes if these details are correct or no if they are incorrect
+check-declaration-details.error.required=Select yes if these details are correct or no if they are incorrect
 
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
