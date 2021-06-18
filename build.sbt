@@ -2,6 +2,7 @@ import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import wartremover.Wart
+import play.sbt.routes.RoutesKeys
 
 val appName = "cds-reimbursement-claim-frontend"
 
@@ -51,6 +52,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalaVersion := "2.12.12")
   .settings(routesImport := Seq("_root_.controllers.Assets.Asset"))
   .settings(TwirlKeys.templateImports := Seq.empty)
+  .settings(RoutesKeys.routesImport += "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable")
   .settings(
     majorVersion := 1,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test

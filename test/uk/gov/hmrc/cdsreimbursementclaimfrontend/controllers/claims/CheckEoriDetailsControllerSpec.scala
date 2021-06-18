@@ -201,7 +201,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
-        checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterMrn())
+        checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {

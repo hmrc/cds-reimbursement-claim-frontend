@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
-sealed trait MrnJourney extends Product with Serializable
+class LanguageHelperSpec extends AnyWordSpec with Matchers {
 
-object MrnJourney {
-  final case class MrnImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case class ThirdPartyImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case object ErnImporter extends MrnJourney
+  "LanguageHelper" should {
+    "work when there are no journey keys / subKeys / level2 keys" in {
+      lang("a", None, "b") shouldBe List("a.b")
+    }
+
+    "Return 2 sets of keys" in {
+      lang("a", Some("b"), "c") shouldBe List("a.b.c", "a.c")
+    }
+  }
 }

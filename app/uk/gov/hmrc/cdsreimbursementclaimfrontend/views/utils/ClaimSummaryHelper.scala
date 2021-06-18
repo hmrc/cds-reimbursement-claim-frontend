@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import cats.data.NonEmptyList
 import play.api.i18n.{Lang, Langs, MessagesApi}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, _}
 
 import javax.inject.{Inject, Singleton}
 
@@ -30,18 +31,43 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
 
-  private val key = "check-claim"
+  private val key = "check-claim-summary"
 
-  def claimSummary(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
-    makeClaimSummaryRows(claims) :+ makeClaimTotalRow(claims)
+  def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) :+ makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
 
-  def makeClaimSummaryRows(claims: ClaimsAnswer): NonEmptyList[SummaryListRow] =
+  def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) :+ makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
+
+  def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) :+ makeTotalRow(
+      claimsAnswer.exciseClaims(claimsAnswer)
+    )
+
+  def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
         key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
-        value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claim.claimAmount)))
+        value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claim.claimAmount))),
+        actions = Some(
+          Actions(
+            items = Seq(
+              ActionItem(
+                href = s"${routes.EnterClaimController.enterClaim(claim.id).url}",
+                content = Text(messages("cya.change")(lang)),
+                visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
+              )
+            )
+          )
+        )
       )
     }
+
+  def makeTotalRow(claims: List[Claim]): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(messages(s"$key.total")(lang))),
+      value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claims.map(_.claimAmount).sum)))
+    )
 
   def makeClaimTotalRow(claims: ClaimsAnswer): SummaryListRow =
     SummaryListRow(

@@ -107,7 +107,9 @@ class EnterDeclarationDetailsController @Inject() (
             ifIncomplete.declarationDetails match {
               case Some(reference) =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDeclarationDetailsPage(
@@ -115,11 +117,14 @@ class EnterDeclarationDetailsController @Inject() (
                           entryNumber
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
               case None            =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDeclarationDetailsPage(
@@ -127,12 +132,13 @@ class EnterDeclarationDetailsController @Inject() (
                           entryNumber
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
             },
           ifComplete =>
             fillingOutClaim.draftClaim.movementReferenceNumber
-              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                 case Left(entryNumber) =>
                   Ok(
                     enterDeclarationDetailsPage(
@@ -140,7 +146,8 @@ class EnterDeclarationDetailsController @Inject() (
                       entryNumber
                     )
                   )
-                case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                case Right(_)          =>
+                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
               }
         )
       }
@@ -154,7 +161,7 @@ class EnterDeclarationDetailsController @Inject() (
           .fold(
             requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
-                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                   case Left(entryNumber) =>
                     BadRequest(
                       enterDeclarationDetailsPage(
@@ -162,7 +169,8 @@ class EnterDeclarationDetailsController @Inject() (
                         entryNumber
                       )
                     )
-                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
@@ -201,7 +209,9 @@ class EnterDeclarationDetailsController @Inject() (
             ifIncomplete.declarationDetails match {
               case Some(reference) =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDeclarationDetailsPage(
@@ -210,11 +220,14 @@ class EnterDeclarationDetailsController @Inject() (
                           isAmend = true
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
               case None            =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDeclarationDetailsPage(
@@ -223,12 +236,13 @@ class EnterDeclarationDetailsController @Inject() (
                           isAmend = true
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
             },
           ifComplete =>
             fillingOutClaim.draftClaim.movementReferenceNumber
-              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                 case Left(entryNumber) =>
                   Ok(
                     enterDeclarationDetailsPage(
@@ -237,7 +251,8 @@ class EnterDeclarationDetailsController @Inject() (
                       isAmend = true
                     )
                   )
-                case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                case Right(_)          =>
+                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
               }
         )
       }
@@ -251,7 +266,7 @@ class EnterDeclarationDetailsController @Inject() (
           .fold(
             requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
-                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                   case Left(entryNumber) =>
                     BadRequest(
                       enterDeclarationDetailsPage(
@@ -260,7 +275,8 @@ class EnterDeclarationDetailsController @Inject() (
                         isAmend = true
                       )
                     )
-                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(
@@ -299,7 +315,9 @@ class EnterDeclarationDetailsController @Inject() (
             ifIncomplete.duplicateDeclaration match {
               case Some(reference) =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
@@ -307,11 +325,14 @@ class EnterDeclarationDetailsController @Inject() (
                           entryNumber
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
               case None            =>
                 fillingOutClaim.draftClaim.movementReferenceNumber
-                  .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                  .fold(
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+                  ) {
                     case Left(entryNumber) =>
                       Ok(
                         enterDuplicateDeclarationDetailsPage(
@@ -319,12 +340,13 @@ class EnterDeclarationDetailsController @Inject() (
                           entryNumber
                         )
                       )
-                    case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                    case Right(_)          =>
+                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                   }
             },
           ifComplete =>
             fillingOutClaim.draftClaim.movementReferenceNumber
-              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+              .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                 case Left(entryNumber) =>
                   ifComplete.duplicateDeclaration.fold(
                     Ok(
@@ -358,7 +380,7 @@ class EnterDeclarationDetailsController @Inject() (
           .fold(
             requestFormWithErrors =>
               fillingOutClaim.draftClaim.movementReferenceNumber
-                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterMrn())) {
+                .fold(Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))) {
                   case Left(entryNumber) =>
                     BadRequest(
                       enterDuplicateDeclarationDetailsPage(
@@ -366,7 +388,8 @@ class EnterDeclarationDetailsController @Inject() (
                         entryNumber
                       )
                     )
-                  case Right(_)          => Redirect(routes.EnterMovementReferenceNumberController.enterMrn())
+                  case Right(_)          =>
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
                 },
             declarantDetailAnswers => {
               val updatedAnswers = answers.fold(

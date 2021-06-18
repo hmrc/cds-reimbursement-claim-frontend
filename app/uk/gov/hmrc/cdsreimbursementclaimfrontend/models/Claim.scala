@@ -34,6 +34,23 @@ final case class Claim(
 object Claim {
   implicit class ListClaimOps(val claims: NonEmptyList[Claim]) {
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
+
+    def isUkClaim(claim: Claim): Boolean     = TaxCode.listOfUKTaxCodes.map(code => code.value).contains(claim.taxCode)
+    def isEuClaim(claim: Claim): Boolean     = TaxCode.listOfEUTaxCodes.map(code => code.value).contains(claim.taxCode)
+    def isExciseClaim(claim: Claim): Boolean =
+      TaxCode.listOfUKExciseCodes.map(code => code.value).contains(claim.taxCode)
+
+    def ukClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isUkClaim(claim))
+    def euClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isEuClaim(claim))
+    def exciseClaims(claims: NonEmptyList[Claim]): List[Claim] = claims.filter(claim => isExciseClaim(claim))
+
+    def ukClaimTotal: BigDecimal = claims.filter(claim => isUkClaim(claim)).map(_.claimAmount).sum
+
+    def containsUkClaim(claims: NonEmptyList[Claim]): Boolean     = ukClaims(claims).nonEmpty
+    def containsEuClaim(claims: NonEmptyList[Claim]): Boolean     = euClaims(claims).nonEmpty
+    def containsExciseClaim(claims: NonEmptyList[Claim]): Boolean = exciseClaims(claims).nonEmpty
+
   }
+
   implicit val format: OFormat[Claim] = Json.format[Claim]
 }
