@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -49,7 +50,6 @@ class CheckDeclarationDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  // val config: Configuration,
   checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig)
     extends FrontendController(cc)
@@ -59,6 +59,7 @@ class CheckDeclarationDetailsController @Inject() (
     with Logging {
 
   implicit val dataExtractor: DraftC285Claim => Option[CheckDeclarationDetailsAnswer] = _.checkDeclarationDetailsAnswer
+
   private def withPossibleDeclaration(
     f: (
       SessionData,
@@ -91,7 +92,8 @@ class CheckDeclarationDetailsController @Inject() (
         Ok(
           checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarationDetailsController.checkDetailsSubmit()
+            routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
+            checkDeclarationDetailsAnswerForm
           )
         )
       )
@@ -105,8 +107,18 @@ class CheckDeclarationDetailsController @Inject() (
         .fold(
           formWithErrors =>
             fillingOutClaim.draftClaim
-              .fold(_.checkDeclarationDetailsAnswer)
-              .map(answer => Future.successful(BadRequest(checkDeclarationDetailsPage(declaration, _, formWithErrors))))
+              .fold(_.displayDeclaration)
+              .map(declaration =>
+                Future.successful(
+                  BadRequest(
+                    checkDeclarationDetailsPage(
+                      declaration,
+                      routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
+                      formWithErrors
+                    )
+                  )
+                )
+              )
               .getOrElse(Future.successful(errorHandler.errorResult())),
           { answer =>
             val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
@@ -123,10 +135,15 @@ class CheckDeclarationDetailsController @Inject() (
               _ =>
                 answer match {
                   case DeclarationAnswersAreCorrect =>
-                    Redirect(routes.BankAccountController.checkBankAccountDetails())
+                    //single journey
+                    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                  //schedule journey
 
                   case DeclarationAnswersAreIncorrect =>
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn())
+                    //single journey
+
+                    //schedule journey
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Schedule))
                 }
             )
           }
@@ -134,9 +151,6 @@ class CheckDeclarationDetailsController @Inject() (
 
     }
   }
-  //Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-  /// here we go ...
-  // }
 
   def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withDuplicateDeclaration { (_, _, maybeDeclaration) =>
@@ -146,7 +160,8 @@ class CheckDeclarationDetailsController @Inject() (
         Ok(
           checkDeclarationDetailsPage(
             declaration,
-            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
+            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit(),
+            checkDeclarationDetailsAnswerForm
           )
         )
       )
@@ -166,7 +181,7 @@ object CheckDeclarationDetailsController {
   case object DeclarationAnswersAreCorrect extends CheckDeclarationDetailsAnswer
   case object DeclarationAnswersAreIncorrect extends CheckDeclarationDetailsAnswer
 
-  implicit val declarationDetailsAnswerFormat: OFormat[CheckDeclarationDetailsAnswer] =
+  implicit val checkDeclarationDetailsAnswerFormat: OFormat[CheckDeclarationDetailsAnswer] =
     derived.oformat[CheckDeclarationDetailsAnswer]()
 
   val messageKey = "check-declaration-details"
