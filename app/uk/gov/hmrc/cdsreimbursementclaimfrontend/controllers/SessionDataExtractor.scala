@@ -84,7 +84,7 @@ trait SessionDataExtractor extends Results {
           case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
           case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
         }
-      case None                  => DefaultRoutes
+      case None                  => MRNSingleRoutes
     }
 
 }

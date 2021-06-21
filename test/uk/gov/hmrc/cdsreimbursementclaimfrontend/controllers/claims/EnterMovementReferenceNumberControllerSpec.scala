@@ -179,7 +179,7 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(data: (String, String)*): Future[Result] =
         controller.enterMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "start a new claim with an invalid Entry Number/MRN" in {
+      "reject an invalid Entry Number/MRN" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
 
@@ -195,9 +195,10 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 400
       }
 
-      "start a new claim with an Entry Number, the Bulk Claim feature is disabled, the user cannot choose the Number of claims" in {
+      "start an Entry Number claim, if the Bulk Claim feature is disabled and the Entry Number feature is enabled" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
+        featureSwitch.BulkClaim.disable()
 
         val (session, _, _) = sessionWithClaimState(None, None)
         val entryNumber     = EntryNumber("123456789A12345678")
@@ -213,9 +214,10 @@ class EnterMovementReferenceNumberControllerSpec
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
-      "start a new claim with an Entry Number" in {
+      "start an Entry Number claim, if the Bulk Claim feature and the Entry Number feature are enabled" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
+        featureSwitch.BulkClaim.enable()
 
         val (session, _, _) = sessionWithClaimState(None, Some(Individual))
         val entryNumber     = EntryNumber("123456789A12345678")
