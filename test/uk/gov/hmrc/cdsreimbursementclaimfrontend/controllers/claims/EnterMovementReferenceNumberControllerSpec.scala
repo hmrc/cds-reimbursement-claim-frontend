@@ -195,7 +195,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 400
       }
 
-      "start an Entry Number claim, if the Bulk Claim feature is disabled and the Entry Number feature is enabled" in {
+      "start an Entry Number claim, if the Bulk Claim feature is disabled and the Entry Number feature is enabled and an entry number is entered" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
         featureSwitch.BulkClaim.disable()
@@ -214,7 +214,7 @@ class EnterMovementReferenceNumberControllerSpec
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
-      "start an Entry Number claim, if the Bulk Claim feature and the Entry Number feature are enabled" in {
+      "start an Entry Number claim, if the Bulk Claim feature and the Entry Number feature are enabled and an entry number is entered" in {
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
         featureSwitch.BulkClaim.enable()
