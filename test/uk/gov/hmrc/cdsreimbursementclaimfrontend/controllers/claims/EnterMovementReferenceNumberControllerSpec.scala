@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{differentT, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
@@ -122,9 +122,9 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(): Future[Result] = controller.changeJourneyMrn(JourneyBindable.Single)(FakeRequest())
 
       "show the title and the MRN number" in {
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val mrn             = sample[MRN]
+        val mrnAnswer       = sampleMrnAnswer(mrn)
+        val (session, _, _) = sessionWithClaimState(mrnAnswer, Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -138,9 +138,7 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "show the back button when the user has come from the CYA page with an mrn number" in {
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer(), Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -152,13 +150,10 @@ class EnterMovementReferenceNumberControllerSpec
         doc.getElementsByClass("govuk-back-link").attr("href") should include(
           "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
         )
-
       }
 
       "show the back button when the user has come from the CYA page with an entry number" in {
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val (session, _, _) = sessionWithClaimState(sampleEntryNumberAnswer(), Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -183,14 +178,14 @@ class EnterMovementReferenceNumberControllerSpec
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
 
-        val (session, _, _) = sessionWithClaimState(None, Individual)
-        val entryNumber     = EntryNumber("1234")
+        val (session, _, _)    = sessionWithClaimState(None, Individual)
+        val invalidEntryNumber = EntryNumber("INVALID_ENTRY_NUMBER")
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result = performAction("enter-movement-reference-number" -> entryNumber.value)
+        val result = performAction("enter-movement-reference-number" -> invalidEntryNumber.value)
 
         status(result) shouldBe 400
       }
@@ -200,7 +195,7 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.EntryNumber.enable()
 
         val (session, _, _) = sessionWithClaimState(None, Individual)
-        val entryNumber     = EntryNumber("123456789A12345678")
+        val entryNumber     = sample[EntryNumber]
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -214,18 +209,18 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "Update an Entry Number" in {
-        val featureSwitch       = instanceOf[FeatureSwitchService]
+        val featureSwitch   = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
-        val originalEntryNumber = EntryNumber("123456789A55555555")
-        val answers             = MovementReferenceNumber(Left(originalEntryNumber))
-        val (session, _, _)     = sessionWithClaimState(Some(answers), Individual)
+        val entryNumber     = sample[EntryNumber]
+        val answers         = sampleEntryNumberAnswer(entryNumber)
+        val (session, _, _) = sessionWithClaimState(answers, Individual)
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "123456789A12345678")
+        val result = performAction("enter-movement-reference-number" -> differentT(entryNumber).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
@@ -234,9 +229,9 @@ class EnterMovementReferenceNumberControllerSpec
       "Update an Entry Number, but do not change it" in {
         val featureSwitch       = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
-        val originalEntryNumber = EntryNumber("123456789A55555555")
-        val answers             = MovementReferenceNumber(Left(originalEntryNumber))
-        val (session, _, _)     = sessionWithClaimState(Some(answers), Individual)
+        val originalEntryNumber = sample[EntryNumber]
+        val entryNumberAnswer   = sampleEntryNumberAnswer(originalEntryNumber)
+        val (session, _, _)     = sessionWithClaimState(entryNumberAnswer, Individual)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -262,16 +257,16 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        val result = performAction("enter-movement-reference-number" -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
       "Update an MRN, Eori is importer's Eori" in {
-        val mrn               = MRN("10AAAAAAAAAAAAAAA1")
-        val answers           = MovementReferenceNumber(Right(mrn))
-        val (session, foc, _) = sessionWithClaimState(Some(answers), Individual)
+        val mrn               = sample[MRN]
+        val mrnAnswer         = sampleMrnAnswer(mrn)
+        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Individual)
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
         val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -284,16 +279,16 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        val result = performAction("enter-movement-reference-number" -> differentT(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
       "Update an MRN, but don't change it, Eori is importer's Eori" in {
-        val mrn               = MRN("10AAAAAAAAAAAAAAA1")
-        val answers           = MovementReferenceNumber(Right(mrn))
-        val (session, foc, _) = sessionWithClaimState(Some(answers), Individual)
+        val mrn               = sample[MRN]
+        val mrnAnswer         = sampleMrnAnswer(mrn)
+        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Individual)
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
         val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -306,7 +301,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
+        val result = performAction("enter-movement-reference-number" -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
@@ -326,7 +321,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        val result = performAction("enter-movement-reference-number" -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
@@ -340,37 +335,37 @@ class EnterMovementReferenceNumberControllerSpec
         controller.changeMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "return to CYA page if the same MRN is submitted" in {
-        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val mrn             = sample[MRN]
+        val answers         = sampleMrnAnswer(mrn)
+        val (session, _, _) = sessionWithClaimState(answers, Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction("enter-movement-reference-number" -> "10AAAAAAAAAAAAAAA1")
+        val result          = performAction("enter-movement-reference-number" -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
       "return to CYA page if the same entry number is submitted" in {
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val entryNumber     = sample[EntryNumber]
+        val answers         = sampleEntryNumberAnswer(entryNumber)
+        val (session, _, _) = sessionWithClaimState(answers, Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction("enter-movement-reference-number" -> "123456789A12345678")
+        val result          = performAction("enter-movement-reference-number" -> entryNumber.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
       "start a new claim if a different MRN is submitted" in {
-        val mrn             = MRN("10AAAAAAAAAAAAAAA1")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val mrn             = sample[MRN]
+        val answers         = sampleMrnAnswer(mrn)
+        val (session, _, _) = sessionWithClaimState(answers, Individual)
 
         val displayDeclaration = sample[DisplayDeclaration]
 
@@ -380,22 +375,22 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction("enter-movement-reference-number" -> "20AAAAAAAAAAAAAAA1")
+        val result = performAction("enter-movement-reference-number" -> differentT(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
       }
 
       "start a new claim if a different entry number is submitted" in {
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
+        val entryNumber     = sample[EntryNumber]
+        val answers         = sampleEntryNumberAnswer(entryNumber)
+        val (session, _, _) = sessionWithClaimState(answers, Individual)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          = performAction("enter-movement-reference-number" -> "123456789A12345178")
+        val result          = performAction("enter-movement-reference-number" -> differentT(entryNumber).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"

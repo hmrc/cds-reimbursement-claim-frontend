@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
@@ -108,7 +108,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val answers = IncompleteReasonAndBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -133,7 +133,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -222,7 +222,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             reasonForBasisAndClaimAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -269,7 +269,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             reasonForBasisAndClaimAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
