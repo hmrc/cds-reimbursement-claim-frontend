@@ -260,7 +260,7 @@ object BankAccountController {
       .transform[AccountNumber](
         s => {
           val cleanNumber  = s.replaceAll("[^\\d]", "")
-          val paddedNumber = cleanNumber.reverse.padTo(8,"0").mkString.reverse
+          val paddedNumber = cleanNumber.reverse.padTo(8, '0').reverse
           AccountNumber(paddedNumber)
         },
         _.value
