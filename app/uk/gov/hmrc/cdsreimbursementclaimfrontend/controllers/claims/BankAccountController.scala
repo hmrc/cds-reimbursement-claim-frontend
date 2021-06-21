@@ -257,7 +257,14 @@ object BankAccountController {
   val accountNumberRegex: Predicate[String]        = "^\\d{6,8}$".r.pattern.asPredicate()
   val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText(minLength = 6, maxLength = 8)
-      .transform[AccountNumber](s => AccountNumber(s.replaceAllLiterally(" ", "")), _.value)
+      .transform[AccountNumber](
+        s => {
+          val cleanNumber  = s.replaceAll("""[\s-]""", "")
+          val paddedNumber = ("00" + cleanNumber).substring(2 + cleanNumber.length - 8)
+          AccountNumber(paddedNumber)
+        },
+        _.value
+      )
       .verifying("invalid", e => accountNumberRegex.test(e.value))
 
   val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
