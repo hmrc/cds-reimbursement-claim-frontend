@@ -30,10 +30,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, MovementReferenceNumber, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, SessionData}
 
 import scala.concurrent.Future
 
@@ -108,7 +108,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       val draftC285Claim       =
         sample[DraftC285Claim].copy(
           selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(SelectNumberOfClaimsType.Bulk)),
-          movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("123456789")))),
+          movementReferenceNumber = sampleEntryNumberAnswer(),
           claimNorthernIrelandAnswer = expectedData
         )
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
