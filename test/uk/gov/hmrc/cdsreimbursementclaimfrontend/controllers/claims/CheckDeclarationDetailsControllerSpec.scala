@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
 import play.api.test.Helpers._
 
 import scala.concurrent.Future
@@ -63,7 +63,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         displayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
+        movementReferenceNumber = sampleMrnAnswer()
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -84,7 +84,7 @@ class CheckDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = Some(MovementReferenceNumber(Right(MRN("some mrn"))))
+        movementReferenceNumber = sampleMrnAnswer()
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
