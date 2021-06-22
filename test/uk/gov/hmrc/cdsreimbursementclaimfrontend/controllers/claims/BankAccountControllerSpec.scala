@@ -530,12 +530,6 @@ class BankAccountControllerSpec
         bandkAccountForm.errors                                           shouldBe Nil
         bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe genAccountNumber
       }
-      "Accept 8 digits accountNumber with spaces and dashes" in {
-        val dictatedAccountNumber = "123 4-56"
-        val bandkAccountForm      = form.bind(goodData.updated(accountNumber, dictatedAccountNumber))
-        bandkAccountForm.errors                                           shouldBe Nil
-        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "00123456"
-      }
       "Reject accountNumber too short" in {
         val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")

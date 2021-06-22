@@ -259,8 +259,7 @@ object BankAccountController {
     nonEmptyText(minLength = 6, maxLength = 8)
       .transform[AccountNumber](
         s => {
-          val cleanNumber  = s.replaceAll("[^\\d]", "")
-          val paddedNumber = cleanNumber.reverse.padTo(8, '0').reverse
+          val paddedNumber = s.reverse.padTo(8, '0').reverse
           AccountNumber(paddedNumber)
         },
         _.value

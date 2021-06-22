@@ -51,8 +51,6 @@ object ReimbursementRoutes {
   type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes
 }
 
-case object DefaultRoutes extends MRNRoutes with SingleRoutes
-
 case object MRNSingleRoutes extends MRNRoutes with SingleRoutes
 case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes
 case object MRNBulkRoutes extends MRNRoutes with BulkRoutes

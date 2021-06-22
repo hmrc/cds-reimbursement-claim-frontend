@@ -56,30 +56,35 @@ trait SessionDataExtractor extends Results {
         Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 
-  def getNumberOfClaims(draftClaim: DraftClaim): Option[SelectNumberOfClaimsType] =
+  def getNumberOfClaims(draftClaim: DraftClaim): SelectNumberOfClaimsType =
     draftClaim
       .fold(identity)
       .selectNumberOfClaimsAnswer
       .flatMap(
         _.fold(_.selectNumberOfClaimsChoice, a => Option(a.selectNumberOfClaimsChoice))
       )
+      .getOrElse(
+        SelectNumberOfClaimsType.Individual
+      ) //If the bulk claim is disabled, the user never sees the Select Number of Claims page
 
   def getMovementReferenceNumber(draftClaim: DraftClaim): Option[MovementReferenceNumber] =
     draftClaim.fold(identity).movementReferenceNumber
 
   def getRoutes(
-    numberOfClaims: Option[SelectNumberOfClaimsType],
-    mrnOrEntryNmber: Option[MovementReferenceNumber]
+    numberOfClaims: SelectNumberOfClaimsType,
+    maybeMrnOrEntryNmber: Option[MovementReferenceNumber]
   ): ReimbursementRoutes =
-    (mrnOrEntryNmber.map(_.value), numberOfClaims)
-      .mapN {
-        case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
-        case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
-        case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
-        case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
-        case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
-        case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
-      }
-      .getOrElse(DefaultRoutes)
+    maybeMrnOrEntryNmber match {
+      case Some(mrnOrEntryNmber) =>
+        (mrnOrEntryNmber.value, numberOfClaims) match {
+          case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
+          case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
+          case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
+          case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
+          case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
+          case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
+        }
+      case None                  => MRNSingleRoutes
+    }
 
 }
