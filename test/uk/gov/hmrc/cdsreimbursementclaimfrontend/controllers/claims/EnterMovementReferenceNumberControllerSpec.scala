@@ -145,43 +145,6 @@ class EnterMovementReferenceNumberControllerSpec
         doc.select("h1").text          should include(messageFromMessageKey(s"$key.title"))
         doc.select(s"#$key").`val`() shouldBe mrn.value
       }
-
-      "show the back button when the user has come from the CYA page with an mrn number" in {
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val doc = Jsoup.parse(contentAsString(performAction()))
-
-        doc.select("a.govuk-back-link").text                   should include("Back")
-        doc.getElementsByClass("govuk-back-link").attr("href") should include(
-          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
-        )
-
-      }
-
-      "show the back button when the user has come from the CYA page with an entry number" in {
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers), Individual)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val doc = Jsoup.parse(contentAsString(performAction()))
-
-        doc.select("a.govuk-back-link").text                   should include("Back")
-        doc.getElementsByClass("govuk-back-link").attr("href") should include(
-          "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
-        )
-
-      }
-
     }
 
     "We enter an Entry/MRN for the first time or update it with the back button (enterMrnSubmit)" must {
