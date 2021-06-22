@@ -40,7 +40,7 @@ object DraftClaim {
     id: UUID,
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
     movementReferenceNumber: Option[MovementReferenceNumber],
-    duplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer],
+    duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],

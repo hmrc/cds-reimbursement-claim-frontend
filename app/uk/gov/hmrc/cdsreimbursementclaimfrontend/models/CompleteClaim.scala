@@ -36,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.Comp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.CompleteDuplicateMovementReferenceNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SupportingEvidenceAnswer}
@@ -56,7 +55,7 @@ object CompleteClaim {
   final case class CompleteC285Claim(
     id: UUID,
     movementReferenceNumber: MovementReferenceNumber,
-    maybeCompleteDuplicateMovementReferenceNumberAnswer: Option[CompleteDuplicateMovementReferenceNumberAnswer],
+    maybeDuplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
     completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
@@ -83,7 +82,7 @@ object CompleteClaim {
               id,
               _,
               Some(movementReferenceNumber: MovementReferenceNumber),
-              draftMaybeDuplicateCompleteMovementReferenceNumberAnswer,
+              maybeDuplicateMovementReferenceNumber,
               draftMaybeDeclarationDetailsAnswer,
               draftDuplicateDeclarationDetailAnswer,
               draftDeclarantTypeAnswer,
@@ -106,9 +105,6 @@ object CompleteClaim {
           movementReferenceNumber.value match {
             case Left(_) =>
               (
-                validateDuplicateMovementReferenceNumberAnswer(
-                  draftMaybeDuplicateCompleteMovementReferenceNumberAnswer
-                ),
                 validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
                 validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
@@ -123,7 +119,6 @@ object CompleteClaim {
               )
                 .mapN {
                   case (
-                        completeMaybeDuplicateEntryReferenceNumberAnswer,
                         completeDeclarationDetailsAnswer,
                         completeDuplicateDeclarationDetailAnswer,
                         completeDeclarantTypeAnswer,
@@ -139,8 +134,7 @@ object CompleteClaim {
                     CompleteC285Claim(
                       id = id,
                       movementReferenceNumber = movementReferenceNumber,
-                      maybeCompleteDuplicateMovementReferenceNumberAnswer =
-                        completeMaybeDuplicateEntryReferenceNumberAnswer,
+                      maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
                       maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
                       maybeCompleteDuplicateDeclarationDetailsAnswer = Some(completeDuplicateDeclarationDetailAnswer),
                       completeDeclarantTypeAnswer,
@@ -168,9 +162,6 @@ object CompleteClaim {
 
             case Right(_) =>
               (
-                validateDuplicateMovementReferenceNumberAnswer(
-                  draftMaybeDuplicateCompleteMovementReferenceNumberAnswer
-                ),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
@@ -184,7 +175,6 @@ object CompleteClaim {
               )
                 .mapN {
                   case (
-                        completeMaybeDuplicateMovementReferenceNumberAnswer,
                         completeDeclarantTypeAnswer,
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
@@ -199,8 +189,7 @@ object CompleteClaim {
                     CompleteC285Claim(
                       id = id,
                       movementReferenceNumber = movementReferenceNumber,
-                      maybeCompleteDuplicateMovementReferenceNumberAnswer =
-                        completeMaybeDuplicateMovementReferenceNumberAnswer,
+                      maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
                       maybeCompleteDeclarationDetailsAnswer = None,
                       maybeCompleteDuplicateDeclarationDetailsAnswer = None,
                       completeDeclarantTypeAnswer,
@@ -418,22 +407,6 @@ object CompleteClaim {
             Valid(completeDeclarationDetailsAnswer)
         }
       case None        => invalid("missing declaration details answer")
-    }
-
-  def validateDuplicateMovementReferenceNumberAnswer(
-    maybeDuplicateMovementReferenceNumberAnswer: Option[DuplicateMovementReferenceNumberAnswer]
-  ): Validation[Option[CompleteDuplicateMovementReferenceNumberAnswer]] =
-    maybeDuplicateMovementReferenceNumberAnswer match {
-      case Some(value) =>
-        value match {
-          case DuplicateMovementReferenceNumberAnswer.IncompleteDuplicateMovementReferenceNumberAnswer(
-                _
-              ) =>
-            invalid("incomplete duplicate movement reference number")
-          case completeDuplicateMovementReferenceNumberAnswer: CompleteDuplicateMovementReferenceNumberAnswer =>
-            Valid(Some(completeDuplicateMovementReferenceNumberAnswer))
-        }
-      case None        => Valid(None)
     }
 
   def validateDuplicateDeclarantDetailAnswer(
@@ -813,38 +786,6 @@ object CompleteClaim {
     def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
       case claim: CompleteC285Claim =>
         claim.movementReferenceNumber.value
-    }
-
-    def duplicateMovementReferenceNumber: Option[Either[EntryNumber, MRN]] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            duplicateMovementReferenceNumberAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        duplicateMovementReferenceNumberAnswer match {
-          case Some(completeDuplicateMovementReferenceNumberAnswer) =>
-            completeDuplicateMovementReferenceNumberAnswer.maybeDuplicateMovementReferenceNumber match {
-              case Some(number) => Some(number)
-              case None         => None
-            }
-          case _                                                    => None
-        }
     }
 
     def supportingEvidences: List[SupportingEvidence] = completeClaim match {

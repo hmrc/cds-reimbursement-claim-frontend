@@ -16,18 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.implicits.catsSyntaxEitherId
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EitherUtils._
 
 final case class MovementReferenceNumber(value: Either[EntryNumber, MRN]) extends AnyVal {
 
-  def stringValue: String = value match {
-    case Left(entryNumber) => entryNumber.value
-    case Right(mrn)        => mrn.value
-  }
+  def stringValue: String = value.fold(_.value, _.value)
 }
 
 object MovementReferenceNumber {
+
+  def apply(entryNumber: EntryNumber): MovementReferenceNumber =
+    new MovementReferenceNumber(entryNumber.asLeft[MRN])
+
+  def apply(mrn: MRN): MovementReferenceNumber =
+    new MovementReferenceNumber(mrn.asRight[EntryNumber])
+
   implicit val format: OFormat[MovementReferenceNumber] = Json.format[MovementReferenceNumber]
 }

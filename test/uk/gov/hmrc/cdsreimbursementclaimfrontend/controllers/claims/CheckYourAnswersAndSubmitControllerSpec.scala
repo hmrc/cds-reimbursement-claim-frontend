@@ -185,7 +185,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
     id = filledDraftC285Claim.id,
     movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
-    maybeCompleteDuplicateMovementReferenceNumberAnswer = None,
+    maybeDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
     completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,

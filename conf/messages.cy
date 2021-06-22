@@ -132,10 +132,17 @@ enter-movement-reference-number.enter-mrn.label=Nodwch y rhif MRN neu’r rhif m
 enter-movement-reference-number.invalid.number=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.invalid=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.error.required=Nodwch rif MRN neu rif mewnforio dilys
-enter-movement-reference-number.invalid.entry-number-not-mrn=Nodwch rif ‘legacy’ dilys, nid Cyfeirnod Symud
-enter-movement-reference-number.invalid.mrn-not-entry-number=Nodwch Gyfeirnod Symud dilys, nid rhif ‘legacy’
-enter-movement-reference-number.invalid.enter-different-entry-number=Nodwch rif ‘legacy’ gwahanol – rydych eisoes wedi nodi hwn
-enter-movement-reference-number.invalid.enter-different-mrn=Nodwch Gyfeirnoda Symud gwahanol – rydych eisoes wedi nodi hwn
+
+#===================================================
+#  ENTER NO LEGACY MRN PAGE
+#===================================================
+enter-no-legacy-mrn.title=
+enter-no-legacy-mrn.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017.
+enter-no-legacy-mrn.help-text=Bydd y Cyfeirnod Symud (MRN) yn cael ei roi ar ôl datgan mewnforio. <a target="_blank href="{0}">Rhagor o wybodaeth am y rhif yma (yn agor mewn tab newydd)</a>.
+enter-no-legacy-mrn.details=
+enter-no-legacy-mrn.error.required=
+enter-no-legacy-mrn.invalid.number=
+enter-no-legacy-mrn.invalid=
 
 #===================================================
 #  ENTER MRN SCHEDULE PLACEHOLDER PAGE
@@ -147,6 +154,29 @@ enter-mrn-schedule-placeholder.help=Dalfan yw’r dudalen hon ar gyfer taith y r
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.title=Beth yw’ch Cyfeirnod Symud (MRN) dyblyg?
+enter-duplicate-movement-reference-number.help-text=
+enter-duplicate-movement-reference-number.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017.
+enter-duplicate-movement-reference-number.invalid.number=Nodwch rif MRN neu rif mewnforio dilys
+enter-duplicate-movement-reference-number.invalid=Nodwch rif MRN neu rif mewnforio dilys
+enter-duplicate-movement-reference-number.error.required=Nodwch rif MRN neu rif mewnforio dilys
+enter-duplicate-movement-reference-number.invalid.mrn-not-entry-number=Nodwch Gyfeirnod Symud dilys, nid rhif ‘legacy’
+enter-duplicate-movement-reference-number.invalid.enter-different-entry-number=Nodwch rif ‘legacy’ gwahanol – rydych eisoes wedi nodi hwn
+enter-duplicate-movement-reference-number.invalid.entry-number-not-mrn=Nodwch rif ‘legacy’ dilys, nid Cyfeirnod Symud
+enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Nodwch Gyfeirnoda Symud gwahanol – rydych eisoes wedi nodi hwn
+
+#===================================================
+#  ENTER NO LEGACY DUPLICATE MRN PAGE
+#===================================================
+enter-no-legacy-duplicate-mrn.title=
+enter-no-legacy-duplicate-mrn.input-title=
+enter-no-legacy-duplicate-mrn.help-text=
+enter-no-legacy-duplicate-mrn.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017.
+enter-no-legacy-duplicate-mrn.invalid.number=
+enter-no-legacy-duplicate-mrn.invalid=
+enter-no-legacy-duplicate-mrn.error.required=
+enter-no-legacy-duplicate-mrn.invalid.mrn-not-entry-number=
+enter-no-legacy-duplicate-mrn.invalid.enter-different-mrn=Nodwch Gyfeirnoda Symud gwahanol – rydych eisoes wedi nodi hwn
+enter-no-legacy-duplicate-mrn.invalid.entry-number-not-mrn=Nodwch rif ‘legacy’ dilys, nid Cyfeirnod Symud
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE

@@ -18,8 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
 
-import scala.annotation.tailrec
-
 object Generators {
 
   def alphaNumGen(n: Int): String =
@@ -51,9 +49,6 @@ object Generators {
   def sample[A](implicit anItem: Arbitrary[A]): A =
     anItem.arbitrary.sample.getOrElse(sys.error(s"Could not generate instance with $anItem"))
 
-  @tailrec
-  def differentT[T : Arbitrary](t: T): T = {
-    val testT = sample[T]
-    if (testT == t) differentT(t) else testT
-  }
+  def genOtherThan[T](t: T)(implicit gen: Arbitrary[T]): T =
+    gen.arbitrary.suchThat(_ != t).sample.getOrElse(sys.error(s"Could not generate instance"))
 }

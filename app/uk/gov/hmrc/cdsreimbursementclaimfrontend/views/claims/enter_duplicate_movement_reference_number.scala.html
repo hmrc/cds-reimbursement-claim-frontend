@@ -34,8 +34,8 @@
 
 @(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-movement-reference-number"}
-    @title = @{messages("enter-duplicate-movement-reference-number.title")}
+    @key = @{"enter-duplicate-movement-reference-number"}
+    @title = @{messages(s"$key.title")}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
@@ -45,17 +45,17 @@
 
             @pageHeading(title)
 
-            @paragraph(Html(messages(s"${key}.help-text", viewConfig.mrnGuideUrl)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+            @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
             @inputText(
                 form = form,
                 id = key,
                 name = key,
-                label = "enter-duplicate-movement-reference-number.title",
+                label = s"$key.title",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
-                hint = Some(s"${key}.help")
+                hint = Some(s"$key.help")
             )
 
             @submitButton("button.continue")
