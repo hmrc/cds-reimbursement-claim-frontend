@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{differentT, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{genOtherThan, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
@@ -253,7 +253,9 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockStoreSession(Right(()))
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> differentT(entryNumber).value)
+          FakeRequest().withFormUrlEncodedBody(
+            enterDuplicateMovementReferenceNumberKey -> genOtherThan(entryNumber).value
+          )
         )
         status(result) shouldBe 303
         redirectLocation(
@@ -261,7 +263,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
       }
 
-      "Redirect to the enter importer eori page if a different MRN Number is submitted" in {
+      "Redirect to the enter importer eori page if a different MRN Number is submitted" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyDuplicateMrnKey)
 
         val mrn                = sample[MRN]
@@ -276,7 +278,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockStoreSession(Right(()))
         }
         val result             = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(key -> differentT(mrn).value)
+          FakeRequest().withFormUrlEncodedBody(key -> genOtherThan(mrn).value)
         )
         status(result) shouldBe 303
         redirectLocation(
@@ -292,13 +294,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         EnterMovementReferenceNumberController.movementReferenceNumberForm(key, isEntryNumberEnabled)
 
       "accept valid MRN" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> "10ABCDEFGHIJKLMNO0")).errors
+        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> sample[MRN].value)).errors
         errors shouldBe Nil
       }
 
       "accept valid Entry Number (Chief Number) when legacy journey is enabled" in {
         val errors = form(enterDuplicateMovementReferenceNumberKey, isEntryNumberEnabled = true)
-          .bind(Map(enterDuplicateMovementReferenceNumberKey -> "123456789A12345678"))
+          .bind(Map(enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value))
           .errors
         errors shouldBe Nil
       }
