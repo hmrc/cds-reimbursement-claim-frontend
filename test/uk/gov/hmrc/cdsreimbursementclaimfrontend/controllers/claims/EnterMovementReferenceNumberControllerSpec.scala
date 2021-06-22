@@ -124,7 +124,7 @@ class EnterMovementReferenceNumberControllerSpec
       "show the title and the MRN number" in {
         val mrn             = sample[MRN]
         val mrnAnswer       = sampleMrnAnswer(mrn)
-        val (session, _, _) = sessionWithClaimState(mrnAnswer, Individual)
+        val (session, _, _) = sessionWithClaimState(mrnAnswer, Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -138,7 +138,7 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "show the back button when the user has come from the CYA page with an mrn number" in {
-        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer(), Individual)
+        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer(), Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -153,7 +153,7 @@ class EnterMovementReferenceNumberControllerSpec
       }
 
       "show the back button when the user has come from the CYA page with an entry number" in {
-        val (session, _, _) = sessionWithClaimState(sampleEntryNumberAnswer(), Individual)
+        val (session, _, _) = sessionWithClaimState(sampleEntryNumberAnswer(), Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -178,7 +178,7 @@ class EnterMovementReferenceNumberControllerSpec
         val featureSwitch = instanceOf[FeatureSwitchService]
         featureSwitch.EntryNumber.enable()
 
-        val (session, _, _)    = sessionWithClaimState(None, Individual)
+        val (session, _, _)    = sessionWithClaimState(None, Some(Individual))
         val invalidEntryNumber = EntryNumber("INVALID_ENTRY_NUMBER")
 
         inSequence {
@@ -214,7 +214,7 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.EntryNumber.enable()
         featureSwitch.BulkClaim.enable()
 
-        val (session, _, _) = sessionWithClaimState(None, Individual)
+        val (session, _, _) = sessionWithClaimState(None, Some(Individual))
         val entryNumber     = sample[EntryNumber]
 
         inSequence {
@@ -233,7 +233,7 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.EntryNumber.enable()
         val entryNumber     = sample[EntryNumber]
         val answers         = sampleEntryNumberAnswer(entryNumber)
-        val (session, _, _) = sessionWithClaimState(answers, Individual)
+        val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -251,7 +251,7 @@ class EnterMovementReferenceNumberControllerSpec
         featureSwitch.EntryNumber.enable()
         val originalEntryNumber = sample[EntryNumber]
         val entryNumberAnswer   = sampleEntryNumberAnswer(originalEntryNumber)
-        val (session, _, _)     = sessionWithClaimState(entryNumberAnswer, Individual)
+        val (session, _, _)     = sessionWithClaimState(entryNumberAnswer, Some(Individual))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -286,7 +286,7 @@ class EnterMovementReferenceNumberControllerSpec
       "Update an MRN, Eori is importer's Eori" in {
         val mrn               = sample[MRN]
         val mrnAnswer         = sampleMrnAnswer(mrn)
-        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Individual)
+        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Some(Individual))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
         val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -308,7 +308,7 @@ class EnterMovementReferenceNumberControllerSpec
       "Update an MRN, but don't change it, Eori is importer's Eori" in {
         val mrn               = sample[MRN]
         val mrnAnswer         = sampleMrnAnswer(mrn)
-        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Individual)
+        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Some(Individual))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
         val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -357,7 +357,7 @@ class EnterMovementReferenceNumberControllerSpec
       "return to CYA page if the same MRN is submitted" in {
         val mrn             = sample[MRN]
         val answers         = sampleMrnAnswer(mrn)
-        val (session, _, _) = sessionWithClaimState(answers, Individual)
+        val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -371,7 +371,7 @@ class EnterMovementReferenceNumberControllerSpec
       "return to CYA page if the same entry number is submitted" in {
         val entryNumber     = sample[EntryNumber]
         val answers         = sampleEntryNumberAnswer(entryNumber)
-        val (session, _, _) = sessionWithClaimState(answers, Individual)
+        val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -385,7 +385,7 @@ class EnterMovementReferenceNumberControllerSpec
       "start a new claim if a different MRN is submitted" in {
         val mrn             = sample[MRN]
         val answers         = sampleMrnAnswer(mrn)
-        val (session, _, _) = sessionWithClaimState(answers, Individual)
+        val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
 
         val displayDeclaration = sample[DisplayDeclaration]
 
@@ -404,7 +404,7 @@ class EnterMovementReferenceNumberControllerSpec
       "start a new claim if a different entry number is submitted" in {
         val entryNumber     = sample[EntryNumber]
         val answers         = sampleEntryNumberAnswer(entryNumber)
-        val (session, _, _) = sessionWithClaimState(answers, Individual)
+        val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)

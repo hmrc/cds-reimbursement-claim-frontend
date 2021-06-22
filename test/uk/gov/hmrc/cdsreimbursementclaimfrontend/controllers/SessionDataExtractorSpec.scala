@@ -33,9 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, MovementReferenceNumber, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, SessionData}
 
 import scala.concurrent.Future
 
@@ -111,24 +109,12 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
             selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(SelectNumberOfClaimsType.Bulk)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(sample[EntryNumber]))),
+            movementReferenceNumber = sampleEntryNumberAnswer(),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
-      val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
-      val msgReq               = fakeRequest2MessageRequest(FakeRequest())
-      val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
-      val draftC285Claim       =
-        sample[DraftC285Claim].copy(
-          selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(SelectNumberOfClaimsType.Bulk)),
-          movementReferenceNumber = sampleEntryNumberAnswer(),
-          claimNorthernIrelandAnswer = expectedData
-        )
-      val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-      val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
-      val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result = sessionTester.method(expectedData, EntryBulkRoutes)(dataExtractor, request)
         status(result) shouldBe 200
@@ -144,7 +130,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
             selectNumberOfClaimsAnswer = None,
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(sample[EntryNumber]))),
+            movementReferenceNumber = sampleEntryNumberAnswer(),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
