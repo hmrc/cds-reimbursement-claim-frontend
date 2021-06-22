@@ -38,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{differentT, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.EntryNumber
@@ -131,9 +131,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Show the title" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyDuplicateMrnKey)
 
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer())
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -170,17 +168,15 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Fail if the same Entry Number is submitted" in {
         featureSwitch.EntryNumber.enable()
 
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
-
+        val entryNumber     = sample[EntryNumber]
+        val answers         = sampleEntryNumberAnswer(entryNumber)
+        val (session, _, _) = sessionWithClaimState(answers)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-
-        val result = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> "123456789A12345678")
+        val result          = controller.enterDuplicateMrnSubmit()(
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> entryNumber.value)
         )
 
         val doc   = Jsoup.parse(contentAsString(result))
@@ -195,15 +191,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Fail on an Entry Number journey and an MRN is submitted" in {
         featureSwitch.EntryNumber.enable()
 
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(sampleEntryNumberAnswer())
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> "10ABCDEFGHIJKLMNO0")
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> sample[MRN].value)
         )
         val doc             = Jsoup.parse(contentAsString(result))
         val error           = getGlobalErrors(doc).text()
@@ -214,15 +208,15 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Fail if the same MRN is submitted" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyDuplicateMrnKey)
 
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val mrn             = sample[MRN]
+        val answers         = sampleMrnAnswer(mrn)
+        val (session, _, _) = sessionWithClaimState(answers)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(key -> "10ABCDEFGHIJKLMNO0")
+          FakeRequest().withFormUrlEncodedBody(key -> mrn.value)
         )
         val doc             = Jsoup.parse(contentAsString(result))
         val error           = getGlobalErrors(doc).text()
@@ -233,15 +227,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Fail on an MRN journey and an entry number is submitted" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyDuplicateMrnKey)
 
-        val mrn             = MRN("10ABCDEFGHIJKLMNO0")
-        val answers         = MovementReferenceNumber(Right(mrn))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer())
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(key -> "123456789A12345678")
+          FakeRequest().withFormUrlEncodedBody(key -> sample[EntryNumber].value)
         )
         val doc             = Jsoup.parse(contentAsString(result))
         val error           = getGlobalErrors(doc).text()
@@ -252,16 +244,16 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Redirect to the enter duplicate declaration details page if a different Entry Number is submitted" in {
         featureSwitch.EntryNumber.enable()
 
-        val entryNumber     = EntryNumber("123456789A12345678")
-        val answers         = MovementReferenceNumber(Left(entryNumber))
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val entryNumber     = sample[EntryNumber]
+        val answers         = sampleEntryNumberAnswer(entryNumber)
+        val (session, _, _) = sessionWithClaimState(answers)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> "123456789A12341111")
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> differentT(entryNumber).value)
         )
         status(result) shouldBe 303
         redirectLocation(
@@ -269,12 +261,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
       }
 
-      "Redirect to the enter importer eori page if a different MRN Number is submitted" in forAll(keys) { key =>
+      "Redirect to the enter importer eori page if a different MRN Number is submitted" in {
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyDuplicateMrnKey)
 
-        val mrn                = MRN("10AAAAAAAAAAAAAAA1")
-        val answers            = MovementReferenceNumber(Right(mrn))
-        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val mrn                = sample[MRN]
+        val answers            = sampleMrnAnswer(mrn)
+        val (session, _, _)    = sessionWithClaimState(answers)
         val displayDeclaration = sample[DisplayDeclaration]
         inSequence {
           mockAuthWithNoRetrievals()
@@ -284,7 +276,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockStoreSession(Right(()))
         }
         val result             = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(key -> "20AAAAAAAAAAAAAAA1")
+          FakeRequest().withFormUrlEncodedBody(key -> differentT(mrn).value)
         )
         status(result) shouldBe 303
         redirectLocation(

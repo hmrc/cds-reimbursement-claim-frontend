@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{numStringGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, _}
 
 import scala.concurrent.Future
@@ -63,7 +63,7 @@ class EnterDeclarantEoriNumberControllerSpec
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       declarantEoriNumberAnswer = maybeDeclarantEoriNumberAnswer,
-      movementReferenceNumber = Some(MovementReferenceNumber(Right(MRN("mrn"))))
+      movementReferenceNumber = sampleMrnAnswer()
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
