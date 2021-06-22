@@ -422,9 +422,9 @@ select-basis-for-claim.details.l10=A claim made by a trader if they have provide
 select-basis-for-claim.details.b11=Evidence that goods have not entered the EU - Northern Ireland claims only:
 select-basis-for-claim.details.l11=Proof that the goods, classed as ‘at risk’ on the customs declaration, did not move into the EU’s customs territory
 select-basis-for-claim.details.b12=Incorrect excise value - Northern Ireland claims only:
-select-basis-for-claim.details.l12=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
+select-basis-for-claim.details.l12=Correction to excise value because you’ve made a mistake when calculating excise due for duty-paid goods (only applies to movements into Northern Ireland from Great Britain). <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
 select-basis-for-claim.details.b13=Risk classification error - Northern Ireland claims only:
-select-basis-for-claim.details.l13=The trader has declared good as 'at risk' in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance.
+select-basis-for-claim.details.l13=Correction to risk classification because you’ve declared a good/goods ‘at risk’ by mistake
 select-basis-for-claim.details.b14=Miscellaneous:
 select-basis-for-claim.details.l14=For any other reason not detailed in this list
 
