@@ -418,9 +418,9 @@ select-basis-for-claim.details.l10=Hawliad a wneir gan fasnachwr os yw wedi darp
 select-basis-for-claim.details.b11=Tystiolaeth nad yw nwyddau wedi dod i mewn i’r UE – hawliadau Gogledd Iwerddon yn unig:
 select-basis-for-claim.details.l11=Tystiolaeth na wnaeth y nwyddau, a nodwyd fel rhai ‘mewn perygl’ ar y datganiad tollau, symud i diriogaeth dollau’r UE
 select-basis-for-claim.details.b12=Gwerth ecséis anghywir – hawliadau Gogledd Iwerddon yn unig:
-select-basis-for-claim.details.l12=Hawliadau am ad-daliad arian parod ar gyfer y gwahaniaeth mewn ecséis ar ôl clirio’r tollau oherwydd bod y masnachwr wedi gwneud camgymeriad gwirioneddol wrth gyfrifo ecséis â llaw. <strong>Sylwer – o dan y sail hon ar gyfer hawlio, os gwnaethoch fewnforio i Ogledd Iwerddon, dim ond o dan godau treth ecséis y gallwch hawlio ac nid o dan godau treth y tollau na TAW mewnforio.</strong>
+select-basis-for-claim.details.l12=
 select-basis-for-claim.details.b13=Gwall dosbarthiad risg:
-select-basis-for-claim.details.l13=Mae’r masnachwr wedi datgan drwy gamgymeriad fod nwyddau ‘mewn perygl’, mae’n talu’r tariff ei hun (h.y. nid yw’n defnyddio cymhorthdal) ac mae am gywiro’r gwall hwn ar ôl clirio’r tollau.
+select-basis-for-claim.details.l13=
 select-basis-for-claim.details.b14=Amrywiol:
 select-basis-for-claim.details.l14=Am unrhyw reswm arall nad yw wedi’i nodi yn y rhestr hon
 
