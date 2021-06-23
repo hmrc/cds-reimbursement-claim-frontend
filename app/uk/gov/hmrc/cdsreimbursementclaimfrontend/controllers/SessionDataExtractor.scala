@@ -20,6 +20,7 @@ import cats.syntax.all._
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -86,5 +87,17 @@ trait SessionDataExtractor extends Results {
         }
       case None                  => MRNSingleRoutes
     }
+
+  def getRoutes(
+    journeyBindable: JourneyBindable,
+    maybeMrnOrEntryNmber: Option[MovementReferenceNumber]
+  ): ReimbursementRoutes = {
+    val claimsType = journeyBindable match {
+      case JourneyBindable.Single   => SelectNumberOfClaimsType.Individual
+      case JourneyBindable.Bulk     => SelectNumberOfClaimsType.Bulk
+      case JourneyBindable.Schedule => SelectNumberOfClaimsType.Scheduled
+    }
+    getRoutes(claimsType, maybeMrnOrEntryNmber)
+  }
 
 }

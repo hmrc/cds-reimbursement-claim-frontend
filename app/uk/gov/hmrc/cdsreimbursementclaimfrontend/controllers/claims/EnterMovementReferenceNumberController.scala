@@ -65,11 +65,11 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private def resolveEnterMrnPageFor(
     feature: FeatureSwitchService
-  )(form: Form[MovementReferenceNumber], isAmend: Boolean, subKey: Option[String])(implicit
+  )(form: Form[MovementReferenceNumber], isAmend: Boolean, router: ReimbursementRoutes)(implicit
     request: RequestWithSessionData[AnyContent]
   ): HtmlFormat.Appendable =
-    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend, subKey)
-    else enterNoLegacyMrnPage(form, isAmend, subKey)
+    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend, router)
+    else enterNoLegacyMrnPage(form, isAmend, router)
 
   private def resolveMessagesKey(feature: FeatureSwitchService): String =
     if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberKey else enterNoLegacyMrnKey
@@ -86,17 +86,16 @@ class EnterMovementReferenceNumberController @Inject() (
           featureSwitch.EntryNumber.isEnabled()
         )
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
-        Ok(resolveEnterMrnPageFor(featureSwitch)(form, isAmend, router.subKey))
+        Ok(resolveEnterMrnPageFor(featureSwitch)(form, isAmend, router))
       }
     }
 
-  def enterMrnSubmit(): Action[AnyContent]  = mrnSubmit(false)
-  def changeMrnSubmit(): Action[AnyContent] = mrnSubmit(true)
+  def enterMrnSubmit(journey: JourneyBindable): Action[AnyContent]  = mrnSubmit(false, journey)
+  def changeMrnSubmit(journey: JourneyBindable): Action[AnyContent] = mrnSubmit(true, journey)
 
-  def mrnSubmit(isAmend: Boolean): Action[AnyContent] =
+  def mrnSubmit(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
-        val numOfClaims = getNumberOfClaims(fillingOutClaim.draftClaim)
         EnterMovementReferenceNumberController
           .movementReferenceNumberForm(resolveMessagesKey(featureSwitch), featureSwitch.EntryNumber.isEnabled())
           .bindFromRequest()
@@ -114,7 +113,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     ),
                   isAmend,
-                  getRoutes(numOfClaims, Some(MovementReferenceNumber(Right(MRN(""))))).subKey
+                  getRoutes(journey, Some(MovementReferenceNumber(Right(MRN("")))))
                 )
               ),
             mrnOrEntryNumber => {
@@ -134,8 +133,7 @@ class EnterMovementReferenceNumberController @Inject() (
                         .leftMap(_ => Error("Could not save Entry Number"))
                         .fold(
                           errorRedirect,
-                          _ =>
-                            Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(ErnImporter))
+                          _ => Redirect(getRoutes(journey, Option(mrnOrEntryNumber)).nextPageForEnterMRN(ErnImporter))
                         )
                     case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
                       val result = for {
@@ -157,8 +155,8 @@ class EnterMovementReferenceNumberController @Inject() (
                       } yield mrnJourneyFlow
                       result.fold(
                         errorRedirect,
-                        journey =>
-                          Redirect(getRoutes(numOfClaims, Option(mrnOrEntryNumber)).nextPageForEnterMRN(journey))
+                        mrnJourney =>
+                          Redirect(getRoutes(journey, Option(mrnOrEntryNumber)).nextPageForEnterMRN(mrnJourney))
                       )
                   }
               }

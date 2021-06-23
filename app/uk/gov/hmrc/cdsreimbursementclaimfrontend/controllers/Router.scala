@@ -17,21 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
+  val journeyBindable: JourneyBindable
 }
 trait SingleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = None
+  override val journeyBindable        = JourneyBindable.Single
 }
 trait BulkRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("bulk")
+  override val journeyBindable        = JourneyBindable.Bulk
 }
 trait ScheduledRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("scheduled")
+  override val journeyBindable        = JourneyBindable.Schedule
 }
 
 trait ReferenceNumberTypeRoutes extends Product with Serializable {
