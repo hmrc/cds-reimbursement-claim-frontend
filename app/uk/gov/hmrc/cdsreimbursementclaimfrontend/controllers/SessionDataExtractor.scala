@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.syntax.all._
+import cats.syntax.eq._
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -44,12 +44,16 @@ trait SessionDataExtractor extends Results {
 
   def withAnswersAndRoutes[T](
     f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
-  )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
+  )(implicit
+    extractor: DraftC285Claim => Option[T],
+    request: RequestWithSessionData[_],
+    journeyBindable: JourneyBindable
+  ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
         val numOfClaims = getNumberOfClaims(draftClaim)
         val refType     = getMovementReferenceNumber(draftClaim)
-        val router      = getRoutes(numOfClaims, refType)
+        val router      = getRoutes(numOfClaims, refType, journeyBindable)
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
@@ -73,17 +77,23 @@ trait SessionDataExtractor extends Results {
 
   def getRoutes(
     numberOfClaims: SelectNumberOfClaimsType,
-    maybeMrnOrEntryNmber: Option[MovementReferenceNumber]
+    maybeMrnOrEntryNmber: Option[MovementReferenceNumber],
+    journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
     maybeMrnOrEntryNmber match {
       case Some(mrnOrEntryNmber) =>
-        (mrnOrEntryNmber.value, numberOfClaims) match {
-          case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
-          case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
-          case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
-          case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
-          case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
-          case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
+        (journeyToSelectNumberOfClaimsType(journeyBindable) === numberOfClaims) match {
+          case false =>
+            ErrorRoutes
+          case true  =>
+            (mrnOrEntryNmber.value, numberOfClaims) match {
+              case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
+              case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
+              case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
+              case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
+              case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
+              case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
+            }
         }
       case None                  => MRNSingleRoutes
     }
@@ -91,13 +101,14 @@ trait SessionDataExtractor extends Results {
   def getRoutes(
     journeyBindable: JourneyBindable,
     maybeMrnOrEntryNmber: Option[MovementReferenceNumber]
-  ): ReimbursementRoutes = {
-    val claimsType = journeyBindable match {
+  ): ReimbursementRoutes =
+    getRoutes(journeyToSelectNumberOfClaimsType(journeyBindable), maybeMrnOrEntryNmber, journeyBindable)
+
+  def journeyToSelectNumberOfClaimsType(journeyBindable: JourneyBindable): SelectNumberOfClaimsType =
+    journeyBindable match {
       case JourneyBindable.Single   => SelectNumberOfClaimsType.Individual
       case JourneyBindable.Bulk     => SelectNumberOfClaimsType.Bulk
       case JourneyBindable.Schedule => SelectNumberOfClaimsType.Scheduled
     }
-    getRoutes(claimsType, maybeMrnOrEntryNmber)
-  }
 
 }

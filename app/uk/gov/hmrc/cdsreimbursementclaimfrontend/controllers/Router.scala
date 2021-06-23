@@ -61,3 +61,12 @@ case object MRNBulkRoutes extends MRNRoutes with BulkRoutes
 case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes
+
+case object ErrorRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
+  override val subKey: Option[String] = None
+  override val journeyBindable        = JourneyBindable.Single
+
+  val selectNumberOfClaimsPage: Call                  = claimRoutes.SelectNumberOfClaimsController.show()
+  def nextPageForEnterMRN(importer: MrnJourney): Call = selectNumberOfClaimsPage
+
+}

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Eq
 import cats.data.EitherT
 import cats.implicits._
 import cats.instances.future.catsStdInstancesForFuture
@@ -124,6 +125,7 @@ object SelectNumberOfClaimsController {
     val allClaimsIntToType: Map[Int, SelectNumberOfClaimsType] = allClaimsTypes.map(a => a.value -> a).toMap
     val allClaimsTypeToInt: Map[SelectNumberOfClaimsType, Int] = allClaimsTypes.map(a => a -> a.value).toMap
 
+    implicit val eq: Eq[SelectNumberOfClaimsType]                                  = Eq.fromUniversalEquals
     implicit val selectNumberOfClaimsTypeFormat: OFormat[SelectNumberOfClaimsType] =
       derived.oformat[SelectNumberOfClaimsType]()
   }
