@@ -69,8 +69,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   private val contactFormServiceIdentifier = "CDSRC"
 
-  def pageTitleWithServiceName(pageTitle: String, serviceName: String): String =
-    s"$pageTitle - $serviceName - GOV.UK"
+  def pageTitleWithServiceName(pageTitle: String, serviceName: String, hasErrors: Boolean): String =
+    if (hasErrors)
+      s"ERROR: $pageTitle - $serviceName - GOV.UK"
+    else
+      s"$pageTitle - $serviceName - GOV.UK"
 
   val reportAProblemPartialUrl: String =
     s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
