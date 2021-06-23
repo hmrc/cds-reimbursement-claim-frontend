@@ -15,8 +15,6 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-
-import cats.syntax.eq._
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -80,35 +78,20 @@ trait SessionDataExtractor extends Results {
     maybeMrnOrEntryNmber: Option[MovementReferenceNumber],
     journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
-    maybeMrnOrEntryNmber match {
-      case Some(mrnOrEntryNmber) =>
-        (journeyToSelectNumberOfClaimsType(journeyBindable) === numberOfClaims) match {
-          case false =>
-            ErrorRoutes
-          case true  =>
-            (mrnOrEntryNmber.value, numberOfClaims) match {
-              case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
-              case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
-              case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
-              case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
-              case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
-              case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
-            }
-        }
-      case None                  => MRNSingleRoutes
-    }
-
-  def getRoutes(
-    journeyBindable: JourneyBindable,
-    maybeMrnOrEntryNmber: Option[MovementReferenceNumber]
-  ): ReimbursementRoutes =
-    getRoutes(journeyToSelectNumberOfClaimsType(journeyBindable), maybeMrnOrEntryNmber, journeyBindable)
-
-  def journeyToSelectNumberOfClaimsType(journeyBindable: JourneyBindable): SelectNumberOfClaimsType =
-    journeyBindable match {
-      case JourneyBindable.Single   => SelectNumberOfClaimsType.Individual
-      case JourneyBindable.Bulk     => SelectNumberOfClaimsType.Bulk
-      case JourneyBindable.Schedule => SelectNumberOfClaimsType.Scheduled
+    (journeyBindable, numberOfClaims, maybeMrnOrEntryNmber) match {
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Right(_))))  =>
+        MRNSingleRoutes
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Left(_))))   =>
+        EntrySingleRoutes
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Right(_))))          =>
+        MRNBulkRoutes
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Left(_))))           =>
+        EntryBulkRoutes
+      case (JourneyBindable.Schedule, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
+        MRNScheduledRoutes
+      case (JourneyBindable.Schedule, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
+        EntryScheduledRoutes
+      case _                                                                                                       => JourneyNotDetectedRoutes
     }
 
 }

@@ -113,7 +113,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     ),
                   isAmend,
-                  getRoutes(journey, Some(MovementReferenceNumber(Right(MRN("")))))
+                  getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), None, journey)
                 )
               ),
             mrnOrEntryNumber => {
@@ -133,7 +133,14 @@ class EnterMovementReferenceNumberController @Inject() (
                         .leftMap(_ => Error("Could not save Entry Number"))
                         .fold(
                           errorRedirect,
-                          _ => Redirect(getRoutes(journey, Option(mrnOrEntryNumber)).nextPageForEnterMRN(ErnImporter))
+                          _ =>
+                            Redirect(
+                              getRoutes(
+                                getNumberOfClaims(fillingOutClaim.draftClaim),
+                                Option(mrnOrEntryNumber),
+                                journey
+                              ).nextPageForEnterMRN(ErnImporter)
+                            )
                         )
                     case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
                       val result = for {
@@ -156,7 +163,10 @@ class EnterMovementReferenceNumberController @Inject() (
                       result.fold(
                         errorRedirect,
                         mrnJourney =>
-                          Redirect(getRoutes(journey, Option(mrnOrEntryNumber)).nextPageForEnterMRN(mrnJourney))
+                          Redirect(
+                            getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
+                              .nextPageForEnterMRN(mrnJourney)
+                          )
                       )
                   }
               }

@@ -139,7 +139,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, ErrorRoutes)(dataExtractor, request, JourneyBindable.Single)
+        val result =
+          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Single)
         status(result) shouldBe 200
       }
 
@@ -182,7 +183,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, MRNSingleRoutes)(dataExtractor, request, JourneyBindable.Bulk)
+        val result =
+          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Bulk)
         status(result) shouldBe 200
       }
 

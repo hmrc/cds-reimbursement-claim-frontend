@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 
@@ -62,11 +63,11 @@ case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes
 
-case object ErrorRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
+case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
   override val subKey: Option[String] = None
   override val journeyBindable        = JourneyBindable.Single
 
   val selectNumberOfClaimsPage: Call                  = claimRoutes.SelectNumberOfClaimsController.show()
-  def nextPageForEnterMRN(importer: MrnJourney): Call = selectNumberOfClaimsPage
+  def nextPageForEnterMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 
 }
