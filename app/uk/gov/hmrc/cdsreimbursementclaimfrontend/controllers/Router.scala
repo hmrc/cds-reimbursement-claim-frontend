@@ -19,12 +19,21 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
+
+  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
+    basisOfClaim match {
+      case BasisOfClaim.DuplicateEntry =>
+        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+      case _                           =>
+        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+    }
+
 }
 trait SingleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = None

@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 
 
 @this(
@@ -39,7 +40,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
      @key = @{"select-basis-for-claim"}
      @title = @{messages(s"$key.title")}
@@ -54,7 +55,8 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
       }
     }
 
-    @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit() else routes.SelectBasisForClaimController.selectBasisForClaimSubmit()}
+    @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit(router.journeyBindable)
+                    else routes.SelectBasisForClaimController.selectBasisForClaimSubmit(router.journeyBindable)}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
