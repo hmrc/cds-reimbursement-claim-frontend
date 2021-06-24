@@ -8,10 +8,10 @@ GET         /change-number-of-claims                                uk.gov.hmrc.
 POST        /change-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
 
 GET         /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterJourneyMrn(journey: JourneyBindable)
-POST        /enter-movement-reference-number                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit()
+POST        /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit(journey: JourneyBindable)
 
 GET         /:journey/change-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeJourneyMrn(journey: JourneyBindable)
-POST        /change-movement-reference-number                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrnSubmit()
+POST        /:journey/change-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrnSubmit(journey: JourneyBindable)
 
 GET         /enter-duplicate-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
 POST        /enter-duplicate-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit()

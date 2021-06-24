@@ -24,6 +24,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -55,7 +56,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
   class SessionAndRouterTester() extends SessionDataExtractor {
     def method(expectedData: Option[ClaimNorthernIrelandAnswer], expecterRouter: ReimbursementRoutes)(implicit
       extractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer],
-      request: RequestWithSessionData[_]
+      request: RequestWithSessionData[_],
+      journeyBindable: JourneyBindable
     ) =
       withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (_, data, router) =>
         data   shouldBe expectedData
@@ -116,7 +118,29 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, EntryBulkRoutes)(dataExtractor, request)
+        val result = sessionTester.method(expectedData, EntryBulkRoutes)(dataExtractor, request, JourneyBindable.Bulk)
+        status(result) shouldBe 200
+      }
+
+      "NumberOfClaims and EntryNumber answers were provided, but the JourneyBindable/URL was tampered with" in {
+        val sessionTester                                                       = new SessionAndRouterTester()
+        val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+
+        val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
+        val msgReq               = fakeRequest2MessageRequest(FakeRequest())
+        val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
+        val draftC285Claim       =
+          sample[DraftC285Claim].copy(
+            selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(SelectNumberOfClaimsType.Bulk)),
+            movementReferenceNumber = sampleEntryNumberAnswer(),
+            claimNorthernIrelandAnswer = expectedData
+          )
+        val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
+        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
+
+        val result =
+          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Single)
         status(result) shouldBe 200
       }
 
@@ -137,7 +161,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, EntrySingleRoutes)(dataExtractor, request)
+        val result =
+          sessionTester.method(expectedData, EntrySingleRoutes)(dataExtractor, request, JourneyBindable.Single)
         status(result) shouldBe 200
       }
 
@@ -158,7 +183,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, MRNSingleRoutes)(dataExtractor, request)
+        val result =
+          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Bulk)
         status(result) shouldBe 200
       }
 
