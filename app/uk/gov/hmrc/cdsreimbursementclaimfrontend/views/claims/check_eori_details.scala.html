@@ -41,7 +41,9 @@
 @key = @{"check-eori-details"}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = Some(userDetails), hasErrors = false) {
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = Some(userDetails), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

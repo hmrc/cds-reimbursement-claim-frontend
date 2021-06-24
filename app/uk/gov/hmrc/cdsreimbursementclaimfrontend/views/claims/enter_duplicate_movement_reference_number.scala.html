@@ -37,7 +37,9 @@
     @key = @{"enter-duplicate-movement-reference-number"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @formWithCSRF(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit, 'novalidate -> "novalidate") {
 
