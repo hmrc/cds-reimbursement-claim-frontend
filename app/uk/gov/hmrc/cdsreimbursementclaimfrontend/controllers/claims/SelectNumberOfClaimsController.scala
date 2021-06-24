@@ -99,7 +99,7 @@ class SelectNumberOfClaimsController @Inject() (
                     val redirectUrl = formOk match {
                       case Individual => JourneyBindable.Single
                       case Bulk       => JourneyBindable.Bulk
-                      case Scheduled  => JourneyBindable.Schedule
+                      case Scheduled  => JourneyBindable.Scheduled
 
                     }
                     Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))

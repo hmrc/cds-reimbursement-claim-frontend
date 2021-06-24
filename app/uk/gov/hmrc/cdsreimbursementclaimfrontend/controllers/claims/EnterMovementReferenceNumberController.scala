@@ -199,9 +199,9 @@ class EnterMovementReferenceNumberController @Inject() (
 
   def localRouter(journey: JourneyBindable): ReimbursementRoutes =
     journey match {
-      case JourneyBindable.Single   => MRNSingleRoutes
-      case JourneyBindable.Bulk     => MRNBulkRoutes
-      case JourneyBindable.Schedule => MRNScheduledRoutes
+      case JourneyBindable.Single    => MRNSingleRoutes
+      case JourneyBindable.Bulk      => MRNBulkRoutes
+      case JourneyBindable.Scheduled => MRNScheduledRoutes
     }
 
 }

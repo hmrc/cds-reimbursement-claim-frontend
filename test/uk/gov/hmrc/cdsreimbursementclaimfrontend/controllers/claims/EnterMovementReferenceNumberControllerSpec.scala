@@ -130,11 +130,11 @@ class EnterMovementReferenceNumberControllerSpec
 
       }
 
-      "show the title for the bulk journey" in {
+      "show the title for the scheduled journey" in {
         featureSwitch.EntryNumber.enable()
         featureSwitch.BulkClaim.enable()
 
-        val (session, _, _) = sessionWithClaimState(None, Some(Bulk))
+        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -142,12 +142,12 @@ class EnterMovementReferenceNumberControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(JourneyBindable.Bulk),
-          messageFromMessageKey(s"$enterMovementReferenceNumberKey.bulk.title"),
+          performAction(JourneyBindable.Scheduled),
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
           doc => {
             doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
             doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
-              .enterMrnSubmit(JourneyBindable.Bulk)
+              .enterMrnSubmit(JourneyBindable.Scheduled)
               .url
           }
         )
@@ -477,14 +477,14 @@ class EnterMovementReferenceNumberControllerSpec
     }
   }
 
-  "Movement Reference Number Controller Bulk journey" when {
+  "Movement Reference Number Controller Scheduled journey" when {
 
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Bulk)(FakeRequest())
+      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Scheduled)(FakeRequest())
 
       "show the title" in {
-        val (session, _, _) = sessionWithClaimState(None, Some(Bulk))
+        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -492,7 +492,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$enterMovementReferenceNumberKey.bulk.title"),
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
           doc => doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
         )
       }

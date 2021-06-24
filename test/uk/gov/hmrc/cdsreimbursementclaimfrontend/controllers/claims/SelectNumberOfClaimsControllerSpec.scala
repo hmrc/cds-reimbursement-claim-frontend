@@ -272,7 +272,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Schedule)
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
 
@@ -288,7 +288,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Schedule)
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
     }
