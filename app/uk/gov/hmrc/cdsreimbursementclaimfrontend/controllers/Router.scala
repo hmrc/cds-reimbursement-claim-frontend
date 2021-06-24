@@ -17,21 +17,26 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
+  val journeyBindable: JourneyBindable
 }
 trait SingleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = None
+  override val journeyBindable        = JourneyBindable.Single
 }
 trait BulkRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("bulk")
+  override val journeyBindable        = JourneyBindable.Bulk
 }
 trait ScheduledRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("scheduled")
+  override val journeyBindable        = JourneyBindable.Scheduled
 }
 
 trait ReferenceNumberTypeRoutes extends Product with Serializable {
@@ -57,3 +62,12 @@ case object MRNBulkRoutes extends MRNRoutes with BulkRoutes
 case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes
+
+case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
+  override val subKey: Option[String] = None
+  override val journeyBindable        = JourneyBindable.Single
+
+  val selectNumberOfClaimsPage: Call                  = claimRoutes.SelectNumberOfClaimsController.show()
+  def nextPageForEnterMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
+
+}

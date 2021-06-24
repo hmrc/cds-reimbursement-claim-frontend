@@ -107,9 +107,10 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Single)(FakeRequest())
+      def performAction(journeyBindable: JourneyBindable): Future[Result] =
+        controller.enterJourneyMrn(journeyBindable)(FakeRequest())
 
-      "show the title" in forAll(keys) { key =>
+      "show the title for the single journey" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
 
         val (session, _, _) = sessionWithClaimState(None, Some(Individual))
@@ -119,11 +120,39 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
         }
 
-        val doc = Jsoup.parse(contentAsString(performAction()))
+        val doc = Jsoup.parse(contentAsString(performAction(JourneyBindable.Single)))
 
         doc.select("h1").text                                      should include(messageFromMessageKey(s"$key.title"))
         doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
+        doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
+          .enterMrnSubmit(JourneyBindable.Single)
+          .url
+
       }
+
+      "show the title for the scheduled journey" in {
+        featureSwitch.EntryNumber.enable()
+        featureSwitch.BulkClaim.enable()
+
+        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(JourneyBindable.Scheduled),
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
+          doc => {
+            doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
+            doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
+              .enterMrnSubmit(JourneyBindable.Scheduled)
+              .url
+          }
+        )
+      }
+
     }
 
     "Change MRN page" must {
@@ -148,8 +177,8 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "We enter an Entry/MRN for the first time or update it with the back button (enterMrnSubmit)" must {
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.enterMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
+        controller.enterMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "reject an invalid Entry Number/MRN" in {
         featureSwitch.EntryNumber.enable()
@@ -161,9 +190,14 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result = performAction(enterMovementReferenceNumberKey -> invalidEntryNumber.value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> invalidEntryNumber.value)
 
-        status(result) shouldBe 400
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.title"),
+          _ => (),
+          400
+        )
       }
 
       "start an Entry Number claim, if the Bulk Claim feature is disabled and the Entry Number feature is enabled and an entry number is entered" in {
@@ -178,7 +212,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result = performAction(enterMovementReferenceNumberKey -> entryNumber.value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
@@ -196,7 +230,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result = performAction(enterMovementReferenceNumberKey -> entryNumber.value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
@@ -214,9 +248,10 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result = performAction(enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
+        val result =
+          performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
 
-        status(result)                 shouldBe 303
+        status(result) shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
@@ -231,7 +266,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result = performAction(enterMovementReferenceNumberKey -> originalEntryNumber.value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> originalEntryNumber.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
@@ -253,7 +288,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(key -> sample[MRN].value)
+        val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
@@ -277,7 +312,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(key -> genOtherThan(mrn).value)
+        val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
@@ -301,7 +336,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(key -> mrn.value)
+        val result = performAction(JourneyBindable.Single, key -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
@@ -323,7 +358,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(key -> sample[MRN].value)
+        val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
@@ -333,8 +368,8 @@ class EnterMovementReferenceNumberControllerSpec
 
     "We update an Entry/MRN coming from the Check Your Answer page (changeMrnSubmit)" must {
 
-      def performAction(data: (String, String)*): Future[Result] =
-        controller.changeMrnSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+      def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
+        controller.changeMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "return to CYA page if the same MRN is submitted" in forAll(keys) { key =>
         featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
@@ -346,7 +381,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(key -> mrn.value)
+        val result          = performAction(JourneyBindable.Single, key -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
@@ -362,7 +397,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(enterMovementReferenceNumberKey -> entryNumber.value)
+        val result          = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
@@ -383,7 +418,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(key -> genOtherThan(mrn).value)
+        val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
@@ -400,9 +435,10 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          = performAction(enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
+        val result          =
+          performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
 
-        status(result)                 shouldBe 303
+        status(result) shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
@@ -441,14 +477,14 @@ class EnterMovementReferenceNumberControllerSpec
     }
   }
 
-  "Movement Reference Number Controller Bulk journey" when {
+  "Movement Reference Number Controller Scheduled journey" when {
 
     "Enter MRN page" must {
 
-      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Bulk)(FakeRequest())
+      def performAction(): Future[Result] = controller.enterJourneyMrn(JourneyBindable.Scheduled)(FakeRequest())
 
       "show the title" in {
-        val (session, _, _) = sessionWithClaimState(None, Some(Bulk))
+        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -456,7 +492,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$enterMovementReferenceNumberKey.bulk.title"),
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
           doc => doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
         )
       }
