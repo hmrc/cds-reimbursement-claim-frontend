@@ -24,7 +24,7 @@ object JourneyBindable {
 
   case object Single extends JourneyBindable("single")
   case object Bulk extends JourneyBindable("bulk")
-  case object Scheduled extends JourneyBindable("schedule")
+  case object Scheduled extends JourneyBindable("scheduled")
 
   def parse(in: String): JourneyBindable = in match {
     case "single"    => Single
