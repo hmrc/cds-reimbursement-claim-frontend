@@ -36,7 +36,7 @@ trait BulkRoutes extends JourneyTypeRoutes {
 }
 trait ScheduledRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("scheduled")
-  override val journeyBindable        = JourneyBindable.Schedule
+  override val journeyBindable        = JourneyBindable.Scheduled
 }
 
 trait ReferenceNumberTypeRoutes extends Product with Serializable {

@@ -79,19 +79,19 @@ trait SessionDataExtractor extends Results {
     journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
     (journeyBindable, numberOfClaims, maybeMrnOrEntryNmber) match {
-      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Right(_))))  =>
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Right(_))))   =>
         MRNSingleRoutes
-      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Left(_))))   =>
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Left(_))))    =>
         EntrySingleRoutes
-      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Right(_))))          =>
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Right(_))))           =>
         MRNBulkRoutes
-      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Left(_))))           =>
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Left(_))))            =>
         EntryBulkRoutes
-      case (JourneyBindable.Schedule, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
+      case (JourneyBindable.Scheduled, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
         MRNScheduledRoutes
-      case (JourneyBindable.Schedule, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
+      case (JourneyBindable.Scheduled, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
         EntryScheduledRoutes
-      case _                                                                                                       => JourneyNotDetectedRoutes
+      case _                                                                                                        => JourneyNotDetectedRoutes
     }
 
 }

@@ -24,12 +24,12 @@ object JourneyBindable {
 
   case object Single extends JourneyBindable("single")
   case object Bulk extends JourneyBindable("bulk")
-  case object Schedule extends JourneyBindable("schedule")
+  case object Scheduled extends JourneyBindable("schedule")
 
   def parse(in: String): JourneyBindable = in match {
-    case "single"   => Single
-    case "bulk"     => Bulk
-    case "schedule" => Schedule
+    case "single"    => Single
+    case "bulk"      => Bulk
+    case "scheduled" => Scheduled
   }
 
   implicit lazy val pathBindable: PathBindable[JourneyBindable] = new PathBindable[JourneyBindable] {
