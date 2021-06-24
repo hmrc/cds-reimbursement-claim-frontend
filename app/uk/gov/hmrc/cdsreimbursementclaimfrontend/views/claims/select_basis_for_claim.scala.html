@@ -56,7 +56,9 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
     @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit() else routes.SelectBasisForClaimController.selectBasisForClaimSubmit()}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 
