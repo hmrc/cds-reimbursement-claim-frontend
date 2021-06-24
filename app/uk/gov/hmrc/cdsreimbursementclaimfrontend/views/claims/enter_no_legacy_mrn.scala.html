@@ -42,13 +42,11 @@
     @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit(router.journeyBindable)
                     else routes.EnterMovementReferenceNumberController.enterMrnSubmit(router.journeyBindable) }
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-
-        @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-
-        @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
             @errorSummary(form.errors)
 
