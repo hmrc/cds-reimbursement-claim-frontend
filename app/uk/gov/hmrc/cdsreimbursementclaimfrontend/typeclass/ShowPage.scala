@@ -20,7 +20,7 @@ trait ShowPage[A] {
   def showPage(value: A): Unit
 
   // tc instances
-  implicit val intWriter: ShowPage[SingleJourney] =
+  implicit val showSinglePageJourney: ShowPage[SingleJourney] =
     ShowPage { (value: SingleJourney) =>
       val _ = value.toString()
       ()
