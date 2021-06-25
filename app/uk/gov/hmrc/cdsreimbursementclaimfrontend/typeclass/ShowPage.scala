@@ -17,20 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 trait ShowPage[A] {
-  def showPage(): Unit
-
-  // tc instances
-  implicit val showSinglePageJourney: ShowPage[SingleJourney] =
-    ShowPage(() => ())
+  def showPage(journey: A): String
 }
 
 object ShowPage {
-  def apply[A](func: () => Unit): ShowPage[A] = new ShowPage[A] {
-    def showPage(): Unit = func()
+  // tc instances
+  implicit val showSinglePageJourney: ShowPage[SingleJourney] =
+    ShowPage((value: SingleJourney) => value.answer)
+
+  def apply[A](func: A => String): ShowPage[A] = new ShowPage[A] {
+    def showPage(value: A): String = func(value)
   }
 }
 
 object syntax {
   // polymorphic functions to be used by end user
-  def renderPage[A : ShowPage]: Unit = implicitly[ShowPage[A]].showPage()
+  def renderPage[A : ShowPage](journey: A): String = implicitly[ShowPage[A]].showPage(journey)
 }

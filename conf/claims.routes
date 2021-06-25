@@ -1,3 +1,5 @@
+GET         /type-class-test                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.test()
+
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
 
