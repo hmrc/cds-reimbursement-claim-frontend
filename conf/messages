@@ -186,14 +186,14 @@ enter-duplicate-entry-number.invalid.enter-different-mrn=Enter a different MRN, 
 #===================================================
 #  ENTER NO LEGACY DUPLICATE MRN PAGE
 #===================================================
-enter-no-legacy-duplicate-mrn.title=Enter the duplicate Movement Reference Number (MRN)
+enter-no-legacy-duplicate-mrn.title=What is your duplicated Movement Reference Number (MRN)?
 enter-no-legacy-duplicate-mrn.input-title=Enter the duplicate MRN
 enter-no-legacy-duplicate-mrn.help-text=This will help us to process your claim more efficiently.
 enter-no-legacy-duplicate-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
 enter-no-legacy-duplicate-mrn.invalid.number=Enter a valid MRN
 enter-no-legacy-duplicate-mrn.invalid=Enter a valid MRN
 enter-no-legacy-duplicate-mrn.error.required=Enter a valid MRN
-enter-no-legacy-duplicate-mrn.invalid.mrn-not-entry-number=Enter a valid MRN
+enter-no-legacy-duplicate-mrn.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
 enter-no-legacy-duplicate-mrn.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 enter-no-legacy-duplicate-mrn.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
 
