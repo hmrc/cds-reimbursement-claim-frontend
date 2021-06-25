@@ -32,9 +32,9 @@
     inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text
 )
 
-@(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MovementReferenceNumber], isMrnJourney: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-duplicate-movement-reference-number"}
+    @key = @{if(isMrnJourney) "enter-duplicate-movement-reference-number" else  "enter-duplicate-entry-number"}
     @title = @{messages(s"$key.title")}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
