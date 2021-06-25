@@ -43,7 +43,7 @@ object ShowPage {
 
 object syntax {
   // polymorphic functions to be used by end user
-  def renderPage[A : ShowPage](journey: Option[A]): String = journey match {
+  def getJourneyMeta[A : ShowPage](journey: Option[A]): String = journey match {
     case Some(value) => implicitly[ShowPage[A]].showPage(value)
     case None        => implicitly[ShowPage[ErrorPage]].errorPage
   }

@@ -31,7 +31,12 @@ class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache2,
-  cc: MessagesControllerComponents
+  cc: MessagesControllerComponents,
+  enterDeclarationDetailsPage: views.html.enter_declaration_details
+  // inject template???
+  //
+  // Template1
+  // Template2
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -39,13 +44,19 @@ class DummyControllerClass @Inject() (
     with SessionUpdates {
 
   def test(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    // internal data structure in memory <- uuid
     sessionCache
       .get()
       .fold(
         error => InternalServerError(s"something bad has happened: ${error.message}"),
         {
-          case Some(value) => Ok(renderPage(value.journeyStatus.draftClaim))
-          case None        => BadRequest("no data")
+
+          // Twirl template associated to it
+          // Depending on what journey type, we need to show different content in that template
+          val someInfo = getJourneyMeta(journey)
+          // submit Call, message Key
+          case Some(value) => Ok(enterDeclarationDetailsPage(someInfo)) //value.journeyStatus.draftClaim))
+          case None        => Ok(enterDeclarationDetailsPage(emptyForm))
         }
       )
   }
