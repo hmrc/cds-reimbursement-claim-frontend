@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.Inject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache2
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.syntax._
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionCache: SessionCache,
+  val sessionCache: SessionCache2,
   cc: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc)
@@ -39,14 +39,15 @@ class DummyControllerClass @Inject() (
     with SessionUpdates {
 
   def test(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    sessionCache.get().map {
-      case Left(value)  => InternalServerError(s"something bad happened ${value.message}")
-      case Right(value) =>
-        value match {
+    sessionCache
+      .get()
+      .fold(
+        error => InternalServerError(s"something bad has happened: ${error.message}"),
+        {
           case Some(value) => Ok(renderPage(value.journeyStatus.draftClaim))
-          case None        => BadRequest("No data")
+          case None        => BadRequest("no data")
         }
-    }
+      )
   }
 
 }
