@@ -56,4 +56,17 @@ object JourneyStatus {
 
   implicit val eq: Eq[JourneyStatus] = Eq.fromUniversalEquals
 
+  implicit class JourneyStatusOp(private val journeyStatus: Option[JourneyStatus]) {
+    def draftClaim: Option[DraftClaim] = journeyStatus match {
+      case Some(value) =>
+        value match {
+          case FillingOutClaim(_, _, draftClaim) => Some(draftClaim)
+          case _: JustSubmittedClaim             => None
+          case _: SubmitClaimFailed              => None
+          case NonGovernmentGatewayJourney       => None
+        }
+      case None        => None
+    }
+  }
+
 }

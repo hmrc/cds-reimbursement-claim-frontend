@@ -17,34 +17,36 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.Inject
-import play.api.mvc.{MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates}
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.ShowPage._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.syntax._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SingleJourney
+
+import scala.concurrent.ExecutionContext
 
 class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
+  val sessionCache: SessionCache,
   cc: MessagesControllerComponents
-) extends FrontendController(cc)
+)(implicit ec: ExecutionContext)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
 
-  def test(): Action[AnyContent] = Action {
-
-    // comes from session-cache
-    val singleJourneyShow = SingleJourney("some answer")
-
-    Ok(renderPage(singleJourneyShow))
+  def test(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    sessionCache.get().map {
+      case Left(value)  => InternalServerError(s"something bad happened ${value.message}")
+      case Right(value) =>
+        value match {
+          case Some(value) => Ok(renderPage(value.journeyStatus.draftClaim))
+          case None        => BadRequest("No data")
+        }
+    }
   }
 
 }
