@@ -253,7 +253,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         status(result) shouldBe BAD_REQUEST
       }
 
-      "Redirect to the enter importer eori page with the if a different MRN Number is submitted on the" in {
+      "Redirect to the enter importer eori page with the ERN flag disabled when a different MRN Number is submitted " in {
         featureSwitch.EntryNumber.disable()
         val mrn                = sample[MRN]
         val answers            = sampleMrnAnswer(mrn)
