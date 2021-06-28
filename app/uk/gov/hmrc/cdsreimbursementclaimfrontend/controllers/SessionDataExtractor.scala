@@ -95,3 +95,20 @@ trait SessionDataExtractor extends Results {
     }
 
 }
+
+//This method should be used in controllers, where we did not introduce the JourneyBindable yet
+object TemporaryJourneyExtractor extends SessionDataExtractor {
+
+  def extractJourney(implicit request: RequestWithSessionData[_]): JourneyBindable =
+    request.sessionData.flatMap(_.journeyStatus) match {
+      case Some(FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+        getNumberOfClaims(draftClaim) match {
+          case SelectNumberOfClaimsType.Individual => JourneyBindable.Single
+          case SelectNumberOfClaimsType.Bulk       => JourneyBindable.Bulk
+          case SelectNumberOfClaimsType.Scheduled  => JourneyBindable.Scheduled
+        }
+      case _                                                   =>
+        JourneyBindable.Single
+    }
+
+}

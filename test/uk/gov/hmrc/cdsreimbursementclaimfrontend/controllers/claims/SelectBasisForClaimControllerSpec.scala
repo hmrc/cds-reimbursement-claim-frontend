@@ -87,7 +87,7 @@ class SelectBasisForClaimControllerSpec
 
       "there is no journey status in the session" in {
 
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         val answers = IncompleteBasisOfClaimAnswer.empty
 
@@ -110,7 +110,7 @@ class SelectBasisForClaimControllerSpec
     "display the page" when {
 
       "the user has not answered this question before and the NI feature switch is enabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
         featureSwitch.NorthernIreland.enable()
         val answers                         = IncompleteBasisOfClaimAnswer.empty
 
@@ -131,7 +131,7 @@ class SelectBasisForClaimControllerSpec
       }
 
       "the user has not answered this question before and the NI feature switch is disabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
         featureSwitch.NorthernIreland.disable()
         val answers                         = IncompleteBasisOfClaimAnswer.empty
 
@@ -152,7 +152,7 @@ class SelectBasisForClaimControllerSpec
       }
 
       "the user has answered this question before and the NI feature switch is enabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.enable()
         val endUseRelief = BasisOfClaim.EndUseRelief
@@ -176,7 +176,7 @@ class SelectBasisForClaimControllerSpec
       }
 
       "the user has answered this question before and the NI feature switch is disabled" in {
-        def performAction(): Future[Result] = controller.selectBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.disable()
         val endUseRelief = BasisOfClaim.EndUseRelief
@@ -201,7 +201,7 @@ class SelectBasisForClaimControllerSpec
 
       "the user has come from the CYA page and is amending their answer" in {
 
-        def performAction(): Future[Result] = controller.changeBasisForClaim()(FakeRequest())
+        def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         val endUseRelief = BasisOfClaim.EndUseRelief
 
@@ -234,7 +234,7 @@ class SelectBasisForClaimControllerSpec
       "user chooses a valid option" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.selectBasisForClaimSubmit()(
+          controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -264,7 +264,7 @@ class SelectBasisForClaimControllerSpec
       "the user amends their answer" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeBasisForClaimSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -297,7 +297,7 @@ class SelectBasisForClaimControllerSpec
 
       "the user does not select an option" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeBasisForClaimSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -336,7 +336,7 @@ class SelectBasisForClaimControllerSpec
       "an invalid option value is submitted" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit()(
+          controller.changeBasisForClaimSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 

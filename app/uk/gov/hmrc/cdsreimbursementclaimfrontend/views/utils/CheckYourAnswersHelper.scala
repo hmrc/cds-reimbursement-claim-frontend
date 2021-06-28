@@ -26,6 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenc
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
 import javax.inject.{Inject, Singleton}
 
@@ -479,7 +481,9 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeBasisAndOrReasonForClaim(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
+  def makeBasisAndOrReasonForClaim(
+    completeClaim: CompleteClaim
+  )(implicit request: RequestWithSessionData[_], messages: Messages): List[SummaryListRow] =
     completeClaim.basisForClaim match {
       case Left(value)  =>
         List(
@@ -523,7 +527,7 @@ class CheckYourAnswersHelper @Inject() (implicit
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim().url}",
+                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim(extractJourney).url}",
                     content = Text(messages("cya.change")),
                     visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
                   )
