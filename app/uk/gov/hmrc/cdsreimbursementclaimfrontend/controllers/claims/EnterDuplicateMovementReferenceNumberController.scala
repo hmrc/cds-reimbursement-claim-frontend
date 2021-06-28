@@ -251,9 +251,6 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     if (feature.EntryNumber.isEnabled()) enterDuplicateMovementReferenceNumberPage(form, isMrnJourney)
     else enterNoLegacyDuplicateMrn(form)
 
-//  private def resolveMessagesKey(feature: FeatureSwitchService): String =
-//    if (feature.EntryNumber.isEnabled()) enterDuplicateMovementReferenceNumberKey else enterNoLegacyDuplicateMrnKey
-
   private def resolveMessagesKey(
     feature: FeatureSwitchService,
     isMrnJourney: Boolean
