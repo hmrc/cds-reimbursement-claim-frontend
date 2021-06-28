@@ -57,8 +57,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
   def enterDuplicateMrn(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withDuplicateMovementReferenceNumberAnswer { (_, _, maybeAnswers) =>
-        val isMrnJourney = maybeAnswers.toString === "MRN"
+      withDuplicateMovementReferenceNumberAnswer { (_, fillingOutClaim, maybeAnswers) =>
+        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         val messagesKey  = resolveMessagesKey(featureSwitch, isMrnJourney)
         val isErnEnabled = featureSwitch.EntryNumber.isEnabled()
         val form         = maybeAnswers.foldLeft(movementReferenceNumberForm(messagesKey, isErnEnabled))((mrnForm, mrn) =>

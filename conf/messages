@@ -157,7 +157,8 @@ enter-mrn-schedule-placeholder.help=This is a placeholder page for the schedule 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.title=What is your duplicated Movement Reference Number (MRN)?
+enter-duplicate-movement-reference-number.title=Tell us your duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
 enter-duplicate-movement-reference-number.invalid.number=Enter a valid MRN or entry number
@@ -172,7 +173,8 @@ enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Enter a di
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
 #===================================================
-enter-duplicate-entry-number.title=What is your duplicated Entry Number?
+enter-duplicate-entry-number.title=Tell us your duplicate Entry Number
+enter-duplicate-entry-number.input-title=Enter duplicate Entry Number
 enter-duplicate-entry-number.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-entry-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
 enter-duplicate-entry-number.invalid.number=Enter a valid entry number
@@ -186,8 +188,8 @@ enter-duplicate-entry-number.invalid.enter-different-mrn=Enter a different MRN, 
 #===================================================
 #  ENTER NO LEGACY DUPLICATE MRN PAGE
 #===================================================
-enter-no-legacy-duplicate-mrn.title=What is your duplicated Movement Reference Number (MRN)?
-enter-no-legacy-duplicate-mrn.input-title=Enter the duplicate MRN
+enter-no-legacy-duplicate-mrn.title=Tell us your duplicate Movement Reference Number (MRN)?
+enter-no-legacy-duplicate-mrn.input-title=Enter duplicate MRN
 enter-no-legacy-duplicate-mrn.help-text=This will help us to process your claim more efficiently.
 enter-no-legacy-duplicate-mrn.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
 enter-no-legacy-duplicate-mrn.invalid.number=Enter a valid MRN

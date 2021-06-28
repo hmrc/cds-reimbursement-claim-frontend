@@ -131,7 +131,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "Show the title" in {
         featureSwitch.EntryNumber.enable()
-        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer())
+        val (session, _, _) = sessionWithClaimState(sampleEntryNumberAnswer())
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
