@@ -1116,3 +1116,9 @@ country.YT=Mayotte
 country.ZA=South Africa
 country.ZM=Zambia
 country.ZW=Zimbabwe
+
+single-journey.title=Single Journey
+single-journey.help=Help text from single journey
+
+bulk-journey.title=Bulk Journey
+bulk-journey.help=Help text from bulk journey

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.SingleJourney
 
 trait ShowPage[A] {
   def showPage(journey: A): String

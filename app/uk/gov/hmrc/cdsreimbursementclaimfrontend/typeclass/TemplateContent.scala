@@ -16,4 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
-final case class SingleJourney(answer: String)
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+
+trait TemplateContent[T] {
+  val key: String
+}
+
+object TemplateContent {
+
+  implicit val singleJourneyTemplateContent: TemplateContent[SingleJourney] = new TemplateContent[SingleJourney] {
+    val key: String = "single-journey"
+  }
+
+  implicit val bulkJourneyTemplateContent: TemplateContent[BulkJourney] = new TemplateContent[BulkJourney] {
+    val key: String = "bulk-journey"
+  }
+}

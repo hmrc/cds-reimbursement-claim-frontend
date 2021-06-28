@@ -17,48 +17,42 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.Inject
+import play.api.i18n.Messages.implicitMessagesProviderToMessages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache2
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.syntax._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{Journey, TemplateContent}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 
 class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache2,
-  cc: MessagesControllerComponents,
-  enterDeclarationDetailsPage: views.html.enter_declaration_details
-  // inject template???
-  //
-  // Template1
-  // Template2
-)(implicit ec: ExecutionContext)
+  displayContent: pages.display_journey
+)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
 
-  def test(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    // internal data structure in memory <- uuid
-    sessionCache
-      .get()
-      .fold(
-        error => InternalServerError(s"something bad has happened: ${error.message}"),
-        {
+  def testSingle(): Action[AnyContent] =
+    authenticatedActionWithSessionData { implicit request =>
+      Ok(displayContent(resolveKey(SingleJourney("Single Journey!"))))
+    }
 
-          // Twirl template associated to it
-          // Depending on what journey type, we need to show different content in that template
-          val someInfo = getJourneyMeta(journey)
-          // submit Call, message Key
-          case Some(value) => Ok(enterDeclarationDetailsPage(someInfo)) //value.journeyStatus.draftClaim))
-          case None        => Ok(enterDeclarationDetailsPage(emptyForm))
-        }
-      )
+  def testBulk(): Action[AnyContent] =
+    authenticatedActionWithSessionData { implicit request =>
+      Ok(displayContent(resolveKey(BulkJourney("Bulk Journey!"))))
+    }
+
+  private def resolveKey[T <: Journey](journey: T)(implicit content: TemplateContent[T]) = {
+    println(s"Hi from journey $journey")
+    content.key
   }
-
 }
