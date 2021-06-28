@@ -22,6 +22,8 @@ import play.api.Configuration
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.spike.Session.GovernmentGatewaySession
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.spike.model.ReferenceNumber
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration._
@@ -38,6 +40,13 @@ trait SessionCache {
     hc: HeaderCarrier
   ): Future[Either[Error, Unit]]
 
+  //---
+  def load[T <: ReferenceNumber]()(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Option[GovernmentGatewaySession[T]]]]
+  def persist[T <: ReferenceNumber](session: GovernmentGatewaySession[T])(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]]
 }
 
 @Singleton
@@ -60,13 +69,11 @@ class DefaultSessionCache @Inject() (
     )
   }
 
-  val sessionKey = "cdsrc-session"
-
   def get()(implicit
     hc: HeaderCarrier
   ): Future[Either[Error, Option[SessionData]]] =
     hc.sessionId.map(_.value) match {
-      case Some(sessionId) ⇒ get[SessionData](sessionId)
+      case Some(sessionId) ⇒ get[SessionData](sessionId, sessionKey = "cdsrc-session")
       case None =>
         Future.successful(
           Left(Error("no session id found in headers - cannot query mongo"))
@@ -77,7 +84,7 @@ class DefaultSessionCache @Inject() (
     sessionData: SessionData
   )(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
     hc.sessionId.map(_.value) match {
-      case Some(sessionId) ⇒ store(sessionId, sessionData)
+      case Some(sessionId) ⇒ store(sessionId, sessionKey = "cdsrc-session", sessionData)
       case None ⇒
         Future.successful(
           Left(
@@ -86,4 +93,29 @@ class DefaultSessionCache @Inject() (
         )
     }
 
+  //--test
+
+  def load[T <: ReferenceNumber]()(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Option[GovernmentGatewaySession[T]]]] =
+    hc.sessionId.map(_.value) match {
+      case Some(sessionId) ⇒ get[GovernmentGatewaySession[T]](sessionId, sessionKey = "test-session")
+      case None =>
+        Future.successful(
+          Left(Error("no session id found in headers - cannot query mongo"))
+        )
+    }
+
+  def persist[T <: ReferenceNumber](
+    session: GovernmentGatewaySession[T]
+  )(implicit hc: HeaderCarrier): Future[Either[Error, Unit]] =
+    hc.sessionId.map(_.value) match {
+      case Some(sessionId) ⇒ store(sessionId, sessionKey = "test-session", session)
+      case None ⇒
+        Future.successful(
+          Left(
+            Error("no session id found in headers - cannot store data in mongo")
+          )
+        )
+    }
 }

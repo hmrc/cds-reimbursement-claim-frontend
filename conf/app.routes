@@ -3,6 +3,7 @@
 
 GET /exit/cannot-check-details                                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
 GET /start                                                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
+GET /test                                                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.spike.TestController.testPersist()
 GET /start-new-return                                                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.startNewClaim()
 GET /sign-out-and-register-for-gg                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
 GET /sign-out-and-log-in                                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()

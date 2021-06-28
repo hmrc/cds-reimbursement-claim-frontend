@@ -31,10 +31,9 @@ trait Cache {
 
   val cacheRepository: CacheRepository
 
-  val sessionKey: String
-
   protected def get[A : Reads](
-    id: String
+    id: String,
+    sessionKey: String
   )(implicit ec: ExecutionContext): Future[Either[Error, Option[A]]] =
     preservingMdc {
       cacheRepository
@@ -60,7 +59,7 @@ trait Cache {
         .recover { case e ⇒ Left(Error(e)) }
     }
 
-  protected def store[A : Writes](id: String, a: A)(implicit
+  protected def store[A : Writes](id: String, sessionKey: String, a: A)(implicit
     ec: ExecutionContext
   ): Future[Either[Error, Unit]] =
     preservingMdc {
