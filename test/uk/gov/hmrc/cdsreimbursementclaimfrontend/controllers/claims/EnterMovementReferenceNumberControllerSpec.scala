@@ -103,6 +103,65 @@ class EnterMovementReferenceNumberControllerSpec
     )
   }
 
+  "Movement Reference Number Controller page titles" when {
+
+    def runJourney(
+      isEntryNumberFeatureEnabled: Boolean,
+      journeyBindable: JourneyBindable,
+      expectedTitle: String
+    ): Unit = {
+      isEntryNumberFeatureEnabled match {
+        case true  => featureSwitch.EntryNumber.enable()
+        case false => featureSwitch.EntryNumber.disable()
+      }
+      featureSwitch.BulkClaim.enable()
+
+      val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        controller.enterJourneyMrn(journeyBindable)(FakeRequest()),
+        expectedTitle,
+        doc => {
+          doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
+          doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
+            .enterMrnSubmit(journeyBindable)
+            .url
+        }
+      )
+
+    }
+
+    "The entry number feature is enabled (Both MRN's and Entry Numbers allowed)" must {
+      "on the sigle journey show title: " in {
+        runJourney(true, JourneyBindable.Single, "What is your Movement Reference Number (MRN)?")
+      }
+      "on the bulk journey show title: " in {
+        runJourney(true, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
+      }
+      "on the scheduled journey show title: " in {
+        runJourney(true, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
+      }
+    }
+
+    "The entry number feature is disabed (Only MRN's are allowed)" must {
+      "on the sigle journey show title: " in {
+        runJourney(false, JourneyBindable.Single, "Enter the Movement Reference Number (MRN)")
+      }
+      "on the bulk journey show title: " in {
+        runJourney(false, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
+      }
+      "on the scheduled journey show title: " in {
+        runJourney(false, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
+      }
+    }
+
+  }
+
   "Movement Reference Number Controller Individual journey" when {
 
     "Enter MRN page" must {

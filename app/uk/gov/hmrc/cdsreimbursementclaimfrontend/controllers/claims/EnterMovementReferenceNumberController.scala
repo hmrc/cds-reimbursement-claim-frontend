@@ -68,8 +68,14 @@ class EnterMovementReferenceNumberController @Inject() (
   )(form: Form[MovementReferenceNumber], isAmend: Boolean, router: ReimbursementRoutes)(implicit
     request: RequestWithSessionData[AnyContent]
   ): HtmlFormat.Appendable =
-    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberPage(form, isAmend, router)
-    else enterNoLegacyMrnPage(form, isAmend, router)
+    router.journeyBindable match {
+      case JourneyBindable.Single =>
+        feature.EntryNumber.isEnabled() match {
+          case true  => enterMovementReferenceNumberPage(form, isAmend, router)
+          case false => enterNoLegacyMrnPage(form, isAmend, router)
+        }
+      case _                      => enterMovementReferenceNumberPage(form, isAmend, router)
+    }
 
   private def resolveMessagesKey(feature: FeatureSwitchService): String =
     if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberKey else enterNoLegacyMrnKey
