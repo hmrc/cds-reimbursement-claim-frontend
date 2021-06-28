@@ -37,12 +37,14 @@
 
 @(form: Form[SelectReasonForClaimAndBasis], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
- @key = @{"select-reason-and-basis-for-claim"}
- @title = @{messages(s"$key.title")}
+    @key = @{"select-reason-and-basis-for-claim"}
+    @title = @{messages(s"$key.title")}
 
- @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
+    @postAction = @{if(isAmend) routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit() else routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
