@@ -133,6 +133,14 @@ enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
 
+enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
+
+enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
+
 #===================================================
 #  ENTER NO LEGACY MRN PAGE
 #===================================================
@@ -143,16 +151,7 @@ enter-no-legacy-mrn.details=We are currently not accepting Entry numbers. If you
 enter-no-legacy-mrn.error.required=Enter a valid MRN
 enter-no-legacy-mrn.invalid.number=Enter a valid MRN
 enter-no-legacy-mrn.invalid=Enter a valid MRN
-
-enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
-enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
-
-#===================================================
-#  ENTER MRN SCHEDULE PLACEHOLDER PAGE
-#===================================================
-enter-mrn-schedule-placeholder.title=What is your Movement Reference Number (MRN)?
-enter-mrn-schedule-placeholder.help=This is a placeholder page for the schedule journey.
+enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
