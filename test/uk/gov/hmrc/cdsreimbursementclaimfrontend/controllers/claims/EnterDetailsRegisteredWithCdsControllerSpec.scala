@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -59,6 +60,8 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   lazy val controller: EnterDetailsRegisteredWithCdsController =
     instanceOf[EnterDetailsRegisteredWithCdsController]
@@ -370,6 +373,8 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
   "Submitting Details Registered with CDS" must {
     "Redirect according to the journey" in new TableDrivenPropertyChecks {
+
+      featureSwitch.NorthernIreland.disable()
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
         controller.enterDetailsRegisteredWithCdsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
