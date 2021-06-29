@@ -42,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -204,14 +205,16 @@ class EnterYourContactDetailsController @Inject() (
                               declarantType match {
                                 case DeclarantType.Importer =>
                                   Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                                case _                      => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                                case _                      =>
+                                  Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                               }
                             case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                           }
                         case MovementReferenceNumber(Right(_)) =>
                           featureSwitch.NorthernIreland.isEnabled() match {
                             case true  => Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim())
-                            case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                            case false =>
+                              Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                           }
 
                       }
