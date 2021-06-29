@@ -57,7 +57,7 @@
                 label = s"$key.label",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 hint = Some(s"${key}.hint"),
-                value = form.value.map(text => text.value),
+                value =  form(key).value,
                 maxLength = Some(500)
             )
 
