@@ -137,25 +137,25 @@ class EnterMovementReferenceNumberControllerSpec
     }
 
     "The entry number feature is enabled (Both MRN's and Entry Numbers allowed)" must {
-      "on the sigle journey show title: " in {
+      "show title on the sigle journey" in {
         runJourney(true, JourneyBindable.Single, "What is your Movement Reference Number (MRN)?")
       }
-      "on the bulk journey show title: " in {
+      "show title on the bulk journey" in {
         runJourney(true, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
       }
-      "on the scheduled journey show title: " in {
+      "show title on the scheduled journey" in {
         runJourney(true, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
       }
     }
 
     "The entry number feature is disabed (Only MRN's are allowed)" must {
-      "on the sigle journey show title: " in {
+      "show title on the sigle journey" in {
         runJourney(false, JourneyBindable.Single, "Enter the Movement Reference Number (MRN)")
       }
-      "on the bulk journey show title: " in {
+      "show title on the bulk journey" in {
         runJourney(false, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
       }
-      "on the scheduled journey show title: " in {
+      "show title on the scheduled journey" in {
         runJourney(false, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
       }
     }
@@ -556,6 +556,36 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
     }
+
+    "enterMrnSubmit" must {
+
+      def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
+        controller.enterMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "reject an invalid Entry Number/MRN" in {
+        featureSwitch.EntryNumber.enable()
+
+        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result = performAction(
+          JourneyBindable.Scheduled,
+          enterMovementReferenceNumberKey -> EntryNumber("INVALID_ENTRY_NUMBER").value
+        )
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
+          _ => (),
+          400
+        )
+      }
+
+    }
+
   }
 
 }
