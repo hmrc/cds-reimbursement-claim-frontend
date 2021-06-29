@@ -16,15 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
-import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 
-sealed trait Journey {
-  val id: UUID = UUID.randomUUID()
+trait SubmitPage[T <: Journey] {
+  val nextUrl: String
 }
 
-object Journey {
+object SubmitPage {
 
-  final case class SingleJourney() extends Journey
+  implicit val singleJourneySubmitPage: SubmitPage[SingleJourney] = new SubmitPage[SingleJourney] {
+    val nextUrl: String = routes.NextPageController.nextSinglePage().url
+  }
 
-  final case class BulkJourney() extends Journey
+  implicit val bulkJourneySubmitPage: SubmitPage[BulkJourney] = new SubmitPage[BulkJourney] {
+    val nextUrl: String = routes.NextPageController.nextBulkPage().url
+  }
 }

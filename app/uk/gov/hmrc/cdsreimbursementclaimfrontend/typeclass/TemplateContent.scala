@@ -16,10 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 
 trait TemplateContent[T] {
   val key: String
+
+  def submitUrlFor(journey: Journey): Call =
+    routes.DummyControllerClass.testSubmit(journey.id)
 }
 
 object TemplateContent {

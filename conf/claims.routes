@@ -1,5 +1,10 @@
 GET         /single/type-class-test                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSingle()
 GET         /bulk/type-class-test                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testBulk()
+GET         /type-class-test                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.test()
+POST        /type-class-test/:id                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSubmit(id: java.util.UUID)
+
+GET        /next-page-single                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.NextPageController.nextSinglePage()
+GET        /next-page-bulk                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.NextPageController.nextBulkPage()
 
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
