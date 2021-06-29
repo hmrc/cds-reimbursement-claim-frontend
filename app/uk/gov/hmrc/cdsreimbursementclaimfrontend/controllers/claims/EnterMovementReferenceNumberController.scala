@@ -119,7 +119,7 @@ class EnterMovementReferenceNumberController @Inject() (
                       )
                     ),
                   isAmend,
-                  getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), None, journey)
+                  localRouter(journey)
                 )
               ),
             mrnOrEntryNumber => {
