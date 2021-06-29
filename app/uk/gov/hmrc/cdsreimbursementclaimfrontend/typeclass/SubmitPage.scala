@@ -17,19 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-trait SubmitPage[T <: Journey] {
+trait SubmitPage[C <: FrontendController, T <: Journey] {
   val nextUrl: String
 }
 
 object SubmitPage {
 
-  implicit val singleJourneySubmitPage: SubmitPage[SingleJourney] = new SubmitPage[SingleJourney] {
+  implicit object SingleJourneySubmitPage extends SubmitPage[DummyControllerClass, SingleJourney] {
     val nextUrl: String = routes.NextPageController.nextSinglePage().url
   }
 
-  implicit val bulkJourneySubmitPage: SubmitPage[BulkJourney] = new SubmitPage[BulkJourney] {
+  implicit object BulkJourneySubmitPage extends SubmitPage[DummyControllerClass, BulkJourney] {
     val nextUrl: String = routes.NextPageController.nextBulkPage().url
   }
 }

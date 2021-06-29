@@ -45,13 +45,13 @@ class DummyControllerClass @Inject() (
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
-    with SessionUpdates {
+    with SessionUpdates { self =>
 
   def test(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       val (messageKey, submitUrl) = Repository.getRandom match {
-        case singleJourney: SingleJourney => extractContent(singleJourney)
-        case bulkJourney: BulkJourney     => extractContent(bulkJourney)
+        case singleJourney: SingleJourney => extractContent(singleJourney, self)
+        case bulkJourney: BulkJourney     => extractContent(bulkJourney, self)
       }
       Ok(displayJourney(messageKey, submitUrl))
     }
@@ -62,16 +62,19 @@ class DummyControllerClass @Inject() (
         .find(id)
         .map {
           case _: SingleJourney =>
-            Redirect(implicitly[SubmitPage[SingleJourney]].nextUrl)
+            Redirect(implicitly[SubmitPage[DummyControllerClass, SingleJourney]].nextUrl)
           case _: BulkJourney   =>
-            Redirect(implicitly[SubmitPage[BulkJourney]].nextUrl)
+            Redirect(implicitly[SubmitPage[DummyControllerClass, BulkJourney]].nextUrl)
         }
         .getOrElse(NotFound)
     }
 
-  def extractContent[T <: Journey](journey: T)(implicit content: TemplateContent[T]): (String, Call) =
+  def extractContent[C <: FrontendController, T <: Journey](journey: T, c: C)(implicit
+    content: TemplateContent[C, T]
+  ): (String, Call) = {
+    println(c.toString)
     (content.key, content.submitUrlFor(journey))
-
+  }
 }
 
 object DummyControllerClass {

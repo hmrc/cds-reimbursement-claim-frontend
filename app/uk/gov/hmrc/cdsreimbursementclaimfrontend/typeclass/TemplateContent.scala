@@ -18,9 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-trait TemplateContent[T] {
+trait TemplateContent[C <: FrontendController, T <: Journey] {
   val key: String
 
   def submitUrlFor(journey: Journey): Call =
@@ -29,11 +30,11 @@ trait TemplateContent[T] {
 
 object TemplateContent {
 
-  implicit val singleJourneyTemplateContent: TemplateContent[SingleJourney] = new TemplateContent[SingleJourney] {
+  implicit object SingleJourneyTemplateContent extends TemplateContent[DummyControllerClass, SingleJourney] {
     val key: String = "single-journey"
   }
 
-  implicit val bulkJourneyTemplateContent: TemplateContent[BulkJourney] = new TemplateContent[BulkJourney] {
+  implicit object BulkJourneyTemplateContent extends TemplateContent[DummyControllerClass, BulkJourney] {
     val key: String = "bulk-journey"
   }
 }
