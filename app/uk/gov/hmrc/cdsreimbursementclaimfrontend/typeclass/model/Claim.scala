@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model
 
 import java.util.UUID
 
-sealed trait Journey {
+trait Claim[T <: ReferenceNumber] extends Product with Serializable {
   val id: UUID
-}
-
-object Journey {
-
-  final case class SingleJourney(id: UUID = UUID.randomUUID()) extends Journey
-
-  final case class BulkJourney(id: UUID = UUID.randomUUID()) extends Journey
 }

@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 trait SubmitPage[C <: FrontendController, T <: Journey] {

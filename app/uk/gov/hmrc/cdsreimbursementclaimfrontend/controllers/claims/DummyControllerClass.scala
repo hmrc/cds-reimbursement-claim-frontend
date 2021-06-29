@@ -25,10 +25,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.Repository
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{Journey, SubmitPage, TemplateContent}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{SubmitPage, TemplateContent}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
