@@ -19,12 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 import java.util.UUID
 
 sealed trait Journey {
-  val id: UUID = UUID.randomUUID()
+  val id: UUID
 }
 
 object Journey {
 
-  final case class SingleJourney() extends Journey
+  final case class SingleJourney(id: UUID = UUID.randomUUID()) extends Journey
 
-  final case class BulkJourney() extends Journey
+  final case class BulkJourney(id: UUID = UUID.randomUUID()) extends Journey
 }

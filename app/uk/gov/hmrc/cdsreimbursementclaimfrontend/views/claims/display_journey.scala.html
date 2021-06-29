@@ -21,6 +21,6 @@
     @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
 
     @formWithCSRF(submitUrl, 'novalidate -> "novalidate") {
-        @buttonLink("button.continue", Some(submitUrl.url))
+        @buttonLink("button.continue")
     }
 }

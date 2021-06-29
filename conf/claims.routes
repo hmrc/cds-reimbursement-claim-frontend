@@ -1,5 +1,3 @@
-GET         /single/type-class-test                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSingle()
-GET         /bulk/type-class-test                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testBulk()
 GET         /type-class-test                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.test()
 POST        /type-class-test/:id                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSubmit(id: java.util.UUID)
 

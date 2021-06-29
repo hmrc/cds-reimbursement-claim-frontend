@@ -47,18 +47,6 @@ class DummyControllerClass @Inject() (
     with Logging
     with SessionUpdates {
 
-  def testSingle(): Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      val (messagesKey, submitUrl) = extractContent(SingleJourney())
-      Ok(displayJourney(messagesKey, submitUrl))
-    }
-
-  def testBulk(): Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      val (messageKey, submitUrl) = extractContent(BulkJourney())
-      Ok(displayJourney(messageKey, submitUrl))
-    }
-
   def test(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       val (messageKey, submitUrl) = Repository.getRandom match {
