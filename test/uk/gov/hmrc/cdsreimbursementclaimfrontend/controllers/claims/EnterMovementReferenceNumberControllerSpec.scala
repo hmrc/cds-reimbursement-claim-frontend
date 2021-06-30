@@ -30,7 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.{enterMovementReferenceNumberKey, enterNoLegacyMrnKey}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -67,8 +67,8 @@ class EnterMovementReferenceNumberControllerSpec
       bind[ClaimService].toInstance(mockClaimsService)
     )
 
-  val featureSwitch = instanceOf[FeatureSwitchService]
-  val keys          = Table("Key", enterNoLegacyMrnKey, enterMovementReferenceNumberKey)
+  val featureSwitch             = instanceOf[FeatureSwitchService]
+  val enteryNumberFeatureStates = Table("FeatureSwitchState", true, false)
 
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
@@ -164,61 +164,11 @@ class EnterMovementReferenceNumberControllerSpec
 
   "Movement Reference Number Controller Individual journey" when {
 
-    "Enter MRN page" must {
-
-      def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.enterJourneyMrn(journeyBindable)(FakeRequest())
-
-      "show the title for the single journey" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
-
-        val (session, _, _) = sessionWithClaimState(None, Some(Individual))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val doc = Jsoup.parse(contentAsString(performAction(JourneyBindable.Single)))
-
-        doc.select("h1").text                                      should include(messageFromMessageKey(s"$key.title"))
-        doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
-        doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
-          .enterMrnSubmit(JourneyBindable.Single)
-          .url
-
-      }
-
-      "show the title for the scheduled journey" in {
-        featureSwitch.EntryNumber.enable()
-        featureSwitch.BulkClaim.enable()
-
-        val (session, _, _) = sessionWithClaimState(None, Some(Scheduled))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(JourneyBindable.Scheduled),
-          messageFromMessageKey(s"$enterMovementReferenceNumberKey.scheduled.title"),
-          doc => {
-            doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe ""
-            doc.select("form").attr("action")                        shouldBe routes.EnterMovementReferenceNumberController
-              .enterMrnSubmit(JourneyBindable.Scheduled)
-              .url
-          }
-        )
-      }
-
-    }
-
     "Change MRN page" must {
       def performAction(): Future[Result] = controller.changeJourneyMrn(JourneyBindable.Single)(FakeRequest())
 
-      "show the title and the MRN number" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "show the title and the MRN number" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val mrn             = sample[MRN]
         val mrnAnswer       = sampleMrnAnswer(mrn)
@@ -230,8 +180,9 @@ class EnterMovementReferenceNumberControllerSpec
 
         val doc = Jsoup.parse(contentAsString(performAction()))
 
-        doc.select("h1").text          should include(messageFromMessageKey(s"$key.title"))
-        doc.select(s"#$key").`val`() shouldBe mrn.value
+        val titleKey = if (key) enterMovementReferenceNumberKey else "enter-no-legacy-mrn"
+        doc.select("h1").text                                      should include(messageFromMessageKey(s"$titleKey.title"))
+        doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe mrn.value
       }
     }
 
@@ -331,8 +282,8 @@ class EnterMovementReferenceNumberControllerSpec
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
       }
 
-      "start a new claim with an MRN, Eori is importer's Eori" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "start a new claim with an MRN, Eori is importer's Eori" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val (session, foc, _) = sessionWithClaimState(None, Some(Individual))
 
@@ -347,14 +298,14 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
-      "Update an MRN, Eori is importer's Eori" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "Update an MRN, Eori is importer's Eori" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val mrn               = sample[MRN]
         val mrnAnswer         = sampleMrnAnswer(mrn)
@@ -371,14 +322,14 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
-      "Update an MRN, but don't change it, Eori is importer's Eori" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "Update an MRN, but don't change it, Eori is importer's Eori" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val mrn               = sample[MRN]
         val mrnAnswer         = sampleMrnAnswer(mrn)
@@ -395,14 +346,14 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(JourneyBindable.Single, key -> mrn.value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
-      "start a new claim with an MRN, Eori is not the importer's Eori" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "start a new claim with an MRN, Eori is not the importer's Eori" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val (session, _, _) = sessionWithClaimState(None, Some(Individual))
 
@@ -417,7 +368,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> sample[MRN].value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
@@ -430,8 +381,8 @@ class EnterMovementReferenceNumberControllerSpec
       def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
         controller.changeMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "return to CYA page if the same MRN is submitted" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "return to CYA page if the same MRN is submitted" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val mrn             = sample[MRN]
         val answers         = sampleMrnAnswer(mrn)
@@ -440,7 +391,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(JourneyBindable.Single, key -> mrn.value)
+        val result          = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> mrn.value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
@@ -462,8 +413,8 @@ class EnterMovementReferenceNumberControllerSpec
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
       }
 
-      "start a new claim if a different MRN is submitted" in forAll(keys) { key =>
-        featureSwitch.EntryNumber.setFlag(key != enterNoLegacyMrnKey)
+      "start a new claim if a different MRN is submitted" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
 
         val mrn             = sample[MRN]
         val answers         = sampleMrnAnswer(mrn)
@@ -477,7 +428,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
+        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
         redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
@@ -505,32 +456,28 @@ class EnterMovementReferenceNumberControllerSpec
 
     "Form validation" must {
 
-      def form(key: String, isEntryNumberEnabled: Boolean) =
-        EnterMovementReferenceNumberController.movementReferenceNumberForm(key, isEntryNumberEnabled)
+      def form(isEntryNumberEnabled: Boolean) =
+        EnterMovementReferenceNumberController.movementReferenceNumberForm(isEntryNumberEnabled)
 
-      val keys = Table("Key", enterNoLegacyMrnKey, enterMovementReferenceNumberKey)
-
-      "accept valid MRN" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> sample[MRN].value)).errors
+      "accept valid MRN" in forAll(enteryNumberFeatureStates) { key =>
+        val errors = form(key).bind(Map(enterMovementReferenceNumberKey -> sample[MRN].value)).errors
         errors shouldBe Nil
       }
 
       "accept valid Entry Number (Chief Number)" in {
-        val errors = form(enterMovementReferenceNumberKey, isEntryNumberEnabled = true)
+        val errors = form(true)
           .bind(Map(enterMovementReferenceNumberKey -> sample[EntryNumber].value))
           .errors
         errors shouldBe Nil
       }
 
-      "reject 19 characters" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> "910ABCDEFGHIJKLMNO0")).errors
+      "reject 19 characters" in forAll(enteryNumberFeatureStates) { key =>
+        val errors = form(key).bind(Map(enterMovementReferenceNumberKey -> "910ABCDEFGHIJKLMNO0")).errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
-      "reject 17 characters" in {
-        val errors = form(enterMovementReferenceNumberKey, isEntryNumberEnabled = true)
-          .bind(Map(enterMovementReferenceNumberKey -> "123456789A1234567"))
-          .errors
+      "reject 17 characters" in forAll(enteryNumberFeatureStates) { key =>
+        val errors = form(key).bind(Map(enterMovementReferenceNumberKey -> "123456789A1234567")).errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
     }
@@ -582,6 +529,31 @@ class EnterMovementReferenceNumberControllerSpec
           _ => (),
           400
         )
+      }
+
+      "Update an MRN, Eori is importer's Eori" in forAll(enteryNumberFeatureStates) { key =>
+        featureSwitch.EntryNumber.setFlag(key)
+
+        val mrn               = sample[MRN]
+        val mrnAnswer         = sampleMrnAnswer(mrn)
+        val (session, foc, _) = sessionWithClaimState(mrnAnswer, Some(Scheduled))
+
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
+          mockStoreSession(Right(()))
+        }
+        val result =
+          performAction(JourneyBindable.Scheduled, enterMovementReferenceNumberKey -> genOtherThan(mrn).value)
+
+        status(result) shouldBe 303
+        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
       }
 
     }

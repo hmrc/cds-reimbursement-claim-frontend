@@ -31,7 +31,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.{enterDuplicateEntryNumberKey, enterDuplicateMovementReferenceNumberKey, enterNoLegacyDuplicateMrnKey}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -68,8 +68,6 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     )
 
   val featureSwitch = instanceOf[FeatureSwitchService]
-  val keys          =
-    Table("Key", enterNoLegacyDuplicateMrnKey, enterDuplicateMovementReferenceNumberKey, enterDuplicateEntryNumberKey)
 
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
@@ -229,11 +227,11 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetSession(session)
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterNoLegacyDuplicateMrnKey -> mrn.value)
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateEntryNumberKey -> mrn.value)
         )
         val doc             = Jsoup.parse(contentAsString(result))
         val error           = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey(s"$enterNoLegacyDuplicateMrnKey.invalid.enter-different-mrn")
+        error          shouldBe messageFromMessageKey(s"$enterDuplicateEntryNumberKey.invalid.enter-different-mrn")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -245,11 +243,11 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetSession(session)
         }
         val result          = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value)
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateEntryNumberKey -> sample[EntryNumber].value)
         )
         val doc             = Jsoup.parse(contentAsString(result))
         val error           = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey(s"$enterDuplicateMovementReferenceNumberKey.invalid.mrn-not-entry-number")
+        error          shouldBe messageFromMessageKey(s"$enterDuplicateEntryNumberKey.invalid.mrn-not-entry-number")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -267,7 +265,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockStoreSession(Right(()))
         }
         val result             = controller.enterDuplicateMrnSubmit()(
-          FakeRequest().withFormUrlEncodedBody(enterNoLegacyDuplicateMrnKey -> genOtherThan(mrn).value)
+          FakeRequest().withFormUrlEncodedBody(enterDuplicateEntryNumberKey -> genOtherThan(mrn).value)
         )
         status(result) shouldBe 303
         redirectLocation(
@@ -279,41 +277,41 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
     "Form validation" must {
 
-      def form(key: String, isEntryNumberEnabled: Boolean) =
-        EnterMovementReferenceNumberController.movementReferenceNumberForm(key, isEntryNumberEnabled)
+      def form(isEntryNumberEnabled: Boolean) =
+        movementReferenceNumberForm(isEntryNumberEnabled)
 
-      "accept valid MRN" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> sample[MRN].value)).errors
+      "accept valid MRN" in {
+        val errors = form(false).bind(Map(enterDuplicateEntryNumberKey -> sample[MRN].value)).errors
         errors shouldBe Nil
       }
 
       "accept valid Entry Number (Chief Number) when legacy journey is enabled" in {
-        val errors = form(enterDuplicateMovementReferenceNumberKey, isEntryNumberEnabled = true)
-          .bind(Map(enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value))
+        val errors = form(isEntryNumberEnabled = true)
+          .bind(Map(enterDuplicateEntryNumberKey -> sample[EntryNumber].value))
           .errors
         errors shouldBe Nil
       }
 
       "reject Entry Number (Chief Number) when legacy journey is disabled" in {
-        val errors = form(enterNoLegacyDuplicateMrnKey, isEntryNumberEnabled = false)
-          .bind(Map(enterNoLegacyDuplicateMrnKey -> "123456789A12345678"))
+        val errors = form(false)
+          .bind(Map(enterDuplicateEntryNumberKey -> "123456789A12345678"))
           .errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
-      "reject 19 characters" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = false).bind(Map(key -> "910ABCDEFGHIJKLMNO0")).errors
+      "reject 19 characters" in {
+        val errors = form(false).bind(Map(enterDuplicateEntryNumberKey -> "910ABCDEFGHIJKLMNO0")).errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
-      "reject empty MRN field" in forAll(keys) { key =>
-        val errors = form(key, isEntryNumberEnabled = true).bind(Map(key -> " ")).errors
+      "reject empty MRN field" in {
+        val errors = form(isEntryNumberEnabled = true).bind(Map(enterDuplicateEntryNumberKey -> " ")).errors
         errors.headOption.value.messages shouldBe List("error.required")
       }
 
       "reject 17 characters" in {
-        val errors = form(enterNoLegacyDuplicateMrnKey, isEntryNumberEnabled = true)
-          .bind(Map(enterNoLegacyDuplicateMrnKey -> "123456789A1234567"))
+        val errors = form(isEntryNumberEnabled = true)
+          .bind(Map(enterDuplicateEntryNumberKey -> "123456789A1234567"))
           .errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
