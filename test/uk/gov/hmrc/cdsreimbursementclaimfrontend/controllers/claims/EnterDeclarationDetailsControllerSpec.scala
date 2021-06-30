@@ -620,7 +620,39 @@ class EnterDeclarationDetailsControllerSpec
       dateOfImportYear  -> "1987"
     )
 
+    val emptyData = Map(
+      dateOfImportDay   -> " ",
+      dateOfImportMonth -> " ",
+      dateOfImportYear  -> " "
+    )
+
+    "Day and month" should {
+      "Reject empty day and month" in {
+        val errors = form.bind(emptyData.updated(dateOfImportYear, "1987")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("dayAndMonth.error.required")
+      }
+    }
+
+    "Day and year" should {
+      "Reject empty day and year" in {
+        val errors = form.bind(emptyData.updated(dateOfImportMonth, "3")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("dayAndYear.error.required")
+      }
+    }
+
+    "Month and year" should {
+      "Reject empty month and year" in {
+        val errors = form.bind(emptyData.updated(dateOfImportDay, "20")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("monthAndYear.error.required")
+      }
+    }
+
     "Day of Import" should {
+      "Reject empty day" in {
+        val errors = form.bind(goodData.updated(dateOfImportDay, " ")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("day.error.required")
+      }
+
       "Reject days too big" in {
         val errors = form.bind(goodData.updated(dateOfImportDay, "32")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
@@ -643,6 +675,12 @@ class EnterDeclarationDetailsControllerSpec
     }
 
     "Month of Import" should {
+
+      "Reject empty month" in {
+        val errors = form.bind(goodData.updated(dateOfImportMonth, " ")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("month.error.required")
+      }
+
       "Reject months too big" in {
         val errors = form.bind(goodData.updated(dateOfImportMonth, "13")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.invalid")
@@ -666,6 +704,12 @@ class EnterDeclarationDetailsControllerSpec
     }
 
     "Year of Import" should {
+
+      "Reject empty year" in {
+        val errors = form.bind(goodData.updated(dateOfImportYear, " ")).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("year.error.required")
+      }
+
       "Reject years too far" in {
         val errors = form.bind(goodData.updated(dateOfImportYear, "2120")).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("error.tooFarInFuture")
