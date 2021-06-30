@@ -34,7 +34,7 @@
 
 @(form: Form[MovementReferenceNumber], isMrnJourney: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{if(isMrnJourney) "enter-duplicate-movement-reference-number" else  "enter-duplicate-entry-number"}
+    @key = @{if(isMrnJourney) "enter-duplicate-mrn-or-entry-number" else  "enter-duplicate-entry-number"}
     @title = @{messages(s"$key.title")}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
@@ -51,8 +51,8 @@
 
             @inputText(
                 form = form,
-                id = key,
-                name = key,
+                id = "enter-duplicate-mrn-or-entry-number",
+                name = "enter-duplicate-mrn-or-entry-number",
                 label = s"$key.input-title",
                 labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,

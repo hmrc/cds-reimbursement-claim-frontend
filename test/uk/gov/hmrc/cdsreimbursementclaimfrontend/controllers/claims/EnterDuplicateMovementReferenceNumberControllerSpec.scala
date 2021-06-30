@@ -214,7 +214,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
         val doc = Jsoup.parse(contentAsString(performAction()))
 
-        doc.select("h1").text should include(messageFromMessageKey(s"enter-no-legacy-duplicate-mrn.title"))
+        doc.select("h1").text should include(messageFromMessageKey(s"$enterDuplicateEntryNumberKey.title"))
       }
 
       "Fail if the same MRN is submitted" in {

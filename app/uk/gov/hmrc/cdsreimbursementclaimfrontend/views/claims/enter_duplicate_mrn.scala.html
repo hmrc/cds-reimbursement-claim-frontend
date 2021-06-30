@@ -33,7 +33,7 @@
 
 @(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{ "enter-no-legacy-duplicate-mrn" }
+@key = @{ "enter-duplicate-mrn" }
 
 @title = @{ messages(s"$key.title") }
 
@@ -51,8 +51,8 @@
 
         @inputText(
             form = form,
-            id = "enter-duplicate-movement-reference-number",
-            name = "enter-duplicate-movement-reference-number",
+            id = "enter-duplicate-mrn-or-entry-number",
+            name = "enter-duplicate-mrn-or-entry-number",
             label = s"$key.input-title",
             labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,

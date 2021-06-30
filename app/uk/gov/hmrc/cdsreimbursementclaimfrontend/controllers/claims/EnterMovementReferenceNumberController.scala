@@ -51,8 +51,8 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   claimService: ClaimService,
   featureSwitch: FeatureSwitchService,
-  enterMovementReferenceNumberPage: pages.enter_mrn_or_entry_number,
-  enterNoLegacyMrnPage: pages.enter_mrn
+  enterMrnOrEntryNumberPage: pages.enter_mrn_or_entry_number,
+  enterMrnPage: pages.enter_mrn
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -71,10 +71,10 @@ class EnterMovementReferenceNumberController @Inject() (
     router.journeyBindable match {
       case JourneyBindable.Single =>
         feature.EntryNumber.isEnabled() match {
-          case true  => enterMovementReferenceNumberPage(form, isAmend, router)
-          case false => enterNoLegacyMrnPage(form, isAmend, router)
+          case true  => enterMrnOrEntryNumberPage(form, isAmend, router)
+          case false => enterMrnPage(form, isAmend, router)
         }
-      case _                      => enterMovementReferenceNumberPage(form, isAmend, router)
+      case _                      => enterMrnOrEntryNumberPage(form, isAmend, router)
     }
 
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
@@ -102,9 +102,7 @@ class EnterMovementReferenceNumberController @Inject() (
           .movementReferenceNumberForm(featureSwitch.EntryNumber.isEnabled())
           .bindFromRequest()
           .fold(
-            formWithErrors => {
-              println("=" * 100)
-              println(formWithErrors)
+            formWithErrors =>
               BadRequest(
                 resolveEnterMrnPageFor(featureSwitch)(
                   formWithErrors
@@ -116,8 +114,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   isAmend,
                   localRouter(journey)
                 )
-              )
-            },
+              ),
             mrnOrEntryNumber => {
               val errorRedirect: Error => Result = e => {
                 logger.warn("Mrn or Entry Number submission failed: ", e)

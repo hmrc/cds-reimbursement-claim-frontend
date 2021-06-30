@@ -46,8 +46,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val sessionStore: SessionCache,
   claimService: ClaimService,
   featureSwitch: FeatureSwitchService,
-  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_mrn_or_entry_number,
-  enterNoLegacyDuplicateMrn: pages.enter_duplicate_mrn
+  enterDuplicateMrnOrEntryNumberPage: pages.enter_duplicate_mrn_or_entry_number,
+  enterDuplicateMrnPage: pages.enter_duplicate_mrn
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -238,14 +238,14 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     feature: FeatureSwitchService,
     isMrnJourney: Boolean
   )(form: Form[MovementReferenceNumber])(implicit request: RequestWithSessionData[AnyContent]): HtmlFormat.Appendable =
-    if (feature.EntryNumber.isEnabled()) enterDuplicateMovementReferenceNumberPage(form, isMrnJourney)
-    else enterNoLegacyDuplicateMrn(form)
+    if (feature.EntryNumber.isEnabled()) enterDuplicateMrnOrEntryNumberPage(form, isMrnJourney)
+    else enterDuplicateMrnPage(form)
 
 }
 
 object EnterDuplicateMovementReferenceNumberController {
 
-  val enterDuplicateEntryNumberKey = "enter-duplicate-movement-reference-number"
+  val enterDuplicateEntryNumberKey = "enter-duplicate-mrn-or-entry-number"
 
   def movementReferenceNumberForm(isEntryNumberEnabled: Boolean): Form[MovementReferenceNumber] =
     Form(
