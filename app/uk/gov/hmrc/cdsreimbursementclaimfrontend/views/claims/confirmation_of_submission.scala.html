@@ -38,12 +38,12 @@
         <div class="govuk-panel govuk-panel--confirmation">
             <h1 class="govuk-panel__title">@title</h1>
             <div class="govuk-panel__body">
-                @messages(s"$key.reimbursement-amount")<br>
+                <span>@messages(s"$key.reimbursement-amount")</span><br>
                 <strong>@{justSubmittedClaim.completeClaim.totalClaim}</strong>
             </div>
             <br>
             <div class="govuk-panel__body">
-                @messages(s"$key.claim-reference")<br>
+                <span>@messages(s"$key.claim-reference")</span><br>
                 <strong>@justSubmittedClaim.submissionResponse.caseNumber</strong>
             </div>
         </div>
