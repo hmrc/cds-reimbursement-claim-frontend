@@ -29,9 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyService, SubmitPage, TemplateContent}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent.syntax._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyService, SubmitPage}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -49,7 +49,7 @@ class DummyControllerClass @Inject() (
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
-    with SessionUpdates { self =>
+    with SessionUpdates {
 
   def test(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -78,14 +78,7 @@ class DummyControllerClass @Inject() (
           logger.warn(error.message)
           errorHandler.errorResult()
         },
-        journey => {
-          val template = journey match {
-            case _: SingleJourney => implicitly[TemplateContent[DummyControllerClass, SingleJourney]]
-            case _: BulkJourney   => implicitly[TemplateContent[DummyControllerClass, BulkJourney]]
-          }
-
-          Ok(displayJourney(template.key, template.submitUrlFor))
-        }
+        journey => journey.showPage[DummyControllerClass]((key, submitUrl) => Ok(displayJourney(key, submitUrl)))
       )
     }
 
