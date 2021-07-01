@@ -28,10 +28,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent.syntax._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyService, SubmitPage}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.JourneyService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -85,10 +85,7 @@ class DummyControllerClass @Inject() (
   def testSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       journeyService.getJourney
-        .map {
-          case _: SingleJourney => implicitly[SubmitPage[DummyControllerClass, SingleJourney]].nextUrl
-          case _: BulkJourney   => implicitly[SubmitPage[DummyControllerClass, BulkJourney]].nextUrl
-        }
+        .map(journey => journey.getNextUrl[DummyControllerClass])
         .fold(
           error => {
             logger.warn(error.message)

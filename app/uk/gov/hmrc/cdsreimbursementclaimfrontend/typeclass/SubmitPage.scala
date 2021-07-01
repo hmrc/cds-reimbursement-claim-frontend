@@ -21,7 +21,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyContro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-trait SubmitPage[C <: FrontendController, T <: Journey] {
+import scala.annotation.implicitNotFound
+
+trait SubmitPage[F <: FrontendController, J <: Journey] {
   val nextUrl: String
 }
 
@@ -33,5 +35,25 @@ object SubmitPage {
 
   implicit object BulkJourneySubmitPage extends SubmitPage[DummyControllerClass, BulkJourney] {
     val nextUrl: String = routes.NextPageController.nextBulkPage().url
+  }
+
+  object syntax {
+
+    implicit class SubmitPageJourneyOps(val journey: Journey) extends AnyVal {
+
+      def getNextUrl[F <: FrontendController]: String = {
+
+        @implicitNotFound("No submit page implicit found")
+        def getFor[C <: FrontendController, J <: Journey](j: J)(implicit page: SubmitPage[C, J]): String = {
+          println(j) // TODO: unused
+          page.nextUrl
+        }
+
+        journey match {
+          case singleJourney: SingleJourney => getFor(singleJourney)
+          case bulkJourney: BulkJourney     => getFor(bulkJourney)
+        }
+      }
+    }
   }
 }

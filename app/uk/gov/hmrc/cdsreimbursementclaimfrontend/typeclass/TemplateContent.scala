@@ -41,7 +41,7 @@ object TemplateContent {
 
   object syntax {
 
-    implicit class JourneyOps(val journey: Journey) extends AnyVal {
+    implicit class JourneyTemplateContentOps(val journey: Journey) extends AnyVal {
 
       def showPage[T <: FrontendController](f: (String, Call) => Result): Result = {
 
