@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
-import cats.data.EitherT
+import cats.data.{EitherT, OptionT}
 import cats.instances.future._
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import configs.syntax._
@@ -34,7 +34,7 @@ trait SessionCache2 {
 
   def get()(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, Error, Option[SessionData]]
+  ): OptionT[Future, Either[Error, SessionData]]
 
   def store(sessionData: SessionData)(implicit
     hc: HeaderCarrier
@@ -64,12 +64,9 @@ class DefaultSessionCache2 @Inject() (
 
   val sessionKey = "cdsrc-session"
 
-  override def get()(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, Error, Option[SessionData]] =
+  override def get()(implicit hc: HeaderCarrier): OptionT[Future, Either[Error, SessionData]] =
     for {
-      sessionId   <-
-        EitherT.fromOption(hc.sessionId.map(_.value), Error("no session id found in headers - cannot query mongo"))
+      sessionId   <- OptionT.fromOption(hc.sessionId.map(_.value))
       sessionData <- get[SessionData](sessionId)
     } yield sessionData
 

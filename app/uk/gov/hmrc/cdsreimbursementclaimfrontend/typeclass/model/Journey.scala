@@ -16,15 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model
 
-import java.util.UUID
+import julienrf.json.derived
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 
 sealed trait Journey extends Product with Serializable {
-  val id: UUID
+  val draft: DraftClaim
 }
 
 object Journey {
 
-  final case class SingleJourney(id: UUID = UUID.randomUUID()) extends Journey
+  final case class SingleJourney(draft: DraftClaim) extends Journey
 
-  final case class BulkJourney(id: UUID = UUID.randomUUID()) extends Journey
+  final case class BulkJourney(draft: DraftClaim) extends Journey
+
+  implicit val journeyFormat: OFormat[Journey] = derived.oformat[Journey]()
 }

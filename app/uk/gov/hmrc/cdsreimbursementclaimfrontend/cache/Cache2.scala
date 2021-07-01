@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
 import cats.data.{EitherT, OptionT}
-import cats.instances.either._
 import cats.syntax.either._
 import play.api.libs.json.{Json, Reads, Writes}
 import uk.gov.hmrc.cache.model.Id
@@ -35,30 +34,18 @@ trait Cache2 {
 
   protected def get[A : Reads](
     id: String
-  )(implicit ec: ExecutionContext): EitherT[Future, Error, Option[A]] =
-    EitherT(preservingMdc {
-      cacheRepository
-        .findById(Id(id))
-        .map { maybeCache =>
-          val response: OptionT[Either[Error, *], A] = for {
-            cache ← OptionT.fromOption[Either[Error, *]](maybeCache)
-            data ← OptionT.fromOption[Either[Error, *]](cache.data)
-            result ← OptionT.liftF[Either[Error, *], A](
-                       (data \ sessionKey)
-                         .validate[A]
-                         .asEither
-                         .leftMap(e ⇒
-                           Error(
-                             s"Could not parse session data from mongo: ${e.mkString("; ")}"
-                           )
-                         )
-                     )
-          } yield result
-
-          response.value
-        }
-        .recover { case e ⇒ Left(Error(e)) }
-    })
+  )(implicit ec: ExecutionContext): OptionT[Future, Either[Error, A]] =
+    for {
+      cache   <- OptionT(cacheRepository.findById(id))
+      jsValue <- OptionT.fromOption[Future](cache.data)
+    } yield (jsValue \ sessionKey)
+      .validate[A]
+      .asEither
+      .leftMap(e ⇒
+        Error(
+          s"Could not parse session data from mongo: ${e.mkString("; ")}"
+        )
+      )
 
   protected def store[A : Writes](id: String, a: A)(implicit
     ec: ExecutionContext

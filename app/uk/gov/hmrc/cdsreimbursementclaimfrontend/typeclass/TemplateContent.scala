@@ -25,8 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 trait TemplateContent[C <: FrontendController, T <: Journey] {
   val key: String
 
-  def submitUrlFor(journey: Journey): Call =
-    routes.DummyControllerClass.testSubmit(journey.id)
+  def submitUrlFor: Call = routes.DummyControllerClass.testSubmit()
 }
 
 object TemplateContent {

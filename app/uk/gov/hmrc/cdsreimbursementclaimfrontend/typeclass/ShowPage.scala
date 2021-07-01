@@ -31,7 +31,7 @@ object ShowPage {
     ShowPage((value: ErrorPage) => value.error)
 
   implicit val showSinglePageJourney: ShowPage[SingleJourney] =
-    ShowPage((value: SingleJourney) => value.id.toString)
+    ShowPage((value: SingleJourney) => value.draft.id.toString)
 
   implicit val showDraftClaimPageJourney: ShowPage[DraftClaim] =
     ShowPage((value: DraftClaim) => value.toString)

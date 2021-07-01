@@ -19,76 +19,89 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.syntax.all._
 import com.google.inject.Inject
 import play.api.i18n.Messages.implicitMessagesProviderToMessages
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache2
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.Repository
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{SubmitPage, TemplateContent}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyService, SubmitPage, TemplateContent}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.util.UUID
+import scala.concurrent.ExecutionContext
 import scala.util.Random
 
 class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionCache: SessionCache2,
+  val journeyService: JourneyService,
+  val errorHandler: ErrorHandler,
   displayJourney: pages.display_journey
-)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents)
+)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates { self =>
 
   def test(): Action[AnyContent] =
-    authenticatedActionWithSessionData { implicit request =>
-      val (messageKey, submitUrl) = Repository.getRandom match {
-        case singleJourney: SingleJourney => extractContent(singleJourney, self)
-        case bulkJourney: BulkJourney     => extractContent(bulkJourney, self)
-      }
-      Ok(displayJourney(messageKey, submitUrl))
+    authenticatedActionWithSessionData.async { implicit request =>
+      val draft   = DraftC285Claim.newDraftC285Claim
+      val n       = new Random().nextInt(2)
+      val journey = if (n > 0) SingleJourney(draft) else BulkJourney(draft)
+
+      journeyService
+        .persist(
+          SessionData(
+            FillingOutJourney(
+              GGCredId("6145079961943419"),
+              SignedInUserDetails(
+                Email("user@test.com").some,
+                Eori("GB000000000000001"),
+                Email("user@test.com"),
+                ContactName("USER")
+              ),
+              journey
+            ).some,
+            UserType.Individual.some
+          )
+        )
+        .fold(
+          error => {
+            logger.warn(error.message)
+            errorHandler.errorResult()
+          },
+          _ => {
+            val template = journey match {
+              case _: SingleJourney => implicitly[TemplateContent[DummyControllerClass, SingleJourney]]
+              case _: BulkJourney   => implicitly[TemplateContent[DummyControllerClass, BulkJourney]]
+            }
+
+            Ok(displayJourney(template.key, template.submitUrlFor))
+          }
+        )
     }
 
-  def testSubmit(id: UUID): Action[AnyContent] =
-    authenticatedActionWithSessionData {
-      Repository
-        .find(id)
+  def testSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      journeyService.getJourney
         .map {
-          case _: SingleJourney =>
-            Redirect(implicitly[SubmitPage[DummyControllerClass, SingleJourney]].nextUrl)
-          case _: BulkJourney   =>
-            Redirect(implicitly[SubmitPage[DummyControllerClass, BulkJourney]].nextUrl)
+          case _: SingleJourney => implicitly[SubmitPage[DummyControllerClass, SingleJourney]].nextUrl
+          case _: BulkJourney   => implicitly[SubmitPage[DummyControllerClass, BulkJourney]].nextUrl
         }
-        .getOrElse(NotFound)
+        .fold(
+          error => {
+            logger.warn(error.message)
+            errorHandler.errorResult()
+          },
+          nextUrl => Redirect(nextUrl)
+        )
     }
-
-  def extractContent[C <: FrontendController, T <: Journey](journey: T, c: C)(implicit
-    content: TemplateContent[C, T]
-  ): (String, Call) = {
-    println(c.toString)
-    (content.key, content.submitUrlFor(journey))
-  }
-}
-
-object DummyControllerClass {
-
-  object Repository {
-
-    private val rnd: Random = new Random()
-
-    @SuppressWarnings(Array("org.wartremover.warts.Product", "org.wartremover.warts.Serializable"))
-    private val journeys: IndexedSeq[Journey] = IndexedSeq(SingleJourney(), BulkJourney())
-
-    def getRandom: Journey = journeys(rnd.nextInt(journeys.length))
-
-    def find(id: UUID): Option[Journey] = journeys.find(_.id === id)
-  }
 }

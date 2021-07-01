@@ -1,5 +1,5 @@
 GET         /type-class-test                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.test()
-POST        /type-class-test/:id                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSubmit(id: java.util.UUID)
+POST        /type-class-test                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyControllerClass.testSubmit()
 
 GET        /next-page-single                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.NextPageController.nextSinglePage()
 GET        /next-page-bulk                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.NextPageController.nextBulkPage()
