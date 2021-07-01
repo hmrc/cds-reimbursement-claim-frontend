@@ -449,7 +449,7 @@ select-basis-for-claim.details.l13=Correction to risk classification because you
 select-basis-for-claim.details.b14=Miscellaneous:
 select-basis-for-claim.details.l14=For any other reason not detailed in this list
 
-select-basis-for-claim.reason.d0=Duplicate Entry
+select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty Suspension
 select-basis-for-claim.reason.d2=End Use
 select-basis-for-claim.reason.d3=Incorrect Commodity Code
