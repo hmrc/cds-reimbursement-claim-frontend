@@ -175,14 +175,12 @@ enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Enter a di
 enter-duplicate-entry-number.title=Tell us your duplicate Entry Number
 enter-duplicate-entry-number.input-title=Enter duplicate Entry Number
 enter-duplicate-entry-number.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-entry-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-duplicate-entry-number.help=Must be 17 characters, for example 19GB03I5285802701.
 enter-duplicate-entry-number.invalid.number=Enter a valid entry number
 enter-duplicate-entry-number.invalid=Enter a valid entry number
 enter-duplicate-entry-number.error.required=Enter a valid entry number
-enter-duplicate-entry-number.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
 enter-duplicate-entry-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
 enter-duplicate-entry-number.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
-enter-duplicate-entry-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 #===================================================
 #  ENTER NO LEGACY DUPLICATE MRN PAGE
