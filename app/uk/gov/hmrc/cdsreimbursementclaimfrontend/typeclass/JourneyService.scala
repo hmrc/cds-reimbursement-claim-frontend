@@ -20,9 +20,9 @@ import cats.syntax.all._
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache2
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[DefaultJourneyService])
 trait JourneyService {
 
-  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, Journey]
+  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType]
 
   def persist(session: SessionData)(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit]
 }
@@ -38,12 +38,12 @@ trait JourneyService {
 @Singleton
 class DefaultJourneyService @Inject() (cache: SessionCache2) extends JourneyService {
 
-  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, Journey] = EitherT {
+  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType] = EitherT {
     cache
       .get()
-      .fold(Error("No session found").asLeft[Journey])(_.flatMap(_.journeyStatus match {
-        case Some(FillingOutJourney(_, _, journey)) => journey.asRight[Error]
-        case _                                      => Error("Could not extract journey").asLeft[Journey]
+      .fold(Error("No session found").asLeft[ClaimType])(_.flatMap(_.journeyStatus match {
+        case Some(FillingOutClaim(_, _, _, claimType)) => claimType.asRight[Error]
+        case _                                         => Error("Could not extract journey").asLeft[ClaimType]
       }))
   }
 

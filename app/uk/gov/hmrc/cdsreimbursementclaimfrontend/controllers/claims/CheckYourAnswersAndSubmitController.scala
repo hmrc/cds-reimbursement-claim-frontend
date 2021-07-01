@@ -197,7 +197,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
             fillingOutClaim @ FillingOutClaim(
               _,
               _,
-              draftClaim: DraftC285Claim
+              draftClaim: DraftC285Claim,
+              _
             )
           ) =>
         CompleteC285Claim

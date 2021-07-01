@@ -18,17 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 
-sealed trait Journey extends Product with Serializable {
-  val draft: DraftClaim
-}
+sealed trait ClaimType extends Product with Serializable
 
-object Journey {
+object ClaimType {
 
-  final case class SingleJourney(draft: DraftClaim) extends Journey
+  case object Single extends ClaimType
 
-  final case class BulkJourney(draft: DraftClaim) extends Journey
+  case object Bulk extends ClaimType
 
-  implicit val journeyFormat: OFormat[Journey] = derived.oformat[Journey]()
+  implicit val journeyFormat: OFormat[ClaimType] = derived.oformat[ClaimType]()
 }

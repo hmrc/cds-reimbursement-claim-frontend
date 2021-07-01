@@ -15,43 +15,42 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType.{Single, Bulk}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.annotation.implicitNotFound
 
-trait SubmitPage[F <: FrontendController, J <: Journey] {
+trait SubmitPage[F <: FrontendController, J <: ClaimType] {
   val nextUrl: String
 }
 
 object SubmitPage {
 
-  implicit object SingleJourneySubmitPage extends SubmitPage[DummyControllerClass, SingleJourney] {
+  implicit object SingleJourneySubmitPage extends SubmitPage[DummyControllerClass, ClaimType.Single.type] {
     val nextUrl: String = routes.NextPageController.nextSinglePage().url
   }
 
-  implicit object BulkJourneySubmitPage extends SubmitPage[DummyControllerClass, BulkJourney] {
+  implicit object BulkJourneySubmitPage extends SubmitPage[DummyControllerClass, ClaimType.Bulk.type] {
     val nextUrl: String = routes.NextPageController.nextBulkPage().url
   }
 
   object syntax {
 
-    implicit class SubmitPageJourneyOps(val journey: Journey) extends AnyVal {
+    implicit class SubmitPageJourneyOps(val claimType: ClaimType) extends AnyVal {
 
       def getNextUrl[F <: FrontendController]: String = {
 
         @implicitNotFound("No submit page implicit found")
-        def getFor[C <: FrontendController, J <: Journey](j: J)(implicit page: SubmitPage[C, J]): String = {
+        def getFor[C <: FrontendController, J <: ClaimType](j: J)(implicit page: SubmitPage[C, J]): String = {
           println(j) // TODO: unused
           page.nextUrl
         }
 
-        journey match {
-          case singleJourney: SingleJourney => getFor(singleJourney)
-          case bulkJourney: BulkJourney     => getFor(bulkJourney)
+        claimType match {
+          case singleJourney: ClaimType.Single.type => getFor(singleJourney)
+          case bulkJourney: ClaimType.Bulk.type     => getFor(bulkJourney)
         }
       }
     }

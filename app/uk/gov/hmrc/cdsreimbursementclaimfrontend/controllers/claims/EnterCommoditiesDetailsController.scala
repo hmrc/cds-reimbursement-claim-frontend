@@ -62,7 +62,7 @@ class EnterCommoditiesDetailsController @Inject() (
     request.unapply({
       case (
             sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
           ) =>
         val maybeCommoditiesDetailsAnswers = draftClaim.fold(
           _.commoditiesDetailsAnswer

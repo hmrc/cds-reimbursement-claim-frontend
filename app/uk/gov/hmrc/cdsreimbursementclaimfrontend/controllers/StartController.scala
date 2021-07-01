@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -79,10 +78,9 @@ class StartController @Inject() (
                  _.copy(
                    userType = sessionData.userType,
                    journeyStatus = Some(
-                     FillingOutClaim(
+                     InitialClaim(
                        justSubmittedClaim.ggCredId,
-                       justSubmittedClaim.signedInUserDetails,
-                       DraftC285Claim.newDraftC285Claim
+                       justSubmittedClaim.signedInUserDetails
                      )
                    )
                  )
@@ -153,7 +151,10 @@ class StartController @Inject() (
       case NonGovernmentGatewayJourney =>
         Redirect(routes.StartController.weOnlySupportGG())
 
-      case _: FillingOutClaim | _: FillingOutJourney =>
+      case _: InitialClaim =>
+        Redirect(controllers.claims.routes.CheckEoriDetailsController.show())
+
+      case _: FillingOutClaim =>
         Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
 
       case _: JustSubmittedClaim =>
@@ -221,15 +222,14 @@ class StartController @Inject() (
                _.copy(
                  userType = request.authenticatedRequest.userType,
                  journeyStatus = Some(
-                   FillingOutClaim(
+                   InitialClaim(
                      ggCredId,
                      SignedInUserDetails(
                        email,
                        eori,
                        Email(""),
                        name.map(s => ContactName(s.name.getOrElse("No name"))).getOrElse(ContactName("No name")) //FIXME
-                     ),
-                     DraftC285Claim.newDraftC285Claim
+                     )
                    )
                  )
                )

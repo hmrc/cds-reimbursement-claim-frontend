@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.SingleJourney
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.SingleJourney
 
 trait ShowPage[A] {
   def showPage(journey: A): String
@@ -30,8 +30,8 @@ object ShowPage {
   implicit val showErrorPage: ShowPage[ErrorPage] =
     ShowPage((value: ErrorPage) => value.error)
 
-  implicit val showSinglePageJourney: ShowPage[SingleJourney] =
-    ShowPage((value: SingleJourney) => value.draft.id.toString)
+//  implicit val showSinglePageJourney: ShowPage[SingleJourney] =
+//    ShowPage((value: SingleJourney) => value.draft.id.toString)
 
   implicit val showDraftClaimPageJourney: ShowPage[DraftClaim] =
     ShowPage((value: DraftClaim) => value.toString)

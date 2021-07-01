@@ -69,7 +69,7 @@ class BankAccountController @Inject() (
 
     val maybeEvidences = for {
       session   <- request.sessionData
-      claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim) =>
+      claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim, _) =>
                      draftClaim
                    }
       evidences <- claim.fold(_.supportingEvidenceAnswer)
@@ -81,7 +81,7 @@ class BankAccountController @Inject() (
   private def withMaskedBankDetails(
     f: (SessionData, FillingOutClaim, Option[MaskedBankDetails]) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim, _)) =>
       val maybeMaskedBankDetails: Option[MaskedBankDetails] =
         c.fold(_.displayDeclaration.flatMap(p => p.displayResponseDetail.maskedBankDetails))
       f(s, r, maybeMaskedBankDetails)
@@ -94,7 +94,7 @@ class BankAccountController @Inject() (
       BankAccountDetailsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)) =>
       val maybeClaimantDetailsAsIndividualAnswer: Option[BankAccountDetailsAnswer] = draftClaim.fold(
         _.bankAccountDetailsAnswer
       )

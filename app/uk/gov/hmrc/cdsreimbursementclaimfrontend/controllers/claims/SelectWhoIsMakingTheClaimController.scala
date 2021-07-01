@@ -63,7 +63,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
     request.unapply({
       case (
             sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
           ) =>
         val maybeDeclarantType = draftClaim.fold(
           _.declarantTypeAnswer

@@ -70,7 +70,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
       DetailsRegisteredWithCdsAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)) =>
       val maybeDetailsRegisteredWithCds = draftClaim.fold(_.detailsRegisteredWithCdsAnswer)
       maybeDetailsRegisteredWithCds.fold[Future[Result]](
         f(

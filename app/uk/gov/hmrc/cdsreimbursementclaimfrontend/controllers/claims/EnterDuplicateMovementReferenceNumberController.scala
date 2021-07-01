@@ -238,7 +238,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
       Option[MovementReferenceNumber]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)) =>
       val maybeDuplicateMovementReferenceNumberAnswer = draftClaim.fold(_.duplicateMovementReferenceNumberAnswer)
       f(sessionData, fillingOutClaim, maybeDuplicateMovementReferenceNumberAnswer)
     })

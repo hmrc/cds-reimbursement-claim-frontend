@@ -142,7 +142,7 @@ class CheckEoriDetailsController @Inject() (
   private def withSessionData(
     f: (SessionData, FillingOutClaim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim)) =>
+    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim, _)) =>
       f(sessionData, fillingOutClaim)
     })
 }

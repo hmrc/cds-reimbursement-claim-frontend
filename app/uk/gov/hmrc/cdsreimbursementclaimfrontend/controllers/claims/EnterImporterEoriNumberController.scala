@@ -61,7 +61,7 @@ class EnterImporterEoriNumberController @Inject() (
     request.unapply({
       case (
             sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
           ) =>
         val maybeImporterEoriNumberAnswer = draftClaim.fold(
           _.importerEoriNumberAnswer

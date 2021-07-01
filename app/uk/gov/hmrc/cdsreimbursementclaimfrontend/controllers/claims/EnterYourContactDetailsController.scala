@@ -70,7 +70,7 @@ class EnterYourContactDetailsController @Inject() (
     request.unapply({
       case (
             sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
           ) =>
         val maybeContactDetails = draftClaim.fold(
           _.contactDetailsAnswer

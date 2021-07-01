@@ -66,7 +66,7 @@ class EnterDeclarationDetailsController @Inject() (
     request.unapply({
       case (
             sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
           ) =>
         val maybeDeclarationAnswers = draftClaim.fold(
           _.declarationDetailsAnswer
@@ -87,7 +87,7 @@ class EnterDeclarationDetailsController @Inject() (
       case Some(
             (
               sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
+              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)
             )
           ) =>
         val maybeDuplicateDeclarantDetailAnswers = draftClaim.fold(

@@ -24,12 +24,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage.syntax._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType.{Bulk, Single}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.JourneyService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -56,7 +56,7 @@ class DummyControllerClass @Inject() (
       val eitherErrorOrJourney = for {
         _       <- journeyService.persist(
                      SessionData(
-                       FillingOutJourney(
+                       FillingOutClaim(
                          GGCredId("6145079961943419"),
                          SignedInUserDetails(
                            Email("user@test.com").some,
@@ -64,8 +64,8 @@ class DummyControllerClass @Inject() (
                            Email("user@test.com"),
                            ContactName("USER")
                          ),
-                         if (new Random().nextInt(2) > 0) SingleJourney(DraftC285Claim.newDraftC285Claim)
-                         else BulkJourney(DraftC285Claim.newDraftC285Claim)
+                         DraftC285Claim.newDraftC285Claim,
+                         if (new Random().nextInt(2) > 0) Single else Bulk
                        ).some,
                        UserType.Individual.some
                      )

@@ -22,22 +22,22 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
 
 sealed trait JourneyStatus extends Product with Serializable
 
 object JourneyStatus {
 
-  final case class FillingOutJourney(
+  final case class InitialClaim(
     ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails,
-    journey: Journey
+    signedInUserDetails: SignedInUserDetails
   ) extends JourneyStatus
 
   final case class FillingOutClaim(
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
-    draftClaim: DraftClaim
+    draftClaim: DraftClaim,
+    claimType: ClaimType
   ) extends JourneyStatus
 
   final case class JustSubmittedClaim(
@@ -67,8 +67,8 @@ object JourneyStatus {
     def draftClaim: Option[DraftClaim] = journeyStatus match {
       case Some(value) =>
         value match {
-          case FillingOutClaim(_, _, draftClaim) => Some(draftClaim)
-          case _                                 => None
+          case FillingOutClaim(_, _, draftClaim, _) => Some(draftClaim)
+          case _                                    => None
         }
       case None        => None
     }

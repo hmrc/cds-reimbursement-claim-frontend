@@ -17,43 +17,42 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import play.api.mvc.{Call, Result}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey.{BulkJourney, SingleJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.Journey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.annotation.implicitNotFound
 
-trait TemplateContent[C <: FrontendController, T <: Journey] {
+trait TemplateContent[C <: FrontendController, T <: ClaimType] {
   val key: String
   def submitUrlFor: Call = routes.DummyControllerClass.testSubmit()
 }
 
 object TemplateContent {
 
-  implicit object SingleJourneyTemplateContent extends TemplateContent[DummyControllerClass, SingleJourney] {
+  implicit object SingleJourneyTemplateContent extends TemplateContent[DummyControllerClass, ClaimType.Single.type] {
     val key: String = "single-journey"
   }
 
-  implicit object BulkJourneyTemplateContent extends TemplateContent[DummyControllerClass, BulkJourney] {
+  implicit object BulkJourneyTemplateContent extends TemplateContent[DummyControllerClass, ClaimType.Bulk.type] {
     val key: String = "bulk-journey"
   }
 
   object syntax {
 
-    implicit class JourneyTemplateContentOps(val journey: Journey) extends AnyVal {
+    implicit class JourneyTemplateContentOps(val claimType: ClaimType) extends AnyVal {
 
       def showPage[T <: FrontendController](f: (String, Call) => Result): Result = {
 
         @implicitNotFound("No template content implicit found")
-        def bind[C <: FrontendController, J <: Journey](j: J)(implicit template: TemplateContent[C, J]) = {
+        def bind[C <: FrontendController, J <: ClaimType](j: J)(implicit template: TemplateContent[C, J]) = {
           println(j) // TODO: this is unused
           f(template.key, template.submitUrlFor)
         }
 
-        journey match {
-          case singleJourney: SingleJourney => bind(singleJourney)
-          case bulkJourney: BulkJourney     => bind(bulkJourney)
+        claimType match {
+          case singleJourney: ClaimType.Single.type => bind(singleJourney)
+          case bulkJourney: ClaimType.Bulk.type     => bind(bulkJourney)
         }
       }
     }

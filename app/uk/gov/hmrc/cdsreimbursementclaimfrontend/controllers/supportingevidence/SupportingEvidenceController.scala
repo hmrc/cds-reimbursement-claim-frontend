@@ -75,7 +75,7 @@ class SupportingEvidenceController @Inject() (
       Option[SupportingEvidenceAnswer]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim, _)) =>
       f(s, r, c.fold(draftC285Claim = _.supportingEvidenceAnswer))
     })
 

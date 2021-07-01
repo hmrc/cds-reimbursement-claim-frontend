@@ -53,7 +53,7 @@ class CheckDeclarationDetailsController @Inject() (
       Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim, _)) =>
       val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
       f(s, r, maybeDisplayDeclaration)
     })
@@ -65,7 +65,7 @@ class CheckDeclarationDetailsController @Inject() (
       Option[DisplayDeclaration]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim, _)) =>
       val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
       f(s, r, maybeDisplayDeclaration)
     })

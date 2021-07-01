@@ -32,11 +32,11 @@ trait SessionDataExtractor extends Results {
     f: (FillingOutClaim, Option[T]) => Future[Result]
   )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)) =>
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None))(data => f(fillingOutClaim, Option(data)))
-      case _                                                                     =>
+      case _                                                                        =>
         Future.successful(Redirect(routes.StartController.start()))
     }
 
@@ -48,14 +48,14 @@ trait SessionDataExtractor extends Results {
     journeyBindable: JourneyBindable
   ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim, _)) =>
         val numOfClaims = getNumberOfClaims(draftClaim)
         val refType     = getMovementReferenceNumber(draftClaim)
         val router      = getRoutes(numOfClaims, refType, journeyBindable)
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
-      case _                                                                     =>
+      case _                                                                        =>
         Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 
