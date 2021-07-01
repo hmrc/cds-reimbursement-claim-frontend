@@ -53,40 +53,40 @@ class DummyControllerClass @Inject() (
 
   def test(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      val draft   = DraftC285Claim.newDraftC285Claim
-      val n       = new Random().nextInt(2)
-      val journey = if (n > 0) SingleJourney(draft) else BulkJourney(draft)
+      val eitherErrorOrJourney = for {
+        _       <- journeyService.persist(
+                     SessionData(
+                       FillingOutJourney(
+                         GGCredId("6145079961943419"),
+                         SignedInUserDetails(
+                           Email("user@test.com").some,
+                           Eori("GB000000000000001"),
+                           Email("user@test.com"),
+                           ContactName("USER")
+                         ),
+                         if (new Random().nextInt(2) > 0) SingleJourney(DraftC285Claim.newDraftC285Claim)
+                         else BulkJourney(DraftC285Claim.newDraftC285Claim)
+                       ).some,
+                       UserType.Individual.some
+                     )
+                   )
+        journey <- journeyService.getJourney
+      } yield journey
 
-      journeyService
-        .persist(
-          SessionData(
-            FillingOutJourney(
-              GGCredId("6145079961943419"),
-              SignedInUserDetails(
-                Email("user@test.com").some,
-                Eori("GB000000000000001"),
-                Email("user@test.com"),
-                ContactName("USER")
-              ),
-              journey
-            ).some,
-            UserType.Individual.some
-          )
-        )
-        .fold(
-          error => {
-            logger.warn(error.message)
-            errorHandler.errorResult()
-          },
-          _ => {
-            val template = journey match {
-              case _: SingleJourney => implicitly[TemplateContent[DummyControllerClass, SingleJourney]]
-              case _: BulkJourney   => implicitly[TemplateContent[DummyControllerClass, BulkJourney]]
-            }
-
-            Ok(displayJourney(template.key, template.submitUrlFor))
+      eitherErrorOrJourney.fold(
+        error => {
+          logger.warn(error.message)
+          errorHandler.errorResult()
+        },
+        journey => {
+          val template = journey match {
+            case _: SingleJourney => implicitly[TemplateContent[DummyControllerClass, SingleJourney]]
+            case _: BulkJourney   => implicitly[TemplateContent[DummyControllerClass, BulkJourney]]
           }
-        )
+
+          Ok(displayJourney(template.key, template.submitUrlFor))
+        }
+      )
     }
 
   def testSubmit(): Action[AnyContent] =
