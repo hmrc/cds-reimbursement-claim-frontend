@@ -159,13 +159,11 @@ enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
 enter-duplicate-movement-reference-number.title=Tell us your duplicate Movement Reference Number (MRN)
 enter-duplicate-movement-reference-number.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.invalid.number=Enter a valid MRN or entry number
-enter-duplicate-movement-reference-number.invalid=Enter a valid MRN or entry number
-enter-duplicate-movement-reference-number.error.required=Enter a valid MRN or entry number
+enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-duplicate-movement-reference-number.invalid.number=Enter a valid MRN
+enter-duplicate-movement-reference-number.invalid=Enter a valid MRN
+enter-duplicate-movement-reference-number.error.required=Enter a valid MRN
 enter-duplicate-movement-reference-number.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
-enter-duplicate-movement-reference-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
-enter-duplicate-movement-reference-number.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
 enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 
