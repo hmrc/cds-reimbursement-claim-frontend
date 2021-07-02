@@ -64,12 +64,13 @@ class SelectBasisForClaimController @Inject() (
   def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, answers, router) =>
+        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answers
           .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
           .fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
-        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend, router))
+        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend, isMrnJourney, router))
       }
     }
 
@@ -79,10 +80,12 @@ class SelectBasisForClaimController @Inject() (
   def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, _, router) =>
+        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, isAmend, router)),
+            formWithErrors =>
+              BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, isAmend, isMrnJourney, router)),
             formOk => {
               val updatedBasisClaim = CompleteBasisOfClaimAnswer(formOk.reasonForClaim)
               val newDraftClaim     =

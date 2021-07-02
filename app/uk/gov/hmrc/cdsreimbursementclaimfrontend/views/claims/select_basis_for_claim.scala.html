@@ -40,18 +40,29 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean, isMrnJourney: Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
      @key = @{"select-basis-for-claim"}
      @title = @{messages(s"$key.title")}
 
-     @radioItems = @{claimTypes.map{basisOfClaim =>
-        RadioItem(
-            id = Some(s"$key-radio-${basisOfClaim.value}"),
-            value = Some(basisOfClaim.value.toString),
-            content = Text(messages(s"$key.reason.d${basisOfClaim.value.toString}")),
-            checked = (form.value == basisOfClaim)
-        )
+     @radioItems = @{claimTypes.map{
+         basisOfClaim => {
+             if (isMrnJourney) {
+                 RadioItem(
+                     id = Some(s"$key-radio-${basisOfClaim.value}"),
+                     value = Some(basisOfClaim.value.toString),
+                     content = Text(messages(s"$key.reason.d${basisOfClaim.value.toString}")),
+                     checked = (form.value == basisOfClaim)
+                 )
+             } else {
+                 RadioItem(
+                     id = Some(s"$key-radio-${basisOfClaim.value}"),
+                     value = Some(basisOfClaim.value.toString),
+                     content = Text(messages(s"$key.reason.ern.d${basisOfClaim.value.toString}")),
+                     checked = (form.value == basisOfClaim)
+                 )
+             }
+         }
       }
     }
 
@@ -59,6 +70,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
                     else routes.SelectBasisForClaimController.selectBasisForClaimSubmit(router.journeyBindable)}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
@@ -68,7 +80,9 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
         @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.basisForClaimContent)
+        @dropdownDetails(
+            summary = s"$key.details.heading", content = if (isMrnJourney) dropdownHelper.basisForClaimContentMrn else dropdownHelper.basisForClaimContentEntryNumber
+        )
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
