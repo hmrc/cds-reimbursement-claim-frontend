@@ -109,10 +109,12 @@ class SelectBasisForClaimControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before and the NI feature switch is enabled" in {
+      "the user has not answered this question before and the NI feature switch is enabled and ERN feature switch is disabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
         featureSwitch.NorthernIreland.enable()
-        val answers                         = IncompleteBasisOfClaimAnswer.empty
+        featureSwitch.EntryNumber.disable()
+
+        val answers = IncompleteBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -133,6 +135,7 @@ class SelectBasisForClaimControllerSpec
       "the user has not answered this question before and the NI feature switch is disabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
         featureSwitch.NorthernIreland.disable()
+        featureSwitch.EntryNumber.enable()
         val answers                         = IncompleteBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
