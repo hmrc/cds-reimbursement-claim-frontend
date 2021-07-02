@@ -567,9 +567,8 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim
-enter-commodities-details.label=Enter claim reason
-enter-commodities-details.help-text=This will help reduce delays in your claim being processed.
-enter-commodities-details.error.required=Enter details about the commodities you would like to be reimbursed for
+enter-commodities-details.label=
+enter-commodities-details.error.required=Enter claim reason
 enter-commodities-details.error.maxLength=Claim reason must be 500 characters or fewer
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
