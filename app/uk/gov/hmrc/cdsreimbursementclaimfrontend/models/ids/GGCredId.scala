@@ -21,7 +21,7 @@ import play.api.libs.json.Format
 
 final case class GGCredId(value: String) extends AnyVal
 
-object GGCredId {
+object ggCredIdGGCredId {
 
   implicit val format: Format[GGCredId] = implicitly[Format[String]].inmap(GGCredId(_), _.value)
 

@@ -7,6 +7,17 @@ GET        /next-page-bulk                                          uk.gov.hmrc.
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
 
+GET         /dummy-check-eori-details                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyCheckEoriController.show()
+POST        /dummy-check-eori-details                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyCheckEoriController.submit()
+
+GET         /single/enter-movement-reference-number                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.show()
+GET         /bulk/enter-movement-reference-number                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.show()
+GET         /schedule/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.show()
+
+POST        /single/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.submit()
+POST        /bulk/enter-movement-reference-number                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.submit()
+POST        /schedule/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.DummyReferenceNumberController.submit()
+
 GET         /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show()
 POST        /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
 

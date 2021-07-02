@@ -33,8 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.{SelectNumberOfClaimsType, selectNumberOfClaimsAnswerForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, InitialClaim}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.InitialClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, SessionService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -43,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SelectNumberOfClaimsController @Inject() (
@@ -56,6 +55,7 @@ class SelectNumberOfClaimsController @Inject() (
 )(implicit
   viewConfig: ViewConfig,
   errorHandler: ErrorHandler,
+  ec: ExecutionContext,
   cc: MessagesControllerComponents
 ) extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -88,13 +88,11 @@ class SelectNumberOfClaimsController @Inject() (
           formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
           formOk => {
             val status = for {
-              claim  <- sessionService.getAnswers({ case claim: FillingOutClaim => claim })
-              updated = FillingOutClaim.of(claim)(
-                          _.copy(selectNumberOfClaimsAnswer = CompleteSelectNumberOfClaimsAnswer(formOk).some)
-                        )
+              claim  <- sessionService.getAnswers({ case claim: InitialClaim => claim })
+              updated = claim.copy(claimType = SelectNumberOfClaimsType.unmap(formOk).some)
               _      <- EitherT
-                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = updated.some)))
-                          .leftMap((_: Unit) => Error("could not update session")) // TODO: discuss
+                          .fromOption[Future](request.sessionData, Error("No session data"))
+                          .flatMap(sessionData => sessionService.persist(sessionData.copy(journeyStatus = updated.some)))
             } yield ()
 
             status.fold(
@@ -102,15 +100,7 @@ class SelectNumberOfClaimsController @Inject() (
                 logger.warn(error.message)
                 errorHandler.errorResult()
               },
-              _ => {
-                val redirectUrl = formOk match {
-                  case SelectNumberOfClaimsType.Individual => JourneyBindable.Single
-                  case SelectNumberOfClaimsType.Bulk       => JourneyBindable.Bulk
-                  case SelectNumberOfClaimsType.Scheduled  => JourneyBindable.Scheduled
-
-                }
-                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
-              }
+              _ => Redirect(routes.DummyReferenceNumberController.show())
             )
           }
         )
@@ -140,6 +130,13 @@ object SelectNumberOfClaimsController {
         case ClaimType.Single   => Individual
         case ClaimType.Bulk     => Bulk
         case ClaimType.Schedule => Scheduled
+      }
+
+    def unmap(selectNumberOfClaimsType: SelectNumberOfClaimsType): ClaimType =
+      selectNumberOfClaimsType match {
+        case Individual => ClaimType.Single
+        case Bulk       => ClaimType.Bulk
+        case Scheduled  => ClaimType.Schedule
       }
   }
 

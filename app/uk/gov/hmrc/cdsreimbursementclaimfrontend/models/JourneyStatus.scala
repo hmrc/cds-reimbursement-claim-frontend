@@ -20,6 +20,7 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim.newDraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
@@ -32,7 +33,16 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     claimType: Option[ClaimType] = None
-  ) extends JourneyStatus
+  ) extends JourneyStatus {
+
+    def toFillingOutClaim(claimType: ClaimType, draft: DraftClaim = newDraftC285Claim): FillingOutClaim =
+      FillingOutClaim(
+        ggCredId,
+        signedInUserDetails,
+        draft,
+        claimType
+      )
+  }
 
   final case class FillingOutClaim(
     ggCredId: GGCredId,

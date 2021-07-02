@@ -17,31 +17,61 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import play.api.mvc.{Call, Result}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, EnterClaimController, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, DummyReferenceNumberController, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Schedule, Single}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 trait TemplateMeta[C <: FrontendController] {
+  def submitUrl: Call
   def getKey(claimType: ClaimType): String
-  def submitUrlFor: Call = routes.DummyControllerClass.testSubmit()
+  def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call
 }
 
 object TemplateMeta {
 
   implicit object DummyControllerClassTemplateMeta extends TemplateMeta[DummyControllerClass] {
+
     def getKey(claimType: ClaimType): String = claimType match {
       case Bulk     => "bulk-journey"
       case Schedule => "schedule-journey"
       case Single   => "single-journey"
     }
+
+    def submitUrl: Call = routes.DummyControllerClass.testSubmit()
+
+    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
+      case (Single, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
+      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
+      case (Bulk, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
+      case (Schedule, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
+      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
+    }
   }
 
-  implicit object EnterClaimControllerClassTemplateMeta extends TemplateMeta[EnterClaimController] {
+  implicit object DummyReferenceNumberControllerTemplateMeta extends TemplateMeta[DummyReferenceNumberController] {
+
     def getKey(claimType: ClaimType): String = claimType match {
-      case Bulk     => "bulk-journey"
-      case Schedule => "schedule-journey"
-      case Single   => "single-journey"
+      case Bulk     => "enter-movement-reference-number.bulk"
+      case Schedule => "enter-movement-reference-number.schedule"
+      case Single   => "enter-movement-reference-number.single"
+    }
+
+    def submitUrl: Call = routes.DummyReferenceNumberController.submit()
+
+    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
+      case (Single, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+
+      case (Bulk, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+
+      case (Schedule, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => baseRoutes.IneligibleController.ineligible()
     }
   }
 
@@ -52,7 +82,7 @@ object TemplateMeta {
         f: (String, Call) => Result
       )(implicit templateMeta: TemplateMeta[T]): Result = {
         val key = templateMeta.getKey(claimType)
-        val url = templateMeta.submitUrlFor
+        val url = templateMeta.submitUrl
         f(key, url)
       }
     }
