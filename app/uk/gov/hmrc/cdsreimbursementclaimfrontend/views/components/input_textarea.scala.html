@@ -36,7 +36,7 @@
     label: String                      = "",
     labelClasses: Option[String]       = None,
     isPageHeading: Boolean             = false,
-    hint: Option[String]                 = None
+    hint: Option[String]               = None
 )(implicit messages: Messages)
 
 @govukCharacterCount(
@@ -48,6 +48,7 @@
         maxLength = maxLength,
         label = Label(
             content = Text(messages(label)),
+            isPageHeading = isPageHeading,
             classes = labelClasses.getOrElse(if(isPageHeading) "govuk-label--xl" else "")
         ),
         hint = hint.map(hintKey => Hint(
