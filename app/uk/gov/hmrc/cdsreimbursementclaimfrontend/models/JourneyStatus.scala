@@ -22,7 +22,7 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 
 sealed trait JourneyStatus extends Product with Serializable
 
@@ -30,7 +30,8 @@ object JourneyStatus {
 
   final case class InitialClaim(
     ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails
+    signedInUserDetails: SignedInUserDetails,
+    claimType: Option[ClaimType] = None
   ) extends JourneyStatus
 
   final case class FillingOutClaim(

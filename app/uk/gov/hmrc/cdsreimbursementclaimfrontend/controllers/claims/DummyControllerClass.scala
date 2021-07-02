@@ -28,10 +28,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.SubmitPage.syntax._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType.{Bulk, Single}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateContent.syntax._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.JourneyService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SessionService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.PageSubmission.syntax._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Single}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -42,7 +42,7 @@ import scala.util.Random
 class DummyControllerClass @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val journeyService: JourneyService,
+  val sessionService: SessionService,
   val errorHandler: ErrorHandler,
   displayJourney: pages.display_journey
 )(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents, ec: ExecutionContext)
@@ -53,27 +53,27 @@ class DummyControllerClass @Inject() (
 
   def test(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      val eitherErrorOrJourney = for {
-        _       <- journeyService.persist(
-                     SessionData(
-                       FillingOutClaim(
-                         GGCredId("6145079961943419"),
-                         SignedInUserDetails(
-                           Email("user@test.com").some,
-                           Eori("GB000000000000001"),
-                           Email("user@test.com"),
-                           ContactName("USER")
-                         ),
-                         DraftC285Claim.newDraftC285Claim,
-                         if (new Random().nextInt(2) > 0) Single else Bulk
-                       ).some,
-                       UserType.Individual.some
+      val eitherErrorOrClaimType = for {
+        _         <- sessionService.persist(
+                       SessionData(
+                         FillingOutClaim(
+                           GGCredId("6145079961943419"),
+                           SignedInUserDetails(
+                             Email("user@test.com").some,
+                             Eori("GB000000000000001"),
+                             Email("user@test.com"),
+                             ContactName("USER")
+                           ),
+                           DraftC285Claim.newDraftC285Claim,
+                           if (new Random().nextInt(2) > 0) Single else Bulk
+                         ).some,
+                         UserType.Individual.some
+                       )
                      )
-                   )
-        journey <- journeyService.getJourney
-      } yield journey
+        claimType <- sessionService.getClaimType
+      } yield claimType
 
-      eitherErrorOrJourney.fold(
+      eitherErrorOrClaimType.fold(
         error => {
           logger.warn(error.message)
           errorHandler.errorResult()
@@ -84,8 +84,8 @@ class DummyControllerClass @Inject() (
 
   def testSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      journeyService.getJourney
-        .map(journey => journey.getNextUrl[DummyControllerClass])
+      sessionService.getClaimType
+        .map(_.getNextUrl[DummyControllerClass])
         .fold(
           error => {
             logger.warn(error.message)

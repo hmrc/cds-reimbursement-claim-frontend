@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey
 
 import cats.Eq
 import play.api.libs.json.{Json, OFormat}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ReferenceNumber.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ReferenceNumber.{EntryNumber, MRN}
 
 import java.util.UUID
 

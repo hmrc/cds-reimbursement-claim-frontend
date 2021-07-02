@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey
 
-import play.api.mvc.Call
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 
-final case class JourneyMeta(
-  template: String, // revise this type - there is a TemplateX type
-  submitCall: Call,
-  messageKey: MessageKey
-)
+sealed trait ClaimType extends Product with Serializable
+
+object ClaimType {
+
+  case object Single extends ClaimType
+
+  case object Bulk extends ClaimType
+
+  case object Schedule extends ClaimType
+
+  implicit val journeyFormat: OFormat[ClaimType] = derived.oformat[ClaimType]()
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey
 
 import play.api.libs.json.{Json, OFormat}
 

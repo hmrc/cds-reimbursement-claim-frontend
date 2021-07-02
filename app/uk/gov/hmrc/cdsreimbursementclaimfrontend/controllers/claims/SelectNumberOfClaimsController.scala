@@ -28,16 +28,17 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.{SelectNumberOfClaimsType, selectNumberOfClaimsAnswerForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, InitialClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SelectNumberOfClaimsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, SessionService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -50,6 +51,7 @@ class SelectNumberOfClaimsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
+  sessionService: SessionService,
   selectNumberOfClaimsPage: select_number_of_claims
 )(implicit
   viewConfig: ViewConfig,
@@ -57,57 +59,61 @@ class SelectNumberOfClaimsController @Inject() (
   cc: MessagesControllerComponents
 ) extends FrontendController(cc)
     with WithAuthAndSessionDataAction
-    with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[SelectNumberOfClaimsAnswer] = _.selectNumberOfClaimsAnswer
-
   def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
-    withAnswers[SelectNumberOfClaimsAnswer] { (_, answers) =>
-      val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
-      val filledForm = answers
-        .flatMap(_.fold(_.selectNumberOfClaimsChoice, _.selectNumberOfClaimsChoice.some))
-        .fold(emptyForm)(emptyForm.fill(_))
-      Ok(selectNumberOfClaimsPage(filledForm))
-    }
+    sessionService
+      .getAnswers({ case claim: InitialClaim => claim.claimType })
+      .fold(
+        error => {
+          logger.warn(error.message)
+          errorHandler.errorResult()
+        },
+        answer => {
+          val filledForm = answer.foldLeft(selectNumberOfClaimsAnswerForm)((form, answer) =>
+            form.fill(SelectNumberOfClaimsType.map(answer))
+          )
+          Ok(selectNumberOfClaimsPage(filledForm))
+        }
+      )
   }
 
   def submit(): Action[AnyContent] =
     (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[SelectNumberOfClaimsAnswer] { (fillingOutClaim, _) =>
-        SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
-          .bindFromRequest()
-          .fold(
-            formWithErros => BadRequest(selectNumberOfClaimsPage(formWithErros)),
-            formOk => {
-              val updatedAnswers = CompleteSelectNumberOfClaimsAnswer(formOk)
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers)))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+      selectNumberOfClaimsAnswerForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
+          formOk => {
+            val status = for {
+              claim  <- sessionService.getAnswers({ case claim: FillingOutClaim => claim })
+              updated = FillingOutClaim.of(claim)(
+                          _.copy(selectNumberOfClaimsAnswer = CompleteSelectNumberOfClaimsAnswer(formOk).some)
+                        )
+              _      <- EitherT
+                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = updated.some)))
+                          .leftMap((_: Unit) => Error("could not update session")) // TODO: discuss
+            } yield ()
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-                .fold(
-                  e => {
-                    logger.warn("could not capture select number of claims", e)
-                    errorHandler.errorResult()
-                  },
-                  _ => {
-                    val redirectUrl = formOk match {
-                      case Individual => JourneyBindable.Single
-                      case Bulk       => JourneyBindable.Bulk
-                      case Scheduled  => JourneyBindable.Scheduled
+            status.fold(
+              error => {
+                logger.warn(error.message)
+                errorHandler.errorResult()
+              },
+              _ => {
+                val redirectUrl = formOk match {
+                  case SelectNumberOfClaimsType.Individual => JourneyBindable.Single
+                  case SelectNumberOfClaimsType.Bulk       => JourneyBindable.Bulk
+                  case SelectNumberOfClaimsType.Scheduled  => JourneyBindable.Scheduled
 
-                    }
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
-                  }
-                )
-            }
-          )
-      }
+                }
+                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+              }
+            )
+          }
+        )
     }
 
 }
@@ -128,6 +134,13 @@ object SelectNumberOfClaimsController {
     implicit val eq: Eq[SelectNumberOfClaimsType]                                  = Eq.fromUniversalEquals
     implicit val selectNumberOfClaimsTypeFormat: OFormat[SelectNumberOfClaimsType] =
       derived.oformat[SelectNumberOfClaimsType]()
+
+    def map(claimType: ClaimType): SelectNumberOfClaimsType =
+      claimType match {
+        case ClaimType.Single   => Individual
+        case ClaimType.Bulk     => Bulk
+        case ClaimType.Schedule => Scheduled
+      }
   }
 
   val dataKey: String = "select-number-of-claims"
@@ -140,5 +153,4 @@ object SelectNumberOfClaimsController {
           .transform[SelectNumberOfClaimsType](allClaimsIntToType, allClaimsTypeToInt)
       )(identity)(Some(_))
     )
-
 }

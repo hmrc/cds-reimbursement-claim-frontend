@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.syntax.all._
 import cats.data.EitherT
+import cats.syntax.all._
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache2
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, JourneyStatus, SessionData}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[DefaultJourneyService])
-trait JourneyService {
+@ImplementedBy(classOf[DefaultSessionService])
+trait SessionService {
 
-  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType]
+  def getAnswers[A](
+    f: PartialFunction[JourneyStatus, A]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, A]
+
+  def getClaimType(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType]
 
   def persist(session: SessionData)(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit]
 }
 
 @Singleton
-class DefaultJourneyService @Inject() (cache: SessionCache2) extends JourneyService {
+class DefaultSessionService @Inject() (cache: SessionCache2) extends SessionService {
 
-  def getJourney(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType] = EitherT {
+  def getClaimType(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, ClaimType] = EitherT {
     cache
       .get()
       .fold(Error("No session found").asLeft[ClaimType])(_.flatMap(_.journeyStatus match {
@@ -49,4 +53,14 @@ class DefaultJourneyService @Inject() (cache: SessionCache2) extends JourneyServ
 
   def persist(session: SessionData)(implicit hc: HeaderCarrier): EitherT[Future, Error, Unit] =
     cache.store(session)
+
+  def getAnswers[A](
+    f: PartialFunction[JourneyStatus, A]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): EitherT[Future, Error, A] = EitherT {
+    cache
+      .get()
+      .fold(Error("No session found").asLeft[A])(
+        _.flatMap(_.journeyStatus.collect(f).toRight(Error("Could not extract session")))
+      )
+  }
 }

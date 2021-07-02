@@ -16,41 +16,45 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.model.ClaimType.{Single, Bulk}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.annotation.implicitNotFound
 
-trait SubmitPage[F <: FrontendController, J <: ClaimType] {
+trait PageSubmission[F <: FrontendController, J <: ClaimType] {
   val nextUrl: String
 }
 
-object SubmitPage {
+object PageSubmission {
 
-  implicit object SingleJourneySubmitPage extends SubmitPage[DummyControllerClass, ClaimType.Single.type] {
+  implicit object SingleJourneySubmitPage extends PageSubmission[DummyControllerClass, ClaimType.Single.type] {
     val nextUrl: String = routes.NextPageController.nextSinglePage().url
   }
 
-  implicit object BulkJourneySubmitPage extends SubmitPage[DummyControllerClass, ClaimType.Bulk.type] {
+  implicit object BulkJourneySubmitPage extends PageSubmission[DummyControllerClass, ClaimType.Bulk.type] {
+    val nextUrl: String = routes.NextPageController.nextBulkPage().url
+  }
+
+  implicit object ScheduleJourneySubmitPage extends PageSubmission[DummyControllerClass, ClaimType.Schedule.type] {
     val nextUrl: String = routes.NextPageController.nextBulkPage().url
   }
 
   object syntax {
 
-    implicit class SubmitPageJourneyOps(val claimType: ClaimType) extends AnyVal {
+    implicit class PageSubmissionClaimTypeOps(val claimType: ClaimType) extends AnyVal {
 
       def getNextUrl[F <: FrontendController]: String = {
 
         @implicitNotFound("No submit page implicit found")
-        def getFor[C <: FrontendController, J <: ClaimType](j: J)(implicit page: SubmitPage[C, J]): String = {
+        def getFor[C <: FrontendController, J <: ClaimType](j: J)(implicit page: PageSubmission[C, J]): String = {
           println(j) // TODO: unused
           page.nextUrl
         }
 
         claimType match {
-          case singleJourney: ClaimType.Single.type => getFor(singleJourney)
-          case bulkJourney: ClaimType.Bulk.type     => getFor(bulkJourney)
+          case single: ClaimType.Single.type     => getFor(single)
+          case bulk: ClaimType.Bulk.type         => getFor(bulk)
+          case schedule: ClaimType.Schedule.type => getFor(schedule)
         }
       }
     }
