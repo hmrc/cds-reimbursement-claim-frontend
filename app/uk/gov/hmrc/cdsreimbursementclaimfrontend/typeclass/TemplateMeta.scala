@@ -44,11 +44,11 @@ object TemplateMeta {
     def submitUrl: Call = routes.DummyControllerClass.testSubmit()
 
     def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
-      case (Single, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
-      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
-      case (Bulk, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
-      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
-      case (Schedule, MovementReferenceNumber(Right(MRN(_)))) => routes.NextPageController.nextSinglePage()
+      case (Single, MovementReferenceNumber(Right(MRN(_))))          => routes.NextPageController.nextSinglePage()
+      case (Single, MovementReferenceNumber(Left(EntryNumber(_))))   => routes.NextPageController.nextSinglePage()
+      case (Bulk, MovementReferenceNumber(Right(MRN(_))))            => routes.NextPageController.nextSinglePage()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_))))     => routes.NextPageController.nextSinglePage()
+      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.NextPageController.nextSinglePage()
       case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
     }
   }
@@ -64,13 +64,15 @@ object TemplateMeta {
     def submitUrl: Call = routes.DummyReferenceNumberController.submit()
 
     def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
-      case (Single, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
-      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+      case (Single, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) =>
+        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
 
-      case (Bulk, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
-      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+      case (Bulk, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) =>
+        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
 
-      case (Schedule, MovementReferenceNumber(Right(MRN(_)))) => routes.CheckDeclarationDetailsController.checkDetails()
+      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
       case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => baseRoutes.IneligibleController.ineligible()
     }
   }

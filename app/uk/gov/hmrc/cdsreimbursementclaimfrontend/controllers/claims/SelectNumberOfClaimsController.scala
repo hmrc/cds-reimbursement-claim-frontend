@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.{SelectNumberOfClaimsType, selectNumberOfClaimsAnswerForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.InitialClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.PreFillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, SessionService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -65,7 +65,7 @@ class SelectNumberOfClaimsController @Inject() (
   def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
     sessionService
-      .getAnswers({ case claim: InitialClaim => claim.claimType })
+      .getAnswers({ case claim: PreFillingOutClaim => claim.claimType })
       .fold(
         error => {
           logger.warn(error.message)
@@ -88,7 +88,7 @@ class SelectNumberOfClaimsController @Inject() (
           formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
           formOk => {
             val status = for {
-              claim  <- sessionService.getAnswers({ case claim: InitialClaim => claim })
+              claim  <- sessionService.getAnswers({ case claim: PreFillingOutClaim => claim })
               updated = claim.copy(claimType = SelectNumberOfClaimsType.unmap(formOk).some)
               _      <- EitherT
                           .fromOption[Future](request.sessionData, Error("No session data"))

@@ -29,13 +29,19 @@ sealed trait JourneyStatus extends Product with Serializable
 
 object JourneyStatus {
 
-  final case class InitialClaim(
+  final case class PreFillingOutClaim(
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     claimType: Option[ClaimType] = None
-  ) extends JourneyStatus {
+  ) extends JourneyStatus
 
-    def toFillingOutClaim(claimType: ClaimType, draft: DraftClaim = newDraftC285Claim): FillingOutClaim =
+  object PreFillingOutClaim {
+    def toFillingOutClaim(
+      ggCredId: GGCredId,
+      signedInUserDetails: SignedInUserDetails,
+      claimType: ClaimType,
+      draft: DraftClaim = newDraftC285Claim
+    ): FillingOutClaim =
       FillingOutClaim(
         ggCredId,
         signedInUserDetails,
@@ -66,23 +72,12 @@ object JourneyStatus {
   final case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
-    def of(source: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
-      source.copy(draftClaim = source.draftClaim.fold(f))
+    def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
+      fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
   }
 
-  implicit val format: OFormat[JourneyStatus] = derived.oformat()
+  implicit val format: OFormat[JourneyStatus] = derived.oformat[JourneyStatus]()
 
   implicit val eq: Eq[JourneyStatus] = Eq.fromUniversalEquals
-
-  implicit class JourneyStatusOp(private val journeyStatus: Option[JourneyStatus]) {
-    def draftClaim: Option[DraftClaim] = journeyStatus match {
-      case Some(value) =>
-        value match {
-          case FillingOutClaim(_, _, draftClaim, _) => Some(draftClaim)
-          case _                                    => None
-        }
-      case None        => None
-    }
-  }
 
 }

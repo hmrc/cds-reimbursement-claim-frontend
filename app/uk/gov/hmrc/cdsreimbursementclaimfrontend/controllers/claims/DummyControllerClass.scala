@@ -26,11 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails, UserType}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SessionService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.PageSubmission.syntax._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Single}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, MovementReferenceNumber, SessionData, SignedInUserDetails, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SessionService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -82,16 +82,21 @@ class DummyControllerClass @Inject() (
       )
     }
 
-  def testSubmit(): Action[AnyContent] =
+  def testSubmit(): Action[AnyContent] = {
+    val meta = implicitly[TemplateMeta[DummyControllerClass]]
+
     authenticatedActionWithSessionData.async { implicit request =>
       sessionService.getClaimType
-        .map(_.getNextUrl[DummyControllerClass])
         .fold(
           error => {
             logger.warn(error.message)
             errorHandler.errorResult()
           },
-          nextUrl => Redirect(nextUrl)
+          claimType =>
+            Redirect(
+              meta.nextUrl(claimType, MovementReferenceNumber(Right(MRN("3423042034723"))))
+            ) //TODO: temp dummy value
         )
     }
+  }
 }

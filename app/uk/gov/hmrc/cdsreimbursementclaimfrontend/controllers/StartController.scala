@@ -78,7 +78,7 @@ class StartController @Inject() (
                  _.copy(
                    userType = sessionData.userType,
                    journeyStatus = Some(
-                     InitialClaim(
+                     PreFillingOutClaim(
                        justSubmittedClaim.ggCredId,
                        justSubmittedClaim.signedInUserDetails
                      )
@@ -151,7 +151,7 @@ class StartController @Inject() (
       case NonGovernmentGatewayJourney =>
         Redirect(routes.StartController.weOnlySupportGG())
 
-      case _: InitialClaim =>
+      case _: PreFillingOutClaim =>
         Redirect(controllers.claims.routes.CheckEoriDetailsController.show())
 
       case _: FillingOutClaim =>
@@ -222,7 +222,7 @@ class StartController @Inject() (
                _.copy(
                  userType = request.authenticatedRequest.userType,
                  journeyStatus = Some(
-                   InitialClaim(
+                   PreFillingOutClaim(
                      ggCredId,
                      SignedInUserDetails(
                        email,
