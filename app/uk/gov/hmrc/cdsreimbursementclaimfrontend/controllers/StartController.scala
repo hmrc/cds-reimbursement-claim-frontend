@@ -154,7 +154,7 @@ class StartController @Inject() (
       case _: PreFillingOutClaim =>
         Redirect(controllers.claims.routes.CheckEoriDetailsController.show())
 
-      case _: FillingOutClaim =>
+      case _: FillingOutClaim | _: CompletedFillingOutClaim =>
         Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
 
       case _: JustSubmittedClaim =>

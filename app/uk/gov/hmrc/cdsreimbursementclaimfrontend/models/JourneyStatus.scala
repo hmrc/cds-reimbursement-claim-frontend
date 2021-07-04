@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim.newDraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
@@ -33,12 +34,9 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     claimType: Option[ClaimType] = None
-  ) extends JourneyStatus
+  ) extends JourneyStatus {
 
-  object PreFillingOutClaim {
     def toFillingOutClaim(
-      ggCredId: GGCredId,
-      signedInUserDetails: SignedInUserDetails,
       claimType: ClaimType,
       draft: DraftClaim = newDraftC285Claim
     ): FillingOutClaim =
@@ -54,6 +52,13 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     draftClaim: DraftClaim,
+    claimType: ClaimType
+  ) extends JourneyStatus
+
+  final case class CompletedFillingOutClaim(
+    ggCredId: GGCredId,
+    signedInUserDetails: SignedInUserDetails,
+    completeClaim: CompleteClaim,
     claimType: ClaimType
   ) extends JourneyStatus
 
@@ -74,6 +79,13 @@ object JourneyStatus {
   object FillingOutClaim {
     def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
       fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
+  }
+
+  object CompletedFillingOutClaim {
+    def of(completedFillingOutClaim: CompletedFillingOutClaim)(
+      f: CompleteC285Claim => CompleteC285Claim
+    ): CompletedFillingOutClaim =
+      completedFillingOutClaim.copy(completeClaim = completedFillingOutClaim.completeClaim.fold(f))
   }
 
   implicit val format: OFormat[JourneyStatus] = derived.oformat[JourneyStatus]()

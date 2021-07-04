@@ -425,6 +425,10 @@ object CompleteClaim {
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
 
+    def fold[A](f: CompleteC285Claim => A): A = completeClaim match {
+      case a: CompleteC285Claim => f(a)
+    }
+
     def maybeDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
       case CompleteC285Claim(
             _,

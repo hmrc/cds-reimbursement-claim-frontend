@@ -52,6 +52,12 @@ final case class RequestWithSessionData[A](
       .collect(matchExpression)
       .getOrElse(Future.successful(applyIfNone))
 
+  def extract[T](matchExpression: PartialFunction[(SessionData, JourneyStatus), T], applyIfNone: => T): T =
+    sessionData
+      .flatMap(session => session.journeyStatus.map(session -> _))
+      .collect(matchExpression)
+      .getOrElse(applyIfNone)
+
   def startNewJourney: Result =
     Redirect(baseRoutes.StartController.start())
 }
