@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{CompletedFillingOutClaim, FillingOutClaim, PreFillingOutClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -47,7 +47,7 @@ class DummyReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  lazy val meta: TemplateMeta[DummyReferenceNumberController] = implicitly[TemplateMeta[DummyReferenceNumberController]]
+  lazy val meta: UserJourney[DummyReferenceNumberController] = implicitly[UserJourney[DummyReferenceNumberController]]
 
   def show(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>

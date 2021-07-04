@@ -25,15 +25,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Schedule, Single}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-trait TemplateMeta[C <: FrontendController] {
+trait UserJourney[C <: FrontendController] {
   def submitUrl: Call
   def getKey(claimType: ClaimType): String
   def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call
 }
 
-object TemplateMeta {
+object UserJourney {
 
-  implicit object DummyReferenceNumberControllerTemplateMeta extends TemplateMeta[DummyReferenceNumberController] {
+  implicit object DummyReferenceNumberControllerTemplateMeta extends UserJourney[DummyReferenceNumberController] {
 
     def getKey(claimType: ClaimType): String = claimType match {
       case Bulk     => "enter-movement-reference-number.bulk"
@@ -58,7 +58,7 @@ object TemplateMeta {
     }
   }
 
-  implicit object DummyControllerClassTemplateMeta extends TemplateMeta[DummyControllerClass] {
+  implicit object DummyControllerClassTemplateMeta extends UserJourney[DummyControllerClass] {
 
     def getKey(claimType: ClaimType): String = claimType match {
       case Bulk     => "bulk-journey"
@@ -83,7 +83,7 @@ object TemplateMeta {
     implicit class ClaimTypeTemplateMetaOps(val claimType: ClaimType) extends AnyVal {
       def showPage[T <: FrontendController](
         f: (String, Call) => Result
-      )(implicit templateMeta: TemplateMeta[T]): Result = {
+      )(implicit templateMeta: UserJourney[T]): Result = {
         val key = templateMeta.getKey(claimType)
         val url = templateMeta.submitUrl
         f(key, url)

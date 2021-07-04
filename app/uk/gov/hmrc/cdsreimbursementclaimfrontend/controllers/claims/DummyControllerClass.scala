@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Single}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, MovementReferenceNumber, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SessionService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.TemplateMeta.syntax._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -83,7 +83,7 @@ class DummyControllerClass @Inject() (
     }
 
   def testSubmit(): Action[AnyContent] = {
-    val meta = implicitly[TemplateMeta[DummyControllerClass]]
+    val meta = implicitly[UserJourney[DummyControllerClass]]
 
     authenticatedActionWithSessionData.async { implicit request =>
       sessionService.getClaimType
