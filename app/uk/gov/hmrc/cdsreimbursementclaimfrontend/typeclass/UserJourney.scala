@@ -71,10 +71,10 @@ object UserJourney {
     def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
       case (Single, MovementReferenceNumber(Right(MRN(_))))          => routes.NextPageController.nextSinglePage()
       case (Single, MovementReferenceNumber(Left(EntryNumber(_))))   => routes.NextPageController.nextSinglePage()
-      case (Bulk, MovementReferenceNumber(Right(MRN(_))))            => routes.NextPageController.nextSinglePage()
-      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_))))     => routes.NextPageController.nextSinglePage()
-      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.NextPageController.nextSinglePage()
-      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
+      case (Bulk, MovementReferenceNumber(Right(MRN(_))))            => routes.NextPageController.nextBulkPage()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_))))     => routes.NextPageController.nextBulkPage()
+      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.NextPageController.nextBulkPage()
+      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextBulkPage()
     }
   }
 
