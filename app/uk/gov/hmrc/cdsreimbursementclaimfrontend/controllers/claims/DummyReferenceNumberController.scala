@@ -86,10 +86,13 @@ class DummyReferenceNumberController @Inject() (
       //TODO: after this refactoring, all we need to do then is get the submitted answer and update the session data cache
       //TODO: updating the session data cache should ebe done via a simple method interface: something like def updateSessionData(currentSessionData, newAnswer): EitherT[Future, Error, Unit]
       //TODO: we fold on the updateSessionData result, handle any errors if any or redirect to next page in the journey
+      //TODO: how to handle code re-use within a journey
+      //TODO: what about CYA action: nextUrl must be have the type of the object in the session cache passed in so that it can match the correct url
+      //TODO: test implementation for components: TC, withAnswers, controllers
       //TODO: things to consider:
       //TODO: 1. what if the user is in a schedule journey and the user tries to hit a single journey endpoint?
       //TODO: 2. how do we introduce feature flags? that is, block users from certain journeys (can the feature flag be applied at the TC level, instead of controller classes??)
-      //TODO: 3. how do we handle wiring that is based on user submitted answers as well as claim-type, and movement reference number? (bypass the TC)
+      //TODO: 3. how do we handle wiring that is based on user submitted answers as well as claim-type, and movement reference number? (bypass the TC) ie value based journey evaluation (Not type driven)
       sessionService
         .getAnswers({ case preFillingOutClaim: PreFillingOutClaim => preFillingOutClaim })
         .leftMap(e => Error(e.message))
