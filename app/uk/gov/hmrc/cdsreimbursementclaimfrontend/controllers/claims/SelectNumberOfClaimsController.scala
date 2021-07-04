@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Eq
-import cats.data.EitherT
 import cats.implicits._
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
@@ -32,17 +31,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.{SelectNumberOfClaimsType, selectNumberOfClaimsAnswerForm}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.PreFillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, SessionService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectNumberOfClaimsController @Inject() (
@@ -50,7 +48,6 @@ class SelectNumberOfClaimsController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
-  sessionService: SessionService,
   selectNumberOfClaimsPage: select_number_of_claims
 )(implicit
   viewConfig: ViewConfig,
@@ -64,48 +61,38 @@ class SelectNumberOfClaimsController @Inject() (
 
   def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
-    sessionService
-      .getAnswers({ case claim: PreFillingOutClaim => claim.claimType })
-      .fold(
-        error => {
-          logger.warn(error.message)
-          errorHandler.errorResult()
-        },
-        answer => {
-          val filledForm = answer.foldLeft(selectNumberOfClaimsAnswerForm)((form, answer) =>
-            form.fill(SelectNumberOfClaimsType.map(answer))
-          )
-          Ok(selectNumberOfClaimsPage(filledForm))
-        }
-      )
+    request.extract({
+      case (_, claim: PreFillingOutClaim) =>
+        val filledForm = claim.claimType.foldLeft(selectNumberOfClaimsAnswerForm)((form, answer) =>
+          form.fill(SelectNumberOfClaimsType.map(answer))
+        )
+        Ok(selectNumberOfClaimsPage(filledForm))
+    }, request.startNewJourney)
   }
 
   def submit(): Action[AnyContent] =
     (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      selectNumberOfClaimsAnswerForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
-          formOk => {
-            val status = for {
-              claim  <- sessionService.getAnswers({ case claim: PreFillingOutClaim => claim })
-              updated = claim.copy(claimType = SelectNumberOfClaimsType.unmap(formOk).some)
-              _      <- EitherT
-                          .fromOption[Future](request.sessionData, Error("No session data"))
-                          .flatMap(sessionData => sessionService.persist(sessionData.copy(journeyStatus = updated.some)))
-            } yield ()
+      request.unapply({
+        case (_, claim: PreFillingOutClaim) =>
+          selectNumberOfClaimsAnswerForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
+              formOk => {
+                val updated = claim.copy(claimType = SelectNumberOfClaimsType.unmap(formOk).some)
 
-            status.fold(
-              error => {
-                logger.warn(error.message)
-                errorHandler.errorResult()
-              },
-              _ => Redirect(routes.DummyReferenceNumberController.show())
+                updateSession(sessionStore, request)(_.copy(journeyStatus = updated.some)).map(
+                  _.fold(
+                    error => {
+                      logger.warn(error.message)
+                      errorHandler.errorResult()
+                    },
+                    _ => Redirect(routes.DummyReferenceNumberController.show())
+                  ))
+              }
             )
-          }
-        )
+      })
     }
-
 }
 
 object SelectNumberOfClaimsController {
