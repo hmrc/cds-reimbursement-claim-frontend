@@ -152,7 +152,7 @@ class StartController @Inject() (
         Redirect(routes.StartController.weOnlySupportGG())
 
       case _: PreFillingOutClaim =>
-        Redirect(controllers.claims.routes.CheckEoriDetailsController.show())
+        Redirect(controllers.claims.routes.DummyCheckEoriController.show())
 
       case _: FillingOutClaim | _: CompletedFillingOutClaim =>
         Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())

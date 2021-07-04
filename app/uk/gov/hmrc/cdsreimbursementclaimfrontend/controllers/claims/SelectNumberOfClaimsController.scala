@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Eq
 import cats.implicits._
-import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import julienrf.json.derived
 import play.api.data.Form
@@ -31,9 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.{SelectNumberOfClaimsType, selectNumberOfClaimsAnswerForm}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.PreFillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, PreFillingOutClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
@@ -47,7 +45,6 @@ class SelectNumberOfClaimsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val featureSwitch: FeatureSwitchService,
   selectNumberOfClaimsPage: select_number_of_claims
 )(implicit
   viewConfig: ViewConfig,
@@ -59,19 +56,25 @@ class SelectNumberOfClaimsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
-    authenticatedActionWithSessionData).async { implicit request =>
-    request.extract({
-      case (_, claim: PreFillingOutClaim) =>
-        val filledForm = claim.claimType.foldLeft(selectNumberOfClaimsAnswerForm)((form, answer) =>
-          form.fill(SelectNumberOfClaimsType.map(answer))
-        )
-        Ok(selectNumberOfClaimsPage(filledForm))
-    }, request.startNewJourney)
-  }
+  def show(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      request.extract(
+        {
+          case (_, claim: PreFillingOutClaim) =>
+            val filledForm = claim.claimType.foldLeft(selectNumberOfClaimsAnswerForm)((form, answer) =>
+              form.fill(SelectNumberOfClaimsType.map(answer))
+            )
+            Ok(selectNumberOfClaimsPage(filledForm))
+          case (_, claim: FillingOutClaim)    =>
+            val filledForm = selectNumberOfClaimsAnswerForm.fill(SelectNumberOfClaimsType.map(claim.claimType))
+            Ok(selectNumberOfClaimsPage(filledForm))
+        },
+        request.startNewJourney
+      )
+    }
 
   def submit(): Action[AnyContent] =
-    (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
+    authenticatedActionWithSessionData.async { implicit request =>
       request.unapply({
         case (_, claim: PreFillingOutClaim) =>
           selectNumberOfClaimsAnswerForm
@@ -88,8 +91,24 @@ class SelectNumberOfClaimsController @Inject() (
                       errorHandler.errorResult()
                     },
                     _ => Redirect(routes.DummyReferenceNumberController.show())
-                  ))
+                  )
+                )
               }
+            )
+        case (_, claim: FillingOutClaim)    =>
+          selectNumberOfClaimsAnswerForm
+            .bindFromRequest()
+            .fold(
+              formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
+              claimType =>
+                updateSession(sessionStore, request)(
+                  _.copy(journeyStatus = claim.copy(claimType = SelectNumberOfClaimsType.unmap(claimType)).some)
+                ).map(
+                  _.fold(
+                    _ => errorHandler.errorResult(),
+                    _ => Redirect(routes.DummyReferenceNumberController.show())
+                  )
+                )
             )
       })
     }

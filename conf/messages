@@ -148,6 +148,40 @@ enter-movement-reference-number.scheduled.title=Enter the lead Movement Referenc
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
 
+
+#===================================================
+#  ENTER MRN PAGE SINGLE
+#===================================================
+enter-movement-reference-number.single.title=What is your Movement Reference Number (MRN)?
+enter-movement-reference-number.single.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-movement-reference-number.single.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
+enter-movement-reference-number.single.enter-mrn.label=Enter the MRN or Entry number
+enter-movement-reference-number.single.invalid.number=Enter a valid MRN or entry number
+enter-movement-reference-number.single.invalid=Enter a valid MRN or entry number
+enter-movement-reference-number.single.error.required=Enter a valid MRN or entry number
+
+#===================================================
+#  ENTER MRN PAGE BULK
+#===================================================
+enter-movement-reference-number.bulk.title=What is your Lead Movement Reference Number (MRN)?
+enter-movement-reference-number.bulk.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
+enter-movement-reference-number.bulk.enter-mrn.label=Enter the MRN or Entry number
+enter-movement-reference-number.bulk.invalid.number=Enter a valid MRN or entry number
+enter-movement-reference-number.bulk.invalid=Enter a valid MRN or entry number
+enter-movement-reference-number.bulk.error.required=Enter a valid MRN or entry number
+
+#===================================================
+#  ENTER MRN PAGE SCHEDULE
+#===================================================
+enter-movement-reference-number.schedule.title=What is your Lead Movement Reference Number (MRN)?
+enter-movement-reference-number.schedule.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-movement-reference-number.schedule.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
+enter-movement-reference-number.schedule.enter-mrn.label=Enter the MRN or Entry number
+enter-movement-reference-number.schedule.invalid.number=Enter a valid MRN or entry number
+enter-movement-reference-number.schedule.invalid=Enter a valid MRN or entry number
+enter-movement-reference-number.schedule.error.required=Enter a valid MRN or entry number
+
 #===================================================
 #  ENTER MRN SCHEDULE PLACEHOLDER PAGE
 #===================================================
@@ -1122,3 +1156,5 @@ single-journey.help=Help text from single journey
 
 bulk-journey.title=Bulk Journey
 bulk-journey.help=Help text from bulk journey
+
+upload.schedule.title=Add a scheduled document

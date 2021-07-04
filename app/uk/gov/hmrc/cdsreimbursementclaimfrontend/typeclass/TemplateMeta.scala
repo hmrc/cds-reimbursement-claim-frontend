@@ -33,6 +33,31 @@ trait TemplateMeta[C <: FrontendController] {
 
 object TemplateMeta {
 
+  implicit object DummyReferenceNumberControllerTemplateMeta extends TemplateMeta[DummyReferenceNumberController] {
+
+    def getKey(claimType: ClaimType): String = claimType match {
+      case Bulk     => "enter-movement-reference-number.bulk"
+      case Schedule => "enter-movement-reference-number.schedule"
+      case Single   => "enter-movement-reference-number.single"
+    }
+
+    def submitUrl: Call = routes.DummyReferenceNumberController.submit()
+
+    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
+      case (Single, MovementReferenceNumber(Right(MRN(_))))        =>
+        routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) =>
+        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+
+      case (Bulk, MovementReferenceNumber(Right(MRN(_))))        => routes.DummyScheduleUploadController.show()
+      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) =>
+        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+
+      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.DummyScheduleUploadController.show()
+      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => baseRoutes.IneligibleController.ineligible()
+    }
+  }
+
   implicit object DummyControllerClassTemplateMeta extends TemplateMeta[DummyControllerClass] {
 
     def getKey(claimType: ClaimType): String = claimType match {
@@ -50,30 +75,6 @@ object TemplateMeta {
       case (Bulk, MovementReferenceNumber(Left(EntryNumber(_))))     => routes.NextPageController.nextSinglePage()
       case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.NextPageController.nextSinglePage()
       case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => routes.NextPageController.nextSinglePage()
-    }
-  }
-
-  implicit object DummyReferenceNumberControllerTemplateMeta extends TemplateMeta[DummyReferenceNumberController] {
-
-    def getKey(claimType: ClaimType): String = claimType match {
-      case Bulk     => "enter-movement-reference-number.bulk"
-      case Schedule => "enter-movement-reference-number.schedule"
-      case Single   => "enter-movement-reference-number.single"
-    }
-
-    def submitUrl: Call = routes.DummyReferenceNumberController.submit()
-
-    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
-      case (Single, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
-      case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) =>
-        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
-
-      case (Bulk, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
-      case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) =>
-        routes.EnterDeclarationDetailsController.enterDeclarationDetails()
-
-      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.CheckDeclarationDetailsController.checkDetails()
-      case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => baseRoutes.IneligibleController.ineligible()
     }
   }
 
