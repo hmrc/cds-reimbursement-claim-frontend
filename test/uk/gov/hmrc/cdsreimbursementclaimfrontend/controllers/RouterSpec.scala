@@ -70,7 +70,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       forAll(allRoutes) { router =>
         router.nextPageForBasisForClaim(
           BasisOfClaim.DuplicateEntry
-        ) shouldBe claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+        ) shouldBe claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(router.journeyBindable)
       }
     }
     "enter commodities details when basis of claim doesn't have duplicate entry selected" in {

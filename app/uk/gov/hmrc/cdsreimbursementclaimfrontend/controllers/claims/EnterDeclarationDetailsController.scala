@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -365,7 +365,9 @@ class EnterDeclarationDetailsController @Inject() (
                   )
                 case Right(_)          =>
                   Redirect(
-                    routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+                    routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(
+                      TemporaryJourneyExtractor.extractJourney
+                    )
                   )
               }
         )

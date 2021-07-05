@@ -29,7 +29,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
     basisOfClaim match {
       case BasisOfClaim.DuplicateEntry =>
-        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
       case _                           =>
         claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
     }
@@ -49,15 +49,18 @@ trait ScheduledRoutes extends JourneyTypeRoutes {
 }
 
 trait ReferenceNumberTypeRoutes extends Product with Serializable {
+  val refNumberKey: Option[String]
   def nextPageForEnterMRN(importer: MrnJourney): Call
 }
 trait MRNRoutes extends ReferenceNumberTypeRoutes {
+  val refNumberKey                                    = Some("mrn")
   def nextPageForEnterMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails()
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
 trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
+  val refNumberKey                                    = Some("entry")
   def nextPageForEnterMRN(importer: MrnJourney): Call =
     claimRoutes.EnterDeclarationDetailsController.enterDeclarationDetails()
 }
@@ -73,6 +76,7 @@ case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
+  val refNumberKey                    = None
   override val subKey: Option[String] = None
   override val journeyBindable        = JourneyBindable.Single
 
