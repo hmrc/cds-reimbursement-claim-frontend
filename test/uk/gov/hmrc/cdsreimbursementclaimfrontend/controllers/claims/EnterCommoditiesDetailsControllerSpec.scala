@@ -27,14 +27,13 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommoditiesDetailsAnswer, CommodityDetails, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SessionData, SignedInUserDetails, upscan => _}
 
 import scala.concurrent.Future
 
@@ -57,7 +56,7 @@ class EnterCommoditiesDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeCommoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer]
+    maybeCommoditiesDetailsAnswer: Option[CommodityDetails]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim
@@ -82,9 +81,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
 
-        val answers = IncompleteCommoditiesDetailsAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -105,15 +102,13 @@ class EnterCommoditiesDetailsControllerSpec
       "the user has not answered this question before" in {
         def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
 
-        val answers = IncompleteCommoditiesDetailsAnswer.empty
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(None)._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
             movementReferenceNumber = sampleMrnAnswer()
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -131,7 +126,7 @@ class EnterCommoditiesDetailsControllerSpec
       "the user has answered this question before" in {
         def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -159,7 +154,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         def performAction(): Future[Result] = controller.changeCommoditiesDetails()(FakeRequest())
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -193,7 +188,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -224,7 +219,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -259,7 +254,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails(List.fill(600)('c').mkString(" ")))
+        val answers = CommodityDetails(List.fill(600)('c').mkString(" "))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
           .copy(

@@ -50,7 +50,7 @@ object DraftClaim {
     basisOfClaimAnswer: Option[BasisOfClaimAnswer],
     supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
-    commoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer],
+    commoditiesDetailsAnswer: Option[CommodityDetails],
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
     reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
     displayDeclaration: Option[DisplayDeclaration],
