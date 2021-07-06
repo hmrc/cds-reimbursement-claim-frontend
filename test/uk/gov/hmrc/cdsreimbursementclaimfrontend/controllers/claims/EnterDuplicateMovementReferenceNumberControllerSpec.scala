@@ -133,7 +133,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
     }
 
-    "Duplicate Entry Number page" must {
+    "Render the Duplicate Entry Number page" must {
       def performAction(journeyBindable: JourneyBindable): Future[Result] =
         controller.enterDuplicateMrn(journeyBindable)(FakeRequest())
 
@@ -151,6 +151,26 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         )
       }
 
+      "Show the title for the MRN page" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer(), Some(numberOfClaims))
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        val doc = Jsoup.parse(contentAsString(performAction(journeyBindable)))
+        doc.select("h1").text should include(
+          messageFromMessageKey(s"enter-duplicate-movement-reference-number.mrn.title")
+        )
+      }
+
+    }
+
+    "Submit the Duplicate Entry Number page" must {
+
+      def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
+        controller.enterDuplicateMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
       "Fail if the same Entry Number is submitted" in forAll(testCases) { (numberOfClaims, journey) =>
         val entryNumber     = sample[EntryNumber]
         val answers         = sampleEntryNumberAnswer(entryNumber)
@@ -159,14 +179,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = controller.enterDuplicateMrnSubmit(journey)(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> entryNumber.value)
-        )
+        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> entryNumber.value)
 
         val doc   = Jsoup.parse(contentAsString(result))
         val error = getGlobalErrors(doc).text()
         error shouldBe messageFromMessageKey(
-          s"$enterDuplicateMovementReferenceNumberKey.invalid.enter-different-entry-number"
+          s"$enterDuplicateMovementReferenceNumberKey.entry.invalid.enter-different-entry-number"
         )
 
         status(result) shouldBe BAD_REQUEST
@@ -178,12 +196,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = controller.enterDuplicateMrnSubmit(journey)(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> sample[MRN].value)
+        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> sample[MRN].value)
+
+        val doc   = Jsoup.parse(contentAsString(result))
+        val error = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey(
+          s"$enterDuplicateMovementReferenceNumberKey.entry.invalid.entry-number-not-mrn"
         )
-        val doc             = Jsoup.parse(contentAsString(result))
-        val error           = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey(s"$enterDuplicateMovementReferenceNumberKey.invalid.entry-number-not-mrn")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -198,34 +217,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          = controller.enterDuplicateMrnSubmit(journey)(
-          FakeRequest().withFormUrlEncodedBody(
-            enterDuplicateMovementReferenceNumberKey -> genOtherThan(entryNumber).value
-          )
-        )
+        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
+
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
-      }
-
-    }
-
-    "Duplicate MRN page" must {
-      def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.enterDuplicateMrn(journeyBindable)(FakeRequest())
-
-      "Show the title for the MRN page" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        val (session, _, _) = sessionWithClaimState(sampleMrnAnswer(), Some(numberOfClaims))
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        val doc = Jsoup.parse(contentAsString(performAction(journeyBindable)))
-        doc.select("h1").text should include(
-          messageFromMessageKey(s"enter-duplicate-movement-reference-number.mrn.title")
-        )
+        ).value        shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
       }
 
       "Fail if the same MRN is submitted" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
@@ -236,12 +233,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = controller.enterDuplicateMrnSubmit(journeyBindable)(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> mrn.value)
+        val result          = performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> mrn.value)
+
+        val doc   = Jsoup.parse(contentAsString(result))
+        val error = getGlobalErrors(doc).text()
+        error          shouldBe messageFromMessageKey(
+          s"$enterDuplicateMovementReferenceNumberKey.mrn.invalid.enter-different-mrn"
         )
-        val doc             = Jsoup.parse(contentAsString(result))
-        val error           = getGlobalErrors(doc).text()
-        error          shouldBe messageFromMessageKey(s"$enterDuplicateMovementReferenceNumberKey.invalid.enter-different-mrn")
         status(result) shouldBe BAD_REQUEST
       }
 
@@ -252,13 +250,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             mockAuthWithNoRetrievals()
             mockGetSession(session)
           }
-          val result          = controller.enterDuplicateMrnSubmit(journeyBindable)(
-            FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value)
-          )
+          val result          =
+            performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value)
+
           val doc             = Jsoup.parse(contentAsString(result))
           val error           = getGlobalErrors(doc).text()
           error          shouldBe messageFromMessageKey(
-            s"$enterDuplicateMovementReferenceNumberKey.invalid.mrn-not-entry-number"
+            s"$enterDuplicateMovementReferenceNumberKey.mrn.invalid.mrn-not-entry-number"
           )
           status(result) shouldBe BAD_REQUEST
       }
@@ -273,17 +271,15 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
-          mockStoreSession(Right(()))
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result             = controller.enterDuplicateMrnSubmit(journeyBindable)(
-          FakeRequest().withFormUrlEncodedBody(enterDuplicateMovementReferenceNumberKey -> genOtherThan(mrn).value)
-        )
+        val result             = performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> genOtherThan(mrn).value)
+
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
+        ).value        shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
     }

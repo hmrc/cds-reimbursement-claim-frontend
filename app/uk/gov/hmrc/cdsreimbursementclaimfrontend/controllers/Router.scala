@@ -51,18 +51,25 @@ trait ScheduledRoutes extends JourneyTypeRoutes {
 trait ReferenceNumberTypeRoutes extends Product with Serializable {
   val refNumberKey: Option[String]
   def nextPageForEnterMRN(importer: MrnJourney): Call
+  def nextPageForDuplicateMRN(importer: MrnJourney): Call
 }
 trait MRNRoutes extends ReferenceNumberTypeRoutes {
-  val refNumberKey                                    = Some("mrn")
-  def nextPageForEnterMRN(importer: MrnJourney): Call = importer match {
+  val refNumberKey                                        = Some("mrn")
+  def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
     case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails()
+    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+  }
+  def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
+    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDuplicateDetails()
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
 trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
-  val refNumberKey                                    = Some("entry")
-  def nextPageForEnterMRN(importer: MrnJourney): Call =
+  val refNumberKey                                        = Some("entry")
+  def nextPageForEnterMRN(importer: MrnJourney): Call     =
     claimRoutes.EnterDeclarationDetailsController.enterDeclarationDetails()
+  def nextPageForDuplicateMRN(importer: MrnJourney): Call =
+    claimRoutes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
 }
 object ReimbursementRoutes {
   type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes
@@ -80,7 +87,7 @@ case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNum
   override val subKey: Option[String] = None
   override val journeyBindable        = JourneyBindable.Single
 
-  val selectNumberOfClaimsPage: Call                  = claimRoutes.SelectNumberOfClaimsController.show()
-  def nextPageForEnterMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
-
+  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
+  def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
+  def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 }
