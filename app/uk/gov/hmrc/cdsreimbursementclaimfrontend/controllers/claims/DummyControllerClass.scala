@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Single}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, MovementReferenceNumber, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.SessionService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyParameters, UserJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney.syntax._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -78,12 +78,12 @@ class DummyControllerClass @Inject() (
           logger.warn(error.message)
           errorHandler.errorResult()
         },
-        journey => journey.showPage[DummyControllerClass]((key, submitUrl) => Ok(displayJourney(key, submitUrl)))
+        journey => journey.showPage[DummyControllerClass, JourneyParameters]((key, submitUrl) => Ok(displayJourney(key, submitUrl)))
       )
     }
 
   def testSubmit(): Action[AnyContent] = {
-    val meta = implicitly[UserJourney[DummyControllerClass]]
+    val journey = implicitly[UserJourney[DummyControllerClass, JourneyParameters]]
 
     authenticatedActionWithSessionData.async { implicit request =>
       sessionService.getClaimType
@@ -94,8 +94,8 @@ class DummyControllerClass @Inject() (
           },
           claimType =>
             Redirect(
-              meta.nextUrl(claimType, MovementReferenceNumber(Right(MRN("3423042034723"))))
-            ) //TODO: temp dummy value
+              journey.nextUrl(JourneyParameters(claimType, MovementReferenceNumber(Right(MRN("3423042034723")))))
+            )
         )
     }
   }

@@ -17,23 +17,39 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass
 
 import play.api.mvc.{Call, Result}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, DummyReferenceNumberController, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{DummyControllerClass, DummyReferenceNumberController, SelectBasisForClaimController, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MovementReferenceNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journey.ClaimType.{Bulk, Schedule, Single}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-trait UserJourney[C <: FrontendController] {
+final case class JourneyParameters(claimType: ClaimType, mrn: MovementReferenceNumber)
+
+trait UserJourney[C <: FrontendController, A] {
   def submitUrl: Call
   def getKey(claimType: ClaimType): String
-  def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call
+  def nextUrl(a: A): Call
 }
 
 object UserJourney {
 
-  implicit object DummyReferenceNumberControllerTemplateMeta extends UserJourney[DummyReferenceNumberController] {
+  implicit object SelectBasisForClaimControllerTemplateMeta extends UserJourney[SelectBasisForClaimController, BasisOfClaim] {
+
+    override def submitUrl: Call = ???
+
+    override def getKey(claimType: ClaimType): String = ???
+
+    override def nextUrl(basisOfClaim: BasisOfClaim): Call = basisOfClaim match {
+      case BasisOfClaim.DuplicateEntry =>
+        routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+      case _ =>
+        routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+    }
+  }
+
+  implicit object DummyReferenceNumberControllerTemplateMeta extends UserJourney[DummyReferenceNumberController, JourneyParameters] {
 
     def getKey(claimType: ClaimType): String = claimType match {
       case Bulk     => "enter-movement-reference-number.bulk"
@@ -43,22 +59,22 @@ object UserJourney {
 
     def submitUrl: Call = routes.DummyReferenceNumberController.submit()
 
-    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
-      case (Single, MovementReferenceNumber(Right(MRN(_))))        =>
+    override def nextUrl(params: JourneyParameters): Call = (params.claimType, params.mrn) match {
+      case (Single, MovementReferenceNumber(Right(MRN(_)))) =>
         routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
       case (Single, MovementReferenceNumber(Left(EntryNumber(_)))) =>
         routes.EnterDeclarationDetailsController.enterDeclarationDetails()
 
-      case (Bulk, MovementReferenceNumber(Right(MRN(_))))        => routes.DummyScheduleUploadController.show()
+      case (Bulk, MovementReferenceNumber(Right(MRN(_)))) => routes.DummyScheduleUploadController.show()
       case (Bulk, MovementReferenceNumber(Left(EntryNumber(_)))) =>
         routes.EnterDeclarationDetailsController.enterDeclarationDetails()
 
-      case (Schedule, MovementReferenceNumber(Right(MRN(_))))        => routes.DummyScheduleUploadController.show()
+      case (Schedule, MovementReferenceNumber(Right(MRN(_)))) => routes.DummyScheduleUploadController.show()
       case (Schedule, MovementReferenceNumber(Left(EntryNumber(_)))) => baseRoutes.IneligibleController.ineligible()
     }
   }
 
-  implicit object DummyControllerClassTemplateMeta extends UserJourney[DummyControllerClass] {
+  implicit object DummyControllerClassTemplateMeta extends UserJourney[DummyControllerClass, JourneyParameters] {
 
     def getKey(claimType: ClaimType): String = claimType match {
       case Bulk     => "bulk-journey"
@@ -68,7 +84,7 @@ object UserJourney {
 
     def submitUrl: Call = routes.DummyControllerClass.testSubmit()
 
-    def nextUrl(claimType: ClaimType, mrn: MovementReferenceNumber): Call = (claimType, mrn) match {
+    def nextUrl(params: JourneyParameters): Call = (params.claimType, params.mrn) match {
       case (Single, MovementReferenceNumber(Right(MRN(_))))          => routes.NextPageController.nextSinglePage()
       case (Single, MovementReferenceNumber(Left(EntryNumber(_))))   => routes.NextPageController.nextSinglePage()
       case (Bulk, MovementReferenceNumber(Right(MRN(_))))            => routes.NextPageController.nextBulkPage()
@@ -81,9 +97,9 @@ object UserJourney {
   object syntax {
 
     implicit class ClaimTypeTemplateMetaOps(val claimType: ClaimType) extends AnyVal {
-      def showPage[T <: FrontendController](
+      def showPage[T <: FrontendController, A](
         f: (String, Call) => Result
-      )(implicit templateMeta: UserJourney[T]): Result = {
+      )(implicit templateMeta: UserJourney[T, A]): Result = {
         val key = templateMeta.getKey(claimType)
         val url = templateMeta.submitUrl
         f(key, url)

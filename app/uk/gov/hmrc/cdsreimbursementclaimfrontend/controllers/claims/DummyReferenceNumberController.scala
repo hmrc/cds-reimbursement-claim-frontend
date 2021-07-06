@@ -25,7 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{CompletedFillingOutClaim, FillingOutClaim, PreFillingOutClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.UserJourney.SelectBasisForClaimControllerTemplateMeta.DummyReferenceNumberControllerTemplateMeta
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.typeclass.{JourneyParameters, UserJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -47,7 +48,8 @@ class DummyReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  lazy val meta: UserJourney[DummyReferenceNumberController] = implicitly[UserJourney[DummyReferenceNumberController]]
+  lazy val journey: UserJourney[DummyReferenceNumberController, JourneyParameters] =
+    implicitly[UserJourney[DummyReferenceNumberController, JourneyParameters]]
 
   def show(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
@@ -56,15 +58,15 @@ class DummyReferenceNumberController @Inject() (
           case (_, claim: PreFillingOutClaim) =>
             claim.claimType.fold(Redirect(routes.SelectNumberOfClaimsController.show())) { claimType =>
               val form = EnterMovementReferenceNumberController
-                .movementReferenceNumberForm(meta.getKey(claimType), isEntryNumberEnabled = true)
-              Ok(dummyEnterMovementReferenceNumberPage(meta.getKey(claimType), meta.submitUrl, form))
+                .movementReferenceNumberForm(journey.getKey(claimType), isEntryNumberEnabled = true)
+              Ok(dummyEnterMovementReferenceNumberPage(journey.getKey(claimType), journey.submitUrl, form))
             }
           case (_, claim: FillingOutClaim)    =>
             claim.draftClaim.movementReferenceNumber.fold(errorHandler.errorResult()) { mrn =>
               val form = EnterMovementReferenceNumberController
-                .movementReferenceNumberForm(meta.getKey(claim.claimType), isEntryNumberEnabled = true)
+                .movementReferenceNumberForm(journey.getKey(claim.claimType), isEntryNumberEnabled = true)
                 .fill(MovementReferenceNumber(mrn))
-              Ok(dummyEnterMovementReferenceNumberPage(meta.getKey(claim.claimType), meta.submitUrl, form))
+              Ok(dummyEnterMovementReferenceNumberPage(journey.getKey(claim.claimType), journey.submitUrl, form))
             }
         },
         request.startNewJourney
@@ -79,13 +81,17 @@ class DummyReferenceNumberController @Inject() (
             claim.claimType.fold(Future.successful(Redirect(routes.SelectNumberOfClaimsController.show()))) {
               claimType =>
                 EnterMovementReferenceNumberController
-                  .movementReferenceNumberForm(meta.getKey(claimType), isEntryNumberEnabled = true)
+                  .movementReferenceNumberForm(journey.getKey(claimType), isEntryNumberEnabled = true)
                   .bindFromRequest()
                   .fold(
                     formErrors =>
                       Future.successful(
                         BadRequest(
-                          dummyEnterMovementReferenceNumberPage(meta.getKey(claimType), meta.submitUrl, formErrors)
+                          dummyEnterMovementReferenceNumberPage(
+                            journey.getKey(claimType),
+                            journey.submitUrl,
+                            formErrors
+                          )
                         )
                       ),
                     mrn =>
@@ -98,20 +104,24 @@ class DummyReferenceNumberController @Inject() (
                       ).map(
                         _.fold(
                           _ => errorHandler.errorResult(),
-                          _ => Redirect(meta.nextUrl(claimType, mrn))
+                          _ => Redirect(journey.nextUrl(claimType, mrn))
                         )
                       )
                   )
             }
           case (_, claim: FillingOutClaim)          =>
             EnterMovementReferenceNumberController
-              .movementReferenceNumberForm(meta.getKey(claim.claimType), isEntryNumberEnabled = true)
+              .movementReferenceNumberForm(journey.getKey(claim.claimType), isEntryNumberEnabled = true)
               .bindFromRequest()
               .fold(
                 formErrors =>
                   Future.successful(
                     BadRequest(
-                      dummyEnterMovementReferenceNumberPage(meta.getKey(claim.claimType), meta.submitUrl, formErrors)
+                      dummyEnterMovementReferenceNumberPage(
+                        journey.getKey(claim.claimType),
+                        journey.submitUrl,
+                        formErrors
+                      )
                     )
                   ),
                 mrn =>
@@ -120,19 +130,23 @@ class DummyReferenceNumberController @Inject() (
                   ).map(
                     _.fold(
                       _ => errorHandler.errorResult(),
-                      _ => Redirect(meta.nextUrl(claim.claimType, mrn))
+                      _ => Redirect(journey.nextUrl(claim.claimType, mrn))
                     )
                   )
               )
           case (_, claim: CompletedFillingOutClaim) =>
             EnterMovementReferenceNumberController
-              .movementReferenceNumberForm(meta.getKey(claim.claimType), isEntryNumberEnabled = true)
+              .movementReferenceNumberForm(journey.getKey(claim.claimType), isEntryNumberEnabled = true)
               .bindFromRequest()
               .fold(
                 formErrors =>
                   Future.successful(
                     BadRequest(
-                      dummyEnterMovementReferenceNumberPage(meta.getKey(claim.claimType), meta.submitUrl, formErrors)
+                      dummyEnterMovementReferenceNumberPage(
+                        journey.getKey(claim.claimType),
+                        journey.submitUrl,
+                        formErrors
+                      )
                     )
                   ),
                 mrn =>
@@ -150,12 +164,5 @@ class DummyReferenceNumberController @Inject() (
         },
         Future.successful(request.startNewJourney)
       )
-
-    //TODO: test implementation for components: TC, withAnswers, controllers
-    //TODO: things to consider:
-    //TODO: 1. what if the user is in a schedule journey and the user tries to hit a single journey endpoint? resolved by action filters
-    //TODO: 2. how do we introduce feature flags? that is, block users from certain journeys (can the feature flag be applied at the TC level, instead of controller classes??)
-    //TODO: 3. how do we handle wiring that is based on user submitted answers as well as claim-type, and movement reference number? (bypass the TC) ie value based journey evaluation (Not type driven)
-
     }
 }

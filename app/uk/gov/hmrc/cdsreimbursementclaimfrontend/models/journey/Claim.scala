@@ -42,17 +42,6 @@ trait Claim extends Product with Serializable {
 
 object Claim {
 
-//  implicit val mrn = new Show[MRN] {
-//    override def show(t: MRN): String = ???
-//  }
-//
-//  implicit val ern = new Show[EntryNumber] {
-//    override def show(t: EntryNumber): String = ???
-//  }
-//
-//  def display[T <: ReferenceNumber](n: T)(implicit s: Show[T]) =
-//    s.show(n)
-
   final case class CompleteClaim[T <: ReferenceNumber](
     id: UUID,
     movementReferenceNumber: T,
