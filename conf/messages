@@ -104,8 +104,8 @@ check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if these details are correct or no if they are incorrect
-check-eori-details.invalid=Select yes if these details are correct or no if they are incorrect
+check-eori-details.error.required=Select yes if details are correct
+check-eori-details.invalid=Select yes if details are correct
 
 
 #===================================================
@@ -684,8 +684,8 @@ check-claim-summary.total=Total Reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.error.required=Select yes if these details are correct or no if they are incorrect
-check-claim-summary.error.invalid=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.error.required=Select yes if details are correct
+check-claim-summary.error.invalid=Select yes if details are correct
 
 #===================================================
 #  ENTER BANK DETAILS PAGE
