@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxOptionId
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
@@ -25,17 +24,18 @@ import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Serg._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterCommoditiesDetailsController @Inject() (
@@ -49,45 +49,34 @@ class EnterCommoditiesDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with SessionDataExtractor
     with Logging
     with SessionUpdates {
 
-  private def withCommoditiesDetails(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      Option[CommodityDetails]
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
-      draftClaim
-        .fold(_.commoditiesDetailsAnswer)
-        .map(details => f(sessionData, fillingOutClaim, details.some))
-        .getOrElse(f(sessionData, fillingOutClaim, None))
-    })
+  implicit val dataExtractor: DraftC285Claim => Option[CommodityDetails] = _.commoditiesDetailsAnswer
 
-  def enterCommoditiesDetails: Action[AnyContent]  = show(isAmend = false)
-  def changeCommoditiesDetails: Action[AnyContent] = show(isAmend = true)
+  def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
+  def changeCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
 
-  def show(isAmend: Boolean): Action[AnyContent] =
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, _, answers) =>
+      withAnswersAndRoutes[CommodityDetails] { (_, answers, router) =>
         val commoditiesDetailsForm =
           answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
             form.fill(answer)
           )
-        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, isAmend))
+        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend))
       }
     }
 
-  def enterCommoditiesDetailsSubmit: Action[AnyContent]  =
-    submit(isAmend = false, routes.SelectDutiesController.selectDuties())
-  def changeCommoditiesDetailsSubmit: Action[AnyContent] =
-    submit(isAmend = true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+  def enterCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
+    submit(isAmend = false)
+  def changeCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+    submit(isAmend = true)
 
-  def submit(isAmend: Boolean, redirectUrl: Call): Action[AnyContent] =
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, fillingOutClaim, _) =>
+      withAnswersAndRoutes[CommodityDetails] { (fillingOutClaim, _, router) =>
         EnterCommoditiesDetailsController.commoditiesDetailsForm
           .bindFromRequest()
           .fold(
@@ -95,12 +84,14 @@ class EnterCommoditiesDetailsController @Inject() (
               BadRequest(
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors,
+                  router,
                   isAmend
                 )
               ),
             commodityDetails => {
-              val updatedJourney =
-                FillingOutClaim.of(fillingOutClaim)(_.fold(_.copy(commoditiesDetailsAnswer = Some(commodityDetails))))
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(commodityDetails)))
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -110,7 +101,7 @@ class EnterCommoditiesDetailsController @Inject() (
                     logger.warn("could not get commodity details", e)
                     errorHandler.errorResult()
                   },
-                  _ => Redirect(redirectUrl)
+                  _ => Redirect(router.nextPage(isAmend))
                 )
             }
           )

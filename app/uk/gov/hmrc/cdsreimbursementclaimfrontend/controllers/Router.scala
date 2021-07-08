@@ -17,10 +17,54 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{EnterCommoditiesDetailsController, JourneyBindable, SelectBasisForClaimController, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+
+
+trait Shiva[T]{
+
+}
+
+object Shiva {
+  
+}
+
+trait Serg[T] {
+  def getNextUrl(parameters: T): Call
+}
+
+object Serg {
+
+  implicit object EnterCommoditiesDetailsUserJourney extends Serg[Boolean] {
+
+    def getNextUrl(parameters: Boolean): Call =
+      if (parameters) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      else claimRoutes.SelectDutiesController.selectDuties()
+  }
+
+  final case class BasisForClaimJourneyInput(basisOfClaim: BasisOfClaim, journeyBindable: JourneyBindable)
+
+  implicit object BasisForClaimJourney extends Serg[BasisForClaimJourneyInput] {
+
+    def getNextUrl(parameters: BasisForClaimJourneyInput): Call =
+      parameters.basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+        case _                           =>
+          claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(parameters.journeyBindable)
+      }
+  }
+
+  def getRouter[C](cls:C):Serg[_] = {
+    cls match {
+      case EnterCommoditiesDetailsController => EnterCommoditiesDetailsUserJourney
+      case SelectBasisForClaimController => BasisForClaimJourney
+    }
+  }
+
+}
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
@@ -31,7 +75,13 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case BasisOfClaim.DuplicateEntry =>
         claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
       case _                           =>
-        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+    }
+
+  def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
 }

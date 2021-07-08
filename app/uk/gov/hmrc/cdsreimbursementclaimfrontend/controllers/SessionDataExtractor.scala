@@ -17,8 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Serg.{BasisForClaimJourney, EnterCommoditiesDetailsUserJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{EnterCommoditiesDetailsController, JourneyBindable, SelectBasisForClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -40,7 +41,7 @@ trait SessionDataExtractor extends Results {
         Future.successful(Redirect(routes.StartController.start()))
     }
 
-  def withAnswersAndRoutes[T](
+  def   withAnswersAndRoutes[T](
     f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
   )(implicit
     extractor: DraftC285Claim => Option[T],
@@ -93,6 +94,13 @@ trait SessionDataExtractor extends Results {
         EntryScheduledRoutes
       case _                                                                                                        => JourneyNotDetectedRoutes
     }
+
+  def getRouter[C](cls:C):Serg[_] = {
+    cls match {
+      case EnterCommoditiesDetailsController => EnterCommoditiesDetailsUserJourney
+      case SelectBasisForClaimController => BasisForClaimJourney
+    }
+  }
 
 }
 

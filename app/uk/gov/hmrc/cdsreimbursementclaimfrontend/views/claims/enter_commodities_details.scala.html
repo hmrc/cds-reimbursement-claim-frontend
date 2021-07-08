@@ -20,6 +20,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -29,11 +31,12 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[CommodityDetails], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[CommodityDetails], router:ReimbursementRoutes,isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-commodities-details"}
     @title = @{messages(s"$key.title")}
-    @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit}
+    @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(router.journeyBindable)
+                    else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(router.journeyBindable)}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -50,7 +53,7 @@
                 isPageHeading = true,
                 label = s"$key.title",
                 labelClasses = Some("govuk-label govuk-label--xl"),
-                hint = Some(s"${key}.hint"),
+                hint = lang(key,router.subKey,"hint").headOption,
                 value =  form(key).value,
                 maxLength = Some(500)
             )
