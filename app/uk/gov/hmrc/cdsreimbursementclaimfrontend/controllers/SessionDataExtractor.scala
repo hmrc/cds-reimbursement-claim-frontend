@@ -17,14 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Serg.{BasisForClaimJourney, EnterCommoditiesDetailsUserJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{EnterCommoditiesDetailsController, JourneyBindable, SelectBasisForClaimController}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
 
 import scala.concurrent.Future
 
@@ -41,7 +40,7 @@ trait SessionDataExtractor extends Results {
         Future.successful(Redirect(routes.StartController.start()))
     }
 
-  def   withAnswersAndRoutes[T](
+  def withAnswersAndRoutes[T](
     f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
   )(implicit
     extractor: DraftC285Claim => Option[T],
@@ -53,6 +52,27 @@ trait SessionDataExtractor extends Results {
         val numOfClaims = getNumberOfClaims(draftClaim)
         val refType     = getMovementReferenceNumber(draftClaim)
         val router      = getRoutes(numOfClaims, refType, journeyBindable)
+        draftClaim
+          .fold(extractor(_))
+          .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
+      case _                                                                     =>
+        Future.successful(Redirect(baseRoutes.StartController.start()))
+    }
+
+  def withAnswersAndRoutes2[T](
+    f: (FillingOutClaim, Option[T], JourneyTypeRoutes2[T]) => Future[Result]
+  )(implicit
+    extractor: DraftC285Claim => Option[T],
+    request: RequestWithSessionData[_],
+    journeyBindable: JourneyBindable,
+    router: JourneyTypeRoutes2[T]
+  ): Future[Result] =
+    request.sessionData.flatMap(_.journeyStatus) match {
+      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+//        val numOfClaims = getNumberOfClaims(draftClaim)
+//        val refType     = getMovementReferenceNumber(draftClaim)
+//        val router      = getRoutes(numOfClaims, refType, journeyBindable)
+        println(journeyBindable)
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
@@ -94,14 +114,6 @@ trait SessionDataExtractor extends Results {
         EntryScheduledRoutes
       case _                                                                                                        => JourneyNotDetectedRoutes
     }
-
-  def getRouter[C](cls:C):Serg[_] = {
-    cls match {
-      case EnterCommoditiesDetailsController => EnterCommoditiesDetailsUserJourney
-      case SelectBasisForClaimController => BasisForClaimJourney
-    }
-  }
-
 }
 
 //This method should be used in controllers, where we did not introduce the JourneyBindable yet

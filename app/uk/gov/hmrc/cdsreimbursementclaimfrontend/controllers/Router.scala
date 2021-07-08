@@ -17,53 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{EnterCommoditiesDetailsController, JourneyBindable, SelectBasisForClaimController, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MrnJourney}
 
-
-trait Shiva[T]{
-
+trait JourneyTypeRoutes2[A] {
+  val subKey: Option[String]
+  val journeyBindable: JourneyBindable
+  def nextPage(f: => Boolean): Call
 }
 
-object Shiva {
-  
-}
-
-trait Serg[T] {
-  def getNextUrl(parameters: T): Call
-}
-
-object Serg {
-
-  implicit object EnterCommoditiesDetailsUserJourney extends Serg[Boolean] {
-
-    def getNextUrl(parameters: Boolean): Call =
-      if (parameters) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+object JourneyTypeRoutes2 {
+  implicit object CommodityDetailsJourney extends JourneyTypeRoutes2[CommodityDetails] {
+    override val subKey: Option[String]           = None
+    override val journeyBindable: JourneyBindable = JourneyBindable.Single
+    override def nextPage(f: => Boolean): Call    =
+      if (f) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
       else claimRoutes.SelectDutiesController.selectDuties()
   }
-
-  final case class BasisForClaimJourneyInput(basisOfClaim: BasisOfClaim, journeyBindable: JourneyBindable)
-
-  implicit object BasisForClaimJourney extends Serg[BasisForClaimJourneyInput] {
-
-    def getNextUrl(parameters: BasisForClaimJourneyInput): Call =
-      parameters.basisOfClaim match {
-        case BasisOfClaim.DuplicateEntry =>
-          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
-        case _                           =>
-          claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(parameters.journeyBindable)
-      }
-  }
-
-  def getRouter[C](cls:C):Serg[_] = {
-    cls match {
-      case EnterCommoditiesDetailsController => EnterCommoditiesDetailsUserJourney
-      case SelectBasisForClaimController => BasisForClaimJourney
-    }
-  }
-
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
