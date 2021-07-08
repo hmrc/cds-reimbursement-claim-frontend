@@ -26,14 +26,22 @@ trait JourneyTypeRoutes2[A] {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
   def nextPage(f: => Boolean): Call
+
+  def submitUrl(condition: => Boolean, journeyBindable: JourneyBindable): Call
 }
 
 object JourneyTypeRoutes2 {
+
   implicit object CommodityDetailsJourney extends JourneyTypeRoutes2[CommodityDetails] {
     override val subKey: Option[String]           = None
     override val journeyBindable: JourneyBindable = JourneyBindable.Single
-    override def nextPage(f: => Boolean): Call    =
-      if (f) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+
+    def submitUrl(condition: => Boolean, journeyBindable: JourneyBindable): Call =
+      if (condition) claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
+      else claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
+
+    override def nextPage(condition: => Boolean): Call =
+      if (condition) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
       else claimRoutes.SelectDutiesController.selectDuties()
   }
 }

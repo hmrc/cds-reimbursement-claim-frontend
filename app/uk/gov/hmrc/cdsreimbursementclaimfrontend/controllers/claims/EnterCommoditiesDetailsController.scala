@@ -65,7 +65,7 @@ class EnterCommoditiesDetailsController @Inject() (
           answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
             form.fill(answer)
           )
-        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend))
+        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend, journey))
       }
     }
 
@@ -85,7 +85,8 @@ class EnterCommoditiesDetailsController @Inject() (
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors,
                   router,
-                  isAmend
+                  isAmend,
+                  journey
                 )
               ),
             commodityDetails => {
