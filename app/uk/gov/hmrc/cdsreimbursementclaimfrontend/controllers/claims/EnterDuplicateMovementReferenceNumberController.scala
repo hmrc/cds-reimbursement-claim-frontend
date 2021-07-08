@@ -158,13 +158,13 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
 object EnterDuplicateMovementReferenceNumberController {
 
-  val enterDuplicateMovementReferenceNumberKey = "enter-duplicate-movement-reference-number"
-  val invalidNumberError                       = "invalid.number"
+  val keyForenterDuplicateMovementReferenceNumber = "enter-duplicate-movement-reference-number"
+  val invalidNumberError                          = "invalid.number"
 
   def getForm(): Form[MovementReferenceNumber] =
     Form(
       mapping(
-        enterDuplicateMovementReferenceNumberKey -> nonEmptyText
+        keyForenterDuplicateMovementReferenceNumber -> nonEmptyText
           .transform[MRN](str => MRN.changeToUpperCaseWithoutSpaces(str), _.value)
       )(MovementReferenceNumber.apply)(_.value.toOption)
     )
@@ -182,7 +182,7 @@ object EnterDuplicateMovementReferenceNumberController {
   def mrnForm(mainMrn: MRN): Form[MovementReferenceNumber] =
     Form(
       mapping(
-        enterDuplicateMovementReferenceNumberKey -> mrnMapping(mainMrn)
+        keyForenterDuplicateMovementReferenceNumber -> mrnMapping(mainMrn)
       )(MovementReferenceNumber.apply)(_.value.toOption)
     )
 
@@ -200,7 +200,7 @@ object EnterDuplicateMovementReferenceNumberController {
   def entryForm(mainEntryNumber: EntryNumber): Form[MovementReferenceNumber] =
     Form(
       mapping(
-        enterDuplicateMovementReferenceNumberKey -> entryNumberMapping(mainEntryNumber)
+        keyForenterDuplicateMovementReferenceNumber -> entryNumberMapping(mainEntryNumber)
       )(MovementReferenceNumber.apply)(_.value.swap.toOption)
     )
 
@@ -216,7 +216,7 @@ object EnterDuplicateMovementReferenceNumberController {
       .transform[EntryNumber](str => EntryNumber.changeToUpperCaseWithoutSpaces(str), _.value)
 
   def processFormErrors(refKey: Option[String], errors: Seq[FormError]): FormError = {
-    val mainKey = enterDuplicateMovementReferenceNumberKey + refKey.map(a => s".$a").getOrElse("")
+    val mainKey = keyForenterDuplicateMovementReferenceNumber + refKey.map(a => s".$a").getOrElse("")
     errors.headOption
       .map(fe => FormError(mainKey, fe.messages))
       .getOrElse(FormError(mainKey, List("invalid")))

@@ -179,12 +179,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> entryNumber.value)
+        val result          = performAction(journey, keyForenterDuplicateMovementReferenceNumber -> entryNumber.value)
 
         val doc   = Jsoup.parse(contentAsString(result))
         val error = getGlobalErrors(doc).text()
         error shouldBe messageFromMessageKey(
-          s"$enterDuplicateMovementReferenceNumberKey.entry.invalid.enter-different-entry-number"
+          s"$keyForenterDuplicateMovementReferenceNumber.entry.invalid.enter-different-entry-number"
         )
 
         status(result) shouldBe BAD_REQUEST
@@ -196,12 +196,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> sample[MRN].value)
+        val result          = performAction(journey, keyForenterDuplicateMovementReferenceNumber -> sample[MRN].value)
 
         val doc   = Jsoup.parse(contentAsString(result))
         val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey(
-          s"$enterDuplicateMovementReferenceNumberKey.entry.invalid.entry-number-not-mrn"
+          s"$keyForenterDuplicateMovementReferenceNumber.entry.invalid.entry-number-not-mrn"
         )
         status(result) shouldBe BAD_REQUEST
       }
@@ -217,12 +217,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          = performAction(journey, enterDuplicateMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
+        val result          =
+          performAction(journey, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(entryNumber).value)
 
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
+        ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
       }
 
       "Fail if the same MRN is submitted" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
@@ -233,12 +234,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> mrn.value)
+        val result          = performAction(journeyBindable, keyForenterDuplicateMovementReferenceNumber -> mrn.value)
 
         val doc   = Jsoup.parse(contentAsString(result))
         val error = getGlobalErrors(doc).text()
         error          shouldBe messageFromMessageKey(
-          s"$enterDuplicateMovementReferenceNumberKey.mrn.invalid.enter-different-mrn"
+          s"$keyForenterDuplicateMovementReferenceNumber.mrn.invalid.enter-different-mrn"
         )
         status(result) shouldBe BAD_REQUEST
       }
@@ -251,12 +252,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
             mockGetSession(session)
           }
           val result          =
-            performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value)
+            performAction(journeyBindable, keyForenterDuplicateMovementReferenceNumber -> sample[EntryNumber].value)
 
           val doc             = Jsoup.parse(contentAsString(result))
           val error           = getGlobalErrors(doc).text()
           error          shouldBe messageFromMessageKey(
-            s"$enterDuplicateMovementReferenceNumberKey.mrn.invalid.mrn-not-entry-number"
+            s"$keyForenterDuplicateMovementReferenceNumber.mrn.invalid.mrn-not-entry-number"
           )
           status(result) shouldBe BAD_REQUEST
       }
@@ -274,12 +275,13 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result             = performAction(journeyBindable, enterDuplicateMovementReferenceNumberKey -> genOtherThan(mrn).value)
+        val result             =
+          performAction(journeyBindable, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value)
 
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
+        ).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
     }
@@ -288,36 +290,39 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       "accept valid MRN" in {
         val mrn    = sample[MRN]
-        val errors = mrnForm(mrn).bind(Map(enterDuplicateMovementReferenceNumberKey -> genOtherThan(mrn).value)).errors
+        val errors =
+          mrnForm(mrn).bind(Map(keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value)).errors
         errors shouldBe Nil
       }
 
       "reject 19 characters" in {
         val errors =
-          mrnForm(sample[MRN]).bind(Map(enterDuplicateMovementReferenceNumberKey -> "910ABCDEFGHIJKLMNO0")).errors
+          mrnForm(sample[MRN]).bind(Map(keyForenterDuplicateMovementReferenceNumber -> "910ABCDEFGHIJKLMNO0")).errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
       "reject 17 characters" in {
         val mrn    = sample[MRN]
-        val errors = mrnForm(mrn).bind(Map(enterDuplicateMovementReferenceNumberKey -> "123456789A1234567")).errors
+        val errors = mrnForm(mrn).bind(Map(keyForenterDuplicateMovementReferenceNumber -> "123456789A1234567")).errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
       "reject empty MRN field" in {
-        val errors = mrnForm(sample[MRN]).bind(Map(enterDuplicateMovementReferenceNumberKey -> " ")).errors
+        val errors = mrnForm(sample[MRN]).bind(Map(keyForenterDuplicateMovementReferenceNumber -> " ")).errors
         errors.headOption.value.messages shouldBe List("error.required")
       }
 
       "reject duplicate MRN when it's the same as the main MRN" in {
         val mrn    = sample[MRN]
-        val errors = mrnForm(mrn).bind(Map(enterDuplicateMovementReferenceNumberKey -> mrn.value)).errors
+        val errors = mrnForm(mrn).bind(Map(keyForenterDuplicateMovementReferenceNumber -> mrn.value)).errors
         errors.headOption.value.messages shouldBe List("invalid.enter-different-mrn")
       }
 
       "reject Entry Number on the MRN form" in {
         val errors =
-          mrnForm(sample[MRN]).bind(Map(enterDuplicateMovementReferenceNumberKey -> sample[EntryNumber].value)).errors
+          mrnForm(sample[MRN])
+            .bind(Map(keyForenterDuplicateMovementReferenceNumber -> sample[EntryNumber].value))
+            .errors
         errors.headOption.value.messages shouldBe List("invalid.mrn-not-entry-number")
       }
     }
@@ -327,40 +332,42 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "accept valid Entry Number (Chief Number)" in {
         val entryNumber = sample[EntryNumber]
         val errors      = entryForm(entryNumber)
-          .bind(Map(enterDuplicateMovementReferenceNumberKey -> genOtherThan(entryNumber).value))
+          .bind(Map(keyForenterDuplicateMovementReferenceNumber -> genOtherThan(entryNumber).value))
           .errors
         errors shouldBe Nil
       }
 
       "reject 19 characters" in {
         val errors = entryForm(sample[EntryNumber])
-          .bind(Map(enterDuplicateMovementReferenceNumberKey -> "910ABCDEFGHIJKLMNO0"))
+          .bind(Map(keyForenterDuplicateMovementReferenceNumber -> "910ABCDEFGHIJKLMNO0"))
           .errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
       "reject 17 characters" in {
         val errors = entryForm(sample[EntryNumber])
-          .bind(Map(enterDuplicateMovementReferenceNumberKey -> "123456789A1234567"))
+          .bind(Map(keyForenterDuplicateMovementReferenceNumber -> "123456789A1234567"))
           .errors
         errors.headOption.value.messages shouldBe List("invalid.number")
       }
 
       "reject empty Entry Number field" in {
-        val errors = entryForm(sample[EntryNumber]).bind(Map(enterDuplicateMovementReferenceNumberKey -> " ")).errors
+        val errors = entryForm(sample[EntryNumber]).bind(Map(keyForenterDuplicateMovementReferenceNumber -> " ")).errors
         errors.headOption.value.messages shouldBe List("error.required")
       }
 
       "reject duplicate Entry Number when it's the same as the main Entry Number" in {
         val entryNumber = sample[EntryNumber]
         val errors      =
-          entryForm(entryNumber).bind(Map(enterDuplicateMovementReferenceNumberKey -> entryNumber.value)).errors
+          entryForm(entryNumber).bind(Map(keyForenterDuplicateMovementReferenceNumber -> entryNumber.value)).errors
         errors.headOption.value.messages shouldBe List("invalid.enter-different-entry-number")
       }
 
       "reject MRN on the Entry Number form" in {
         val errors =
-          entryForm(sample[EntryNumber]).bind(Map(enterDuplicateMovementReferenceNumberKey -> sample[MRN].value)).errors
+          entryForm(sample[EntryNumber])
+            .bind(Map(keyForenterDuplicateMovementReferenceNumber -> sample[MRN].value))
+            .errors
         errors.headOption.value.messages shouldBe List("invalid.entry-number-not-mrn")
       }
 

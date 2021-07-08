@@ -40,6 +40,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
+  def submitUrlForCommoditiesDetails(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
+      case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
+    }
+
 }
 trait SingleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = None
