@@ -104,8 +104,8 @@ check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if these details are correct or no if they are incorrect
-check-eori-details.invalid=Select yes if these details are correct or no if they are incorrect
+check-eori-details.error.required=Select yes if details are correct
+check-eori-details.invalid=Select yes if details are correct
 
 
 #===================================================
@@ -156,43 +156,29 @@ enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.title=Tell us your duplicate Movement Reference Number (MRN)
-enter-duplicate-movement-reference-number.input-title=Enter duplicate MRN
-enter-duplicate-movement-reference-number.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-duplicate-movement-reference-number.invalid.number=Enter a valid MRN
-enter-duplicate-movement-reference-number.invalid=Enter a valid MRN
-enter-duplicate-movement-reference-number.error.required=Enter a valid MRN
-enter-duplicate-movement-reference-number.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
-enter-duplicate-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
-
+enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate MRN
+enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-duplicate-movement-reference-number.mrn.invalid.number=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.invalid=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.error.required=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
+enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 #===================================================
 #  ENTER DUPLICATE ENTRY NUMBER PAGE
 #===================================================
-enter-duplicate-entry-number.title=Tell us your duplicate Entry Number
-enter-duplicate-entry-number.input-title=Enter duplicate Entry Number
-enter-duplicate-entry-number.help-text=This will help us to process your claim more efficiently.
-enter-duplicate-entry-number.help=Must be 18 characters, for example 190007914H11112017.
-enter-duplicate-entry-number.invalid.number=Enter a valid entry number
-enter-duplicate-entry-number.invalid=Enter a valid entry number
-enter-duplicate-entry-number.error.required=Enter a valid entry number
-enter-duplicate-entry-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
-enter-duplicate-entry-number.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
+enter-duplicate-movement-reference-number.entry.title=Tell us your duplicate Entry Number
+enter-duplicate-movement-reference-number.entry.input-title=Enter duplicate Entry Number
+enter-duplicate-movement-reference-number.entry.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.entry.help=Must be 17 characters, for example 19GB03I5285802701.
+enter-duplicate-movement-reference-number.entry.invalid.number=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
+enter-duplicate-movement-reference-number.entry.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
 
-#===================================================
-#  ENTER NO LEGACY DUPLICATE MRN PAGE
-#===================================================
-enter-no-legacy-duplicate-mrn.title=Tell us your duplicate Movement Reference Number (MRN)?
-enter-no-legacy-duplicate-mrn.input-title=Enter duplicate MRN
-enter-no-legacy-duplicate-mrn.help-text=This will help us to process your claim more efficiently.
-enter-no-legacy-duplicate-mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-no-legacy-duplicate-mrn.invalid.number=Enter a valid MRN
-enter-no-legacy-duplicate-mrn.invalid=Enter a valid MRN
-enter-no-legacy-duplicate-mrn.error.required=Enter a valid MRN
-enter-no-legacy-duplicate-mrn.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
-enter-no-legacy-duplicate-mrn.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
-enter-no-legacy-duplicate-mrn.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
@@ -686,8 +672,8 @@ check-claim-summary.total=Total Reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.error.required=Select yes if these details are correct or no if they are incorrect
-check-claim-summary.error.invalid=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.error.required=Select yes if details are correct
+check-claim-summary.error.invalid=Select yes if details are correct
 
 #===================================================
 #  ENTER BANK DETAILS PAGE

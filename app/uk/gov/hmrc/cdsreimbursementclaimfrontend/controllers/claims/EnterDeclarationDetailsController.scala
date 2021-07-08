@@ -365,7 +365,9 @@ class EnterDeclarationDetailsController @Inject() (
                   )
                 case Right(_)          =>
                   Redirect(
-                    routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn()
+                    routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(
+                      TemporaryJourneyExtractor.extractJourney
+                    )
                   )
               }
         )
