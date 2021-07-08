@@ -174,7 +174,7 @@ class SelectReasonForAndBasisOfClaimSpec
           performAction(
             Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
           ),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
 

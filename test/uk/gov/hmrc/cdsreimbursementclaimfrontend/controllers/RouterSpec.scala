@@ -77,7 +77,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       forAll(allRoutes) { router =>
         forAll(nonDuplicateClaimTable) { basisForClaim =>
           router.nextPageForBasisForClaim(basisForClaim) shouldBe claimRoutes.EnterCommoditiesDetailsController
-            .enterCommoditiesDetails()
+            .enterCommoditiesDetails(router.journeyBindable)
         }
       }
     }

@@ -79,7 +79,7 @@ class EnterCommoditiesDetailsControllerSpec
 
       "there is no journey status in the session" in {
 
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(JourneyBindable.Single)(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None)
 
@@ -100,7 +100,7 @@ class EnterCommoditiesDetailsControllerSpec
     "display the page" when {
 
       "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(JourneyBindable.Single)(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None)._3
           .copy(
@@ -124,7 +124,7 @@ class EnterCommoditiesDetailsControllerSpec
       }
 
       "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(JourneyBindable.Single)(FakeRequest())
 
         val answers = CommodityDetails("some package")
 
@@ -152,7 +152,7 @@ class EnterCommoditiesDetailsControllerSpec
 
       "the user has come from the CYA page and is amending their answer" in {
 
-        def performAction(): Future[Result] = controller.changeCommoditiesDetails()(FakeRequest())
+        def performAction(): Future[Result] = controller.changeCommoditiesDetails(JourneyBindable.Single)(FakeRequest())
 
         val answers = CommodityDetails("some package")
 
@@ -184,7 +184,7 @@ class EnterCommoditiesDetailsControllerSpec
       "user enters some details" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit()(
+          controller.enterCommoditiesDetailsSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -215,7 +215,7 @@ class EnterCommoditiesDetailsControllerSpec
       "the user amends their answer" in {
 
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeCommoditiesDetailsSubmit()(
+          controller.changeCommoditiesDetailsSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
@@ -250,7 +250,7 @@ class EnterCommoditiesDetailsControllerSpec
 
       "the user enters more than 500 characters" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit()(
+          controller.enterCommoditiesDetailsSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 

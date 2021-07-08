@@ -473,7 +473,7 @@ class EnterDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(declarationDetails)(controller.enterDuplicateDeclarationDetailsSubmit()),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
     }

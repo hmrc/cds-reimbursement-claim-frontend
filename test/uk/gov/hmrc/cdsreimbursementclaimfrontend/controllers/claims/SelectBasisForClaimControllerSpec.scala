@@ -260,7 +260,7 @@ class SelectBasisForClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq("select-basis-for-claim" -> "2")),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
 
