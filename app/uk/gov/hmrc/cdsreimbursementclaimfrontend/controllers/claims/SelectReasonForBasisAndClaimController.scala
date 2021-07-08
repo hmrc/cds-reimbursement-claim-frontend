@@ -25,7 +25,7 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{allClaimsIntToType, allClaimsTypeToInt, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -135,7 +135,10 @@ class SelectReasonForBasisAndClaimController @Inject() (
                 _ =>
                   reasonForClaimAndBasis.basisForClaim match {
                     case BasisOfClaim.DuplicateEntry =>
-                      Redirect(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn())
+                      Redirect(
+                        routes.EnterDuplicateMovementReferenceNumberController
+                          .enterDuplicateMrn(TemporaryJourneyExtractor.extractJourney)
+                      )
                     case _                           =>
                       Redirect(
                         routes.EnterCommoditiesDetailsController

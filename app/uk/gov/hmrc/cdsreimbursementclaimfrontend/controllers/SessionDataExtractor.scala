@@ -59,27 +59,6 @@ trait SessionDataExtractor extends Results {
         Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 
-  def withAnswersAndRoutes2[T](
-    f: (FillingOutClaim, Option[T], JourneyTypeRoutes2[T]) => Future[Result]
-  )(implicit
-    extractor: DraftC285Claim => Option[T],
-    request: RequestWithSessionData[_],
-    journeyBindable: JourneyBindable,
-    router: JourneyTypeRoutes2[T]
-  ): Future[Result] =
-    request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
-//        val numOfClaims = getNumberOfClaims(draftClaim)
-//        val refType     = getMovementReferenceNumber(draftClaim)
-//        val router      = getRoutes(numOfClaims, refType, journeyBindable)
-        println(journeyBindable)
-        draftClaim
-          .fold(extractor(_))
-          .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
-      case _                                                                     =>
-        Future.successful(Redirect(baseRoutes.StartController.start()))
-    }
-
   def getNumberOfClaims(draftClaim: DraftClaim): SelectNumberOfClaimsType =
     draftClaim
       .fold(identity)

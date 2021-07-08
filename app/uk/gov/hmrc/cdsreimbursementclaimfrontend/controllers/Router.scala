@@ -20,31 +20,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MrnJourney}
-
-trait JourneyTypeRoutes2[A] {
-  val subKey: Option[String]
-  val journeyBindable: JourneyBindable
-  def nextPage(f: => Boolean): Call
-
-  def submitUrl(condition: => Boolean, journeyBindable: JourneyBindable): Call
-}
-
-object JourneyTypeRoutes2 {
-
-  implicit object CommodityDetailsJourney extends JourneyTypeRoutes2[CommodityDetails] {
-    override val subKey: Option[String]           = None
-    override val journeyBindable: JourneyBindable = JourneyBindable.Single
-
-    def submitUrl(condition: => Boolean, journeyBindable: JourneyBindable): Call =
-      if (condition) claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
-      else claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
-
-    override def nextPage(condition: => Boolean): Call =
-      if (condition) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      else claimRoutes.SelectDutiesController.selectDuties()
-  }
-}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]

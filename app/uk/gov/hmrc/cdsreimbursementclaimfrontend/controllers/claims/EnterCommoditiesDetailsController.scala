@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyTypeRoutes2._
 
 import scala.concurrent.ExecutionContext
 
@@ -60,12 +59,12 @@ class EnterCommoditiesDetailsController @Inject() (
 
   def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes2[CommodityDetails] { (_, answers, router) =>
+      withAnswersAndRoutes[CommodityDetails] { (_, answers, router) =>
         val commoditiesDetailsForm =
           answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
             form.fill(answer)
           )
-        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend, journey))
+        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend))
       }
     }
 
@@ -76,7 +75,7 @@ class EnterCommoditiesDetailsController @Inject() (
 
   def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes2[CommodityDetails] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[CommodityDetails] { (fillingOutClaim, _, router) =>
         EnterCommoditiesDetailsController.commoditiesDetailsForm
           .bindFromRequest()
           .fold(
@@ -85,8 +84,7 @@ class EnterCommoditiesDetailsController @Inject() (
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors,
                   router,
-                  isAmend,
-                  journey
+                  isAmend
                 )
               ),
             commodityDetails => {
@@ -102,7 +100,7 @@ class EnterCommoditiesDetailsController @Inject() (
                     logger.warn("could not get commodity details", e)
                     errorHandler.errorResult()
                   },
-                  _ => Redirect(router.nextPage(isAmend))
+                  _ => Redirect(router.nextPageForCommoditiesDetails(isAmend))
                 )
             }
           )
