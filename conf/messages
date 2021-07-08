@@ -558,6 +558,8 @@ enter-commodities-details.error.required=Enter claim reason
 enter-commodities-details.error.maxLength=Claim reason must be 500 characters or fewer
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
+enter-commodities-details.scheduled.hint=Bla Bla Bla
+
 #===================================================
 #  MAKE CLAIM PAGES
 #===================================================

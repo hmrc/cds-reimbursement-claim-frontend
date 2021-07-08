@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReason
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
@@ -64,7 +63,7 @@ object CompleteClaim {
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswer: SupportingEvidenceAnswer,
-    completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer,
+    commodityDetailsAnswer: CommodityDetails,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
@@ -293,18 +292,9 @@ object CompleteClaim {
     }
 
   def validateCommodityDetailsAnswer(
-    maybeClaimsAnswer: Option[CommoditiesDetailsAnswer]
-  ): Validation[CompleteCommodityDetailsAnswer] =
-    maybeClaimsAnswer match {
-      case Some(value) =>
-        value match {
-          case CommoditiesDetailsAnswer.IncompleteCommoditiesDetailsAnswer(_)  =>
-            invalid("incomplete commodity detail answer")
-          case completeCommodityDetailsAnswers: CompleteCommodityDetailsAnswer =>
-            Valid(completeCommodityDetailsAnswers)
-        }
-      case None        => invalid("missing commodity details answer")
-    }
+    maybeClaimsAnswer: Option[CommodityDetails]
+  ): Validation[CommodityDetails] =
+    maybeClaimsAnswer toValidNel "Missing commodity details answer"
 
   def validateNorthernIrelandAnswer(
     maybeNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer]
@@ -665,7 +655,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        commodityDetails.commodityDetails.value
+        commodityDetails.value
     }
 
     def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] = completeClaim match {

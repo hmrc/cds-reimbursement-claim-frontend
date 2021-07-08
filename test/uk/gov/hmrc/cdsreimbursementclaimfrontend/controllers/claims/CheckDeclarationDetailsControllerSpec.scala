@@ -356,7 +356,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
 

@@ -415,7 +415,11 @@ class EnterDeclarationDetailsController @Inject() (
                   logger.warn("could not capture duplicate declaration details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                _ =>
+                  Redirect(
+                    routes.EnterCommoditiesDetailsController
+                      .enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney)
+                  )
               )
             }
           )

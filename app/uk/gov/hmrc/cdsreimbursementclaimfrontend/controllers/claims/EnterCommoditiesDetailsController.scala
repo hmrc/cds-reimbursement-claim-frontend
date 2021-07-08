@@ -24,18 +24,17 @@ import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommoditiesDetailsAnswer, CommodityDetails, DraftClaim, Error, SessionData, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterCommoditiesDetailsController @Inject() (
@@ -49,141 +48,34 @@ class EnterCommoditiesDetailsController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with SessionDataExtractor
     with Logging
     with SessionUpdates {
 
-  private def withCommoditiesDetails(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      CommoditiesDetailsAnswer
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-          ) =>
-        val maybeCommoditiesDetailsAnswers = draftClaim.fold(
-          _.commoditiesDetailsAnswer
-        )
-        maybeCommoditiesDetailsAnswers.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteCommoditiesDetailsAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-    })
+  implicit val dataExtractor: DraftC285Claim => Option[CommodityDetails] = _.commoditiesDetailsAnswer
 
-  def enterCommoditiesDetails: Action[AnyContent] =
+  def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
+  def changeCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
+
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.commodityDetails match {
-              case Some(commodityDetails) =>
-                Ok(
-                  enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails)
-                  )
-                )
-              case None                   =>
-                Ok(
-                  enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm
-                  )
-                )
-            },
-          ifComplete =>
-            Ok(
-              enterCommoditiesDetailsPage(
-                EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
-                  ifComplete.commodityDetails
-                )
-              )
-            )
-        )
-      }
-    }
-
-  //TODO; error check on character count
-  def enterCommoditiesDetailsSubmit: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
-        EnterCommoditiesDetailsController.commoditiesDetailsForm
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterCommoditiesDetailsPage(
-                  requestFormWithErrors
-                )
-              ),
-            commodityDetails => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteCommodityDetailsAnswer(
-                    commodityDetails
-                  ),
-                complete => complete.copy(commodityDetails = commodityDetails)
-              )
-
-              val newDraftClaim =
-                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not get commodity details", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.SelectDutiesController.selectDuties())
-              )
-            }
+      withAnswersAndRoutes[CommodityDetails] { (_, answers, router) =>
+        val commoditiesDetailsForm =
+          answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
+            form.fill(answer)
           )
+        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend))
       }
     }
 
-  def changeCommoditiesDetails: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.commodityDetails match {
-              case Some(commodityDetails) =>
-                Ok(
-                  enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(commodityDetails),
-                    isAmend = true
-                  )
-                )
-              case None                   =>
-                Ok(
-                  enterCommoditiesDetailsPage(
-                    EnterCommoditiesDetailsController.commoditiesDetailsForm,
-                    isAmend = true
-                  )
-                )
-            },
-          ifComplete =>
-            Ok(
-              enterCommoditiesDetailsPage(
-                EnterCommoditiesDetailsController.commoditiesDetailsForm.fill(
-                  ifComplete.commodityDetails
-                ),
-                true
-              )
-            )
-        )
-      }
-    }
+  def enterCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
+    submit(isAmend = false)
+  def changeCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+    submit(isAmend = true)
 
-  //TODO; error check on character count
-  def changeCommoditiesDetailsSubmit: Action[AnyContent] =
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCommoditiesDetails { (_, fillingOutClaim, answers) =>
+      withAnswersAndRoutes[CommodityDetails] { (fillingOutClaim, _, router) =>
         EnterCommoditiesDetailsController.commoditiesDetailsForm
           .bindFromRequest()
           .fold(
@@ -191,38 +83,29 @@ class EnterCommoditiesDetailsController @Inject() (
               BadRequest(
                 enterCommoditiesDetailsPage(
                   requestFormWithErrors,
-                  true
+                  router,
+                  isAmend
                 )
               ),
             commodityDetails => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteCommodityDetailsAnswer(
-                    commodityDetails
-                  ),
-                complete => complete.copy(commodityDetails = commodityDetails)
-              )
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(updatedAnswers)))
-
+                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(commodityDetails)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              val result = EitherT
+              EitherT
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not get commodity details", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-              )
+                .fold(
+                  e => {
+                    logger.warn("could not get commodity details", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(router.nextPageForCommoditiesDetails(isAmend))
+                )
             }
           )
       }
     }
-
 }
 
 object EnterCommoditiesDetailsController {
@@ -232,5 +115,4 @@ object EnterCommoditiesDetailsController {
       "enter-commodities-details" -> nonEmptyText(maxLength = 500)
     )(CommodityDetails.apply)(CommodityDetails.unapply)
   )
-
 }

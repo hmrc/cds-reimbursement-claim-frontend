@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -104,8 +104,8 @@ class CheckDeclarationDetailsController @Inject() (
     }
   }
 
-  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney))
   }
 
 }

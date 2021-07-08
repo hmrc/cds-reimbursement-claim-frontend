@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
@@ -462,7 +463,9 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeCommodityDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
+  def makeCommodityDetailsSummary(
+    completeClaim: CompleteClaim
+  )(implicit request: RequestWithSessionData[_], messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.commodities-details.label"))),
@@ -471,7 +474,8 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails().url}",
+                href =
+                  s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(TemporaryJourneyExtractor.extractJourney).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.commodities-details.label"))
               )

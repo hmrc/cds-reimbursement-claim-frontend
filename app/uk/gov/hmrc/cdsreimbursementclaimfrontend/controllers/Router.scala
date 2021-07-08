@@ -17,10 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
@@ -31,7 +31,13 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case BasisOfClaim.DuplicateEntry =>
         claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
       case _                           =>
-        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+    }
+
+  def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
 }

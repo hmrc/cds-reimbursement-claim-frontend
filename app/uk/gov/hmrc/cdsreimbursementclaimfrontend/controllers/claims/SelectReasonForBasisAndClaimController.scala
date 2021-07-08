@@ -139,7 +139,11 @@ class SelectReasonForBasisAndClaimController @Inject() (
                         routes.EnterDuplicateMovementReferenceNumberController
                           .enterDuplicateMrn(TemporaryJourneyExtractor.extractJourney)
                       )
-                    case _                           => Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+                    case _                           =>
+                      Redirect(
+                        routes.EnterCommoditiesDetailsController
+                          .enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney)
+                      )
                   }
               )
             }
