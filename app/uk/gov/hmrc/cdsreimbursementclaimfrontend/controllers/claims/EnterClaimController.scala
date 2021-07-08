@@ -127,7 +127,6 @@ class EnterClaimController @Inject() (
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          println(formWithErrors)
                           val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
                           BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
                         },
