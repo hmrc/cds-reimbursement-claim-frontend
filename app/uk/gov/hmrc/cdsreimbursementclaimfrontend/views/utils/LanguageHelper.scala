@@ -16,13 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
+import play.api.i18n.Messages
+
 object LanguageHelper {
 
-  def lang(level1: String, level2: Option[String], level3: String): List[String] = {
+  def lang(level1: String, level2: Option[String], level3: String)(implicit messages: Messages): List[String] = {
     val default = s"$level1.$level3"
-    level2 match {
+    val keys    = level2 match {
       case Some(l2) => List(s"$level1.$l2.$level3", default)
       case None     => List(default)
     }
+    keys.filter(key => messages.isDefinedAt(key))
   }
+
 }

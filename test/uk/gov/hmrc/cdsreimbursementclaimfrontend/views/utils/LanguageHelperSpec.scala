@@ -18,9 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.i18n._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 class LanguageHelperSpec extends AnyWordSpec with Matchers {
+
+  implicit val messages: Map[String, String] = Map("a.b" -> "ab", "a.c" -> "ac", "a.b.c" -> "abc")
+
+  implicit lazy val messagesApi: MessagesApi = new DefaultMessagesApi(messages = Map("default" -> messages))
+
+  implicit val messagesImpl: MessagesImpl = MessagesImpl(Lang.defaultLang, messagesApi)
 
   "LanguageHelper" should {
     "work when there are no journey keys / subKeys / level2 keys" in {
