@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.{Functor, Id}
 import cats.data.EitherT
 import cats.implicits._
 import org.jsoup.Jsoup
@@ -38,8 +39,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{genOtherThan, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -217,13 +219,11 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetSession(session)
           mockStoreSession(Right(()))
         }
-        val result          =
-          performAction(journey, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(entryNumber).value)
 
-        status(result) shouldBe 303
-        redirectLocation(
-          result
-        ).value shouldBe routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails().url
+        checkIsRedirect(
+          performAction(journey, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(entryNumber).value),
+          routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
+        )
       }
 
       "Fail if the same MRN is submitted" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
@@ -262,7 +262,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           status(result) shouldBe BAD_REQUEST
       }
 
-      "Redirect to the enter importer eori page with the ERN flag disabled when a different MRN Number is submitted " in forAll(
+      "Redirect to the enter importer eori page when a different MRN Number is submitted " in forAll(
         testCases
       ) { (numberOfClaims, journeyBindable) =>
         val mrn                = sample[MRN]
@@ -275,13 +275,34 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
           mockStoreSession(Right(()))
         }
-        val result             =
-          performAction(journeyBindable, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value)
 
-        status(result) shouldBe 303
-        redirectLocation(
-          result
-        ).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
+        checkIsRedirect(
+          performAction(journeyBindable, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value),
+          routes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+        )
+      }
+
+      "Redirect to Check Duplicate Declaration details, when the logged in user is the importer" in {
+        val mrn               = sample[MRN]
+        val answers           = sampleMrnAnswer(mrn)
+        val (session, foc, _) = sessionWithClaimState(answers, Some(SelectNumberOfClaimsType.Individual))
+
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
+        )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(JourneyBindable.Single, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value),
+          routes.CheckDeclarationDetailsController.checkDuplicateDetails()
+        )
+
       }
 
     }
