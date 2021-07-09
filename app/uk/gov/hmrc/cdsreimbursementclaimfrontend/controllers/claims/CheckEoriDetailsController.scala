@@ -154,7 +154,7 @@ object CheckEoriDetailsController {
   case object EoriDetailsAreCorrect extends CheckEoriDetailsAnswer
   case object EoriDetailsAreIncorrect extends CheckEoriDetailsAnswer
 
-  val dataKey = "check-eori-details"
+  val dataKey: String = "check-eori-details"
 
   val checkEoriDetailsAnswerForm: Form[CheckEoriDetailsAnswer] =
     Form(

@@ -308,7 +308,7 @@ object SupportingEvidenceController {
     supportingEvidenceDocumentType: SupportingEvidenceDocumentType
   )
 
-  val chooseDocumentTypeDataKey = "supporting-evidence.choose-document-type"
+  val chooseDocumentTypeDataKey: String = "supporting-evidence.choose-document-type"
 
   val chooseSupportEvidenceDocumentTypeForm: Form[ChooseSupportingEvidenceDocumentType] =
     Form(

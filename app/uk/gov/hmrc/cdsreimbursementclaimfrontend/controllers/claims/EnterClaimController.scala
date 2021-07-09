@@ -309,7 +309,7 @@ object EnterClaimController {
 
   implicit val checkClaimAnswerFormat: OFormat[CheckClaimAnswer] = derived.oformat[CheckClaimAnswer]()
 
-  val messageKey = "check-claim-summary"
+  val messageKey: String = "check-claim-summary"
 
   val checkClaimAnswerForm: Form[CheckClaimAnswer] =
     Form(
