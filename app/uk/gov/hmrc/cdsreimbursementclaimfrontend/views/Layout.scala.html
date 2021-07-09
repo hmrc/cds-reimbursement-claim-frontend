@@ -38,21 +38,22 @@
     scriptsBlock: Option[Html] = None,
     timeOut: Boolean = true,
     suppressBackLink: Boolean = false,
-    signedInUserDetails: Option[SignedInUserDetails] = None
+    signedInUserDetails: Option[SignedInUserDetails] = None,
+    hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
     @defaultHead = {
         @headBlock
             @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
-                                timeout= Some(viewConfig.timeout),
-                                countdown= Some(viewConfig.countdown),
-                                message= Some(messages("session-expired-message")),
-                                keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
-                                signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
-                                timeoutUrl= Some(s"${StartController.timedOut.url}"),
-                                keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
-                                signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
-                            ))}
+                timeout= Some(viewConfig.timeout),
+                countdown= Some(viewConfig.countdown),
+                message= Some(messages("session-expired-message")),
+                keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+                signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+                timeoutUrl= Some(s"${StartController.timedOut.url}"),
+                keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+                signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
+            ))}
 
         @hmrcTrackingConsentSnippet()
     }
@@ -114,7 +115,7 @@
     }
 
     @govukLayout(
-        pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"))),
+        pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
         headBlock = Some(head(Some(defaultHead))),
         scriptsBlock = Some(scripts),
         beforeContentBlock = Some(beforeContentBlock),

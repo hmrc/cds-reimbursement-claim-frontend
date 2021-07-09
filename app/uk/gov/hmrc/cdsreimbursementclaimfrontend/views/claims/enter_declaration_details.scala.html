@@ -41,7 +41,9 @@
 
     @postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

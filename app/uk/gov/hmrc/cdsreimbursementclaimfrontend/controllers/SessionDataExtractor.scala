@@ -15,16 +15,15 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-
-import cats.syntax.all._
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber}
 
 import scala.concurrent.Future
 
@@ -43,12 +42,16 @@ trait SessionDataExtractor extends Results {
 
   def withAnswersAndRoutes[T](
     f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
-  )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
+  )(implicit
+    extractor: DraftC285Claim => Option[T],
+    request: RequestWithSessionData[_],
+    journeyBindable: JourneyBindable
+  ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
         val numOfClaims = getNumberOfClaims(draftClaim)
         val refType     = getMovementReferenceNumber(draftClaim)
-        val router      = getRoutes(numOfClaims, refType)
+        val router      = getRoutes(numOfClaims, refType, journeyBindable)
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
@@ -56,30 +59,55 @@ trait SessionDataExtractor extends Results {
         Future.successful(Redirect(baseRoutes.StartController.start()))
     }
 
-  def getNumberOfClaims(draftClaim: DraftClaim): Option[SelectNumberOfClaimsType] =
+  def getNumberOfClaims(draftClaim: DraftClaim): SelectNumberOfClaimsType =
     draftClaim
       .fold(identity)
       .selectNumberOfClaimsAnswer
       .flatMap(
         _.fold(_.selectNumberOfClaimsChoice, a => Option(a.selectNumberOfClaimsChoice))
       )
+      .getOrElse(
+        SelectNumberOfClaimsType.Individual
+      ) //If the bulk claim is disabled, the user never sees the Select Number of Claims page
 
   def getMovementReferenceNumber(draftClaim: DraftClaim): Option[MovementReferenceNumber] =
     draftClaim.fold(identity).movementReferenceNumber
 
   def getRoutes(
-    numberOfClaims: Option[SelectNumberOfClaimsType],
-    mrnOrEntryNmber: Option[MovementReferenceNumber]
+    numberOfClaims: SelectNumberOfClaimsType,
+    maybeMrnOrEntryNmber: Option[MovementReferenceNumber],
+    journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
-    (mrnOrEntryNmber.map(_.value), numberOfClaims)
-      .mapN {
-        case (Right(_), SelectNumberOfClaimsType.Individual) => MRNSingleRoutes
-        case (Left(_), SelectNumberOfClaimsType.Individual)  => EntrySingleRoutes
-        case (Right(_), SelectNumberOfClaimsType.Bulk)       => MRNBulkRoutes
-        case (Left(_), SelectNumberOfClaimsType.Bulk)        => EntryBulkRoutes
-        case (Right(_), SelectNumberOfClaimsType.Scheduled)  => MRNScheduledRoutes
-        case (Left(_), SelectNumberOfClaimsType.Scheduled)   => EntryScheduledRoutes
-      }
-      .getOrElse(DefaultRoutes)
+    (journeyBindable, numberOfClaims, maybeMrnOrEntryNmber) match {
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Right(_))))   =>
+        MRNSingleRoutes
+      case (JourneyBindable.Single, SelectNumberOfClaimsType.Individual, Some(MovementReferenceNumber(Left(_))))    =>
+        EntrySingleRoutes
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Right(_))))           =>
+        MRNBulkRoutes
+      case (JourneyBindable.Bulk, SelectNumberOfClaimsType.Bulk, Some(MovementReferenceNumber(Left(_))))            =>
+        EntryBulkRoutes
+      case (JourneyBindable.Scheduled, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
+        MRNScheduledRoutes
+      case (JourneyBindable.Scheduled, SelectNumberOfClaimsType.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
+        EntryScheduledRoutes
+      case _                                                                                                        => JourneyNotDetectedRoutes
+    }
+}
+
+//This method should be used in controllers, where we did not introduce the JourneyBindable yet
+object TemporaryJourneyExtractor extends SessionDataExtractor {
+
+  def extractJourney(implicit request: RequestWithSessionData[_]): JourneyBindable =
+    request.sessionData.flatMap(_.journeyStatus) match {
+      case Some(FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
+        getNumberOfClaims(draftClaim) match {
+          case SelectNumberOfClaimsType.Individual => JourneyBindable.Single
+          case SelectNumberOfClaimsType.Bulk       => JourneyBindable.Bulk
+          case SelectNumberOfClaimsType.Scheduled  => JourneyBindable.Scheduled
+        }
+      case _                                                   =>
+        JourneyBindable.Single
+    }
 
 }

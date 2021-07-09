@@ -43,16 +43,17 @@
     @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
 
     @options = @{List(
-                CheckboxItem(
-                    name = Some(s"$key[]"),
-                    value = "true",
-                    content = Text("Is business account"),
-                    checked = form.data.exists(_._2 == "true")
-            ))
-        }
+        CheckboxItem(
+            name = Some(s"$key[]"),
+            value = "true",
+            content = Text("Is business account"),
+            checked = form.data.exists(_._2 == "true")
+        ))
+    }
 
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 
@@ -100,7 +101,7 @@
                 label = s"$key.account-number.label",
                 isPageHeading = false,
                 hint = Some(s"${key}.account-number.help-text"),
-                classes = Some("govuk-input--width-5"),
+                classes = Some("govuk-input--width-10"),
                 labelClasses = Some("govuk-label govuk-label--s")
             )
 

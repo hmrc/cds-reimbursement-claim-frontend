@@ -17,19 +17,26 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, _}
+import cats.data.EitherT.{fromEither, fromOption}
+import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
+import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.validation.{Constraint, Invalid, Valid}
+import play.api.data.{Form, FormError, Mapping}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.evaluateMrnJourneyFlow
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateMovementReferenceNumberAnswer.{CompleteDuplicateMovementReferenceNumberAnswer, IncompleteDuplicateMovementReferenceNumberAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ErnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -44,251 +51,175 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   claimService: ClaimService,
-  featureSwitch: FeatureSwitchService,
   enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
-  def enterDuplicateMrn(): Action[AnyContent] =
+  implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] =
+    _.duplicateMovementReferenceNumberAnswer
+
+  def enterDuplicateMrn(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withDuplicateMovementReferenceNumberAnswer { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.duplicateMovementReferenceNumber match {
-              case Some(duplicateMovementReferenceNumber) =>
-                Ok(
-                  enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController
-                      .movementReferenceNumberForm(featureSwitch)
-                      .fill(
-                        MovementReferenceNumber(duplicateMovementReferenceNumber)
-                      )
-                  )
-                )
-              case None                                   =>
-                Ok(
-                  enterDuplicateMovementReferenceNumberPage(
-                    EnterMovementReferenceNumberController.movementReferenceNumberForm(featureSwitch)
-                  )
-                )
-            },
-          ifComplete =>
-            ifComplete.duplicateMovementReferenceNumber.fold(
-              errorHandler.errorResult()
-            ) { duplicateMovementReferenceNumber =>
-              Ok(
-                enterDuplicateMovementReferenceNumberPage(
-                  EnterMovementReferenceNumberController
-                    .movementReferenceNumberForm(featureSwitch)
-                    .fill(
-                      MovementReferenceNumber(duplicateMovementReferenceNumber)
-                    )
-                )
-              )
-            }
-        )
+      withAnswersAndRoutes[MovementReferenceNumber] { (_, previousAnswer, router) =>
+        val emptyForm = getForm()
+        val form      = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
+        Ok(enterDuplicateMovementReferenceNumberPage(form, router))
       }
     }
 
-  def enterDuplicateMrnSubmit(): Action[AnyContent] =
+  def enterDuplicateMrnSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withDuplicateMovementReferenceNumberAnswer { (_, fillingOutClaim, answers) =>
-        EnterMovementReferenceNumberController
-          .movementReferenceNumberForm(featureSwitch)
+      withAnswersAndRoutes[MovementReferenceNumber] { (fillingOutClaim, _, router) =>
+        getForm(fillingOutClaim.draftClaim.fold(identity).movementReferenceNumber)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
               BadRequest(
                 enterDuplicateMovementReferenceNumberPage(
-                  requestFormWithErrors.copy(errors =
-                    Seq(EnterMovementReferenceNumberController.processFormErrors(requestFormWithErrors.errors))
-                  )
+                  requestFormWithErrors
+                    .copy(errors = Seq(processFormErrors(router.refNumberKey, requestFormWithErrors.errors))),
+                  router
                 )
               ),
             mrnOrEntryNumber => {
 
-              def renderPageWithError(errorKey: String): Future[Result] = {
-                val form = EnterMovementReferenceNumberController
-                  .movementReferenceNumberForm(featureSwitch)
-                  .fill(mrnOrEntryNumber)
-                  .withError("enter-movement-reference-number", s"invalid.$errorKey")
-                BadRequest(
-                  enterDuplicateMovementReferenceNumberPage(
-                    form
+              val errorRedirect: Error => Result = e => {
+                logger.warn("Mrn or Entry Number submission failed: ", e)
+                Redirect(baseRoutes.IneligibleController.ineligible())
+              }
+              mrnOrEntryNumber match {
+                case entryNumberAnswer @ MovementReferenceNumber(Left(_)) =>
+                  EitherT(updateSession(sessionStore, request)(updateDuplicateMRN(fillingOutClaim, entryNumberAnswer)))
+                    .leftMap(_ => Error("Could not save Entry Number"))
+                    .fold(errorRedirect, _ => Redirect(router.nextPageForDuplicateMRN(ErnImporter)))
+                case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
+                  val result = for {
+                    maybeAcc14     <- claimService
+                                        .getDisplayDeclaration(mrn)
+                                        .leftMap(_ => Error("Could not get declaration"))
+                    mrnJourneyFlow <-
+                      fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
+                        .leftMap(_ => Error("could not evaluate MRN flow"))
+                    declaration    <-
+                      fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
+                    _              <-
+                      EitherT(
+                        updateSession(sessionStore, request)(
+                          updateDuplicateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration)
+                        )
+                      )
+                        .leftMap(_ => Error("Could not save Display Declaration"))
+                  } yield mrnJourneyFlow
+                  result.fold(
+                    errorRedirect,
+                    mrnJourney =>
+                      Redirect(
+                        getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
+                          .nextPageForEnterMRN(mrnJourney)
+                      )
                   )
-                )
-              }
-
-              val mrnOrEntryValue  = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
-              val numberHasChanged = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
-                case Right(cachedMrn)        => cachedMrn.value =!= mrnOrEntryValue
-                case Left(cachedEntryNumber) => cachedEntryNumber.value =!= mrnOrEntryValue
-                case _                       => false
-              }
-
-              mrnOrEntryNumber.value match {
-
-                case Left(entryNumber) =>
-                  val cachedMrnExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
-                    case Right(mrn) => mrn.value.isEmpty
-                    case Left(_)    => true
-                  }
-
-                  cachedMrnExists match {
-                    case false =>
-                      renderPageWithError("mrn-not-entry-number")
-
-                    case true =>
-                      numberHasChanged match {
-
-                        case true =>
-                          val updatedAnswers = answers.fold(
-                            _ =>
-                              CompleteDuplicateMovementReferenceNumberAnswer(
-                                Some(Left(entryNumber))
-                              ),
-                            complete => complete.copy(duplicateMovementReferenceNumber = Some(Left(entryNumber)))
-                          )
-                          val newDraftClaim  =
-                            fillingOutClaim.draftClaim
-                              .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
-
-                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                          val result = EitherT
-                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                            .leftMap((_: Unit) => Error("could not update session"))
-
-                          result.fold(
-                            e => {
-                              logger.warn("could not capture entry number", e)
-                              errorHandler.errorResult()
-                            },
-                            _ => Redirect(routes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails())
-                          )
-
-                        case false =>
-                          renderPageWithError("enter-different-entry-number")
-                      }
-                  }
-                case Right(mrn)        =>
-                  val cachedEntryNumberExists: Boolean = fillingOutClaim.draftClaim.movementReferenceNumber.forall {
-                    case Right(_)          => true
-                    case Left(entryNumber) => entryNumber.value.isEmpty
-                  }
-
-                  cachedEntryNumberExists match {
-
-                    case false =>
-                      renderPageWithError("entry-number-not-mrn")
-
-                    case true =>
-                      numberHasChanged match {
-
-                        case true =>
-                          val updatedAnswers = answers.fold(
-                            _ =>
-                              CompleteDuplicateMovementReferenceNumberAnswer(
-                                Some(Right(mrn))
-                              ),
-                            complete => complete.copy(duplicateMovementReferenceNumber = Some(Right(mrn)))
-                          )
-                          val newDraftClaim  =
-                            fillingOutClaim.draftClaim
-                              .fold(_.copy(duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)))
-
-                          val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-                          val updateSessionWithReference = EitherT
-                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                            .leftMap((_: Unit) => Error("could not update session"))
-
-                          val getDeclaration: EitherT[Future, Error, Option[DisplayDeclaration]] = claimService
-                            .getDisplayDeclaration(mrn)
-                            .leftMap(_ => Error("could not get duplicate declaration"))
-
-                          val result: EitherT[Future, Error, MrnJourney] = for {
-                            maybeDisplayDeclaration <- getDeclaration
-                            _                       <- updateSessionWithReference
-                            mrnJourneyFlow          <-
-                              EitherT
-                                .fromEither[Future](
-                                  EnterMovementReferenceNumberController.evaluateMrnJourneyFlow(
-                                    fillingOutClaim.signedInUserDetails,
-                                    maybeDisplayDeclaration
-                                  )
-                                )
-                                .leftMap(_ => Error("could not evaluate MRN flow"))
-                            displayDeclaration      <-
-                              EitherT
-                                .fromOption[Future](
-                                  maybeDisplayDeclaration,
-                                  Error("could not unbox display declaration")
-                                )
-                            _                       <- EitherT.liftF(
-                                                         updateSession(sessionStore, request)(
-                                                           _.copy(journeyStatus =
-                                                             Some(
-                                                               fillingOutClaim.copy(draftClaim =
-                                                                 newDraftClaim.copy(
-                                                                   duplicateDisplayDeclaration = Some(displayDeclaration),
-                                                                   duplicateMovementReferenceNumberAnswer = Some(updatedAnswers)
-                                                                 )
-                                                               )
-                                                             )
-                                                           )
-                                                         )
-                                                       )
-                          } yield mrnJourneyFlow
-
-                          result.fold(
-                            e => {
-                              logger.warn("could not get declaration information", e)
-                              Redirect(baseRoutes.IneligibleController.ineligible())
-                            },
-                            {
-                              case _: MrnImporter =>
-                                Redirect(routes.CheckDeclarationDetailsController.checkDuplicateDetails())
-                              case _              =>
-                                Redirect(routes.EnterImporterEoriNumberController.enterImporterEoriNumber())
-                            }
-                          )
-
-                        case false =>
-                          renderPageWithError("enter-different-mrn")
-                      }
-                  }
               }
             }
           )
       }
     }
 
-  private def withDuplicateMovementReferenceNumberAnswer(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      DuplicateMovementReferenceNumberAnswer
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.sessionData.flatMap(s => s.journeyStatus.map(s -> _)) match {
-      case Some(
-            (
-              sessionData,
-              fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-            )
-          ) =>
-        val maybeDuplicateMovementReferenceNumberAnswer = draftClaim.fold(
-          _.duplicateMovementReferenceNumberAnswer
-        )
-        maybeDuplicateMovementReferenceNumberAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDuplicateMovementReferenceNumberAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-      case _ => Redirect(baseRoutes.StartController.start())
+  def updateDuplicateMRN(
+    fillingOutClaim: FillingOutClaim,
+    mrnOrEntryNumber: MovementReferenceNumber
+  ): SessionDataTransform = {
+    val updatedDraftClaim =
+      fillingOutClaim.draftClaim.fold(_.copy(duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber)))
+    updateDraftClaim(fillingOutClaim, updatedDraftClaim)
+  }
+
+  def updateDuplicateMrnAndAcc14(
+    fillingOutClaim: FillingOutClaim,
+    mrnOrEntryNumber: MovementReferenceNumber,
+    acc14: DisplayDeclaration
+  ): SessionDataTransform = {
+    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
+      _.copy(movementReferenceNumber = Option(mrnOrEntryNumber), displayDeclaration = Option(acc14))
+    )
+    updateDraftClaim(fillingOutClaim, updatedDraftClaim)
+  }
+
+  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftC285Claim): SessionDataTransform = {
+    val updatedJourney               = fillingOutClaim.copy(draftClaim = newDraftClaim)
+    val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
+    update
+  }
+
+}
+
+object EnterDuplicateMovementReferenceNumberController {
+
+  val keyForenterDuplicateMovementReferenceNumber = "enter-duplicate-movement-reference-number"
+  val invalidNumberError                          = "invalid.number"
+
+  def getForm(): Form[MovementReferenceNumber] =
+    Form(
+      mapping(
+        keyForenterDuplicateMovementReferenceNumber -> nonEmptyText
+          .transform[MRN](str => MRN.changeToUpperCaseWithoutSpaces(str), _.value)
+      )(MovementReferenceNumber.apply)(_.value.toOption)
+    )
+
+  def getForm(maybeMrnAnswer: Option[MovementReferenceNumber]): Form[MovementReferenceNumber] =
+    maybeMrnAnswer match {
+      case None            => getForm()
+      case Some(mrnAnswer) =>
+        mrnAnswer.value match {
+          case Left(entryNumber) => entryForm(entryNumber)
+          case Right(mrn)        => mrnForm(mrn)
+        }
     }
+
+  def mrnForm(mainMrn: MRN): Form[MovementReferenceNumber] =
+    Form(
+      mapping(
+        keyForenterDuplicateMovementReferenceNumber -> mrnMapping(mainMrn)
+      )(MovementReferenceNumber.apply)(_.value.toOption)
+    )
+
+  def mrnMapping(mainMrn: MRN): Mapping[MRN] =
+    nonEmptyText
+      .verifying(Constraint[String] { str: String =>
+        if (str.length === 0) Invalid("error.required")
+        else if (str === mainMrn.value) Invalid("invalid.enter-different-mrn")
+        else if (EntryNumber.isValid(str)) Invalid("invalid.mrn-not-entry-number")
+        else if (MRN.isValid(str)) Valid
+        else Invalid(invalidNumberError)
+      })
+      .transform[MRN](str => MRN.changeToUpperCaseWithoutSpaces(str), _.value)
+
+  def entryForm(mainEntryNumber: EntryNumber): Form[MovementReferenceNumber] =
+    Form(
+      mapping(
+        keyForenterDuplicateMovementReferenceNumber -> entryNumberMapping(mainEntryNumber)
+      )(MovementReferenceNumber.apply)(_.value.swap.toOption)
+    )
+
+  def entryNumberMapping(mainEntryNumber: EntryNumber): Mapping[EntryNumber] =
+    nonEmptyText
+      .verifying(Constraint[String] { str: String =>
+        if (str.length === 0) Invalid("error.required")
+        else if (str === mainEntryNumber.value) Invalid("invalid.enter-different-entry-number")
+        else if (MRN.isValid(str)) Invalid("invalid.entry-number-not-mrn")
+        else if (EntryNumber.isValid(str)) Valid
+        else Invalid(invalidNumberError)
+      })
+      .transform[EntryNumber](str => EntryNumber.changeToUpperCaseWithoutSpaces(str), _.value)
+
+  def processFormErrors(refKey: Option[String], errors: Seq[FormError]): FormError = {
+    val mainKey = keyForenterDuplicateMovementReferenceNumber + refKey.map(a => s".$a").getOrElse("")
+    errors.headOption
+      .map(fe => FormError(mainKey, fe.messages))
+      .getOrElse(FormError(mainKey, List("invalid")))
+  }
 
 }

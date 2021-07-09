@@ -35,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.claim_northern_ireland
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -108,9 +109,10 @@ class ClaimNorthernIrelandController @Inject() (
                     _ =>
                       isAmend match {
                         case true  =>
-                          if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                          if (answerChanged)
+                            Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                           else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-                        case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim())
+                        case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                       }
                   )
 

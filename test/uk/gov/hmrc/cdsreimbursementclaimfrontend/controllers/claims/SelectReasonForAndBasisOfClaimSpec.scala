@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -25,7 +24,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -34,16 +32,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
 
-class SelectReasonForAndBasisOfClaimSpec
-    extends ControllerSpec
-    with AuthSupport
-    with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+class SelectReasonForAndBasisOfClaimSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -108,7 +102,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val answers = IncompleteReasonAndBasisOfClaimAnswer.empty
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -133,7 +127,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num")))))
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -174,7 +168,7 @@ class SelectReasonForAndBasisOfClaimSpec
           performAction(
             Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
           ),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails()
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
 
@@ -222,7 +216,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             reasonForBasisAndClaimAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 
@@ -269,7 +263,7 @@ class SelectReasonForAndBasisOfClaimSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
             reasonForBasisAndClaimAnswer = Some(answers),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
 

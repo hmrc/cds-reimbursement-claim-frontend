@@ -31,7 +31,8 @@ class DropDownHelper @Inject() (
   val supportingEvidenceUploadKey = "supporting-evidence.upload.details"
   val reasonAndBasisBasisKey      = "select-reason-and-basis-for-claim.basis.details"
   val reasonAndBasisReasonKey     = "select-reason-and-basis-for-claim.reason.details"
-  val basisKey                    = "select-basis-for-claim.details"
+  val basisKeyMrn                 = "select-basis-for-claim.details"
+  val basisKeyEntryNumber         = "select-basis-for-claim.details.ern"
   val whoIsMakingTheClaimKey      = "select-who-is-making-the-claim.details"
 
   def uploadDropDownContent()(implicit messages: Messages): Html =
@@ -81,9 +82,16 @@ class DropDownHelper @Inject() (
       )
     )
 
-  def basisForClaimContent()(implicit messages: Messages): Html = {
+  def basisForClaimContentMrn()(implicit messages: Messages): Html = {
     val lines = (0 to 14).toList
-      .map(i => titleAndDescription(messages(s"$basisKey.b$i"), messages(s"$basisKey.l$i")))
+      .map(i => titleAndDescription(messages(s"$basisKeyMrn.b$i"), messages(s"$basisKeyMrn.l$i")))
+
+    html(bulletList(lines))
+  }
+
+  def basisForClaimContentEntryNumber()(implicit messages: Messages): Html = {
+    val lines = (0 to 14).toList
+      .map(i => titleAndDescription(messages(s"$basisKeyEntryNumber.b$i"), messages(s"$basisKeyEntryNumber.l$i")))
 
     html(bulletList(lines))
   }

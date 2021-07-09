@@ -49,4 +49,6 @@ object Generators {
   def sample[A](implicit anItem: Arbitrary[A]): A =
     anItem.arbitrary.sample.getOrElse(sys.error(s"Could not generate instance with $anItem"))
 
+  def genOtherThan[T](t: T)(implicit gen: Arbitrary[T]): T =
+    gen.arbitrary.suchThat(_ != t).sample.getOrElse(sys.error(s"Could not generate instance"))
 }

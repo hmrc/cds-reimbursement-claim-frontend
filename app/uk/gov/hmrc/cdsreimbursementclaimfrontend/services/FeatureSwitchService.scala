@@ -52,6 +52,9 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
     def disable(): Unit =
       setProp(false)
 
+    def setFlag(cond: Boolean): Unit =
+      if (cond) enable() else disable()
+
     def setProp(value: Boolean): Unit = {
       val _ = sys.props += (systemPropertyName -> value.toString)
     }

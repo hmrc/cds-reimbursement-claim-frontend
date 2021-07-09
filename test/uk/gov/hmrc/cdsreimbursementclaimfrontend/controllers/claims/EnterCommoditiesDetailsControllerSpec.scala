@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -25,17 +25,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.{CompleteCommodityDetailsAnswer, IncompleteCommoditiesDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommoditiesDetailsAnswer, CommodityDetails, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SessionData, SignedInUserDetails, upscan => _}
 
 import scala.concurrent.Future
 
@@ -43,13 +43,20 @@ class EnterCommoditiesDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+    with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  val testCases = Table(
+    ("NumberOfClaimsType", "JourneyBindable"),
+    (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
+    (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+  )
 
   lazy val controller: EnterCommoditiesDetailsController = instanceOf[EnterCommoditiesDetailsController]
 
@@ -58,11 +65,16 @@ class EnterCommoditiesDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeCommoditiesDetailsAnswer: Option[CommoditiesDetailsAnswer]
+    maybeCommoditiesDetailsAnswer: Option[CommodityDetails],
+    numberOfClaims: Option[SelectNumberOfClaimsType]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim
-        .copy(commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer, reasonForBasisAndClaimAnswer = None)
+        .copy(
+          commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
+          selectNumberOfClaimsAnswer = numberOfClaims.map(CompleteSelectNumberOfClaimsAnswer(_)),
+          reasonForBasisAndClaimAnswer = None
+        )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -79,13 +91,10 @@ class EnterCommoditiesDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in {
+      "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
 
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
-
-        val answers = IncompleteCommoditiesDetailsAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -103,18 +112,16 @@ class EnterCommoditiesDetailsControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
+      "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
 
-        val answers = IncompleteCommoditiesDetailsAnswer.empty
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleMrnAnswer()
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -129,19 +136,19 @@ class EnterCommoditiesDetailsControllerSpec
         )
       }
 
-      "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.enterCommoditiesDetails()(FakeRequest())
+      "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -156,54 +163,53 @@ class EnterCommoditiesDetailsControllerSpec
         )
       }
 
-      "the user has come from the CYA page and is amending their answer" in {
+      "the user has come from the CYA page and is amending their answer" in forAll(testCases) {
+        (numberOfClaims, journeyBindable) =>
+          def performAction(): Future[Result] = controller.changeCommoditiesDetails(journeyBindable)(FakeRequest())
 
-        def performAction(): Future[Result] = controller.changeCommoditiesDetails()(FakeRequest())
+          val answers = CommodityDetails("some package")
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+          val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+            .copy(
+              reasonForBasisAndClaimAnswer = None,
+              basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+              movementReferenceNumber = sampleEntryNumberAnswer()
+            )
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
-          .copy(
-            reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+          val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+
+          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey("enter-commodities-details.title")
           )
-
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("enter-commodities-details.title")
-        )
       }
     }
 
     "handle submit requests" when {
 
-      "user enters some details" in {
-
+      "user enters some details" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit()(
+          controller.enterCommoditiesDetailsSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -218,23 +224,22 @@ class EnterCommoditiesDetailsControllerSpec
         )
       }
 
-      "the user amends their answer" in {
-
+      "the user amends their answer" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeCommoditiesDetailsSubmit()(
+          controller.changeCommoditiesDetailsSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails("some package"))
+        val answers = CommodityDetails("some package")
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -254,22 +259,22 @@ class EnterCommoditiesDetailsControllerSpec
 
     "show an error summary" when {
 
-      "the user enters more than 500 characters" in {
+      "the user enters more than 500 characters" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterCommoditiesDetailsSubmit()(
+          controller.enterCommoditiesDetailsSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteCommodityDetailsAnswer(CommodityDetails(List.fill(600)('c').mkString(" ")))
+        val answers = CommodityDetails(List.fill(600)('c').mkString(" "))
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
-            movementReferenceNumber = Some(MovementReferenceNumber(Left(EntryNumber("entry-num"))))
+            movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 

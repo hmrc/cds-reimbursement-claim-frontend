@@ -16,35 +16,31 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import  uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  textArea: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_textarea,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[CommodityDetails], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CommodityDetails], router:ReimbursementRoutes, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-commodities-details"}
     @title = @{messages(s"$key.title")}
-    @postAction = @{if(isAmend) routes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit else routes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit}
+    @postAction = @{ router.submitUrlForCommoditiesDetails(isAmend) }
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
-
-        @pageHeading(title)
-
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -52,10 +48,11 @@
                 form = form,
                 id = key,
                 name = key,
-                label = s"$key.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                hint = Some(s"${key}.hint"),
-                value = form.value.map(text => text.value),
+                isPageHeading = true,
+                label = s"$key.title",
+                labelClasses = Some("govuk-label govuk-label--xl"),
+                hint = lang(key,router.subKey,"hint").headOption,
+                value =  form(key).value,
                 maxLength = Some(500)
             )
 

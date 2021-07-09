@@ -512,13 +512,23 @@ class BankAccountControllerSpec
     }
 
     "accountNumber" should {
-      "Accept shortest possible accountNumber" in {
-        val errors = form.bind(goodData.updated(accountNumber, numStringGen(6))).errors
-        errors shouldBe Nil
+      "Accept shortest possible (6 digits) accountNumber and pad it" in {
+        val genAccountNumber = numStringGen(6)
+        val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
+        bandkAccountForm.errors                                           shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "00" + genAccountNumber
       }
-      "Accept longest possible accountNumber" in {
-        val errors = form.bind(goodData.updated(accountNumber, numStringGen(8))).errors
-        errors shouldBe Nil
+      "Accept 7 digits accountNumber and pad it" in {
+        val genAccountNumber = numStringGen(7)
+        val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
+        bandkAccountForm.errors                                           shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe "0" + genAccountNumber
+      }
+      "Accept longest possible (8 digits) accountNumber" in {
+        val genAccountNumber = numStringGen(8)
+        val bandkAccountForm = form.bind(goodData.updated(accountNumber, genAccountNumber))
+        bandkAccountForm.errors                                           shouldBe Nil
+        bandkAccountForm.value.map(_.accountNumber.value).getOrElse(fail) shouldBe genAccountNumber
       }
       "Reject accountNumber too short" in {
         val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors

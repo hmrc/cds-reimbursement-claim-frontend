@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.Jsoup
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -27,12 +28,14 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -42,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
@@ -57,12 +61,36 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
+  lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
   lazy val controller: EnterDetailsRegisteredWithCdsController =
     instanceOf[EnterDetailsRegisteredWithCdsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  val fullName          = "enter-claimant-details-as-registered-with-cds.individual-full-name"
+  val emailAddress      = "enter-claimant-details-as-registered-with-cds.individual-email"
+  val addressLine1      = "nonUkAddress-line1"
+  val addressLine2      = "nonUkAddress-line2"
+  val addressLine3      = "nonUkAddress-line3"
+  val addressLine4      = "nonUkAddress-line4"
+  val postCode          = "postcode"
+  val countryCode       = "countryCode"
+  val addCompanyDetails = "enter-claimant-details-as-registered-with-cds.add-company-details"
+
+  val goodData = Map(
+    fullName          -> "Magnus Magnusson",
+    emailAddress      -> "mangus@email.com",
+    addressLine1      -> "57 Jex Belaran",
+    addressLine2      -> "Eisraim Road",
+    addressLine3      -> "",
+    addressLine4      -> "Coventry",
+    postCode          -> "CV3 6EA",
+    countryCode       -> "GB",
+    addCompanyDetails -> "false"
+  )
 
   private def sessionWithClaimState(
     maybeClaimantDetailsAsIndividualAnswer: Option[DetailsRegisteredWithCdsAnswer],
@@ -343,29 +371,47 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
   }
 
-  "Form Validation" must {
-    val form              = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
-    val fullName          = "enter-claimant-details-as-registered-with-cds.individual-full-name"
-    val emailAddress      = "enter-claimant-details-as-registered-with-cds.individual-email"
-    val addressLine1      = "nonUkAddress-line1"
-    val addressLine2      = "nonUkAddress-line2"
-    val addressLine3      = "nonUkAddress-line3"
-    val addressLine4      = "nonUkAddress-line4"
-    val postCode          = "postcode"
-    val countryCode       = "countryCode"
-    val addCompanyDetails = "enter-claimant-details-as-registered-with-cds.add-company-details"
+  "Submitting Details Registered with CDS" must {
+    "Redirect according to the journey" in new TableDrivenPropertyChecks {
 
-    val goodData = Map(
-      fullName          -> "Magnus Magnusson",
-      emailAddress      -> "mangus@email.com",
-      addressLine1      -> "57 Jex Belaran",
-      addressLine2      -> "Eisraim Road",
-      addressLine3      -> "",
-      addressLine4      -> "Coventry",
-      postCode          -> "CV3 6EA",
-      countryCode       -> "GB",
-      addCompanyDetails -> "false"
-    )
+      featureSwitch.NorthernIreland.disable()
+
+      def performAction(data: Seq[(String, String)]): Future[Result] =
+        controller.enterDetailsRegisteredWithCdsSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      val testCases = Table(
+        ("NumberOfClaimsType", "JourneyBindable"),
+        (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
+        (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
+        (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+      )
+
+      forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithClaimState(None)
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim =
+          draftC285Claim.copy(
+            movementReferenceNumber = sampleMrnAnswer(),
+            selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(numberOfClaims))
+          )
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockStoreSession(Right(()))
+        }
+        checkIsRedirect(
+          performAction(goodData.toSeq),
+          routes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+        )
+      }
+    }
+
+  }
+
+  "Form Validation" must {
+    val form = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
 
     "accept good declaration details" in {
       val errors = form.bind(goodData).errors

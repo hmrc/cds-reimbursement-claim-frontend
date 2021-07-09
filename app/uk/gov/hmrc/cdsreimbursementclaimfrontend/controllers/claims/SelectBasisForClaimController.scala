@@ -58,31 +58,34 @@ class SelectBasisForClaimController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
 
-  def selectBasisForClaim(): Action[AnyContent] = show(false)
-  def changeBasisForClaim(): Action[AnyContent] = show(true)
+  def selectBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(false)(journey)
+  def changeBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(true)(journey)
 
-  def show(isAmend: Boolean): Action[AnyContent] =
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answers) =>
+      withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, answers, router) =>
+        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answers
           .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
           .fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
-        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend))
+        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend, isMrnJourney, router))
       }
     }
 
-  def selectBasisForClaimSubmit(): Action[AnyContent] = submit(false)
-  def changeBasisForClaimSubmit(): Action[AnyContent] = submit(true)
+  def selectBasisForClaimSubmit(journey: JourneyBindable): Action[AnyContent] = submit(false)(journey)
+  def changeBasisForClaimSubmit(journey: JourneyBindable): Action[AnyContent] = submit(true)(journey)
 
-  def submit(isAmend: Boolean): Action[AnyContent] =
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, _) =>
+      withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, _, router) =>
+        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, isAmend)),
+            formWithErrors =>
+              BadRequest(selectReasonForClaimPage(formWithErrors, allClaimsTypes, isAmend, isMrnJourney, router)),
             formOk => {
               val updatedBasisClaim = CompleteBasisOfClaimAnswer(formOk.reasonForClaim)
               val newDraftClaim     =
@@ -103,12 +106,7 @@ class SelectBasisForClaimController @Inject() (
                       case true  =>
                         Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                       case false =>
-                        formOk.reasonForClaim match {
-                          case BasisOfClaim.DuplicateEntry =>
-                            Redirect(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn())
-                          case _                           =>
-                            Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
-                        }
+                        Redirect(router.nextPageForBasisForClaim(formOk.reasonForClaim))
                     }
                 )
             }

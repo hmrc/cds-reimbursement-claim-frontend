@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -66,7 +66,7 @@ class CheckDeclarationDetailsController @Inject() (
       FillingOutClaim,
       Option[DisplayDeclaration]
     ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result]                      =
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
       val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
       f(s, r, maybeDisplayDeclaration)
@@ -143,7 +143,7 @@ class CheckDeclarationDetailsController @Inject() (
                     //single journey
 
                     //schedule journey
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Schedule))
+                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled))
                 }
             )
           }
@@ -168,8 +168,8 @@ class CheckDeclarationDetailsController @Inject() (
     }
   }
 
-  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails())
+  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney))
   }
 
 }

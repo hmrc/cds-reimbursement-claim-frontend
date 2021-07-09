@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommoditiesDetailsAnswer.CompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
@@ -43,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen._
@@ -117,7 +116,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
   val supportingEvidences: SupportingEvidenceAnswer                                     = sample[SupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
-  val completeCommodityDetailsAnswer: CompleteCommodityDetailsAnswer                    = sample[CompleteCommodityDetailsAnswer]
+  val commodityDetailsAnswer: CommodityDetails                                          = sample[CommodityDetails]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
   val claimsAnswer: ClaimsAnswer                                                        = sample[ClaimsAnswer]
 
@@ -133,7 +132,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     supportingEvidenceAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
-    commoditiesDetailsAnswer = Some(completeCommodityDetailsAnswer),
+    commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
     claimNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer.claimNorthernIrelandAnswer),
     displayDeclaration = Some(
@@ -185,7 +184,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
     id = filledDraftC285Claim.id,
     movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
-    maybeCompleteDuplicateMovementReferenceNumberAnswer = None,
+    maybeDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
     completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,
@@ -194,7 +193,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswer = supportingEvidences,
-    completeCommodityDetailsAnswer = completeCommodityDetailsAnswer,
+    commodityDetailsAnswer = commodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
     maybeDisplayDeclaration = Some(

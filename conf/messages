@@ -46,7 +46,7 @@ language-switcher.welsh.hidden=Newid yr iaith i’r Gymraeg
 language-switcher.welsh.hover=Defnyddio’r cyfrif hwn yn Cymraeg
 language-switcher.nav=Language switcher
 
-error.summary.title=There’s a problem
+error.summary.title=There is a problem
 
 date.day=Day
 date.month=Month
@@ -104,8 +104,8 @@ check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
-check-eori-details.error.required=Select yes if these details are correct or no if they are incorrect
-check-eori-details.invalid=Select yes if these details are correct or no if they are incorrect
+check-eori-details.error.required=Select yes if details are correct
+check-eori-details.invalid=Select yes if details are correct
 
 
 #===================================================
@@ -126,31 +126,59 @@ select-number-of-claims.invalid=Select the number of claims
 #  ENTER MRN PAGE
 #===================================================
 enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
-enter-movement-reference-number.help=Must be 18 or 17 characters, for example 19GB03I52858027017.
+enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
 enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
 enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
-enter-movement-reference-number.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN 
-enter-movement-reference-number.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
-enter-movement-reference-number.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
-enter-movement-reference-number.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
 
+enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
+
 #===================================================
-#  ENTER MRN SCHEDULE PLACEHOLDER PAGE
+#  ENTER NO LEGACY MRN PAGE
 #===================================================
-enter-mrn-schedule-placeholder.title=What is your Movement Reference Number (MRN)?
-enter-mrn-schedule-placeholder.help=This is a placeholder page for the schedule journey.
+enter-no-legacy-mrn.title=Enter the Movement Reference Number (MRN)
+enter-no-legacy-mrn.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-no-legacy-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-no-legacy-mrn.details=We are currently not accepting Entry numbers. If you only have Entry number please refer to C285 Chief.
+enter-no-legacy-mrn.error.required=Enter a valid MRN
+enter-no-legacy-mrn.invalid.number=Enter a valid MRN
+enter-no-legacy-mrn.invalid=Enter a valid MRN
+enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.title=What is your duplicated Movement Reference Number (MRN)?
+enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate MRN
+enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
+enter-duplicate-movement-reference-number.mrn.invalid.number=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.invalid=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.error.required=Enter a valid MRN
+enter-duplicate-movement-reference-number.mrn.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
+enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
+
+#===================================================
+#  ENTER DUPLICATE ENTRY NUMBER PAGE
+#===================================================
+enter-duplicate-movement-reference-number.entry.title=Tell us your duplicate Entry Number
+enter-duplicate-movement-reference-number.entry.input-title=Enter duplicate Entry Number
+enter-duplicate-movement-reference-number.entry.help-text=This will help us to process your claim more efficiently.
+enter-duplicate-movement-reference-number.entry.help=Must be 17 characters, for example 19GB03I5285802701.
+enter-duplicate-movement-reference-number.entry.invalid.number=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
+enter-duplicate-movement-reference-number.entry.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
+enter-duplicate-movement-reference-number.entry.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
+
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
@@ -276,12 +304,17 @@ enter-declaration-details.date-of-import.label=Date of import
 enter-declaration-details.date-of-import.help=This is the date when the commodities arrived in the UK.
 enter-declaration-details.date-of-import.error.required=Enter your import date
 enter-declaration-details.date-of-import.error.invalid=Import date must be a real date
-enter-declaration-details.day.error.dayAndYearRequired=Enter a valid date of import
+enter-declaration-details.day.error.required=Import date must include a day
+enter-declaration-details.month.error.required=Import date must include a month
+enter-declaration-details.year.error.required=Import date must include a year
+enter-declaration-details.dayAndMonth.error.required=Import date must include a day and month
+enter-declaration-details.dayAndYear.error.required=Import date must include a day and year
+enter-declaration-details.monthAndYear.error.required=Import date must include a month and year
 enter-declaration-details.error.before1900=Import date must be a real date
 enter-declaration-details.error.tooFarInFuture=Import date must be today or in the past
-enter-declaration-details.day.error.invalid=Import date must be a real date
-enter-declaration-details.month.error.invalid=Import date must be a real date
-enter-declaration-details.year.error.invalid=Import date must be a real date
+enter-declaration-details.day.error.invalid=Import day must be a real date
+enter-declaration-details.month.error.invalid=Import month must be a real date
+enter-declaration-details.year.error.invalid=Import year must be a real date
 enter-declaration-details.place-of-import.label=Place of import
 enter-declaration-details.place-of-import.error.required=Enter a valid place of import
 enter-declaration-details.place-of-import.error.maxLength =Enter a valid place of import
@@ -397,12 +430,44 @@ select-basis-for-claim.details.b11=Evidence that goods have not entered the EU -
 select-basis-for-claim.details.l11=Proof that the goods, classed as ‘at risk’ on the customs declaration, did not move into the EU’s customs territory
 select-basis-for-claim.details.b12=Incorrect excise value - Northern Ireland claims only:
 select-basis-for-claim.details.l12=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
-select-basis-for-claim.details.b13=Risk classification error - Northern Ireland claims only:
-select-basis-for-claim.details.l13=The trader has declared good as 'at risk' in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance.
+select-basis-for-claim.details.b13=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only:
+select-basis-for-claim.details.l13=The trader has declared goods as 'at risk' in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance
 select-basis-for-claim.details.b14=Miscellaneous:
 select-basis-for-claim.details.l14=For any other reason not detailed in this list
 
-select-basis-for-claim.reason.d0=Duplicate Entry
+
+select-basis-for-claim.details.ern.b0=Duplicate Entry Number:
+select-basis-for-claim.details.ern.l0=A claim if a duplicate Entry Number has been made and a trader overpaid duties
+select-basis-for-claim.details.ern.b1=Duty suspension:
+select-basis-for-claim.details.ern.l1=Goods liable to import charges but not collected until they leave the point of deferring payment of customs duties
+select-basis-for-claim.details.ern.b2=End use relief:
+select-basis-for-claim.details.ern.l2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
+select-basis-for-claim.details.ern.b3=Incorrect commodity code:
+select-basis-for-claim.details.ern.l3=A claim made if a trader originally entered an incorrect commodity code and overpaid duties
+select-basis-for-claim.details.ern.b4=Incorrect customs procedure code:
+select-basis-for-claim.details.ern.l4=A claim made if a trader entered an incorrect CPC and overpaid duties
+select-basis-for-claim.details.ern.b5=Incorrect value:
+select-basis-for-claim.details.ern.l5=A claim made if a trader originally entered an incorrect total customs value and overpaid duties
+select-basis-for-claim.details.ern.b6=Incorrect EORI and deferment account number:
+select-basis-for-claim.details.ern.l6=A claim made if a trader entered a wrong EORI and/or deferment account number
+select-basis-for-claim.details.ern.b7=Inward processing relief from Customs Duty:
+select-basis-for-claim.details.ern.l7=IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU
+select-basis-for-claim.details.ern.b8=Outward processing relief:
+select-basis-for-claim.details.ern.l8=Allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+select-basis-for-claim.details.ern.b9=Preference:
+select-basis-for-claim.details.ern.l9=Post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates
+select-basis-for-claim.details.ern.b10=Proof of return/refund given:
+select-basis-for-claim.details.ern.l10=A claim made by a trader if they have provided a proof of return/refund and overpaid duties
+select-basis-for-claim.details.ern.b11=Evidence that goods have not entered the EU - Northern Ireland claims only:
+select-basis-for-claim.details.ern.l11=Proof that the goods, classed as ‘at risk’ on the customs declaration, did not move into the EU’s customs territory
+select-basis-for-claim.details.ern.b12=Incorrect excise value - Northern Ireland claims only:
+select-basis-for-claim.details.ern.l12=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
+select-basis-for-claim.details.ern.b13=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only:
+select-basis-for-claim.details.ern.l13=The trader has declared goods as 'at risk' in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance
+select-basis-for-claim.details.ern.b14=Miscellaneous:
+select-basis-for-claim.details.ern.l14=For any other reason not detailed in this list
+
+select-basis-for-claim.reason.d0=Duplicate MRN
 select-basis-for-claim.reason.d1=Duty Suspension
 select-basis-for-claim.reason.d2=End Use
 select-basis-for-claim.reason.d3=Incorrect Commodity Code
@@ -415,10 +480,28 @@ select-basis-for-claim.reason.d9=Personal Effects
 select-basis-for-claim.reason.d10=Preference
 select-basis-for-claim.reason.d11=RGR
 select-basis-for-claim.reason.d12=Proof of Return/Refund Given
-select-basis-for-claim.reason.d13=Evidence that goods have not entered the EU (for imports into Northern Ireland only)
-select-basis-for-claim.reason.d14=Incorrect excise value (for imports into Northern Ireland only)
-select-basis-for-claim.reason.d15=Risk classification error (for imports into Northern Ireland only)
+select-basis-for-claim.reason.d13=Evidence that goods have not entered the EU - Northern Ireland claims only
+select-basis-for-claim.reason.d14=Incorrect excise value - Northern Ireland claims only
+select-basis-for-claim.reason.d15=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only
 select-basis-for-claim.reason.d16=Miscellaneous
+
+select-basis-for-claim.reason.ern.d0=Duplicate Entry Number
+select-basis-for-claim.reason.ern.d1=Duty Suspension
+select-basis-for-claim.reason.ern.d2=End Use
+select-basis-for-claim.reason.ern.d3=Incorrect Commodity Code
+select-basis-for-claim.reason.ern.d4=Incorrect CPC
+select-basis-for-claim.reason.ern.d5=Incorrect Value
+select-basis-for-claim.reason.ern.d6=Incorrect EORI & Deferment Acc. Num.
+select-basis-for-claim.reason.ern.d7=IP
+select-basis-for-claim.reason.ern.d8=OPR
+select-basis-for-claim.reason.ern.d9=Personal Effects
+select-basis-for-claim.reason.ern.d10=Preference
+select-basis-for-claim.reason.ern.d11=RGR
+select-basis-for-claim.reason.ern.d12=Proof of Return/Refund Given
+select-basis-for-claim.reason.ern.d13=Evidence that goods have not entered the EU - Northern Ireland claims only
+select-basis-for-claim.reason.ern.d14=Incorrect excise value - Northern Ireland claims only
+select-basis-for-claim.reason.ern.d15=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only
+select-basis-for-claim.reason.ern.d16=Miscellaneous
 
 #===================================================
 #  SELECT REASON AND BASIS FOR CLAIM PAGE
@@ -434,7 +517,8 @@ select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
 select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
 select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
 select-reason-and-basis-for-claim.basis.details.heading=Examples of basis of claim
-select-reason-and-basis-for-claim.basis.details.l0=duplicate MRN or entry number (a claim if a duplicate MRN or entry number has been made and a trader overpaid duties)
+
+select-reason-and-basis-for-claim.basis.details.l0=duplicate Entry Number (a claim if a duplicate Entry Number has been made and a trader overpaid duties)
 select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
 select-reason-and-basis-for-claim.basis.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
 select-reason-and-basis-for-claim.basis.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
@@ -449,7 +533,8 @@ select-reason-and-basis-for-claim.reason.details.heading=Examples of reasons to 
 select-reason-and-basis-for-claim.reason.details.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
 select-reason-and-basis-for-claim.reason.details.l1=overpayment (for example you paid duties that were not due)
 select-reason-and-basis-for-claim.reason.details.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
-select-reason-and-basis-for-claim.basis.d0=Duplicate Entry
+
+select-reason-and-basis-for-claim.basis.d0=Duplicate Entry Number
 select-reason-and-basis-for-claim.basis.d1=Duty Suspension
 select-reason-and-basis-for-claim.basis.d2=End Use
 select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
@@ -463,6 +548,7 @@ select-reason-and-basis-for-claim.basis.d10=Personal Effects
 select-reason-and-basis-for-claim.basis.d11=Preference
 select-reason-and-basis-for-claim.basis.d12=RGR
 select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
+
 select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
 select-reason-and-basis-for-claim.reason.d1=Overpayment
 select-reason-and-basis-for-claim.reason.d2=Special circumstances
@@ -470,12 +556,13 @@ select-reason-and-basis-for-claim.reason.d2=Special circumstances
 #===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
-enter-commodities-details.title=Enter details of the commodities you would like reimbursing for
-enter-commodities-details.label=Enter commodity details
-enter-commodities-details.help-text=You can enter more than one commodity (goods) from the same MRN declaration. Describe each commodity in the claim.<br /><br />This will help reduce delays in your claim being processed.
-enter-commodities-details.error.required=Enter details about the commodities you would like to be reimbursed for
-enter-commodities-details.error.maxLength=You have exceeded the maximum number of characters allowed (500)
+enter-commodities-details.title=Tell us the reason for this claim
+enter-commodities-details.label=
+enter-commodities-details.error.required=Enter claim reason
+enter-commodities-details.error.maxLength=Claim reason must be 500 characters or fewer
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
+
+enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -589,8 +676,8 @@ check-claim-summary.total=Total Reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.error.required=Select yes if these details are correct or no if they are incorrect
-check-claim-summary.error.invalid=Select yes if these details are correct or no if they are incorrect
+check-claim-summary.error.required=Select yes if details are correct
+check-claim-summary.error.invalid=Select yes if details are correct
 
 #===================================================
 #  ENTER BANK DETAILS PAGE

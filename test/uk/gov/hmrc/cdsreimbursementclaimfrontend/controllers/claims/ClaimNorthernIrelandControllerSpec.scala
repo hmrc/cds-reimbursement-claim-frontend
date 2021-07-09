@@ -230,7 +230,7 @@ class ClaimNorthernIrelandControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ClaimNorthernIrelandController.dataKey -> "0")),
-          routes.SelectBasisForClaimController.selectBasisForClaim()
+          routes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
 
@@ -246,7 +246,7 @@ class ClaimNorthernIrelandControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ClaimNorthernIrelandController.dataKey -> "1")),
-          routes.SelectBasisForClaimController.selectBasisForClaim()
+          routes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
 
@@ -262,7 +262,7 @@ class ClaimNorthernIrelandControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ClaimNorthernIrelandController.dataKey -> "0")),
-          routes.SelectBasisForClaimController.selectBasisForClaim()
+          routes.SelectBasisForClaimController.selectBasisForClaim(JourneyBindable.Single)
         )
       }
     }
