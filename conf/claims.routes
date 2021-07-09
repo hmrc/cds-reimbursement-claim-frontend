@@ -4,8 +4,8 @@ POST        /check-eori-details                                     uk.gov.hmrc.
 GET         /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show()
 POST        /select-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
 
-GET         /change-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show()
-POST        /change-number-of-claims                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
+GET         /single/change-number-of-claims                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.show()
+POST        /single/change-number-of-claims                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.submit()
 
 GET         /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterJourneyMrn(journey: JourneyBindable)
 POST        /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit(journey: JourneyBindable)
@@ -16,89 +16,89 @@ POST        /:journey/change-movement-reference-number              uk.gov.hmrc.
 GET         /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journey: JourneyBindable)
 POST        /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(journey: JourneyBindable)
 
-GET         /importer-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber()
-POST        /importer-eori-entry                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit()
+GET         /single/importer-eori-entry                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber()
+POST        /single/importer-eori-entry                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit()
 
-GET         /declarant-eori-entry                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
-POST        /declarant-eori-entry                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit()
+GET         /single/declarant-eori-entry                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+POST        /single/declarant-eori-entry                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit()
 
-GET         /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetails()
-POST        /enter-declaration-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit()
+GET         /single/enter-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetails()
+POST        /single/enter-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit()
 
-GET         /change-declaration-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.changeDeclarationDetails()
-POST        /change-declaration-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit()
+GET         /single/change-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.changeDeclarationDetails()
+POST        /single/change-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit()
 
-GET         /enter-duplicate-declaration-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
-POST        /enter-duplicate-declaration-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit()
+GET         /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
+POST        /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit()
 
-GET         /who-is-the-declarant                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType()
-POST        /who-is-the-declarant                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit()
+GET         /single/who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+POST        /single/who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit()
 
-GET         /change-who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantType()
-POST        /change-who-is-the-declarant                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit()
+GET         /single/change-who-is-the-declarant                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantType()
+POST        /single/change-who-is-the-declarant                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit()
 
-GET         /enter-your-details-as-registered-with-cds              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
-POST        /enter-your-details-as-registered-with-cds              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
+GET         /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+POST        /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
 
-GET         /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds()
-POST        /change-your-details-as-registered-with-cds             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
+GET         /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds()
+POST        /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
 
-GET         /enter-your-contact-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetails()
-POST        /enter-your-contact-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetailsSubmit()
+GET         /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetails()
+POST        /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetailsSubmit()
 
-GET         /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
-POST        /change-your-contact-details                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
+GET         /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
+POST        /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
 
-GET         /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
-POST        /claim-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()
+GET         /single/claim-northern-ireland                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
+POST        /single/claim-northern-ireland                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()
 
-GET         /change-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim()
-POST        /change-northern-ireland                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
+GET         /single/change-northern-ireland                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim()
+POST        /single/change-northern-ireland                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
 
-GET         /:journey/choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim(journey: JourneyBindable)
-POST        /:journey/choose-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit(journey: JourneyBindable)
+GET         /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim(journey: JourneyBindable)
+POST        /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit(journey: JourneyBindable)
 
-GET         /:journey/change-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaim(journey: JourneyBindable)
-POST        /:journey/change-basis-for-claim                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaimSubmit(journey: JourneyBindable)
+GET         /:journey/change-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaim(journey: JourneyBindable)
+POST        /:journey/change-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaimSubmit(journey: JourneyBindable)
 
-GET         /enter-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-POST        /enter-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
+GET         /single/enter-reason-for-claim-and-basis                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+POST        /single/enter-reason-for-claim-and-basis                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
 
-GET         /change-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis()
-POST        /change-reason-for-claim-and-basis                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit()
+GET         /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis()
+POST        /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit()
 
-GET         /check-declaration-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetails()
-POST        /check-declaration-details                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetailsSubmit()
+GET         /single/check-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetails()
+POST        /single/check-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDetailsSubmit()
 
-GET         /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetails()
-POST        /check-duplicate-declaration-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
+GET         /single/check-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetails()
+POST        /single/check-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit()
 
-GET         /check-these-bank-details-are-correct                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
+GET         /single/check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails()
 
-GET         /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails()
-POST        /enter-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit()
+GET         /single/enter-bank-account-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails()
+POST        /single/enter-bank-account-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit()
 
-GET         /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails()
-POST        /change-bank-account-details                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit()
+GET         /single/change-bank-account-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails()
+POST        /single/change-bank-account-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit()
 
-GET         /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
-POST        /check-answers-accept-send                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
+GET         /single/check-answers-accept-send                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
+POST        /single/check-answers-accept-send                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
 
-GET         /claim-submitted                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+GET         /single/claim-submitted                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
 
-GET         /check-if-claim-was-sent                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
+GET         /single/check-if-claim-was-sent                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
 
 GET         /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journey: JourneyBindable)
 
-GET         /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
-POST        /select-duties                                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
+GET         /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
+POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
 
-GET         /start-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
-GET         /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
-POST        /enter-claim/:id                                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
-GET         /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary()
-POST        /check-claim                                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
+GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
+GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
+POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
+GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary()
+POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
 
 GET         /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)
