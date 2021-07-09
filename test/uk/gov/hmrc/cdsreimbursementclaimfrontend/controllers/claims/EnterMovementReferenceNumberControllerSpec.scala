@@ -276,7 +276,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/enter-declaration-details"
+        ).value        shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
       "start an Entry Number claim, if the Bulk Claim feature and the Entry Number feature are enabled and an entry number is entered" in {
@@ -296,7 +296,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/enter-declaration-details"
+        ).value        shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
       "Update an Entry Number" in {
@@ -317,7 +317,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/single/enter-declaration-details"
+        ).value shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
       "Update an Entry Number, but do not change it" in {
@@ -336,7 +336,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/enter-declaration-details"
+        ).value        shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
       "start a new claim with an MRN, Eori is importer's Eori" in forAll(keys) { key =>
@@ -360,7 +360,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/check-declaration-details"
+        ).value        shouldBe routes.CheckDeclarationDetailsController.checkDetails().url
       }
 
       "Update an MRN, Eori is importer's Eori" in forAll(keys) { key =>
@@ -386,7 +386,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/check-declaration-details"
+        ).value        shouldBe routes.CheckDeclarationDetailsController.checkDetails().url
       }
 
       "Update an MRN, but don't change it, Eori is importer's Eori" in forAll(keys) { key =>
@@ -412,7 +412,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/check-declaration-details"
+        ).value        shouldBe routes.CheckDeclarationDetailsController.checkDetails().url
       }
 
       "start a new claim with an MRN, Eori is not the importer's Eori" in forAll(keys) { key =>
@@ -434,7 +434,7 @@ class EnterMovementReferenceNumberControllerSpec
         val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
 
         status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/single/importer-eori-entry"
+        redirectLocation(result).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
     }
@@ -459,7 +459,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/check-answers-accept-send"
+        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
       }
 
       "return to CYA page if the same entry number is submitted" in {
@@ -477,7 +477,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe "/claim-for-reimbursement-of-import-duties/single/check-answers-accept-send"
+        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
       }
 
       "start a new claim if a different MRN is submitted" in forAll(keys) { key =>
@@ -498,7 +498,7 @@ class EnterMovementReferenceNumberControllerSpec
         val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/single/importer-eori-entry"
+        redirectLocation(result).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
       "start a new claim if a different entry number is submitted" in {
@@ -518,7 +518,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value shouldBe "/claim-for-reimbursement-of-import-duties/single/enter-declaration-details"
+        ).value shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
     }
