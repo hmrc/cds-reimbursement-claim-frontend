@@ -114,14 +114,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                       )
                         .leftMap(_ => Error("Could not save Display Declaration"))
                   } yield mrnJourneyFlow
-                  result.fold(
-                    errorRedirect,
-                    mrnJourney =>
-                      Redirect(
-                        getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
-                          .nextPageForEnterMRN(mrnJourney)
-                      )
-                  )
+
+                  result.fold(errorRedirect, mrnJourney => Redirect(router.nextPageForDuplicateMRN(mrnJourney)))
               }
             }
           )
@@ -143,7 +137,10 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     acc14: DisplayDeclaration
   ): SessionDataTransform = {
     val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(movementReferenceNumber = Option(mrnOrEntryNumber), displayDeclaration = Option(acc14))
+      _.copy(
+        duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber),
+        duplicateDisplayDeclaration = Option(acc14)
+      )
     )
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
