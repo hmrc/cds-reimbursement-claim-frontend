@@ -20,13 +20,11 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, nonEmptyText, of}
 import play.api.data.{Form, Mapping}
-import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -60,7 +58,7 @@ class EnterDeclarationDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      DeclarationDetails
+      EntryNumberDeclarationDetails
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({
@@ -429,22 +427,8 @@ class EnterDeclarationDetailsController @Inject() (
 
 object EnterDeclarationDetailsController {
 
-  final case class EntryDeclarationDetails(
-    dateOfImport: DateOfImport,
-    placeOfImport: String,
-    importerName: String,
-    importerEmailAddress: Email,
-    importerPhoneNumber: PhoneNumber,
-    declarantName: String,
-    declarantEmailAddress: Email,
-    declarantPhoneNumber: PhoneNumber
-  )
 
-  object EntryDeclarationDetails {
-    implicit val format: OFormat[EntryDeclarationDetails] = Json.format[EntryDeclarationDetails]
-  }
-
-  val entryDeclarationDetailsForm: Form[EntryDeclarationDetails] = Form(
+  val entryDeclarationDetailsForm: Form[EntryNumberDeclarationDetails] = Form(
     mapping(
       "enter-declaration-details.date-of-import"          -> dateOfImportMapping(LocalDate.now),
       "enter-declaration-details.place-of-import"         -> nonEmptyText(maxLength = 70),
@@ -454,7 +438,7 @@ object EnterDeclarationDetailsController {
       "enter-declaration-details.declarant-name"          -> nonEmptyText(maxLength = 70),
       "enter-declaration-details.declarant-email-address" -> Email.mappingMaxLength,
       "enter-declaration-details.declarant-phone-number"  -> PhoneNumber.mapping
-    )(EntryDeclarationDetails.apply)(EntryDeclarationDetails.unapply)
+    )(EntryNumberDeclarationDetails.apply)(EntryNumberDeclarationDetails.unapply)
   )
 
   def dateOfImportMapping(today: LocalDate): Mapping[DateOfImport] =

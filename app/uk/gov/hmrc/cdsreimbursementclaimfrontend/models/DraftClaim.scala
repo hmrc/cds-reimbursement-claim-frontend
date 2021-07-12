@@ -42,7 +42,7 @@ object DraftClaim {
                                    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
                                    movementReferenceNumber: Option[MovementReferenceNumber],
                                    duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
-                                   declarationDetailsAnswer: Option[DeclarationDetails],
+                                   declarationDetailsAnswer: Option[EntryNumberDeclarationDetails],
                                    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
                                    declarantTypeAnswer: Option[DeclarantTypeAnswer],
                                    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer],

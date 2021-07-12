@@ -23,7 +23,7 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.http.Status.OK
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.{EntryDeclarationDetails, entryDeclarationDetailsForm}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails.CompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
@@ -35,9 +35,9 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails.IncompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails.IncompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen._
@@ -73,7 +73,7 @@ class EnterDeclarationDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithDeclaration(
-    maybeDeclarationDetailsAnswer: Option[DeclarationDetails]
+    maybeDeclarationDetailsAnswer: Option[EntryNumberDeclarationDetails]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(declarationDetailsAnswer = maybeDeclarationDetailsAnswer)
