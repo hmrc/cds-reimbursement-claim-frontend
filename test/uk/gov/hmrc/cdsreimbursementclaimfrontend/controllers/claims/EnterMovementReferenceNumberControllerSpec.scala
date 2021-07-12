@@ -273,8 +273,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+        )
       }
 
       "start an Entry Number claim, if the Bulk Claim feature and the Entry Number feature are enabled and an entry number is entered" in {
@@ -291,8 +294,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+        )
       }
 
       "Update an Entry Number" in {
@@ -311,7 +317,10 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
 
         status(result) shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+        checkIsRedirect(
+          result,
+          routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+        )
       }
 
       "Update an Entry Number, but do not change it" in {
@@ -327,8 +336,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> originalEntryNumber.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.EnterDeclarationDetailsController.enterDeclarationDetails()
+        )
       }
 
       "start a new claim with an MRN, Eori is importer's Eori" in forAll(keys) { key =>
@@ -349,8 +361,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.CheckDeclarationDetailsController.checkDetails()
+        )
       }
 
       "Update an MRN, Eori is importer's Eori" in forAll(keys) { key =>
@@ -373,8 +388,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.CheckDeclarationDetailsController.checkDetails()
+        )
       }
 
       "Update an MRN, but don't change it, Eori is importer's Eori" in forAll(keys) { key =>
@@ -397,8 +415,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, key -> mrn.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-declaration-details"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.CheckDeclarationDetailsController.checkDetails()
+        )
       }
 
       "start a new claim with an MRN, Eori is not the importer's Eori" in forAll(keys) { key =>
@@ -419,8 +440,11 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result = performAction(JourneyBindable.Single, key -> sample[MRN].value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
+        status(result) shouldBe 303
+        checkIsRedirect(
+          result,
+          routes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+        )
       }
 
     }
@@ -442,8 +466,10 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result          = performAction(JourneyBindable.Single, key -> mrn.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        status(result) shouldBe 303
+        redirectLocation(
+          result
+        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
       }
 
       "return to CYA page if the same entry number is submitted" in {
@@ -458,8 +484,10 @@ class EnterMovementReferenceNumberControllerSpec
         }
         val result          = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
 
-        status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/check-answers-accept-send"
+        status(result) shouldBe 303
+        redirectLocation(
+          result
+        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
       }
 
       "start a new claim if a different MRN is submitted" in forAll(keys) { key =>
@@ -480,7 +508,7 @@ class EnterMovementReferenceNumberControllerSpec
         val result = performAction(JourneyBindable.Single, key -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/importer-eori-entry"
+        redirectLocation(result).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
       }
 
       "start a new claim if a different entry number is submitted" in {
@@ -498,7 +526,9 @@ class EnterMovementReferenceNumberControllerSpec
           performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> genOtherThan(entryNumber).value)
 
         status(result) shouldBe 303
-        redirectLocation(result).value shouldBe "/claim-for-reimbursement-of-import-duties/enter-declaration-details"
+        redirectLocation(
+          result
+        ).value shouldBe routes.EnterDeclarationDetailsController.enterDeclarationDetails().url
       }
 
     }
