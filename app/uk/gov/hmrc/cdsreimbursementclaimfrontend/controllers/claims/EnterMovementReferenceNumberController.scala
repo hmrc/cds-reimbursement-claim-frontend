@@ -214,8 +214,8 @@ class EnterMovementReferenceNumberController @Inject() (
 
 object EnterMovementReferenceNumberController {
 
-  val enterMovementReferenceNumberKey = "enter-movement-reference-number"
-  val enterNoLegacyMrnKey             = "enter-no-legacy-mrn"
+  val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
+  val enterNoLegacyMrnKey: String             = "enter-no-legacy-mrn"
 
   def movementReferenceNumberMapping(isEntryNumberEnabled: Boolean): Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText

@@ -12,9 +12,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-language"              % "4.13.0-play-28",
     "org.typelevel"     %% "cats-core"                  % "2.3.1",
     "com.github.kxbmap" %% "configs"                    % "0.5.0",
-    "org.julienrf"      %% "play-json-derived-codecs"   % "7.0.0",
-    compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-    "com.github.ghik"    % "silencer-lib"               % silencerVersion % Provided cross CrossVersion.full
+    "org.julienrf"      %% "play-json-derived-codecs"   % "7.0.0"
   )
 
   val test = Seq(

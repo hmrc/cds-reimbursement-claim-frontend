@@ -155,8 +155,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
 
 object EnterDuplicateMovementReferenceNumberController {
 
-  val keyForenterDuplicateMovementReferenceNumber = "enter-duplicate-movement-reference-number"
-  val invalidNumberError                          = "invalid.number"
+  val keyForenterDuplicateMovementReferenceNumber: String = "enter-duplicate-movement-reference-number"
+  val invalidNumberError: String                          = "invalid.number"
 
   def getForm(): Form[MovementReferenceNumber] =
     Form(

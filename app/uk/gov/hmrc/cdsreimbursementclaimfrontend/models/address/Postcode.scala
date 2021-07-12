@@ -25,6 +25,8 @@ import play.api.libs.json.Format
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode.{mappingNonUk, mappingUk}
 
+import java.util.Locale
+
 final case class Postcode(value: String) extends AnyVal
 
 object Postcode {
@@ -39,7 +41,7 @@ object Postcode {
   val mappingUk: Mapping[Postcode] = {
 
     def validateUkPostcode(p: Postcode): ValidationResult = {
-      val postcodeWithoutSpaces = p.value.toUpperCase.replaceAllLiterally(" ", "")
+      val postcodeWithoutSpaces = p.value.toUpperCase(Locale.UK).replaceAllLiterally(" ", "")
       if (p.value.length > 8) Invalid("error.tooLong")
       else if (!postcodeWithoutSpaces.forall(_.isLetterOrDigit))
         Invalid("error.invalidCharacters")
