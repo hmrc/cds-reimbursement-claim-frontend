@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.Compl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
@@ -387,12 +387,12 @@ object CompleteClaim {
     }
 
   def validateDeclarationDetailsAnswer(
-    maybeDeclarationDetailsAnswer: Option[DeclarationDetailsAnswer]
+    maybeDeclarationDetailsAnswer: Option[DeclarationDetails]
   ): Validation[CompleteDeclarationDetailsAnswer] =
     maybeDeclarationDetailsAnswer match {
       case Some(value) =>
         value match {
-          case DeclarationDetailsAnswer.IncompleteDeclarationDetailsAnswer(_)     =>
+          case DeclarationDetails.IncompleteDeclarationDetailsAnswer(_)     =>
             invalid("incomplete declaration details answer")
           case completeDeclarationDetailsAnswer: CompleteDeclarationDetailsAnswer =>
             Valid(completeDeclarationDetailsAnswer)

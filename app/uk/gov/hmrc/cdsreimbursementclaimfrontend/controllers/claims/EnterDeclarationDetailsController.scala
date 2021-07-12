@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetails.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -60,7 +60,7 @@ class EnterDeclarationDetailsController @Inject() (
     f: (
       SessionData,
       FillingOutClaim,
-      DeclarationDetailsAnswer
+      DeclarationDetails
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({
