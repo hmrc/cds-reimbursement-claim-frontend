@@ -183,7 +183,10 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                             }
                           case MovementReferenceNumber(Right(_)) =>
                             featureSwitch.NorthernIreland.isEnabled() match {
-                              case true  => Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim())
+                              case true  =>
+                                Redirect(
+                                  routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney)
+                                )
                               case false =>
                                 Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                             }
