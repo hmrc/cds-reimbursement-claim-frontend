@@ -105,13 +105,7 @@ class ClaimNorthernIrelandController @Inject() (
                       logger.warn("could not capture select number of claims", e)
                       errorHandler.errorResult()
                     },
-                    _ =>
-                      if (!isAmend) {
-                        Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(journey))
-                      } else {
-                        if (answerChanged) Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(journey))
-                        else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-                      }
+                    _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))
                   )
               }
             )
