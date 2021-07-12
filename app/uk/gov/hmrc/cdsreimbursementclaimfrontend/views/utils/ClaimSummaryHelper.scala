@@ -34,15 +34,15 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
   private val key = "check-claim-summary"
 
   def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) :+ makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
+    makeTotalRow(claimsAnswer.ukClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer))
 
   def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) :+ makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
+    makeTotalRow(claimsAnswer.euClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer))
 
   def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) :+ makeTotalRow(
+    makeTotalRow(
       claimsAnswer.exciseClaims(claimsAnswer)
-    )
+    ) :: makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer))
 
   def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
     claims.map { claim =>

@@ -214,7 +214,7 @@ class SupportingEvidenceController @Inject() (
                 index     <- Option(documents.indexWhere(_.uploadReference === uploadReference)).filter(_ >= 0)
                 (x, xs)    = documents.splitAt(index)
                 updated    = documents(index).copy(documentType = Some(documentType.supportingEvidenceDocumentType))
-                items     <- NonEmptyList.fromList(x ++ xs.drop(1) :+ updated)
+                items     <- NonEmptyList.fromList(updated :: (x ++ xs.drop(1)))
               } yield items
 
               val result = for {

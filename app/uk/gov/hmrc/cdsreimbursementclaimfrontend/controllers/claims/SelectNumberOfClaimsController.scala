@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectNumberOfClaimsController @Inject() (
@@ -53,6 +53,7 @@ class SelectNumberOfClaimsController @Inject() (
   selectNumberOfClaimsPage: select_number_of_claims
 )(implicit
   viewConfig: ViewConfig,
+  ec: ExecutionContext,
   errorHandler: ErrorHandler,
   cc: MessagesControllerComponents
 ) extends FrontendController(cc)

@@ -38,7 +38,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ClaimNorthernIrelandController @Inject() (
@@ -49,6 +49,7 @@ class ClaimNorthernIrelandController @Inject() (
   claimNorthernIrelandPage: claim_northern_ireland
 )(implicit
   viewConfig: ViewConfig,
+  ec: ExecutionContext,
   errorHandler: ErrorHandler,
   cc: MessagesControllerComponents
 ) extends FrontendController(cc)
