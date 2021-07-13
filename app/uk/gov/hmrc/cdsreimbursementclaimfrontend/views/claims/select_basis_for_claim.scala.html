@@ -18,7 +18,6 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.SelectReasonForClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -26,7 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
 formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
@@ -66,11 +65,9 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
       }
     }
 
-    @postAction = @{if(isAmend) routes.SelectBasisForClaimController.changeBasisForClaimSubmit(router.journeyBindable)
-                    else routes.SelectBasisForClaimController.selectBasisForClaimSubmit(router.journeyBindable)}
+    @postAction = @{ router.submitUrlForBasisOfClaim(isAmend) }
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
-
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
@@ -78,7 +75,7 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(lang(key , router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @dropdownDetails(
             summary = s"$key.details.heading", content = if (isMrnJourney) dropdownHelper.basisForClaimContentMrn else dropdownHelper.basisForClaimContentEntryNumber

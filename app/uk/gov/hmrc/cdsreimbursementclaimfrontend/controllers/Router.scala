@@ -26,6 +26,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
+  //--- Basis for Claim
+
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
       claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
@@ -36,6 +38,13 @@ trait JourneyTypeRoutes extends Product with Serializable {
         case _                           =>
           claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
       }
+
+  def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
+    if (isAmend)
+      claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)
+    else claimRoutes.SelectBasisForClaimController.selectBasisForClaimSubmit(journeyBindable)
+
+  //--- Commodity details
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
@@ -48,6 +57,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
       case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
     }
+
+  //--- Northern Ireland
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {
