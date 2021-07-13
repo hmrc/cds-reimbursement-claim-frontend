@@ -108,7 +108,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   }
 
   val mrn: MRN                                                                          = sample[MRN]
-  val completeDeclarantTypeAnswer: DeclarantTypeAnswer                                  = sample[DeclarantTypeAnswer]
+  val declarantTypeAnswer: DeclarantTypeAnswer                                          = sample[DeclarantTypeAnswer]
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
   val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
@@ -123,7 +123,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateMovementReferenceNumberAnswer = None,
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
-    declarantTypeAnswer = Some(completeDeclarantTypeAnswer),
+    declarantTypeAnswer = Some(declarantTypeAnswer),
     detailsRegisteredWithCdsAnswer = Some(completeClaimantDetailsAsIndividualAnswer),
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
@@ -185,7 +185,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
-    completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,
+    declarantTypeAnswer = declarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),

@@ -56,7 +56,7 @@ object CompleteClaim {
     maybeDuplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
-    completeDeclarantTypeAnswer: DeclarantTypeAnswer,
+    declarantTypeAnswer: DeclarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
@@ -517,28 +517,7 @@ object CompleteClaim {
     }
 
     def declarantType: DeclarantTypeAnswer = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            declarantType,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        declarantType
+      case cc: CompleteC285Claim => cc.declarantTypeAnswer
     }
 
     def basisForClaim: Either[SelectReasonForClaimAndBasis, BasisOfClaim] = completeClaim match {
