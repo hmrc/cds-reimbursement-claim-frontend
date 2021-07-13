@@ -34,7 +34,7 @@ object BarsAddress {
 
     val addressLinesMaxLength = 140
     val (truncatedLines, _)   = validLines.foldLeft((List[String](), 0)) { case ((s, l), c) =>
-      (s :+ (if ((l + c.length) > addressLinesMaxLength) c.take(addressLinesMaxLength - l) else c), l + c.length)
+      ((if ((l + c.length) > addressLinesMaxLength) c.take(addressLinesMaxLength - l) else c) :: s, l + c.length)
     }
 
     new BarsAddress(

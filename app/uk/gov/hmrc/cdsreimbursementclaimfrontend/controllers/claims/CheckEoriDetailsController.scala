@@ -40,8 +40,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckEoriDetailsController @Inject() (
@@ -56,7 +55,7 @@ class CheckEoriDetailsController @Inject() (
   val config: Configuration,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
-)(implicit viewConfig: ViewConfig)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -154,7 +153,7 @@ object CheckEoriDetailsController {
   case object EoriDetailsAreCorrect extends CheckEoriDetailsAnswer
   case object EoriDetailsAreIncorrect extends CheckEoriDetailsAnswer
 
-  val dataKey = "check-eori-details"
+  val dataKey: String = "check-eori-details"
 
   val checkEoriDetailsAnswerForm: Form[CheckEoriDetailsAnswer] =
     Form(

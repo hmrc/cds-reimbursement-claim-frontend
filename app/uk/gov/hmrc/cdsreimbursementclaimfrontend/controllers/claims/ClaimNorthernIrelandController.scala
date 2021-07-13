@@ -35,10 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.claim_northern_ireland
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 
 import javax.inject.Singleton
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ClaimNorthernIrelandController @Inject() (
@@ -49,6 +49,7 @@ class ClaimNorthernIrelandController @Inject() (
   claimNorthernIrelandPage: claim_northern_ireland
 )(implicit
   viewConfig: ViewConfig,
+  ec: ExecutionContext,
   errorHandler: ErrorHandler,
   cc: MessagesControllerComponents
 ) extends FrontendController(cc)
@@ -59,25 +60,26 @@ class ClaimNorthernIrelandController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
-  def selectNorthernIrelandClaim(): Action[AnyContent] = show(false)
-  def changeNorthernIrelandClaim(): Action[AnyContent] = show(true)
+  def selectNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
+  def changeNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
 
-  def show(isAmend: Boolean): Action[AnyContent] = (featureSwitch.NorthernIreland.hideIfNotEnabled andThen
-    authenticatedActionWithSessionData).async { implicit request =>
-    withAnswers[ClaimNorthernIrelandAnswer] { (_, answers) =>
-      val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
-      val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-      Ok(claimNorthernIrelandPage(filledForm, isAmend))
-    }
-  }
-
-  def selectNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(false)
-  def changeNorthernIrelandClaimSubmit(): Action[AnyContent] = submit(true)
-
-  def submit(isAmend: Boolean): Action[AnyContent] =
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
       implicit request =>
-        withAnswers[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _) =>
+        withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (_, answers, router) =>
+          val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
+          val filledForm = answers.fold(emptyForm)(emptyForm.fill)
+          Ok(claimNorthernIrelandPage(filledForm, router, isAmend))
+        }
+    }
+
+  def selectNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)
+  def changeNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = true)
+
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+    (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
+      implicit request =>
+        withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _, router) =>
           ClaimNorthernIrelandController.claimNorthernIrelandForm
             .bindFromRequest()
             .fold(
@@ -85,18 +87,16 @@ class ClaimNorthernIrelandController @Inject() (
                 BadRequest(
                   claimNorthernIrelandPage(
                     formWithErrors,
+                    router,
                     isAmend
                   )
                 ),
               formOk => {
 
-                val newNiAnswer = fillingOutClaim.draftClaim
-                  .fold(_.claimNorthernIrelandAnswer)
-
-                val answerChanged = newNiAnswer.isEmpty || newNiAnswer.exists(n => n.value =!= formOk.value)
-
-                val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
-                val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                val newNiAnswer    = fillingOutClaim.draftClaim.fold(_.claimNorthernIrelandAnswer)
+                val answerChanged  = newNiAnswer.forall(n => n.value =!= formOk.value)
+                val updatedJourney =
+                  FillingOutClaim.of(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
 
                 EitherT
                   .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -106,21 +106,12 @@ class ClaimNorthernIrelandController @Inject() (
                       logger.warn("could not capture select number of claims", e)
                       errorHandler.errorResult()
                     },
-                    _ =>
-                      isAmend match {
-                        case true  =>
-                          if (answerChanged)
-                            Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-                          else Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-                        case false => Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-                      }
+                    _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))
                   )
-
               }
             )
         }
     }
-
 }
 
 object ClaimNorthernIrelandController {

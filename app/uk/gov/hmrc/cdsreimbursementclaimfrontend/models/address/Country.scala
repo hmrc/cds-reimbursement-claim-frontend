@@ -23,7 +23,7 @@ import play.api.data.format.Formatter
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
 
-import scala.io.Source
+import scala.io.{Codec, Source}
 
 final case class Country(
   code: CountryCode
@@ -40,7 +40,7 @@ object Country {
   type CountryCode = String
 
   val countryCodes: List[CountryCode] = {
-    val source = Source.fromInputStream(getClass.getResourceAsStream("/resources/countries.txt"))
+    val source = Source.fromInputStream(getClass.getResourceAsStream("/resources/countries.txt"))(Codec.UTF8)
     try source.getLines().toList
     finally source.close()
   }

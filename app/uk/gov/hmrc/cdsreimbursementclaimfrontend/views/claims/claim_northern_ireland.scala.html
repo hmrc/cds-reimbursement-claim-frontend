@@ -18,13 +18,14 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,13 +37,12 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[ClaimNorthernIrelandAnswer], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimNorthernIrelandAnswer], router: ReimbursementRoutes, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"claim-northern-ireland"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
-        else routes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()}
+    @postAction = @{ router.submitUrlForClaimNorthernIreland(isAmend) }
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -52,7 +52,7 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -69,13 +69,13 @@
                         id = Some(s"$key-yes"),
                         value = Some("0"),
                         content = Text(messages(s"$key.yes.title")),
-                        checked = (form.value == Some(Yes))
+                        checked = form.value.contains(Yes)
                     ),
                     RadioItem(
                         id = Some(s"$key-no"),
                         value = Some("1"),
                         content = Text(messages(s"$key.no.title")),
-                        checked = (form.value == Some(No))
+                        checked = form.value.contains(No)
                     )
                 )
             )
