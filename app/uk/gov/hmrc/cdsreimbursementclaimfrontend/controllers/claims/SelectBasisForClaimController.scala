@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.{BasisOfClaims, BasisOfClaimsExamples}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -64,11 +65,17 @@ class SelectBasisForClaimController @Inject() (
   def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BasisOfClaim] { (fillingOutClaim, answer, router) =>
-        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
-        val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim, journey)
-        val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
-        val filledForm   = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
-        Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend, isMrnJourney, router))
+        val emptyForm  = SelectBasisForClaimController.reasonForClaimForm
+        val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
+        Ok(
+          selectReasonForClaimPage(
+            filledForm,
+            getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
+            getBasisOfClaimsExamples(fillingOutClaim.draftClaim, journey),
+            isAmend,
+            router
+          )
+        )
       }
     }
 
@@ -78,7 +85,6 @@ class SelectBasisForClaimController @Inject() (
   def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BasisOfClaim] { (fillingOutClaim, _, router) =>
-        val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
@@ -87,8 +93,8 @@ class SelectBasisForClaimController @Inject() (
                 selectReasonForClaimPage(
                   formWithErrors,
                   getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
+                  getBasisOfClaimsExamples(fillingOutClaim.draftClaim, journey),
                   isAmend,
-                  isMrnJourney,
                   router
                 )
               ),
@@ -129,33 +135,11 @@ object SelectBasisForClaimController {
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)
     )
 
-  def getPossibleClaimTypes(draftClaim: DraftClaim, journey: JourneyBindable): List[BasisOfClaim] = {
+  def getPossibleClaimTypes(draftClaim: DraftClaim, journey: JourneyBindable): BasisOfClaims =
+    BasisOfClaims
+      .withoutJourneyClaimsIfApplies(journey)
+      .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
-    def filterNorthernIrelandClaims(claim: DraftClaim): List[BasisOfClaim] => List[BasisOfClaim] = { claims =>
-      val isNorthernIrelandJourney      =
-        claim.fold(_.claimNorthernIrelandAnswer).getOrElse(ClaimNorthernIrelandAnswer.No)
-      val receivedExciseCodes           = claim
-        .fold(_.displayDeclaration)
-        .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
-        .getOrElse(Nil)
-      val hasNorthernIrelandExciseCodes =
-        receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).nonEmpty
-
-      isNorthernIrelandJourney match {
-        case ClaimNorthernIrelandAnswer.No  =>
-          claims.diff(
-            List(EvidenceThatGoodsHaveNotEnteredTheEU, IncorrectExciseValue, CorrectionToRiskClassification)
-          )
-        case ClaimNorthernIrelandAnswer.Yes =>
-          if (hasNorthernIrelandExciseCodes) claims
-          else claims.diff(List(IncorrectExciseValue))
-      }
-    }
-
-    def filterJourneyClaims(journeyBindable: JourneyBindable): List[BasisOfClaim] => List[BasisOfClaim] = claims =>
-      if (journeyBindable === JourneyBindable.Scheduled) claims.diff(List(DuplicateEntry)) else claims
-
-    (filterNorthernIrelandClaims(draftClaim) andThen filterJourneyClaims(journey))(allClaimsTypes)
-  }
-
+  def getBasisOfClaimsExamples(claim: DraftClaim, journeyBindable: JourneyBindable): BasisOfClaimsExamples =
+    BasisOfClaimsExamples.of(claim) skip (if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
 }
