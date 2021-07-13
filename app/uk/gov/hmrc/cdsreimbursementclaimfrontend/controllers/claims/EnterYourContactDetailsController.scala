@@ -24,7 +24,7 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
@@ -136,10 +136,18 @@ class EnterYourContactDetailsController @Inject() (
                               )
                             )
                           case None                =>
-                            Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                            Redirect(
+                              routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(
+                                TemporaryJourneyExtractor.extractJourney
+                              )
+                            )
                         }
                       case None                      =>
-                        Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                        Redirect(
+                          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(
+                            TemporaryJourneyExtractor.extractJourney
+                          )
+                        )
                     }
                   case None                     =>
                     Ok(
@@ -208,7 +216,11 @@ class EnterYourContactDetailsController @Inject() (
                                 case _                      =>
                                   Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                               }
-                            case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                            case None                =>
+                              Redirect(
+                                routes.SelectWhoIsMakingTheClaimController
+                                  .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
+                              )
                           }
                         case MovementReferenceNumber(Right(_)) =>
                           featureSwitch.NorthernIreland.isEnabled() match {

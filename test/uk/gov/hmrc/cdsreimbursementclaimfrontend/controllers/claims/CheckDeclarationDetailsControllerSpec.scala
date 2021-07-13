@@ -338,7 +338,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
 

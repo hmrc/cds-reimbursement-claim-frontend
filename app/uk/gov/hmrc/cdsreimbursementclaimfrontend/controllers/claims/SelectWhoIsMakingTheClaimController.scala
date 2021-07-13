@@ -17,27 +17,28 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
+import cats.syntax.all._
 import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
 import play.api.libs.json.OFormat
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarantTypeAnswer, IncompleteDeclarantTypeAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectWhoIsMakingTheClaimController @Inject() (
@@ -51,307 +52,9 @@ class SelectWhoIsMakingTheClaimController @Inject() (
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
+    with SessionDataExtractor
     with Logging {
 
-  private def withDeclarantTypeAnswer(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      DeclarantTypeAnswer
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-          ) =>
-        val maybeDeclarantType = draftClaim.fold(
-          _.declarantTypeAnswer
-        )
-        maybeDeclarantType.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDeclarantTypeAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
-    })
-
-  def selectDeclarantType(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withDeclarantTypeAnswer { (_, fillingOutClaim, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.declarantType match {
-              case Some(declarantType) =>
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(movementReferenceNumber) =>
-                    movementReferenceNumber.fold(
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                              declarantType
-                            )
-                          )
-                        ),
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                              declarantType
-                            )
-                          )
-                        )
-                    )
-                  case None                          =>
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                }
-              case None                =>
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(movementReferenceNumber) =>
-                    movementReferenceNumber.fold(
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
-                          )
-                        ),
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
-                          )
-                        )
-                    )
-                  case None                          =>
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                }
-            },
-          ifComplete =>
-            fillingOutClaim.draftClaim.movementReferenceNumber match {
-              case Some(movementReferenceNumber) =>
-                movementReferenceNumber.fold(
-                  _ =>
-                    Ok(
-                      selectWhoIsMakingTheClaimPage(
-                        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                          ifComplete.declarantType
-                        )
-                      )
-                    ),
-                  _ =>
-                    Ok(
-                      selectWhoIsMakingTheClaimPage(
-                        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                          ifComplete.declarantType
-                        )
-                      )
-                    )
-                )
-              case None                          =>
-                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-            }
-        )
-      }
-    }
-
-  def selectDeclarantTypeSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withDeclarantTypeAnswer { (_, fillingOutClaim, answers) =>
-        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              fillingOutClaim.draftClaim.movementReferenceNumber match {
-                case Some(movementReferenceNumber) =>
-                  movementReferenceNumber.fold(
-                    _ =>
-                      BadRequest(
-                        selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors
-                        )
-                      ),
-                    _ =>
-                      BadRequest(
-                        selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors
-                        )
-                      )
-                  )
-                case None                          =>
-                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-              },
-            declarantTypeAnswer => {
-              val updatedAnswers = answers.fold(
-                _ => CompleteDeclarantTypeAnswer(declarantTypeAnswer),
-                complete => complete.copy(declarantType = declarantTypeAnswer)
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(declarantTypeAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not capture declarant type", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
-              )
-            }
-          )
-      }
-    }
-
-  def changeDeclarantType(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withDeclarantTypeAnswer { (_, fillingOutClaim, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.declarantType match {
-              case Some(declarantType) =>
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(movementReferenceNumber) =>
-                    movementReferenceNumber.fold(
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                              declarantType
-                            ),
-                            isAmend = true
-                          )
-                        ),
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                              declarantType
-                            ),
-                            isAmend = true
-                          )
-                        )
-                    )
-                  case None                          =>
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                }
-              case None                =>
-                fillingOutClaim.draftClaim.movementReferenceNumber match {
-                  case Some(movementReferenceNumber) =>
-                    movementReferenceNumber.fold(
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            isAmend = true
-                          )
-                        ),
-                      _ =>
-                        Ok(
-                          selectWhoIsMakingTheClaimPage(
-                            SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm,
-                            isAmend = true
-                          )
-                        )
-                    )
-                  case None                          =>
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                }
-            },
-          ifComplete =>
-            fillingOutClaim.draftClaim.movementReferenceNumber match {
-              case Some(movementReferenceNumber) =>
-                movementReferenceNumber.fold(
-                  _ =>
-                    Ok(
-                      selectWhoIsMakingTheClaimPage(
-                        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                          ifComplete.declarantType
-                        ),
-                        isAmend = true
-                      )
-                    ),
-                  _ =>
-                    Ok(
-                      selectWhoIsMakingTheClaimPage(
-                        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm.fill(
-                          ifComplete.declarantType
-                        ),
-                        isAmend = true
-                      )
-                    )
-                )
-              case None                          =>
-                Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-            }
-        )
-      }
-    }
-
-  def changeDeclarantTypeSubmit(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withDeclarantTypeAnswer { (_, fillingOutClaim, answers) =>
-        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              fillingOutClaim.draftClaim.movementReferenceNumber match {
-                case Some(movementReferenceNumber) =>
-                  movementReferenceNumber.fold(
-                    _ =>
-                      BadRequest(
-                        selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors,
-                          isAmend = true
-                        )
-                      ),
-                    _ =>
-                      BadRequest(
-                        selectWhoIsMakingTheClaimPage(
-                          requestFormWithErrors,
-                          isAmend = true
-                        )
-                      )
-                  )
-                case None                          =>
-                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-              },
-            declarantTypeAnswer => {
-              val updatedAnswers = answers.fold(
-                _ => CompleteDeclarantTypeAnswer(declarantTypeAnswer),
-                complete => complete.copy(declarantType = declarantTypeAnswer)
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(
-                  _.copy(
-                    declarantTypeAnswer = Some(updatedAnswers),
-                    detailsRegisteredWithCdsAnswer = None,
-                    contactDetailsAnswer = None,
-                    reasonForBasisAndClaimAnswer = None,
-                    basisOfClaimAnswer = None,
-                    duplicateDeclarationDetailsAnswer = None,
-                    duplicateMovementReferenceNumberAnswer = None
-                  )
-                )
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                e => {
-                  logger.warn("could not capture declarant type", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-              )
-            }
-          )
-      }
-    }
 
 }
 
