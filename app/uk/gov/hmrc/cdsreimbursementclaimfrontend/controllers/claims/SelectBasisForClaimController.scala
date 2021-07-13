@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxOptionId
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
@@ -65,7 +65,7 @@ class SelectBasisForClaimController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BasisOfClaim] { (fillingOutClaim, answer, router) =>
         val isMrnJourney = fillingOutClaim.draftClaim.isMrnFlow
-        val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim)
+        val radioOptions = getPossibleClaimTypes(fillingOutClaim.draftClaim, journey)
         val emptyForm    = SelectBasisForClaimController.reasonForClaimForm
         val filledForm   = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
         Ok(selectReasonForClaimPage(filledForm, radioOptions, isAmend, isMrnJourney, router))
@@ -84,10 +84,15 @@ class SelectBasisForClaimController @Inject() (
           .fold(
             formWithErrors =>
               BadRequest(
-                selectReasonForClaimPage(formWithErrors, getPossibleClaimTypes(fillingOutClaim.draftClaim), isAmend, isMrnJourney, router)
+                selectReasonForClaimPage(
+                  formWithErrors,
+                  getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
+                  isAmend,
+                  isMrnJourney,
+                  router
+                )
               ),
             formOk => {
-
               val updatedJourney = FillingOutClaim.of(fillingOutClaim)(
                 _.copy(
                   basisOfClaimAnswer = formOk.reasonForClaim.some,
@@ -124,26 +129,33 @@ object SelectBasisForClaimController {
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)
     )
 
-  def getPossibleClaimTypes(draftClaim: DraftClaim): List[BasisOfClaim] = {
-    val isNorthernIrelandJourney      =
-      draftClaim.fold(_.claimNorthernIrelandAnswer).getOrElse(ClaimNorthernIrelandAnswer.No)
-    val receivedExciseCodes           = draftClaim
-      .fold(_.displayDeclaration)
-      .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
-      .getOrElse(Nil)
-    val hasNorthernIrelandExciseCodes =
-      receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).nonEmpty
+  def getPossibleClaimTypes(draftClaim: DraftClaim, journey: JourneyBindable): List[BasisOfClaim] = {
 
-    isNorthernIrelandJourney match {
-      case ClaimNorthernIrelandAnswer.No  =>
-        allClaimsTypes.diff(
-          List(EvidenceThatGoodsHaveNotEnteredTheEU, IncorrectExciseValue, CorrectionToRiskClassification)
-        )
-      case ClaimNorthernIrelandAnswer.Yes =>
-        if (hasNorthernIrelandExciseCodes) allClaimsTypes
-        else allClaimsTypes.diff(List(IncorrectExciseValue))
+    def filterNorthernIrelandClaims(claim: DraftClaim): List[BasisOfClaim] => List[BasisOfClaim] = { claims =>
+      val isNorthernIrelandJourney      =
+        claim.fold(_.claimNorthernIrelandAnswer).getOrElse(ClaimNorthernIrelandAnswer.No)
+      val receivedExciseCodes           = claim
+        .fold(_.displayDeclaration)
+        .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
+        .getOrElse(Nil)
+      val hasNorthernIrelandExciseCodes =
+        receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).nonEmpty
+
+      isNorthernIrelandJourney match {
+        case ClaimNorthernIrelandAnswer.No  =>
+          claims.diff(
+            List(EvidenceThatGoodsHaveNotEnteredTheEU, IncorrectExciseValue, CorrectionToRiskClassification)
+          )
+        case ClaimNorthernIrelandAnswer.Yes =>
+          if (hasNorthernIrelandExciseCodes) claims
+          else claims.diff(List(IncorrectExciseValue))
+      }
     }
 
+    def filterJourneyClaims(journeyBindable: JourneyBindable): List[BasisOfClaim] => List[BasisOfClaim] = claims =>
+      if (journeyBindable === JourneyBindable.Scheduled) claims.diff(List(DuplicateEntry)) else claims
+
+    (filterNorthernIrelandClaims(draftClaim) andThen filterJourneyClaims(journey))(allClaimsTypes)
   }
 
 }
