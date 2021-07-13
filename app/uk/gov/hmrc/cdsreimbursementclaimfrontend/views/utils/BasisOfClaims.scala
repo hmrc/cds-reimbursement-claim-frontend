@@ -38,8 +38,10 @@ object BasisOfClaims {
       s"$parentKey.reason.ern.d${basisOfClaim.value.toString}"
   }
 
+  def apply(): Builder = Builder(allClaimsTypes)
+
   def withoutJourneyClaimsIfApplies(journey: JourneyBindable): Builder =
-    Builder(allClaimsTypes).filterUsing(journey)
+    BasisOfClaims().filterUsing(journey)
 
   final case class Builder(claims: List[BasisOfClaim]) {
 
@@ -73,4 +75,7 @@ object BasisOfClaims {
       if (claim.isMrnFlow) MrnBasisOfClaims(items) else EntryNumberBasisOfClaims(items)
     }
   }
+
+  implicit def basisOfClaims2List(basisOfClaims: BasisOfClaims): List[BasisOfClaim] =
+    basisOfClaims.items
 }

@@ -63,21 +63,37 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
   }
 
   "The next page after basis of claim" must {
-    val nonDuplicateClaimss    = BasisOfClaim.allClaimsTypes.filterNot(_ == BasisOfClaim.DuplicateEntry)
-    val nonDuplicateClaimTable = Table("Claim", nonDuplicateClaimss: _*)
+    val nonDuplicateClaims     = BasisOfClaim.allClaimsTypes.filterNot(_ == BasisOfClaim.DuplicateEntry)
+    val nonDuplicateClaimTable = Table("Claim", nonDuplicateClaims: _*)
 
     "enter duplicate reference number when basis of claim has duplicate entry selected" in {
       forAll(allRoutes) { router =>
         router.nextPageForBasisForClaim(
-          BasisOfClaim.DuplicateEntry
+          BasisOfClaim.DuplicateEntry,
+          isAmend = false
         ) shouldBe claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(router.journeyBindable)
       }
     }
+
     "enter commodities details when basis of claim doesn't have duplicate entry selected" in {
       forAll(allRoutes) { router =>
         forAll(nonDuplicateClaimTable) { basisForClaim =>
-          router.nextPageForBasisForClaim(basisForClaim) shouldBe claimRoutes.EnterCommoditiesDetailsController
+          router.nextPageForBasisForClaim(
+            basisForClaim,
+            isAmend = false
+          ) shouldBe claimRoutes.EnterCommoditiesDetailsController
             .enterCommoditiesDetails(router.journeyBindable)
+        }
+      }
+    }
+
+    "redirect to check your answers when answer is amended" in {
+      forAll(allRoutes) { router =>
+        forAll(nonDuplicateClaimTable) { basisForClaim =>
+          router.nextPageForBasisForClaim(
+            basisForClaim,
+            isAmend = true
+          ) shouldBe claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
         }
       }
     }

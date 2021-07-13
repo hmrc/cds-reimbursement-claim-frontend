@@ -27,18 +27,18 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.{CompleteBasisOfClaimAnswer, IncompleteBasisOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaimAnswer, SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
+// TODO: !!!
 class SelectBasisForClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -62,7 +62,7 @@ class SelectBasisForClaimControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeReasonForClaim: Option[BasisOfClaimAnswer]
+    maybeReasonForClaim: Option[BasisOfClaim]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
@@ -89,9 +89,7 @@ class SelectBasisForClaimControllerSpec
 
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        val answers = IncompleteBasisOfClaimAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -102,9 +100,7 @@ class SelectBasisForClaimControllerSpec
           performAction(),
           baseRoutes.StartController.start()
         )
-
       }
-
     }
 
     "display the page" when {
@@ -114,10 +110,8 @@ class SelectBasisForClaimControllerSpec
         featureSwitch.NorthernIreland.enable()
         featureSwitch.EntryNumber.disable()
 
-        val answers = IncompleteBasisOfClaimAnswer.empty
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val draftC285Claim                = sessionWithClaimState(None)._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -136,10 +130,9 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
         featureSwitch.NorthernIreland.disable()
         featureSwitch.EntryNumber.enable()
-        val answers                         = IncompleteBasisOfClaimAnswer.empty
 
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val draftC285Claim                = sessionWithClaimState(None)._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -160,10 +153,8 @@ class SelectBasisForClaimControllerSpec
         featureSwitch.NorthernIreland.enable()
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -184,10 +175,8 @@ class SelectBasisForClaimControllerSpec
         featureSwitch.NorthernIreland.disable()
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -208,13 +197,11 @@ class SelectBasisForClaimControllerSpec
 
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
           .copy(
-            basisOfClaimAnswer = Some(answers)
+            basisOfClaimAnswer = Some(endUseRelief)
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -243,13 +230,11 @@ class SelectBasisForClaimControllerSpec
 
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
           .copy(
-            basisOfClaimAnswer = Some(answers)
+            basisOfClaimAnswer = Some(endUseRelief)
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -273,13 +258,11 @@ class SelectBasisForClaimControllerSpec
 
         val incorrectCpc = BasisOfClaim.IncorrectCpc
 
-        val answers = CompleteBasisOfClaimAnswer(incorrectCpc)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(Some(incorrectCpc))._3
           .copy(
-            basisOfClaimAnswer = Some(answers)
+            basisOfClaimAnswer = Some(incorrectCpc)
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(incorrectCpc))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -306,13 +289,11 @@ class SelectBasisForClaimControllerSpec
 
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
           .copy(
-            basisOfClaimAnswer = Some(answers)
+            basisOfClaimAnswer = Some(endUseRelief)
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -345,13 +326,11 @@ class SelectBasisForClaimControllerSpec
 
         val endUseRelief = BasisOfClaim.EndUseRelief
 
-        val answers = CompleteBasisOfClaimAnswer(endUseRelief)
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        val draftC285Claim                = sessionWithClaimState(Some(endUseRelief))._3
           .copy(
-            basisOfClaimAnswer = Some(answers)
+            basisOfClaimAnswer = Some(endUseRelief)
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(endUseRelief))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
