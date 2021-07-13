@@ -49,11 +49,11 @@ POST        /single/enter-your-contact-details                      uk.gov.hmrc.
 GET         /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
 POST        /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
 
-GET         /single/claim-northern-ireland                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim()
-POST        /single/claim-northern-ireland                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit()
+GET         /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journey: JourneyBindable)
+POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journey: JourneyBindable)
 
-GET         /single/change-northern-ireland                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim()
-POST        /single/change-northern-ireland                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit()
+GET         /:journey/change-northern-ireland                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaim(journey: JourneyBindable)
+POST        /:journey/change-northern-ireland                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journey: JourneyBindable)
 
 GET         /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaim(journey: JourneyBindable)
 POST        /:journey/choose-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimSubmit(journey: JourneyBindable)

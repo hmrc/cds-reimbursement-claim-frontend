@@ -442,7 +442,9 @@ class CheckYourAnswersHelper @Inject() (implicit
       }
     ).flattenOption
 
-  def makeNorthernIrelandClaimSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
+  def makeNorthernIrelandClaimSummary(
+    completeClaim: CompleteClaim
+  )(implicit request: RequestWithSessionData[_], messages: Messages): List[SummaryListRow] =
     completeClaim.northernIrelandAnswer.fold(List.empty[SummaryListRow])(claimNorthernIrelandAnswer =>
       List(
         SummaryListRow(
@@ -452,7 +454,8 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim().url}",
+                  href =
+                    s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim(TemporaryJourneyExtractor.extractJourney).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label"))
                 )
