@@ -45,7 +45,7 @@
 
         @formWithCSRF(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
 
-            @errorSummary(form.errors)
+            @errorSummary(form)
 
             @pageHeading(title)
 

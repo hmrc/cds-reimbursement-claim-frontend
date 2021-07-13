@@ -53,7 +53,7 @@
 
 @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true, hasErrors = hasErrors) {
 
-    @errorSummary(form.errors)
+    @errorSummary(form)
     @pageHeading(title)
 
     @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
