@@ -17,19 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.syntax.all._
 import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
-import julienrf.json.derived
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
-import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -55,43 +51,70 @@ class SelectWhoIsMakingTheClaimController @Inject() (
     with SessionDataExtractor
     with Logging {
 
+  implicit val dataExtractor: DraftC285Claim => Option[DeclarantTypeAnswer] = _.declarantTypeAnswer
+
+  def selectDeclarantType(journey: JourneyBindable): Action[AnyContent] = show(false)(journey)
+  def changeDeclarantType(journey: JourneyBindable): Action[AnyContent] = show(true)(journey)
+
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DeclarantTypeAnswer] { (_, answers, router) =>
+        val emptyForm  = SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
+        val filledForm = answers
+          .fold(emptyForm)(emptyForm.fill(_))
+        Ok(selectWhoIsMakingTheClaimPage(filledForm, isAmend, router))
+      }
+    }
+
+  def selectDeclarantTypeSubmit(journey: JourneyBindable): Action[AnyContent] = submit(false)(journey)
+  def changeDeclarantTypeSubmit(journey: JourneyBindable): Action[AnyContent] = submit(true)(journey)
+
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DeclarantTypeAnswer] { (fillingOutClaim, _, router) =>
+        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, isAmend, router)),
+            formOk => {
+              val newDraftClaim  =
+                fillingOutClaim.draftClaim
+                  .fold(_.copy(declarantTypeAnswer = Option(formOk)))
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("Could not save Declarant Type"))
+                .fold(
+                  e => {
+                    logger.warn("Submit Declarant Type error: ", e)
+                    errorHandler.errorResult()
+                  },
+                  _ => Redirect(router.nextPageForWhoIsMakingTheClaim(isAmend))
+                )
+            }
+          )
+      }
+
+    }
 
 }
 
 object SelectWhoIsMakingTheClaimController {
 
-  sealed trait DeclarantType extends Product with Serializable {
-    def repr: String
-  }
-
-  object DeclarantType {
-    final case object Importer extends DeclarantType {
-      override def repr = "Importer"
-    }
-    final case object AssociatedWithImporterCompany extends DeclarantType {
-      override def repr = "Associated with Importer Company"
-    }
-    final case object AssociatedWithRepresentativeCompany extends DeclarantType {
-      override def repr = "Associated Representative Company"
-    }
-
-    implicit val format: OFormat[DeclarantType] = derived.oformat[DeclarantType]()
-  }
-
-  val chooseDeclarantTypeForm: Form[DeclarantType] =
+  val chooseDeclarantTypeForm: Form[DeclarantTypeAnswer] =
     Form(
       mapping(
         "select-who-is-making-the-claim" -> number
           .verifying("invalid", a => a === 0 || a === 1 || a === 2)
-          .transform[DeclarantType](
+          .transform[DeclarantTypeAnswer](
             value =>
-              if (value === 0) DeclarantType.Importer
-              else if (value === 1) DeclarantType.AssociatedWithImporterCompany
-              else DeclarantType.AssociatedWithRepresentativeCompany,
+              if (value === 0) DeclarantTypeAnswer.Importer
+              else if (value === 1) DeclarantTypeAnswer.AssociatedWithImporterCompany
+              else DeclarantTypeAnswer.AssociatedWithRepresentativeCompany,
             {
-              case DeclarantType.Importer                            => 0
-              case DeclarantType.AssociatedWithImporterCompany       => 1
-              case DeclarantType.AssociatedWithRepresentativeCompany => 2
+              case DeclarantTypeAnswer.Importer                            => 0
+              case DeclarantTypeAnswer.AssociatedWithImporterCompany       => 1
+              case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany => 2
             }
           )
       )(identity)(Some(_))

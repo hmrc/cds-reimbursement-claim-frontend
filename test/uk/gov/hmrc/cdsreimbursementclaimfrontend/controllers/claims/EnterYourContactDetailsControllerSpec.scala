@@ -16,31 +16,29 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import org.jsoup.Jsoup
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.IncompleteContactDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DeclarantDetails, DisplayDeclaration, DisplayResponseDetail, EstablishmentAddress}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Postcode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import play.api.test.Helpers._
+
 import scala.concurrent.Future
 
 class EnterYourContactDetailsControllerSpec
@@ -85,10 +83,10 @@ class EnterYourContactDetailsControllerSpec
   }
 
   implicit class UpdateSessionWithDeclarantType(sessionData: SessionData) {
-    def withDeclarantType(declarantType: DeclarantType): SessionData =
+    def withDeclarantType(declarantType: DeclarantTypeAnswer): SessionData =
       sessionData.journeyStatus match {
         case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
-          val answer   = Some(CompleteDeclarantTypeAnswer(declarantType))
+          val answer   = Some(declarantType)
           val newClaim = draftClaim.copy(declarantTypeAnswer = answer)
           sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
         case _                                                         => fail("Failed to update DeclarantType")
@@ -142,7 +140,7 @@ class EnterYourContactDetailsControllerSpec
 
       val answers = IncompleteContactDetailsAnswer.empty
       val session = sessionWithClaimState(Some(answers))._1
-        .withDeclarantType(DeclarantType.Importer)
+        .withDeclarantType(DeclarantTypeAnswer.Importer)
         .withAcc14Data(acc14Response)
 
       inSequence {
@@ -175,7 +173,7 @@ class EnterYourContactDetailsControllerSpec
 
       val answers = IncompleteContactDetailsAnswer.empty
       val session = sessionWithClaimState(Some(answers))._1
-        .withDeclarantType(DeclarantType.AssociatedWithImporterCompany)
+        .withDeclarantType(DeclarantTypeAnswer.AssociatedWithImporterCompany)
         .withAcc14Data(acc14Response)
 
       inSequence {
@@ -208,7 +206,7 @@ class EnterYourContactDetailsControllerSpec
 
       val answers = IncompleteContactDetailsAnswer.empty
       val session = sessionWithClaimState(Some(answers))._1
-        .withDeclarantType(DeclarantType.AssociatedWithRepresentativeCompany)
+        .withDeclarantType(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany)
         .withAcc14Data(acc14Response)
 
       inSequence {

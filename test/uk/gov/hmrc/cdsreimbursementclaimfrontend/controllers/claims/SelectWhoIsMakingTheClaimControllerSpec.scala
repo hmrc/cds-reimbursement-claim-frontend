@@ -26,9 +26,7 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{CompleteDeclarantTypeAnswer, IncompleteDeclarantTypeAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
@@ -59,5 +57,220 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
+  val testCases = Table(
+    ("NumberOfClaimsType", "JourneyBindable"),
+    (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
+    (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+  )
+
+  private def sessionWithClaimState(
+    declarantTypeAnswer: Option[DeclarantTypeAnswer],
+    numberOfClaims: Option[SelectNumberOfClaimsType]
+  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+      declarantTypeAnswer = declarantTypeAnswer,
+      selectNumberOfClaimsAnswer = numberOfClaims.map(CompleteSelectNumberOfClaimsAnswer(_))
+    )
+    val ggCredId            = sample[GGCredId]
+    val email               = sample[Email]
+    val eori                = sample[Eori]
+    val signedInUserDetails =
+      SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    (
+      SessionData.empty.copy(
+        journeyStatus = Some(journey)
+      ),
+      journey,
+      draftC285Claim
+    )
+  }
+
+  "Select who is making the claim controller" must {
+
+    "redirect to the start of the journey" when {
+
+      "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        def performAction(): Future[Result] = controller.selectDeclarantType(journeyBindable)(FakeRequest())
+        val (session, _, _)                 = sessionWithClaimState(None, Some(numberOfClaims))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          baseRoutes.StartController.start()
+        )
+
+      }
+
+    }
+
+    "display the page" when {
+
+      def performAction(journeyBindable: JourneyBindable): Future[Result] =
+        controller.selectDeclarantType(journeyBindable)(FakeRequest())
+
+      "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(journeyBindable),
+          messageFromMessageKey("select-who-is-making-the-claim.title")
+        )
+
+      }
+
+      "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val declarantType                 = DeclarantTypeAnswer.Importer
+        val answers                       = declarantType
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(movementReferenceNumber = sampleEntryNumberAnswer())
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(journeyBindable),
+          messageFromMessageKey("select-who-is-making-the-claim.title")
+        )
+      }
+    }
+
+    "handle submit requests" when {
+
+      def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
+        controller.selectDeclarantTypeSubmit(journeyBindable)(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
+
+      "user chooses a valid option" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val declarantType                 = DeclarantTypeAnswer.Importer
+        val answers                       = declarantType
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(
+            declarantTypeAnswer = Some(answers),
+            movementReferenceNumber = sampleEntryNumberAnswer()
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("select-who-is-making-the-claim" -> "0"), journeyBindable),
+          routes.EnterDetailsRegisteredWithCdsController
+            .enterDetailsRegisteredWithCds()
+        )
+      }
+
+      "the user does not select an option" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val declarantType                 = DeclarantTypeAnswer.Importer
+        val answers                       = declarantType
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(
+            declarantTypeAnswer = Some(answers),
+            movementReferenceNumber = sampleEntryNumberAnswer()
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(Seq.empty, journeyBindable),
+          messageFromMessageKey("select-who-is-making-the-claim.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-who-is-making-the-claim.error.required"
+            ),
+          BAD_REQUEST
+        )
+      }
+
+      "an invalid option value is submitted" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        val declarantType                 = DeclarantTypeAnswer.Importer
+        val answers                       = declarantType
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(
+            declarantTypeAnswer = Some(answers),
+            movementReferenceNumber = sampleEntryNumberAnswer()
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkPageIsDisplayed(
+          performAction(Seq("select-who-is-making-the-claim" -> "10"), journeyBindable),
+          messageFromMessageKey("select-who-is-making-the-claim.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"select-who-is-making-the-claim.invalid"
+            ),
+          BAD_REQUEST
+        )
+      }
+
+      "the user amends their answer" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+        def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
+          controller.changeDeclarantTypeSubmit(journeyBindable)(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val declarantType = DeclarantTypeAnswer.Importer
+
+        val answers                       = declarantType
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+          .copy(
+            declarantTypeAnswer = Some(answers),
+            movementReferenceNumber = sampleEntryNumberAnswer()
+          )
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("select-who-is-making-the-claim" -> "0"), journeyBindable),
+          routes.CheckYourAnswersAndSubmitController
+            .checkAllAnswers()
+        )
+      }
+
+    }
+
+  }
 
 }

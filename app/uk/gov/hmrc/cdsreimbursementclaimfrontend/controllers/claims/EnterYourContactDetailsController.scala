@@ -24,10 +24,10 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.{CompleteContactDetailsAnswer, IncompleteContactDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -115,33 +114,24 @@ class EnterYourContactDetailsController @Inject() (
                   case Some(displayDeclaration) =>
                     fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
                       case Some(declarantTypeAnswer) =>
-                        declarantTypeAnswer.declarantType match {
-                          case Some(declarantType) =>
-                            val contactDetails = declarantType match {
-                              case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
-                                toContactDetailsFormData(
-                                  displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails),
-                                  fillingOutClaim.signedInUserDetails.verifiedEmail
-                                )
-                              case DeclarantType.AssociatedWithRepresentativeCompany                    =>
-                                toContactDetailsFormData(
-                                  displayDeclaration.displayResponseDetail.declarantDetails.contactDetails,
-                                  fillingOutClaim.signedInUserDetails.verifiedEmail
-                                )
-                            }
-                            Ok(
-                              enterYourContactDetailsPage(
-                                EnterYourContactDetailsController.contactDetailsForm
-                                  .fill(contactDetails)
-                              )
+                        val contactDetails = declarantTypeAnswer match {
+                          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+                            toContactDetailsFormData(
+                              displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails),
+                              fillingOutClaim.signedInUserDetails.verifiedEmail
                             )
-                          case None                =>
-                            Redirect(
-                              routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(
-                                TemporaryJourneyExtractor.extractJourney
-                              )
+                          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+                            toContactDetailsFormData(
+                              displayDeclaration.displayResponseDetail.declarantDetails.contactDetails,
+                              fillingOutClaim.signedInUserDetails.verifiedEmail
                             )
                         }
+                        Ok(
+                          enterYourContactDetailsPage(
+                            EnterYourContactDetailsController.contactDetailsForm
+                              .fill(contactDetails)
+                          )
+                        )
                       case None                      =>
                         Redirect(
                           routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(
@@ -211,9 +201,9 @@ class EnterYourContactDetailsController @Inject() (
                           fillingOutClaim.draftClaim.declarantType match {
                             case Some(declarantType) =>
                               declarantType match {
-                                case DeclarantType.Importer =>
+                                case DeclarantTypeAnswer.Importer =>
                                   Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                                case _                      =>
+                                case _                            =>
                                   Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                               }
                             case None                =>

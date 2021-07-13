@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -94,7 +93,6 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
             case Some(declaration) =>
               fillingOutClaim.draftClaim
                 .fold(_.declarantTypeAnswer)
-                .flatMap(_.declarantType)
                 .fold(
                   Redirect(
                     routes.SelectWhoIsMakingTheClaimController
@@ -104,9 +102,9 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 ) { declarantType =>
                   val email    = fillingOutClaim.signedInUserDetails.verifiedEmail
                   val formData = declarantType match {
-                    case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
+                    case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
                       consigneeToClaimantDetails(declaration, email)
-                    case DeclarantType.AssociatedWithRepresentativeCompany                    =>
+                    case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
                       declarantToClaimantDetails(declaration, email)
                   }
                   emptyForm.map(_.fill(formData))
@@ -175,11 +173,11 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                             fillingOutClaim.draftClaim.declarantType match {
                               case Some(declarantType) =>
                                 declarantType match {
-                                  case DeclarantType.Importer =>
+                                  case DeclarantTypeAnswer.Importer =>
                                     Redirect(
                                       routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                                     )
-                                  case _                      =>
+                                  case _                            =>
                                     Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                                 }
                               case None                =>

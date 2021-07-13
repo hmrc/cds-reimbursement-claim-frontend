@@ -21,17 +21,16 @@ import cats.data.Validated.Valid
 import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{BankAccountController, SelectWhoIsMakingTheClaimController}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
@@ -57,7 +56,7 @@ object CompleteClaim {
     maybeDuplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
-    completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
+    completeDeclarantTypeAnswer: DeclarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
@@ -374,14 +373,9 @@ object CompleteClaim {
 
   def validateDeclarantTypeAnswer(
     maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
-  ): Validation[CompleteDeclarantTypeAnswer] =
+  ): Validation[DeclarantTypeAnswer] =
     maybeDeclarantTypeAnswer match {
-      case Some(value) =>
-        value match {
-          case DeclarantTypeAnswer.IncompleteDeclarantTypeAnswer(_) =>
-            invalid("incomplete declarant type answer")
-          case c: CompleteDeclarantTypeAnswer                       => Valid(c)
-        }
+      case Some(value) => Valid(value)
       case None        => invalid("missing declarant type answer")
     }
 
@@ -522,7 +516,7 @@ object CompleteClaim {
         }
     }
 
-    def declarantType: SelectWhoIsMakingTheClaimController.DeclarantType = completeClaim match {
+    def declarantType: DeclarantTypeAnswer = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -544,7 +538,7 @@ object CompleteClaim {
             _,
             _
           ) =>
-        declarantType.declarantType
+        declarantType
     }
 
     def basisForClaim: Either[SelectReasonForClaimAndBasis, BasisOfClaim] = completeClaim match {
