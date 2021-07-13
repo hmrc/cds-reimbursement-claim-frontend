@@ -40,26 +40,26 @@ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectReasonForClaim], claimTypes:List[BasisOfClaim], isAmend : Boolean, isMrnJourney: Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaim], claimTypes: List[BasisOfClaim], isAmend: Boolean, isMrnJourney: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
      @key = @{"select-basis-for-claim"}
      @title = @{messages(s"$key.title")}
 
-     @radioItems = @{claimTypes.map{
+     @radioItems = @{claimTypes.map {
          basisOfClaim => {
              if (isMrnJourney) {
                  RadioItem(
                      id = Some(s"$key-radio-${basisOfClaim.value}"),
                      value = Some(basisOfClaim.value.toString),
                      content = Text(messages(s"$key.reason.d${basisOfClaim.value.toString}")),
-                     checked = (form.value == basisOfClaim)
+                     checked = form.value.exists(_.reasonForClaim == basisOfClaim)
                  )
              } else {
                  RadioItem(
                      id = Some(s"$key-radio-${basisOfClaim.value}"),
                      value = Some(basisOfClaim.value.toString),
                      content = Text(messages(s"$key.reason.ern.d${basisOfClaim.value.toString}")),
-                     checked = (form.value == basisOfClaim)
+                     checked = form.value.exists(_.reasonForClaim == basisOfClaim)
                  )
              }
          }

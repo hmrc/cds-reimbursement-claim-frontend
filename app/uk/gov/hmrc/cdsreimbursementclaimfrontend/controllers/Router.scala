@@ -26,13 +26,16 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
-  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
-    basisOfClaim match {
-      case BasisOfClaim.DuplicateEntry =>
-        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
-      case _                           =>
-        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
-    }
+  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
+    if (isAmend) {
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+    } else
+      basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+        case _                           =>
+          claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+      }
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
@@ -59,14 +62,17 @@ trait JourneyTypeRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 }
+
 trait SingleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = None
   override val journeyBindable        = JourneyBindable.Single
 }
+
 trait BulkRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("bulk")
   override val journeyBindable        = JourneyBindable.Bulk
 }
+
 trait ScheduledRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("scheduled")
   override val journeyBindable        = JourneyBindable.Scheduled
@@ -77,6 +83,7 @@ trait ReferenceNumberTypeRoutes extends Product with Serializable {
   def nextPageForEnterMRN(importer: MrnJourney): Call
   def nextPageForDuplicateMRN(importer: MrnJourney): Call
 }
+
 trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val refNumberKey                                        = Some("mrn")
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
@@ -88,6 +95,7 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
+
 trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
   val refNumberKey                                        = Some("entry")
   def nextPageForEnterMRN(importer: MrnJourney): Call     =
@@ -95,6 +103,7 @@ trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
   def nextPageForDuplicateMRN(importer: MrnJourney): Call =
     claimRoutes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
 }
+
 object ReimbursementRoutes {
   type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes
 }
