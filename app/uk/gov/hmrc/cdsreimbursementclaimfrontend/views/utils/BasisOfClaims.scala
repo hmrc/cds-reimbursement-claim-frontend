@@ -30,12 +30,12 @@ object BasisOfClaims {
 
   final case class MrnBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
     def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.d${basisOfClaim.value.toString}"
+      s"$parentKey.reason.d${basisOfClaim.value}"
   }
 
   final case class EntryNumberBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
     def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.ern.d${basisOfClaim.value.toString}"
+      s"$parentKey.reason.ern.d${basisOfClaim.value}"
   }
 
   def apply(): Builder = Builder(allClaimsTypes)

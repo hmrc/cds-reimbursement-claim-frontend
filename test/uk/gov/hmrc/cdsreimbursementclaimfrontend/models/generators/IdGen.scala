@@ -53,6 +53,11 @@ object IdGen {
     suffix <- Gen.listOfN(8, Gen.numChar)
   } yield EntryNumber((prefix ++ letter ++ suffix).mkString)
 
+  def genMovementReferenceNumber: Gen[MovementReferenceNumber] = Gen.oneOf(
+    genMRN.map(MovementReferenceNumber(_)),
+    genEntryNumber.map(MovementReferenceNumber(_))
+  )
+
   implicit val entryNumberGen: Typeclass[EntryNumber] = Arbitrary(genEntryNumber)
 
   def sampleEntryNumberAnswer(entryNumber: EntryNumber = sample[EntryNumber]): Option[MovementReferenceNumber] =

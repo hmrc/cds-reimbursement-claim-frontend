@@ -124,12 +124,14 @@ class SelectBasisForClaimController @Inject() (
 
 object SelectBasisForClaimController {
 
+  val key = "select-basis-for-claim"
+
   final case class SelectReasonForClaim(reasonForClaim: BasisOfClaim)
 
   val reasonForClaimForm: Form[SelectReasonForClaim] =
     Form(
       mapping(
-        "select-basis-for-claim" -> number
+        key -> number
           .verifying("invalid reason for claim", a => allClaimsTypes.map(_.value).contains(a))
           .transform[BasisOfClaim](allClaimsIntToType, allClaimsTypeToInt)
       )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)
