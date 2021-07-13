@@ -21,17 +21,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 final case class EntryNumberDeclarationDetails(
-                                          dateOfImport: DateOfImport,
-                                          placeOfImport: String,
-                                          importerName: String,
-                                          importerEmailAddress: Email,
-                                          importerPhoneNumber: PhoneNumber,
-                                          declarantName: String,
-                                          declarantEmailAddress: Email,
-                                          declarantPhoneNumber: PhoneNumber
-                                        )
+  dateOfImport: DateOfImport,
+  placeOfImport: String,
+  importerName: String,
+  importerEmailAddress: Email,
+  importerPhoneNumber: PhoneNumber,
+  declarantName: String,
+  declarantEmailAddress: Email,
+  declarantPhoneNumber: PhoneNumber
+)
 
 object EntryNumberDeclarationDetails {
   implicit val format: OFormat[EntryNumberDeclarationDetails] = Json.format[EntryNumberDeclarationDetails]
 }
-

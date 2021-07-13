@@ -22,7 +22,7 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
@@ -32,9 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.Compl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SupportingEvidenceAnswer}
@@ -55,8 +53,8 @@ object CompleteClaim {
     id: UUID,
     movementReferenceNumber: MovementReferenceNumber,
     maybeDuplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
-    maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
-    maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
+    maybeCompleteDeclarationDetailsAnswer: Option[EntryNumberDeclarationDetails],
+    maybeCompleteDuplicateDeclarationDetailsAnswer: Option[EntryNumberDeclarationDetails],
     completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
@@ -135,7 +133,7 @@ object CompleteClaim {
                       id = id,
                       movementReferenceNumber = movementReferenceNumber,
                       maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
-                      maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
+                      maybeCompleteDeclarationDetailsAnswer = draftMaybeDeclarationDetailsAnswer,
                       maybeCompleteDuplicateDeclarationDetailsAnswer = Some(completeDuplicateDeclarationDetailAnswer),
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
@@ -388,31 +386,13 @@ object CompleteClaim {
 
   def validateDeclarationDetailsAnswer(
     maybeDeclarationDetailsAnswer: Option[EntryNumberDeclarationDetails]
-  ): Validation[CompleteDeclarationDetailsAnswer] =
-    maybeDeclarationDetailsAnswer match {
-      case Some(value) =>
-        value match {
-          case EntryNumberDeclarationDetails.IncompleteDeclarationDetailsAnswer(_)     =>
-            invalid("incomplete declaration details answer")
-          case completeDeclarationDetailsAnswer: CompleteDeclarationDetailsAnswer =>
-            Valid(completeDeclarationDetailsAnswer)
-        }
-      case None        => invalid("missing declaration details answer")
-    }
+  ): Validation[EntryNumberDeclarationDetails] =
+    maybeDeclarationDetailsAnswer toValidNel "missing declaration details answer"
 
   def validateDuplicateDeclarantDetailAnswer(
-    maybeDuplicateDeclarantDetailAnswers: Option[DuplicateDeclarationDetailsAnswer]
-  ): Validation[CompleteDuplicateDeclarationDetailsAnswer] =
-    maybeDuplicateDeclarantDetailAnswers match {
-      case Some(value) =>
-        value match {
-          case DuplicateDeclarationDetailsAnswer.IncompleteDuplicateDeclarationDetailAnswer(_)     =>
-            invalid("incomplete duplicate declaration details answer")
-          case completeDuplicateDeclarationDetailAnswer: CompleteDuplicateDeclarationDetailsAnswer =>
-            Valid(completeDuplicateDeclarationDetailAnswer)
-        }
-      case None        => Valid(CompleteDuplicateDeclarationDetailsAnswer(None))
-    }
+    maybeDuplicateDeclarantDetailAnswers: Option[EntryNumberDeclarationDetails]
+  ): Validation[EntryNumberDeclarationDetails] =
+    maybeDuplicateDeclarantDetailAnswers toValidNel "missing declaration details answer"
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
 
@@ -466,7 +446,7 @@ object CompleteClaim {
         maybeDisplayDeclaration
     }
 
-    def duplicateEntryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
+    def duplicateEntryDeclarationDetails: Option[EntryNumberDeclarationDetails] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -490,12 +470,12 @@ object CompleteClaim {
           ) =>
         duplicateDeclarationDetails match {
           case Some(completeDuplicateDeclarationDetailsAnswer) =>
-            completeDuplicateDeclarationDetailsAnswer.duplicateDeclaration
+            Some(completeDuplicateDeclarationDetailsAnswer)
           case None                                            => None
         }
     }
 
-    def entryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
+    def entryDeclarationDetails: Option[EntryNumberDeclarationDetails] = completeClaim match {
       case CompleteC285Claim(
             _,
             _,
@@ -518,7 +498,7 @@ object CompleteClaim {
             _
           ) =>
         declarationDetailAnswers match {
-          case Some(completeDeclarationDetailsAnswer) => Some(completeDeclarationDetailsAnswer.declarationDetails)
+          case Some(completeDeclarationDetailsAnswer) => Some(completeDeclarationDetailsAnswer)
           case None                                   => None
         }
     }
