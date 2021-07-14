@@ -85,7 +85,7 @@ class EnterDeclarationDetailsController @Inject() (
 
   def submit(isAmend: Boolean): Action[AnyContent] =
     (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[EntryNumberDeclarationDetails] { (fillingOutClaim, answers) =>
+      withAnswers[EntryNumberDeclarationDetails] { (fillingOutClaim, _) =>
         EnterDeclarationDetailsController.entryNumberDeclarationDetailsForm
           .bindFromRequest()
           .fold(
@@ -157,7 +157,7 @@ class EnterDeclarationDetailsController @Inject() (
 
   def enterDuplicateDeclarationDetailsSubmit(): Action[AnyContent] =
     (featureSwitch.EntryNumber.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[EntryNumberDeclarationDetails] { (fillingOutClaim, answers) =>
+      withAnswers[EntryNumberDeclarationDetails] { (fillingOutClaim, _) =>
         EnterDeclarationDetailsController.entryNumberDeclarationDetailsForm
           .bindFromRequest()
           .fold(

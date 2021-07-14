@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DateOfImport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
@@ -29,7 +29,7 @@ object EnterDeclarationDetailsGen {
     arbitraryLocalDate.arbitrary.map(DateOfImport(_))
   )
 
-  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryDeclarationDetails] = Arbitrary(
+  implicit val arbitraryEntryDeclarationDetails: Typeclass[EntryNumberDeclarationDetails] = Arbitrary(
     for {
       dateOfImport          <- arbitraryDateOfImport.arbitrary
       placeOfImport         <- arbitraryString.arbitrary.map(_.take(70))
@@ -39,7 +39,7 @@ object EnterDeclarationDetailsGen {
       declarantName         <- arbitraryString.arbitrary.map(_.take(70))
       declarantEmailAddress <- arbitraryEmail.arbitrary
       declarantPhoneNumber  <- arbitraryPhoneNumber.arbitrary
-    } yield EntryDeclarationDetails(
+    } yield EntryNumberDeclarationDetails(
       dateOfImport,
       placeOfImport,
       importerName,

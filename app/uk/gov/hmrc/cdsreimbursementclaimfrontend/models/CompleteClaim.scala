@@ -22,7 +22,6 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
@@ -133,7 +132,7 @@ object CompleteClaim {
                       id = id,
                       movementReferenceNumber = movementReferenceNumber,
                       maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
-                      maybeCompleteDeclarationDetailsAnswer = draftMaybeDeclarationDetailsAnswer,
+                      maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
                       maybeCompleteDuplicateDeclarationDetailsAnswer = Some(completeDuplicateDeclarationDetailAnswer),
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
