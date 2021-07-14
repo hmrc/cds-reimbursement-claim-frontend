@@ -398,7 +398,7 @@ select-basis-for-claim.title=Select the basis for claim
 select-basis-for-claim.error.number=Select the basis for claim
 select-basis-for-claim.error.required=Select the basis for claim
 select-basis-for-claim.select-label=Choose which basis for claim
-select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.  If you believe you are entitled to an excise claim that is not listed below, please <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
+select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
 select-basis-for-claim.details.b0=Duplicate MRN:
@@ -499,6 +499,8 @@ select-basis-for-claim.reason.ern.d13=Evidence that goods have not entered the E
 select-basis-for-claim.reason.ern.d14=Incorrect excise value - Northern Ireland claims only
 select-basis-for-claim.reason.ern.d15=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only
 select-basis-for-claim.reason.ern.d16=Miscellaneous
+
+select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
 #  SELECT REASON AND BASIS FOR CLAIM PAGE

@@ -78,5 +78,5 @@ object BasisOfClaim {
 
   implicit val eq: Eq[BasisOfClaim] = Eq.fromUniversalEquals[BasisOfClaim]
 
-  implicit val basisOfClaimformat: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()
+  implicit val basisOfClaimFormat: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()
 }
