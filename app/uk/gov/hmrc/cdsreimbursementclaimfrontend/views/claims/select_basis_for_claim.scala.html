@@ -25,7 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsExamples
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims
 
 @this(
@@ -40,7 +40,7 @@
      errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[SelectReasonForClaim], claimTypes: BasisOfClaims, basisOfClaimsExamples: BasisOfClaimsExamples, isAmend: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[SelectReasonForClaim], claimTypes: BasisOfClaims, basisOfClaimsHints: BasisOfClaimsHints, isAmend: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
      @key = @{"select-basis-for-claim"}
      @title = @{messages(s"$key.title")}
@@ -68,7 +68,7 @@
 
         @paragraph(Html(messages(lang(key , router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(basisOfClaimsExamples, key))
+        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(basisOfClaimsHints, key))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

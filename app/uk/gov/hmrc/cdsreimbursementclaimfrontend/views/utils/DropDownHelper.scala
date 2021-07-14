@@ -80,7 +80,7 @@ class DropDownHelper @Inject() (
       )
     )
 
-  def render(basisOfClaimsExamples: BasisOfClaimsExamples, parentKey: String)(implicit messages: Messages): Html =
+  def render(basisOfClaimsExamples: BasisOfClaimsHints, parentKey: String)(implicit messages: Messages): Html =
     html(
       bulletList(
         basisOfClaimsExamples.items.map(i =>

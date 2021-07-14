@@ -23,9 +23,9 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim.newDraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsExamples.{EntryNumberBasisOfClaimsExamples, MrnBasisOfClaimsExamples}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints.{EntryNumberBasisOfClaimsHints, MrnBasisOfClaimsHints}
 
-class BasisOfClaimsExamplesSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class BasisOfClaimsHintsSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   "The basis of claims examples" should {
     "drop N items" in {
@@ -33,12 +33,12 @@ class BasisOfClaimsExamplesSpec extends AnyWordSpec with ScalaCheckDrivenPropert
 
       forAll(Gen.choose(0, 13), genMovementReferenceNumber) { (n, reference) =>
         val newDraft = draft.copy(movementReferenceNumber = reference.some)
-        BasisOfClaimsExamples.of(newDraft).skip(n).items should be((0 to 13).drop(n))
+        BasisOfClaimsHints.of(newDraft).skip(n).items should be((0 to 13).drop(n))
       }
     }
 
     "build MRN basis of claims examples key" in {
-      val examples = MrnBasisOfClaimsExamples(List.empty)
+      val examples = MrnBasisOfClaimsHints(List.empty)
 
       forAll { n: Int =>
         examples.buildLabelKey(parentKey = "key", n) should be(s"key.details.b$n")
@@ -47,7 +47,7 @@ class BasisOfClaimsExamplesSpec extends AnyWordSpec with ScalaCheckDrivenPropert
     }
 
     "build Entry Number basis of claims examples key" in {
-      val examples = EntryNumberBasisOfClaimsExamples(List.empty)
+      val examples = EntryNumberBasisOfClaimsHints(List.empty)
 
       forAll { n: Int =>
         examples.buildLabelKey(parentKey = "key", n) should be(s"key.details.ern.b$n")
