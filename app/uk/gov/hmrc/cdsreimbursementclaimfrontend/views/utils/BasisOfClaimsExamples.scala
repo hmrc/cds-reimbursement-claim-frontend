@@ -48,7 +48,7 @@ object BasisOfClaimsExamples {
   final case class Builder(isMrnFlow: Boolean) {
 
     def skip(n: Int): BasisOfClaimsExamples = {
-      val items = (0 to 14).drop(n)
+      val items = (0 to 13).drop(n)
       if (isMrnFlow) MrnBasisOfClaimsExamples(items)
       else EntryNumberBasisOfClaimsExamples(items)
     }
