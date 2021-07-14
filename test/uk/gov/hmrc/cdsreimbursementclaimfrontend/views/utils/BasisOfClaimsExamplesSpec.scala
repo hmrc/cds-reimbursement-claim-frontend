@@ -31,9 +31,9 @@ class BasisOfClaimsExamplesSpec extends AnyWordSpec with ScalaCheckDrivenPropert
     "drop N items" in {
       val draft = newDraftC285Claim
 
-      forAll(Gen.choose(0, 14), genMovementReferenceNumber) { (n, reference) =>
+      forAll(Gen.choose(0, 13), genMovementReferenceNumber) { (n, reference) =>
         val newDraft = draft.copy(movementReferenceNumber = reference.some)
-        BasisOfClaimsExamples.of(newDraft).skip(n).items should be((0 to 14).drop(n))
+        BasisOfClaimsExamples.of(newDraft).skip(n).items should be((0 to 13).drop(n))
       }
     }
 

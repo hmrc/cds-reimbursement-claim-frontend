@@ -89,7 +89,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           Preference,
           RGR,
           ProofOfReturnRefundGiven,
-          EvidenceThatGoodsHaveNotEnteredTheEU,
           CorrectionToRiskClassification,
           Miscellaneous
         )
@@ -112,7 +111,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         Preference,
         RGR,
         ProofOfReturnRefundGiven,
-        EvidenceThatGoodsHaveNotEnteredTheEU,
         IncorrectExciseValue,
         CorrectionToRiskClassification,
         Miscellaneous
@@ -136,7 +134,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         Preference,
         RGR,
         ProofOfReturnRefundGiven,
-        EvidenceThatGoodsHaveNotEnteredTheEU,
         IncorrectExciseValue,
         CorrectionToRiskClassification,
         Miscellaneous
