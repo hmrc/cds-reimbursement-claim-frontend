@@ -27,7 +27,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
@@ -118,7 +117,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+            basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleMrnAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
@@ -144,7 +143,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+            basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
@@ -172,7 +171,7 @@ class EnterCommoditiesDetailsControllerSpec
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
               reasonForBasisAndClaimAnswer = None,
-              basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+              basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
               movementReferenceNumber = sampleEntryNumberAnswer()
             )
 
@@ -205,7 +204,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+            basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
@@ -235,7 +234,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+            basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
 
@@ -270,7 +269,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             reasonForBasisAndClaimAnswer = None,
-            basisOfClaimAnswer = Some(CompleteBasisOfClaimAnswer(BasisOfClaim.DutySuspension)),
+            basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
 

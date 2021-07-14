@@ -91,7 +91,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def overrideBindings: List[GuiceableModule] = List.empty[GuiceableModule]
 
-  lazy val additionalConfig = Configuration()
+  private lazy val additionalConfig = Configuration()
 
   def buildFakeApplication(): Application = {
     val metricsBinding: GuiceableModule =
@@ -188,9 +188,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
     val regexResult = regex.findAllMatchIn(bodyText).toList
     if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
-    else succeed
-
-    contentChecks(doc)
+    else contentChecks(doc)
   }
 
   def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
