@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Eq
 import play.api.mvc.PathBindable
 
 sealed abstract class JourneyBindable(val value: String) extends Product with Serializable
@@ -41,4 +42,5 @@ object JourneyBindable {
       bindable.value
   }
 
+  implicit val eq: Eq[JourneyBindable] = Eq.fromUniversalEquals[JourneyBindable]
 }

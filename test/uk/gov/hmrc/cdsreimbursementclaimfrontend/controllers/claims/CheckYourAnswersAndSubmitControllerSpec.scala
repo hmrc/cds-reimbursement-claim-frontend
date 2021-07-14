@@ -28,7 +28,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -111,7 +110,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val declarantTypeAnswer: DeclarantTypeAnswer                                          = sample[DeclarantTypeAnswer]
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
-  val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
+  val basisOfClaim: BasisOfClaim                                                        = sample[BasisOfClaim]
   val supportingEvidences: SupportingEvidenceAnswer                                     = sample[SupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val commodityDetailsAnswer: CommodityDetails                                          = sample[CommodityDetails]
@@ -127,7 +126,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     detailsRegisteredWithCdsAnswer = Some(completeClaimantDetailsAsIndividualAnswer),
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
-    basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    basisOfClaimAnswer = Some(basisOfClaim),
     supportingEvidenceAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
@@ -188,7 +187,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     declarantTypeAnswer = declarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
     maybeContactDetailsAnswer = None,
-    maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    maybeBasisOfClaimAnswer = Some(basisOfClaim),
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,

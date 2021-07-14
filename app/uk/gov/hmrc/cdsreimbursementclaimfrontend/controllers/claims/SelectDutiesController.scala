@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
-import cats.syntax.option._
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
@@ -120,7 +119,6 @@ object SelectDutiesController {
   def getAvailableDuties(fillingOutClaim: FillingOutClaim): Either[Error, DutiesSelectedAnswer] = {
     val wasIncorrectExciseCodeSelected = fillingOutClaim.draftClaim
       .fold(_.basisOfClaimAnswer)
-      .flatMap(_.fold(_.maybeBasisOfClaim, _.basisOfClaim.some))
       .exists(_ === IncorrectExciseValue)
 
     val acc14TaxCodes = fillingOutClaim.draftClaim

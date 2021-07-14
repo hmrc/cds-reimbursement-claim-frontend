@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
@@ -59,7 +58,7 @@ object CompleteClaim {
     declarantTypeAnswer: DeclarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
-    maybeBasisOfClaimAnswer: Option[CompleteBasisOfClaimAnswer],
+    maybeBasisOfClaimAnswer: Option[BasisOfClaim],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
     supportingEvidenceAnswer: SupportingEvidenceAnswer,
     commodityDetailsAnswer: CommodityDetails,
@@ -87,7 +86,7 @@ object CompleteClaim {
               draftClaimantDetailsAsIndividualAnswer,
               draftClaimantDetailsAsImporterCompanyAnswer,
               draftBankAccountDetailAnswer,
-              draftBasisForClaim,
+              maybeBasisForClaim,
               draftSupportingEvidences,
               _,
               draftCommodityAnswer,
@@ -112,8 +111,7 @@ object CompleteClaim {
                 validateSupportingEvidenceAnswer(draftSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
-                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer),
-                validateBasisOfClaimAnswer(draftBasisForClaim)
+                validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
               )
                 .mapN {
                   case (
@@ -126,8 +124,7 @@ object CompleteClaim {
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
-                        completeReasonAndBasisOfClaimAnswer,
-                        completeBasisOfClaimAnswer
+                        completeReasonAndBasisOfClaimAnswer
                       ) =>
                     CompleteC285Claim(
                       id = id,
@@ -138,7 +135,7 @@ object CompleteClaim {
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
-                      completeBasisOfClaimAnswer,
+                      maybeBasisForClaim,
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
@@ -164,7 +161,6 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateBasisOfClaimAnswer(draftBasisForClaim),
                 validateSupportingEvidenceAnswer(draftSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -177,7 +173,6 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        completeBasisOfClaimAnswer,
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
@@ -193,7 +188,7 @@ object CompleteClaim {
                       completeDeclarantTypeAnswer,
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
-                      completeBasisOfClaimAnswer,
+                      maybeBasisForClaim,
                       completeBankAccountDetailAnswer,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
@@ -269,27 +264,6 @@ object CompleteClaim {
       case None        => Valid(None)
     }
 
-  def validateBasisOfClaimAnswer(
-    maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer],
-    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
-  ): Validation[Option[CompleteBasisOfClaimAnswer]] =
-    maybeReasonAndBasisOfClaimAnswer match {
-      case Some(_) => Valid(None)
-      case None    =>
-        maybeBasisOfClaimAnswer match {
-          case Some(value) =>
-            value match {
-              case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(maybeBasisOfClaim) =>
-                maybeBasisOfClaim match {
-                  case Some(value) => Valid(Some(CompleteBasisOfClaimAnswer(value)))
-                  case None        => Valid(None)
-                }
-              case CompleteBasisOfClaimAnswer(basisOfClaim)                           => Valid(Some(CompleteBasisOfClaimAnswer(basisOfClaim)))
-            }
-          case None        => Valid(None)
-        }
-    }
-
   def validateCommodityDetailsAnswer(
     maybeClaimsAnswer: Option[CommodityDetails]
   ): Validation[CommodityDetails] =
@@ -313,20 +287,6 @@ object CompleteClaim {
     maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
   ): Validation[SupportingEvidenceAnswer] =
     maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
-
-  def validateBasisOfClaimAnswer(
-    maybeBasisOfClaimAnswer: Option[BasisOfClaimAnswer]
-  ): Validation[Option[CompleteBasisOfClaimAnswer]] =
-    maybeBasisOfClaimAnswer match {
-      case Some(value) =>
-        value match {
-          case BasisOfClaimAnswer.IncompleteBasisOfClaimAnswer(_)     =>
-            invalid("incomplete basis of claim answer")
-          case completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer =>
-            Valid(Some(completeBasisOfClaimAnswer))
-        }
-      case None        => Valid(None)
-    }
 
   def validateBankAccountDetailAnswer(
     maybeBankAccountDetailsAnswer: Option[BankAccountDetailsAnswer]
@@ -544,7 +504,7 @@ object CompleteClaim {
           ) =>
         (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
           case (Some(rc), None) => Left(rc.selectReasonForBasisAndClaim)
-          case (None, Some(r))  => Right(r.basisOfClaim)
+          case (None, Some(r))  => Right(r)
           case (None, None)     =>
             sys.error(
               "invalid state: either select reason for basis and claim or reason for claim should have been provided"
