@@ -85,8 +85,8 @@ class CheckDeclarationDetailsController @Inject() (
     }
   }
 
-  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(TemporaryJourneyExtractor.extractJourney))
   }
 
   def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>

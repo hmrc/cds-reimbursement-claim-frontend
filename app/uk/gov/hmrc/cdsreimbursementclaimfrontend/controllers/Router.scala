@@ -58,6 +58,18 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
     }
 
+  def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+    }
+
+  def submitUrlForWhoIsMakingTheClaim(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit(journeyBindable)
+      case false => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
+    }
+
   //--- Northern Ireland
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =

@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.{BasisOfClaims, BasisOfClaimsExamples}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.{BasisOfClaims, BasisOfClaimsHints}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -71,7 +71,7 @@ class SelectBasisForClaimController @Inject() (
           selectReasonForClaimPage(
             filledForm,
             getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-            getBasisOfClaimsExamples(fillingOutClaim.draftClaim, journey),
+            getBasisOfClaimsHints(fillingOutClaim.draftClaim, journey),
             isAmend,
             router
           )
@@ -93,7 +93,7 @@ class SelectBasisForClaimController @Inject() (
                 selectReasonForClaimPage(
                   formWithErrors,
                   getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-                  getBasisOfClaimsExamples(fillingOutClaim.draftClaim, journey),
+                  getBasisOfClaimsHints(fillingOutClaim.draftClaim, journey),
                   isAmend,
                   router
                 )
@@ -106,9 +106,8 @@ class SelectBasisForClaimController @Inject() (
                 )
               )
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedJourney.some)))
-                .leftMap((_: Unit) => Error("could not update session"))
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedJourney.some)))
+                .leftMap(_ => Error("could not update session"))
                 .fold(
                   e => {
                     logger.warn("could not store reason for claim answer", e)
@@ -142,6 +141,6 @@ object SelectBasisForClaimController {
       .withoutJourneyClaimsIfApplies(journey)
       .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
-  def getBasisOfClaimsExamples(claim: DraftClaim, journeyBindable: JourneyBindable): BasisOfClaimsExamples =
-    BasisOfClaimsExamples.of(claim) skip (if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
+  def getBasisOfClaimsHints(claim: DraftClaim, journeyBindable: JourneyBindable): BasisOfClaimsHints =
+    BasisOfClaimsHints.of(claim) skip (if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
 }

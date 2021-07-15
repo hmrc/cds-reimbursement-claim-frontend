@@ -18,16 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 
-sealed trait BasisOfClaimsExamples {
+sealed trait BasisOfClaimsHints {
   val items: Seq[Int]
 
   def buildLabelKey(parentKey: String, index: Int): String
   def buildTextKey(parentKey: String, index: Int): String
 }
 
-object BasisOfClaimsExamples {
+object BasisOfClaimsHints {
 
-  final case class MrnBasisOfClaimsExamples(items: Seq[Int]) extends BasisOfClaimsExamples {
+  final case class MrnBasisOfClaimsHints(items: Seq[Int]) extends BasisOfClaimsHints {
     def buildLabelKey(parentKey: String, index: Int): String =
       s"$parentKey.details.b$index"
 
@@ -35,7 +35,7 @@ object BasisOfClaimsExamples {
       s"$parentKey.details.l$index"
   }
 
-  final case class EntryNumberBasisOfClaimsExamples(items: Seq[Int]) extends BasisOfClaimsExamples {
+  final case class EntryNumberBasisOfClaimsHints(items: Seq[Int]) extends BasisOfClaimsHints {
     def buildLabelKey(parentKey: String, index: Int): String =
       s"$parentKey.details.ern.b$index"
 
@@ -47,10 +47,10 @@ object BasisOfClaimsExamples {
 
   final case class Builder(isMrnFlow: Boolean) {
 
-    def skip(n: Int): BasisOfClaimsExamples = {
-      val items = (0 to 14).drop(n)
-      if (isMrnFlow) MrnBasisOfClaimsExamples(items)
-      else EntryNumberBasisOfClaimsExamples(items)
+    def skip(n: Int): BasisOfClaimsHints = {
+      val items = (0 to 13).drop(n)
+      if (isMrnFlow) MrnBasisOfClaimsHints(items)
+      else EntryNumberBasisOfClaimsHints(items)
     }
   }
 }
