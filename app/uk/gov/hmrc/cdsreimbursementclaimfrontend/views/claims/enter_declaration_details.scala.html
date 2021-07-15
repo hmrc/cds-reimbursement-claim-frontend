@@ -21,134 +21,134 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EntryNumberDeclarationDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    dateInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.date_input,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
-    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        dateInput: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.date_input,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+        inputText: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+        errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[EntryNumberDeclarationDetails], entryNumber: EntryNumber, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[EntryDeclarationDetails], entryNumber: EntryNumber, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-declaration-details"}
-    @title = @{messages(s"$key.title")}
+@key = @{"enter-declaration-details"}
+@title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
+@postAction = @{if(isAmend) routes.EnterDeclarationDetailsController.changeDeclarationDetailsSubmit else routes.EnterDeclarationDetailsController.enterDeclarationDetailsSubmit}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-            @pageHeading(title)
+        @pageHeading(title)
 
-            @paragraph(Html(messages(s"$key.help-text", entryNumber.value)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text", entryNumber.value)), Some("govuk-inset-text govuk-!-margin-bottom-8"))
 
-            @dateInput(
-                form = form,
-                legendContent = s"$key.date-of-import.label",
-                legendClasses = "govuk-fieldset__legend--s",
-                legendAsPageHeading = false,
-                id = key,
-                hintText = Some(s"$key.date-of-import.help")
-            )
+        @dateInput(
+            form = form,
+            legendContent = s"$key.date-of-import.label",
+            legendClasses = "govuk-fieldset__legend--s",
+            legendAsPageHeading = false,
+            id = key,
+            hintText = Some(s"$key.date-of-import.help")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.place-of-import",
-                name = s"$key.place-of-import",
-                label = s"$key.place-of-import.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.place-of-import.help")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.place-of-import",
+            name = s"$key.place-of-import",
+            label = s"$key.place-of-import.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.place-of-import.help")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.importer-name",
-                name = s"$key.importer-name",
-                label = s"$key.importer-name.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.importer-name.help")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.importer-name",
+            name = s"$key.importer-name",
+            label = s"$key.importer-name.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.importer-name.help")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.importer-email-address",
-                name = s"$key.importer-email-address",
-                label = s"$key.importer-email-address.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                inputType = "email",
-                autocomplete = Some("email"),
-                spellcheck = Some(false),
-                classes = Some("govuk-input--width-20")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.importer-email-address",
+            name = s"$key.importer-email-address",
+            label = s"$key.importer-email-address.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            inputType = "email",
+            autocomplete = Some("email"),
+            spellcheck = Some(false),
+            classes = Some("govuk-input--width-20")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.importer-phone-number",
-                name = s"$key.importer-phone-number",
-                label = s"$key.importer-phone-number.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                inputType = "tel",
-                autocomplete = Some("tel"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.importer-phone-number.help")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.importer-phone-number",
+            name = s"$key.importer-phone-number",
+            label = s"$key.importer-phone-number.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            inputType = "tel",
+            autocomplete = Some("tel"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.importer-phone-number.help")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.declarant-name",
-                name = s"$key.declarant-name",
-                label = s"$key.declarant-name.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.declarant-name.help")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.declarant-name",
+            name = s"$key.declarant-name",
+            label = s"$key.declarant-name.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.declarant-name.help")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.declarant-email-address",
-                name = s"$key.declarant-email-address",
-                label = s"$key.declarant-email-address.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                inputType = "email",
-                autocomplete = Some("email"),
-                spellcheck = Some(false),
-                classes = Some("govuk-input--width-20")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.declarant-email-address",
+            name = s"$key.declarant-email-address",
+            label = s"$key.declarant-email-address.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            inputType = "email",
+            autocomplete = Some("email"),
+            spellcheck = Some(false),
+            classes = Some("govuk-input--width-20")
+        )
 
-            @inputText(
-                form = form,
-                id = s"$key.declarant-phone-number",
-                name = s"$key.declarant-phone-number",
-                label = s"$key.declarant-phone-number.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                inputType = "tel",
-                autocomplete = Some("tel"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.declarant-phone-number.help")
-            )
+        @inputText(
+            form = form,
+            id = s"$key.declarant-phone-number",
+            name = s"$key.declarant-phone-number",
+            label = s"$key.declarant-phone-number.label",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            inputType = "tel",
+            autocomplete = Some("tel"),
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.declarant-phone-number.help")
+        )
 
-            @submitButton("button.continue")
-
-        }
+        @submitButton("button.continue")
 
     }
+
+}
