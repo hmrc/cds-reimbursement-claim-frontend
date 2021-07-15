@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -56,31 +57,8 @@ class CheckDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DisplayDeclaration] = _.displayDeclaration
-
-//  private def withPossibleDeclaration(
-//    f: (
-//      SessionData,
-//      FillingOutClaim,
-//      Option[DisplayDeclaration]
-//    ) => Future[Result]
-//  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-//    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
-//      val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
-//      f(s, r, maybeDisplayDeclaration)
-//    })
-//
-//  private def withDuplicateDeclaration(
-//    f: (
-//      SessionData,
-//      FillingOutClaim,
-//      Option[DisplayDeclaration]
-//    ) => Future[Result]
-//  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-//    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
-//      val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
-//      f(s, r, maybeDisplayDeclaration)
-//    })
+  val duplicateDeclarationExtractor: DraftC285Claim => Option[DisplayDeclaration] = _.duplicateDisplayDeclaration
+  val declarationExtractor: DraftC285Claim => Option[DisplayDeclaration]          = _.displayDeclaration
 
   def checkDetails(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
@@ -96,18 +74,17 @@ class CheckDeclarationDetailsController @Inject() (
             )
           )
         )
-      }
+      }(declarationExtractor, request, journey)
   }
 
   def checkDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              fillingOutClaim.draftClaim
-                .fold(_.displayDeclaration)
+              answer
                 .map(declaration =>
                   Future.successful(
                     BadRequest(
@@ -121,8 +98,8 @@ class CheckDeclarationDetailsController @Inject() (
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),
             { answer =>
-              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+              val updatedJourney =
+                FillingOutClaim.of(fillingOutClaim)(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
 
               val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
@@ -134,24 +111,16 @@ class CheckDeclarationDetailsController @Inject() (
                 },
                 _ =>
                   answer match {
-                    case DeclarationAnswersAreCorrect =>
-                      //single journey
+                    case DeclarationAnswersAreCorrect   =>
                       Redirect(router.nextPageForCheckDeclarationDetails(true))
-                    // Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                    //schedule journey
-
                     case DeclarationAnswersAreIncorrect =>
-                      //single journey
-
-                      //schedule journey
                       Redirect(router.nextPageForCheckDeclarationDetails(false))
-                    // Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled))
                   }
               )
             }
           )
 
-      }
+      }(declarationExtractor, request, journey)
     }
 
   def checkDuplicateDetails(implicit journey: JourneyBindable): Action[AnyContent] =
@@ -168,14 +137,14 @@ class CheckDeclarationDetailsController @Inject() (
             )
           )
         )
-      }
+      }(duplicateDeclarationExtractor, request, journey)
     }
 
   def checkDuplicateDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, _, router) =>
         Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
-      }
+      }(duplicateDeclarationExtractor, request, journey)
     }
 
 }

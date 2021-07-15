@@ -43,7 +43,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     "check declaration details when the user is the importer" in {
       forAll(Table("EntryRoutes", MRNSingleRoutes, MRNBulkRoutes, MRNBulkRoutes)) { router =>
         router.nextPageForEnterMRN(MrnImporter(sample[DisplayDeclaration])) shouldBe
-          claimRoutes.CheckDeclarationDetailsController.checkDetails()
+          claimRoutes.CheckDeclarationDetailsController.checkDetails(router.journeyBindable)
       }
     }
 
