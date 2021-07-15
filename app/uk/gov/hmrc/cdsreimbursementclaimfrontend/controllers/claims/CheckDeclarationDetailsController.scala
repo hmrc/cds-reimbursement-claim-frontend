@@ -29,13 +29,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -58,119 +56,127 @@ class CheckDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[CheckDeclarationDetailsAnswer] = _.checkDeclarationDetailsAnswer
+  implicit val dataExtractor: DraftC285Claim => Option[DisplayDeclaration] = _.displayDeclaration
 
-  private def withPossibleDeclaration(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      Option[DisplayDeclaration]
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
-      val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
-      f(s, r, maybeDisplayDeclaration)
-    })
+//  private def withPossibleDeclaration(
+//    f: (
+//      SessionData,
+//      FillingOutClaim,
+//      Option[DisplayDeclaration]
+//    ) => Future[Result]
+//  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+//    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+//      val maybeDisplayDeclaration = c.fold(_.displayDeclaration)
+//      f(s, r, maybeDisplayDeclaration)
+//    })
+//
+//  private def withDuplicateDeclaration(
+//    f: (
+//      SessionData,
+//      FillingOutClaim,
+//      Option[DisplayDeclaration]
+//    ) => Future[Result]
+//  )(implicit request: RequestWithSessionData[_]): Future[Result] =
+//    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
+//      val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
+//      f(s, r, maybeDisplayDeclaration)
+//    })
 
-  private def withDuplicateDeclaration(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      Option[DisplayDeclaration]
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
-      val maybeDisplayDeclaration = c.fold(_.duplicateDisplayDeclaration)
-      f(s, r, maybeDisplayDeclaration)
-    })
-
-  def checkDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withPossibleDeclaration { (_, _, maybeDeclaration) =>
-      maybeDeclaration.fold(
-        Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
-      )(declaration =>
-        Ok(
-          checkDeclarationDetailsPage(
-            declaration,
-            routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
-            checkDeclarationDetailsAnswerForm
+  def checkDetails(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+        maybeDeclaration.fold(
+          Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
+        )(declaration =>
+          Ok(
+            checkDeclarationDetailsPage(
+              declaration,
+              router,
+              checkDeclarationDetailsAnswerForm
+            )
           )
         )
-      )
-    }
+      }
   }
 
-  def checkDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[CheckDeclarationDetailsAnswer] { (fillingOutClaim, _) =>
-      CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            fillingOutClaim.draftClaim
-              .fold(_.displayDeclaration)
-              .map(declaration =>
-                Future.successful(
-                  BadRequest(
-                    checkDeclarationDetailsPage(
-                      declaration,
-                      routes.CheckDeclarationDetailsController.checkDetailsSubmit(),
-                      formWithErrors
+  def checkDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, _, router) =>
+        CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              fillingOutClaim.draftClaim
+                .fold(_.displayDeclaration)
+                .map(declaration =>
+                  Future.successful(
+                    BadRequest(
+                      checkDeclarationDetailsPage(
+                        declaration,
+                        router,
+                        formWithErrors
+                      )
                     )
                   )
                 )
-              )
-              .getOrElse(Future.successful(errorHandler.errorResult())),
-          { answer =>
-            val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
-            val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                .getOrElse(Future.successful(errorHandler.errorResult())),
+            { answer =>
+              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkDeclarationDetailsAnswer = Some(answer)))
+              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-            val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-              .leftMap(_ => Error("could not update session"))
+              val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
 
-            result.fold(
-              e => {
-                logger.warn("could not get radio button details", e)
-                errorHandler.errorResult()
-              },
-              _ =>
-                answer match {
-                  case DeclarationAnswersAreCorrect =>
-                    //single journey
-                    Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
-                  //schedule journey
-
-                  case DeclarationAnswersAreIncorrect =>
-                    //single journey
-
+              result.fold(
+                e => {
+                  logger.warn("could not get radio button details", e)
+                  errorHandler.errorResult()
+                },
+                _ =>
+                  answer match {
+                    case DeclarationAnswersAreCorrect =>
+                      //single journey
+                      Redirect(router.nextPageForCheckDeclarationDetails(true))
+                    // Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
                     //schedule journey
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled))
-                }
-            )
-          }
-        )
 
+                    case DeclarationAnswersAreIncorrect =>
+                      //single journey
+
+                      //schedule journey
+                      Redirect(router.nextPageForCheckDeclarationDetails(false))
+                    // Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled))
+                  }
+              )
+            }
+          )
+
+      }
     }
-  }
 
-  def checkDuplicateDetails(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withDuplicateDeclaration { (_, _, maybeDeclaration) =>
-      maybeDeclaration.fold(
-        Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
-      )(declaration =>
-        Ok(
-          checkDeclarationDetailsPage(
-            declaration,
-            routes.CheckDeclarationDetailsController.checkDuplicateDetailsSubmit(),
-            checkDeclarationDetailsAnswerForm
+  def checkDuplicateDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+        maybeDeclaration.fold(
+          Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
+        )(declaration =>
+          Ok(
+            checkDeclarationDetailsPage(
+              declaration,
+              router,
+              checkDeclarationDetailsAnswerForm
+            )
           )
         )
-      )
+      }
     }
-  }
 
-  def checkDuplicateDetailsSubmit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Redirect(routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney))
-  }
+  def checkDuplicateDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DisplayDeclaration] { (_, _, router) =>
+        Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
+      }
+    }
 
 }
 

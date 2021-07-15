@@ -360,14 +360,14 @@ class EnterDeclarationDetailsControllerSpec
         ("Controller action", "Maybe Answers"),
         (
           (data: Seq[(String, String)]) => performAction(data)(controller.enterDuplicateDeclarationDetails()),
-          sample[EntryNumberDeclarationDetails]
+          sample[EntryNumberDeclarationDetails].some
         )
       )
 
       forAll(testCases) { (action, answer) =>
         val mrn = sample[MRN]
 
-        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answer))
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(answer)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim =
           draftC285Claim.copy(movementReferenceNumber = Some(MovementReferenceNumber(mrn.asRight[EntryNumber])))
@@ -380,7 +380,7 @@ class EnterDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           action(Seq()),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
+          routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(JourneyBindable.Single)
         )
       }
     }
@@ -397,10 +397,10 @@ class EnterDeclarationDetailsControllerSpec
         )
 
         forAll(testCases) { (action, redirectPage) =>
+          val answers            = sample[EntryNumberDeclarationDetails]
           val declarationDetails = sample[EntryNumberDeclarationDetails]
-          val answers            = declarationDetails.some
 
-          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(answers)
+          val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
           val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -421,9 +421,9 @@ class EnterDeclarationDetailsControllerSpec
     "redirect to enter commodities details" when {
       "duplicate declaration is submitted" in {
         val declarationDetails = sample[EntryNumberDeclarationDetails]
-        val answers            = declarationDetails.some
+        val answers            = sample[EntryNumberDeclarationDetails]
 
-        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(answers)
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDuplicateDeclaration(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 

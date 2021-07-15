@@ -365,8 +365,8 @@ select-who-is-making-the-claim.details.l2=A representative company can be a pers
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Check these details are correct
-check-declaration-details.help-text=These are the declaration details given by the MRN Reference Number: <strong>{0}</strong>.<br /><br />If these details are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a> via imports and exports: general enquires.
-check-declaration-details.mrn-number.label=MRN number
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a>.
+check-declaration-details.mrn-number.label=MRN
 check-declaration-details.import-date.label=Import date
 check-declaration-details.paid-charges.label=Paid charges
 check-declaration-details.importer-name.label=Importer name
@@ -379,9 +379,11 @@ check-declaration-details.declarant-telephone.label=Declarant telephone
 check-declaration-details.declarant-contact-address.label=Declarant contact address
 check-declaration-details.is-information-correct=Is this MRN information correct?
 check-declaration-details.yes=Yes
-check-declaration-details.no=No, enter a different MRN
+check-declaration-details.no=No
 check-declaration-details.error.invalid=Select yes if these details are correct or no if they are incorrect
 check-declaration-details.error.required=Select yes if these details are correct or no if they are incorrect
+
+check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE

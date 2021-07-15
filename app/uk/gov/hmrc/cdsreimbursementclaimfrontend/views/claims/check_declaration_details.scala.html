@@ -15,7 +15,6 @@
  *@
 
 @import play.api.i18n.Messages
-@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -23,6 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -38,10 +38,11 @@
     radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio
 )
 
-@(declaration : DisplayDeclaration, postAction : Call, form: Form[CheckDeclarationDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration : DisplayDeclaration, router:ReimbursementRoutes, form: Form[CheckDeclarationDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"check-declaration-details"}
     @title = @{messages(s"$key.title")}
+    @postAction = @{router.submitUrlForCheckDeclarationDetails()}
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
 
@@ -50,7 +51,7 @@
         @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-            @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration)))
+            @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration, router)))
 
             @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-m govuk-!-margin-top-9", "h2")
          @radios(
