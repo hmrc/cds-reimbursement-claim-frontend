@@ -19,20 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait DeclarantTypeAnswer extends Product with Serializable {
-  def repr: String
-}
+sealed trait DeclarantTypeAnswer extends Product with Serializable
 
 object DeclarantTypeAnswer {
-  final case object Importer extends DeclarantTypeAnswer {
-    override def repr = "Importer"
-  }
-  final case object AssociatedWithImporterCompany extends DeclarantTypeAnswer {
-    override def repr = "Associated with Importer Company"
-  }
-  final case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer {
-    override def repr = "Associated Representative Company"
-  }
+  case object Importer extends DeclarantTypeAnswer
+  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
+  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
 
   implicit val format: OFormat[DeclarantTypeAnswer] = derived.oformat[DeclarantTypeAnswer]()
 }

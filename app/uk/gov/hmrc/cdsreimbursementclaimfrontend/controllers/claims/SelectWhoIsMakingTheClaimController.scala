@@ -101,10 +101,12 @@ class SelectWhoIsMakingTheClaimController @Inject() (
 
 object SelectWhoIsMakingTheClaimController {
 
+  val whoIsMakingTheClaimKey = "select-who-is-making-the-claim"
+
   val chooseDeclarantTypeForm: Form[DeclarantTypeAnswer] =
     Form(
       mapping(
-        "select-who-is-making-the-claim" -> number
+        whoIsMakingTheClaimKey -> number
           .verifying("invalid", a => a === 0 || a === 1 || a === 2)
           .transform[DeclarantTypeAnswer](
             value =>

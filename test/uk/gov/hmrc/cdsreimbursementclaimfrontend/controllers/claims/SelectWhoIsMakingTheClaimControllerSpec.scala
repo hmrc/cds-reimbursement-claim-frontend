@@ -26,6 +26,7 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -127,7 +128,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(journeyBindable),
-          messageFromMessageKey("select-who-is-making-the-claim.title")
+          messageFromMessageKey(s"$whoIsMakingTheClaimKey.title")
         )
 
       }
@@ -147,7 +148,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(journeyBindable),
-          messageFromMessageKey("select-who-is-making-the-claim.title")
+          messageFromMessageKey(s"$whoIsMakingTheClaimKey.title")
         )
       }
     }
@@ -176,7 +177,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("select-who-is-making-the-claim" -> "0"), journeyBindable),
+          performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
           routes.EnterDetailsRegisteredWithCdsController
             .enterDetailsRegisteredWithCds()
         )
@@ -200,12 +201,12 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(Seq.empty, journeyBindable),
-          messageFromMessageKey("select-who-is-making-the-claim.title"),
+          messageFromMessageKey(s"$whoIsMakingTheClaimKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-who-is-making-the-claim.error.required"
+              s"$whoIsMakingTheClaimKey.error.required"
             ),
           BAD_REQUEST
         )
@@ -228,13 +229,13 @@ class SelectWhoIsMakingTheClaimControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq("select-who-is-making-the-claim" -> "10"), journeyBindable),
-          messageFromMessageKey("select-who-is-making-the-claim.title"),
+          performAction(Seq(whoIsMakingTheClaimKey -> "10"), journeyBindable),
+          messageFromMessageKey(s"$whoIsMakingTheClaimKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-who-is-making-the-claim.invalid"
+              s"$whoIsMakingTheClaimKey.invalid"
             ),
           BAD_REQUEST
         )
@@ -263,7 +264,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("select-who-is-making-the-claim" -> "0"), journeyBindable),
+          performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
           routes.CheckYourAnswersAndSubmitController
             .checkAllAnswers()
         )
