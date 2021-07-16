@@ -77,9 +77,6 @@ class EnterMovementReferenceNumberController @Inject() (
       case _                      => enterMovementReferenceNumberPage(form, isAmend, router)
     }
 
-  private def resolveMessagesKey(feature: FeatureSwitchService): String =
-    if (feature.EntryNumber.isEnabled()) enterMovementReferenceNumberKey else enterNoLegacyMrnKey
-
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
   def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(isAmend = true, journey)
 
@@ -87,10 +84,7 @@ class EnterMovementReferenceNumberController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
         val router    = localRouter(journey)
-        val emptyForm = EnterMovementReferenceNumberController.movementReferenceNumberForm(
-          resolveMessagesKey(featureSwitch),
-          featureSwitch.EntryNumber.isEnabled()
-        )
+        val emptyForm = movementReferenceNumberForm(featureSwitch.EntryNumber.isEnabled())
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
         Ok(resolveEnterMrnPageFor(featureSwitch)(form, isAmend, router))
       }
@@ -103,21 +97,15 @@ class EnterMovementReferenceNumberController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController
-          .movementReferenceNumberForm(resolveMessagesKey(featureSwitch), featureSwitch.EntryNumber.isEnabled())
+          .movementReferenceNumberForm(featureSwitch.EntryNumber.isEnabled())
           .bindFromRequest()
           .fold(
             formWithErrors =>
               BadRequest(
                 resolveEnterMrnPageFor(featureSwitch)(
-                  formWithErrors
-                    .copy(errors =
-                      Seq(
-                        EnterMovementReferenceNumberController.processFormErrors(
-                          resolveMessagesKey(featureSwitch),
-                          formWithErrors.errors
-                        )
-                      )
-                    ),
+                  formWithErrors.copy(errors =
+                    transformFormErrors(featureSwitch.EntryNumber.isEnabled(), journey, formWithErrors.errors)
+                  ),
                   isAmend,
                   localRouter(journey)
                 )
@@ -128,7 +116,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 Redirect(baseRoutes.IneligibleController.ineligible())
               }
               val previousValue                  = previousAnswer.map(_.stringValue).getOrElse("")
-              val currentValue                   = mrnOrEntryNumber.value.map(_.value).leftMap(_.value).merge
+              val currentValue                   = mrnOrEntryNumber.stringValue
               (previousValue === currentValue && isAmend) match {
                 case true  =>
                   Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
@@ -217,9 +205,23 @@ object EnterMovementReferenceNumberController {
   val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
   val enterNoLegacyMrnKey: String             = "enter-no-legacy-mrn"
 
+  def transformFormErrors(
+    isEntryNumberEnabled: Boolean,
+    journeyBindable: JourneyBindable,
+    errors: Seq[FormError]
+  ): Seq[FormError] = {
+    val langKey =
+      if (!isEntryNumberEnabled && journeyBindable === JourneyBindable.Single) enterNoLegacyMrnKey
+      else enterMovementReferenceNumberKey
+    errors.map(_.copy(key = langKey))
+  }
+
   def movementReferenceNumberMapping(isEntryNumberEnabled: Boolean): Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText
-      .verifying("invalid.number", str => EntryNumber.isValid(str) && isEntryNumberEnabled || MRN.isValid(str))
+      .verifying(
+        "invalid.number",
+        str => EntryNumber.isValid(str) && isEntryNumberEnabled || MRN.isValid(str)
+      )
       .transform[Either[EntryNumber, MRN]](
         str =>
           if (MRN.isValid(str)) Right(MRN.changeToUpperCaseWithoutSpaces(str))
@@ -230,20 +232,12 @@ object EnterMovementReferenceNumberController {
         }
       )
 
-  def movementReferenceNumberForm(key: String, isEntryNumberEnabled: Boolean): Form[MovementReferenceNumber] =
+  def movementReferenceNumberForm(isEntryNumberEnabled: Boolean): Form[MovementReferenceNumber] =
     Form(
       mapping(
-        key -> movementReferenceNumberMapping(isEntryNumberEnabled)
+        enterMovementReferenceNumberKey -> movementReferenceNumberMapping(isEntryNumberEnabled)
       )(MovementReferenceNumber.apply)(MovementReferenceNumber.unapply)
     )
-
-  def processFormErrors(key: String, errors: Seq[FormError]): FormError =
-    if (errors.exists(fe => fe.message === "error.required")) {
-      FormError(key, List("error.required"))
-    } else if (errors.exists(fe => fe.message === "invalid.reference"))
-      FormError(key, List("invalid.reference"))
-    else
-      FormError(key, List("invalid"))
 
   def evaluateMrnJourneyFlow(
     signedInUserDetails: SignedInUserDetails,
