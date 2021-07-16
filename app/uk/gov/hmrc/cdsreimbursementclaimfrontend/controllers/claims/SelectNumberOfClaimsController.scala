@@ -16,23 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Eq
 import cats.data.EitherT
-import cats.implicits._
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
-import julienrf.json.derived
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
-import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SelectNumberOfClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -68,9 +62,7 @@ class SelectNumberOfClaimsController @Inject() (
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[SelectNumberOfClaimsAnswer] { (_, answers) =>
       val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
-      val filledForm = answers
-        .flatMap(_.fold(_.selectNumberOfClaimsChoice, _.selectNumberOfClaimsChoice.some))
-        .fold(emptyForm)(emptyForm.fill(_))
+      val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
       Ok(selectNumberOfClaimsPage(filledForm))
     }
   }
@@ -82,8 +74,7 @@ class SelectNumberOfClaimsController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErros => BadRequest(selectNumberOfClaimsPage(formWithErros)),
-            formOk => {
-              val updatedAnswers = CompleteSelectNumberOfClaimsAnswer(formOk)
+            updatedAnswers => {
               val newDraftClaim  =
                 fillingOutClaim.draftClaim.fold(_.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
@@ -97,11 +88,10 @@ class SelectNumberOfClaimsController @Inject() (
                     errorHandler.errorResult()
                   },
                   _ => {
-                    val redirectUrl = formOk match {
-                      case Individual => JourneyBindable.Single
-                      case Bulk       => JourneyBindable.Bulk
-                      case Scheduled  => JourneyBindable.Scheduled
-
+                    val redirectUrl = updatedAnswers match {
+                      case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
+                      case SelectNumberOfClaimsAnswer.Bulk       => JourneyBindable.Bulk
+                      case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
                     }
                     Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
                   }
@@ -115,30 +105,17 @@ class SelectNumberOfClaimsController @Inject() (
 
 object SelectNumberOfClaimsController {
 
-  sealed abstract class SelectNumberOfClaimsType(val value: Int) extends Product with Serializable
-
-  object SelectNumberOfClaimsType {
-    case object Individual extends SelectNumberOfClaimsType(0)
-    case object Bulk extends SelectNumberOfClaimsType(1)
-    case object Scheduled extends SelectNumberOfClaimsType(2)
-
-    val allClaimsTypes: List[SelectNumberOfClaimsType]         = List(Individual, Bulk, Scheduled)
-    val allClaimsIntToType: Map[Int, SelectNumberOfClaimsType] = allClaimsTypes.map(a => a.value -> a).toMap
-    val allClaimsTypeToInt: Map[SelectNumberOfClaimsType, Int] = allClaimsTypes.map(a => a -> a.value).toMap
-
-    implicit val eq: Eq[SelectNumberOfClaimsType]                                  = Eq.fromUniversalEquals
-    implicit val selectNumberOfClaimsTypeFormat: OFormat[SelectNumberOfClaimsType] =
-      derived.oformat[SelectNumberOfClaimsType]()
-  }
-
   val dataKey: String = "select-number-of-claims"
 
-  val selectNumberOfClaimsAnswerForm: Form[SelectNumberOfClaimsType] =
+  val selectNumberOfClaimsAnswerForm: Form[SelectNumberOfClaimsAnswer] =
     Form(
       mapping(
         dataKey -> number
-          .verifying("invalid", a => allClaimsTypes.map(_.value).contains(a))
-          .transform[SelectNumberOfClaimsType](allClaimsIntToType, allClaimsTypeToInt)
+          .verifying("invalid", a => SelectNumberOfClaimsAnswer.allClaimsTypes.map(_.value).contains(a))
+          .transform[SelectNumberOfClaimsAnswer](
+            SelectNumberOfClaimsAnswer.allClaimsIntToType,
+            SelectNumberOfClaimsAnswer.allClaimsTypeToInt
+          )
       )(identity)(Some(_))
     )
 

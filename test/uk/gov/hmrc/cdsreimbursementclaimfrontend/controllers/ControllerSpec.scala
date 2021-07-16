@@ -34,8 +34,8 @@ import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.{Metrics, MockMetrics}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer
 
 import java.net.URLEncoder
 import scala.concurrent.Future
@@ -195,10 +195,10 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-  def toSelectNumberOfClaims(journeyBindable: JourneyBindable): SelectNumberOfClaimsType = journeyBindable match {
-    case JourneyBindable.Single    => SelectNumberOfClaimsType.Individual
-    case JourneyBindable.Bulk      => SelectNumberOfClaimsType.Bulk
-    case JourneyBindable.Scheduled => SelectNumberOfClaimsType.Scheduled
+  def toSelectNumberOfClaims(journeyBindable: JourneyBindable): SelectNumberOfClaimsAnswer = journeyBindable match {
+    case JourneyBindable.Single    => SelectNumberOfClaimsAnswer.Individual
+    case JourneyBindable.Bulk      => SelectNumberOfClaimsAnswer.Bulk
+    case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
   }
 
 }
