@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
@@ -29,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -52,7 +51,6 @@ class SupportingEvidenceController @Inject() (
   val errorHandler: ErrorHandler,
   upscanService: UpscanService,
   cc: MessagesControllerComponents,
-  val config: Configuration,
   chooseDocumentTypePage: pages.choose_document_type,
   uploadPage: pages.upload,
   checkYourAnswersPage: pages.check_your_answers,
@@ -65,24 +63,21 @@ class SupportingEvidenceController @Inject() (
     with Logging
     with SessionUpdates {
 
-  private val maxUploads =
-    config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
-
   private def withUploadSupportingEvidenceAnswers(
     f: (
       SessionData,
       FillingOutClaim,
-      Option[SupportingEvidenceAnswer]
+      Option[SupportingEvidencesAnswer]
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({ case (s, r @ FillingOutClaim(_, _, c: DraftClaim)) =>
-      f(s, r, c.fold(draftC285Claim = _.supportingEvidenceAnswer))
+      f(s, r, c.fold(draftC285Claim = _.supportingEvidencesAnswer))
     })
 
   def uploadSupportingEvidence(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        if (answers.exists(_.length >= maxUploads))
+        if (answers.exists(_.length >= upscanService.maxUploads))
           Redirect(routes.SupportingEvidenceController.checkYourAnswers())
         else
           upscanService
@@ -159,15 +154,14 @@ class SupportingEvidenceController @Inject() (
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { _ =>
       Redirect(
-        routes.SupportingEvidenceController
-          .scanProgress(UploadReference(uploadReference))
+        routes.SupportingEvidenceController.scanProgress(UploadReference(uploadReference))
       )
     }
 
   private def storeUpscanSuccess(
     upscanUpload: UpscanUpload,
     upscanCallBack: UpscanSuccess,
-    supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
+    supportingEvidencesAnswer: Option[SupportingEvidencesAnswer],
     fillingOutClaim: FillingOutClaim
   )(implicit
     request: RequestWithSessionData[_],
@@ -183,10 +177,9 @@ class SupportingEvidenceController @Inject() (
       None
     )
 
-    val evidences = supportingEvidenceAnswer.map(_ :+ newEvidence) orElse Some(SupportingEvidenceAnswer(newEvidence))
+    val evidences = supportingEvidencesAnswer.map(_ :+ newEvidence) orElse Some(SupportingEvidencesAnswer(newEvidence))
 
-    val newDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(supportingEvidenceAnswer = evidences))
-    val newJourney    = fillingOutClaim.copy(draftClaim = newDraftClaim)
+    val newJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences))
 
     EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
   }
@@ -224,11 +217,7 @@ class SupportingEvidenceController @Inject() (
                 _         <- EitherT(
                                updateSession(sessionStore, request)(
                                  _.copy(
-                                   journeyStatus = fillingOutClaim
-                                     .copy(draftClaim =
-                                       fillingOutClaim.draftClaim.fold(_.copy(supportingEvidenceAnswer = evidences.some))
-                                     )
-                                     .some
+                                   journeyStatus = FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
                                  )
                                )
                              )
@@ -256,17 +245,13 @@ class SupportingEvidenceController @Inject() (
           NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(
-          _.copy(supportingEvidenceAnswer = maybeEvidences flatMap removeEvidence)
+          _.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence)
         )
 
         val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
         val result = for {
-          _ <- EitherT(
-                 updateSession(sessionStore, request)(
-                   _.copy(journeyStatus = Some(newJourney))
-                 )
-               )
+          _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
         } yield ()
 
         result.fold(
@@ -289,8 +274,8 @@ class SupportingEvidenceController @Inject() (
         def redirectToUploadEvidence =
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
-        def listUploadedItems(evidences: NonEmptyList[SupportingEvidence]) =
-          Ok(checkYourAnswersPage(evidences, maxUploads))
+        def listUploadedItems(evidences: SupportingEvidencesAnswer) =
+          Ok(checkYourAnswersPage(evidences, upscanService.maxUploads))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }

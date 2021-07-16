@@ -22,6 +22,7 @@ import cats.instances.int._
 import cats.syntax.either._
 import cats.syntax.eq._
 import com.google.inject.{ImplementedBy, Singleton}
+import play.api.Configuration
 import play.api.http.Status.OK
 import play.api.mvc.Call
 import play.mvc.Http.Status
@@ -39,6 +40,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UpscanServiceImpl])
 trait UpscanService {
 
+  val maxUploads: Int
+
   def initiate(
     errorRedirect: Call,
     successRedirect: UploadReference => Call
@@ -54,10 +57,14 @@ trait UpscanService {
 
 @Singleton
 class UpscanServiceImpl @Inject() (
-  upscanConnector: UpscanConnector
+  upscanConnector: UpscanConnector,
+  config: Configuration
 )(implicit ec: ExecutionContext)
     extends UpscanService
     with Logging {
+
+  lazy val maxUploads: Int =
+    config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
 
   override def initiate(
     errorRedirect: Call,
@@ -116,5 +123,4 @@ class UpscanServiceImpl @Inject() (
         Left(Error(s"call to get upscan upload failed ${response.status}"))
       }
     }
-
 }

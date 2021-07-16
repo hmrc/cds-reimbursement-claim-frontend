@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import julienrf.json.derived
@@ -35,11 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentsAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{SupportingEvidence, UploadDocument}
 
 import java.util.UUID
 
@@ -60,7 +61,6 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[BasisOfClaim],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidenceAnswer: SupportingEvidenceAnswer,
     commodityDetailsAnswer: CommodityDetails,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -68,7 +68,8 @@ object CompleteClaim {
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
     declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-    claimsAnswer: ClaimsAnswer
+    claimsAnswer: ClaimsAnswer,
+    uploadedDocuments: NonEmptyList[UploadDocument]
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -87,7 +88,8 @@ object CompleteClaim {
               draftClaimantDetailsAsImporterCompanyAnswer,
               draftBankAccountDetailAnswer,
               maybeBasisForClaim,
-              draftSupportingEvidences,
+              maybeSupportingEvidences,
+              maybeScheduledDocuments,
               _,
               draftCommodityAnswer,
               draftNorthernIrelandAnswer,
@@ -108,7 +110,8 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateSupportingEvidenceAnswer(draftSupportingEvidences),
+                validateSupportingEvidencesAnswer(maybeSupportingEvidences),
+                validateScheduledDocumentsAnswer(maybeScheduledDocuments),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
@@ -121,7 +124,8 @@ object CompleteClaim {
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
                         completeBankAccountDetailAnswer,
-                        supportingEvidenceAnswer,
+                        supportingEvidences,
+                        scheduledDocuments,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
                         completeReasonAndBasisOfClaimAnswer
@@ -137,7 +141,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       maybeBasisForClaim,
                       completeBankAccountDetailAnswer,
-                      supportingEvidenceAnswer,
+                      supportingEvidences :: scheduledDocuments,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
                       completeReasonAndBasisOfClaimAnswer,
@@ -161,7 +165,8 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateSupportingEvidenceAnswer(draftSupportingEvidences),
+                validateSupportingEvidencesAnswer(maybeSupportingEvidences),
+                validateScheduledDocumentsAnswer(maybeScheduledDocuments),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
@@ -283,10 +288,15 @@ object CompleteClaim {
       case None        => invalid("missing supporting evidence answer")
     }
 
-  def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
-  ): Validation[SupportingEvidenceAnswer] =
+  def validateSupportingEvidencesAnswer(
+    maybeSupportingEvidenceAnswer: Option[SupportingEvidencesAnswer]
+  ): Validation[SupportingEvidencesAnswer] =
     maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
+
+  def validateScheduledDocumentsAnswer(
+                                        maybeScheduledDocuments: Option[ScheduledDocumentsAnswer]
+                                      ): Validation[ScheduledDocumentsAnswer] =
+    maybeScheduledDocuments toValidNel "missing scheduled document answer"
 
   def validateBankAccountDetailAnswer(
     maybeBankAccountDetailsAnswer: Option[BankAccountDetailsAnswer]

@@ -18,14 +18,21 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, SupportingEvidence}
 
 package object answers {
 
-  type SupportingEvidenceAnswer = NonEmptyList[SupportingEvidence]
-  type DutiesSelectedAnswer     = NonEmptyList[Duty]
+  type ScheduledDocumentsAnswer  = NonEmptyList[ScheduledDocument]
+  type SupportingEvidencesAnswer = NonEmptyList[SupportingEvidence]
+  type DutiesSelectedAnswer      = NonEmptyList[Duty]
+  type ClaimsAnswer              = NonEmptyList[Claim]
 
-  object SupportingEvidenceAnswer {
+  object ScheduledDocumentsAnswer {
+    def apply(head: ScheduledDocument, tail: ScheduledDocument*): NonEmptyList[ScheduledDocument] =
+      NonEmptyList.of(head, tail: _*)
+  }
+
+  object SupportingEvidencesAnswer {
     def apply(evidence: SupportingEvidence): NonEmptyList[SupportingEvidence] =
       NonEmptyList.one(evidence)
   }
@@ -34,8 +41,6 @@ package object answers {
     def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
     def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
   }
-
-  type ClaimsAnswer = NonEmptyList[Claim]
 
   object ClaimsAnswer {
     def apply(head: Claim, tail: Claim*): NonEmptyList[Claim] = NonEmptyList.of(head, tail: _*)

@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -31,7 +31,7 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
 
   private val key = "supporting-evidence.check-your-answers"
 
-  def makeUploadedFilesRows(uploadedEvidences: SupportingEvidenceAnswer): List[SummaryListRow] =
+  def makeUploadedFilesRows(uploadedEvidences: SupportingEvidencesAnswer): List[SummaryListRow] =
     uploadedEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
         key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),

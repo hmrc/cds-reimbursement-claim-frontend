@@ -22,7 +22,7 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 
@@ -36,55 +36,33 @@ object DraftClaim {
 
   final case class DraftC285Claim(
     id: UUID,
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
-    movementReferenceNumber: Option[MovementReferenceNumber],
-    duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
-    declarationDetailsAnswer: Option[DeclarationDetailsAnswer],
-    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer],
-    declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer],
-    contactDetailsAnswer: Option[ContactDetailsAnswer],
-    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
-    basisOfClaimAnswer: Option[BasisOfClaim],
-    supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
-    dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
-    commoditiesDetailsAnswer: Option[CommodityDetails],
-    claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
-    reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer],
-    displayDeclaration: Option[DisplayDeclaration],
-    duplicateDisplayDeclaration: Option[DisplayDeclaration],
-    importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
-    claimsAnswer: Option[ClaimsAnswer],
-    checkClaimAnswer: Option[CheckClaimAnswer]
+    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer] = None,
+    movementReferenceNumber: Option[MovementReferenceNumber] = None,
+    duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber] = None,
+    declarationDetailsAnswer: Option[DeclarationDetailsAnswer] = None,
+    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
+    declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
+    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
+    contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
+    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer] = None,
+    basisOfClaimAnswer: Option[BasisOfClaim] = None,
+    supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
+    scheduledDocumentsAnswer: Option[ScheduledDocumentsAnswer] = None,
+    dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
+    commoditiesDetailsAnswer: Option[CommodityDetails] = None,
+    claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
+    reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer] = None,
+    displayDeclaration: Option[DisplayDeclaration] = None,
+    duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
+    importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
+    claimsAnswer: Option[ClaimsAnswer] = None,
+    checkClaimAnswer: Option[CheckClaimAnswer] = None
   ) extends DraftClaim
 
   object DraftC285Claim {
-    val newDraftC285Claim: DraftC285Claim        =
-      DraftC285Claim(
-        UUID.randomUUID(),
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None
-      )
+    val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID())
+
     implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
     implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
   }
