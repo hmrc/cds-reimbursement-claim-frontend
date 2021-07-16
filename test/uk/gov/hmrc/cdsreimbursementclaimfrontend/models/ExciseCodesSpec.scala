@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.sampleMrnAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims
 
 import scala.util.Random
@@ -36,7 +36,10 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
   "ExciseCodes" should {
     "Return only excise codes not related to Northern Ireland" in {
       val draftC285Claim =
-        sample[DraftC285Claim].copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No))
+        sample[DraftC285Claim].copy(
+          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+          claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
+        )
 
       val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
 
@@ -56,7 +59,11 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
       val draftC285Claim =
         sample[DraftC285Claim]
-          .copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes), displayDeclaration = Some(acc14))
+          .copy(
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
+            displayDeclaration = Some(acc14)
+          )
 
       val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
 
@@ -74,7 +81,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val draftC285Claim =
         sample[DraftC285Claim]
           .copy(
-            movementReferenceNumber = sampleMrnAnswer(),
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
             displayDeclaration = Some(acc14)
           )
