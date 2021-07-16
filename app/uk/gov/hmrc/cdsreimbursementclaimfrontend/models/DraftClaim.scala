@@ -89,7 +89,6 @@ object DraftClaim {
         None
       )
     implicit val eq: Eq[DraftC285Claim]   = Eq.fromUniversalEquals[DraftC285Claim]
-    //implicit val format = Json.writes[DraftC285Claim]
   }
 
   implicit class DraftClaimOps(private val draftClaim: DraftClaim) extends AnyVal {
