@@ -294,8 +294,8 @@ object CompleteClaim {
     maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
 
   def validateScheduledDocumentsAnswer(
-                                        maybeScheduledDocuments: Option[ScheduledDocumentsAnswer]
-                                      ): Validation[ScheduledDocumentsAnswer] =
+    maybeScheduledDocuments: Option[ScheduledDocumentsAnswer]
+  ): Validation[ScheduledDocumentsAnswer] =
     maybeScheduledDocuments toValidNel "missing scheduled document answer"
 
   def validateBankAccountDetailAnswer(

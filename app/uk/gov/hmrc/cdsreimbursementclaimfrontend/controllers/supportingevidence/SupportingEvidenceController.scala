@@ -214,13 +214,15 @@ class SupportingEvidenceController @Inject() (
                 evidences <-
                   EitherT
                     .fromOption[Future](answers, Error(s"could not find file upload with reference: $uploadReference"))
-                _         <- EitherT(
-                               updateSession(sessionStore, request)(
-                                 _.copy(
-                                   journeyStatus = FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
-                                 )
-                               )
-                             )
+                _         <-
+                  EitherT(
+                    updateSession(sessionStore, request)(
+                      _.copy(
+                        journeyStatus =
+                          FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
+                      )
+                    )
+                  )
               } yield ()
 
               result.fold(
