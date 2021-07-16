@@ -28,12 +28,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -379,9 +377,9 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val testCases = Table(
         ("NumberOfClaimsType", "JourneyBindable"),
-        (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
-        (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
-        (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+        (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
+        (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+        (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
       )
 
       forAll(testCases) { (numberOfClaims, journeyBindable) =>
@@ -390,7 +388,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
         val updatedJourney = fillingOutClaim.copy(draftClaim =
           draftC285Claim.copy(
             movementReferenceNumber = sampleMrnAnswer(),
-            selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(numberOfClaims))
+            selectNumberOfClaimsAnswer = Some(numberOfClaims)
           )
         )
 

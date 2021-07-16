@@ -16,47 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 
-sealed trait SelectNumberOfClaimsAnswer extends Product with Serializable
+sealed abstract class SelectNumberOfClaimsAnswer(val value: Int) extends Product with Serializable
 
 object SelectNumberOfClaimsAnswer {
+  case object Individual extends SelectNumberOfClaimsAnswer(0)
+  case object Bulk extends SelectNumberOfClaimsAnswer(1)
+  case object Scheduled extends SelectNumberOfClaimsAnswer(2)
 
-  final case class IncompleteSelectNumberOfClaimsAnswer(
-    selectNumberOfClaimsChoice: Option[SelectNumberOfClaimsType]
-  ) extends SelectNumberOfClaimsAnswer
+  val allClaimsTypes: List[SelectNumberOfClaimsAnswer]         = List(Individual, Bulk, Scheduled)
+  val allClaimsIntToType: Map[Int, SelectNumberOfClaimsAnswer] = allClaimsTypes.map(a => a.value -> a).toMap
+  val allClaimsTypeToInt: Map[SelectNumberOfClaimsAnswer, Int] = allClaimsTypes.map(a => a -> a.value).toMap
 
-  object IncompleteSelectNumberOfClaimsAnswer {
-    val empty: IncompleteSelectNumberOfClaimsAnswer = IncompleteSelectNumberOfClaimsAnswer(None)
-
-    implicit val format: OFormat[IncompleteSelectNumberOfClaimsAnswer] =
-      derived.oformat[IncompleteSelectNumberOfClaimsAnswer]()
-  }
-
-  final case class CompleteSelectNumberOfClaimsAnswer(
-    selectNumberOfClaimsChoice: SelectNumberOfClaimsType
-  ) extends SelectNumberOfClaimsAnswer
-
-  object CompleteSelectNumberOfClaimsAnswer {
-    implicit val format: OFormat[CompleteSelectNumberOfClaimsAnswer] =
-      derived.oformat[CompleteSelectNumberOfClaimsAnswer]()
-  }
-
-  implicit class ClaimantDetailsAsIndividualAnswerOps(
-    private val a: SelectNumberOfClaimsAnswer
-  ) extends AnyVal {
-
-    def fold[A](
-      ifIncomplete: IncompleteSelectNumberOfClaimsAnswer => A,
-      ifComplete: CompleteSelectNumberOfClaimsAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteSelectNumberOfClaimsAnswer => ifIncomplete(i)
-        case c: CompleteSelectNumberOfClaimsAnswer   => ifComplete(c)
-      }
-  }
-
-  implicit val format: OFormat[SelectNumberOfClaimsAnswer] = derived.oformat[SelectNumberOfClaimsAnswer]()
+  implicit val eq: Eq[SelectNumberOfClaimsAnswer]                                    = Eq.fromUniversalEquals
+  implicit val selectNumberOfClaimsAnswerFormat: OFormat[SelectNumberOfClaimsAnswer] =
+    derived.oformat[SelectNumberOfClaimsAnswer]()
 }
