@@ -16,18 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Functor
-import cats.Id
+import cats.{Functor, Id}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims
 
 import scala.util.Random
 
@@ -36,10 +36,14 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
   "ExciseCodes" should {
     "Return only excise codes not related to Northern Ireland" in {
       val draftC285Claim =
-        sample[DraftC285Claim].copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No))
-      val codes          = SelectBasisForClaimController.getPossibleClaimTypes(draftC285Claim)
+        sample[DraftC285Claim].copy(
+          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+          claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
+        )
+
+      val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
+
       codes.size shouldBe 14
-      codes        should not contain EvidenceThatGoodsHaveNotEnteredTheEU
       codes        should not contain IncorrectExciseValue
       codes        should not contain CorrectionToRiskClassification
     }
@@ -48,17 +52,22 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val ndrcs = Random.shuffle(TaxCode.listOfUKExciseCodeStrings.toList).take(3).map { code =>
         sample[NdrcDetails].copy(taxType = code)
       }
+
       val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
       val draftC285Claim =
         sample[DraftC285Claim]
-          .copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes), displayDeclaration = Some(acc14))
+          .copy(
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
+            displayDeclaration = Some(acc14)
+          )
 
-      val codes = SelectBasisForClaimController.getPossibleClaimTypes(draftC285Claim)
-      codes.size shouldBe 17
-      codes        should contain(EvidenceThatGoodsHaveNotEnteredTheEU)
+      val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
+
+      codes.size shouldBe 16
       codes        should contain(IncorrectExciseValue)
       codes        should contain(CorrectionToRiskClassification)
     }
@@ -71,11 +80,15 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
       val draftC285Claim =
         sample[DraftC285Claim]
-          .copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes), displayDeclaration = Some(acc14))
+          .copy(
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
+            displayDeclaration = Some(acc14)
+          )
 
-      val codes = SelectBasisForClaimController.getPossibleClaimTypes(draftC285Claim)
-      codes.size shouldBe 16
-      codes        should contain(EvidenceThatGoodsHaveNotEnteredTheEU)
+      val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
+
+      codes.size shouldBe 15
       codes        should contain(CorrectionToRiskClassification)
     }
 

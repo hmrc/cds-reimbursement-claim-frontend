@@ -27,11 +27,8 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
@@ -53,9 +50,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -110,10 +107,10 @@ class CheckYourAnswersAndSubmitControllerSpec
   }
 
   val mrn: MRN                                                                          = sample[MRN]
-  val completeDeclarantTypeAnswer: CompleteDeclarantTypeAnswer                          = sample[CompleteDeclarantTypeAnswer]
+  val declarantTypeAnswer: DeclarantTypeAnswer                                          = sample[DeclarantTypeAnswer]
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
-  val completeBasisOfClaimAnswer: CompleteBasisOfClaimAnswer                            = sample[CompleteBasisOfClaimAnswer]
+  val basisOfClaim: BasisOfClaim                                                        = sample[BasisOfClaim]
   val supportingEvidences: SupportingEvidenceAnswer                                     = sample[SupportingEvidenceAnswer]
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val commodityDetailsAnswer: CommodityDetails                                          = sample[CommodityDetails]
@@ -125,11 +122,11 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateMovementReferenceNumberAnswer = None,
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
-    declarantTypeAnswer = Some(completeDeclarantTypeAnswer),
+    declarantTypeAnswer = Some(declarantTypeAnswer),
     detailsRegisteredWithCdsAnswer = Some(completeClaimantDetailsAsIndividualAnswer),
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
-    basisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    basisOfClaimAnswer = Some(basisOfClaim),
     supportingEvidenceAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
@@ -187,10 +184,10 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeDuplicateMovementReferenceNumberAnswer = None,
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
-    completeDeclarantTypeAnswer = completeDeclarantTypeAnswer,
+    declarantTypeAnswer = declarantTypeAnswer,
     completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
     maybeContactDetailsAnswer = None,
-    maybeBasisOfClaimAnswer = Some(completeBasisOfClaimAnswer),
+    maybeBasisOfClaimAnswer = Some(basisOfClaim),
     maybeCompleteBankAccountDetailAnswer = None,
     supportingEvidenceAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,

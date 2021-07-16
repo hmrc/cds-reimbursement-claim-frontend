@@ -22,12 +22,10 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DutiesSelectedAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidenceAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 import java.util.UUID
 
@@ -48,7 +46,7 @@ object DraftClaim {
     detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer],
     contactDetailsAnswer: Option[ContactDetailsAnswer],
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer],
-    basisOfClaimAnswer: Option[BasisOfClaimAnswer],
+    basisOfClaimAnswer: Option[BasisOfClaim],
     supportingEvidenceAnswer: Option[SupportingEvidenceAnswer],
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     commoditiesDetailsAnswer: Option[CommodityDetails],
@@ -119,16 +117,8 @@ object DraftClaim {
       case _                  => None
     }
 
-    def declarantType: Option[DeclarantType] = draftClaim match {
-      case draftC285Claim: DraftC285Claim =>
-        draftC285Claim.declarantTypeAnswer match {
-          case Some(value) =>
-            value match {
-              case DeclarantTypeAnswer.IncompleteDeclarantTypeAnswer(declarantType) => declarantType
-              case DeclarantTypeAnswer.CompleteDeclarantTypeAnswer(declarantType)   => Some(declarantType)
-            }
-          case None        => None
-        }
+    def declarantType: Option[DeclarantTypeAnswer] = draftClaim match {
+      case draftC285Claim: DraftC285Claim => draftC285Claim.declarantTypeAnswer
     }
 
     def movementReferenceNumber: Option[Either[EntryNumber, MRN]] = draftClaim match {

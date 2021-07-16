@@ -28,10 +28,9 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -94,16 +93,18 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
             case Some(declaration) =>
               fillingOutClaim.draftClaim
                 .fold(_.declarantTypeAnswer)
-                .flatMap(_.declarantType)
                 .fold(
-                  Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                  Redirect(
+                    routes.SelectWhoIsMakingTheClaimController
+                      .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
+                  )
                     .asLeft[Form[DetailsRegisteredWithCdsFormData]]
                 ) { declarantType =>
                   val email    = fillingOutClaim.signedInUserDetails.verifiedEmail
                   val formData = declarantType match {
-                    case DeclarantType.Importer | DeclarantType.AssociatedWithImporterCompany =>
+                    case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
                       consigneeToClaimantDetails(declaration, email)
-                    case DeclarantType.AssociatedWithRepresentativeCompany                    =>
+                    case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
                       declarantToClaimantDetails(declaration, email)
                   }
                   emptyForm.map(_.fill(formData))
@@ -172,14 +173,18 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                             fillingOutClaim.draftClaim.declarantType match {
                               case Some(declarantType) =>
                                 declarantType match {
-                                  case DeclarantType.Importer =>
+                                  case DeclarantTypeAnswer.Importer =>
                                     Redirect(
                                       routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
                                     )
-                                  case _                      =>
+                                  case _                            =>
                                     Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                                 }
-                              case None                => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                              case None                =>
+                                Redirect(
+                                  routes.SelectWhoIsMakingTheClaimController
+                                    .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
+                                )
                             }
                           case MovementReferenceNumber(Right(_)) =>
                             featureSwitch.NorthernIreland.isEnabled() match {

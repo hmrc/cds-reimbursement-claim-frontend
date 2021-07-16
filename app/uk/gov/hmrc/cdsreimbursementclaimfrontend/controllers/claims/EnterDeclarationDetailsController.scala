@@ -196,7 +196,8 @@ class EnterDeclarationDetailsController @Inject() (
                 },
                 _ =>
                   Redirect(
-                    routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+                    routes.SelectWhoIsMakingTheClaimController
+                      .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
                   )
               )
             }

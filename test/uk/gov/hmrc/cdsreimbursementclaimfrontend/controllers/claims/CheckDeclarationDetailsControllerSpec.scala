@@ -344,7 +344,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("check-declaration-details" -> "0")),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
 

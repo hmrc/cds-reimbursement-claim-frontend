@@ -36,12 +36,10 @@ object BasisOfClaim {
   case object Preference extends BasisOfClaim(10, "Preference")
   case object RGR extends BasisOfClaim(11, "RGR")
   case object ProofOfReturnRefundGiven extends BasisOfClaim(12, "Proof of Return/Refund Given")
-  case object EvidenceThatGoodsHaveNotEnteredTheEU
-      extends BasisOfClaim(13, "Evidence that goods have not entered the EU") //Northern Ireland only
-  case object IncorrectExciseValue extends BasisOfClaim(14, "Incorrect excise value") //Northern Ireland only
+  case object IncorrectExciseValue extends BasisOfClaim(13, "Incorrect excise value") //Northern Ireland only
   case object CorrectionToRiskClassification
-      extends BasisOfClaim(15, "Correction to risk classification") //Northern Ireland only
-  case object Miscellaneous extends BasisOfClaim(16, "Miscellaneous")
+      extends BasisOfClaim(14, "Correction to risk classification") //Northern Ireland only
+  case object Miscellaneous extends BasisOfClaim(15, "Miscellaneous")
 
   val allClaimsTypes: List[BasisOfClaim]               = List(
     DuplicateEntry,
@@ -57,7 +55,6 @@ object BasisOfClaim {
     Preference,
     RGR,
     ProofOfReturnRefundGiven,
-    EvidenceThatGoodsHaveNotEnteredTheEU,
     IncorrectExciseValue,
     CorrectionToRiskClassification,
     Miscellaneous
@@ -78,5 +75,5 @@ object BasisOfClaim {
 
   implicit val eq: Eq[BasisOfClaim] = Eq.fromUniversalEquals[BasisOfClaim]
 
-  implicit val basisOfClaimformat: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()
+  implicit val basisOfClaimFormat: OFormat[BasisOfClaim] = derived.oformat[BasisOfClaim]()
 }
