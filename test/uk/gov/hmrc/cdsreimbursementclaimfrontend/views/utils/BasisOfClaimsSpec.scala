@@ -20,14 +20,13 @@ import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, MovementReferenceNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims.{EntryNumberBasisOfClaims, MrnBasisOfClaims}
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
@@ -36,7 +35,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
     "filter Northern Ireland claims" in {
       val draftC285Claim = sample[DraftC285Claim].copy(
-        movementReferenceNumber = MovementReferenceNumber(Right(sample[MRN])).some,
+        movementReferenceNumber = sampleMrnAnswer(),
         claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.No.some
       )
 
@@ -67,7 +66,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
   "contain Northern Ireland claims" in {
     val draftC285Claim = sample[DraftC285Claim].copy(
-      movementReferenceNumber = MovementReferenceNumber(Left(sample[EntryNumber])).some,
+      movementReferenceNumber = sampleEntryNumberAnswer(),
       claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some
     )
 
