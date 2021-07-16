@@ -38,11 +38,11 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, router: ReimbursementRoutes, form: Form[CheckDeclarationDetailsAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, router: ReimbursementRoutes, form: Form[CheckDeclarationDetailsAnswer], isDuplicate: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
 @title = @{messages(s"$key.title")}
-@postAction = @{router.submitUrlForCheckDeclarationDetails()}
+@postAction = @{if(isDuplicate) router.submitUrlForCheckDuplicateDeclarationDetails() else router.submitUrlForCheckDeclarationDetails() }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
