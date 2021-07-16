@@ -62,6 +62,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   def checkDetails(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
+      val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
@@ -70,7 +71,8 @@ class CheckDeclarationDetailsController @Inject() (
             checkDeclarationDetailsPage(
               declaration,
               router,
-              checkDeclarationDetailsAnswerForm
+              checkDeclarationDetailsAnswerForm,
+              isDuplicate
             )
           )
         )
@@ -79,6 +81,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   def checkDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
@@ -91,7 +94,8 @@ class CheckDeclarationDetailsController @Inject() (
                       checkDeclarationDetailsPage(
                         declaration,
                         router,
-                        formWithErrors
+                        formWithErrors,
+                        isDuplicate
                       )
                     )
                   )
@@ -125,6 +129,7 @@ class CheckDeclarationDetailsController @Inject() (
 
   def checkDuplicateDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      val isDuplicate: Boolean = true
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
@@ -133,7 +138,8 @@ class CheckDeclarationDetailsController @Inject() (
             checkDeclarationDetailsPage(
               declaration,
               router,
-              checkDeclarationDetailsAnswerForm
+              checkDeclarationDetailsAnswerForm,
+              isDuplicate
             )
           )
         )
@@ -143,7 +149,7 @@ class CheckDeclarationDetailsController @Inject() (
   def checkDuplicateDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, _, router) =>
-        Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
+        Redirect(router.submitUrlForCheckDuplicateDeclarationDetails())
       }(duplicateDeclarationExtractor, request, journey)
     }
 

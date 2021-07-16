@@ -33,9 +33,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
     }
 
   def submitUrlForCheckDeclarationDetails(): Call =
-    claimRoutes.CheckDeclarationDetailsController.checkDetailsSubmit(journeyBindable)
+    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
 
-  def nextPageForCheckDuplicateDeclarationDetails(): Call =
+  def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
