@@ -25,12 +25,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -60,18 +58,18 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
-    (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
-    (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+    (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
+    (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
   private def sessionWithClaimState(
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    numberOfClaims: Option[SelectNumberOfClaimsType]
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       declarantTypeAnswer = declarantTypeAnswer,
-      selectNumberOfClaimsAnswer = numberOfClaims.map(CompleteSelectNumberOfClaimsAnswer(_))
+      selectNumberOfClaimsAnswer = numberOfClaims
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
