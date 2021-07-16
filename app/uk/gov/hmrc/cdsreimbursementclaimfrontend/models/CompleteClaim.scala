@@ -97,6 +97,7 @@ object CompleteClaim {
               draftImporterEoriNumberAnswer,
               draftDeclarantEoriNumberAnswer,
               Some(claimsAnswer),
+              _,
               _
             ) =>
           movementReferenceNumber.value match {

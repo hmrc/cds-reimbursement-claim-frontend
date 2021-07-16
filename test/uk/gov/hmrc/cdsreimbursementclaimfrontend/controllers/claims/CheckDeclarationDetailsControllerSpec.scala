@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.Jsoup
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -43,13 +43,20 @@ class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+    with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  private val journeys = Table(
+    "JourneyBindable",
+    JourneyBindable.Single,
+    JourneyBindable.Bulk,
+    JourneyBindable.Scheduled
+  )
 
   lazy val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
@@ -102,9 +109,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in {
-
-        def performAction(): Future[Result] = controller.checkDetails()(FakeRequest())
+      "there is no journey status in the session" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDetails(journey)(FakeRequest())
 
         val (session, _, _) = sessionWithClaimState(None)
 
@@ -120,9 +126,8 @@ class CheckDeclarationDetailsControllerSpec
 
       }
 
-      "there is no journey status in the session for duplicate declaration details" in {
-
-        def performAction(): Future[Result] = controller.checkDuplicateDetails()(FakeRequest())
+      "there is no journey status in the session for duplicate declaration details" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDuplicateDetails(journey)(FakeRequest())
 
         val (session, _, _) = sessionWithClaimStateForDuplicate(None)
 
@@ -142,8 +147,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "display the page" when {
 
-      "there is a declaration" in {
-        def performAction(): Future[Result] = controller.checkDetails()(FakeRequest())
+      "there is a declaration" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDetails(journey)(FakeRequest())
 
         val displayDeclaration = DisplayDeclaration(
           displayResponseDetail = DisplayResponseDetail(
@@ -220,8 +225,8 @@ class CheckDeclarationDetailsControllerSpec
         tableValues.get(5).text() shouldBe "declarant-line-1, GB"
       }
 
-      "there is a duplicate declaration" in {
-        def performAction(): Future[Result] = controller.checkDuplicateDetails()(FakeRequest())
+      "there is a duplicate declaration" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDuplicateDetails(journey)(FakeRequest())
 
         val displayDeclaration = DisplayDeclaration(
           displayResponseDetail = DisplayResponseDetail(
@@ -282,8 +287,8 @@ class CheckDeclarationDetailsControllerSpec
 
     "redirect user" when {
 
-      "there is no declaration" in {
-        def performAction(): Future[Result] = controller.checkDetails()(FakeRequest())
+      "there is no declaration" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDetails(journey)(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -301,8 +306,8 @@ class CheckDeclarationDetailsControllerSpec
         )
       }
 
-      "there is no duplicate declaration" in {
-        def performAction(): Future[Result] = controller.checkDuplicateDetails()(FakeRequest())
+      "there is no duplicate declaration" in forAll(journeys) { journey =>
+        def performAction(): Future[Result] = controller.checkDuplicateDetails(journey)(FakeRequest())
 
         val draftC285Claim                = sessionWithClaimStateForDuplicate(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimStateForDuplicate(None)
@@ -324,28 +329,29 @@ class CheckDeclarationDetailsControllerSpec
 
     "handle submit requests" when {
 
-      "the user confirms the details are correct" in {
-
-        def performAction(): Future[Result] = controller.checkDetailsSubmit()(FakeRequest())
-        val displayDeclaration              = sample[DisplayDeclaration]
+      "the user confirms the details are correct" in forAll(journeys) { journey =>
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.checkDetailsSubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        val displayDeclaration                                         = sample[DisplayDeclaration]
 
         val session = sessionWithClaimState(Some(displayDeclaration))
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
+          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
-          performAction(),
+          performAction(Seq("check-declaration-details" -> "0")),
           routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
 
-      "the user confirms the duplicate details are correct" in {
-
-        def performAction(): Future[Result] = controller.checkDuplicateDetailsSubmit()(FakeRequest())
-        val displayDeclaration              = sample[DisplayDeclaration]
+      "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.checkDuplicateDetailsSubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        val displayDeclaration                                         = sample[DisplayDeclaration]
 
         val session = sessionWithClaimStateForDuplicate(Some(displayDeclaration))
 
@@ -355,7 +361,7 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(),
+          performAction(Seq("check-declaration-details" -> "0")),
           routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }

@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import julienrf.json.derived
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
@@ -56,11 +57,12 @@ object DraftClaim {
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer],
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer],
     claimsAnswer: Option[ClaimsAnswer],
-    checkClaimAnswer: Option[CheckClaimAnswer]
+    checkClaimAnswer: Option[CheckClaimAnswer],
+    checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer]
   ) extends DraftClaim
 
   object DraftC285Claim {
-    val newDraftC285Claim: DraftC285Claim        =
+    val newDraftC285Claim: DraftC285Claim =
       DraftC285Claim(
         UUID.randomUUID(),
         None,
@@ -83,10 +85,10 @@ object DraftClaim {
         None,
         None,
         None,
+        None,
         None
       )
-    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
-    implicit val format: OFormat[DraftC285Claim] = Json.format[DraftC285Claim]
+    implicit val eq: Eq[DraftC285Claim]   = Eq.fromUniversalEquals[DraftC285Claim]
   }
 
   implicit class DraftClaimOps(private val draftClaim: DraftClaim) extends AnyVal {

@@ -424,7 +424,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.CheckDeclarationDetailsController.checkDetails()
+            routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
           )
       }
 
@@ -453,7 +453,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         checkIsRedirect(
           result,
-          routes.CheckDeclarationDetailsController.checkDetails()
+          routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
         )
       }
 
@@ -481,7 +481,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.CheckDeclarationDetailsController.checkDetails()
+            routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
           )
       }
 
