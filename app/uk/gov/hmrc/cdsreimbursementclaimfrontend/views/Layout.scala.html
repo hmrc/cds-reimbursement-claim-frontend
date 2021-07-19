@@ -20,12 +20,15 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.govukfrontend.views.html.layouts.govukLayout
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcHeader
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.Header
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 
 @this(
     govukLayout: govukLayout,
     head: Head,
+    hmrcHeader: HmrcHeader,
     hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
     hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet,
     hmrcStandardFooter: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter,
@@ -66,6 +69,18 @@
         <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
     }
 
+    @hmrcStandardHeader = {
+
+        @hmrcHeader(Header(
+            homepageUrl = viewConfig.govUkUrl,
+            serviceName = Some(messages("service.title")),
+            serviceUrl = messages("service.homePageUrl"),
+            containerClasses = "govuk-width-container",
+            signOutHref = Some(viewConfig.ggSignOut)
+        ))
+
+    }
+
     @phaseBanner = {
 
         <div class="govuk-phase-banner">
@@ -74,7 +89,7 @@
                     alpha
                 </strong>
                 <span class="govuk-phase-banner__text">
-              This is a new service – your <a class="govuk-link" href="#">feedback</a> will help us to improve it.
+              This is a new service – your <a class="govuk-link" href="@viewConfig.serviceFeedBackUrl">feedback</a> will help us to improve it.
             </span>
             </p>
         </div>
@@ -89,11 +104,6 @@
                     <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
                         <strong class="govuk-!-margin-right-1">
                             EORI @user.eori.value:</strong> @user.contactName.value
-                    </p>
-                </div>
-                <div>
-                    <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                        <a href='@{viewConfig.signOutUrl}?continue=@{StartController.start().url}' class="govuk-link">Sign out</a>
                     </p>
                 </div>
             </div>
@@ -117,6 +127,7 @@
     @govukLayout(
         pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
         headBlock = Some(head(Some(defaultHead))),
+        headerBlock = Some(hmrcStandardHeader),
         scriptsBlock = Some(scripts),
         beforeContentBlock = Some(beforeContentBlock),
         footerBlock = Some(hmrcStandardFooter())

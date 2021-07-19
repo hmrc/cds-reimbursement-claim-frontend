@@ -26,6 +26,25 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
+  def nextPageForCheckDeclarationDetails(declarationAnswers: Boolean): Call =
+    declarationAnswers match {
+      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+      case false => claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+    }
+
+  def submitUrlForCheckDeclarationDetails(): Call =
+    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+
+  def submitUrlForCheckDuplicateDeclarationDetails(): Call =
+    claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+
+  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
+    basisOfClaim match {
+      case BasisOfClaim.DuplicateEntry =>
+        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+      case _                           =>
+        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+    }
   //--- Basis for Claim
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
@@ -109,12 +128,13 @@ trait ReferenceNumberTypeRoutes extends Product with Serializable {
 
 trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val refNumberKey                                        = Some("mrn")
+  val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
-    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails()
+    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
-    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDuplicateDetails()
+    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDuplicateDetails(journeyBindable)
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }

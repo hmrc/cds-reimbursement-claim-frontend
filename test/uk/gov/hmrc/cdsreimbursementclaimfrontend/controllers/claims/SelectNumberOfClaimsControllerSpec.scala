@@ -24,15 +24,13 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.BAD_REQUEST
+import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -40,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import play.api.test.Helpers._
+
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
@@ -69,8 +67,8 @@ class SelectNumberOfClaimsControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def getSessionWithPreviousAnswer(numberOfClaimsType: Option[SelectNumberOfClaimsType]): SessionData = {
-    val selectNumberOfClaimsAnswer = numberOfClaimsType.map(CompleteSelectNumberOfClaimsAnswer(_))
+  private def getSessionWithPreviousAnswer(numberOfClaimsType: Option[SelectNumberOfClaimsAnswer]): SessionData = {
+    val selectNumberOfClaimsAnswer = numberOfClaimsType
     val draftC285Claim             = DraftC285Claim.newDraftC285Claim.copy(selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer)
     val ggCredId                   = sample[GGCredId]
     val email                      = sample[Email]
@@ -80,11 +78,11 @@ class SelectNumberOfClaimsControllerSpec
     SessionData.empty.copy(journeyStatus = Some(journey))
   }
 
-  private def updateSession(sessionData: SessionData, numberOfClaimsType: SelectNumberOfClaimsType): SessionData =
+  private def updateSession(sessionData: SessionData, numberOfClaimsType: SelectNumberOfClaimsAnswer): SessionData =
     sessionData.journeyStatus match {
       case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
         val newClaim      =
-          draftClaim.copy(selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(numberOfClaimsType)))
+          draftClaim.copy(selectNumberOfClaimsAnswer = Some(numberOfClaimsType))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                         => fail()
@@ -164,7 +162,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Individual " in {
-        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsType.Individual))
+        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Individual))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -184,7 +182,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Bulk " in {
-        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsType.Bulk))
+        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Bulk))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -204,7 +202,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Scheduled " in {
-        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsType.Scheduled))
+        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Scheduled))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -230,7 +228,7 @@ class SelectNumberOfClaimsControllerSpec
 
       "user chooses the Individual option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, SelectNumberOfClaimsType.Individual)
+        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Individual)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -246,7 +244,7 @@ class SelectNumberOfClaimsControllerSpec
 
       "user chooses the Bulk option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, SelectNumberOfClaimsType.Bulk)
+        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Bulk)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -262,7 +260,7 @@ class SelectNumberOfClaimsControllerSpec
 
       "user chooses the Scheduled option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, SelectNumberOfClaimsType.Scheduled)
+        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -277,8 +275,8 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user amends their previous answer" in {
-        val session        = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsType.Individual))
-        val updatedSession = updateSession(session, SelectNumberOfClaimsType.Scheduled)
+        val session        = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Individual))
+        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()

@@ -17,11 +17,13 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.implicits._
-import play.api.i18n.{Lang, Langs, MessagesApi}
+import play.api.i18n.{Lang, Langs, Messages, MessagesApi}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.{lang => language}
 
 import javax.inject.{Inject, Singleton}
 
@@ -31,9 +33,11 @@ class DeclarationDetailsUtils @Inject() (implicit langs: Langs, messages: Messag
 
   private val key = "check-declaration-details"
 
-  def declarationSummary(displayDeclaration: DisplayDeclaration): List[SummaryListRow] =
+  def declarationSummary(displayDeclaration: DisplayDeclaration, router: ReimbursementRoutes)(implicit
+    messages: Messages
+  ): List[SummaryListRow] =
     List(
-      makeMrnNumberRow(displayDeclaration.displayResponseDetail.declarationId),
+      makeMrnNumberRow(displayDeclaration.displayResponseDetail.declarationId, router),
       makeAcceptanceDate(displayDeclaration.displayResponseDetail.acceptanceDate),
       makePaidChargesRow(displayDeclaration.totalPaidCharges),
       makeConsigneeNameRow(displayDeclaration.consigneeName),
@@ -45,10 +49,16 @@ class DeclarationDetailsUtils @Inject() (implicit langs: Langs, messages: Messag
       makeDeclarantAddress((displayDeclaration.declarantContactAddress))
     ).flattenOption
 
-  private def makeMrnNumberRow(declarationId: String): Option[SummaryListRow] =
+  private def makeMrnNumberRow(declarationId: String, router: ReimbursementRoutes)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
     Some(
       SummaryListRow(
-        Key(Text(messages(s"$key.mrn-number.label")(lang))),
+        Key(
+          Text(
+            messages(language(key, router.subKey, "mrn-number.label").headOption.getOrElse(s"$key.mrn-number.label"))
+          )
+        ),
         Value(Text(declarationId))
       )
     )

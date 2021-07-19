@@ -25,16 +25,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
 
 import scala.concurrent.Future
 
@@ -52,9 +50,9 @@ class EnterCommoditiesDetailsControllerSpec
 
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
-    (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
-    (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+    (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
+    (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
   lazy val controller: EnterCommoditiesDetailsController = instanceOf[EnterCommoditiesDetailsController]
@@ -65,13 +63,13 @@ class EnterCommoditiesDetailsControllerSpec
 
   private def sessionWithClaimState(
     maybeCommoditiesDetailsAnswer: Option[CommodityDetails],
-    numberOfClaims: Option[SelectNumberOfClaimsType]
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim
         .copy(
           commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
-          selectNumberOfClaimsAnswer = numberOfClaims.map(CompleteSelectNumberOfClaimsAnswer(_)),
+          selectNumberOfClaimsAnswer = numberOfClaims,
           reasonForBasisAndClaimAnswer = None
         )
     val ggCredId            = sample[GGCredId]
