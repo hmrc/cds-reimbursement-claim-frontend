@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
 
 import java.util.UUID
 
@@ -47,7 +48,6 @@ object DraftClaim {
     bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer] = None,
     basisOfClaimAnswer: Option[BasisOfClaim] = None,
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
-    scheduledDocumentsAnswer: Option[ScheduledDocumentsAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
@@ -57,7 +57,8 @@ object DraftClaim {
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
     claimsAnswer: Option[ClaimsAnswer] = None,
-    checkClaimAnswer: Option[CheckClaimAnswer] = None
+    checkClaimAnswer: Option[CheckClaimAnswer] = None,
+    scheduledDocumentAnswer: Option[ScheduledDocument] = None
   ) extends DraftClaim
 
   object DraftC285Claim {

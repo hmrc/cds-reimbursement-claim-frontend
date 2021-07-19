@@ -72,7 +72,7 @@ class BankAccountController @Inject() (
       claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim) =>
                      draftClaim
                    }
-      evidences <- claim.fold(_.supportingEvidenceAnswer)
+      evidences <- claim.fold(_.supportingEvidencesAnswer)
     } yield evidences
 
     maybeEvidences.fold(uploadEvidence)(_ => checkYourAnswers)

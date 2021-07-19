@@ -27,7 +27,7 @@ final case class ScheduledDocument(
   uploadedOn: LocalDateTime,
   upscanUploadMeta: UpscanUploadMeta,
   upscanSuccess: UpscanSuccess
-) extends UploadDocument
+)
 
 object ScheduledDocument {
   implicit val format: OFormat[ScheduledDocument] = Json.format

@@ -28,7 +28,7 @@ final case class SupportingEvidence(
   upscanSuccess: UpscanSuccess,
   fileName: String,
   documentType: Option[SupportingEvidenceDocumentType]
-) extends UploadDocument
+)
 
 object SupportingEvidence {
   implicit val format: OFormat[SupportingEvidence] = Json.format

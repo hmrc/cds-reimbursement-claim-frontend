@@ -18,19 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, SupportingEvidence}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
 
 package object answers {
 
-  type ScheduledDocumentsAnswer  = NonEmptyList[ScheduledDocument]
   type SupportingEvidencesAnswer = NonEmptyList[SupportingEvidence]
   type DutiesSelectedAnswer      = NonEmptyList[Duty]
   type ClaimsAnswer              = NonEmptyList[Claim]
-
-  object ScheduledDocumentsAnswer {
-    def apply(head: ScheduledDocument, tail: ScheduledDocument*): NonEmptyList[ScheduledDocument] =
-      NonEmptyList.of(head, tail: _*)
-  }
 
   object SupportingEvidencesAnswer {
     def apply(evidence: SupportingEvidence): NonEmptyList[SupportingEvidence] =

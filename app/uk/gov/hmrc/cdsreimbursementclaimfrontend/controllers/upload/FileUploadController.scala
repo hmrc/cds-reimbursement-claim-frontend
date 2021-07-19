@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
 
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import com.google.inject.Inject
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
-@Singleton
-class UploadScheduleController @Inject() (
+class FileUploadController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   upscanService: UpscanService,
@@ -40,9 +39,5 @@ class UploadScheduleController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-
-  def uploadDocument(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[]()
-    }
+  def showFileUploadPage() = ???
 }
