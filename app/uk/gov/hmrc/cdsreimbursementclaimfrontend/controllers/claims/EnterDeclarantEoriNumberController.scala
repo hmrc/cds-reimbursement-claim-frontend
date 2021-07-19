@@ -139,7 +139,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(routes.CheckDeclarationDetailsController.checkDetails(extractJourney))
+                        Redirect(routes.CheckDeclarationDetailsController.show(extractJourney))
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())

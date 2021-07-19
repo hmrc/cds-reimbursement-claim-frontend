@@ -168,7 +168,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkIsRedirect(
     result: Future[Result],
     expectedRedirectCall: Call
-  ): Unit =
+  ): Any =
     checkIsRedirect(result, expectedRedirectCall.url)
 
   def checkPageIsDisplayed(

@@ -57,10 +57,9 @@ class CheckDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  val duplicateDeclarationExtractor: DraftC285Claim => Option[DisplayDeclaration] = _.duplicateDisplayDeclaration
-  val declarationExtractor: DraftC285Claim => Option[DisplayDeclaration]          = _.displayDeclaration
+  implicit val declarationExtractor: DraftC285Claim => Option[DisplayDeclaration] = _.displayDeclaration
 
-  def checkDetails(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
+  def show(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
@@ -76,10 +75,10 @@ class CheckDeclarationDetailsController @Inject() (
             )
           )
         )
-      }(declarationExtractor, request, journey)
+      }
   }
 
-  def checkDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
@@ -113,44 +112,11 @@ class CheckDeclarationDetailsController @Inject() (
                   logger.warn("could not get radio button details", e)
                   errorHandler.errorResult()
                 },
-                _ =>
-                  answer match {
-                    case DeclarationAnswersAreCorrect   =>
-                      Redirect(router.nextPageForCheckDeclarationDetails(true))
-                    case DeclarationAnswersAreIncorrect =>
-                      Redirect(router.nextPageForCheckDeclarationDetails(false))
-                  }
+                _ => Redirect(router.nextPageForCheckDeclarationDetails(answer))
               )
             }
           )
-
-      }(declarationExtractor, request, journey)
-    }
-
-  def checkDuplicateDetails(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      val isDuplicate: Boolean = true
-      withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        maybeDeclaration.fold(
-          Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
-        )(declaration =>
-          Ok(
-            checkDeclarationDetailsPage(
-              declaration,
-              router,
-              checkDeclarationDetailsAnswerForm,
-              isDuplicate
-            )
-          )
-        )
-      }(duplicateDeclarationExtractor, request, journey)
-    }
-
-  def checkDuplicateDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, _, router) =>
-        Redirect(router.submitUrlForCheckDuplicateDeclarationDetails())
-      }(duplicateDeclarationExtractor, request, journey)
+      }
     }
 
 }

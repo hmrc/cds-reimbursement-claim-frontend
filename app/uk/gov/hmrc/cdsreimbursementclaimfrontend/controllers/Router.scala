@@ -18,24 +18,57 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+
+trait SubmitRoutes extends Product with Serializable {
+  val journeyBindable: JourneyBindable
+
+  def submitUrlForCheckDeclarationDetails(): Call =
+    claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
+
+  def submitUrlForCheckDuplicateDeclarationDetails(): Call =
+    claimRoutes.CheckDuplicateDeclarationDetailsController.submit(journeyBindable)
+
+  def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
+    if (isAmend)
+      claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)
+    else claimRoutes.SelectBasisForClaimController.selectBasisForClaimSubmit(journeyBindable)
+
+  def submitUrlForCommoditiesDetails(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
+      case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
+    }
+
+  def submitUrlForWhoIsMakingTheClaim(isAmend: Boolean): Call =
+    isAmend match {
+      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit(journeyBindable)
+      case false => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
+    }
+
+  def submitUrlForClaimNorthernIreland(isAmend: Boolean): Call =
+    if (isAmend)
+      claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
+    else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
+
+}
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
-  def nextPageForCheckDeclarationDetails(declarationAnswers: Boolean): Call =
-    declarationAnswers match {
-      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
-      case false => claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+  def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
+    checkDeclarationDetailsAnswer match {
+      case DeclarationAnswersAreCorrect   =>
+        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+      case DeclarationAnswersAreIncorrect =>
+        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
     }
 
-  def submitUrlForCheckDeclarationDetails(): Call =
-    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
-
-  def submitUrlForCheckDuplicateDeclarationDetails(): Call =
+  def nextPageForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
@@ -45,7 +78,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case _                           =>
         claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
     }
-  //--- Basis for Claim
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
@@ -58,23 +90,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
           claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
       }
 
-  def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
-    if (isAmend)
-      claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)
-    else claimRoutes.SelectBasisForClaimController.selectBasisForClaimSubmit(journeyBindable)
-
-  //--- Commodity details
-
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
       case false => claimRoutes.SelectDutiesController.selectDuties()
-    }
-
-  def submitUrlForCommoditiesDetails(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
-      case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
     }
 
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
@@ -82,14 +101,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
       case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
     }
-
-  def submitUrlForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit(journeyBindable)
-      case false => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
-    }
-
-  //--- Northern Ireland
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {
@@ -99,10 +110,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
     }
 
-  def submitUrlForClaimNorthernIreland(isAmend: Boolean): Call =
-    if (isAmend)
-      claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
-    else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 }
 
 trait SingleRoutes extends JourneyTypeRoutes {
@@ -130,11 +137,11 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val refNumberKey                                        = Some("mrn")
   val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
-    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
+    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.show(journeyBindable)
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
-    case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.checkDuplicateDetails(journeyBindable)
+    case _: MrnImporter => claimRoutes.CheckDuplicateDeclarationDetailsController.show(journeyBindable)
     case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
   }
 }
@@ -148,17 +155,17 @@ trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
 }
 
 object ReimbursementRoutes {
-  type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes
+  type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes
 }
 
-case object MRNSingleRoutes extends MRNRoutes with SingleRoutes
-case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes
-case object MRNBulkRoutes extends MRNRoutes with BulkRoutes
-case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes
-case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes
-case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes
+case object MRNSingleRoutes extends MRNRoutes with SingleRoutes with SubmitRoutes
+case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes with SubmitRoutes
+case object MRNBulkRoutes extends MRNRoutes with BulkRoutes with SubmitRoutes
+case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes with SubmitRoutes
+case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with SubmitRoutes
+case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
-case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes {
+case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
   val refNumberKey                    = None
   override val subKey: Option[String] = None
   override val journeyBindable        = JourneyBindable.Single

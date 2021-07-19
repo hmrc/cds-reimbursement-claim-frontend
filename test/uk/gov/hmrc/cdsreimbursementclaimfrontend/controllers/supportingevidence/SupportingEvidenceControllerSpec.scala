@@ -148,7 +148,7 @@ class SupportingEvidenceControllerSpec
     currentSession: SessionData = sessionWithClaimState(
       supportingEvidenceAnswer = Some(sample[SupportingEvidenceAnswer])
     )._1
-  ): Unit = {
+  ) = {
     inSequence {
       mockAuthWithNoRetrievals()
       mockGetSession(currentSession)

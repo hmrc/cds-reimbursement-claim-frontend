@@ -45,7 +45,7 @@ trait AuthActionSpec { this: MockFactory =>
 
   def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
     result: Future[R]
-  ): Unit =
+  ): Any =
     (mockAuthConnector
       .authorise(_: Predicate, _: Retrieval[R])(
         _: HeaderCarrier,

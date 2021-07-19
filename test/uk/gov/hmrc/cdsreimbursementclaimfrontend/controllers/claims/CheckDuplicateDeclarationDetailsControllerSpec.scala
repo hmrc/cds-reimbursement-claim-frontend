@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.jsoup.Jsoup
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -35,11 +34,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
-import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class CheckDeclarationDetailsControllerSpec
+class CheckDuplicateDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -58,18 +56,19 @@ class CheckDeclarationDetailsControllerSpec
     JourneyBindable.Scheduled
   )
 
-  lazy val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
+  lazy val controller: CheckDuplicateDeclarationDetailsController =
+    instanceOf[CheckDuplicateDeclarationDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def sessionWithClaimState(
+  private def sessionWithClaimStateForDuplicate(
     maybeDisplayDeclaration: Option[DisplayDeclaration]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
-        displayDeclaration = maybeDisplayDeclaration,
+        duplicateDisplayDeclaration = maybeDisplayDeclaration,
         movementReferenceNumber = sampleMrnAnswer()
       )
     val ggCredId            = sample[GGCredId]
@@ -88,10 +87,10 @@ class CheckDeclarationDetailsControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(journeys) { journey =>
+      "there is no journey status in the session for duplicate declaration details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val (session, _, _) = sessionWithClaimState(None)
+        val (session, _, _) = sessionWithClaimStateForDuplicate(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -104,11 +103,11 @@ class CheckDeclarationDetailsControllerSpec
         )
 
       }
+
     }
 
     "display the page" when {
-
-      "there is a declaration" in forAll(journeys) { journey =>
+      "there is a duplicate declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
         val displayDeclaration = DisplayDeclaration(
@@ -120,20 +119,7 @@ class CheckDeclarationDetailsControllerSpec
             declarationId = "declaration-id",
             acceptanceDate = "2020-10-20",
             procedureCode = "p-1",
-            consigneeDetails = Some(
-              ConsigneeDetails(
-                consigneeEORI = "ConsigneeEori",
-                legalName = "Gorwand Ukram",
-                establishmentAddress = EstablishmentAddress(
-                  addressLine1 = "consigne-line-1",
-                  addressLine2 = None,
-                  addressLine3 = None,
-                  postalCode = None,
-                  countryCode = "GB"
-                ),
-                contactDetails = None
-              )
-            ),
+            consigneeDetails = None,
             accountDetails = None,
             bankDetails = None,
             maskedBankDetails = None,
@@ -152,7 +138,7 @@ class CheckDeclarationDetailsControllerSpec
               declarantEORI = "F-1",
               legalName = "Fred Bread",
               establishmentAddress = EstablishmentAddress(
-                addressLine1 = "declarant-line-1",
+                addressLine1 = "line-1",
                 addressLine2 = None,
                 addressLine3 = None,
                 postalCode = None,
@@ -163,8 +149,8 @@ class CheckDeclarationDetailsControllerSpec
           )
         )
 
-        val draftC285Claim                = sessionWithClaimState(Some(displayDeclaration))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(displayDeclaration))
+        val draftC285Claim                = sessionWithClaimStateForDuplicate(Some(displayDeclaration))._3
+        val (session, fillingOutClaim, _) = sessionWithClaimStateForDuplicate(Some(displayDeclaration))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -173,28 +159,17 @@ class CheckDeclarationDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
         }
 
-        val action = performAction()
-
         checkPageIsDisplayed(
-          action,
+          performAction(),
           messageFromMessageKey("check-declaration-details.title")
         )
-
-        val content     = Jsoup.parse(contentAsString(action))
-        val tableValues = content.getElementsByClass("govuk-summary-list__value")
-        tableValues.get(4).text() shouldBe "consigne-line-1, GB"
-        tableValues.get(5).text() shouldBe "declarant-line-1, GB"
       }
 
-    }
-
-    "redirect user" when {
-
-      "there is no declaration" in forAll(journeys) { journey =>
+      "there is no duplicate declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val draftC285Claim                = sessionWithClaimState(None)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
+        val draftC285Claim                = sessionWithClaimStateForDuplicate(None)._3
+        val (session, fillingOutClaim, _) = sessionWithClaimStateForDuplicate(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -212,26 +187,24 @@ class CheckDeclarationDetailsControllerSpec
     }
 
     "handle submit requests" when {
-
-      "the user confirms the details are correct" in forAll(journeys) { journey =>
+      "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
           controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+        val displayDeclaration                                         = sample[DisplayDeclaration]
 
-        val displayDeclaration = sample[DisplayDeclaration]
-
-        val session = sessionWithClaimState(Some(displayDeclaration))
+        val session = sessionWithClaimStateForDuplicate(Some(displayDeclaration))
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
           performAction(Seq("check-declaration-details" -> "0")),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
+
     }
 
   }
