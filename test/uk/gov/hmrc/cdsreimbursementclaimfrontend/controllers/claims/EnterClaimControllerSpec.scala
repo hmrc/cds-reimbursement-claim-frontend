@@ -126,7 +126,7 @@ class EnterClaimControllerSpec
     Left(sample[EntryNumber])
   )
 
-  private def compareUrlsWithouthId(url1: String, url2: String): Unit = {
+  private def compareUrlsWithouthId(url1: String, url2: String): Any = {
     def removeId(in: String) = in.substring(0, in.lastIndexOf('/'))
     removeId(url1) shouldBe removeId(url2)
   }

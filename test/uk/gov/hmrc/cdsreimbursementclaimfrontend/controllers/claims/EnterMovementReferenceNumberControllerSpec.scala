@@ -119,7 +119,7 @@ class EnterMovementReferenceNumberControllerSpec
       isEntryNumberFeatureEnabled: Boolean,
       journeyBindable: JourneyBindable,
       expectedTitle: String
-    ): Unit = {
+    ) = {
       isEntryNumberFeatureEnabled match {
         case true  => featureSwitch.EntryNumber.enable()
         case false => featureSwitch.EntryNumber.disable()
@@ -422,7 +422,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
+            routes.CheckDeclarationDetailsController.show(journeyBindable)
           )
       }
 
@@ -451,7 +451,7 @@ class EnterMovementReferenceNumberControllerSpec
         status(result) shouldBe 303
         checkIsRedirect(
           result,
-          routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
+          routes.CheckDeclarationDetailsController.show(journeyBindable)
         )
       }
 
@@ -479,7 +479,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.CheckDeclarationDetailsController.checkDetails(journeyBindable)
+            routes.CheckDeclarationDetailsController.show(journeyBindable)
           )
       }
 

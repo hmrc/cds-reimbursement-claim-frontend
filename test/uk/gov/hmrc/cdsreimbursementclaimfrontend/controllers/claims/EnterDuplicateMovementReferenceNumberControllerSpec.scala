@@ -298,7 +298,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(JourneyBindable.Single, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value),
-          routes.CheckDeclarationDetailsController.checkDuplicateDetails(JourneyBindable.Single)
+          routes.CheckDuplicateDeclarationDetailsController.show(JourneyBindable.Single)
         )
 
       }

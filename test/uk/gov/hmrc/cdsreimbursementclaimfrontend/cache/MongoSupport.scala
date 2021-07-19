@@ -36,6 +36,7 @@ trait MongoSupport extends MongoSpecSupport with BeforeAndAfterEach with BeforeA
   abstract override def beforeEach(): Unit = {
     super.beforeEach()
     mongo().drop()
+    ()
   }
 
   abstract override def afterAll(): Unit = {
