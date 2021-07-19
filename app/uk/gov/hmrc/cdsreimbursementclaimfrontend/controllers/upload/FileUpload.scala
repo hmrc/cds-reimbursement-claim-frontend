@@ -16,35 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
 
-trait FileUpload[A] {
-
-  def addToClaim(
-    claim: FillingOutClaim,
-    answer: A,
-    upscanUpload: UpscanUpload,
-    upscanCallBack: UpscanSuccess
-  ): FillingOutClaim
-
-  def removeFromClaim(claim: FillingOutClaim, document: A): FillingOutClaim
-
-}
+trait FileUpload[A] {}
 
 object FileUpload {
 
-  implicit object SupportingEvidenceUpload extends FileUpload[SupportingEvidencesAnswer] {
+  implicit object SupportingEvidenceUpload extends FileUpload[SupportingEvidencesAnswer] {}
 
-    override def addToClaim(
-      claim: FillingOutClaim,
-      answer: SupportingEvidencesAnswer,
-      upscanUpload: UpscanUpload,
-      upscanCallBack: UpscanSuccess
-    ): FillingOutClaim = ???
-
-    override def removeFromClaim(claim: FillingOutClaim, document: SupportingEvidencesAnswer): FillingOutClaim = ???
-  }
+  implicit object ScheduledDocumentUpload extends FileUpload[ScheduledDocument] {}
 }

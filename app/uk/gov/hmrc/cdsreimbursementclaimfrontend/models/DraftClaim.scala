@@ -59,14 +59,14 @@ object DraftClaim {
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
     claimsAnswer: Option[ClaimsAnswer] = None,
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
-    checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer],
+    checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
     scheduledDocumentAnswer: Option[ScheduledDocument] = None
   ) extends DraftClaim
 
   object DraftC285Claim {
     val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID())
 
-    implicit val eq: Eq[DraftC285Claim]          = Eq.fromUniversalEquals[DraftC285Claim]
+    implicit val eq: Eq[DraftC285Claim] = Eq.fromUniversalEquals[DraftC285Claim]
   }
 
   implicit class DraftClaimOps(private val draftClaim: DraftClaim) extends AnyVal {

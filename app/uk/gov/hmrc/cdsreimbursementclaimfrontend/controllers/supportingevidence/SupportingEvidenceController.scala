@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
+import play.api.Configuration
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
@@ -49,6 +50,7 @@ class SupportingEvidenceController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
+  config: Configuration,
   upscanService: UpscanService,
   cc: MessagesControllerComponents,
   chooseDocumentTypePage: pages.choose_document_type,
@@ -62,6 +64,9 @@ class SupportingEvidenceController @Inject() (
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates {
+
+  lazy val maxUploads: Int =
+    config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
 
   private def withUploadSupportingEvidenceAnswers(
     f: (
@@ -77,7 +82,7 @@ class SupportingEvidenceController @Inject() (
   def uploadSupportingEvidence(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withUploadSupportingEvidenceAnswers { (_, _, answers) =>
-        if (answers.exists(_.length >= upscanService.maxUploads))
+        if (answers.exists(_.length >= maxUploads))
           Redirect(routes.SupportingEvidenceController.checkYourAnswers())
         else
           upscanService
@@ -196,7 +201,7 @@ class SupportingEvidenceController @Inject() (
 
   def chooseSupportingEvidenceDocumentTypeSubmit(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, maybeEvidences) =>
+      withUploadSupportingEvidenceAnswers { (_, fillingOutClaim, maybeEvidences: Option[SupportingEvidencesAnswer]) =>
         SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
           .bindFromRequest()
           .fold(
@@ -277,7 +282,7 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(evidences, upscanService.maxUploads))
+          Ok(checkYourAnswersPage(evidences, maxUploads))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }

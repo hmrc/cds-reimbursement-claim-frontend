@@ -99,6 +99,7 @@ object CompleteClaim {
               draftDeclarantEoriNumberAnswer,
               Some(claimsAnswer),
               _,
+              _,
               maybeScheduledDocument
             ) =>
           movementReferenceNumber.value match {

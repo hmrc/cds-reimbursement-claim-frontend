@@ -17,27 +17,27 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
 
 import com.google.inject.Inject
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
+//import scala.concurrent.ExecutionContext
 
-class FileUploadController @Inject() (
+abstract class FileUploadController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  upscanService: UpscanService,
+//  upscanService: UpscanService,
   cc: MessagesControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+) //(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
     with SessionUpdates {
 
-  def showFileUploadPage() = ???
+  def showFileUploadPage(): Action[AnyContent] = ???
 }
