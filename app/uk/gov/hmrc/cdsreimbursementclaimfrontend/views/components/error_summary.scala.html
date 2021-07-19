@@ -16,15 +16,12 @@
 
 @import play.api.i18n._
 @import play.api.data.Form
-@import play.api.data.FormError
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
-@import play.twirl.api.TwirlFeatureImports._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink
+@import uk.gov.hmrc.govukfrontend.views.html.components.govukErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary
 
 
-@this(govukErrorSummary: GovukErrorSummary)
+@this(govukErrorSummary: govukErrorSummary)
 
 @(form: Form[_])(implicit messages: Messages)
 
