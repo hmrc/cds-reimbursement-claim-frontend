@@ -429,7 +429,7 @@ class EnterDeclarationDetailsControllerSpec
           ("An action", "Page to redirect"),
           (
             controller.enterDeclarationDetailsSubmit(),
-            routes.SelectWhoIsMakingTheClaimController.selectDeclarantType()
+            routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
           ),
           (controller.changeDeclarationDetailsSubmit(), routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
         )

@@ -24,6 +24,7 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor.extractJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
@@ -138,7 +139,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                       Redirect(baseRoutes.IneligibleController.ineligible())
                     case Right(b) =>
                       if (b) {
-                        Redirect(routes.CheckDeclarationDetailsController.checkDetails())
+                        Redirect(routes.CheckDeclarationDetailsController.show(extractJourney))
                       } else {
                         logger.warn("could not match Eoris for third party flow")
                         Redirect(baseRoutes.IneligibleController.ineligible())

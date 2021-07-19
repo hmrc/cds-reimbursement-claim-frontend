@@ -18,49 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 
 sealed trait DeclarantTypeAnswer extends Product with Serializable
 
 object DeclarantTypeAnswer {
-
-  final case class IncompleteDeclarantTypeAnswer(
-    declarantType: Option[DeclarantType]
-  ) extends DeclarantTypeAnswer
-
-  object IncompleteDeclarantTypeAnswer {
-    val empty: IncompleteDeclarantTypeAnswer = IncompleteDeclarantTypeAnswer(None)
-
-    implicit val format: OFormat[IncompleteDeclarantTypeAnswer] = derived.oformat[IncompleteDeclarantTypeAnswer]()
-  }
-
-  final case class CompleteDeclarantTypeAnswer(
-    declarantType: DeclarantType
-  ) extends DeclarantTypeAnswer
-
-  object CompleteDeclarantTypeAnswer {
-    implicit val format: OFormat[CompleteDeclarantTypeAnswer] =
-      derived.oformat[CompleteDeclarantTypeAnswer]()
-  }
-
-  implicit class DeclarantTypeAnswerOps(
-    private val a: DeclarantTypeAnswer
-  ) extends AnyVal {
-
-    def fold[A](
-      ifIncomplete: IncompleteDeclarantTypeAnswer => A,
-      ifComplete: CompleteDeclarantTypeAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteDeclarantTypeAnswer => ifIncomplete(i)
-        case c: CompleteDeclarantTypeAnswer   => ifComplete(c)
-      }
-
-    def declarantType: Option[DeclarantType] = a match {
-      case IncompleteDeclarantTypeAnswer(declarantType) => declarantType
-      case CompleteDeclarantTypeAnswer(declarantType)   => Some(declarantType)
-    }
-  }
+  case object Importer extends DeclarantTypeAnswer
+  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
+  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
 
   implicit val format: OFormat[DeclarantTypeAnswer] = derived.oformat[DeclarantTypeAnswer]()
 }

@@ -33,9 +33,11 @@ import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.{Metrics, MockMetrics}
-import java.net.URLEncoder
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer
 
+import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
@@ -91,7 +93,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def overrideBindings: List[GuiceableModule] = List.empty[GuiceableModule]
 
-  lazy val additionalConfig = Configuration()
+  private lazy val additionalConfig = Configuration()
 
   def buildFakeApplication(): Application = {
     val metricsBinding: GuiceableModule =
@@ -166,7 +168,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkIsRedirect(
     result: Future[Result],
     expectedRedirectCall: Call
-  ): Unit =
+  ): Any =
     checkIsRedirect(result, expectedRedirectCall.url)
 
   def checkPageIsDisplayed(
@@ -188,11 +190,15 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
     val regexResult = regex.findAllMatchIn(bodyText).toList
     if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
-    else succeed
-
-    contentChecks(doc)
+    else contentChecks(doc)
   }
 
   def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
+
+  def toSelectNumberOfClaims(journeyBindable: JourneyBindable): SelectNumberOfClaimsAnswer = journeyBindable match {
+    case JourneyBindable.Single    => SelectNumberOfClaimsAnswer.Individual
+    case JourneyBindable.Bulk      => SelectNumberOfClaimsAnswer.Bulk
+    case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
+  }
 
 }

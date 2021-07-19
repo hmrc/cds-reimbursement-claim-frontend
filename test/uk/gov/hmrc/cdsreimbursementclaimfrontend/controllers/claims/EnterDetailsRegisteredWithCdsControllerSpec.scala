@@ -28,14 +28,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.CompleteDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -94,12 +90,12 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
   private def sessionWithClaimState(
     maybeClaimantDetailsAsIndividualAnswer: Option[DetailsRegisteredWithCdsAnswer],
-    declarantType: Option[DeclarantType] = None
+    declarantType: Option[DeclarantTypeAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         detailsRegisteredWithCdsAnswer = maybeClaimantDetailsAsIndividualAnswer,
-        declarantTypeAnswer = declarantType.map(dt => CompleteDeclarantTypeAnswer(dt))
+        declarantTypeAnswer = declarantType
       )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
@@ -117,10 +113,10 @@ class EnterDetailsRegisteredWithCdsControllerSpec
   }
 
   implicit class UpdateSessionWithDeclarantType(sessionData: SessionData) {
-    def withDeclarantType(declarantType: DeclarantType): SessionData =
+    def withDeclarantType(declarantType: DeclarantTypeAnswer): SessionData =
       sessionData.journeyStatus match {
         case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
-          val answer   = Some(CompleteDeclarantTypeAnswer(declarantType))
+          val answer   = Some(declarantType)
           val newClaim = draftClaim.copy(declarantTypeAnswer = answer)
           sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
         case _                                                         => fail("Failed to update DeclarantType")
@@ -202,7 +198,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       val answers         = IncompleteDetailsRegisteredWithCdsAnswer.empty
       val (s, journey, _) = sessionWithClaimState(Some(answers))
       val session         = s
-        .withDeclarantType(DeclarantType.Importer)
+        .withDeclarantType(DeclarantTypeAnswer.Importer)
         .withAcc14Data(acc14Response)
 
       inSequence {
@@ -236,7 +232,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       val answers         = IncompleteDetailsRegisteredWithCdsAnswer.empty
       val (s, journey, _) = sessionWithClaimState(Some(answers))
       val session         = s
-        .withDeclarantType(DeclarantType.AssociatedWithImporterCompany)
+        .withDeclarantType(DeclarantTypeAnswer.AssociatedWithImporterCompany)
         .withAcc14Data(acc14Response)
 
       inSequence {
@@ -270,7 +266,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       val answers         = IncompleteDetailsRegisteredWithCdsAnswer.empty
       val (s, journey, _) = sessionWithClaimState(Some(answers))
       val session         = s
-        .withDeclarantType(DeclarantType.AssociatedWithRepresentativeCompany)
+        .withDeclarantType(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany)
         .withAcc14Data(acc14Response)
 
       inSequence {
@@ -381,9 +377,9 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val testCases = Table(
         ("NumberOfClaimsType", "JourneyBindable"),
-        (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
-        (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
-        (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+        (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
+        (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+        (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
       )
 
       forAll(testCases) { (numberOfClaims, journeyBindable) =>
@@ -392,7 +388,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
         val updatedJourney = fillingOutClaim.copy(draftClaim =
           draftC285Claim.copy(
             movementReferenceNumber = sampleMrnAnswer(),
-            selectNumberOfClaimsAnswer = Some(CompleteSelectNumberOfClaimsAnswer(numberOfClaims))
+            selectNumberOfClaimsAnswer = Some(numberOfClaims)
           )
         )
 

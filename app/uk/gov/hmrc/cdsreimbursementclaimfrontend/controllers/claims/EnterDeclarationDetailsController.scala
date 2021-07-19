@@ -194,7 +194,11 @@ class EnterDeclarationDetailsController @Inject() (
                   logger.warn("could not capture declaration details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType())
+                _ =>
+                  Redirect(
+                    routes.SelectWhoIsMakingTheClaimController
+                      .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
+                  )
               )
             }
           )

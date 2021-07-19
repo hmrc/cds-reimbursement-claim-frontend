@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaimAnswer.CompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
@@ -74,7 +73,7 @@ class SelectDutiesControllerSpec
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     movementReferenceNumber: MovementReferenceNumber,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    basisOfClaim: BasisOfClaimAnswer = CompleteBasisOfClaimAnswer(PersonalEffects)
+    basisOfClaim: BasisOfClaim = PersonalEffects
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
@@ -217,7 +216,7 @@ class SelectDutiesControllerSpec
         val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val basisOfClaim     = CompleteBasisOfClaimAnswer(IncorrectExciseValue)
+        val basisOfClaim     = IncorrectExciseValue
 
         val session =
           getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer(), Some(acc14), basisOfClaim)._1
@@ -313,7 +312,7 @@ class SelectDutiesControllerSpec
       }
 
       "Return Acc14 excise codes for an MRN when the Incorrect Excise code was selected previously" in {
-        val basisOfClaim    = CompleteBasisOfClaimAnswer(IncorrectExciseValue)
+        val basisOfClaim    = IncorrectExciseValue
         val taxCodes        = Random.shuffle(TaxCode.listOfUKExciseCodes).take(3)
         val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>

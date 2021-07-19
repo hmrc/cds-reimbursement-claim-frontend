@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.{Functor, Id}
 import cats.data.EitherT
 import cats.implicits._
+import cats.{Functor, Id}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -33,11 +33,9 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectNumberOfClaimsController.SelectNumberOfClaimsType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.CompleteSelectNumberOfClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -72,9 +70,9 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
-    (SelectNumberOfClaimsType.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsType.Bulk, JourneyBindable.Bulk),
-    (SelectNumberOfClaimsType.Scheduled, JourneyBindable.Scheduled)
+    (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
+    (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
@@ -94,12 +92,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
   private def sessionWithClaimState(
     maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
-    numberOfClaims: Option[SelectNumberOfClaimsType]
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         movementReferenceNumber = maybeMovementReferenceNumberAnswer,
-        selectNumberOfClaimsAnswer = numberOfClaims.map(CompleteSelectNumberOfClaimsAnswer(_))
+        selectNumberOfClaimsAnswer = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -285,7 +283,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       "Redirect to Check Duplicate Declaration details, when the logged in user is the importer" in {
         val mrn               = sample[MRN]
         val answers           = sampleMrnAnswer(mrn)
-        val (session, foc, _) = sessionWithClaimState(answers, Some(SelectNumberOfClaimsType.Individual))
+        val (session, foc, _) = sessionWithClaimState(answers, Some(SelectNumberOfClaimsAnswer.Individual))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
         val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
@@ -300,7 +298,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(JourneyBindable.Single, keyForenterDuplicateMovementReferenceNumber -> genOtherThan(mrn).value),
-          routes.CheckDeclarationDetailsController.checkDuplicateDetails()
+          routes.CheckDuplicateDeclarationDetailsController.show(JourneyBindable.Single)
         )
 
       }

@@ -58,4 +58,11 @@ object IdGen {
   def sampleEntryNumberAnswer(entryNumber: EntryNumber = sample[EntryNumber]): Option[MovementReferenceNumber] =
     Some(MovementReferenceNumber(Left(entryNumber)))
 
+  def genMovementReferenceNumber: Gen[MovementReferenceNumber] = Gen.oneOf(
+    genMRN.map(MovementReferenceNumber(_)),
+    genEntryNumber.map(MovementReferenceNumber(_))
+  )
+
+  implicit val arbitraryMovementReferenceNumber: Typeclass[MovementReferenceNumber] =
+    Arbitrary(genMovementReferenceNumber)
 }
