@@ -119,7 +119,7 @@ object CheckDeclarationDetailsController {
   implicit val checkDeclarationDetailsAnswerFormat: OFormat[CheckDeclarationDetailsAnswer] =
     derived.oformat[CheckDeclarationDetailsAnswer]()
 
-  val checkDeclarationDetailsKey = "check-declaration-details"
+  val checkDeclarationDetailsKey: String = "check-declaration-details"
 
   val checkDeclarationDetailsAnswerForm: Form[CheckDeclarationDetailsAnswer] =
     Form(
