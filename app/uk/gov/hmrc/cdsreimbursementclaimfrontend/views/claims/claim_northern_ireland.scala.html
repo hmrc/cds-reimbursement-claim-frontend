@@ -48,7 +48,7 @@
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
-        @errorSummary(form)
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
