@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Functor
+import cats.Id
 import org.jsoup.Jsoup
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -33,9 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 
 import scala.concurrent.Future
 
@@ -65,12 +69,14 @@ class CheckDeclarationDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeDisplayDeclaration: Option[DisplayDeclaration]
+    maybeDisplayDeclaration: Option[DisplayDeclaration],
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         displayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = sampleMrnAnswer()
+        movementReferenceNumber = sampleMrnAnswer(),
+        selectNumberOfClaimsAnswer = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -91,7 +97,7 @@ class CheckDeclarationDetailsControllerSpec
       "there is no journey status in the session" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val (session, _, _) = sessionWithClaimState(None)
+        val (session, _, _) = sessionWithClaimState(None, Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -104,6 +110,13 @@ class CheckDeclarationDetailsControllerSpec
         )
 
       }
+    }
+
+    def getAcc14Response(): DisplayDeclaration = {
+      val ndrcDetails = sample[NdrcDetails]
+      Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(List(ndrcDetails))))
+      )
     }
 
     "display the page" when {
@@ -163,8 +176,9 @@ class CheckDeclarationDetailsControllerSpec
           )
         )
 
-        val draftC285Claim                = sessionWithClaimState(Some(displayDeclaration))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(displayDeclaration))
+        val draftC285Claim                = sessionWithClaimState(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))._3
+        val (session, fillingOutClaim, _) =
+          sessionWithClaimState(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -193,8 +207,8 @@ class CheckDeclarationDetailsControllerSpec
       "there is no declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val draftC285Claim                = sessionWithClaimState(None)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
+        val draftC285Claim                = sessionWithClaimState(None, Some(toSelectNumberOfClaims(journey)))._3
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(toSelectNumberOfClaims(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -213,13 +227,11 @@ class CheckDeclarationDetailsControllerSpec
 
     "handle submit requests" when {
 
+      def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
+        controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
       "the user confirms the details are correct" in forAll(journeys) { journey =>
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-        val displayDeclaration = sample[DisplayDeclaration]
-
-        val session = sessionWithClaimState(Some(displayDeclaration))
+        val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -228,10 +240,71 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("check-declaration-details" -> "0")),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
+          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey)
         )
       }
+
+      "the user confirms the details are incorrect" in forAll(journeys) { journey =>
+        val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session._1)
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "1")),
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
+        )
+      }
+
+      "the user sumbits no answer" in forAll(journeys) { journey =>
+        val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session._1)
+        }
+
+        checkPageIsDisplayed(
+          performAction(journey, Seq.empty),
+          messageFromMessageKey("check-declaration-details.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkDeclarationDetailsKey.error.required"
+            ),
+          BAD_REQUEST
+        )
+      }
+
+      "the user submits an incorrect answer" in forAll(journeys) { journey =>
+        forAll(Table("incorrect answers", "2", "")) { incorrectAnswer =>
+          val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session._1)
+          }
+
+          checkPageIsDisplayed(
+            performAction(journey, Seq(checkDeclarationDetailsKey -> incorrectAnswer)),
+            messageFromMessageKey("check-declaration-details.title"),
+            doc =>
+              doc
+                .select(".govuk-error-summary__list > li > a")
+                .text() shouldBe messageFromMessageKey(
+                s"$checkDeclarationDetailsKey.error.invalid"
+              ),
+            BAD_REQUEST
+          )
+
+        }
+      }
+
     }
 
   }
