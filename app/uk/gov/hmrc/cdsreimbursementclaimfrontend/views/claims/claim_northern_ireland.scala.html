@@ -16,7 +16,6 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
-@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
@@ -25,15 +24,12 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
  submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
@@ -50,19 +46,15 @@
 
         @errorSummary(form.errors)
 
-        @pageHeading(title)
-
-        @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body"))
-
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @radios(
                 form = form,
                 name = key,
                 legend = title,
-                legendAsHeading = false,
+                legendAsHeading = true,
                 hintKey = None,
-                classes = "govuk-visually-hidden",
+                classes = "govuk-label govuk-label--xl",
                 inline = true,
                 items = Seq(
                     RadioItem(
