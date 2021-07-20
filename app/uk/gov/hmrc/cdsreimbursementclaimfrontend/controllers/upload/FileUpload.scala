@@ -16,14 +16,41 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
 
+import com.google.inject.{Inject, Singleton}
+import play.api.Configuration
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, UploadReference}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => evidenceRoutes}
 
-trait FileUpload[A] {}
+trait FileUpload[A] {
+  def reviewPage: Call
+  def uploadErrorPage: Call
+  def handleUploadCallback(uploadReference: UploadReference): Call
+  def hasReachedUploadThreshold(maybeAnswer: Option[A]): Boolean
+}
 
-object FileUpload {
+@Singleton
+class FileUploadServices @Inject() (config: Configuration) {
 
-  implicit object SupportingEvidenceUpload extends FileUpload[SupportingEvidencesAnswer] {}
+  implicit object SupportingEvidenceUpload extends FileUpload[SupportingEvidencesAnswer] {
+    private lazy val max: Int =
+      config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
 
-  implicit object ScheduledDocumentUpload extends FileUpload[ScheduledDocument] {}
+    def hasReachedUploadThreshold(maybeAnswer: Option[SupportingEvidencesAnswer]): Boolean =
+      maybeAnswer.exists(_.length >= max)
+
+    def reviewPage: Call = evidenceRoutes.SupportingEvidenceController.checkYourAnswers()
+    def uploadErrorPage: Call = evidenceRoutes.SupportingEvidenceController.handleUpscanErrorRedirect()
+    def handleUploadCallback(uploadReference: UploadReference): Call = _
+  }
+
+  implicit object ScheduledDocumentUpload extends FileUpload[ScheduledDocument] {
+    def hasReachedUploadThreshold(maybeAnswer: Option[ScheduledDocument]): Boolean =
+      maybeAnswer.isDefined
+
+    def reviewPage: Call = ???
+    def uploadErrorPage: Call = ???
+    def handleUploadCallback(uploadReference: UploadReference): Call = ???
+  }
 }

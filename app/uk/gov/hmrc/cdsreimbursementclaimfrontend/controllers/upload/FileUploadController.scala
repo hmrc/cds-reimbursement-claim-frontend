@@ -16,28 +16,44 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
 
-import com.google.inject.Inject
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+
+import scala.annotation.implicitNotFound
+import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-//import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-//import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext
 
-abstract class FileUploadController @Inject() (
+abstract class FileUploadController(
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-//  upscanService: UpscanService,
+  upscanService: UpscanService,
+  errorHandler: ErrorHandler,
   cc: MessagesControllerComponents
-) //(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+) (implicit ec: ExecutionContext)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
-    with SessionDataExtractor
     with SessionUpdates {
 
-  def showFileUploadPage(): Action[AnyContent] = ???
+  @implicitNotFound("No implicit file upload found for claim answer")
+  def initiateUpload[A](answer: Option[A])
+                       (showUploadPage: UpscanUpload => Result)
+                       (implicit fileUpload: FileUpload[A], request: Request[_]): Future[Result] = {
+    if (answer.hasReachedUploadThreshold)
+      Future.successful(Redirect(fileUpload.reviewPage))
+    else
+      upscanService
+        .initiate(
+          fileUpload.uploadErrorPage,
+          fileUpload.handleUploadCallback
+        )
+        .fold(_ => errorHandler.errorResult(), showUploadPage)
+  }
 }
