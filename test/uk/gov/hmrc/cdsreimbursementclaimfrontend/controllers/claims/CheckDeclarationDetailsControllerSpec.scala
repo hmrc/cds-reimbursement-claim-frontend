@@ -37,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 
@@ -301,8 +301,24 @@ class CheckDeclarationDetailsControllerSpec
               ),
             BAD_REQUEST
           )
-
         }
+      }
+
+      "the user submits a valid answer, but mongodb is down" in forAll(journeys) { journey =>
+        val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session._1)
+          mockStoreSession(Left(Error("Mongo is Down")))
+        }
+
+        checkPageIsDisplayed(
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
+          "Sorry, we’re experiencing technical difficulties",
+          _ => (),
+          INTERNAL_SERVER_ERROR
+        )
       }
 
     }
