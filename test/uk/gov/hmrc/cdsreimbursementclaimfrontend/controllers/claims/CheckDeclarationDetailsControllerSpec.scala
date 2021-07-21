@@ -213,9 +213,9 @@ class CheckDeclarationDetailsControllerSpec
 
     "handle submit requests" when {
 
-      "the user confirms the details are correct" in forAll(journeys) { journey =>
+      "the user confirms the details are correct" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+          controller.submit(JourneyBindable.Single)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
         val displayDeclaration = sample[DisplayDeclaration]
 
@@ -233,6 +233,5 @@ class CheckDeclarationDetailsControllerSpec
         )
       }
     }
-
   }
 }

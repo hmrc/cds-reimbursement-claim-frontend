@@ -27,14 +27,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 
 trait FileUpload[A] {
+
   def reviewPage: Call
+
   def uploadErrorPage: Call
+
   def handleUploadCallback(uploadReference: UploadReference): Call
+
   def scanSuccessPage(uploadReference: UploadReference): Call
+
   def scanErrorPage: Call
 
   def hasReachedUploadThreshold(maybeAnswer: Option[A]): Boolean
+
   def hasReference(maybeAnswer: Option[A], uploadReference: UploadReference): Boolean
+
   def attach(
     upscanUpload: UpscanUpload,
     upscanCallback: UpscanSuccess,

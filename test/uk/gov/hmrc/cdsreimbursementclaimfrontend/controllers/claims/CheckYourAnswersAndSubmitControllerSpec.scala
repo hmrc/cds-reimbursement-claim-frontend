@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -111,7 +111,7 @@ class CheckYourAnswersAndSubmitControllerSpec
   val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
     sample[CompleteDetailsRegisteredWithCdsAnswer]
   val basisOfClaim: BasisOfClaim                                                        = sample[BasisOfClaim]
-  val supportingEvidences: SupportingEvidenceAnswer                                     = sample[SupportingEvidenceAnswer]
+  val supportingEvidences: SupportingEvidencesAnswer                                    = sample[SupportingEvidencesAnswer]
   val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
   val commodityDetailsAnswer: CommodityDetails                                          = sample[CommodityDetails]
   val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
@@ -127,7 +127,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     contactDetailsAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(basisOfClaim),
-    supportingEvidenceAnswer = Some(supportingEvidences),
+    supportingEvidencesAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
@@ -175,7 +175,8 @@ class CheckYourAnswersAndSubmitControllerSpec
     duplicateDisplayDeclaration = None,
     importerEoriNumberAnswer = None,
     declarantEoriNumberAnswer = None,
-    claimsAnswer = Some(claimsAnswer)
+    claimsAnswer = Some(claimsAnswer),
+    scheduledDocumentAnswer = None
   )
 
   val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
@@ -189,7 +190,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(basisOfClaim),
     maybeCompleteBankAccountDetailAnswer = None,
-    supportingEvidenceAnswer = supportingEvidences,
+    supportingEvidencesAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
     None,
@@ -236,7 +237,8 @@ class CheckYourAnswersAndSubmitControllerSpec
     maybeDuplicateDisplayDeclaration = None,
     importerEoriNumber = None,
     declarantEoriNumber = None,
-    claimsAnswer
+    claimsAnswer,
+    scheduledDocumentAnswer = None
   )
 
   "Check Your Answers And Submit Controller" when {

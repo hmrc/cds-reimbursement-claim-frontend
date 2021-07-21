@@ -792,7 +792,7 @@ schedule-document.upload.things-to-show.l1=the amount of tax you paid on it
 schedule-document.upload.things-to-show.l2=the amount you should have paid on it
 schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
 schedule-document.upload.input-title=Select document
-schedule-document.upload.error.required=No file chosen
+schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
@@ -64,7 +65,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
-        scheduleRoutes.ScheduledDocumentController.uploadScheduledDocument()
+        if (journeyBindable === JourneyBindable.Scheduled)
+          scheduleRoutes.ScheduledDocumentController.uploadScheduledDocument()
+        else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
       case DeclarationAnswersAreIncorrect =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
     }

@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
@@ -88,13 +88,13 @@ class BankAccountControllerSpec
 
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetailsAnswer],
-    supportingEvidences: Option[SupportingEvidenceAnswer] = None
+    supportingEvidences: Option[SupportingEvidencesAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
 
     val draftC285Claim =
       DraftC285Claim.newDraftC285Claim.copy(
         bankAccountDetailsAnswer = maybeBankAccountDetails,
-        supportingEvidenceAnswer = supportingEvidences
+        supportingEvidencesAnswer = supportingEvidences
       )
 
     val ggCredId            = sample[GGCredId]
@@ -224,7 +224,7 @@ class BankAccountControllerSpec
         val businessResponse         =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val bankDetailsAnswer        = CompleteBankAccountDetailAnswer(businessBankAccount)
-        val supportingEvidenceAnswer = sample[SupportingEvidenceAnswer]
+        val supportingEvidenceAnswer = sample[SupportingEvidencesAnswer]
         val (session, _, _)          = sessionWithClaimState(Some(bankDetailsAnswer), Some(supportingEvidenceAnswer))
         val updatedBankAccount       = businessBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession           = updateSession(session, updatedBankAccount)
@@ -352,7 +352,7 @@ class BankAccountControllerSpec
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
 
         val bankAccountAnswer = CompleteBankAccountDetailAnswer(personalBankAccount)
-        val evidenceAnswer    = sample[SupportingEvidenceAnswer]
+        val evidenceAnswer    = sample[SupportingEvidencesAnswer]
 
         val (session, _, _)    = sessionWithClaimState(Some(bankAccountAnswer), Some(evidenceAnswer))
         val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
