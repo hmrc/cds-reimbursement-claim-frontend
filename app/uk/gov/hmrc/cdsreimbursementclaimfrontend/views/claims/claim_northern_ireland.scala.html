@@ -28,13 +28,13 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
- radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
 @(form: Form[ClaimNorthernIrelandAnswer], router: ReimbursementRoutes, isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)

@@ -101,7 +101,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
 
 object SelectWhoIsMakingTheClaimController {
 
-  val whoIsMakingTheClaimKey = "select-who-is-making-the-claim"
+  val whoIsMakingTheClaimKey: String = "select-who-is-making-the-claim"
 
   val chooseDeclarantTypeForm: Form[DeclarantTypeAnswer] =
     Form(
