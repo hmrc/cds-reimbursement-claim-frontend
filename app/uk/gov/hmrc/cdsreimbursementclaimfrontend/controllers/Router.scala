@@ -20,6 +20,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule.{routes => scheduleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 
@@ -63,7 +64,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
-        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+        scheduleRoutes.ScheduledDocumentController.uploadScheduledDocument()
       case DeclarationAnswersAreIncorrect =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
     }
