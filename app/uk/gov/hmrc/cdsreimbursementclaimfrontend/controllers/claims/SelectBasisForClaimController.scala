@@ -123,7 +123,7 @@ class SelectBasisForClaimController @Inject() (
 
 object SelectBasisForClaimController {
 
-  val key = "select-basis-for-claim"
+  val key: String = "select-basis-for-claim"
 
   final case class SelectReasonForClaim(reasonForClaim: BasisOfClaim)
 

@@ -56,14 +56,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
         )(declaration =>
-          Ok(
-            checkDeclarationDetailsPage(
-              declaration,
-              router,
-              checkDeclarationDetailsAnswerForm,
-              isDuplicate
-            )
-          )
+          Ok(checkDeclarationDetailsPage(declaration, router, checkDeclarationDetailsAnswerForm, isDuplicate))
         )
       }
     }
