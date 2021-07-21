@@ -33,8 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import scala.concurrent.Future
 
 class CheckDuplicateDeclarationDetailsControllerSpec
@@ -64,12 +64,14 @@ class CheckDuplicateDeclarationDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimStateForDuplicate(
-    maybeDisplayDeclaration: Option[DisplayDeclaration]
+    maybeDisplayDeclaration: Option[DisplayDeclaration],
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = sampleMrnAnswer()
+        movementReferenceNumber = sampleMrnAnswer(),
+        selectNumberOfClaimsAnswer = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -90,7 +92,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       "there is no journey status in the session for duplicate declaration details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val (session, _, _) = sessionWithClaimStateForDuplicate(None)
+        val (session, _, _) = sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -149,8 +151,10 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           )
         )
 
-        val draftC285Claim                = sessionWithClaimStateForDuplicate(Some(displayDeclaration))._3
-        val (session, fillingOutClaim, _) = sessionWithClaimStateForDuplicate(Some(displayDeclaration))
+        val draftC285Claim                =
+          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))._3
+        val (session, fillingOutClaim, _) =
+          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -168,8 +172,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       "there is no duplicate declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val draftC285Claim                = sessionWithClaimStateForDuplicate(None)._3
-        val (session, fillingOutClaim, _) = sessionWithClaimStateForDuplicate(None)
+        val draftC285Claim                = sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))._3
+        val (session, fillingOutClaim, _) =
+          sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -187,12 +192,14 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     }
 
     "handle submit requests" when {
-      "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
-        val displayDeclaration                                         = sample[DisplayDeclaration]
 
-        val session = sessionWithClaimStateForDuplicate(Some(displayDeclaration))
+      def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
+        controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      //TODO Update Redirect url when decision is made
+      "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
+        val displayDeclaration = sample[DisplayDeclaration]
+        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -200,10 +207,30 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("check-declaration-details" -> "0")),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
         )
       }
+
+      //TODO Update Redirect url when decision is made
+      "the user confirms the details are incorrect" in forAll(journeys) { journey =>
+        val displayDeclaration = sample[DisplayDeclaration]
+        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session._1)
+        }
+
+        checkIsRedirect(
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "1")),
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
+        )
+      }
+
+      //TODO Write testcase for: User submits no answer
+
+      //TODO Write testcase for: User submits an incorrect answer
 
     }
 

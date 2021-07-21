@@ -65,7 +65,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case DeclarationAnswersAreCorrect   =>
         claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
       case DeclarationAnswersAreIncorrect =>
-        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
+        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =

@@ -67,12 +67,7 @@ class CheckDeclarationDetailsController @Inject() (
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
         )(declaration =>
           Ok(
-            checkDeclarationDetailsPage(
-              declaration,
-              router,
-              checkDeclarationDetailsAnswerForm,
-              isDuplicate
-            )
+            checkDeclarationDetailsPage(declaration, router, checkDeclarationDetailsAnswerForm, isDuplicate)
           )
         )
       }
@@ -89,14 +84,7 @@ class CheckDeclarationDetailsController @Inject() (
               answer
                 .map(declaration =>
                   Future.successful(
-                    BadRequest(
-                      checkDeclarationDetailsPage(
-                        declaration,
-                        router,
-                        formWithErrors,
-                        isDuplicate
-                      )
-                    )
+                    BadRequest(checkDeclarationDetailsPage(declaration, router, formWithErrors, isDuplicate))
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),
@@ -131,13 +119,13 @@ object CheckDeclarationDetailsController {
   implicit val checkDeclarationDetailsAnswerFormat: OFormat[CheckDeclarationDetailsAnswer] =
     derived.oformat[CheckDeclarationDetailsAnswer]()
 
-  val messageKey = "check-declaration-details"
+  val checkDeclarationDetailsKey: String = "check-declaration-details"
 
   val checkDeclarationDetailsAnswerForm: Form[CheckDeclarationDetailsAnswer] =
     Form(
       mapping(
-        messageKey -> number
-          .verifying("invalid", a => a === 0 || a === 1)
+        checkDeclarationDetailsKey -> number
+          .verifying("error.invalid", a => a === 0 || a === 1)
           .transform[CheckDeclarationDetailsAnswer](
             value =>
               if (value === 0) DeclarationAnswersAreCorrect

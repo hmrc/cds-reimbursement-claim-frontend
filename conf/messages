@@ -381,6 +381,7 @@ check-declaration-details.is-information-correct=Is this MRN information correct
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
 check-declaration-details.error.invalid=Select yes if these details are correct or no if they are incorrect
+check-declaration-details.error.number=Select yes if these details are correct or no if they are incorrect
 check-declaration-details.error.required=Select yes if these details are correct or no if they are incorrect
 
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
