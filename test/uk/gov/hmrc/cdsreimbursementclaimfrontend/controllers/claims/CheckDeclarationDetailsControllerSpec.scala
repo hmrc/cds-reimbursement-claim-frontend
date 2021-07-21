@@ -230,8 +230,9 @@ class CheckDeclarationDetailsControllerSpec
       def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
         controller.submit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "the user confirms the details are correct" in forAll(journeys) { journey =>
-        val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
+      "the user confirms the details are correct" in {
+        val session =
+          sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(JourneyBindable.Single)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -240,8 +241,8 @@ class CheckDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey)
+          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "0")),
+          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
 
