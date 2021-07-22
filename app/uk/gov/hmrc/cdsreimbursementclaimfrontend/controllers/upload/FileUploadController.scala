@@ -68,7 +68,7 @@ trait FileUploadController {
                         case Some(upscanSuccess: UpscanSuccess) if !answer.containsReference(uploadReference) =>
                           EitherT(
                             updateSession(sessionStore, request)(
-                              _.copy(journeyStatus = fileUpload.attach(upscanUpload, upscanSuccess, answer, claim).some)
+                              _.copy(journeyStatus = fileUpload.add(upscanUpload, upscanSuccess, answer, claim).some)
                             )
                           )
                         case _                                                                                =>

@@ -42,7 +42,7 @@ trait FileUpload[A] {
 
   def hasReference(maybeAnswer: Option[A], uploadReference: UploadReference): Boolean
 
-  def attach(
+  def add(
     upscanUpload: UpscanUpload,
     upscanCallback: UpscanSuccess,
     maybeAnswer: Option[A],
@@ -64,7 +64,7 @@ class FileUploadServices @Inject() (config: Configuration) {
     def hasReference(maybeAnswer: Option[SupportingEvidencesAnswer], uploadReference: UploadReference): Boolean =
       maybeAnswer.exists(_.exists(_.uploadReference === uploadReference))
 
-    def attach(
+    def add(
       upscanUpload: UpscanUpload,
       upscanCallback: UpscanSuccess,
       maybeAnswer: Option[SupportingEvidencesAnswer],
@@ -102,7 +102,7 @@ class FileUploadServices @Inject() (config: Configuration) {
     def hasReference(maybeAnswer: Option[ScheduledDocument], uploadReference: UploadReference): Boolean =
       maybeAnswer.exists(_.uploadReference === uploadReference)
 
-    def attach(
+    def add(
       upscanUpload: UpscanUpload,
       upscanCallback: UpscanSuccess,
       maybeAnswer: Option[ScheduledDocument],
