@@ -22,6 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
@@ -99,7 +100,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      case false => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
     }
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
@@ -108,6 +109,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
     } else {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+    }
+
+  def nextPageForClaimantDetails(featureSwitch: FeatureSwitchService): Call =
+    featureSwitch.NorthernIreland.isEnabled() match {
+      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     }
 
 }
