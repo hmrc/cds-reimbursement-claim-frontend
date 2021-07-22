@@ -17,29 +17,36 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule
 
 import com.google.inject.{Inject, Singleton}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.{FileUploadController, FileUploadServices}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ScheduledDocumentController @Inject() (
-  authenticatedAction: AuthenticatedAction,
-  sessionDataAction: SessionDataAction,
-  upscanService: UpscanService,
+  val authenticatedAction: AuthenticatedAction,
+  val sessionDataAction: SessionDataAction,
+  val upscanService: UpscanService,
+  val errorHandler: ErrorHandler,
+  val sessionStore: SessionCache,
   fileUploadServices: FileUploadServices,
-  errorHandler: ErrorHandler,
   uploadPage: pages.upload
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, sessionStore: SessionCache)
-    extends FileUploadController(authenticatedAction, sessionDataAction, upscanService, errorHandler, cc)
+)(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
+    extends FrontendController(cc)
+    with FileUploadController
+    with WithAuthAndSessionDataAction
+    with Logging
+    with SessionUpdates
     with SessionDataExtractor {
 
   import fileUploadServices._

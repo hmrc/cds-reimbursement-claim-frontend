@@ -19,14 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.{Configuration, Logging}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.{FileUploadController, FileUploadServices}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -39,16 +39,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SupportingEvidenceController @Inject() (
-  authenticatedAction: AuthenticatedAction,
-  sessionDataAction: SessionDataAction,
-  upscanService: UpscanService,
+  val authenticatedAction: AuthenticatedAction,
+  val sessionDataAction: SessionDataAction,
+  val upscanService: UpscanService,
+  val errorHandler: ErrorHandler,
+  val sessionStore: SessionCache,
   fileUploadServices: FileUploadServices,
-  errorHandler: ErrorHandler,
   config: Configuration,
   uploadPage: pages.upload,
   chooseDocumentTypePage: pages.choose_document_type,
@@ -56,14 +58,12 @@ class SupportingEvidenceController @Inject() (
   scanProgressPage: pages.scan_progress,
   uploadFailedPage: pages.upload_failed,
   scanFailedPage: pages.scan_failed
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, sessionStore: SessionCache)
-    extends FileUploadController(
-      authenticatedAction,
-      sessionDataAction,
-      upscanService,
-      errorHandler,
-      cc
-    )
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents)
+    extends FrontendController(cc)
+    with FileUploadController
+    with WithAuthAndSessionDataAction
+    with Logging
+    with SessionUpdates
     with SessionDataExtractor {
 
   import fileUploadServices._
