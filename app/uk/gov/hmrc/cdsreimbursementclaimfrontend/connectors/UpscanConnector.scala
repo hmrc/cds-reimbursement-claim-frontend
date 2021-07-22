@@ -18,10 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import configs.ConfigReader
-import configs.syntax._
 import play.api.Configuration
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUpload
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -45,12 +45,13 @@ trait UpscanConnector {
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 
-  def initiate(
+  def initiate[A](
     errorRedirect: Call,
     successRedirect: Call,
     uploadReference: UploadReference
   )(implicit
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    fileUpload: FileUpload[A]
   ): EitherT[Future, Error, HttpResponse]
 
 }
@@ -65,38 +66,32 @@ class DefaultUpscanConnector @Inject() (
 ) extends UpscanConnector
     with Logging {
 
-  private def getUpscanInitiateConfig[A : ConfigReader](key: String): A =
-    config.underlying
-      .get[A](s"microservice.services.upscan-initiate.$key")
-      .value
-
   private val upscanInitiateUrl: String = {
-    val protocol = getUpscanInitiateConfig[String]("protocol")
-    val host     = getUpscanInitiateConfig[String]("host")
-    val port     = getUpscanInitiateConfig[String]("port")
+    val protocol = config.readUpscanInitServiceProtocol
+    val host     = config.readUpscanInitServiceHost
+    val port     = config.readUpscanInitServicePort
     s"$protocol://$host:$port/upscan/v2/initiate"
   }
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  private val selfBaseUrl: String = config.underlying.get[String]("self.url").value
-
-  private val maxFileSize: Long = getUpscanInitiateConfig[Long]("max-file-size")
-
-  override def initiate(
+  override def initiate[A](
     errorRedirect: Call,
     successRedirect: Call,
     uploadReference: UploadReference
   )(implicit
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    fileUpload: FileUpload[A]
   ): EitherT[Future, Error, HttpResponse] = {
+
+    val selfBaseUrl = config.readSelfBaseUrl
 
     val payload = UpscanInitiateRequest(
       baseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}",
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
-      maxFileSize
+      config.readMaxFileSize(fileUpload.key)
     )
 
     logger.info(

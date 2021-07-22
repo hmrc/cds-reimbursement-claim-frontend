@@ -20,6 +20,7 @@ import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, SupportingEvidence, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.{routes => evidenceRoutes}
@@ -27,6 +28,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 
 trait FileUpload[A] {
+
+  val key: String
+
+  val maxUploads: Int
+
+  def hasReachedUploadThreshold(maybeAnswer: Option[A]): Boolean
+
+  def hasReference(maybeAnswer: Option[A], uploadReference: UploadReference): Boolean
+
+  def add(
+    upload: UpscanUpload,
+    callback: UpscanSuccess,
+    maybeAnswer: Option[A],
+    claim: FillingOutClaim
+  ): FillingOutClaim
 
   def reviewPage: Call
 
@@ -37,17 +53,6 @@ trait FileUpload[A] {
   def scanSuccessPage(uploadReference: UploadReference): Call
 
   def scanErrorPage: Call
-
-  def hasReachedUploadThreshold(maybeAnswer: Option[A]): Boolean
-
-  def hasReference(maybeAnswer: Option[A], uploadReference: UploadReference): Boolean
-
-  def add(
-    upscanUpload: UpscanUpload,
-    upscanCallback: UpscanSuccess,
-    maybeAnswer: Option[A],
-    claim: FillingOutClaim
-  ): FillingOutClaim
 }
 
 @Singleton
@@ -55,28 +60,28 @@ class FileUploadServices @Inject() (config: Configuration) {
 
   implicit object SupportingEvidenceUpload extends FileUpload[SupportingEvidencesAnswer] {
 
-    private lazy val max: Int =
-      config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
+    val key: String     = "supporting-evidence"
+    val maxUploads: Int = config.readMaxUploadsValue(key)
 
     def hasReachedUploadThreshold(maybeAnswer: Option[SupportingEvidencesAnswer]): Boolean =
-      maybeAnswer.exists(_.length >= max)
+      maybeAnswer.exists(_.length >= maxUploads)
 
     def hasReference(maybeAnswer: Option[SupportingEvidencesAnswer], uploadReference: UploadReference): Boolean =
       maybeAnswer.exists(_.exists(_.uploadReference === uploadReference))
 
     def add(
-      upscanUpload: UpscanUpload,
-      upscanCallback: UpscanSuccess,
+      upload: UpscanUpload,
+      callback: UpscanSuccess,
       maybeAnswer: Option[SupportingEvidencesAnswer],
       fillingOutClaim: FillingOutClaim
     ): FillingOutClaim = {
 
       val newEvidence = SupportingEvidence(
-        upscanUpload.uploadReference,
-        upscanUpload.upscanUploadMeta,
-        upscanUpload.uploadedOn,
-        upscanCallback,
-        upscanCallback.fileName,
+        upload.uploadReference,
+        upload.upscanUploadMeta,
+        upload.uploadedOn,
+        callback,
+        callback.fileName,
         None
       )
 
@@ -85,48 +90,58 @@ class FileUploadServices @Inject() (config: Configuration) {
       FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences))
     }
 
-    def reviewPage: Call                                             = evidenceRoutes.SupportingEvidenceController.checkYourAnswers()
-    def uploadErrorPage: Call                                        = evidenceRoutes.SupportingEvidenceController.handleUpscanErrorRedirect()
+    def uploadErrorPage: Call = evidenceRoutes.SupportingEvidenceController.handleUpscanErrorRedirect()
+
     def handleUploadCallback(uploadReference: UploadReference): Call =
       evidenceRoutes.SupportingEvidenceController.scanProgress(uploadReference)
-    def scanErrorPage: Call                                          = evidenceRoutes.SupportingEvidenceController.handleUpscanCallBackFailures()
-    def scanSuccessPage(uploadReference: UploadReference): Call      =
+
+    def scanErrorPage: Call = evidenceRoutes.SupportingEvidenceController.handleUpscanCallBackFailures()
+
+    def scanSuccessPage(uploadReference: UploadReference): Call =
       evidenceRoutes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference)
+
+    def reviewPage: Call = evidenceRoutes.SupportingEvidenceController.checkYourAnswers()
   }
 
   implicit object ScheduledDocumentUpload extends FileUpload[ScheduledDocument] {
 
+    val key: String     = "schedule-of-mrn"
+    val maxUploads: Int = config.readMaxUploadsValue(key)
+
     def hasReachedUploadThreshold(maybeAnswer: Option[ScheduledDocument]): Boolean =
-      maybeAnswer.isDefined
+      maybeAnswer.toList.length >= maxUploads
 
     def hasReference(maybeAnswer: Option[ScheduledDocument], uploadReference: UploadReference): Boolean =
       maybeAnswer.exists(_.uploadReference === uploadReference)
 
     def add(
-      upscanUpload: UpscanUpload,
-      upscanCallback: UpscanSuccess,
+      upload: UpscanUpload,
+      callback: UpscanSuccess,
       maybeAnswer: Option[ScheduledDocument],
       fillingOutClaim: FillingOutClaim
     ): FillingOutClaim = {
 
       val scheduledDocument = ScheduledDocument(
-        upscanCallback.fileName,
-        upscanUpload.uploadReference,
-        upscanUpload.uploadedOn,
-        upscanUpload.upscanUploadMeta,
-        upscanCallback
+        callback.fileName,
+        upload.uploadReference,
+        upload.uploadedOn,
+        upload.upscanUploadMeta,
+        callback
       )
 
       FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = scheduledDocument.some))
     }
 
-    def reviewPage: Call                                        = ???
-    def scanErrorPage: Call                                     = ???
-    def scanSuccessPage(uploadReference: UploadReference): Call = ???
-
-    def uploadErrorPage: Call                                        =
+    def uploadErrorPage: Call =
       evidenceRoutes.SupportingEvidenceController.handleUpscanErrorRedirect() // TODO: implement in the next ticket
+
     def handleUploadCallback(uploadReference: UploadReference): Call =
       evidenceRoutes.SupportingEvidenceController.scanProgress(uploadReference) // TODO: implement in the next ticket
+
+    def scanSuccessPage(uploadReference: UploadReference): Call = ???
+
+    def scanErrorPage: Call = ???
+
+    def reviewPage: Call = ???
   }
 }

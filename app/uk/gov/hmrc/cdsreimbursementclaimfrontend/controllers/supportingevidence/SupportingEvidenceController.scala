@@ -167,7 +167,7 @@ class SupportingEvidenceController @Inject() (
   //----
 
   lazy val maxUploads: Int =
-    config.underlying.getInt(s"microservice.services.upscan-initiate.max-uploads")
+    config.underlying.getInt(s"microservice.services.upscan-initiate.supporting-evidence.max-uploads")
 
   def deleteSupportingEvidence(
     uploadReference: UploadReference,

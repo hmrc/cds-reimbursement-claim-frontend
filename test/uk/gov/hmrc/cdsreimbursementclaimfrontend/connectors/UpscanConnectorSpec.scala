@@ -22,6 +22,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.mvc.Call
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUploadServices
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
@@ -45,7 +47,10 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
         |        protocol = http
         |        host     = host2
         |        port     = 123
-        |        max-file-size = 1234
+        |        supporting-evidence {
+        |         max-uploads   = 10
+        |         max-file-size = 1234
+        |        }
         |      },
         |      cds-reimbursement-claim {
         |        protocol = http
@@ -62,10 +67,13 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
 
   "Upscan Connector" when {
 
+    val reference         = sample[UploadReference]
+    val upload            = sample[UpscanUpload]
+    val baseUrl           = "http://host3:123/cds-reimbursement-claim"
+    val fileUploadService = new FileUploadServices(configuration)
+    import fileUploadService._
+
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val reference                  = sample[UploadReference]
-    val upload                     = sample[UpscanUpload]
-    val baseUrl                    = "http://host3:123/cds-reimbursement-claim"
 
     "initiating an upscan transaction" must {
       val expectedUrl               = "http://host2:123/upscan/v2/initiate"
@@ -85,7 +93,8 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
           Seq.empty,
           payload
         ),
-        () => connector.initiate(mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference)
+        () =>
+          connector.initiate[SupportingEvidencesAnswer](mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference)
       )
     }
 
