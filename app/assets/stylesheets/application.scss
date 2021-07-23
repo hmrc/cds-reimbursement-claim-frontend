@@ -33,15 +33,19 @@ $hmrc-assets-path: "/claim-for-reimbursement-of-import-duties/assets/lib/hmrc-fr
     border:none;
 }
 
-.cds-wrap-content {
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-    -webkit-hyphens:auto;
-    -ms-hyphens:auto;
-    -moz-hyphens:auto;
-    hyphens:auto;
+@media only screen and (max-width: 600px) {
 
-    &--forced {
-        word-break:break-word;
+    .cds-wrap-content {
+        word-wrap:break-word;
+        overflow-wrap:break-word;
+        -webkit-hyphens:auto;
+        -ms-hyphens:auto;
+        -moz-hyphens:auto;
+        hyphens:auto;
+
+        &--forced {
+            word-break:break-word;
+        }
     }
+
 }
