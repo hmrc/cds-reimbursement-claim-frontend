@@ -35,7 +35,7 @@
 
     @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
 
-        <div class="govuk-panel govuk-panel--confirmation">
+        <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
             <h1 class="govuk-panel__title">@title</h1>
             <div class="govuk-panel__body">
                 <span>@messages(s"$key.reimbursement-amount")</span><br>
