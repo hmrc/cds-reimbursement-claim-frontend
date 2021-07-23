@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.syntax.all._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, status, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.FileUploadControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._

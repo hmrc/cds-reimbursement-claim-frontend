@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.{FileUploadController, FileUploadServices}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
@@ -33,13 +32,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ScheduledDocumentController @Inject() (
+class ScheduleOfMrnDocumentController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val upscanService: UpscanService,
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
-  fileUploadServices: FileUploadServices,
+  fileUploadHelperInstances: FileUploadHelperInstances,
   uploadPage: pages.upload
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
@@ -49,7 +48,7 @@ class ScheduledDocumentController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  import fileUploadServices._
+  import fileUploadHelperInstances._
 
   implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocument] =
     _.scheduledDocumentAnswer

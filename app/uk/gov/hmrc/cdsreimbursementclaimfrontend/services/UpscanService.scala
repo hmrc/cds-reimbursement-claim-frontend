@@ -26,7 +26,7 @@ import play.api.http.Status.OK
 import play.api.mvc.Call
 import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
@@ -45,7 +45,7 @@ trait UpscanService {
     successRedirect: UploadReference => Call
   )(implicit
     hc: HeaderCarrier,
-    fileUpload: FileUpload[A]
+    fileUpload: FileUploadHelper[A]
   ): EitherT[Future, Error, UpscanUpload]
 
   def getUpscanUpload(
@@ -62,7 +62,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
   def initiate[A](
     errorRedirect: Call,
     successRedirect: UploadReference => Call
-  )(implicit hc: HeaderCarrier, fileUpload: FileUpload[A]): EitherT[Future, Error, UpscanUpload] =
+  )(implicit hc: HeaderCarrier, fileUpload: FileUploadHelper[A]): EitherT[Future, Error, UpscanUpload] =
     for {
       uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
       maybeHttpResponse <- upscanConnector

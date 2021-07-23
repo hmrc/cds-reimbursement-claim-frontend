@@ -1,1 +1,0 @@
-GET         /scheduled/scheduled_document_upload/upload                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule.ScheduledDocumentController.uploadScheduledDocument()

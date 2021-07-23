@@ -18,14 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
-package object upload {
+package object fileupload {
 
-  implicit class UploadOps[A](val maybeAnswer: Option[A]) extends AnyVal {
+  implicit class FileUploadOps[A](val maybeAnswer: Option[A]) extends AnyVal {
 
-    def hasReachedUploadThreshold(implicit fileUpload: FileUpload[A]): Boolean =
+    def hasReachedUploadThreshold(implicit fileUpload: FileUploadHelper[A]): Boolean =
       fileUpload.hasReachedUploadThreshold(maybeAnswer)
 
-    def containsReference(uploadReference: UploadReference)(implicit fileUpload: FileUpload[A]): Boolean =
+    def containsReference(uploadReference: UploadReference)(implicit fileUpload: FileUploadHelper[A]): Boolean =
       fileUpload.hasReference(maybeAnswer, uploadReference)
   }
 }

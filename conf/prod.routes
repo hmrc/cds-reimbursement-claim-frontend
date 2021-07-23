@@ -1,8 +1,7 @@
 # Add all the application routes to the app.routes file
 ->          /claim-for-reimbursement-of-import-duties                   app.Routes
 ->          /claim-for-reimbursement-of-import-duties                   claims.Routes
-->          /claim-for-reimbursement-of-import-duties                   supporting_evidence.Routes
-->          /claim-for-reimbursement-of-import-duties                   scheduled_document_upload.Routes
+->          /claim-for-reimbursement-of-import-duties                   file_upload.Routes
 ->          /                                                           health.Routes
 
 GET         /admin/metrics                                              com.kenshoo.play.metrics.MetricsController.metrics

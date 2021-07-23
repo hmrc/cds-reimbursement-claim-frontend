@@ -21,7 +21,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule.{routes => scheduleRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -108,7 +108,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
       router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
-        scheduleRoutes.ScheduledDocumentController.uploadScheduledDocument()
+        fileUploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
       )
     }
 

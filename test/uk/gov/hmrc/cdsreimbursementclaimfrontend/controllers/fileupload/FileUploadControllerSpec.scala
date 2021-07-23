@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.data.EitherT
 import org.scalamock.handlers.{CallHandler2, CallHandler4}
@@ -23,7 +23,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -56,16 +56,20 @@ abstract class FileUploadControllerSpec extends ControllerSpec with AuthSupport 
     successRedirectCall: UploadReference => Call
   )(
     result: Either[Error, UpscanUpload]
-  ): CallHandler4[Call, UploadReference => Call, HeaderCarrier, FileUpload[A], EitherT[Future, Error, UpscanUpload]] =
+  ): CallHandler4[Call, UploadReference => Call, HeaderCarrier, FileUploadHelper[A], EitherT[
+    Future,
+    Error,
+    UpscanUpload
+  ]] =
     (mockUpscanService
-      .initiate(_: Call, _: UploadReference => Call)(_: HeaderCarrier, _: FileUpload[A]))
+      .initiate(_: Call, _: UploadReference => Call)(_: HeaderCarrier, _: FileUploadHelper[A]))
       .expects(
         where {
           (
             actualErrorRedirectCall: Call,
             actualSuccessRedirectCall: UploadReference => Call,
             _: HeaderCarrier,
-            _: FileUpload[A]
+            _: FileUploadHelper[A]
           ) =>
             val uploadReference = sample[UploadReference]
             actualErrorRedirectCall                    shouldBe errorRedirectCall

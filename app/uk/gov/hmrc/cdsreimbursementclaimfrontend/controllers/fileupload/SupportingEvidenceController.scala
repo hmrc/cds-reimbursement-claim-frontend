@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.{Configuration, Logging}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
+import play.api.{Configuration, Logging}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.{FileUploadController, FileUploadServices}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
@@ -50,7 +49,7 @@ class SupportingEvidenceController @Inject() (
   val upscanService: UpscanService,
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
-  fileUploadServices: FileUploadServices,
+  fileUploadHelperInstances: FileUploadHelperInstances,
   config: Configuration,
   uploadPage: pages.upload,
   chooseDocumentTypePage: pages.choose_document_type,
@@ -66,7 +65,7 @@ class SupportingEvidenceController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  import fileUploadServices._
+  import fileUploadHelperInstances._
 
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
@@ -164,7 +163,7 @@ class SupportingEvidenceController @Inject() (
       }
     }
 
-  //----
+  // TODO: refactor code below in the next tickets
 
   lazy val maxUploads: Int =
     config.underlying.getInt(s"microservice.services.upscan-initiate.supporting-evidence.max-uploads")

@@ -27,8 +27,6 @@ package object config {
     def readSelfBaseUrl: String =
       config.underlying.get[String]("self.url").value
 
-    //---
-
     def readMaxUploadsValue(uploadDocumentKey: String): Int =
       getUpscanInitiateConfig[Int](s"$uploadDocumentKey.max-uploads")
 

@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUploadServices
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -67,11 +67,11 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
 
   "Upscan Connector" when {
 
-    val reference         = sample[UploadReference]
-    val upload            = sample[UpscanUpload]
-    val baseUrl           = "http://host3:123/cds-reimbursement-claim"
-    val fileUploadService = new FileUploadServices(configuration)
-    import fileUploadService._
+    val reference           = sample[UploadReference]
+    val upload              = sample[UpscanUpload]
+    val baseUrl             = "http://host3:123/cds-reimbursement-claim"
+    val fileUploadInstances = new FileUploadHelperInstances(configuration)
+    import fileUploadInstances._
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 

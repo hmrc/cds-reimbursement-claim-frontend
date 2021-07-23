@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.schedule
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.FileUploadControllerSpec
-
-class ScheduledDocumentControllerSpec extends FileUploadControllerSpec {}
+class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {}

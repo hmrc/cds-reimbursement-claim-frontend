@@ -28,7 +28,7 @@ import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.{FileUpload, FileUploadServices}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{FileUploadHelper, FileUploadHelperInstances}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -62,7 +62,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
   val mockUpscanService                    = new UpscanServiceImpl(mockUpscanConnector)
-  val fileUploadServices                   = new FileUploadServices(configuration)
+  val fileUploadInstances                  = new FileUploadHelperInstances(configuration)
 
   val uploadReference: UploadReference = sample[UploadReference]
   val upscanUpload: UpscanUpload       = sample[UpscanUpload]
@@ -74,7 +74,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   "UpscanService" when {
     "receiving an upscan related request" must {
-      import fileUploadServices._
+      import fileUploadInstances._
 
       "get the upscan upload reference data" when {
         "given a valid upload reference" in {
@@ -117,7 +117,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             )
           )
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier, _: FileUpload[ScheduledDocument]))
+            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier, _: FileUploadHelper[ScheduledDocument]))
             .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](response))
           (mockUpscanConnector
@@ -137,7 +137,10 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier, _: FileUpload[SupportingEvidencesAnswer]))
+            .initiate(_: Call, _: Call, _: UploadReference)(
+              _: HeaderCarrier,
+              _: FileUploadHelper[SupportingEvidencesAnswer]
+            ))
             .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, emptyJsonBody))))
           await(

@@ -21,7 +21,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload.FileUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -51,7 +51,7 @@ trait UpscanConnector {
     uploadReference: UploadReference
   )(implicit
     hc: HeaderCarrier,
-    fileUpload: FileUpload[A]
+    fileUpload: FileUploadHelper[A]
   ): EitherT[Future, Error, HttpResponse]
 
 }
@@ -81,7 +81,7 @@ class DefaultUpscanConnector @Inject() (
     uploadReference: UploadReference
   )(implicit
     hc: HeaderCarrier,
-    fileUpload: FileUpload[A]
+    fileUpload: FileUploadHelper[A]
   ): EitherT[Future, Error, HttpResponse] = {
 
     val selfBaseUrl = config.readSelfBaseUrl
@@ -91,7 +91,7 @@ class DefaultUpscanConnector @Inject() (
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
-      config.readMaxFileSize(fileUpload.key)
+      config.readMaxFileSize(fileUpload.configKey)
     )
 
     logger.info(

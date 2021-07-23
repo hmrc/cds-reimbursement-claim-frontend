@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.upload
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -44,7 +44,7 @@ trait FileUploadController {
     answer: Option[A]
   )(
     showUploadPage: UpscanUpload => Result
-  )(implicit fileUpload: FileUpload[A], request: Request[_], ec: ExecutionContext): Future[Result] =
+  )(implicit fileUpload: FileUploadHelper[A], request: Request[_], ec: ExecutionContext): Future[Result] =
     if (answer.hasReachedUploadThreshold)
       Future.successful(Redirect(fileUpload.reviewPage))
     else
@@ -58,7 +58,7 @@ trait FileUploadController {
   def handleUploadCallback[A](uploadReference: UploadReference, claim: FillingOutClaim, answer: Option[A])(
     showScanPage: UpscanUpload => Result
   )(implicit
-    fileUpload: FileUpload[A],
+    fileUpload: FileUploadHelper[A],
     request: RequestWithSessionData[_],
     ec: ExecutionContext
   ): Future[Result] = {
