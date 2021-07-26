@@ -27,6 +27,7 @@ import play.api.libs.json.{JsString, Json}
 import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{FileUploadHelper, FileUploadHelperInstances}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
@@ -62,7 +63,8 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
   val mockUpscanService                    = new UpscanServiceImpl(mockUpscanConnector)
-  val fileUploadInstances                  = new FileUploadHelperInstances(configuration)
+  val fileUploadConfig                     = new FileUploadConfig(configuration)
+  val fileUploadInstances                  = new FileUploadHelperInstances(fileUploadConfig)
 
   val uploadReference: UploadReference = sample[UploadReference]
   val upscanUpload: UpscanUpload       = sample[UpscanUpload]

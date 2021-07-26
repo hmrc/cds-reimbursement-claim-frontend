@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
@@ -56,7 +55,7 @@ trait FileUploadHelper[A] {
 }
 
 @Singleton
-class FileUploadHelperInstances @Inject() (config: Configuration) {
+class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
 
   implicit object SupportingEvidenceUpload extends FileUploadHelper[SupportingEvidencesAnswer] {
 

@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import play.api.Configuration
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
@@ -59,7 +58,7 @@ trait UpscanConnector {
 @Singleton
 class DefaultUpscanConnector @Inject() (
   http: HttpClient,
-  config: Configuration,
+  config: FileUploadConfig,
   servicesConfig: ServicesConfig
 )(implicit
   ec: ExecutionContext
