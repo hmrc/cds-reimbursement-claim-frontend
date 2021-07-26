@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
+import julienrf.json.derived
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
-import java.time.LocalDateTime
+final case class ScheduledDocumentAnswer(uploadDocument: UploadDocument) extends AnyVal
 
-final case class SupportingEvidence(
-  uploadReference: UploadReference,
-  upscanUploadMeta: UpscanUploadMeta,
-  uploadedOn: LocalDateTime,
-  upscanSuccess: UpscanSuccess,
-  fileName: String,
-  documentType: Option[SupportingEvidenceDocumentType]
-)
+object ScheduledDocumentAnswer {
 
-object SupportingEvidence {
-  implicit val format: OFormat[SupportingEvidence] = Json.format
+  implicit val format: OFormat[ScheduledDocumentAnswer] = derived.oformat[ScheduledDocumentAnswer]()
 }

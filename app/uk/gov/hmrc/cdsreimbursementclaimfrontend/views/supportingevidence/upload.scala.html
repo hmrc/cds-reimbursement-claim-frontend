@@ -43,25 +43,25 @@
         <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
             <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
                 <h2 class="govuk-error-summary__title" id="error-summary-title">
-                    There’s a problem
+                    There is a problem
                 </h2>
                 <div class="govuk-error-summary__body">
                     <ul class="govuk-list govuk-error-summary__list">
                         <li>
-                            <a href="#file">@(messages(s"${key}.error.required"))</a>
+                            <a href="#file">@(messages(s"$key.error.required"))</a>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <span id="file-upload-error" class="govuk-error-message">
-                <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
+                <span class="govuk-visually-hidden">Error:</span> @(messages(s"$key.error.required"))
             </span>
         </div>
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.uploadDropDownContent)
 

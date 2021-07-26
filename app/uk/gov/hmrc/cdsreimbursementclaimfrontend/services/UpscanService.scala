@@ -26,6 +26,7 @@ import play.api.http.Status.OK
 import play.api.mvc.Call
 import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
@@ -39,11 +40,12 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UpscanServiceImpl])
 trait UpscanService {
 
-  def initiate(
+  def initiate[A](
     errorRedirect: Call,
     successRedirect: UploadReference => Call
   )(implicit
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    fileUpload: FileUploadHelper[A]
   ): EitherT[Future, Error, UpscanUpload]
 
   def getUpscanUpload(
@@ -53,16 +55,14 @@ trait UpscanService {
 }
 
 @Singleton
-class UpscanServiceImpl @Inject() (
-  upscanConnector: UpscanConnector
-)(implicit ec: ExecutionContext)
+class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec: ExecutionContext)
     extends UpscanService
     with Logging {
 
-  override def initiate(
+  def initiate[A](
     errorRedirect: Call,
     successRedirect: UploadReference => Call
-  )(implicit hc: HeaderCarrier): EitherT[Future, Error, UpscanUpload] =
+  )(implicit hc: HeaderCarrier, fileUpload: FileUploadHelper[A]): EitherT[Future, Error, UpscanUpload] =
     for {
       uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
       maybeHttpResponse <- upscanConnector
@@ -116,5 +116,4 @@ class UpscanServiceImpl @Inject() (
         Left(Error(s"call to get upscan upload failed ${response.status}"))
       }
     }
-
 }

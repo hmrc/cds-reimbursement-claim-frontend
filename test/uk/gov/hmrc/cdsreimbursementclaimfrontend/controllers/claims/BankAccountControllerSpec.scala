@@ -30,12 +30,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountNumber, BankAccountDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes.SupportingEvidenceController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
@@ -88,13 +88,13 @@ class BankAccountControllerSpec
 
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetailsAnswer],
-    supportingEvidences: Option[SupportingEvidenceAnswer] = None
+    supportingEvidences: Option[SupportingEvidencesAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
 
     val draftC285Claim =
       DraftC285Claim.newDraftC285Claim.copy(
         bankAccountDetailsAnswer = maybeBankAccountDetails,
-        supportingEvidenceAnswer = supportingEvidences
+        supportingEvidencesAnswer = supportingEvidences
       )
 
     val ggCredId            = sample[GGCredId]
@@ -217,14 +217,14 @@ class BankAccountControllerSpec
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
       }
 
       "Let skip upload supporting evidence page once users already uploaded evidences" in {
         val businessResponse         =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val bankDetailsAnswer        = CompleteBankAccountDetailAnswer(businessBankAccount)
-        val supportingEvidenceAnswer = sample[SupportingEvidenceAnswer]
+        val supportingEvidenceAnswer = sample[SupportingEvidencesAnswer]
         val (session, _, _)          = sessionWithClaimState(Some(bankDetailsAnswer), Some(supportingEvidenceAnswer))
         val updatedBankAccount       = businessBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession           = updateSession(session, updatedBankAccount)
@@ -238,7 +238,7 @@ class BankAccountControllerSpec
         val request                  = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result                   = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, SupportingEvidenceController.checkYourAnswers())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers())
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in {
@@ -344,7 +344,7 @@ class BankAccountControllerSpec
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, SupportingEvidenceController.uploadSupportingEvidence())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
       }
 
       "Let skip supporting evidence upload page once users already has uploaded evidences" in {
@@ -352,7 +352,7 @@ class BankAccountControllerSpec
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
 
         val bankAccountAnswer = CompleteBankAccountDetailAnswer(personalBankAccount)
-        val evidenceAnswer    = sample[SupportingEvidenceAnswer]
+        val evidenceAnswer    = sample[SupportingEvidencesAnswer]
 
         val (session, _, _)    = sessionWithClaimState(Some(bankAccountAnswer), Some(evidenceAnswer))
         val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
@@ -369,7 +369,7 @@ class BankAccountControllerSpec
         val request = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result  = controller.enterBankAccountDetailsSubmit(request)
 
-        checkIsRedirect(result, SupportingEvidenceController.checkYourAnswers())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers())
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in {
