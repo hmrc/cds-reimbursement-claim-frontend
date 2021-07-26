@@ -51,7 +51,7 @@ trait UpscanConnector {
     uploadReference: UploadReference
   )(implicit
     hc: HeaderCarrier,
-    fileUpload: FileUploadHelper[A]
+    fileUploadHelper: FileUploadHelper[A]
   ): EitherT[Future, Error, HttpResponse]
 
 }
