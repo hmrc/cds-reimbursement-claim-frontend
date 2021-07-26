@@ -81,7 +81,7 @@ class DefaultUpscanConnector @Inject() (
     uploadReference: UploadReference
   )(implicit
     hc: HeaderCarrier,
-    fileUpload: FileUploadHelper[A]
+    fileUploadHelper: FileUploadHelper[A]
   ): EitherT[Future, Error, HttpResponse] = {
 
     val selfBaseUrl = config.readSelfBaseUrl
@@ -91,12 +91,12 @@ class DefaultUpscanConnector @Inject() (
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
-      config.readMaxFileSize(fileUpload.configKey)
+      config.readMaxFileSize(fileUploadHelper.configKey)
     )
 
     logger.info(
       "make upscan initiate call with " +
-        s"call back url ${payload.callbackUrl} " +
+        s"call back url ${payload.callbackUrl} for '${fileUploadHelper.configKey}' upload" +
         s"| success redirect url ${payload.successRedirect} " +
         s"| error redirect url ${payload.errorRedirect}"
     )

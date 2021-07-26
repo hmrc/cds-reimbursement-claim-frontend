@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
 
 import java.util.UUID
 
@@ -60,7 +59,7 @@ object DraftClaim {
     claimsAnswer: Option[ClaimsAnswer] = None,
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
-    scheduledDocumentAnswer: Option[ScheduledDocument] = None
+    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None
   ) extends DraftClaim
 
   object DraftC285Claim {

@@ -15,4 +15,4 @@ GET         /single/supporting-evidence/handle-upscan-error-redirect            
 GET         /single/supporting-evidence/document-did-not-upload                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.documentDidNotUpload()
 GET         /single/supporting-evidence/problem-with-document                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.handleUpscanCallBackFailures()
 
-GET         /scheduled/scheduled_document_upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+GET         /scheduled/scheduled-document-upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocument()

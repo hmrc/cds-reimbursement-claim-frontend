@@ -29,11 +29,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{FileUploadHelper, FileUploadHelperInstances}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -117,7 +117,10 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             )
           )
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier, _: FileUploadHelper[ScheduledDocument]))
+            .initiate(_: Call, _: Call, _: UploadReference)(
+              _: HeaderCarrier,
+              _: FileUploadHelper[ScheduledDocumentAnswer]
+            ))
             .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](response))
           (mockUpscanConnector
@@ -126,7 +129,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             .returning(EitherT.fromEither[Future](Right(HttpResponse(OK, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate[ScheduledDocument](mockFailure, (_: UploadReference) => mockSuccess)
+              .initiate[ScheduledDocumentAnswer](mockFailure, (_: UploadReference) => mockSuccess)
               .value
           ).isRight shouldBe true
         }

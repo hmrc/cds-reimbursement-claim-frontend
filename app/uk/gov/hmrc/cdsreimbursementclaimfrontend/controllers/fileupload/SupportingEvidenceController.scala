@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.supportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
@@ -174,7 +174,7 @@ class SupportingEvidenceController @Inject() (
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SupportingEvidencesAnswer] { (fillingOutClaim, maybeEvidences) =>
-        def removeEvidence(evidences: NonEmptyList[SupportingEvidence]) =
+        def removeEvidence(evidences: NonEmptyList[UploadDocument]) =
           NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
         val newDraftClaim = fillingOutClaim.draftClaim.fold(
@@ -223,8 +223,8 @@ class SupportingEvidenceController @Inject() (
 object SupportingEvidenceController {
 
   final case class ChooseSupportingEvidenceDocumentType(
-    supportingEvidenceDocumentType: SupportingEvidenceDocumentType
-  )
+    supportingEvidenceDocumentType: UploadDocumentType
+  ) extends AnyVal
 
   val chooseDocumentTypeDataKey: String = "supporting-evidence.choose-document-type"
 
@@ -234,11 +234,11 @@ object SupportingEvidenceController {
         chooseDocumentTypeDataKey -> number
           .verifying(
             "invalid supporting evidence document type",
-            documentTypeIndex => SupportingEvidenceDocumentTypes.indices.contains(documentTypeIndex)
+            documentTypeIndex => supportingEvidenceDocumentTypes.indices.contains(documentTypeIndex)
           )
-          .transform[SupportingEvidenceDocumentType](
-            documentTypeIndex => SupportingEvidenceDocumentTypes(documentTypeIndex),
-            documentType => SupportingEvidenceDocumentTypes.indexOf(documentType)
+          .transform[UploadDocumentType](
+            documentTypeIndex => supportingEvidenceDocumentTypes(documentTypeIndex),
+            documentType => supportingEvidenceDocumentTypes.indexOf(documentType)
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )

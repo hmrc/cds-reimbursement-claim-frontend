@@ -21,8 +21,8 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, SupportingEvidence, UploadReference, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
@@ -76,7 +76,7 @@ class FileUploadHelperInstances @Inject() (config: Configuration) {
       fillingOutClaim: FillingOutClaim
     ): FillingOutClaim = {
 
-      val newEvidence = SupportingEvidence(
+      val newEvidence = UploadDocument(
         upload.uploadReference,
         upload.upscanUploadMeta,
         upload.uploadedOn,
@@ -103,33 +103,36 @@ class FileUploadHelperInstances @Inject() (config: Configuration) {
     def reviewPage: Call = uploadRoutes.SupportingEvidenceController.checkYourAnswers()
   }
 
-  implicit object ScheduledDocumentUpload extends FileUploadHelper[ScheduledDocument] {
+  implicit object ScheduledDocumentUpload extends FileUploadHelper[ScheduledDocumentAnswer] {
 
     val configKey: String = "schedule-of-mrn"
     val maxUploads: Int   = config.readMaxUploadsValue(configKey)
 
-    def hasReachedUploadThreshold(maybeAnswer: Option[ScheduledDocument]): Boolean =
+    def hasReachedUploadThreshold(maybeAnswer: Option[ScheduledDocumentAnswer]): Boolean =
       maybeAnswer.toList.length >= maxUploads
 
-    def hasReference(maybeAnswer: Option[ScheduledDocument], uploadReference: UploadReference): Boolean =
-      maybeAnswer.exists(_.uploadReference === uploadReference)
+    def hasReference(maybeAnswer: Option[ScheduledDocumentAnswer], uploadReference: UploadReference): Boolean =
+      maybeAnswer.exists(_.uploadDocument.uploadReference === uploadReference)
 
     def add(
       upload: UpscanUpload,
       callback: UpscanSuccess,
-      maybeAnswer: Option[ScheduledDocument],
+      maybeAnswer: Option[ScheduledDocumentAnswer],
       fillingOutClaim: FillingOutClaim
     ): FillingOutClaim = {
 
-      val scheduledDocument = ScheduledDocument(
-        callback.fileName,
-        upload.uploadReference,
-        upload.uploadedOn,
-        upload.upscanUploadMeta,
-        callback
+      val answer = ScheduledDocumentAnswer(
+        UploadDocument(
+          upload.uploadReference,
+          upload.upscanUploadMeta,
+          upload.uploadedOn,
+          callback,
+          callback.fileName,
+          UploadDocumentType.ScheduleOfMRNs.some
+        )
       )
 
-      FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = scheduledDocument.some))
+      FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = answer.some))
     }
 
     def uploadErrorPage: Call =

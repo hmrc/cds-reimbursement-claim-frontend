@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.ScheduledDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -50,12 +50,12 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   import fileUploadHelperInstances._
 
-  implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocument] =
+  implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
 
   def uploadScheduledDocument(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ScheduledDocument] { (_, answer) =>
+      withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
         initiateUpload(answer)(upscanUpload => Ok(uploadPage(upscanUpload)))
       }
     }

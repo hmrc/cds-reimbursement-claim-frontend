@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.ChooseSupportingEvidenceDocumentType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidenceDocumentType.SupportingEvidenceDocumentTypes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.supportingEvidenceDocumentTypes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 @import cats.implicits.catsSyntaxOptionId
@@ -60,7 +60,7 @@
                 form = form,
                 id = key,
                 name = key,
-                items = SupportingEvidenceDocumentTypes.indices.foldLeft(Seq(SelectItem(
+                items = supportingEvidenceDocumentTypes.indices.foldLeft(Seq(SelectItem(
                     value = Some(""),
                     text = messages(s"generic.defaultOption")
                 ))) { (selectItems, idx) =>

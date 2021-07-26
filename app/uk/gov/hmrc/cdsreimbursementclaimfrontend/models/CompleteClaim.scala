@@ -35,11 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{ScheduledDocument, SupportingEvidence}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 
@@ -69,7 +69,7 @@ object CompleteClaim {
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
     declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
     claimsAnswer: ClaimsAnswer,
-    scheduledDocumentAnswer: Option[ScheduledDocument]
+    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -507,7 +507,7 @@ object CompleteClaim {
     def movementReferenceNumber: Either[EntryNumber, MRN] =
       completeClaim.get(_.movementReferenceNumber.value)
 
-    def supportingEvidences: List[SupportingEvidence] =
+    def supportingEvidences: List[UploadDocument] =
       completeClaim.get(_.supportingEvidencesAnswer.toList)
 
     def totalUKDutyClaim: String = {

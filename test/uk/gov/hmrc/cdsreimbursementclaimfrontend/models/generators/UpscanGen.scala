@@ -38,10 +38,7 @@ object UpscanGen extends OptionValues {
 
   implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
-    gen[SupportingEvidenceDocumentType]
-
-  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
+  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = gen[UploadDocument]
 
   implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
     for {
@@ -55,4 +52,7 @@ object UpscanGen extends OptionValues {
 
   def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
+
+  def genSupportingDocumentType: Gen[UploadDocumentType] =
+    Gen.oneOf(UploadDocumentType.supportingEvidenceDocumentTypes)
 }

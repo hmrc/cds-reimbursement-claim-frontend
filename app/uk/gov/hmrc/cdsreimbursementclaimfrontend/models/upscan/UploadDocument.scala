@@ -21,14 +21,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.Up
 
 import java.time.LocalDateTime
 
-final case class ScheduledDocument(
-  fileName: String,
+final case class UploadDocument(
   uploadReference: UploadReference,
-  uploadedOn: LocalDateTime,
   upscanUploadMeta: UpscanUploadMeta,
-  upscanSuccess: UpscanSuccess
+  uploadedOn: LocalDateTime,
+  upscanSuccess: UpscanSuccess,
+  fileName: String,
+  documentType: Option[UploadDocumentType]
 )
 
-object ScheduledDocument {
-  implicit val format: OFormat[ScheduledDocument] = Json.format
+object UploadDocument {
+  implicit val format: OFormat[UploadDocument] = Json.format
 }

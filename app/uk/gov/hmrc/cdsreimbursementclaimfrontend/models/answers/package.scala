@@ -18,16 +18,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 package object answers {
 
-  type SupportingEvidencesAnswer = NonEmptyList[SupportingEvidence]
+  type SupportingEvidencesAnswer = NonEmptyList[UploadDocument]
   type DutiesSelectedAnswer      = NonEmptyList[Duty]
   type ClaimsAnswer              = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {
-    def apply(evidence: SupportingEvidence): NonEmptyList[SupportingEvidence] =
+    def apply(evidence: UploadDocument): NonEmptyList[UploadDocument] =
       NonEmptyList.one(evidence)
   }
 
