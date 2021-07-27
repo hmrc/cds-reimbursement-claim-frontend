@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ContactDetails, EstablishmentAddress, NdrcDetails}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
@@ -33,4 +33,7 @@ object Acc14Gen {
 
   implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
 
+  implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
+
+  implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
 }

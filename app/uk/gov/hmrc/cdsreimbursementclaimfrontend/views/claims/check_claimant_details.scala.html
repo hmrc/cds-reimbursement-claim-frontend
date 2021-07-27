@@ -26,7 +26,7 @@
 @this(
     claimantDetailsHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.ClaimantDetailsHelper,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link,
+    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
@@ -42,6 +42,6 @@
 
     @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(namePhoneEmail, establishmentAddress)))
 
-    @buttonLink(messages("button.continue"), router.nextPageForClaimantDetails(featureSwitch).url)
+    @buttonLink("button.continue", Some(router.nextPageForClaimantDetails(featureSwitch).url))
 }
 

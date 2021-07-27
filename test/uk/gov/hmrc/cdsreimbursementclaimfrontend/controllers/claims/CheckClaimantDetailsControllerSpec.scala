@@ -1,10 +1,24 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Functor
-import cats.Id
+import cats.{Functor, Id}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -12,30 +26,21 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.PersonalEffects
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DisplayDeclaration, DisplayResponseDetail, EstablishmentAddress}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MovementReferenceNumber, SessionData, SignedInUserDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import scala.concurrent.Future
 
 class CheckClaimantDetailsControllerSpec
@@ -64,7 +69,7 @@ class CheckClaimantDetailsControllerSpec
   )
 
   private def getSessionWithPreviousAnswer(
-    displayDeclaration: Option[DisplayDeclaration] = None
+    displayDeclaration: Option[DisplayDeclaration]
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       displayDeclaration = displayDeclaration
@@ -101,37 +106,12 @@ class CheckClaimantDetailsControllerSpec
   }
 
   implicit class ExtractFillingOutClaimClass(sessionData: SessionData) {
-    def extractFillingOutClaim():FillingOutClaim = {
+    def extractFillingOutClaim(): FillingOutClaim =
       sessionData.journeyStatus match {
-        case Some(f@FillingOutClaim(_,_,_)) => f
-        case _                                                         => fail("Failed to update DisplayResponseDetail")
+        case Some(f @ FillingOutClaim(_, _, _)) => f
+        case _                                  => fail("Failed to update DisplayResponseDetail")
       }
-    }
   }
-
-
-  def getEstablishmentAddress(prefix: String): EstablishmentAddress =
-    EstablishmentAddress(
-      addressLine1 = s"$prefix.addLine1",
-      addressLine2 = Some(s"$prefix.addLine2"),
-      addressLine3 = Some(s"$prefix.addLine3"),
-      postalCode = Some(s"$prefix.pc"),
-      countryCode = "GB"
-    )
-
-  def getContactDetails(prefix: String): ContactDetails =
-    ContactDetails(
-      contactName = Some(s"$prefix.JohnSmith"),
-      addressLine1 = Some(s"$prefix.addLine1"),
-      addressLine2 = Some(s"$prefix.addLine2"),
-      addressLine3 = Some(s"$prefix.addLine3"),
-      addressLine4 = Some(s"$prefix.addLine4"),
-      postalCode = Some(s"$prefix.postalCode"),
-      countryCode = Some("GB"),
-      telephone = Some(s"$prefix.telephone"),
-      emailAddress = Some(s"$prefix.email")
-    )
-
 
   "CheckClaimantDetailsController" must {
 
@@ -154,8 +134,17 @@ class CheckClaimantDetailsControllerSpec
     }
 
     "display the page" in forAll(journeys) { journey =>
-      val displayDeclaration = sample[DisplayDeclaration]
-      val session            = getSessionWithPreviousAnswer(Some(displayDeclaration))._1
+      val contactDetails       = sample[ContactDetails].copy(telephone = Some(sample[PhoneNumber].value))
+      val establishmentAddress = sample[EstablishmentAddress]
+      val consignee            = sample[ConsigneeDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val displayDeclaration   = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consignee)))
+      )
+      val session              =
+        getSessionWithPreviousAnswer(Some(displayDeclaration))._1
+          .withDeclarantType(DeclarantTypeAnswer.Importer)
+          .withAcc14Data(displayDeclaration.displayResponseDetail)
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -166,31 +155,64 @@ class CheckClaimantDetailsControllerSpec
         performAction(journey),
         messageFromMessageKey("claimant-details.title"),
         doc => {
-          println(doc)
-          //doc.select("")
+          val paragraphs = doc.select("dd > p")
+          paragraphs.get(0).text() shouldBe consignee.legalName
+          paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
         }
       )
     }
   }
 
   "CheckClaimantDetailsController Companion object" should {
+
     "extract contact details for Importer" in {
-      val contactDetails       = getContactDetails("acc14.cons.cont")
-      val establishmentAddress = getEstablishmentAddress("acc14.cons.est")
-      val consignee            = sample[ConsigneeDetails]
+      val contactDetails             = sample[ContactDetails]
+      val establishmentAddress       = sample[EstablishmentAddress]
+      val consignee                  = sample[ConsigneeDetails]
         .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
-      val displayDeclaration        = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consignee))))
-      val (session,fillingOutClaim)            = getSessionWithPreviousAnswer(Some(displayDeclaration))
+      val displayDeclaration         = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consignee)))
+      )
+      val (session, fillingOutClaim) = getSessionWithPreviousAnswer(Some(displayDeclaration))
 
-        val foc = session
-          .withDeclarantType(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany)
+      val foc = session
+        .withDeclarantType(DeclarantTypeAnswer.Importer)
         .withAcc14Data(displayDeclaration.displayResponseDetail)
-          .extractFillingOutClaim
+        .extractFillingOutClaim
 
-      val res = extractContactsRegisteredWithCDSA(foc)
-      //println(res)
+      val namePhoneEmail = extractContactsRegisteredWithCDSA(foc)
+      namePhoneEmail.name.getOrElse(fail())   shouldBe consignee.legalName
+      namePhoneEmail.phoneNumber.map(_.value) shouldBe consignee.contactDetails.flatMap(_.telephone)
+      namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
+
+      val address = extractEstablishmentAddress(foc)
+      address.getOrElse(fail) shouldBe establishmentAddress
     }
+
+    "extract contact details and address for Representative Company" in {
+      val contactDetails             = sample[ContactDetails]
+      val establishmentAddress       = sample[EstablishmentAddress]
+      val declarant                  = sample[DeclarantDetails]
+        .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+      val displayDeclaration         = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(declarantDetails = declarant))
+      )
+      val (session, fillingOutClaim) = getSessionWithPreviousAnswer(Some(displayDeclaration))
+
+      val foc = session
+        .withDeclarantType(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany)
+        .withAcc14Data(displayDeclaration.displayResponseDetail)
+        .extractFillingOutClaim
+
+      val namePhoneEmail = extractContactsRegisteredWithCDSA(foc)
+      namePhoneEmail.name.getOrElse(fail())   shouldBe declarant.legalName
+      namePhoneEmail.phoneNumber.map(_.value) shouldBe declarant.contactDetails.flatMap(_.telephone)
+      namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
+
+      val address = extractEstablishmentAddress(foc)
+      address.getOrElse(fail) shouldBe establishmentAddress
+    }
+
   }
 
 }
