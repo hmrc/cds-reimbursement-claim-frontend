@@ -71,7 +71,6 @@ class ScheduleOfMrnDocumentController @Inject() (
       }
     }
 
-  // should be async?
   def scanProgressSubmit(
     uploadReference: String
   ): Action[AnyContent] =

@@ -56,18 +56,4 @@ object UpscanGen extends OptionValues {
   def genSupportingDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.supportingEvidenceDocumentTypes)
 
-//  implicit val arbitraryScheduledDocument: Typeclass[UploadDocument] = gen[UploadDocument]
-//
-//  implicit val arbitraryScheduledDocumentAnswer: Typeclass[ScheduledDocumentAnswer] = Arbitrary(
-//    for {
-//      n         <- Gen.chooseNum(1, 2)
-//      evidences <- arbitraryScheduledDocumentAnswerOfN(n).arbitrary
-//    } yield evidences.value
-//  )
-//
-//  def arbitraryScheduledDocumentAnswerOpt: Typeclass[Option[ScheduledDocumentAnswer]] =
-//    Arbitrary(Gen.option(arbitraryScheduledDocumentAnswer.arbitrary))
-//
-//  def arbitraryScheduledDocumentAnswerOfN(n: Int): Typeclass[Option[ScheduledDocumentAnswer]] =
-//    Arbitrary(Gen.listOfN(n, arbitraryScheduledDocument.arbitrary))
 }
