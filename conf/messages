@@ -795,6 +795,11 @@ schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
 
+
+schedule-document.scan-progress.title=We are checking your document
+schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
+schedule-document.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
