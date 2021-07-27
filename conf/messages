@@ -792,6 +792,18 @@ supporting-evidence.choose-document-type.document-type.d8=Import and Export Decl
 supporting-evidence.choose-document-type.document-type.d9=Other documents
 
 #===================================================
+#  SCHEDULED DOCUMENT PAGES
+#===================================================
+schedule-document.upload.title=Add a scheduled document
+schedule-document.upload.help-text=Upload the scheduled document with all the MRNs. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.<br/><br/>Your document should include a list of all MRNs linked with the claim.
+schedule-document.upload.things-to-show.p1=Each MRN should show:
+schedule-document.upload.things-to-show.l1=the amount of tax you paid on it
+schedule-document.upload.things-to-show.l2=the amount you should have paid on it
+schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
+schedule-document.upload.input-title=Select document
+schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
+
+#===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
 check-your-answers.title=Check your answers before sending your application

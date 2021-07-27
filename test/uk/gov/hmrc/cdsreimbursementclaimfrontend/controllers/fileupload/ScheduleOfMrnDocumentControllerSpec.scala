@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
-@(
-    heading: String,
-    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
-    level: String = "h1"
-)
-
-<@level class="@classes">
-    @heading
-</@level>
+class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {}

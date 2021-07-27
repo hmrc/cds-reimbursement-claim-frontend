@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-@(
-    heading: String,
-    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
-    level: String = "h1"
-)
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
-<@level class="@classes">
-    @heading
-</@level>
+package object fileupload {
+
+  implicit class FileUploadOps[A](val maybeAnswer: Option[A]) extends AnyVal {
+
+    def hasReachedUploadThreshold(implicit fileUpload: FileUploadHelper[A]): Boolean =
+      fileUpload.hasReachedUploadThreshold(maybeAnswer)
+
+    def containsReference(uploadReference: UploadReference)(implicit fileUpload: FileUploadHelper[A]): Boolean =
+      fileUpload.hasReference(maybeAnswer, uploadReference)
+  }
+}

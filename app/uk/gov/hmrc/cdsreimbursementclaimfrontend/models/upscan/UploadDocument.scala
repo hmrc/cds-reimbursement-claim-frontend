@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
-@(
-    heading: String,
-    classes: String = "govuk-heading-xl govuk-!-margin-bottom-4 cds-wrap-content",
-    level: String = "h1"
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
+
+import java.time.LocalDateTime
+
+final case class UploadDocument(
+  uploadReference: UploadReference,
+  upscanUploadMeta: UpscanUploadMeta,
+  uploadedOn: LocalDateTime,
+  upscanSuccess: UpscanSuccess,
+  fileName: String,
+  documentType: Option[UploadDocumentType]
 )
 
-<@level class="@classes">
-    @heading
-</@level>
+object UploadDocument {
+  implicit val format: OFormat[UploadDocument] = Json.format
+}
