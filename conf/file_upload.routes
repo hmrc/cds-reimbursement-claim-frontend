@@ -18,3 +18,6 @@ GET         /single/supporting-evidence/problem-with-document                   
 GET         /scheduled/scheduled-document-upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocument()
 GET         /scheduled/scheduled-document-upload/handle-size-fail-redirect         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
 GET         /scheduled/scheduled-document-upload/size-fail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
+
+GET         /scheduled/scheduled-document-upload/scan-progress/:id                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /scheduled/scheduled-document-upload/scan-progress                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id : String)

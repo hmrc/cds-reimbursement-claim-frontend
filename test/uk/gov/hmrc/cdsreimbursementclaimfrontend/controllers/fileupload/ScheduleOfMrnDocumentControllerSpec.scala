@@ -76,7 +76,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             mockGetSession(session)
             mockUpscanInitiate(
               routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(),
-              routes.SupportingEvidenceController.scanProgress
+              routes.ScheduleOfMrnDocumentController.scanProgress
             )(Right(upscanUpload))
           }
 

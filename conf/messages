@@ -801,6 +801,11 @@ schedule-document.size-fail.bullet2=your file was larger than 10MB
 schedule-document.size-fail.p2=You’ll need to try again.
 schedule-document.size-fail.button.tryAgain=Try again
 
+
+schedule-document.scan-progress.title=We are checking your document
+schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
+schedule-document.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================

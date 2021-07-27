@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -40,6 +41,7 @@ class ScheduleOfMrnDocumentController @Inject() (
   val sessionStore: SessionCache,
   fileUploadHelperInstances: FileUploadHelperInstances,
   uploadPage: pages.upload,
+  scanProgressPage: pages.scan_progress,
   fileSizeErrorPage: pages.size_fail
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
@@ -70,4 +72,23 @@ class ScheduleOfMrnDocumentController @Inject() (
     authenticatedActionWithSessionData { implicit request =>
       Ok(fileSizeErrorPage())
     }
+
+  def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[ScheduledDocumentAnswer] { (fillingOut, answer) =>
+        handleUploadCallback(uploadReference, fillingOut, answer)(uploadReference =>
+          Ok(scanProgressPage(uploadReference))
+        )
+      }
+    }
+
+  def scanProgressSubmit(
+    uploadReference: String
+  ): Action[AnyContent] =
+    authenticatedActionWithSessionData { _ =>
+      Redirect(
+        routes.ScheduleOfMrnDocumentController.scanProgress(UploadReference(uploadReference))
+      )
+    }
+
 }

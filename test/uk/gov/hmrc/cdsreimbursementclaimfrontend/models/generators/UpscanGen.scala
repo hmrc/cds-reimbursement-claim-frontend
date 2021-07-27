@@ -55,4 +55,5 @@ object UpscanGen extends OptionValues {
 
   def genSupportingDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.supportingEvidenceDocumentTypes)
+
 }
