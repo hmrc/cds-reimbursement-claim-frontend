@@ -39,7 +39,8 @@ class ScheduleOfMrnDocumentController @Inject() (
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
   fileUploadHelperInstances: FileUploadHelperInstances,
-  uploadPage: pages.upload
+  uploadPage: pages.upload,
+  fileSizeErrorPage: pages.size_fail
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with FileUploadController
@@ -58,5 +59,15 @@ class ScheduleOfMrnDocumentController @Inject() (
       withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
         initiateUpload(answer)(upscanUpload => Ok(uploadPage(upscanUpload)))
       }
+    }
+
+  def handleFileSizeErrorCallback(): Action[AnyContent] =
+    authenticatedActionWithSessionData {
+      Redirect(routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage())
+    }
+
+  def showFileSizeErrorPage(): Action[AnyContent] =
+    authenticatedActionWithSessionData { implicit request =>
+      Ok(fileSizeErrorPage())
     }
 }

@@ -794,6 +794,12 @@ schedule-document.upload.things-to-show.l2=the amount you should have paid on it
 schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
+schedule-document.size-fail.title=There is a problem with the file you uploaded
+schedule-document.size-fail.p1=This could be because:
+schedule-document.size-fail.bullet1=the service has experienced technical issues
+schedule-document.size-fail.bullet2=your file was larger than 10MB
+schedule-document.size-fail.p2=You’ll need to try again.
+schedule-document.size-fail.button.tryAgain=Try again
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
