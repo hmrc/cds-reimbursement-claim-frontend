@@ -138,7 +138,7 @@ class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
       uploadRoutes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
 
     def handleUploadCallback(uploadReference: UploadReference): Call =
-      uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(uploadReference) // shiva
+      uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(uploadReference)
 
     def scanSuccessPage(uploadReference: UploadReference): Call =
       uploadRoutes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(

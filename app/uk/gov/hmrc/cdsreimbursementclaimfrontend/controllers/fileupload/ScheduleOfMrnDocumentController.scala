@@ -42,7 +42,6 @@ class ScheduleOfMrnDocumentController @Inject() (
   fileUploadHelperInstances: FileUploadHelperInstances,
   uploadPage: pages.upload,
   scanProgressPage: pages.scan_progress,
-  uploadPage: pages.upload,
   fileSizeErrorPage: pages.size_fail
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
