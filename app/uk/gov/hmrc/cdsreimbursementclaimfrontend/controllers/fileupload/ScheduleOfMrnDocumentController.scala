@@ -42,7 +42,8 @@ class ScheduleOfMrnDocumentController @Inject() (
   fileUploadHelperInstances: FileUploadHelperInstances,
   uploadPage: pages.upload,
   scanProgressPage: pages.scan_progress,
-  fileSizeErrorPage: pages.size_fail
+  fileSizeErrorPage: pages.size_fail,
+  formatVirusErrorPage: pages.format_virus_fail
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with FileUploadController
@@ -91,4 +92,8 @@ class ScheduleOfMrnDocumentController @Inject() (
       )
     }
 
+  def handleFormatOrVirusCheckErrorCallback(): Action[AnyContent] =
+    authenticatedActionWithSessionData { implicit request =>
+      Ok(formatVirusErrorPage())
+    }
 }
