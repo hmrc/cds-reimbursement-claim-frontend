@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DetailsRegisteredWithCdsAnswer, NamePhoneEmail}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -41,7 +40,6 @@ class CheckClaimantDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  featureSwitch: FeatureSwitchService,
   claimantDetails: pages.check_claimant_details
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
@@ -58,7 +56,7 @@ class CheckClaimantDetailsController @Inject() (
       withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (fillingOutClaim, _, router) =>
         val namePhoneEmail       = extractContactsRegisteredWithCDSA(fillingOutClaim)
         val establishmentAddress = extractEstablishmentAddress(fillingOutClaim)
-        Ok(claimantDetails(namePhoneEmail, establishmentAddress, router, featureSwitch))
+        Ok(claimantDetails(namePhoneEmail, establishmentAddress, router))
       }
     }
 
