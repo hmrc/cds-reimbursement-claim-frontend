@@ -300,6 +300,10 @@ countryCode.enter-your-contact-details.error.required=Enter a country
 claimant-details.title=Check your details as registered with CDS
 claimant-details.registered.details=Details as registered with CDS
 claimant-details.registered.address=Address as registered with CDS
+claimant-details.contact.details=Contact Details
+claimant-details.contact.address=Contact Address
+claimant-details.change=Change
+
 
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE

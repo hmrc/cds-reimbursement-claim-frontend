@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 
 @this(
@@ -31,7 +32,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(namePhoneEmail: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], router: ReimbursementRoutes, featureSwitch: FeatureSwitchService)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes, featureSwitch: FeatureSwitchService)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckClaimantDetailsController.languageKey}
 @title = @{messages(s"$key.title")}
@@ -40,7 +41,16 @@
 
     @pageHeading(title)
 
-    @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(namePhoneEmail, establishmentAddress)))
+
+    <h2 class="govuk-heading-m govuk-!-margin-bottom-6">Details as registered with CDS</h2>
+    @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(registeredContactDetails, establishmentAddress)))
+
+
+    <h2 class="govuk-heading-m">Contact details</h2>
+    <div class="govuk-body govuk-!-margin-bottom-6">
+        These are the details we will use to contact you about your claim.
+    </div>
+    @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress)))
 
     @buttonLink("button.continue", Some(router.nextPageForClaimantDetails(featureSwitch).url))
 }

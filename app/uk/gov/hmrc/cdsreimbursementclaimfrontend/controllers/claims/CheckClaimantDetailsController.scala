@@ -34,6 +34,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @Singleton
 class CheckClaimantDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
@@ -58,7 +60,9 @@ class CheckClaimantDetailsController @Inject() (
       withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (fillingOutClaim, _, router) =>
         val namePhoneEmail       = extractContactsRegisteredWithCDSA(fillingOutClaim)
         val establishmentAddress = extractEstablishmentAddress(fillingOutClaim)
-        Ok(claimantDetails(namePhoneEmail, establishmentAddress, router, featureSwitch))
+        val contactDetails       = extractContactDetails(fillingOutClaim)
+        val contactAddress       = extractContactAddress(fillingOutClaim)
+        Ok(claimantDetails(namePhoneEmail, establishmentAddress, contactDetails, contactAddress, router, featureSwitch))
       }
     }
 
@@ -101,4 +105,47 @@ object CheckClaimantDetailsController {
       }
       .getOrElse(None)
   }
+
+  def extractContactDetails(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
+    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+    val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
+    Applicative[Option]
+      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
+        declarantType match {
+          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+            val consignee = declaration.displayResponseDetail.consigneeDetails
+            val name      = consignee.flatMap(_.contactDetails).flatMap(_.contactName)
+            val phone     = consignee.flatMap(_.contactDetails).flatMap(_.telephone)
+            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
+          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+            val declarant = declaration.displayResponseDetail.declarantDetails
+            val name      = declarant.contactDetails.flatMap(_.contactName)
+            val phone     = declarant.contactDetails.flatMap(_.telephone)
+            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
+        }
+      }
+      .getOrElse(NamePhoneEmail(None, None, None))
+  }
+
+  def extractContactAddress(fillingOutClaim: FillingOutClaim): Option[NonUkAddress] = {
+    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+    Applicative[Option]
+      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
+        val contactDetails = declarantType match {
+          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+            declaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails)
+          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+            declaration.displayResponseDetail.declarantDetails.contactDetails
+        }
+        NonUkAddress(
+          contactDetails.flatMap(_.addressLine1).getOrElse(""),
+          contactDetails.flatMap(_.addressLine2),
+          None,
+          contactDetails.flatMap(_.addressLine3).getOrElse(""),
+          contactDetails.flatMap(_.postalCode).getOrElse(""),
+          contactDetails.flatMap(_.countryCode).map(Country(_)).getOrElse(Country.uk)
+        )
+      }
+  }
+
 }
