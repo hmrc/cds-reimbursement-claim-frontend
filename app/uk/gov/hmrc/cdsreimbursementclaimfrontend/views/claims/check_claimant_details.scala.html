@@ -18,7 +18,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
@@ -33,6 +32,7 @@
 )
 
 @(registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes, featureSwitch: FeatureSwitchService)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(namePhoneEmail: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckClaimantDetailsController.languageKey}
 @title = @{messages(s"$key.title")}
@@ -52,6 +52,6 @@
     </div>
     @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress)))
 
-    @buttonLink("button.continue", Some(router.nextPageForClaimantDetails(featureSwitch).url))
+    @buttonLink("button.continue", Some(router.nextPageForClaimantDetails().url))
 }
 
