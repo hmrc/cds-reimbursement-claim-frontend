@@ -26,8 +26,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
@@ -110,6 +112,57 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
           )
         }
+      }
+
+      "show file format or infected file error page" when {
+        "an upscan failure call back is received" in {
+          def performAction(): Future[Result] =
+            controller.handleFormatOrVirusCheckErrorCallback()(
+              FakeRequest()
+            )
+
+          val (session, _, _) = sessionWithClaimState(None)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(
+              "schedule-document.format-virus-fail.title"
+            )
+          )
+        }
+      }
+
+      "handle file format or virus upscan call back" in {
+        def performAction(uploadReference: UploadReference): Future[Result] =
+          controller.scanProgress(uploadReference)(FakeRequest())
+
+        val uploadReference = sample[UploadReference]
+
+        val upscanFailure = sample[UpscanFailure]
+
+        val upscanUpload =
+          sample[UpscanUpload].copy(
+            uploadReference = uploadReference,
+            upscanCallBack = Some(upscanFailure)
+          )
+
+        val (session, _, _) = sessionWithClaimState(None)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockGetUpscanUpload(uploadReference)(Right(upscanUpload))
+        }
+
+        checkIsRedirect(
+          performAction(uploadReference),
+          routes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
+        )
       }
     }
   }

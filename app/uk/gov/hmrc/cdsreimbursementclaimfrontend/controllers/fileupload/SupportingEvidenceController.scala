@@ -177,11 +177,8 @@ class SupportingEvidenceController @Inject() (
         def removeEvidence(evidences: NonEmptyList[UploadDocument]) =
           NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
-        val newDraftClaim = fillingOutClaim.draftClaim.fold(
-          _.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence)
-        )
-
-        val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+        val newJourney =
+          FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence))
 
         val result = for {
           _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
