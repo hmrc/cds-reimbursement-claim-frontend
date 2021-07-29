@@ -216,12 +216,10 @@ object ScheduledDocumentUploadRoutes extends FileUploadRoutes {
     uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(uploadReference)
 
   def scanSuccessPage(uploadReference: UploadReference): Call =
-    uploadRoutes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(
-      uploadReference
-    ) // TODO: implement in the next ticket
+    uploadRoutes.ScheduleOfMrnDocumentController.review()
 
   def scanErrorPage: Call =
     uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
 
-  def reviewPage: Call = ???
+  def reviewPage: Call = uploadRoutes.ScheduleOfMrnDocumentController.review()
 }

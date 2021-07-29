@@ -16,16 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -43,7 +49,8 @@ class ScheduleOfMrnDocumentController @Inject() (
   uploadPage: pages.upload,
   scanProgressPage: pages.scan_progress,
   fileSizeErrorPage: pages.size_fail,
-  formatVirusErrorPage: pages.format_virus_fail
+  formatVirusErrorPage: pages.format_virus_fail,
+  reviewPage: pages.review
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with FileUploadController
@@ -66,7 +73,7 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   def handleFileSizeErrorCallback(): Action[AnyContent] =
     authenticatedActionWithSessionData {
-      Redirect(routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage())
+      Redirect(uploadRoutes.ScheduleOfMrnDocumentController.showFileSizeErrorPage())
     }
 
   def showFileSizeErrorPage(): Action[AnyContent] =
@@ -88,8 +95,45 @@ class ScheduleOfMrnDocumentController @Inject() (
   ): Action[AnyContent] =
     authenticatedActionWithSessionData { _ =>
       Redirect(
-        routes.ScheduleOfMrnDocumentController.scanProgress(UploadReference(uploadReference))
+        uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(UploadReference(uploadReference))
       )
+    }
+
+  def deleteScheduledDocument(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[ScheduledDocumentAnswer] { (fillingOutClaim, _) =>
+        val newJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = None))
+
+        val result = for {
+          _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
+        } yield ()
+
+        result.fold(
+          _ => {
+            logger.warn(s"Could not update session")
+            errorHandler.errorResult()
+          },
+          _ => Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
+        )
+      }
+    }
+
+  def review(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
+        def redirectToUploadEvidence =
+          Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
+
+        def listUploadedItems(scheduleDocument: ScheduledDocumentAnswer) =
+          Ok(reviewPage(scheduleDocument))
+
+        answer.fold(redirectToUploadEvidence)(listUploadedItems)
+      }
+    }
+
+  def reviewSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData {
+      Redirect(claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled))
     }
 
   def handleFormatOrVirusCheckErrorCallback(): Action[AnyContent] =

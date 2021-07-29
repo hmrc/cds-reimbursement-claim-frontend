@@ -23,3 +23,8 @@ GET         /scheduled/scheduled-document-upload/scan-progress/:id              
 POST        /scheduled/scheduled-document-upload/scan-progress                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id : String)
 
 GET         /scheduled/scheduled-document-upload/format-virus-fail                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
+
+GET         /scheduled/scheduled-document-upload/review                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.review()
+POST        /scheduled/scheduled-document-upload/review                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.reviewSubmit()
+
+GET         /scheduled/scheduled-document-upload/delete-scheduled-document             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.deleteScheduledDocument()

@@ -820,6 +820,17 @@ schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG
 schedule-document.format-virus-fail.p3=You'll need to try again.
 schedule-document.format-virus-fail.button.tryAgain=Try again
 
+schedule-document.review.title=You have successfully uploaded a scheduled document
+schedule-document.review.file-label=Document
+schedule-document.review.help-text=Your document should include a list of all MRNs linked with the claim.
+schedule-document.review.p1=Each MRN should show:
+schedule-document.review.bullet1=the amount of tax you paid on it
+schedule-document.review.bullet2=the amount you should have paid on it
+schedule-document.review.bullet3=which duty is being reclaimed on it
+schedule-document.review.remove=Remove
+schedule-document.review.assistive=the file named {0}
+
+
 #===================================================
 # CHECK YOUR ANSWERS PAGE
 #===================================================
@@ -828,7 +839,6 @@ check-your-answers.help-text=These are the details of your claim. Review them ca
 check-your-answers.entry-reference-number.label=Entry reference number
 check-your-answers.mrn.label=MRN reference number
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
 check-your-answers.declaration-details.l0=Import date
 check-your-answers.declaration-details.l1=Place of import
 check-your-answers.declaration-details.l2=Importer name

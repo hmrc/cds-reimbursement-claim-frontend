@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
+import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
@@ -28,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails}
 
@@ -112,6 +113,40 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
           )
         }
+      }
+
+      "handling requests to delete schedule document" must {
+        def performAction(): Future[Result] =
+          controller.deleteScheduledDocument()(FakeRequest())
+        "redirect to upload scheduled document page" when {
+
+          "removing stored evidence" in {
+            val uploadDocument = sample[UploadDocument]
+
+            val answer = ScheduledDocumentAnswer(uploadDocument)
+
+            val (session, journey, draftClaim) = sessionWithClaimState(answer.some)
+
+            val updatedDraftReturn = draftClaim.copy(scheduledDocumentAnswer = None)
+            val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
+
+            val updatedSession: SessionData =
+              session.copy(journeyStatus = Some(updatedJourney))
+
+            inSequence {
+              mockAuthWithNoRetrievals()
+              mockGetSession(session)
+              mockStoreSession(updatedSession)(Right(()))
+            }
+
+            checkIsRedirect(
+              performAction(),
+              routes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+            )
+          }
+
+        }
+
       }
 
       "show file format or infected file error page" when {

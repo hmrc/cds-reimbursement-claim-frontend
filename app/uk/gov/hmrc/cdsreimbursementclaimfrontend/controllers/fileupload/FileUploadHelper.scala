@@ -109,7 +109,6 @@ class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
           UploadDocumentType.ScheduleOfMRNs.some
         )
       )
-
       FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = answer.some))
     }
   }
