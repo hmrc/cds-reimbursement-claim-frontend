@@ -22,7 +22,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import org.scalatest.OptionValues
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 
 object UpscanGen extends OptionValues {
 
@@ -38,21 +38,22 @@ object UpscanGen extends OptionValues {
 
   implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
-    gen[SupportingEvidenceDocumentType]
+  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = gen[UploadDocument]
 
-  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
-
-  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
+  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
-      evidences <- arbitrarySupportingEvidenceAnswerOfN(n).arbitrary
+      evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
     } yield evidences.value
   )
 
-  def arbitrarySupportingEvidenceAnswerOpt: Typeclass[Option[SupportingEvidenceAnswer]] =
+  def arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  def arbitrarySupportingEvidenceAnswerOfN(n: Int): Typeclass[Option[SupportingEvidenceAnswer]] =
+  def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
+
+  def genSupportingDocumentType: Gen[UploadDocumentType] =
+    Gen.oneOf(UploadDocumentType.supportingEvidenceDocumentTypes)
+
 }

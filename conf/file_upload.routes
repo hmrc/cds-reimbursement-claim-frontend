@@ -1,0 +1,25 @@
+GET         /single/supporting-evidence/upload-supporting-evidence                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.uploadSupportingEvidence()
+
+GET         /single/supporting-evidence/scan-progress/:id                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /single/supporting-evidence/scan-progress                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.scanProgressSubmit(id : String)
+
+GET         /single/supporting-evidence/select-supporting-evidence-type/:id        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /single/supporting-evidence/select-supporting-evidence-type            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.chooseSupportingEvidenceDocumentTypeSubmit(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+
+GET         /single/supporting-evidence/delete-supporting-evidence/:id             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.deleteSupportingEvidence(id: uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference, addNew: Boolean)
+
+GET         /single/supporting-evidence/check-your-answers                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswers()
+POST        /single/supporting-evidence/check-your-answers                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswersSubmit()
+
+GET         /single/supporting-evidence/handle-upscan-error-redirect               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.handleUpscanErrorRedirect()
+GET         /single/supporting-evidence/document-did-not-upload                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.documentDidNotUpload()
+GET         /single/supporting-evidence/problem-with-document                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.handleUpscanCallBackFailures()
+
+GET         /scheduled/scheduled-document-upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+GET         /scheduled/scheduled-document-upload/handle-size-fail-redirect         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
+GET         /scheduled/scheduled-document-upload/size-fail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
+
+GET         /scheduled/scheduled-document-upload/scan-progress/:id                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id : uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference)
+POST        /scheduled/scheduled-document-upload/scan-progress                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id : String)
+
+GET         /scheduled/scheduled-document-upload/format-virus-fail                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()

@@ -1,0 +1,80 @@
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+
+@this(
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+        inputFile: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_file,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+)
+
+@(upscanUpload: UpscanUpload)(implicit request: RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+
+@key = @{"schedule-document.upload"}
+@field = @{"file"}
+@title = @{messages(s"$key.title")}
+@meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
+@href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
+
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+
+    <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+            <h2 class="govuk-error-summary__title" id="error-summary-title">
+                There is a problem
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                    <li>
+                        <a href="#file">@(messages(s"$key.error.required"))</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <span id="file-upload-error" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span> @(messages(s"$key.error.required"))
+        </span>
+    </div>
+
+    @pageHeading(title)
+
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-4"))
+
+    @paragraph(Html(messages(s"$key.things-to-show.p1")), Some("govuk-body"))
+
+    @bulletList(
+        Seq(
+            Html(messages(s"$key.things-to-show.l1")),
+            Html(messages(s"$key.things-to-show.l2")),
+            Html(messages(s"$key.things-to-show.l3"))
+        )
+    )
+
+    <form action="@href" method="post" enctype="multipart/form-data">
+
+        @for((k, v) <- meta) {
+            <input type="hidden" id="@k" name="@k" value="@v">
+        }
+
+        @inputFile(
+            id = field,
+            name = field,
+            label = s"$key.input-title",
+            labelClasses = Some("govuk-label govuk-label--s"),
+            isPageHeading = false,
+            hint = None
+        )
+
+        <div class="govuk-!-margin-bottom-9">
+        @submitButton("button.continue")
+        </div>
+
+    </form>
+
+}

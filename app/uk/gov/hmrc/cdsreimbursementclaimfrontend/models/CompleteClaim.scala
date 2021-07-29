@@ -35,11 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SupportingEvidenceAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.SupportingEvidence
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 
@@ -60,7 +60,7 @@ object CompleteClaim {
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[BasisOfClaim],
     maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
-    supportingEvidenceAnswer: SupportingEvidenceAnswer,
+    supportingEvidencesAnswer: SupportingEvidencesAnswer,
     commodityDetailsAnswer: CommodityDetails,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
     maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
@@ -68,7 +68,8 @@ object CompleteClaim {
     maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
     importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
     declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
-    claimsAnswer: ClaimsAnswer
+    claimsAnswer: ClaimsAnswer,
+    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
   ) extends CompleteClaim
 
   object CompleteC285Claim {
@@ -87,7 +88,7 @@ object CompleteClaim {
               draftClaimantDetailsAsImporterCompanyAnswer,
               draftBankAccountDetailAnswer,
               maybeBasisForClaim,
-              draftSupportingEvidences,
+              maybeSupportingEvidences,
               _,
               draftCommodityAnswer,
               draftNorthernIrelandAnswer,
@@ -98,7 +99,8 @@ object CompleteClaim {
               draftDeclarantEoriNumberAnswer,
               Some(claimsAnswer),
               _,
-              _
+              _,
+              maybeScheduledDocument
             ) =>
           movementReferenceNumber.value match {
             case Left(_) =>
@@ -109,7 +111,7 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateSupportingEvidenceAnswer(draftSupportingEvidences),
+                validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
@@ -146,7 +148,8 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration = None,
                       None,
                       None,
-                      claimsAnswer
+                      claimsAnswer,
+                      maybeScheduledDocument
                     )
                 }
                 .toEither
@@ -162,7 +165,7 @@ object CompleteClaim {
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
                 validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
-                validateSupportingEvidenceAnswer(draftSupportingEvidences),
+                validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
                 validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
@@ -199,7 +202,8 @@ object CompleteClaim {
                       maybeDuplicateDisplayDeclaration,
                       completeImporterEoriNumberAnswer,
                       completeDeclarantEoriNumberAnswer,
-                      claimsAnswer
+                      claimsAnswer,
+                      maybeScheduledDocument
                     )
                 }
                 .toEither
@@ -284,10 +288,10 @@ object CompleteClaim {
       case None        => invalid("missing supporting evidence answer")
     }
 
-  def validateSupportingEvidenceAnswer(
-    maybeSupportingEvidenceAnswer: Option[SupportingEvidenceAnswer]
-  ): Validation[SupportingEvidenceAnswer] =
-    maybeSupportingEvidenceAnswer toValidNel "missing supporting evidence answer"
+  def validateSupportingEvidencesAnswer(
+    maybeSupportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
+  ): Validation[SupportingEvidencesAnswer] =
+    maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
 
   def validateBankAccountDetailAnswer(
     maybeBankAccountDetailsAnswer: Option[BankAccountDetailsAnswer]
@@ -370,116 +374,24 @@ object CompleteClaim {
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) {
 
-    def maybeDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            maybeDisplayDeclaration,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        maybeDisplayDeclaration
-    }
+    def maybeDisplayDeclaration: Option[DisplayDeclaration] =
+      completeClaim.get(_.maybeDisplayDeclaration)
 
-    def maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            maybeDisplayDeclaration,
-            _,
-            _,
-            _
-          ) =>
-        maybeDisplayDeclaration
-    }
+    def maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration] =
+      completeClaim.get(_.maybeDuplicateDisplayDeclaration)
 
-    def duplicateEntryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            duplicateDeclarationDetails,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        duplicateDeclarationDetails match {
-          case Some(completeDuplicateDeclarationDetailsAnswer) =>
-            completeDuplicateDeclarationDetailsAnswer.duplicateDeclaration
-          case None                                            => None
-        }
-    }
+    def duplicateEntryDeclarationDetails: Option[EntryDeclarationDetails] =
+      completeClaim
+        .get(_.maybeCompleteDuplicateDeclarationDetailsAnswer)
+        .flatMap(_.duplicateDeclaration)
 
-    def entryDeclarationDetails: Option[EntryDeclarationDetails] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            declarationDetailAnswers,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        declarationDetailAnswers match {
-          case Some(completeDeclarationDetailsAnswer) => Some(completeDeclarationDetailsAnswer.declarationDetails)
-          case None                                   => None
-        }
-    }
+    def entryDeclarationDetails: Option[EntryDeclarationDetails] =
+      completeClaim
+        .get(_.maybeCompleteDeclarationDetailsAnswer)
+        .map(_.declarationDetails)
 
-    def declarantType: DeclarantTypeAnswer = completeClaim match {
-      case cc: CompleteC285Claim => cc.declarantTypeAnswer
-    }
+    def declarantType: DeclarantTypeAnswer =
+      completeClaim.get(_.declarantTypeAnswer)
 
     def basisForClaim: Either[SelectReasonForClaimAndBasis, BasisOfClaim] = completeClaim match {
       case CompleteC285Claim(
@@ -501,6 +413,7 @@ object CompleteClaim {
             _,
             _,
             _,
+            _,
             _
           ) =>
         (maybeReasonForClaimAndBasisAnswer, maybeBasisForClaim) match {
@@ -514,108 +427,17 @@ object CompleteClaim {
         }
     }
 
-    def claimantDetailsAsImporterCompany: Option[ContactDetailsFormData] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            claimantDetailsAsImporterCompanyAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        claimantDetailsAsImporterCompanyAnswer match {
-          case Some(value) => Some(value.contactDetailsFormData)
-          case None        => None
-        }
-    }
+    def claimantDetailsAsImporterCompany: Option[ContactDetailsFormData] =
+      completeClaim.get(_.maybeContactDetailsAnswer).map(_.contactDetailsFormData)
 
-    def detailsRegisteredWithCds: DetailsRegisteredWithCdsFormData = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            detailsRegisteredWithCdsAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        detailsRegisteredWithCdsAnswer.detailsRegisteredWithCds
-    }
+    def detailsRegisteredWithCds: DetailsRegisteredWithCdsFormData =
+      completeClaim.get(_.completeDetailsRegisteredWithCdsAnswer.detailsRegisteredWithCds)
 
-    def commodityDetails: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            commodityDetails,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        commodityDetails.value
-    }
+    def commodityDetails: String =
+      completeClaim.get(_.commodityDetailsAnswer.value)
 
-    def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            northernIrelandAnswer,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        northernIrelandAnswer
-    }
+    def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] =
+      completeClaim.get(_.completeNorthernIrelandAnswer)
 
     def bankDetails: Option[BankAccountController.BankAccountDetails] = completeClaim match {
       case CompleteC285Claim(
@@ -634,6 +456,7 @@ object CompleteClaim {
             _,
             _,
             maybeDisplayDeclaration,
+            _,
             _,
             _,
             _,
@@ -674,181 +497,59 @@ object CompleteClaim {
         }
     }
 
-    //TODO: fixme
-    def bankAccountType: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            bankAccountDetails,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        bankAccountDetails match {
-          case Some(value) =>
-            value.bankAccountDetails.isBusinessAccount match {
-              case Some(value) => if (value === true) "Business Account" else "Non-Business Account"
-              case None        => ""
-            }
-          case None        => ""
-        }
+    def bankAccountType: String =
+      completeClaim
+        .get(_.bankDetails)
+        .flatMap(_.isBusinessAccount)
+        .map(isBusiness => if (isBusiness) "Business Account" else "Non-Business Account")
+        .getOrElse("")
+
+    def movementReferenceNumber: Either[EntryNumber, MRN] =
+      completeClaim.get(_.movementReferenceNumber.value)
+
+    def supportingEvidences: List[UploadDocument] =
+      completeClaim.get(_.supportingEvidencesAnswer.toList)
+
+    def totalUKDutyClaim: String = {
+      def isUKTax(taxCode: String): Boolean =
+        TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+
+      val claimsAnswer = completeClaim.get(_.claimsAnswer)
+
+      MoneyUtils.formatAmountOfMoneyWithPoundSign(
+        claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+      )
     }
 
-    def movementReferenceNumber: Either[EntryNumber, MRN] = completeClaim match {
-      case claim: CompleteC285Claim =>
-        claim.movementReferenceNumber.value
+    def totalEuDutyClaim: String = {
+      def isEuTax(taxCode: String): Boolean =
+        TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+
+      val claimsAnswer = completeClaim.get(_.claimsAnswer)
+
+      MoneyUtils.formatAmountOfMoneyWithPoundSign(
+        claimsAnswer.filter(p => isEuTax(p.taxCode)).map(s => s.claimAmount).sum
+      )
     }
 
-    def supportingEvidences: List[SupportingEvidence] = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            supportingEvidences,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        supportingEvidences.toList
+    def totalExciseDutyClaim: String = {
+      def isExciseTax(taxCode: String): Boolean =
+        TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
+
+      val claimsAnswer = completeClaim.get(_.claimsAnswer)
+
+      MoneyUtils.formatAmountOfMoneyWithPoundSign(
+        claimsAnswer.filter(p => isExciseTax(p.taxCode)).map(s => s.claimAmount).sum
+      )
     }
 
-    def totalUKDutyClaim: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            claimsAnswer
-          ) =>
-        def isUKTax(taxCode: String): Boolean =
-          TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
-        )
+    def totalClaim: String = {
+      val claimsAnswer = completeClaim.get(_.claimsAnswer)
+      MoneyUtils.formatAmountOfMoneyWithPoundSign(claimsAnswer.toList.map(_.claimAmount).sum)
     }
 
-    def totalEuDutyClaim: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            claimsAnswer
-          ) =>
-        def isEuTax(taxCode: String): Boolean =
-          TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          claimsAnswer.filter(p => isEuTax(p.taxCode)).map(s => s.claimAmount).sum
-        )
-    }
-
-    def totalExciseDutyClaim: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            claimsAnswer
-          ) =>
-        def isExciseTax(taxCode: String): Boolean =
-          TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(
-          claimsAnswer.filter(p => isExciseTax(p.taxCode)).map(s => s.claimAmount).sum
-        )
-    }
-
-    def totalClaim: String = completeClaim match {
-      case CompleteC285Claim(
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            claimsAnswer
-          ) =>
-        MoneyUtils.formatAmountOfMoneyWithPoundSign(claimsAnswer.toList.map(_.claimAmount).sum)
-    }
-
+    def get[A](f: CompleteC285Claim => A): A =
+      f(completeClaim.asInstanceOf[CompleteC285Claim])
   }
 
   implicit val eq: Eq[CompleteClaim] = Eq.fromUniversalEquals
