@@ -22,7 +22,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
-import play.api.{Configuration, Logging}
+import play.api.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
@@ -50,7 +50,6 @@ class SupportingEvidenceController @Inject() (
   val errorHandler: ErrorHandler,
   val sessionStore: SessionCache,
   fileUploadHelperInstances: FileUploadHelperInstances,
-  config: Configuration,
   uploadPage: pages.upload,
   chooseDocumentTypePage: pages.choose_document_type,
   checkYourAnswersPage: pages.check_your_answers,
@@ -163,11 +162,6 @@ class SupportingEvidenceController @Inject() (
       }
     }
 
-  // TODO: refactor code below in the next tickets
-
-  lazy val maxUploads: Int =
-    config.underlying.getInt(s"microservice.services.upscan-initiate.supporting-evidence.max-uploads")
-
   def deleteSupportingEvidence(
     uploadReference: UploadReference,
     addNew: Boolean
@@ -177,11 +171,8 @@ class SupportingEvidenceController @Inject() (
         def removeEvidence(evidences: NonEmptyList[UploadDocument]) =
           NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
-        val newDraftClaim = fillingOutClaim.draftClaim.fold(
-          _.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence)
-        )
-
-        val newJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+        val newJourney =
+          FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence))
 
         val result = for {
           _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
@@ -208,7 +199,7 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(evidences, maxUploads))
+          Ok(checkYourAnswersPage(evidences, implicitly[FileUploadHelper[SupportingEvidencesAnswer]].maxUploads))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
