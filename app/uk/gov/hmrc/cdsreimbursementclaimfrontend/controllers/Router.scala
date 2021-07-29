@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 
 trait SubmitRoutes extends Product with Serializable {
@@ -103,7 +104,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      case false => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
     }
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
@@ -113,6 +114,14 @@ trait JourneyTypeRoutes extends Product with Serializable {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
     }
+
+  def nextPageForClaimantDetails(): Call =
+    claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+  //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
+  //    featureSwitch.NorthernIreland.isEnabled() match {
+  //      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+  //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+  //    }
 
 }
 
@@ -170,11 +179,47 @@ case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with Submi
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
-  val refNumberKey                    = None
-  override val subKey: Option[String] = None
-  override val journeyBindable        = JourneyBindable.Single
+  val refNumberKey    = None
+  val subKey          = None
+  val journeyBindable = JourneyBindable.Single
 
   val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
+}
+
+trait FileUploadRoutes {
+  def uploadErrorPage: Call
+  def handleUploadCallback(uploadReference: UploadReference): Call
+  def scanErrorPage: Call
+  def scanSuccessPage(uploadReference: UploadReference): Call
+  def reviewPage: Call
+}
+
+object SupportingEvidenceUploadRoutes extends FileUploadRoutes {
+  def uploadErrorPage: Call                                        = uploadRoutes.SupportingEvidenceController.handleUpscanErrorRedirect()
+  def handleUploadCallback(uploadReference: UploadReference): Call =
+    uploadRoutes.SupportingEvidenceController.scanProgress(uploadReference)
+
+  def scanErrorPage: Call                                     = uploadRoutes.SupportingEvidenceController.handleUpscanCallBackFailures()
+  def scanSuccessPage(uploadReference: UploadReference): Call =
+    uploadRoutes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference)
+
+  def reviewPage: Call = uploadRoutes.SupportingEvidenceController.checkYourAnswers()
+}
+
+object ScheduledDocumentUploadRoutes extends FileUploadRoutes {
+  def uploadErrorPage: Call =
+    uploadRoutes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
+
+  def handleUploadCallback(uploadReference: UploadReference): Call =
+    uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(uploadReference)
+
+  def scanSuccessPage(uploadReference: UploadReference): Call =
+    uploadRoutes.ScheduleOfMrnDocumentController.review()
+
+  def scanErrorPage: Call =
+    uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
+
+  def reviewPage: Call = uploadRoutes.ScheduleOfMrnDocumentController.review()
 }

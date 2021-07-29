@@ -18,19 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType, UploadReference, UpscanUpload}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{FileUploadRoutes, ScheduledDocumentUploadRoutes, SupportingEvidenceUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType, UploadReference, UpscanUpload}
 
 trait FileUploadHelper[A] {
 
-  val configKey: String
-
   val maxUploads: Int
+  val configKey: String
+  val routes: FileUploadRoutes
 
   def hasReachedUploadThreshold(maybeAnswer: Option[A]): Boolean
 
@@ -42,16 +41,6 @@ trait FileUploadHelper[A] {
     maybeAnswer: Option[A],
     claim: FillingOutClaim
   ): FillingOutClaim
-
-  def reviewPage: Call
-
-  def uploadErrorPage: Call
-
-  def handleUploadCallback(uploadReference: UploadReference): Call
-
-  def scanSuccessPage(uploadReference: UploadReference): Call
-
-  def scanErrorPage: Call
 }
 
 @Singleton
@@ -59,8 +48,9 @@ class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
 
   implicit object SupportingEvidenceUpload extends FileUploadHelper[SupportingEvidencesAnswer] {
 
-    val configKey: String = "supporting-evidence"
-    val maxUploads: Int   = config.readMaxUploadsValue(configKey)
+    val configKey: String        = "supporting-evidence"
+    val maxUploads: Int          = config.readMaxUploadsValue(configKey)
+    val routes: FileUploadRoutes = SupportingEvidenceUploadRoutes
 
     def hasReachedUploadThreshold(maybeAnswer: Option[SupportingEvidencesAnswer]): Boolean =
       maybeAnswer.exists(_.length >= maxUploads)
@@ -88,24 +78,13 @@ class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
 
       FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences))
     }
-
-    def uploadErrorPage: Call = uploadRoutes.SupportingEvidenceController.handleUpscanErrorRedirect()
-
-    def handleUploadCallback(uploadReference: UploadReference): Call =
-      uploadRoutes.SupportingEvidenceController.scanProgress(uploadReference)
-
-    def scanErrorPage: Call = uploadRoutes.SupportingEvidenceController.handleUpscanCallBackFailures()
-
-    def scanSuccessPage(uploadReference: UploadReference): Call =
-      uploadRoutes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference)
-
-    def reviewPage: Call = uploadRoutes.SupportingEvidenceController.checkYourAnswers()
   }
 
   implicit object ScheduledDocumentUpload extends FileUploadHelper[ScheduledDocumentAnswer] {
 
-    val configKey: String = "schedule-of-mrn"
-    val maxUploads: Int   = config.readMaxUploadsValue(configKey)
+    val configKey: String        = "schedule-of-mrn"
+    val maxUploads: Int          = config.readMaxUploadsValue(configKey)
+    val routes: FileUploadRoutes = ScheduledDocumentUploadRoutes
 
     def hasReachedUploadThreshold(maybeAnswer: Option[ScheduledDocumentAnswer]): Boolean =
       maybeAnswer.toList.length >= maxUploads
@@ -130,21 +109,7 @@ class FileUploadHelperInstances @Inject() (config: FileUploadConfig) {
           UploadDocumentType.ScheduleOfMRNs.some
         )
       )
-
       FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = answer.some))
     }
-
-    def uploadErrorPage: Call =
-      uploadRoutes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
-
-    def handleUploadCallback(uploadReference: UploadReference): Call =
-      uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(uploadReference)
-
-    def scanSuccessPage(uploadReference: UploadReference): Call =
-      uploadRoutes.ScheduleOfMrnDocumentController.review()
-
-    def scanErrorPage: Call = ???
-
-    def reviewPage: Call = ???
   }
 }

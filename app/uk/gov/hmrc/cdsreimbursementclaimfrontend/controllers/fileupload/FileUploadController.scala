@@ -46,12 +46,12 @@ trait FileUploadController {
     showUploadPage: UpscanUpload => Result
   )(implicit fileUpload: FileUploadHelper[A], request: Request[_], ec: ExecutionContext): Future[Result] =
     if (answer.hasReachedUploadThreshold)
-      Future.successful(Redirect(fileUpload.reviewPage))
+      Future.successful(Redirect(fileUpload.routes.reviewPage))
     else
       upscanService
         .initiate(
-          fileUpload.uploadErrorPage,
-          fileUpload.handleUploadCallback
+          fileUpload.routes.uploadErrorPage,
+          fileUpload.routes.handleUploadCallback
         )
         .fold(_ => errorHandler.errorResult(), showUploadPage)
 
@@ -68,7 +68,7 @@ trait FileUploadController {
                         case Some(upscanSuccess: UpscanSuccess) if !answer.containsReference(uploadReference) =>
                           EitherT(
                             updateSession(sessionStore, request)(
-                              _.copy(journeyStatus = fileUpload.add(upscanUpload, upscanSuccess, answer, claim).some)
+                              _.copy(journeyStatus = claim.add(upscanUpload, upscanSuccess, answer).some)
                             )
                           )
                         case _                                                                                =>
@@ -81,9 +81,9 @@ trait FileUploadController {
       upscanUpload =>
         upscanUpload.upscanCallBack match {
           case Some(_: UpscanSuccess) =>
-            Redirect(fileUpload.scanSuccessPage(uploadReference))
+            Redirect(fileUpload.routes.scanSuccessPage(uploadReference))
           case Some(_: UpscanFailure) =>
-            Redirect(fileUpload.scanErrorPage)
+            Redirect(fileUpload.routes.scanErrorPage)
           case None                   =>
             showScanPage(upscanUpload)
         }

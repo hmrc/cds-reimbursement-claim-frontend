@@ -293,6 +293,14 @@ enter-your-contact-details.add-company-details.yes=Yes
 enter-your-contact-details.add-company-details.error.required=Choose if you want to add company details
 countryCode.enter-your-contact-details.error.required=Enter a country
 
+
+#===================================================
+#  CLAIMANT DETAILS PAGE
+#===================================================
+claimant-details.title=Check your details as registered with CDS
+claimant-details.registered.details=Details as registered with CDS
+claimant-details.registered.address=Address as registered with CDS
+
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
@@ -800,11 +808,17 @@ schedule-document.size-fail.bullet1=the service has experienced technical issues
 schedule-document.size-fail.bullet2=your file was larger than 10MB
 schedule-document.size-fail.p2=You’ll need to try again.
 schedule-document.size-fail.button.tryAgain=Try again
-
-
 schedule-document.scan-progress.title=We are checking your document
 schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 schedule-document.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+schedule-document.format-virus-fail.title=There is a problem with your file
+schedule-document.format-virus-fail.p1=The problem could be that:
+schedule-document.format-virus-fail.l1=the file had a virus or was corrupt
+schedule-document.format-virus-fail.l2=you did not select a file to upload
+schedule-document.format-virus-fail.l3=you uploaded the wrong type of file
+schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG, and PDF.
+schedule-document.format-virus-fail.p3=You'll need to try again.
+schedule-document.format-virus-fail.button.tryAgain=Try again
 
 schedule-document.review.title=You have successfully uploaded a scheduled document
 schedule-document.review.file-label=Document

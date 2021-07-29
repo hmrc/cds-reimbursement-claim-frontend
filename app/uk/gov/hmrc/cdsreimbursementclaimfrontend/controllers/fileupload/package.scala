@@ -16,16 +16,25 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
 
 package object fileupload {
 
-  implicit class FileUploadOps[A](val maybeAnswer: Option[A]) extends AnyVal {
+  implicit class FileUploadAnswerOps[A](val maybeAnswer: Option[A]) extends AnyVal {
 
     def hasReachedUploadThreshold(implicit fileUpload: FileUploadHelper[A]): Boolean =
       fileUpload.hasReachedUploadThreshold(maybeAnswer)
 
     def containsReference(uploadReference: UploadReference)(implicit fileUpload: FileUploadHelper[A]): Boolean =
       fileUpload.hasReference(maybeAnswer, uploadReference)
+  }
+
+  implicit class FillingOutClaimOps[A](val claim: FillingOutClaim) extends AnyVal {
+    def add(upload: UpscanUpload, callback: UpscanSuccess, maybeAnswer: Option[A])(implicit
+      fileUploadHelper: FileUploadHelper[A]
+    ): FillingOutClaim =
+      fileUploadHelper.add(upload, callback, maybeAnswer, claim)
   }
 }

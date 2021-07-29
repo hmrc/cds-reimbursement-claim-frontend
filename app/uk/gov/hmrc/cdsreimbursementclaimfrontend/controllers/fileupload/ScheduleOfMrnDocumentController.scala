@@ -49,6 +49,7 @@ class ScheduleOfMrnDocumentController @Inject() (
   uploadPage: pages.upload,
   scanProgressPage: pages.scan_progress,
   fileSizeErrorPage: pages.size_fail,
+  formatVirusErrorPage: pages.format_virus_fail,
   reviewPage: pages.review
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
@@ -135,4 +136,8 @@ class ScheduleOfMrnDocumentController @Inject() (
       Redirect(claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled))
     }
 
+  def handleFormatOrVirusCheckErrorCallback(): Action[AnyContent] =
+    authenticatedActionWithSessionData { implicit request =>
+      Ok(formatVirusErrorPage())
+    }
 }
