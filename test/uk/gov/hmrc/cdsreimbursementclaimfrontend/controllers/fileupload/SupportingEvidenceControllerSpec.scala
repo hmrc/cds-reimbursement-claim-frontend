@@ -136,8 +136,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
                 .handleUpscanErrorRedirect(),
               uploadReference =>
                 routes.SupportingEvidenceController
-                  .scanProgress(uploadReference),
-              maxUploads = 10
+                  .scanProgress(uploadReference)
             )(Left(Error("some upscan error")))
           }
           checkIsTechnicalErrorPage(performAction())
@@ -161,8 +160,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
                 .handleUpscanErrorRedirect(),
               uploadReference =>
                 routes.SupportingEvidenceController
-                  .scanProgress(uploadReference),
-              maxUploads = 10
+                  .scanProgress(uploadReference)
             )(Right(upscanUpload))
           }
 

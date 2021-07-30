@@ -65,7 +65,7 @@ class SupportingEvidenceController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  lazy val maxUploads: Long = config.readMaxUploadsValue(configKey)
+  lazy val maxUploads: Int = config.readMaxUploadsValue(configKey)
 
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
@@ -80,7 +80,7 @@ class SupportingEvidenceController @Inject() (
             .initiate(
               routes.SupportingEvidenceController.handleUpscanErrorRedirect(),
               routes.SupportingEvidenceController.scanProgress,
-              maxUploads
+              config.readMaxFileSize(configKey)
             )
             .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
       }

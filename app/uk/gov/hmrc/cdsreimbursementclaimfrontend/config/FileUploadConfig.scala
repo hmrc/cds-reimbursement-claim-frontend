@@ -40,8 +40,8 @@ class FileUploadConfig @Inject() (config: Configuration) {
   def readMaxFileSize(uploadDocumentKey: String): Long =
     getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-file-size")
 
-  def readMaxUploadsValue(uploadDocumentKey: String): Long =
-    getUpscanInitiateConfig[Long](s"$uploadDocumentKey.max-uploads")
+  def readMaxUploadsValue(uploadDocumentKey: String): Int =
+    getUpscanInitiateConfig[Int](s"$uploadDocumentKey.max-uploads")
 
   private def getUpscanInitiateConfig[A : ConfigReader](key: String): A =
     config.underlying

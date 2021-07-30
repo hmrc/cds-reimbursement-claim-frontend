@@ -47,7 +47,7 @@ trait UpscanConnector {
     errorRedirect: Call,
     successRedirect: Call,
     uploadReference: UploadReference,
-    maxUploads: Long
+    maxFileSize: Long
   )(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
@@ -77,7 +77,7 @@ class DefaultUpscanConnector @Inject() (
     errorRedirect: Call,
     successRedirect: Call,
     uploadReference: UploadReference,
-    maxUploads: Long
+    maxFileSize: Long
   )(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] = {
@@ -89,7 +89,7 @@ class DefaultUpscanConnector @Inject() (
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
-      maxUploads
+      maxFileSize
     )
 
     logger.info(

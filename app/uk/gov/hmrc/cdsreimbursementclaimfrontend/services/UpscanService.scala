@@ -42,7 +42,7 @@ trait UpscanService {
   def initiate(
     errorRedirect: Call,
     successRedirect: UploadReference => Call,
-    maxUploads: Long
+    maxFileSize: Long
   )(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, UpscanUpload]
@@ -61,7 +61,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
   def initiate(
     errorRedirect: Call,
     successRedirect: UploadReference => Call,
-    maxUploads: Long
+    maxFileSize: Long
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, UpscanUpload] =
     for {
       uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
@@ -70,7 +70,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
                                errorRedirect,
                                successRedirect(uploadReference),
                                uploadReference,
-                               maxUploads
+                               maxFileSize
                              )
                              .map[Either[Error, HttpResponse]] { response =>
                                if (response.status =!= Status.OK) {

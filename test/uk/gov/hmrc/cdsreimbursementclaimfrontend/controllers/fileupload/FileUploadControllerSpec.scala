@@ -51,11 +51,7 @@ abstract class FileUploadControllerSpec extends ControllerSpec with AuthSupport 
       bind[UUIDGenerator].toInstance(mockUUIDGenerator)
     )
 
-  protected def mockUpscanInitiate[A](
-    errorRedirectCall: Call,
-    successRedirectCall: UploadReference => Call,
-    maxUploads: Long
-  )(
+  protected def mockUpscanInitiate[A](errorRedirectCall: Call, successRedirectCall: UploadReference => Call)(
     result: Either[Error, UpscanUpload]
   ): CallHandler4[Call, UploadReference => Call, Long, HeaderCarrier, EitherT[
     Future,
@@ -69,13 +65,12 @@ abstract class FileUploadControllerSpec extends ControllerSpec with AuthSupport 
           (
             actualErrorRedirectCall: Call,
             actualSuccessRedirectCall: UploadReference => Call,
-            actualMaxUploads: Long,
+            _: Long,
             _: HeaderCarrier
           ) =>
             val uploadReference = sample[UploadReference]
             actualErrorRedirectCall                    shouldBe errorRedirectCall
             actualSuccessRedirectCall(uploadReference) shouldBe successRedirectCall(uploadReference)
-            actualMaxUploads                           shouldBe maxUploads
             true
         }
       )

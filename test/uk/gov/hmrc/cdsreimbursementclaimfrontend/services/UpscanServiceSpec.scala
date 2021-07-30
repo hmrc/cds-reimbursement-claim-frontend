@@ -84,7 +84,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         "the upscan initiate service returns a successful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
-          val maxUploads  = 10L
+          val maxFileSize = sample[Long]
           val response    = Right(
             HttpResponse(
               OK,
@@ -104,7 +104,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             .returning(EitherT.fromEither[Future](Right(HttpResponse(OK, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxUploads)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxFileSize)
               .value
           ).isRight shouldBe true
         }
@@ -114,7 +114,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         "the upscan initiate service returns an unsuccessful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
-          val maxUploads  = 10L
+          val maxFileSize = sample[Long]
           (mockUpscanConnector
             .initiate(_: Call, _: Call, _: UploadReference, _: Long)(
               _: HeaderCarrier
@@ -123,7 +123,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxUploads)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxFileSize)
               .value
           ).isLeft shouldBe true
         }

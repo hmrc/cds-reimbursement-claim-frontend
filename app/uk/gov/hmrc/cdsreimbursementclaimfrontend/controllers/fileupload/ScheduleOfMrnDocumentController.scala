@@ -61,7 +61,7 @@ class ScheduleOfMrnDocumentController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  lazy val maxUploads: Long = config.readMaxUploadsValue(configKey)
+  lazy val maxUploads: Int = config.readMaxUploadsValue(configKey)
 
   implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
@@ -76,7 +76,7 @@ class ScheduleOfMrnDocumentController @Inject() (
             .initiate(
               routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(),
               routes.ScheduleOfMrnDocumentController.scanProgress,
-              maxUploads
+              config.readMaxFileSize(configKey)
             )
             .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
       }

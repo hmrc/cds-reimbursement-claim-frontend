@@ -186,4 +186,3 @@ case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNum
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 }
-
