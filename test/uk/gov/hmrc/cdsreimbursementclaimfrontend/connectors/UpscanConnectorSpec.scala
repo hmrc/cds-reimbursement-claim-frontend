@@ -78,13 +78,14 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
       val expectedUrl               = "http://host2:123/upscan/v2/initiate"
       val mockUpscanInitiateSuccess = Call("GET", "/mock-success")
       val mockUpscanInitiateFailure = Call("GET", "/mock-fail")
+      val maxUploads                = 1234L
 
       val payload = UpscanInitiateRequest(
         s"$baseUrl/upscan-call-back/upload-reference/${reference.value}",
         s"host1.com${mockUpscanInitiateSuccess.url}",
         s"host1.com${mockUpscanInitiateFailure.url}",
         0,
-        1234
+        maxUploads
       )
       behave like connectorBehaviour(
         mockPost[UpscanInitiateRequest](
@@ -92,7 +93,7 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
           Seq.empty,
           payload
         ),
-        () => connector.initiate(mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference, maxUploads = 10L)
+        () => connector.initiate(mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference, maxUploads)
       )
     }
 
