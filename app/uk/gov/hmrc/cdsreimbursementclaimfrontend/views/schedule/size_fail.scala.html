@@ -33,7 +33,7 @@
 
     @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
-    @formWithCSRF(routes.ScheduleOfMrnDocumentController.uploadScheduledDocument(), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.ScheduleOfMrnDocumentController.uploadScheduledDocumentSubmit(), 'novalidate -> "novalidate") {
         @submitButton(s"$key.button.tryAgain")
     }
 

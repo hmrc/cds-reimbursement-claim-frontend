@@ -76,6 +76,11 @@ class SupportingEvidenceController @Inject() (
       }
     }
 
+  def uploadSupportingEvidenceSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async {
+      Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
+    }
+
   def handleUpscanErrorRedirect(): Action[AnyContent] =
     authenticatedActionWithSessionData {
       Redirect(routes.SupportingEvidenceController.documentDidNotUpload())

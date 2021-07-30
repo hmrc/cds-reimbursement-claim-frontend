@@ -71,6 +71,11 @@ class ScheduleOfMrnDocumentController @Inject() (
       }
     }
 
+  def uploadScheduledDocumentSubmit(): Action[AnyContent] =
+    authenticatedActionWithSessionData.async {
+      Redirect(routes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
+    }
+
   def handleFileSizeErrorCallback(): Action[AnyContent] =
     authenticatedActionWithSessionData {
       Redirect(uploadRoutes.ScheduleOfMrnDocumentController.showFileSizeErrorPage())
