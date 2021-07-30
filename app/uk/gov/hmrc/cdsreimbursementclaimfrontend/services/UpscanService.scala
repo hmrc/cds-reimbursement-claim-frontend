@@ -26,7 +26,6 @@ import play.api.http.Status.OK
 import play.api.mvc.Call
 import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
@@ -40,12 +39,12 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UpscanServiceImpl])
 trait UpscanService {
 
-  def initiate[A](
+  def initiate(
     errorRedirect: Call,
-    successRedirect: UploadReference => Call
+    successRedirect: UploadReference => Call,
+    maxFileSize: Long
   )(implicit
-    hc: HeaderCarrier,
-    fileUpload: FileUploadHelper[A]
+    hc: HeaderCarrier
   ): EitherT[Future, Error, UpscanUpload]
 
   def getUpscanUpload(
@@ -59,17 +58,19 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
     extends UpscanService
     with Logging {
 
-  def initiate[A](
+  def initiate(
     errorRedirect: Call,
-    successRedirect: UploadReference => Call
-  )(implicit hc: HeaderCarrier, fileUpload: FileUploadHelper[A]): EitherT[Future, Error, UpscanUpload] =
+    successRedirect: UploadReference => Call,
+    maxFileSize: Long
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, UpscanUpload] =
     for {
       uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
       maybeHttpResponse <- upscanConnector
                              .initiate(
                                errorRedirect,
                                successRedirect(uploadReference),
-                               uploadReference
+                               uploadReference,
+                               maxFileSize
                              )
                              .map[Either[Error, HttpResponse]] { response =>
                                if (response.status =!= Status.OK) {

@@ -17,35 +17,38 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxOptionId
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.configKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ScheduleOfMrnDocumentController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val upscanService: UpscanService,
-  val errorHandler: ErrorHandler,
-  val sessionStore: SessionCache,
-  fileUploadHelperInstances: FileUploadHelperInstances,
+  upscanService: UpscanService,
+  errorHandler: ErrorHandler,
+  sessionStore: SessionCache,
+  config: FileUploadConfig,
   uploadPage: pages.upload,
   scanProgressPage: pages.scan_progress,
   fileSizeErrorPage: pages.size_fail,
@@ -53,13 +56,12 @@ class ScheduleOfMrnDocumentController @Inject() (
   reviewPage: pages.review
 )(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
     extends FrontendController(cc)
-    with FileUploadController
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates
     with SessionDataExtractor {
 
-  import fileUploadHelperInstances._
+  lazy val maxUploads: Int = config.readMaxUploadsValue(configKey)
 
   implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
@@ -67,7 +69,16 @@ class ScheduleOfMrnDocumentController @Inject() (
   def uploadScheduledDocument(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
-        initiateUpload(answer)(upscanUpload => Ok(uploadPage(upscanUpload)))
+        if (answer.toList.length >= maxUploads)
+          Future.successful(Redirect(routes.ScheduleOfMrnDocumentController.review()))
+        else
+          upscanService
+            .initiate(
+              routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(),
+              routes.ScheduleOfMrnDocumentController.scanProgress,
+              config.readMaxFileSize(configKey)
+            )
+            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
       }
     }
 
@@ -86,11 +97,52 @@ class ScheduleOfMrnDocumentController @Inject() (
       Ok(fileSizeErrorPage())
     }
 
+  def addDocument(
+    upload: UpscanUpload,
+    callback: UpscanSuccess,
+    claim: FillingOutClaim
+  ): FillingOutClaim = {
+    val answer = ScheduledDocumentAnswer(
+      UploadDocument(
+        upload.uploadReference,
+        upload.upscanUploadMeta,
+        upload.uploadedOn,
+        callback,
+        callback.fileName,
+        UploadDocumentType.ScheduleOfMRNs.some
+      )
+    )
+    FillingOutClaim.of(claim)(_.copy(scheduledDocumentAnswer = answer.some))
+  }
+
   def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ScheduledDocumentAnswer] { (fillingOut, answer) =>
-        handleUploadCallback(uploadReference, fillingOut, answer)(uploadReference =>
-          Ok(scanProgressPage(uploadReference))
+      withAnswers[ScheduledDocumentAnswer] { (fillingOut, _) =>
+        val result = for {
+          upscanUpload <- upscanService getUpscanUpload uploadReference
+          _            <- upscanUpload.upscanCallBack match {
+                            case Some(upscanSuccess: UpscanSuccess) =>
+                              EitherT(
+                                updateSession(sessionStore, request)(
+                                  _.copy(journeyStatus = addDocument(upscanUpload, upscanSuccess, fillingOut).some)
+                                )
+                              )
+                            case _                                  =>
+                              EitherT.pure[Future, Error](())
+                          }
+        } yield upscanUpload
+
+        result.fold(
+          _ => errorHandler.errorResult(),
+          upscanUpload =>
+            upscanUpload.upscanCallBack match {
+              case Some(_: UpscanSuccess) =>
+                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.review())
+              case Some(_: UpscanFailure) =>
+                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback())
+              case None                   =>
+                Ok(scanProgressPage(upscanUpload))
+            }
         )
       }
     }
@@ -145,4 +197,8 @@ class ScheduleOfMrnDocumentController @Inject() (
     authenticatedActionWithSessionData { implicit request =>
       Ok(formatVirusErrorPage())
     }
+}
+
+object ScheduleOfMrnDocumentController {
+  val configKey = "schedule-of-mrn"
 }
