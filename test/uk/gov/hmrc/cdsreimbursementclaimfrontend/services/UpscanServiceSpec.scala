@@ -18,19 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
 import cats.instances.future._
-import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.Configuration
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{FileUploadHelper, FileUploadHelperInstances}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
@@ -42,29 +37,8 @@ import scala.concurrent.Future
 
 class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
-  val configuration: Configuration = Configuration(
-    ConfigFactory.parseString(
-      """
-        |  microservice {
-        |    services {
-        |     upscan-initiate {
-        |       supporting-evidence {
-        |         max-uploads = 10
-        |       }
-        |       schedule-of-mrn {
-        |         max-uploads = 1
-        |       }
-              }
-        |   }
-        |}
-        |""".stripMargin
-    )
-  )
-
   val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
   val mockUpscanService                    = new UpscanServiceImpl(mockUpscanConnector)
-  val fileUploadConfig                     = new FileUploadConfig(configuration)
-  val fileUploadInstances                  = new FileUploadHelperInstances(fileUploadConfig)
 
   val uploadReference: UploadReference = sample[UploadReference]
   val upscanUpload: UpscanUpload       = sample[UpscanUpload]
@@ -76,7 +50,6 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   "UpscanService" when {
     "receiving an upscan related request" must {
-      import fileUploadInstances._
 
       "get the upscan upload reference data" when {
         "given a valid upload reference" in {
@@ -111,6 +84,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         "the upscan initiate service returns a successful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
+          val maxUploads  = 10L
           val response    = Right(
             HttpResponse(
               OK,
@@ -119,9 +93,8 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             )
           )
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(
-              _: HeaderCarrier,
-              _: FileUploadHelper[ScheduledDocumentAnswer]
+            .initiate(_: Call, _: Call, _: UploadReference, _: Long)(
+              _: HeaderCarrier
             ))
             .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](response))
@@ -131,7 +104,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
             .returning(EitherT.fromEither[Future](Right(HttpResponse(OK, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate[ScheduledDocumentAnswer](mockFailure, (_: UploadReference) => mockSuccess)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxUploads)
               .value
           ).isRight shouldBe true
         }
@@ -141,16 +114,16 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
         "the upscan initiate service returns an unsuccessful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
+          val maxUploads  = 10L
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(
-              _: HeaderCarrier,
-              _: FileUploadHelper[SupportingEvidencesAnswer]
+            .initiate(_: Call, _: Call, _: UploadReference, _: Long)(
+              _: HeaderCarrier
             ))
             .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate[SupportingEvidencesAnswer](mockFailure, (_: UploadReference) => mockSuccess)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxUploads)
               .value
           ).isLeft shouldBe true
         }

@@ -23,8 +23,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
@@ -49,7 +47,6 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
         |        host     = host2
         |        port     = 123
         |        supporting-evidence {
-        |         max-uploads   = 10
         |         max-file-size = 1234
         |        }
         |      },
@@ -71,11 +68,9 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
 
   "Upscan Connector" when {
 
-    val reference           = sample[UploadReference]
-    val upload              = sample[UpscanUpload]
-    val baseUrl             = "http://host3:123/cds-reimbursement-claim"
-    val fileUploadInstances = new FileUploadHelperInstances(fileUploadConfig)
-    import fileUploadInstances._
+    val reference = sample[UploadReference]
+    val upload    = sample[UpscanUpload]
+    val baseUrl   = "http://host3:123/cds-reimbursement-claim"
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -97,8 +92,7 @@ class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory wit
           Seq.empty,
           payload
         ),
-        () =>
-          connector.initiate[SupportingEvidencesAnswer](mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference)
+        () => connector.initiate(mockUpscanInitiateFailure, mockUpscanInitiateSuccess, reference, maxUploads = 10L)
       )
     }
 

@@ -34,7 +34,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(evidences: SupportingEvidencesAnswer, maxUploads: Int)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(evidences: SupportingEvidencesAnswer, maxUploads: Long)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.check-your-answers"}
 
