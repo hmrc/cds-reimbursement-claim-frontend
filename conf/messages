@@ -313,6 +313,24 @@ claimant-details.no=No
 claimant-details.error.required=Select whether you wish to remove contact details.
 
 #===================================================
+#  ENTER OR CHANGE CONTACT DETAILS PAGE
+#===================================================
+enter-or-change-contact-details.title=Add contact details
+enter-or-change-contact-details.change.title=Change contact details
+enter-or-change-contact-details.add.title=Add contact details
+enter-or-change-contact-details.caption=Enter your personal details
+enter-or-change-contact-details.contact-name.label=Full Name
+enter-or-change-contact-details.contact-name.error.required=Enter your full name
+enter-or-change-contact-details.contact-name.error.maxLength=Enter a shorter name
+enter-or-change-contact-details.contact-email.label=Email address
+enter-or-change-contact-details.contact-email.error.required=Enter a valid email
+enter-or-change-contact-details.contact-email.invalid=Enter a valid email
+enter-or-change-contact-details.contact-phone-number.label=Telephone (optional)
+enter-or-change-contact-details.contact-phone-number.error.required=Enter a valid phone number
+enter-or-change-contact-details.contact-phone-number.error.maxLength=Enter a valid phone number
+enter-or-change-contact-details.contact-phone-number.invalid=Enter a valid phone number
+
+#===================================================
 #  ENTER DECLARATION DETAILS PAGE
 #===================================================
 enter-declaration-details.title=Enter declaration details
