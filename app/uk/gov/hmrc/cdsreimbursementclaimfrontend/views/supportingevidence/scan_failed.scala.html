@@ -51,7 +51,7 @@
         <p class="govuk-body">@{messages(s"$key.p2")}</p>
         <p class="govuk-body">@{messages(s"$key.p3")}</p>
 
-        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidenceSubmit(), 'novalidate -> "novalidate") {
             @submitButton(s"$key.button.tryAgain")
         }
 
