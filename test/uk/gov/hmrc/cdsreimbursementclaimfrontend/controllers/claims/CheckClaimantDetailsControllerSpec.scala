@@ -255,7 +255,7 @@ class CheckClaimantDetailsControllerSpec
       val acc14consignee  = acc14.displayResponseDetail.consigneeDetails
       val fillingOutClaim = getSessionWithPreviousAnswer(Some(acc14), Some(DeclarantTypeAnswer.Importer))._2
 
-      val namePhoneEmail = extractContactsRegisteredWithCDSA(fillingOutClaim)
+      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
       namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
@@ -282,7 +282,7 @@ class CheckClaimantDetailsControllerSpec
       val fillingOutClaim =
         getSessionWithPreviousAnswer(Some(acc14), Some(DeclarantTypeAnswer.AssociatedWithImporterCompany))._2
 
-      val namePhoneEmail = extractContactsRegisteredWithCDSA(fillingOutClaim)
+      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
       namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
@@ -309,7 +309,7 @@ class CheckClaimantDetailsControllerSpec
       val fillingOutClaim =
         getSessionWithPreviousAnswer(Some(acc14), Some(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany))._2
 
-      val namePhoneEmail = extractContactsRegisteredWithCDSA(fillingOutClaim)
+      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
       namePhoneEmail.name.getOrElse(fail())   shouldBe acc14Declarant.legalName
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14Declarant.contactDetails.flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail

@@ -111,7 +111,7 @@ class CheckClaimantDetailsController @Inject() (
   ): HtmlFormat.Appendable =
     claimantDetails(
       form,
-      extractContactsRegisteredWithCDSA(fillingOutClaim),
+      extractDetailsRegisteredWithCDS(fillingOutClaim),
       extractEstablishmentAddress(fillingOutClaim),
       extractContactDetails(fillingOutClaim),
       extractContactAddress(fillingOutClaim),
@@ -147,7 +147,7 @@ object CheckClaimantDetailsController {
 
   implicit val format: OFormat[CheckClaimantDetailsAnswer] = derived.oformat[CheckClaimantDetailsAnswer]()
 
-  def extractContactsRegisteredWithCDSA(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
+  def extractDetailsRegisteredWithCDS(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
     Applicative[Option]
