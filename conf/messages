@@ -311,6 +311,7 @@ claimant-details.want-to-continue.hint=If you select No we will contact you usin
 claimant-details.yes=Yes
 claimant-details.no=No
 claimant-details.error.required=Select whether you wish to remove contact details.
+claimant-details.invalid=Select whether you wish to remove contact details.
 
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE
