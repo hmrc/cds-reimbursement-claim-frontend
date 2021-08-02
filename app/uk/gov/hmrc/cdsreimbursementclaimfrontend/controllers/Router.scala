@@ -56,6 +56,9 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
+  def submitPageForClaimantDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {

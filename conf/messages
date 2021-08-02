@@ -298,8 +298,20 @@ countryCode.enter-your-contact-details.error.required=Enter a country
 #  CLAIMANT DETAILS PAGE
 #===================================================
 claimant-details.title=Check your details as registered with CDS
+claimant-details.registered.title=Details as registered with CDS
 claimant-details.registered.details=Details as registered with CDS
 claimant-details.registered.address=Address as registered with CDS
+claimant-details.contact.title=Contact Details
+claimant-details.contact.description=These are the details we will use to contact you about your claim.
+claimant-details.contact.details=Contact Details
+claimant-details.contact.address=Contact Address
+claimant-details.change=Change
+claimant-details.want-to-continue.title=Do you want to continue using these contact details?
+claimant-details.want-to-continue.hint=If you select No we will contact you using your CDS registered details.
+claimant-details.yes=Yes
+claimant-details.no=No
+claimant-details.error.required=Select whether you wish to remove contact details.
+claimant-details.invalid=Select whether you wish to remove contact details.
 
 #===================================================
 #  ENTER DECLARATION DETAILS PAGE

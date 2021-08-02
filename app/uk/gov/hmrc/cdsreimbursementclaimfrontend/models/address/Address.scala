@@ -35,7 +35,7 @@ object Address {
 
   val addressLineMaxLength: Int = 35
 
-  final case class UkAddress(
+  final case class UkAddress( //TODO Remove after removing EnterDetailsRegisteredWithCdsController and EnterYourContactDetailsController
     line1: String,
     line2: Option[String],
     town: Option[String],
@@ -45,7 +45,7 @@ object Address {
     val countryCode: String = Country.uk.code
   }
 
-  final case class NonUkAddress(
+  final case class NonUkAddress( //TODO Rename after removing EnterDetailsRegisteredWithCdsController and EnterYourContactDetailsController
     line1: String,
     line2: Option[String],
     line3: Option[String],

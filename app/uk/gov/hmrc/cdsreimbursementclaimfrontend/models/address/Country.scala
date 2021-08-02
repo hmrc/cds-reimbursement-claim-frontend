@@ -27,7 +27,9 @@ import scala.io.{Codec, Source}
 
 final case class Country(
   code: CountryCode
-)
+) {
+  val messageKey: String = s"country.$code"
+}
 
 object Country {
 
