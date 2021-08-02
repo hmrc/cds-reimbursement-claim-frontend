@@ -15,7 +15,7 @@
 
 @()(implicit request:RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
 
-@key = @{"schedule-document.size-fail"}
+@key = @{"schedule-document.format-virus-fail"}
 @title = @{messages(s"$key.title")}
 
 @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
@@ -26,12 +26,15 @@
 
     @bulletList(
         Seq(
-            Html(messages(s"$key.bullet1")),
-            Html(messages(s"$key.bullet2"))
+            Html(messages(s"$key.l1")),
+            Html(messages(s"$key.l2")),
+            Html(messages(s"$key.l3"))
         )
     )
 
     @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
+
+    @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
 
     @formWithCSRF(routes.ScheduleOfMrnDocumentController.uploadScheduledDocumentSubmit(), 'novalidate -> "novalidate") {
         @submitButton(s"$key.button.tryAgain")

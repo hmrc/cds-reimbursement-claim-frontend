@@ -837,11 +837,28 @@ schedule-document.size-fail.bullet1=the service has experienced technical issues
 schedule-document.size-fail.bullet2=your file was larger than 10MB
 schedule-document.size-fail.p2=You’ll need to try again.
 schedule-document.size-fail.button.tryAgain=Try again
-
-
 schedule-document.scan-progress.title=We are checking your document
 schedule-document.scan-progress.p1=It could take several seconds to check if your document is free from viruses. We will let you know if there are any issues. Otherwise you will be able to continue.
 schedule-document.scan-progress.p2=You’ll need to keep selecting ‘continue’ every few seconds until the check is complete to go to the next page.
+schedule-document.format-virus-fail.title=There is a problem with your file
+schedule-document.format-virus-fail.p1=The problem could be that:
+schedule-document.format-virus-fail.l1=the file had a virus or was corrupt
+schedule-document.format-virus-fail.l2=you did not select a file to upload
+schedule-document.format-virus-fail.l3=you uploaded the wrong type of file
+schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG, and PDF.
+schedule-document.format-virus-fail.p3=You'll need to try again.
+schedule-document.format-virus-fail.button.tryAgain=Try again
+
+schedule-document.review.title=You have successfully uploaded a scheduled document
+schedule-document.review.file-label=Document
+schedule-document.review.help-text=Your document should include a list of all MRNs linked with the claim.
+schedule-document.review.p1=Each MRN should show:
+schedule-document.review.bullet1=the amount of tax you paid on it
+schedule-document.review.bullet2=the amount you should have paid on it
+schedule-document.review.bullet3=which duty is being reclaimed on it
+schedule-document.review.remove=Remove
+schedule-document.review.assistive=the file named {0}
+
 
 #===================================================
 # CHECK YOUR ANSWERS PAGE
@@ -851,7 +868,6 @@ check-your-answers.help-text=These are the details of your claim. Review them ca
 check-your-answers.entry-reference-number.label=Entry reference number
 check-your-answers.mrn.label=MRN reference number
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
 check-your-answers.declaration-details.l0=Import date
 check-your-answers.declaration-details.l1=Place of import
 check-your-answers.declaration-details.l2=Importer name

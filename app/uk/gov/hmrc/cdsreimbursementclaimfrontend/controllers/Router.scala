@@ -181,9 +181,9 @@ case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with Submi
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
-  val refNumberKey                    = None
-  override val subKey: Option[String] = None
-  override val journeyBindable        = JourneyBindable.Single
+  val refNumberKey    = None
+  val subKey          = None
+  val journeyBindable = JourneyBindable.Single
 
   val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
