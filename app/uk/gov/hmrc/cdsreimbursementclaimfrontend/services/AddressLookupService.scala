@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import play.api.libs.json.{Format, Json}
+import com.google.inject.{ImplementedBy, Inject}
 
-final case class AddressLookupResult(
-  postcode: Postcode,
-  filter: Option[String],
-  addresses: List[Address]
-)
+@ImplementedBy(classOf[DefaultAddressLookupService])
+trait AddressLookupService {
 
-object AddressLookupResult {
+  /*
 
-  implicit val format: Format[AddressLookupResult] = Json.format
-
+  response => Either.cond(response.status === ACCEPTED, response, Error("Request was not accepted by the lookup service"))
+   */
 }
+
+class DefaultAddressLookupService @Inject() () extends AddressLookupService {}
