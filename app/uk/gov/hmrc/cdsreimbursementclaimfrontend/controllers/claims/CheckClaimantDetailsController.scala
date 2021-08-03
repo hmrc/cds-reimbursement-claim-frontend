@@ -68,8 +68,6 @@ class CheckClaimantDetailsController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[CheckClaimantDetailsAnswer] { (fillingOutClaim, answers, router) =>
-        println("-" * 100)
-        println(answers.toString)
         val emptyForm  = checkClaimantDetailsAnswerForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
         Ok(renderTemplate(filledForm, fillingOutClaim, router))
@@ -79,17 +77,16 @@ class CheckClaimantDetailsController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[CheckClaimantDetailsAnswer] { (fillingOutClaim, _, router) =>
-        CheckClaimantDetailsController.checkClaimantDetailsAnswerForm
+        checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(renderTemplate(formWithErrors, fillingOutClaim, router)),
             formOk => {
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(checkClaimantDetailsAnswer = Option(formOk)))
+              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkClaimantDetailsAnswer = Option(formOk)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap(_ => Error("Could not save Declarant Type"))
+                .leftMap(err => Error(s"Could not save Declarant Type: ${err.message}"))
                 .fold(
                   e => {
                     logger.warn("Submit Declarant Type error: ", e)
@@ -111,20 +108,15 @@ class CheckClaimantDetailsController @Inject() (
     request: RequestWithSessionData[_],
     messages: Messages,
     viewConfig: ViewConfig
-  ): HtmlFormat.Appendable = {
-    val namePhoneEmail       = extractContactsRegisteredWithCDSA(fillingOutClaim)
-    val establishmentAddress = extractEstablishmentAddress(fillingOutClaim)
-    val contactDetails       = extractContactDetails(fillingOutClaim)
-    val contactAddress       = extractContactAddress(fillingOutClaim)
+  ): HtmlFormat.Appendable =
     claimantDetails(
       form,
-      namePhoneEmail,
-      establishmentAddress,
-      contactDetails,
-      contactAddress,
+      extractDetailsRegisteredWithCDS(fillingOutClaim),
+      extractEstablishmentAddress(fillingOutClaim),
+      extractContactDetails(fillingOutClaim),
+      extractContactAddress(fillingOutClaim),
       router
     )
-  }
 
 }
 
@@ -155,7 +147,7 @@ object CheckClaimantDetailsController {
 
   implicit val format: OFormat[CheckClaimantDetailsAnswer] = derived.oformat[CheckClaimantDetailsAnswer]()
 
-  def extractContactsRegisteredWithCDSA(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
+  def extractDetailsRegisteredWithCDS(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
     Applicative[Option]
