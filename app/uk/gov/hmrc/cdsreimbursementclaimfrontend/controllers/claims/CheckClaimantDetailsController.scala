@@ -85,8 +85,7 @@ class CheckClaimantDetailsController @Inject() (
             formWithErrors => BadRequest(renderTemplate(formWithErrors, fillingOutClaim, router)),
             formOk => {
               val newDraftClaim  =
-                fillingOutClaim.draftClaim
-                  .fold(_.copy(checkClaimantDetailsAnswer = Option(formOk)))
+                fillingOutClaim.draftClaim.fold(_.copy(checkClaimantDetailsAnswer = Option(formOk)))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))

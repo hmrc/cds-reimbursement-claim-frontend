@@ -4,7 +4,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
@@ -16,11 +16,12 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[ContactDetailsFormData], isAmend: Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+
+@(form : Form[MrnContactDetails])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-or-change-contact-details"}
 
-@postAction = @{if(isAmend) routes.EnterYourContactDetailsController.changeContactDetailsSubmit else routes.EnterYourContactDetailsController.enterContactDetailsSubmit}
+@postAction = @{routes.EnterYourContactDetailsController.changeContactDetailsSubmit}
 
 @title = @{messages(s"$key.title")}
 

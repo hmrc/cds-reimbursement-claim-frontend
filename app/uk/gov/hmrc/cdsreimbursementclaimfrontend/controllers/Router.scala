@@ -59,6 +59,9 @@ trait SubmitRoutes extends Product with Serializable {
   def submitPageForClaimantDetails(): Call =
     claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
 
+  def submitPageForEnterOrChangeMrnContactDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {

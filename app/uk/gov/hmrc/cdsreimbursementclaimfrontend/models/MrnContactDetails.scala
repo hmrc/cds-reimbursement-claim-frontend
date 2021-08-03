@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import julienrf.json.derived
-//import play.api.libs.json.{Json, OFormat}
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import play.api.libs.json.{Json, OFormat}
 
-//sealed trait MrnContactDetails extends Product with Serializable
-final case class MrnContactDetails()
+final case class MrnContactDetails(
+  fullName: String,
+  emailAddress: Email,
+  phoneNumber: PhoneNumber
+)
 
 object MrnContactDetails {
-  //implicit val format: OFormat[ContactDetailsAnswer] = derived.oformat[ContactDetailsAnswer]()
-  //implicit val format: OFormat[NonGovernmentGatewayRetrievedUser] = Json.format[NonGovernmentGatewayRetrievedUser]
-  //implicit val format: OFormat[MrnContactDetails] = Json.format[MrnContactDetails]
-  implicit val format: OFormat[MrnContactDetails] = derived.oformat[MrnContactDetails]()
+  implicit val format: OFormat[MrnContactDetails] = Json.format[MrnContactDetails]
 }
