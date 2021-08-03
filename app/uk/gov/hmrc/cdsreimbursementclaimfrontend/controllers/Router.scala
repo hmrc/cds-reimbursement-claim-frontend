@@ -125,6 +125,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
   //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
   //    }
 
+  //TODO: fix routing to go to ALF address lookup page
+  def nextPageForEnterOrChangeMrnContactDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+
 }
 
 trait SingleRoutes extends JourneyTypeRoutes {

@@ -19,11 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckClaimantDetailsController, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow, Value}
 
@@ -45,10 +46,11 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
 
   def renderContactDetails(
     contactDetails: NamePhoneEmail,
-    contactAddress: Option[NonUkAddress]
+    contactAddress: Option[NonUkAddress],
+    router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
-      if (contactDetails.nonEmpty()) Some(renderContactDetails(contactDetails)) else None,
+      if (contactDetails.nonEmpty()) Some(renderContactDetails(contactDetails, router)) else None,
       contactAddress.map(renderContactAddress(_))
     ).flattenOption
 
@@ -79,7 +81,7 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
     )
   }
 
-  def renderContactDetails(namePhoneEmail: NamePhoneEmail): SummaryListRow = {
+  def renderContactDetails(namePhoneEmail: NamePhoneEmail, router: ReimbursementRoutes): SummaryListRow = {
     val data = List(
       namePhoneEmail.name.map(getParagraph),
       namePhoneEmail.phoneNumber.map(a => getParagraph(a.value)),
@@ -90,7 +92,18 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
       Key(Text(messages(s"$key.contact.details")(lang))),
       Value(new HtmlContent(HtmlFormat.fill(data))),
       "",
-      Some(Actions("govuk-link", List(ActionItem("", Text(messages("claimant-details.change")(lang))))))
+      Some(
+        Actions(
+          "govuk-link",
+          List(
+            ActionItem(
+              href =
+                s"${routes.EnterOrChangeContactDetailsController.changeMrnContactDetails(router.journeyBindable).url}",
+              Text(messages("claimant-details.change")(lang))
+            )
+          )
+        )
+      )
     )
   }
 
