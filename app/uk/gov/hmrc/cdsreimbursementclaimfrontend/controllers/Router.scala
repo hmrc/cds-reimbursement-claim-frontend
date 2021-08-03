@@ -56,6 +56,9 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
+  def submitPageForClaimantDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -121,6 +124,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
   //      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
   //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
   //    }
+
+  //TODO: fix routing to go to ALF address lookup page
+  def nextPageForEnterOrChangeMrnContactDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
 }
 

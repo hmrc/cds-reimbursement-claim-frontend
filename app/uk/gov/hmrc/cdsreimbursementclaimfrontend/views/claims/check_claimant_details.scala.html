@@ -14,33 +14,81 @@
 * limitations under the License.
 *@
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
     claimantDetailsHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.ClaimantDetailsHelper,
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+    radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(namePhoneEmail: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CheckClaimantDetailsAnswer], registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckClaimantDetailsController.languageKey}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
 
     @pageHeading(title)
 
-    @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(namePhoneEmail, establishmentAddress)))
+    @pageHeading(messages(s"$key.registered.title"), "govuk-heading-m govuk-!-margin-bottom-6", "h2")
+    @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(registeredContactDetails, establishmentAddress)))
 
-    @buttonLink("button.continue", Some(router.nextPageForClaimantDetails().url))
+    @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
+    @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
+    @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
+
+    @formWithCSRF(router.submitPageForClaimantDetails(), 'novalidate -> "novalidate") {
+
+        @errorSummary(form.errors)
+
+        @radios(
+            form = form,
+            name = key,
+            legend = messages(s"$key.want-to-continue.title"),
+            legendAsHeading = true,
+            hintKey = Some(s"$key.want-to-continue.hint"),
+            inline = true,
+            items = Seq(
+                RadioItem(
+                    id = Some(s"$key-yes"),
+                    value = Some("0"),
+                    content = Text(messages(s"$key.yes")),
+                    checked = (form.value == Some(UseContactDetails))
+                ),
+                RadioItem(
+                    id = Some(s"$key-no"),
+                    value = Some("1"),
+                    content = Text(messages(s"$key.no")),
+                    checked = (form.value == Some(UseDetailsRegisteredWithCDS))
+                )
+            )
+        )
+
+        @submitButton("button.continue")
+
+    }
+	
+
 }
 
