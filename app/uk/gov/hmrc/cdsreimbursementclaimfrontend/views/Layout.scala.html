@@ -18,67 +18,88 @@
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 
 @this(
+    head: Head,
     hmrcLayout: HmrcLayout,
-    StandardAlphaBanner: StandardAlphaBanner
+    StandardAlphaBanner: StandardAlphaBanner,
+    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
+    hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 )
 
 @(
     pageTitle: Option[String] = None,
+    headBlock: Option[Html] = None,
+    timeOut: Boolean = true,
     scriptsBlock: Option[Html] = None,
+    suppressBackLink: Boolean = false,
+    signedInUserDetails: Option[SignedInUserDetails] = None,
     hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
+@defaultHead = {
+    @headBlock
+        @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
+            timeout= Some(viewConfig.timeout),
+            countdown= Some(viewConfig.countdown),
+            message= Some(messages("session-expired-message")),
+            keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+            signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+            timeoutUrl= Some(s"${StartController.timedOut.url}"),
+            keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+            signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
+        ))}
 
+    @hmrcTrackingConsentSnippet()
+}
 
-    @scripts = {
-        @scriptsBlock
-        <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
-        <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
-        <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+@scripts = {
+    @scriptsBlock
+    <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+    <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
+    <script src='@_root_.controllers.routes.Assets.versioned("javascripts/application.js")'></script>
+}
+
+@beforeContentBlock = {
+
+    @signedInUserDetails.map{ user =>
+        <div class="cds-user-banner">
+            <div>
+                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+                    <strong class="govuk-!-margin-right-1 cds-wrap-content--forced">
+                        EORI @user.eori.value:</strong> @user.contactName.value
+                </p>
+            </div>
+        </div>
     }
+    <div class="cds-user-banner cds-no-border">
+        @if(!suppressBackLink) {
+            <div id="cdsr-back-link"></div>
+        }
+        <div>
+            @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
+        </div>
+    </div>
 
-                                                @userBanner = {
+}
 
-                                                    @signedInUserDetails.map{ user =>
-                                                        <div class="cds-user-banner">
-                                                            <div>
-                                                                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                                                                    <strong class="govuk-!-margin-right-1 cds-wrap-content--forced">
-                                                                        EORI @user.eori.value:</strong> @user.contactName.value
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                    <div class="cds-user-banner cds-no-border">
-                                                        @if(!suppressBackLink) {
-                                                            <div id="cdsr-back-link"></div>
-                                                        }
-                                                        <div>
-                                                            @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
-                                                        </div>
-                                                    </div>
-
-                                                }
-
-                                                @beforeContentBlock = {
-                                                    @phaseBanner
-                                                    @userBanner
-                                                }
-
-    @hmrcLayout(
-        pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
-        isWelshTranslationAvailable = false,
-        serviceUrl = Some(messages("service.homePageUrl")),
-        signOutUrl = Some(viewConfig.ggSignOut),
-        accessibilityStatementUrl = ,
-        phaseBanner = Some(StandardAlphaBanner(url = viewConfig.serviceFeedBackUrl)),
-        nonce = CSPNonce.get,
-        additionalScriptsBlock = Some(scripts)
-    )(contentBlock)
+@hmrcLayout(
+    pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
+    beforeContentBlock = Some(beforeContentBlock),
+    isWelshTranslationAvailable = false,
+    serviceUrl = Some(messages("service.homePageUrl")),
+    signOutUrl = Some(viewConfig.ggSignOut),
+    accessibilityStatementUrl = Some(messages(viewConfig.accessibilityStatementUrl)),
+    phaseBanner = Some(StandardAlphaBanner(url = viewConfig.serviceFeedBackUrl)),
+    nonce = CSPNonce.get,
+    additionalHeadBlock = Some(head(Some(defaultHead))),
+    additionalScriptsBlock = Some(scripts)
+)(contentBlock)
