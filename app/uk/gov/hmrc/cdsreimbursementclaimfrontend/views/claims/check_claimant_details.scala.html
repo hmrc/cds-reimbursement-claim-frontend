@@ -56,7 +56,7 @@
 
     @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
     @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
-    @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress)))
+    @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
 
     @formWithCSRF(router.submitPageForClaimantDetails(), 'novalidate -> "novalidate") {
 
