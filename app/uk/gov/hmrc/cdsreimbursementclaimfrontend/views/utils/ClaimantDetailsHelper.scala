@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import play.twirl.api.{Html, HtmlFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckClaimantDetailsController, JourneyBindable, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
@@ -30,7 +30,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: MessagesApi) {
+class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: MessagesApi, journeyBindable: JourneyBindable) {
   protected val lang: Lang = langs.availables.headOption.getOrElse(Lang.defaultLang)
   protected val key        = CheckClaimantDetailsController.languageKey
 
@@ -90,7 +90,17 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
       Key(Text(messages(s"$key.contact.details")(lang))),
       Value(new HtmlContent(HtmlFormat.fill(data))),
       "",
-      Some(Actions("govuk-link", List(ActionItem("", Text(messages("claimant-details.change")(lang))))))
+      Some(
+        Actions(
+          "govuk-link",
+          List(
+            ActionItem(
+              href = s"${routes.EnterOrChangeContactDetailsController.changeMrnContactDetails(journeyBindable).url}",
+              Text(messages("claimant-details.change")(lang))
+            )
+          )
+        )
+      )
     )
   }
 

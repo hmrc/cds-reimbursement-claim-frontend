@@ -58,12 +58,12 @@ class EnterOrChangeContactDetailsController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def enterMrnContactDetails(): Action[AnyContent]  = show
-  def changeMrnContactDetails(): Action[AnyContent] = show
+  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show()
+  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show()
 
-  def show(): Action[AnyContent] =
+  def show()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MrnContactDetails] { (_, answers) =>
+      withAnswersAndRoutes[MrnContactDetails] { (_, answers, _) =>
         val mrnContactDetailsForm =
           answers.toList.foldLeft(EnterOrChangeContactDetailsController.mrnContactDetailsForm)((form, answer) =>
             form.fill(answer)
@@ -75,10 +75,10 @@ class EnterOrChangeContactDetailsController @Inject() (
   // enter or change contact details goes to ALF address page
   // redirect to here checkyour details
 
-  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit
-  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit
+  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit()
+  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit()
 
-  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         EnterOrChangeContactDetailsController.mrnContactDetailsForm
@@ -102,7 +102,7 @@ class EnterOrChangeContactDetailsController @Inject() (
                   logger.warn("could not capture contact details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(router.submitPageForEnterOrChangeMrnContactDetails())
+                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails())
               )
             }
           )
