@@ -50,7 +50,7 @@
 
         @paragraph(Html(messages(s"$key.p3")), Some("govuk-body"))
 
-        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidence(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.SupportingEvidenceController.uploadSupportingEvidenceSubmit(), 'novalidate -> "novalidate") {
             @submitButton(s"$key.button.tryAgain")
         }
 

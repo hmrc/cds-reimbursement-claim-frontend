@@ -20,7 +20,6 @@ import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.FileUploadHelper
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -44,13 +43,13 @@ trait UpscanConnector {
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 
-  def initiate[A](
+  def initiate(
     errorRedirect: Call,
     successRedirect: Call,
-    uploadReference: UploadReference
+    uploadReference: UploadReference,
+    maxFileSize: Long
   )(implicit
-    hc: HeaderCarrier,
-    fileUploadHelper: FileUploadHelper[A]
+    hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 
 }
@@ -74,13 +73,13 @@ class DefaultUpscanConnector @Inject() (
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  override def initiate[A](
+  override def initiate(
     errorRedirect: Call,
     successRedirect: Call,
-    uploadReference: UploadReference
+    uploadReference: UploadReference,
+    maxFileSize: Long
   )(implicit
-    hc: HeaderCarrier,
-    fileUploadHelper: FileUploadHelper[A]
+    hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] = {
 
     val selfBaseUrl = config.readSelfBaseUrl
@@ -90,12 +89,12 @@ class DefaultUpscanConnector @Inject() (
       selfBaseUrl + successRedirect.url,
       selfBaseUrl + errorRedirect.url,
       0,
-      config.readMaxFileSize(fileUploadHelper.configKey)
+      maxFileSize
     )
 
     logger.info(
       "make upscan initiate call with " +
-        s"call back url ${payload.callbackUrl} for '${fileUploadHelper.configKey}' upload" +
+        s"call back url ${payload.callbackUrl}" +
         s"| success redirect url ${payload.successRedirect} " +
         s"| error redirect url ${payload.errorRedirect}"
     )

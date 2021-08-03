@@ -56,6 +56,9 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
+  def submitPageForClaimantDetails(): Call =
+    claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -103,7 +106,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      case false => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
     }
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
@@ -113,6 +116,14 @@ trait JourneyTypeRoutes extends Product with Serializable {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
     }
+
+  def nextPageForClaimantDetails(): Call =
+    claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+  //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
+  //    featureSwitch.NorthernIreland.isEnabled() match {
+  //      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+  //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+  //    }
 
 }
 
@@ -170,9 +181,9 @@ case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with Submi
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
-  val refNumberKey                    = None
-  override val subKey: Option[String] = None
-  override val journeyBindable        = JourneyBindable.Single
+  val refNumberKey    = None
+  val subKey          = None
+  val journeyBindable = JourneyBindable.Single
 
   val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()

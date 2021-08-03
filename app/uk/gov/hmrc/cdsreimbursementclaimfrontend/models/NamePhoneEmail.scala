@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
-package object fileupload {
-
-  implicit class FileUploadOps[A](val maybeAnswer: Option[A]) extends AnyVal {
-
-    def hasReachedUploadThreshold(implicit fileUpload: FileUploadHelper[A]): Boolean =
-      fileUpload.hasReachedUploadThreshold(maybeAnswer)
-
-    def containsReference(uploadReference: UploadReference)(implicit fileUpload: FileUploadHelper[A]): Boolean =
-      fileUpload.hasReference(maybeAnswer, uploadReference)
-  }
+final case class NamePhoneEmail(
+  name: Option[String],
+  phoneNumber: Option[PhoneNumber],
+  email: Option[Email]
+) {
+  def nonEmpty(): Boolean = name.isDefined || phoneNumber.isDefined || email.isDefined
 }
