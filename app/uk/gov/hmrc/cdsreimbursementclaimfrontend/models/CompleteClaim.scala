@@ -87,6 +87,7 @@ object CompleteClaim {
               _,
               draftClaimantDetailsAsIndividualAnswer,
               draftClaimantDetailsAsImporterCompanyAnswer,
+              _,
               draftBankAccountDetailAnswer,
               maybeBasisForClaim,
               maybeSupportingEvidences,
