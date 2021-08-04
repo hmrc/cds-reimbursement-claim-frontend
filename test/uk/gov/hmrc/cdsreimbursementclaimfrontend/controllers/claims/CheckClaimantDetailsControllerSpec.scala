@@ -39,10 +39,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, MrnContactDetails, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
+import shapeless._
 import scala.concurrent.Future
 import play.api.http.Status.BAD_REQUEST
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 
 class CheckClaimantDetailsControllerSpec
     extends ControllerSpec
@@ -71,11 +74,15 @@ class CheckClaimantDetailsControllerSpec
 
   private def getSessionWithPreviousAnswer(
     displayDeclaration: Option[DisplayDeclaration],
-    declarantTypeAnswer: Option[DeclarantTypeAnswer]
+    declarantTypeAnswer: Option[DeclarantTypeAnswer],
+    mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
+    mrnContactAddressAnswer: Option[NonUkAddress] = None
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       displayDeclaration = displayDeclaration,
-      declarantTypeAnswer = declarantTypeAnswer
+      declarantTypeAnswer = declarantTypeAnswer,
+      mrnContactDetailsAnswer = mrnContactDetailsAnswer,
+      mrnContactAddressAnswer = mrnContactAddressAnswer
     )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -329,6 +336,120 @@ class CheckClaimantDetailsControllerSpec
       contactAddress.map(_.country.code) shouldBe acc14Declarant.contactDetails.flatMap(_.countryCode)
 
     }
+
   }
 
+  "Validating session and acc14 data" should {
+
+    val importerTable = Table(
+      "Importer Type",
+      DeclarantTypeAnswer.Importer,
+      DeclarantTypeAnswer.AssociatedWithImporterCompany,
+      DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+    )
+
+    "return true if we have valid session data" in {
+      val fillingOutClaim = getSessionWithPreviousAnswer(
+        None,
+        Some(DeclarantTypeAnswer.Importer),
+        Some(sample[MrnContactDetails]),
+        Some(sample[NonUkAddress])
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe true
+    }
+
+    "return false if we have valid contact details but missing contact address" in {
+      val fillingOutClaim = getSessionWithPreviousAnswer(
+        None,
+        Some(DeclarantTypeAnswer.Importer),
+        Some(sample[MrnContactDetails]),
+        None
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+
+    }
+    "return false if we have valid contact address but missing contact details" in {
+      val fillingOutClaim = getSessionWithPreviousAnswer(
+        None,
+        Some(DeclarantTypeAnswer.Importer),
+        None,
+        Some(sample[NonUkAddress])
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+
+    }
+
+    "return true if we have no session data, but valid Acc14 data" in {
+      val acc14           = generateAcc14WithAddresses()
+      val fillingOutClaim = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        None,
+        None
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe true
+    }
+
+    "return false if we have no session data, and no contact name in Acc14 data" in {
+      val fullAcc14        = generateAcc14WithAddresses()
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+        cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(contactName = None)))
+      )
+      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
+      )
+      val fillingOutClaim  = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        None,
+        None
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+    }
+
+    "return false if we have no session data, and no contact address line1 in Acc14 data" in {
+      val fullAcc14        = generateAcc14WithAddresses()
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+        cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(addressLine1 = None)))
+      )
+      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
+      )
+      val fillingOutClaim  = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        None,
+        None
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+
+    }
+
+    "return false if we have no session data, and no contact address postcode in Acc14 data" in {
+      val fullAcc14        = generateAcc14WithAddresses()
+      val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
+        cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(postalCode = None)))
+      )
+      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
+      )
+      val fillingOutClaim  = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        None,
+        None
+      )._2
+
+      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+
+
+    }
+
+  }
 }
