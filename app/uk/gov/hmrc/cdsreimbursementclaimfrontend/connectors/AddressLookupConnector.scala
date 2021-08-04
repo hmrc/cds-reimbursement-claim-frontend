@@ -61,12 +61,13 @@ class DefaultAddressLookupConnector @Inject() (
       }
   }
 
-  def retrieveAddress(addressLocationUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = EitherT {
-    http
-      .GET[HttpResponse](s"${serviceConfig.retrieveAddressUrl}?id=$addressLocationUrl")
-      .map(Right(_))
-      .recover { case NonFatal(e) =>
-        Left(Error(e))
-      }
-  }
+  def retrieveAddress(addressLocationUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
+    EitherT {
+      http
+        .GET[HttpResponse](s"${serviceConfig.retrieveAddressUrl}?id=$addressLocationUrl")
+        .map(Right(_))
+        .recover { case NonFatal(e) =>
+          Left(Error(e))
+        }
+    }
 }
