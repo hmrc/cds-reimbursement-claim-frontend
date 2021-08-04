@@ -316,10 +316,9 @@ claimant-details.invalid=Select whether you wish to remove contact details.
 #===================================================
 #  ENTER OR CHANGE CONTACT DETAILS PAGE
 #===================================================
-enter-or-change-contact-details.title=Add contact details
 enter-or-change-contact-details.change.title=Change contact details
 enter-or-change-contact-details.add.title=Add contact details
-enter-or-change-contact-details.caption=Enter your personal details
+enter-or-change-contact-details.h2=Enter your personal details
 enter-or-change-contact-details.contact-name.label=Full Name
 enter-or-change-contact-details.contact-name.error.required=Enter your full name
 enter-or-change-contact-details.contact-name.error.maxLength=Enter a shorter name

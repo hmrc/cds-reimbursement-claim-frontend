@@ -59,6 +59,14 @@ trait SubmitRoutes extends Product with Serializable {
   def submitPageForClaimantDetails(): Call =
     claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
 
+  def submitUrlForChangeMrnContactDetails(): Call =
+    claimRoutes.EnterOrChangeContactDetailsController.changeMrnContactDetailsSubmit(journeyBindable)
+
+  //TODO: submit url goes to ALF lookup page
+  // add to routes
+  def submitUrlForEnterMrnContactDetails(): Call =
+    claimRoutes.EnterOrChangeContactDetailsController.enterMrnContactDetailsSubmit(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -119,15 +127,22 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForClaimantDetails(): Call =
     claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+
+  // TODO: There are two scenarios for claimant details next page:
+  //  If there are no contact details => the next page is EnterOrChangeMrnContactDetails.enterMrnContactDetails()
+
   //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
   //    featureSwitch.NorthernIreland.isEnabled() match {
   //      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
   //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
   //    }
 
-  //TODO: fix routing to go to ALF address lookup page
-  def nextPageForEnterOrChangeMrnContactDetails(): Call =
-    claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+  //TODO: fix routing to go to ALF address lookup page for enter contact details
+  // if coming from CheckClaimantDetails from the change link => next page is claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+  // if coming from CheckClaimantDetails from selecting 'yes' in radio buttons (i.e no data from Acc14) => next page is ALF address page
+  def nextPageForEnterOrChangeMrnContactDetails(isChange: Boolean): Call =
+    if (isChange) claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+    else ???
 
 }
 
