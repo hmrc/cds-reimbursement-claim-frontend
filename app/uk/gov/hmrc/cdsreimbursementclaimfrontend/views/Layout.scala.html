@@ -5,7 +5,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*     http://www.apache.org/licenses/LICENSE-2.0
+* http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *@
-
 @import play.twirl.api.Html
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
@@ -46,16 +45,18 @@
 
 @defaultHead = {
 @headBlock
-@{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
-    timeout= Some(viewConfig.timeout),
-    countdown= Some(viewConfig.countdown),
-    message= Some(messages("session-expired-message")),
-    keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
-    signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
-    timeoutUrl= Some(s"${StartController.timedOut.url}"),
-    keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
-    signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
-))}
+@{
+    if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
+        timeout = Some(viewConfig.timeout),
+        countdown = Some(viewConfig.countdown),
+        message = Some(messages("session-expired-message")),
+        keepAliveUrl = Some(s"${StartController.keepAlive.url}"),
+        signOutUrl = Some(s"${StartController.signOutAndSignIn.url}"),
+        timeoutUrl = Some(s"${StartController.timedOut.url}"),
+        keepAliveButtonText = Some(messages("session-expired.keep-alive-button-text")),
+        signOutButtonText = Some(messages("session-expired.sign-out-button-text"))
+    ))
+}
 
 @hmrcTrackingConsentSnippet()
 }
@@ -70,7 +71,7 @@
 
 @beforeContentBlock = {
 
-@signedInUserDetails.map{ user =>
+@signedInUserDetails.map { user =>
     <div class="cds-user-banner">
         <div>
             <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
