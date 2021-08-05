@@ -25,6 +25,6 @@ object Labels {
 
   final case class ConfirmPageLabels(infoSubheading: String)
 
-  implicit val confirmPageLabelsFormat: OFormat[ConfirmPageLabels]     = Json.format[ConfirmPageLabels]
-  implicit val addressLookupLabelsFormat: OFormat[Labels] = Json.format[Labels]
+  implicit val confirmPageLabelsFormat: OFormat[ConfirmPageLabels] = Json.format[ConfirmPageLabels]
+  implicit val addressLookupLabelsFormat: OFormat[Labels]          = Json.format[Labels]
 }

@@ -20,8 +20,7 @@ import cats.data.EitherT
 import cats.implicits.{catsStdInstancesForFuture, catsSyntaxEq, catsSyntaxOptionId, toBifunctorOps}
 import com.google.inject.{ImplementedBy, Inject}
 import play.api.http.HeaderNames.LOCATION
-import play.api.http.Status.ACCEPTED
-import play.api.i18n.Lang
+import play.api.http.Status.{ACCEPTED, OK}
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.{JsPath, JsonValidationError, Reads}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
@@ -33,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupSe
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import java.net.URL
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultAddressLookupService])
@@ -40,9 +40,9 @@ trait AddressLookupService {
 
   def initiate(
     request: InitiateAddressLookupRequest
-  )(implicit lang: Lang, hc: HeaderCarrier): EitherT[Future, Error, URL]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
 
-  def retrieveUserAddress(addressLocationUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress]
+  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress]
 }
 
 class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(implicit
@@ -51,7 +51,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
 
   def initiate(
     request: InitiateAddressLookupRequest
-  )(implicit lang: Lang, hc: HeaderCarrier): EitherT[Future, Error, URL] = {
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
 
     def resolvingAddressLookupRedirectUrl(response: HttpResponse): Either[Error, URL] =
       response.header(LOCATION).map(new URL(_)) toRight Error("Could not resolve address lookup redirect URL")
@@ -62,7 +62,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
       .subflatMap(resolvingAddressLookupRedirectUrl)
   }
 
-  def retrieveUserAddress(addressLocationUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress] = {
+  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress] = {
     def formatErrors(errors: Seq[(JsPath, Seq[JsonValidationError])]): Error =
       Error(
         errors
@@ -72,7 +72,8 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
       )
 
     connector
-      .retrieveAddress(addressLocationUrl)
+      .retrieveAddress(addressId)
+      .ensure(Error(s"Cannot retrieve an address by ID $addressId"))(_.status === OK)
       .subflatMap(
         _.json
           .validate[NonUkAddress](addressLookupResponseReads)
@@ -92,9 +93,9 @@ object DefaultAddressLookupService {
     lines match {
       case Array(line1, line2, line3, town) =>
         NonUkAddress(line1, line2.some, line3.some, town, postcode, country)
-      case Array(line1, line2, town) =>
+      case Array(line1, line2, town)        =>
         NonUkAddress(line1, line2.some, None, town, postcode, country)
-      case Array(line1, town) =>
+      case Array(line1, town)               =>
         NonUkAddress(line1, None, None, town, postcode, country)
     }
   )

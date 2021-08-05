@@ -18,15 +18,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
-import play.api.http.HeaderNames.ACCEPT_LANGUAGE
-import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
-import java.net.URL
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
@@ -35,9 +33,9 @@ trait AddressLookupConnector {
 
   def initiate(
     request: InitiateAddressLookupRequest
-  )(implicit lang: Lang, hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 
-  def retrieveAddress(addressUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
+  def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 }
 
 class DefaultAddressLookupConnector @Inject() (
@@ -48,12 +46,11 @@ class DefaultAddressLookupConnector @Inject() (
 
   def initiate(
     request: InitiateAddressLookupRequest
-  )(implicit lang: Lang, hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = EitherT {
+  )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = EitherT {
     http
       .POST[InitiateAddressLookupRequest, HttpResponse](
         serviceConfig.triggerAddressLookupUrl,
-        request,
-        Seq(ACCEPT_LANGUAGE -> lang.language)
+        request
       )
       .map(Right(_))
       .recover { case NonFatal(e) =>
@@ -61,10 +58,10 @@ class DefaultAddressLookupConnector @Inject() (
       }
   }
 
-  def retrieveAddress(addressLocationUrl: URL)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
+  def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT {
       http
-        .GET[HttpResponse](s"${serviceConfig.retrieveAddressUrl}?id=$addressLocationUrl")
+        .GET[HttpResponse](s"${serviceConfig.retrieveAddressUrl}?id=$addressId")
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))

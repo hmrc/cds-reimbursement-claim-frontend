@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class InitiateAddressLookupRequest(
   options: Options,
-  labels: Labels,
+  labels: Option[Labels] = None,
   version: Int = 2
 )
 

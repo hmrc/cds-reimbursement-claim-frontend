@@ -21,35 +21,35 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.Options._
 
 final case class Options(
   continueUrl: String,
-  signOutHref: String,
-  accessibilityFooterUrl: String,
-  selectPageConfig: SelectPageConfig,
-  confirmPageConfig: ConfirmPageConfig,
+  signOutHref: Option[String] = None,
+  accessibilityFooterUrl: Option[String] = None,
+  selectPageConfig: Option[SelectPageConfig] = None,
   timeoutConfig: TimeoutConfig,
-  phaseFeedbackLink: String = "private-beta",
-  deskProServiceName: String = "cds-reimbursement-claim",
-  showPhaseBanner: Boolean = true,
-  ukMode: Boolean = true
+  confirmPageConfig: Option[ConfirmPageConfig] = Some(ConfirmPageConfig()),
+  phaseFeedbackLink: Option[String] = Some("private-beta"),
+  deskProServiceName: Option[String] = Some("cds-reimbursement-claim"),
+  showPhaseBanner: Option[Boolean] = Some(true),
+  ukMode: Option[Boolean] = Some(true)
 )
 
 object Options {
 
-  final case class SelectPageConfig(proposalListLimit: Int)
+  final case class SelectPageConfig(proposalListLimit: Option[Int])
 
   final case class ConfirmPageConfig(
-    showChangeLink: Boolean,
-    showSearchAgainLink: Boolean,
-    showConfirmChangeText: Boolean
+    showChangeLink: Option[Boolean] = Some(true),
+    showSearchAgainLink: Option[Boolean] = Some(true),
+    showConfirmChangeText: Option[Boolean] = Some(true)
   )
 
   final case class TimeoutConfig(
     timeoutAmount: Long,
     timeoutUrl: String,
-    timeoutKeepAliveUrl: String
+    timeoutKeepAliveUrl: Option[String] = None
   )
 
-  implicit val selectPageConfigFormat: OFormat[SelectPageConfig]         = Json.format[SelectPageConfig]
-  implicit val confirmPageConfigFormat: OFormat[ConfirmPageConfig]       = Json.format[ConfirmPageConfig]
-  implicit val timeoutConfigFormat: OFormat[TimeoutConfig]               = Json.format[TimeoutConfig]
-  implicit val addressLookupOptionsFormat: OFormat[Options] = Json.format[Options]
+  implicit val selectPageConfigFormat: OFormat[SelectPageConfig]   = Json.format[SelectPageConfig]
+  implicit val confirmPageConfigFormat: OFormat[ConfirmPageConfig] = Json.format[ConfirmPageConfig]
+  implicit val timeoutConfigFormat: OFormat[TimeoutConfig]         = Json.format[TimeoutConfig]
+  implicit val addressLookupOptionsFormat: OFormat[Options]        = Json.format[Options]
 }
