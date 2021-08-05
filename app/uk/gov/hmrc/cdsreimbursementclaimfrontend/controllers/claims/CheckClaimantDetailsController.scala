@@ -109,6 +109,7 @@ class CheckClaimantDetailsController @Inject() (
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable =
+    //val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
     claimantDetails(
       form,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
@@ -212,33 +213,36 @@ object CheckClaimantDetailsController {
             declaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails)
           case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
             declaration.displayResponseDetail.declarantDetails.contactDetails
-        }).flatMap{ contactDetails =>
-        Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode ) { (addressLine1,postCode) =>
-          NonUkAddress(
-            addressLine1,
-            contactDetails.addressLine2,
-            None,
-            contactDetails.addressLine3.getOrElse(""),
-            postCode,
-            contactDetails.countryCode.map(Country(_)).getOrElse(Country.uk)
-          )
+        }).flatMap { contactDetails =>
+          Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) { (addressLine1, postCode) =>
+            NonUkAddress(
+              addressLine1,
+              contactDetails.addressLine2,
+              None,
+              contactDetails.addressLine3.getOrElse(""),
+              postCode,
+              contactDetails.countryCode.map(Country(_)).getOrElse(Country.uk)
+            )
           }
         }
-      }.flatten
+      }
+      .flatten
   }
 
   def validateSessionOrAcc14(fillingOutClaim: FillingOutClaim): Boolean = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+    val contactDetails = extractContactDetails(fillingOutClaim)
+    val contactAddress = extractContactAddress(fillingOutClaim)
     if (
       draftC285Claim.mrnContactDetailsAnswer.isDefined &&
       draftC285Claim.mrnContactAddressAnswer.isDefined
     )
       true
     else if (
-      extractContactDetails(fillingOutClaim).name.isDefined &&
-      extractContactDetails(fillingOutClaim).email.isDefined &&
-      extractContactAddress(fillingOutClaim).map(_.line1).isDefined &&
-      extractContactAddress(fillingOutClaim).map(_.postcode).isDefined
+      contactDetails.name.isDefined &&
+      contactDetails.email.isDefined &&
+      contactAddress.map(_.line1).isDefined &&
+      contactAddress.map(_.postcode).isDefined
     )
       true
     else

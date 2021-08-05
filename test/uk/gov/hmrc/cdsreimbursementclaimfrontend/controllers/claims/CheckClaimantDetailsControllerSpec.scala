@@ -399,7 +399,7 @@ class CheckClaimantDetailsControllerSpec
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(contactName = None)))
       )
-      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+      val acc14            = Functor[Id].map(fullAcc14)(dd =>
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
@@ -417,7 +417,7 @@ class CheckClaimantDetailsControllerSpec
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(addressLine1 = None)))
       )
-      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+      val acc14            = Functor[Id].map(fullAcc14)(dd =>
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
@@ -436,7 +436,7 @@ class CheckClaimantDetailsControllerSpec
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(postalCode = None)))
       )
-      val acc14 = Functor[Id].map(fullAcc14)(dd =>
+      val acc14            = Functor[Id].map(fullAcc14)(dd =>
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails)))
       )
       val fillingOutClaim  = getSessionWithPreviousAnswer(
@@ -447,7 +447,6 @@ class CheckClaimantDetailsControllerSpec
       )._2
 
       validateSessionOrAcc14(fillingOutClaim) shouldBe false
-
 
     }
 
