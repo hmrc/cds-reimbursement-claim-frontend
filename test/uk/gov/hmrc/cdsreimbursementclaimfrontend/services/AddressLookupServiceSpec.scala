@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
@@ -25,7 +41,8 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AddressLookupServiceSpec extends AnyWordSpec
+class AddressLookupServiceSpec
+    extends AnyWordSpec
     with ScalaCheckPropertyChecks
     with EitherValues
     with Matchers
@@ -97,13 +114,17 @@ class AddressLookupServiceSpec extends AnyWordSpec
     "retrieving address" should {
 
       "succeed having valid address ID" in forAll { (id: UUID, address: NonUkAddress) =>
-
         val json = Json.obj(
-          "id" -> id,
+          "id"      -> id,
           "address" -> Json.obj(
-            "lines" -> Seq(address.line1.some, address.line2, address.line3, address.line4.some).flatten.seq,
+            "lines"    -> Seq(
+              address.line1.some.toList,
+              address.line2.toList,
+              address.line3.toList,
+              address.line4.some.toList
+            ).flatten.seq,
             "postcode" -> address.postcode,
-            "country" -> Json.obj(
+            "country"  -> Json.obj(
               "code" -> address.country.code
             )
           )
@@ -111,11 +132,10 @@ class AddressLookupServiceSpec extends AnyWordSpec
 
         mockGetAddress(id)(Right(HttpResponse(OK, json.toString())))
 
-        await(addressLookupService.retrieveUserAddress(id).value).right.value should be(address)
+        await(addressLookupService.retrieveUserAddress(id).value).value should be(address)
       }
 
       "fail having invalid address ID" in forAll { id: UUID =>
-
         mockGetAddress(id)(Right(HttpResponse(NOT_FOUND, Json.obj().toString())))
 
         await(addressLookupService.retrieveUserAddress(id).value).isLeft should be(true)
