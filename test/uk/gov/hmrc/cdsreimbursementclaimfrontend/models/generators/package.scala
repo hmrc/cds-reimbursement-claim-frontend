@@ -26,7 +26,8 @@ import java.util.UUID
 package object generators {
 
   def genStringWithMaxSizeOfN(max: Int): Gen[String] =
-    Gen.choose(1, max)
+    Gen
+      .choose(1, max)
       .flatMap(Gen.listOfN(_, Gen.alphaChar))
       .map(_.mkString(""))
 
