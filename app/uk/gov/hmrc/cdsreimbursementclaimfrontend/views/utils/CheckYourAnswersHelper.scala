@@ -489,14 +489,17 @@ class CheckYourAnswersHelper @Inject() (implicit
     )
 
   def makeBasisAndOrReasonForClaim(
+    selectOfBasisClaimParentKey: String,
     completeClaim: CompleteClaim
   )(implicit request: RequestWithSessionData[_], messages: Messages): List[SummaryListRow] =
     completeClaim.basisForClaim match {
-      case Left(value)  =>
+      case Left(selected)      =>
         List(
           SummaryListRow(
             key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
-            value = Value(Text(value.basisForClaim.string)),
+            value = Value(
+              Text(messages(BasisOfClaimsMessage.ofEntryNumber(selectOfBasisClaimParentKey, selected.basisForClaim)))
+            ),
             actions = Some(
               Actions(
                 items = Seq(
@@ -511,7 +514,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           ),
           SummaryListRow(
             key = Key(Text(messages(s"$key.reason-and-basis.l1"))),
-            value = Value(Text(value.reasonForClaim.repr)),
+            value = Value(Text(selected.reasonForClaim.repr)),
             actions = Some(
               Actions(
                 items = Seq(
@@ -525,11 +528,11 @@ class CheckYourAnswersHelper @Inject() (implicit
             )
           )
         )
-      case Right(value) =>
+      case Right(basisOfClaim) =>
         List(
           SummaryListRow(
             key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
-            value = Value(Text(value.toString)),
+            value = Value(Text(messages(BasisOfClaimsMessage.ofMrn(selectOfBasisClaimParentKey, basisOfClaim)))),
             actions = Some(
               Actions(
                 items = Seq(
