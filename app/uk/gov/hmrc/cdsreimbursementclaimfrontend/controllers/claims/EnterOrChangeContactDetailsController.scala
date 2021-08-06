@@ -58,27 +58,24 @@ class EnterOrChangeContactDetailsController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show()
-  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show()
+  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
+  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
 
-  def show()(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[MrnContactDetails] { (_, answers, _) =>
+      withAnswersAndRoutes[MrnContactDetails] { (_, answers, router) =>
         val mrnContactDetailsForm =
           answers.toList.foldLeft(EnterOrChangeContactDetailsController.mrnContactDetailsForm)((form, answer) =>
             form.fill(answer)
           )
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm))
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, isChange))
       }
     }
 
-  // enter or change contact details goes to ALF address page
-  // redirect to here checkyour details
+  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit(isChange = false)
+  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isChange = true)
 
-  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit()
-  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit()
-
-  def submit()(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         EnterOrChangeContactDetailsController.mrnContactDetailsForm
@@ -86,7 +83,7 @@ class EnterOrChangeContactDetailsController @Inject() (
           .fold(
             requestFormWithErrors =>
               BadRequest(
-                enterOrChangeContactDetailsPage(requestFormWithErrors)
+                enterOrChangeContactDetailsPage(requestFormWithErrors, router, isChange)
               ),
             contactDetailsFormData => {
 
@@ -102,7 +99,7 @@ class EnterOrChangeContactDetailsController @Inject() (
                   logger.warn("could not capture contact details", e)
                   errorHandler.errorResult()
                 },
-                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails())
+                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails(isChange))
               )
             }
           )
