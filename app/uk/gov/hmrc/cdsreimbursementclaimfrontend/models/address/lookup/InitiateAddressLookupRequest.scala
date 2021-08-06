@@ -19,8 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 import play.api.libs.json.{Json, OFormat}
 
 final case class InitiateAddressLookupRequest(
-  options: Options,
-  labels: Option[Labels] = None,
+  options: AddressLookupOptions,
+  labels: Option[AddressLookupLabels] = None,
   version: Int = 2
 )
 

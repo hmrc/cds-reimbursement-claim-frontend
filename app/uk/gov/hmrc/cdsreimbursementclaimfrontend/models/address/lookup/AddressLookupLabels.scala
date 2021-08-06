@@ -17,14 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.Labels.ConfirmPageLabels
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupLabels.ConfirmPageLabels
 
-final case class Labels(confirmPageLabels: ConfirmPageLabels)
+final case class AddressLookupLabels(confirmPageLabels: ConfirmPageLabels)
 
-object Labels {
+object AddressLookupLabels {
 
   final case class ConfirmPageLabels(infoSubheading: String)
 
-  implicit val confirmPageLabelsFormat: OFormat[ConfirmPageLabels] = Json.format[ConfirmPageLabels]
-  implicit val addressLookupLabelsFormat: OFormat[Labels]          = Json.format[Labels]
+  implicit val confirmPageLabelsFormat: OFormat[ConfirmPageLabels]     = Json.format[ConfirmPageLabels]
+  implicit val addressLookupLabelsFormat: OFormat[AddressLookupLabels] = Json.format[AddressLookupLabels]
 }

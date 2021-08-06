@@ -28,10 +28,10 @@ class AddressLookupConfig @Inject() (config: ServicesConfig) {
 
   lazy val serviceUrl: String = config.baseUrl(serviceName)
 
-  lazy val triggerAddressLookupUrl: String = createUrlReadingProperty("init-endpoint")
+  lazy val triggerAddressLookupUrl: String = combineUrl("init-endpoint")
 
-  lazy val retrieveAddressUrl: String = createUrlReadingProperty("address-retrieve-endpoint")
+  lazy val retrieveAddressUrl: String = combineUrl("address-retrieve-endpoint")
 
-  private def createUrlReadingProperty(pathConfigKey: String): String =
+  private def combineUrl(pathConfigKey: String): String =
     s"$serviceUrl${config.getString(s"microservice.services.$serviceName.$pathConfigKey")}"
 }

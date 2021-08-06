@@ -17,9 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.Options._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions._
 
-final case class Options(
+final case class AddressLookupOptions(
   continueUrl: String,
   signOutHref: Option[String] = None,
   accessibilityFooterUrl: Option[String] = None,
@@ -32,7 +32,7 @@ final case class Options(
   ukMode: Option[Boolean] = Some(true)
 )
 
-object Options {
+object AddressLookupOptions {
 
   final case class SelectPageConfig(proposalListLimit: Option[Int])
 
@@ -48,8 +48,8 @@ object Options {
     timeoutKeepAliveUrl: Option[String] = None
   )
 
-  implicit val selectPageConfigFormat: OFormat[SelectPageConfig]   = Json.format[SelectPageConfig]
-  implicit val confirmPageConfigFormat: OFormat[ConfirmPageConfig] = Json.format[ConfirmPageConfig]
-  implicit val timeoutConfigFormat: OFormat[TimeoutConfig]         = Json.format[TimeoutConfig]
-  implicit val addressLookupOptionsFormat: OFormat[Options]        = Json.format[Options]
+  implicit val selectPageConfigFormat: OFormat[SelectPageConfig]         = Json.format[SelectPageConfig]
+  implicit val confirmPageConfigFormat: OFormat[ConfirmPageConfig]       = Json.format[ConfirmPageConfig]
+  implicit val timeoutConfigFormat: OFormat[TimeoutConfig]               = Json.format[TimeoutConfig]
+  implicit val addressLookupOptionsFormat: OFormat[AddressLookupOptions] = Json.format[AddressLookupOptions]
 }
