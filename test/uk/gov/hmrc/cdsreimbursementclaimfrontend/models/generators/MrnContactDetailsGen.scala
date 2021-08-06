@@ -18,14 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 object MrnContactDetailsGen {
 
   implicit val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
-  
+
 }

@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.Jsoup
 import org.scalatest.prop.TableDrivenPropertyChecks
+import cats.implicits._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -26,7 +27,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, contentAsString, defaultAwaitTimeout}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.mrnContactDetailsForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -70,18 +70,41 @@ class EnterOrChangeContactDetailsControllerSpec
     JourneyBindable.Scheduled
   )
 
+  val nameData  = "Mr Pip"
+  val emailData = sample[Email]
+  val phoneData = sample[PhoneNumber]
+
+  val goodData = Map(
+    "enter-or-change-contact-details.contact-name"         -> "Mr Pip",
+    "enter-or-change-contact-details.contact-email"        -> emailData.value,
+    "enter-or-change-contact-details.contact-phone-number" -> phoneData.value
+  )
+
   private def getSessionWithPreviousAnswer(
-    maybeMrnContactDetailsAnswer: Option[MrnContactDetails]
+    maybeMrnContactDetailsAnswer: Option[MrnContactDetails],
+    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer)
+    val draftC285Claim      = DraftC285Claim.newDraftC285Claim
+      .copy(
+        mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer,
+        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+        movementReferenceNumber = Some(sample[MovementReferenceNumber])
+      )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (SessionData.empty.copy(journeyStatus = Some(journey)), journey)
   }
 
-  def performAction(mrnContactDetails: MrnContactDetails)(action: Action[AnyContent]): Future[Result] =
-    performAction(mrnContactDetailsForm.fillAndValidate(mrnContactDetails).data.toSeq)(action)
+  private def updateSession(sessionData: SessionData, mrnContactDetailsAnswer: MrnContactDetails): SessionData =
+    sessionData.journeyStatus match {
+      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+        val newClaim      =
+          draftClaim.copy(mrnContactDetailsAnswer = Some(mrnContactDetailsAnswer))
+        val journeyStatus = FillingOutClaim(g, s, newClaim)
+        sessionData.copy(journeyStatus = Some(journeyStatus))
+      case _                                                         => fail()
+    }
 
   def performAction(data: Seq[(String, String)] = Seq.empty)(action: Action[AnyContent]): Future[Result] =
     action()(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -93,7 +116,7 @@ class EnterOrChangeContactDetailsControllerSpec
       "there is no journey status in the session" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
 
-        val (session, _) = getSessionWithPreviousAnswer(None)
+        val (session, _) = getSessionWithPreviousAnswer(None, None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -114,7 +137,7 @@ class EnterOrChangeContactDetailsControllerSpec
       "the user has not answered this question before and is adding details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
 
-        val session = getSessionWithPreviousAnswer(None)._1
+        val session = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -130,7 +153,7 @@ class EnterOrChangeContactDetailsControllerSpec
       "the user has not answered this question before and is changing details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
 
-        val session = getSessionWithPreviousAnswer(None)._1
+        val session = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -144,10 +167,32 @@ class EnterOrChangeContactDetailsControllerSpec
       }
     }
 
+    "handle submit requests" when {
+
+      " the user enters details" in forAll(journeys) { journey =>
+        val contactDetails = MrnContactDetails(nameData, emailData, phoneData)
+
+        val session        = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)._1
+        val updatedSession = updateSession(session, contactDetails)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(goodData.toSeq)(controller.changeMrnContactDetailsSubmit(journey)),
+          routes.CheckClaimantDetailsController.show(journey)
+        )
+      }
+
+    }
+
     "show an error summary" when {
 
-      "the user does not select any options" in forAll(journeys) { journey =>
-        val session = getSessionWithPreviousAnswer(None)._1
+      "the user does not enter any details" in forAll(journeys) { journey =>
+        val session = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -181,15 +226,16 @@ class EnterOrChangeContactDetailsControllerSpec
 
     "show data" when {
 
-      "the user enters contact details" in forAll(journeys) { journey =>
+      "the user has entered contact details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
         val name                            = "Mr Pip"
         val email                           = sample[Email]
         val phone                           = sample[PhoneNumber]
-        val contactDetails                  = sample[MrnContactDetails].copy(fullName = name, emailAddress = email, phoneNumber = phone)
+
+        val contactDetails = sample[MrnContactDetails].copy(fullName = name, emailAddress = email, phoneNumber = phone)
 
         val answers = Some(contactDetails)
-        val session = getSessionWithPreviousAnswer(answers)._1
+        val session = getSessionWithPreviousAnswer(answers, toSelectNumberOfClaims(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
