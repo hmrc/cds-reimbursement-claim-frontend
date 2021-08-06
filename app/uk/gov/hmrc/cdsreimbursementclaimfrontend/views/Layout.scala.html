@@ -1,18 +1,19 @@
 @*
-* Copyright 2021 HM Revenue & Customs
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*@
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
 @import play.twirl.api.Html
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
@@ -25,44 +26,42 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController
 
 @this(
-        head: Head,
-        hmrcLayout: HmrcLayout,
-        StandardAlphaBanner: StandardAlphaBanner,
-        languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
-        hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
-        hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
+    head: Head,
+    hmrcLayout: HmrcLayout,
+    StandardAlphaBanner: StandardAlphaBanner,
+    languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
+    hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 )
 
 @(
-        pageTitle: Option[String] = None,
-        headBlock: Option[Html] = None,
-        timeOut: Boolean = true,
-        scriptsBlock: Option[Html] = None,
-        suppressBackLink: Boolean = false,
-        signedInUserDetails: Option[SignedInUserDetails] = None,
-        hasErrors: Boolean = false
+    pageTitle: Option[String] = None,
+    headBlock: Option[Html] = None,
+    timeOut: Boolean = true,
+    scriptsBlock: Option[Html] = None,
+    suppressBackLink: Boolean = false,
+    signedInUserDetails: Option[SignedInUserDetails] = None,
+    hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
 @defaultHead = {
-@headBlock
-@{
-    if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
-        timeout = Some(viewConfig.timeout),
-        countdown = Some(viewConfig.countdown),
-        message = Some(messages("session-expired-message")),
-        keepAliveUrl = Some(s"${StartController.keepAlive.url}"),
-        signOutUrl = Some(s"${StartController.signOutAndSignIn.url}"),
-        timeoutUrl = Some(s"${StartController.timedOut.url}"),
-        keepAliveButtonText = Some(messages("session-expired.keep-alive-button-text")),
-        signOutButtonText = Some(messages("session-expired.sign-out-button-text"))
-    ))
-}
+    @headBlock
+        @{if(timeOut) hmrcTimeoutDialog(TimeoutDialog(
+            timeout= Some(viewConfig.timeout),
+            countdown= Some(viewConfig.countdown),
+            message= Some(messages("session-expired-message")),
+            keepAliveUrl= Some(s"${StartController.keepAlive.url}"),
+            signOutUrl= Some(s"${StartController.signOutAndSignIn.url}"),
+            timeoutUrl= Some(s"${StartController.timedOut.url}"),
+            keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
+            signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
+        ))}
 
-@hmrcTrackingConsentSnippet()
+    @hmrcTrackingConsentSnippet()
 }
 
 @scripts = {
-@scriptsBlock
+    @scriptsBlock
     <script src='@_root_.controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
     <script src='@_root_.controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
     <script src='@_root_.controllers.routes.Assets.versioned("javascripts/location-autocomplete.min.js")'></script>
@@ -71,22 +70,22 @@
 
 @beforeContentBlock = {
 
-@signedInUserDetails.map { user =>
-    <div class="cds-user-banner">
-        <div>
-            <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                <strong class="govuk-!-margin-right-1 cds-wrap-content--forced">
-                    EORI @user.eori.value:</strong> @user.contactName.value
-            </p>
+    @signedInUserDetails.map{ user =>
+        <div class="cds-user-banner">
+            <div>
+                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
+                    <strong class="govuk-!-margin-right-1 cds-wrap-content--forced">
+                        EORI @user.eori.value:</strong> @user.contactName.value
+                </p>
+            </div>
         </div>
-    </div>
-}
+    }
     <div class="cds-user-banner cds-no-border">
         @if(!suppressBackLink) {
             <div id="cdsr-back-link"></div>
         }
         <div>
-        @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
+            @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
         </div>
     </div>
 
