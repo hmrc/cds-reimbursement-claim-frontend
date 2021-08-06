@@ -1,15 +1,13 @@
 @import play.api.data.Form
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 @this(
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
@@ -17,13 +15,13 @@
 )
 
 
-@(form : Form[MrnContactDetails])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[MrnContactDetails], router: ReimbursementRoutes, isChange: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-or-change-contact-details"}
 
-@postAction = @{routes.EnterYourContactDetailsController.changeContactDetailsSubmit}
+@postAction = @{if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
 
-@title = @{messages(s"$key.title")}
+@title = @{if (isChange) messages(s"$key.change.title") else messages(s"$key.add.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -33,7 +31,7 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @pageHeading(messages(s"$key.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -41,7 +39,7 @@
             form = form,
             id = s"$key.contact-name",
             name = s"$key.contact-name",
-            label = s"${key}.contact-name.label",
+            label = s"$key.contact-name.label",
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             labelClasses = Some("govuk-label govuk-label--s")
@@ -68,14 +66,13 @@
             inputType = "tel",
             autocomplete = Some("tel"),
             isPageHeading = false,
-            hint = Some(s"$key.contact-phone-number.help"),
             classes = Some("govuk-input--width-20"),
             labelClasses = Some("govuk-label govuk-label--s")
         )
-
+        @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
         }
 
-        @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
+
 
 
 

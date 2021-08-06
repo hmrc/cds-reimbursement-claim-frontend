@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 
-sealed trait AddressSource extends Product with Serializable
+object BasisOfClaimsMessage {
 
-object AddressSource {
+  def ofMrn(parentKey: String, basisOfClaim: BasisOfClaim): String =
+    s"$parentKey.reason.d${basisOfClaim.value}"
 
-  final case object ManuallyEntered extends AddressSource
-
-  implicit val eq: Eq[AddressSource] = Eq.fromUniversalEquals[AddressSource]
-
-  implicit val format: OFormat[AddressSource] = derived.oformat()
-
+  def ofEntryNumber(parentKey: String, basisOfClaim: BasisOfClaim): String =
+    s"$parentKey.reason.ern.d${basisOfClaim.value}"
 }

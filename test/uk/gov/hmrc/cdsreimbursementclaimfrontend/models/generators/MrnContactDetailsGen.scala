@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.libs.json.{Format, Json}
+import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
-final case class AddressLookupResult(
-  postcode: Postcode,
-  filter: Option[String],
-  addresses: List[Address]
-)
+object MrnContactDetailsGen {
 
-object AddressLookupResult {
-
-  implicit val format: Format[AddressLookupResult] = Json.format
+  implicit val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
 
 }

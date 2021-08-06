@@ -29,13 +29,13 @@ sealed trait BasisOfClaims {
 object BasisOfClaims {
 
   final case class MrnBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.d${basisOfClaim.value}"
+    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
+      BasisOfClaimsMessage.ofMrn(parentKey, basisOfClaim)
   }
 
   final case class EntryNumberBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.ern.d${basisOfClaim.value}"
+    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
+      BasisOfClaimsMessage.ofEntryNumber(parentKey, basisOfClaim)
   }
 
   def apply(): Builder = Builder(allClaimsTypes)

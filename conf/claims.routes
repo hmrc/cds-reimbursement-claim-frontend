@@ -37,6 +37,8 @@ POST        /:journey/claimant-details                              uk.gov.hmrc.
 GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.changeMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 
+GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.enterMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)
 POST        /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journey: JourneyBindable)
