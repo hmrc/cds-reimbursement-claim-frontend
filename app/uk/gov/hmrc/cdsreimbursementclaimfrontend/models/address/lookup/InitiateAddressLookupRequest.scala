@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
-final case class AddressLookupResult(
-  postcode: Postcode,
-  filter: Option[String],
-  addresses: List[Address]
+final case class InitiateAddressLookupRequest(
+  options: AddressLookupOptions,
+  labels: Option[AddressLookupLabels] = None,
+  version: Int = 2
 )
 
-object AddressLookupResult {
-
-  implicit val format: Format[AddressLookupResult] = Json.format
-
+object InitiateAddressLookupRequest {
+  implicit val format: OFormat[InitiateAddressLookupRequest] =
+    Json.format[InitiateAddressLookupRequest]
 }

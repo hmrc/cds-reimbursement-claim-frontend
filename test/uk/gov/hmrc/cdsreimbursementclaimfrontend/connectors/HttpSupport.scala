@@ -88,8 +88,8 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
           // use matchers here to get useful error messages when the following predicates
           // are not satisfied - otherwise it is difficult to tell in the logs what went wrong
           u    shouldBe url
-          q    shouldBe queryParams.toSeq
-          hdrs shouldBe headers.toSeq
+          q    shouldBe queryParams
+          hdrs shouldBe headers
           true
       })
       .returning(

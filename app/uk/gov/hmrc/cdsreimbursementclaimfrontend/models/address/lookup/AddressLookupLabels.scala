@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupLabels.ConfirmPageLabels
 
-sealed trait AddressSource extends Product with Serializable
+final case class AddressLookupLabels(confirmPageLabels: ConfirmPageLabels)
 
-object AddressSource {
+object AddressLookupLabels {
 
-  final case object ManuallyEntered extends AddressSource
+  final case class ConfirmPageLabels(infoSubheading: String)
 
-  implicit val eq: Eq[AddressSource] = Eq.fromUniversalEquals[AddressSource]
-
-  implicit val format: OFormat[AddressSource] = derived.oformat()
-
+  implicit val confirmPageLabelsFormat: OFormat[ConfirmPageLabels]     = Json.format[ConfirmPageLabels]
+  implicit val addressLookupLabelsFormat: OFormat[AddressLookupLabels] = Json.format[AddressLookupLabels]
 }
