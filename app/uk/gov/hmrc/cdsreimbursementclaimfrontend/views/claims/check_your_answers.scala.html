@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 @this(
@@ -58,7 +59,7 @@
         }
 
         @pageHeading(messages(s"$key.reason-basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBasisAndOrReasonForClaim(completeClaim)))
+        @summary(SummaryList(cyaHelper.makeBasisAndOrReasonForClaim(SelectBasisForClaimController.key, completeClaim)))
 
         @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"${key}.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
         @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim))) else ""}
