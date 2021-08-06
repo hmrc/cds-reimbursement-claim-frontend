@@ -170,6 +170,9 @@ class EnterOrChangeContactDetailsControllerSpec
     "handle submit requests" when {
 
       " the user enters details" in forAll(journeys) { journey =>
+        def performAction(data: Seq[(String, String)]): Future[Result] =
+          controller.changeMrnContactDetailsSubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
         val contactDetails = MrnContactDetails(nameData, emailData, phoneData)
 
         val session        = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)._1
@@ -182,7 +185,7 @@ class EnterOrChangeContactDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(goodData.toSeq)(controller.changeMrnContactDetailsSubmit(journey)),
+          performAction(goodData.toSeq),
           routes.CheckClaimantDetailsController.show(journey)
         )
       }
