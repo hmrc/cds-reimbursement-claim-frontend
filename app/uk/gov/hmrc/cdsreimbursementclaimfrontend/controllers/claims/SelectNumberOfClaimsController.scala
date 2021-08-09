@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SelectNumberOfCl
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.select_number_of_claims
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -62,7 +61,7 @@ class SelectNumberOfClaimsController @Inject() (
     authenticatedActionWithSessionData).async { implicit request =>
     withAnswers[SelectNumberOfClaimsAnswer] { (_, answers) =>
       val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
-      val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+      val filledForm = answers.fold(emptyForm)(emptyForm.fill)
       Ok(selectNumberOfClaimsPage(filledForm))
     }
   }
@@ -83,10 +82,7 @@ class SelectNumberOfClaimsController @Inject() (
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap((_: Unit) => Error("could not update session"))
                 .fold(
-                  e => {
-                    logger.warn("could not capture select number of claims", e)
-                    errorHandler.errorResult()
-                  },
+                  logAndDisplayError("Could not capture select number of claims"),
                   _ => {
                     val redirectUrl = updatedAnswers match {
                       case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single

@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
 import com.google.inject.{Inject, Singleton}
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
@@ -36,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{U
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{schedule => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -46,7 +46,6 @@ class ScheduleOfMrnDocumentController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   upscanService: UpscanService,
-  errorHandler: ErrorHandler,
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
@@ -54,8 +53,12 @@ class ScheduleOfMrnDocumentController @Inject() (
   fileSizeErrorPage: pages.size_fail,
   formatVirusErrorPage: pages.format_virus_fail,
   reviewPage: pages.review
-)(implicit viewConfig: ViewConfig, executionContext: ExecutionContext, cc: MessagesControllerComponents)
-    extends FrontendController(cc)
+)(implicit
+  viewConfig: ViewConfig,
+  executionContext: ExecutionContext,
+  cc: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionUpdates
@@ -166,10 +169,7 @@ class ScheduleOfMrnDocumentController @Inject() (
         } yield ()
 
         result.fold(
-          _ => {
-            logger.warn(s"Could not update session")
-            errorHandler.errorResult()
-          },
+          logAndDisplayError("Could not update session"),
           _ => Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
         )
       }

@@ -47,13 +47,12 @@ class CheckYourAnswersAndSubmitController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   claimService: ClaimService,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: pages.confirmation_of_submission,
   submitClaimFailedPage: pages.submit_claim_error
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -107,11 +106,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
           } yield response
 
         result.fold(
-          { e =>
-            logger.warn("Error while trying to update session", e)
-
-            errorHandler.errorResult()
-          },
+          logAndDisplayError("Error while trying to update session"),
           {
             case SubmitClaimError(e) =>
               logger.warn(s"Could not submit return}", e)

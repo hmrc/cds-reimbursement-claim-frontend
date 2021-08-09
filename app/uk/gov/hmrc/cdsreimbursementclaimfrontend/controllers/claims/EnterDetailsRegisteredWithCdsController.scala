@@ -28,9 +28,10 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -41,10 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,11 +52,10 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   detailsRegisteredWithCdsPage: pages.enter_claimant_details_as_registered_with_cds
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -158,10 +156,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture claimant as individual details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not capture claimant as individual details"),
                 _ =>
                   if (detailsRegisteredWithCds.addCompanyDetails) {
                     Redirect(routes.EnterYourContactDetailsController.enterContactDetails())
@@ -187,14 +182,11 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                                 )
                             }
                           case MovementReferenceNumber(Right(_)) =>
-                            featureSwitch.NorthernIreland.isEnabled() match {
-                              case true  =>
-                                Redirect(
-                                  routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney)
-                                )
-                              case false =>
-                                Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-                            }
+                            if (featureSwitch.NorthernIreland.isEnabled()) {
+                              Redirect(
+                                routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney)
+                              )
+                            } else Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
                         }
                       case None                  =>
                         Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
@@ -212,7 +204,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
         val emptyForm  = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
         val filledForm = answers
           .fold(_.detailsRegisteredWithCds, _.detailsRegisteredWithCds.some)
-          .fold(emptyForm)(emptyForm.fill(_))
+          .fold(emptyForm)(emptyForm.fill)
         Ok(detailsRegisteredWithCdsPage(filledForm, isAmend = true))
       }
     }
@@ -258,10 +250,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       .leftMap((_: Unit) => Error("could not update session"))
 
                     result.fold(
-                      e => {
-                        logger.warn("could not capture claimant as individual details", e)
-                        errorHandler.errorResult()
-                      },
+                      logAndDisplayError("could not capture claimant as individual details"),
                       _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                     )
                   } else if (o) {
@@ -287,10 +276,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       .leftMap((_: Unit) => Error("could not update session"))
 
                     result.fold(
-                      e => {
-                        logger.warn("could not capture claimant as individual details", e)
-                        errorHandler.errorResult()
-                      },
+                      logAndDisplayError("could not capture claimant as individual details"),
                       _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
                     )
 
@@ -312,10 +298,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                       .leftMap((_: Unit) => Error("could not update session"))
 
                     result.fold(
-                      e => {
-                        logger.warn("could not capture claimant as individual details", e)
-                        errorHandler.errorResult()
-                      },
+                      logAndDisplayError("could not capture claimant as individual details"),
                       _ =>
                         Redirect(
                           routes.EnterYourContactDetailsController.changeContactDetails()

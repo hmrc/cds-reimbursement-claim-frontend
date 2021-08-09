@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccoun
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -51,13 +50,12 @@ class BankAccountController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
   val claimService: ClaimService,
   checkBankAccountDetailsPage: pages.check_bank_account_details,
   enterBankAccountDetailsPage: pages.enter_bank_account_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
@@ -221,10 +219,7 @@ class BankAccountController @Inject() (
                 }
               }
             } yield reputationResponse).fold(
-              e => {
-                logger.warn("could not process bank account details: ", e)
-                errorHandler.errorResult()
-              },
+              logAndDisplayError("could not process bank account details: "),
               reputationResponse =>
                 if (reputationResponse.otherError.isDefined) {
                   val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")

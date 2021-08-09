@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -50,11 +49,10 @@ class EnterYourContactDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   enterYourContactDetailsPage: pages.enter_your_contact_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -189,10 +187,7 @@ class EnterYourContactDetailsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture contact details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not capture contact details"),
                 _ =>
                   fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
                     case Some(referenceNumber) =>
@@ -296,10 +291,7 @@ class EnterYourContactDetailsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture contact details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not capture contact details"),
                 _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
               )
             }
