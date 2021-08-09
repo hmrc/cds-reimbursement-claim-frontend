@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class CompleteClaimSpec extends AnyWordSpec with Matchers {
 
-  "BankAccount Extraction" should {
+  "BankAccountAcc14 Extraction" should {
     "Use the manually entered bank account, and not the one retrieved by ACC14 on the MRN journey" in {
       val bankAccount       = sample[BankAccountDetails]
       val completeC285Claim = sample[CompleteC285Claim]

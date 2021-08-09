@@ -20,7 +20,7 @@ import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountAcc14
 
 import javax.inject.{Inject, Singleton}
 
@@ -31,7 +31,7 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
 
   private val key = "bank-details"
 
-  def bankAccountDetailsSummary(displayBankAccountDetails: BankAccount): List[SummaryListRow] =
+  def bankAccountDetailsSummary(displayBankAccountDetails: BankAccountAcc14): List[SummaryListRow] =
     List(
       makeAccountHolderNameRow(displayBankAccountDetails.accountName),
       makeSortCodeRow(displayBankAccountDetails.sortCode),

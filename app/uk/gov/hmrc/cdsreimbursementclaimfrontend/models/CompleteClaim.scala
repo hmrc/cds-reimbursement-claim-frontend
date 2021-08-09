@@ -59,7 +59,7 @@ object CompleteClaim {
     completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[BasisOfClaim],
-    maybeCompleteBankAccountDetailAnswer: Option[CompleteBankAccountDetailAnswer],
+    maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
     supportingEvidencesAnswer: SupportingEvidencesAnswer,
     commodityDetailsAnswer: CommodityDetails,
     completeNorthernIrelandAnswer: Option[CompleteNorthernIrelandAnswer],
@@ -88,7 +88,7 @@ object CompleteClaim {
               draftClaimantDetailsAsIndividualAnswer,
               draftClaimantDetailsAsImporterCompanyAnswer,
               _,
-              draftBankAccountDetailAnswer,
+              maybeBankAccountDetailsAnswer,
               maybeBasisForClaim,
               maybeSupportingEvidences,
               _,
@@ -112,7 +112,7 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
+                validateBankAccountDetailAnswer(maybeBankAccountDetailsAnswer),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -125,7 +125,7 @@ object CompleteClaim {
                         completeDeclarantTypeAnswer,
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
-                        completeBankAccountDetailAnswer,
+                        completeBankAccountDetailsAnswer,
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
@@ -141,7 +141,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       maybeBasisForClaim,
-                      completeBankAccountDetailAnswer,
+                      completeBankAccountDetailsAnswer,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
@@ -166,7 +166,7 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(draftBankAccountDetailAnswer),
+                validateBankAccountDetailAnswer(maybeBankAccountDetailsAnswer),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -178,7 +178,7 @@ object CompleteClaim {
                         completeDeclarantTypeAnswer,
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
-                        completeBankAccountDetailAnswer,
+                        completeBankAccountDetailsAnswer,
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
@@ -195,7 +195,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       maybeBasisForClaim,
-                      completeBankAccountDetailAnswer,
+                      completeBankAccountDetailsAnswer,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
@@ -296,17 +296,11 @@ object CompleteClaim {
     maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
 
   def validateBankAccountDetailAnswer(
-    maybeBankAccountDetailsAnswer: Option[BankAccountDetailsAnswer]
-  ): Validation[Option[CompleteBankAccountDetailAnswer]] =
+    maybeBankAccountDetailsAnswer: Option[BankAccountDetails]
+  ): Validation[Option[BankAccountDetails]] =
     maybeBankAccountDetailsAnswer match {
-      case Some(value) =>
-        value match {
-          case BankAccountDetailsAnswer.IncompleteBankAccountDetailAnswer(_)    =>
-            invalid("incomplete bank details type answer")
-          case completeBankAccountDetailAnswer: CompleteBankAccountDetailAnswer =>
-            Valid(Some(completeBankAccountDetailAnswer))
-        }
-      case None        => Valid(None) //check
+      case value => Valid(value)
+      case None  => invalid("incomplete bank details type answer")
     }
 
   def validateClaimantDetailsAsImporterAnswer(
@@ -441,7 +435,7 @@ object CompleteClaim {
     def northernIrelandAnswer: Option[CompleteNorthernIrelandAnswer] =
       completeClaim.get(_.completeNorthernIrelandAnswer)
 
-    def bankDetails: Option[BankAccountController.BankAccountDetails] = completeClaim match {
+    def bankDetails: Option[BankAccountDetails] = completeClaim match {
       case CompleteC285Claim(
             _,
             completeMovementReferenceNumberAnswer,
@@ -467,14 +461,14 @@ object CompleteClaim {
         completeMovementReferenceNumberAnswer.value match {
           case Left(_)  =>
             bankAccountDetails match {
-              case Some(bankAccountDetailAnswer) => Some(bankAccountDetailAnswer.bankAccountDetails)
-              case None                          => None
+              case Some(bankAccountDetails) => Some(bankAccountDetails)
+              case None                     => None
             }
           case Right(_) =>
             bankAccountDetails match {
-              case Some(bankAccountDetailAnswer) =>
-                Some(bankAccountDetailAnswer.bankAccountDetails)
-              case None                          =>
+              case Some(bankAccountDetails) =>
+                Some(bankAccountDetails)
+              case None                     =>
                 maybeDisplayDeclaration match {
                   case Some(value) =>
                     value.displayResponseDetail.maskedBankDetails match {
@@ -482,7 +476,7 @@ object CompleteClaim {
                         maybeBankDetails.consigneeBankDetails match {
                           case Some(value) =>
                             Some(
-                              BankAccountController.BankAccountDetails(
+                              BankAccountDetails(
                                 AccountName(value.accountHolderName),
                                 Some(false),
                                 SortCode(value.sortCode),

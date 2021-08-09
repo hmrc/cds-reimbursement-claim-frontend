@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.MaskedBankDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccount, BankAccountDetailsAnswer, DraftClaim, Error, SessionData, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountAcc14, BankAccountDetailsAnswer, DraftClaim, Error, SessionData, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -110,14 +110,14 @@ class BankAccountController @Inject() (
           case (Some(cmbd), _)    =>
             Ok(
               checkBankAccountDetailsPage(
-                BankAccount(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber),
+                BankAccountAcc14(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber),
                 continuePage.url
               )
             )
           case (None, Some(dmbd)) =>
             Ok(
               checkBankAccountDetailsPage(
-                BankAccount(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber),
+                BankAccountAcc14(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber),
                 continuePage.url
               )
             )
@@ -291,13 +291,6 @@ object BankAccountController {
 
   final case class AccountName(value: String) extends AnyVal
 
-  final case class BankAccountDetails(
-    accountName: AccountName,
-    isBusinessAccount: Option[Boolean],
-    sortCode: SortCode,
-    accountNumber: AccountNumber
-  )
-
   object AccountNumber {
     implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
   }
@@ -306,7 +299,4 @@ object BankAccountController {
     implicit val format: OFormat[AccountName] = Json.format[AccountName]
   }
 
-  object BankAccountDetails {
-    implicit val format: OFormat[BankAccountDetails] = Json.format[BankAccountDetails]
-  }
 }
