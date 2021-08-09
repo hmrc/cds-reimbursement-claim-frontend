@@ -45,10 +45,9 @@ class EnterDeclarantEoriNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   enterDeclarantEoriNumberPage: pages.enter_declarant_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -128,10 +127,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not get declarant eori number", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not get declarant eori number"),
                 _ =>
                   hasMatchOnEori(fillingOutClaim, declarantEoriNumber) match {
                     case Left(e)  =>

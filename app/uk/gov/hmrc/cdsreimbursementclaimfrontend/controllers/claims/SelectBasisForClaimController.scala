@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.{BasisOfClaims, BasisOfClaimsHints}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -46,11 +45,10 @@ class SelectBasisForClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
   selectReasonForClaimPage: pages.select_basis_for_claim
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -109,10 +107,7 @@ class SelectBasisForClaimController @Inject() (
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedJourney.some)))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
-                  e => {
-                    logger.warn("could not store reason for claim answer", e)
-                    errorHandler.errorResult()
-                  },
+                  logAndDisplayError("could not store reason for claim answer"),
                   _ => Redirect(router.nextPageForBasisForClaim(formOk.reasonForClaim, isAmend))
                 )
             }

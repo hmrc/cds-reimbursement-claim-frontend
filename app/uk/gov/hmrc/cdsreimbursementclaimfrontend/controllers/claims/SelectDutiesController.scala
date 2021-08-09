@@ -48,11 +48,10 @@ class SelectDutiesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
   selectDutiesPage: pages.select_duties
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
@@ -100,10 +99,7 @@ class SelectDutiesController @Inject() (
                     .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                     .leftMap((_: Unit) => Error("could not update session"))
                     .fold(
-                      e => {
-                        logger.warn("could not get duties selected ", e)
-                        errorHandler.errorResult()
-                      },
+                      logAndDisplayError("could not get duties selected "),
                       _ => Redirect(routes.EnterClaimController.startClaim())
                     )
                 }
