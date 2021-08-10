@@ -27,6 +27,7 @@ import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor.extractJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{ClaimAmount, ClaimAndPaidAmount, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -194,8 +195,8 @@ class EnterClaimController @Inject() (
                   claims match {
                     case ClaimAnswersAreCorrect =>
                       if (fillingOutClaim.draftClaim.fold(_.isMrnFlow))
-                        Redirect(routes.BankAccountController.checkBankAccountDetails())
-                      else Redirect(routes.BankAccountController.enterBankAccountDetails())
+                        Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
+                      else Redirect(routes.BankAccountController.enterBankAccountDetails(extractJourney))
 
                     case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
                   }

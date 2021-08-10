@@ -21,13 +21,11 @@ import cats.data.Validated.Valid
 import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
@@ -88,7 +86,7 @@ object CompleteClaim {
               draftClaimantDetailsAsIndividualAnswer,
               draftClaimantDetailsAsImporterCompanyAnswer,
               _,
-              maybeBankAccountDetailsAnswer,
+              maybeBankAccountDetails,
               maybeBasisForClaim,
               maybeSupportingEvidences,
               _,
@@ -112,7 +110,7 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(maybeBankAccountDetailsAnswer),
+                validateBankAccountDetailAnswer(maybeBankAccountDetails),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -166,7 +164,7 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(maybeBankAccountDetailsAnswer),
+                validateBankAccountDetailAnswer(maybeBankAccountDetails),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -297,11 +295,13 @@ object CompleteClaim {
 
   def validateBankAccountDetailAnswer(
     maybeBankAccountDetailsAnswer: Option[BankAccountDetails]
-  ): Validation[Option[BankAccountDetails]] =
+  ): Validation[Option[BankAccountDetails]] = {
+    println("************************ " + maybeBankAccountDetailsAnswer.toString)
     maybeBankAccountDetailsAnswer match {
-      case value => Valid(value)
-      case None  => invalid("incomplete bank details type answer")
+      case Some(value) => Valid(Some(value))
+      case None        => invalid("incomplete bank details type answer")
     }
+  }
 
   def validateClaimantDetailsAsImporterAnswer(
     maybeClaimantDetailsAsImporterCompanyAnswer: Option[ContactDetailsAnswer]
@@ -461,14 +461,14 @@ object CompleteClaim {
         completeMovementReferenceNumberAnswer.value match {
           case Left(_)  =>
             bankAccountDetails match {
-              case Some(bankAccountDetails) => Some(bankAccountDetails)
-              case None                     => None
+              case Some(bankAccountDetailsAnswer) => Some(bankAccountDetailsAnswer)
+              case None                           => None
             }
           case Right(_) =>
             bankAccountDetails match {
-              case Some(bankAccountDetails) =>
-                Some(bankAccountDetails)
-              case None                     =>
+              case Some(bankAccountDetailsAnswer) =>
+                Some(bankAccountDetailsAnswer)
+              case None                           =>
                 maybeDisplayDeclaration match {
                   case Some(value) =>
                     value.displayResponseDetail.maskedBankDetails match {
