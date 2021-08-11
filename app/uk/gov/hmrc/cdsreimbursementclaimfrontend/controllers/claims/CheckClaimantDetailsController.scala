@@ -53,10 +53,9 @@ class CheckClaimantDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   claimantDetails: pages.check_claimant_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -108,10 +107,7 @@ class CheckClaimantDetailsController @Inject() (
                   EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
                     .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                     .fold(
-                      e => {
-                        logger.warn("Submit Declarant Type error: ", e)
-                        errorHandler.errorResult()
-                      },
+                      e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
                       _ => Redirect(router.nextPageForChangeClaimantDetails(formOk))
                     )
               }
