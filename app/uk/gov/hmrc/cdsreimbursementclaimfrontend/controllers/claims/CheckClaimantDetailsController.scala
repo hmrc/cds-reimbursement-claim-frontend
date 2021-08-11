@@ -116,15 +116,17 @@ class CheckClaimantDetailsController @Inject() (
           .signOutUserVia(viewConfig.signOutUrl)
           .nameServiceAs("cds-reimbursement-claim")
           .maximumShow(addressLookupConfig.maxAddressesToShow)
+          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
+          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
           .searchUkAddressOnly(true)
           .showConfirmChangeText(true)
           .showSearchAgainLink(true)
           .showChangeLink(true)
           .showBanner(true)
 
-      addressLookupService
-        .initiate(addressSearchRequest)
-        .fold(logAndDisplayError("Error occurred starting address lookup"), url => Redirect(url.toString))
+      val response = addressLookupService initiate addressSearchRequest
+
+      response.fold(logAndDisplayError("Error occurred starting address lookup"), url => Redirect(url.toString))
     }
 
   def updateAddress(journey: JourneyBindable, maybeId: Option[UUID] = None): Action[AnyContent] =

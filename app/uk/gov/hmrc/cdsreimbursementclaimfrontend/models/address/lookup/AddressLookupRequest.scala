@@ -59,6 +59,12 @@ object AddressLookupRequest {
     def nameServiceAs(name: String): Builder =
       copy(options.copy(deskProServiceName = name.some))
 
+    def makeAccessibilityFooterAvailableVia(link: String): Builder =
+      copy(options.copy(accessibilityFooterUrl = link.some))
+
+    def makePhaseFeedbackAvailableVia(link: String): Builder =
+      copy(options.copy(phaseFeedbackLink = link.some))
+
     def showSearchAgainLink(value: Boolean): Builder =
       copy(options.copy(confirmPageConfig = options.confirmPageConfig.copy(showSearchAgainLink = value.some)))
 

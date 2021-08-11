@@ -20,6 +20,8 @@ import cats.data.Validated.Invalid
 import cats.data.{NonEmptyList, ValidatedNel}
 import play.api.libs.json._
 
+import java.net.URL
+
 package object models {
 
   // validation
@@ -28,7 +30,7 @@ package object models {
 
   def invalid[A](error: String): Validation[A] = Invalid(NonEmptyList.one(error))
 
-  // formats
+  // NEL format
 
   def nelReads[A : Reads]: Reads[NonEmptyList[A]] =
     Reads.of[List[A]].collect(JsonValidationError("Expected a non empty list but got an empty list")) { case x :: xs =>
@@ -41,4 +43,13 @@ package object models {
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
 
+  // URL format
+
+  def urlReads: Reads[URL] =
+    Reads.of[String].map(new URL(_))
+
+  def urlWrites: Writes[URL] =
+    Writes.of[String].contramap(_.toString)
+
+  implicit val urlFormat: Format[URL] = Format(urlReads, urlWrites)
 }

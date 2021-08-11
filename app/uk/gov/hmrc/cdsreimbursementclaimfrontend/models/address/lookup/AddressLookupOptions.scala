@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.urlFormat
 
 import java.net.URL
 
