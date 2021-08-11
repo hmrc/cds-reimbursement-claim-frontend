@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -41,11 +40,10 @@ class EnterCommoditiesDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val config: Configuration,
   enterCommoditiesDetailsPage: pages.enter_commodities_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
@@ -96,10 +94,7 @@ class EnterCommoditiesDetailsController @Inject() (
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap((_: Unit) => Error("could not update session"))
                 .fold(
-                  e => {
-                    logger.warn("could not get commodity details", e)
-                    errorHandler.errorResult()
-                  },
+                  logAndDisplayError("could not get commodity details"),
                   _ => Redirect(router.nextPageForCommoditiesDetails(isAmend))
                 )
             }

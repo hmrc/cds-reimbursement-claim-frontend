@@ -30,8 +30,7 @@
     hmrcLayout: HmrcLayout,
     StandardAlphaBanner: StandardAlphaBanner,
     languageSelect: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.language_select,
-    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog,
-    hmrcTrackingConsentSnippet: uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
+    hmrcTimeoutDialog: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
 )
 
 @(
@@ -56,8 +55,6 @@
             keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
             signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
         ))}
-
-    @hmrcTrackingConsentSnippet()
 }
 
 @scripts = {
@@ -69,7 +66,6 @@
 }
 
 @beforeContentBlock = {
-
     @signedInUserDetails.map{ user =>
         <div class="cds-user-banner">
             <div>
@@ -88,7 +84,6 @@
             @if(viewConfig.enableLanguageSwitching) {@languageSelect()}
         </div>
     </div>
-
 }
 
 @hmrcLayout(

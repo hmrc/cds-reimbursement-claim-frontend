@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -42,10 +41,9 @@ class EnterImporterEoriNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   enterImporterEoriNumberPage: pages.enter_importer_eori_number
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -121,10 +119,7 @@ class EnterImporterEoriNumberController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not get importer eori number", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not get importer eori number"),
                 _ => Redirect(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber())
               )
             }

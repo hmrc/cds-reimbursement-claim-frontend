@@ -22,7 +22,6 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
 import play.api.mvc._
-import play.api.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
@@ -38,7 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -49,7 +48,6 @@ class SupportingEvidenceController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   upscanService: UpscanService,
-  errorHandler: ErrorHandler,
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
@@ -58,7 +56,7 @@ class SupportingEvidenceController @Inject() (
   scanProgressPage: pages.scan_progress,
   uploadFailedPage: pages.upload_failed,
   scanFailedPage: pages.scan_failed
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
@@ -218,10 +216,7 @@ class SupportingEvidenceController @Inject() (
               } yield ()
 
               result.fold(
-                e => {
-                  logger.warn("Error assigning evidence document type", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("Error assigning evidence document type"),
                 _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers())
               )
             }
@@ -246,10 +241,7 @@ class SupportingEvidenceController @Inject() (
         } yield ()
 
         result.fold(
-          e => {
-            logger.warn("Could not update session", e)
-            errorHandler.errorResult()
-          },
+          logAndDisplayError("Could not update session"),
           _ =>
             Redirect(
               if (addNew) routes.SupportingEvidenceController.uploadSupportingEvidence()
