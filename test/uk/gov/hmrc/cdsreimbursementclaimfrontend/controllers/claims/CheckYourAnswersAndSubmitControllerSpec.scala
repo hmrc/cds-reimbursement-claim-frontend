@@ -189,7 +189,7 @@ class CheckYourAnswersAndSubmitControllerSpec
     completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(basisOfClaim),
-    maybeCompleteBankAccountDetailAnswer = None,
+    maybeBankAccountDetailsAnswer = None,
     supportingEvidencesAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,
     completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),

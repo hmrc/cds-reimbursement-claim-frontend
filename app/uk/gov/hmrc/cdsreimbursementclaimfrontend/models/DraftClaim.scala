@@ -48,7 +48,7 @@ object DraftClaim {
     detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
     contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
-    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer] = None,
+    bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
     basisOfClaimAnswer: Option[BasisOfClaim] = None,
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
