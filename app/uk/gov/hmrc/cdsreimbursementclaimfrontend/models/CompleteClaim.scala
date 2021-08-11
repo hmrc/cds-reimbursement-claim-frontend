@@ -82,9 +82,10 @@ object CompleteClaim {
               draftMaybeDeclarationDetailsAnswer,
               draftDuplicateDeclarationDetailAnswer,
               draftDeclarantTypeAnswer,
-              draftClaimantDetailsAsIndividualAnswer,
-              draftClaimantDetailsAsImporterCompanyAnswer,
-              _,
+              draftDetailsRegisteredWithCdsAnswer,
+              draftContactDetailsAnswer,
+              _, //Option[MrnContactDetails]
+              _, //Option[NonUkAddress]
               maybeBankAccountDetails,
               maybeBasisForClaim,
               maybeSupportingEvidences,
@@ -107,8 +108,8 @@ object CompleteClaim {
                 validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
                 validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
-                validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
+                validateDetailsRegisteredWithCdsAnswer(draftDetailsRegisteredWithCdsAnswer),
+                validateClaimantDetailsAsImporterAnswer(draftContactDetailsAnswer),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -159,8 +160,8 @@ object CompleteClaim {
             case Right(_) =>
               (
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
-                validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
+                validateDetailsRegisteredWithCdsAnswer(draftDetailsRegisteredWithCdsAnswer),
+                validateClaimantDetailsAsImporterAnswer(draftContactDetailsAnswer),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),

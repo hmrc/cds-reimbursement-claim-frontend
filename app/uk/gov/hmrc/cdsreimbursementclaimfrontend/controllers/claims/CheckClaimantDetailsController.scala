@@ -21,8 +21,8 @@ import cats.data.EitherT
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
-import play.api.data.{Form, FormError}
 import play.api.data.Forms.{mapping, number}
+import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MrnContactDetails, NamePhoneEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
