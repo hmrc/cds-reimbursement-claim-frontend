@@ -110,7 +110,6 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(maybeBankAccountDetails),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -123,7 +122,6 @@ object CompleteClaim {
                         completeDeclarantTypeAnswer,
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
-                        completeBankAccountDetailsAnswer,
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
@@ -139,7 +137,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       maybeBasisForClaim,
-                      completeBankAccountDetailsAnswer,
+                      maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
@@ -164,7 +162,6 @@ object CompleteClaim {
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
                 validateDetailsRegisteredWithCdsAnswer(draftClaimantDetailsAsIndividualAnswer),
                 validateClaimantDetailsAsImporterAnswer(draftClaimantDetailsAsImporterCompanyAnswer),
-                validateBankAccountDetailAnswer(maybeBankAccountDetails),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -176,7 +173,6 @@ object CompleteClaim {
                         completeDeclarantTypeAnswer,
                         completeClaimantDetailsAsIndividualAnswer,
                         completeClaimantDetailsAsImporterCompanyAnswer,
-                        completeBankAccountDetailsAnswer,
                         supportingEvidenceAnswer,
                         completeCommodityDetailsAnswer,
                         completeNorthernIrelandAnswer,
@@ -193,7 +189,7 @@ object CompleteClaim {
                       completeClaimantDetailsAsIndividualAnswer,
                       completeClaimantDetailsAsImporterCompanyAnswer,
                       maybeBasisForClaim,
-                      completeBankAccountDetailsAnswer,
+                      maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
                       supportingEvidenceAnswer,
                       completeCommodityDetailsAnswer,
                       completeNorthernIrelandAnswer,
@@ -292,16 +288,6 @@ object CompleteClaim {
     maybeSupportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
   ): Validation[SupportingEvidencesAnswer] =
     maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
-
-  def validateBankAccountDetailAnswer(
-    maybeBankAccountDetailsAnswer: Option[BankAccountDetails]
-  ): Validation[Option[BankAccountDetails]] = {
-    println("************************ " + maybeBankAccountDetailsAnswer.toString)
-    maybeBankAccountDetailsAnswer match {
-      case Some(value) => Valid(Some(value))
-      case None        => invalid("incomplete bank details type answer")
-    }
-  }
 
   def validateClaimantDetailsAsImporterAnswer(
     maybeClaimantDetailsAsImporterCompanyAnswer: Option[ContactDetailsAnswer]

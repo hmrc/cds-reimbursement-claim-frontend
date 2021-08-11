@@ -18,9 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.BankAccountDetails
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetailsAnswer.CompleteBankAccountDetailAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeBankDetails, DisplayDeclaration, DisplayResponseDetail, MaskedBankDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
@@ -38,7 +35,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val completeC285Claim = sample[CompleteC285Claim]
         .copy(
           movementReferenceNumber = MovementReferenceNumber(Right(sample[MRN])),
-          maybeCompleteBankAccountDetailAnswer = Some(CompleteBankAccountDetailAnswer(bankAccount))
+          maybeBankAccountDetailsAnswer = Some(bankAccount)
         )
 
       val bankDetails = completeC285Claim.bankDetails.getOrElse(fail("No bank details"))
@@ -55,7 +52,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
         .copy(
           movementReferenceNumber = MovementReferenceNumber(Right(sample[MRN])),
           maybeDisplayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
-          maybeCompleteBankAccountDetailAnswer = None
+          maybeBankAccountDetailsAnswer = None
         )
       val bankDetails                          = completeC285Claim.bankDetails.getOrElse(fail("No bank details"))
       bankDetails.accountName.value   shouldBe consigneeBankDetails.accountHolderName
