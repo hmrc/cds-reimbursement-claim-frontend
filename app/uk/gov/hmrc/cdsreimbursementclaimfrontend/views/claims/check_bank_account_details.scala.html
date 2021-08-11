@@ -17,8 +17,8 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccount
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountAcc14
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
@@ -30,10 +30,11 @@
  pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+ bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+ summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(bankAccount : BankAccount, continuePageUrl: String)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(bankAccount : BankAccountAcc14, continuePageUrl: String, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"bank-details"}
     @title = @{messages(s"$key.title")}
@@ -42,11 +43,18 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
 
-        @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount)))
+        @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
-        @paragraph(Html(messages(s"$key.different-details-link", routes.BankAccountController.enterBankAccountDetails().url)), Some("govuk-body"))
+        @bulletList(
+            Seq(
+                Html(messages(s"$key.bullet1")),
+                Html(messages(s"$key.bullet2"))
+            )
+        )
+
+        @summary(SummaryList(checkYourBankAccountDetailsHelper.bankAccountDetailsSummary(bankAccount, router)))
 
         @buttonLink("button.continue", Some(continuePageUrl))
     }

@@ -17,9 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 
-final case class BankAccount(accountName: String, sortCode: String, accountNumber: String)
+final case class BankAccountDetails(
+  accountName: AccountName,
+  isBusinessAccount: Option[Boolean],
+  sortCode: SortCode,
+  accountNumber: AccountNumber
+)
 
-object BankAccount {
-  implicit val format: OFormat[BankAccount] = Json.format[BankAccount]
+object BankAccountDetails {
+  implicit val format: OFormat[BankAccountDetails] = Json.format[BankAccountDetails]
 }

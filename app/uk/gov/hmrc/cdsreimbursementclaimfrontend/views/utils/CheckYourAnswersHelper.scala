@@ -612,7 +612,9 @@ class CheckYourAnswersHelper @Inject() (implicit
       )
     )
 
-  def makeBankDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
+  def makeBankDetailsSummary(
+    completeClaim: CompleteClaim
+  )(implicit messages: Messages, request: RequestWithSessionData[_]): List[SummaryListRow] =
     List(
       completeClaim.bankDetails.map { details =>
         SummaryListRow(
@@ -622,7 +624,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails(extractJourney).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.bank-details.account-name.label"))
                 )
@@ -639,7 +641,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails(extractJourney).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.bank-details.sort-code.label"))
                 )
@@ -656,7 +658,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails().url}",
+                  href = s"${routes.BankAccountController.checkBankAccountDetails(extractJourney).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.bank-details.account-number.label"))
                 )

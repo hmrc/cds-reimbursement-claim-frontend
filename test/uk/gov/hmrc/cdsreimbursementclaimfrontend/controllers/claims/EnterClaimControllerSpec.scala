@@ -483,7 +483,7 @@ class EnterClaimControllerSpec
       val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
-        routes.BankAccountController.checkBankAccountDetails()
+        routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
       )
     }
 
@@ -511,7 +511,7 @@ class EnterClaimControllerSpec
       val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
-        routes.BankAccountController.enterBankAccountDetails()
+        routes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
       )
     }
 
