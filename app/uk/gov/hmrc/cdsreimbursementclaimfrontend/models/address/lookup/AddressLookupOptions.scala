@@ -25,7 +25,7 @@ import java.net.URL
 final case class AddressLookupOptions(
   continueUrl: URL,
   timeoutConfig: TimeoutConfig,
-  signOutHref: Option[URL] = None,
+  signOutHref: Option[String] = None,
   accessibilityFooterUrl: Option[String] = None,
   selectPageConfig: Option[SelectPageConfig] = None,
   confirmPageConfig: ConfirmPageConfig = ConfirmPageConfig(),

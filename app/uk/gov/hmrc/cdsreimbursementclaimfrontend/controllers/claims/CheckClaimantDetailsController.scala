@@ -29,7 +29,7 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
@@ -56,7 +56,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CheckClaimantDetailsController @Inject() (
   addressLookupService: AddressLookupService,
-  addressLookupConfig: AddressLookupConfig,
+//  addressLookupConfig: AddressLookupConfig,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -104,7 +104,7 @@ class CheckClaimantDetailsController @Inject() (
 
   def changeAddress(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      implicit val timeoutConfig = TimeoutConfig(
+      implicit val timeoutConfig: TimeoutConfig = TimeoutConfig(
         timeoutAmount = viewConfig.timeout,
         timeoutUrl = viewConfig.buildCompleteSelfUrl(baseRoutes.StartController.timedOut()),
         timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
@@ -113,16 +113,16 @@ class CheckClaimantDetailsController @Inject() (
       val addressSearchRequest =
         AddressLookupRequest
           .redirectBackTo(routes.CheckClaimantDetailsController.updateAddress(journey))
-          .signOutUserVia(viewConfig.signOutUrl)
-          .nameServiceAs("cds-reimbursement-claim")
-          .maximumShow(addressLookupConfig.maxAddressesToShow)
-          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
-          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
-          .searchUkAddressOnly(true)
-          .showConfirmChangeText(true)
-          .showSearchAgainLink(true)
-          .showChangeLink(true)
-          .showBanner(true)
+//          .signOutUserVia(viewConfig.signOutUrl)
+//          .nameServiceAs("cds-reimbursement-claim")
+//          .maximumShow(addressLookupConfig.maxAddressesToShow)
+//          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
+//          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
+//          .searchUkAddressOnly(true)
+//          .showConfirmChangeText(true)
+//          .showSearchAgainLink(true)
+//          .showChangeLink(true)
+//          .showBanner(true)
 
       val response = addressLookupService initiate addressSearchRequest
 
@@ -131,6 +131,7 @@ class CheckClaimantDetailsController @Inject() (
 
   def updateAddress(journey: JourneyBindable, maybeId: Option[UUID] = None): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      println(journey)
       maybeId.fold(Future.successful(BadRequest("")))(
         addressLookupService
           .retrieveUserAddress(_)

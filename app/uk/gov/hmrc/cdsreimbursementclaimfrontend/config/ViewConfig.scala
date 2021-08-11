@@ -39,7 +39,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
 
-  val signOutUrl: URL = new URL(getString("bas-gateway.signOutUrl"))
+  val signOutUrl: String = getString("bas-gateway.signOutUrl")
 
   val ggTimeoutSeconds: Long =
     servicesConfig.getDuration("gg.timeout").toSeconds
@@ -86,7 +86,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
 
   lazy val contactHmrcUrl: String = {
-    val baseUrl =  servicesConfig.baseUrl("contact-frontend")
+    val baseUrl     = servicesConfig.baseUrl("contact-frontend")
     val contactPath = servicesConfig.getString(s"microservice.services.contact-frontend.contact-hmrc-url")
     s"$baseUrl$contactPath"
   }
@@ -125,7 +125,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   def buildCompleteSelfUrl(call: Call): URL = buildCompleteSelfUrl(call.url)
 
-  def buildCompleteSelfUrl(path: String) = new URL(s"$selfBaseUrl$path")
+  def buildCompleteSelfUrl(path: String): URL = new URL(s"$selfBaseUrl$path")
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

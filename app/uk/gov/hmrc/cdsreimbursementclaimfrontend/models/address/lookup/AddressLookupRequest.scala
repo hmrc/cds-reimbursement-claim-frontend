@@ -22,8 +22,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.{SelectPageConfig, TimeoutConfig}
 
-import java.net.URL
-
 final case class AddressLookupRequest(
   version: Int,
   options: AddressLookupOptions
@@ -41,7 +39,7 @@ object AddressLookupRequest {
 
   final case class Builder(options: AddressLookupOptions) {
 
-    def signOutUserVia(signOutUrl: URL): Builder =
+    def signOutUserVia(signOutUrl: String): Builder =
       copy(options.copy(signOutHref = signOutUrl.some))
 
     def searchUkAddressOnly(value: Boolean): Builder =
