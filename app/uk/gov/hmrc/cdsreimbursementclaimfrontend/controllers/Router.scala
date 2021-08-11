@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
@@ -56,8 +57,11 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
-  def submitPageForClaimantDetails(): Call =
-    claimRoutes.CheckClaimantDetailsController.submit(journeyBindable)
+  def submitPageForClaimantDetails(isChange: Boolean): Call =
+    isChange match {
+      case true  => claimRoutes.CheckClaimantDetailsController.change(journeyBindable)
+      case false => claimRoutes.CheckClaimantDetailsController.add(journeyBindable)
+    }
 
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterOrChangeContactDetailsController.changeMrnContactDetailsSubmit(journeyBindable)
@@ -125,26 +129,37 @@ trait JourneyTypeRoutes extends Product with Serializable {
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
     }
 
-  def nextPageForClaimantDetails(): Call =
-    claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+  def nextPageForAddClaimantDetails(anwer: CheckClaimantDetailsAnswer): Call =
+    anwer match {
+      case YesClaimantDetailsAnswer =>
+        claimRoutes.EnterOrChangeContactDetailsController.enterMrnContactDetailsSubmit(journeyBindable)
+      case NoClaimantDetailsAnswer  =>
+        claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
+      //        featureSwitch.NorthernIreland.isEnabled() match {
+      //          case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+      //          case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+      //        }
+    }
 
-  // TODO: There are two scenarios for claimant details next page:
-  //  If there are no contact details => the next page is EnterOrChangeMrnContactDetails.enterMrnContactDetails()
-
-  //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
-  //    featureSwitch.NorthernIreland.isEnabled() match {
-  //      case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
-  //      case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-  //    }
+  def nextPageForChangeClaimantDetails(anwer: CheckClaimantDetailsAnswer): Call =
+    anwer match {
+      case YesClaimantDetailsAnswer =>
+        claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+      //TODO put this back after removing the EnterDetailsRegisteredWithCdsController
+      //        featureSwitch.NorthernIreland.isEnabled() match {
+      //          case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+      //          case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+      //        }
+      case NoClaimantDetailsAnswer  => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+    }
 
   //TODO: fix routing to go to ALF address lookup page for enter contact details
   // if coming from CheckClaimantDetails from the change link => next page is claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
   // if coming from CheckClaimantDetails from selecting 'yes' in radio buttons (i.e no data from Acc14) => next page is ALF address page
-  def nextPageForEnterOrChangeMrnContactDetails(isChange: Boolean): Call = {
-    println("^^^^^^^^^^^^^^^^^^^^^^^" + journeyBindable.toString)
+  def nextPageForEnterOrChangeMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
     else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
-  }
 
 }
 

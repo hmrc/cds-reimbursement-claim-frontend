@@ -84,7 +84,6 @@ object CompleteClaim {
               draftMaybeDeclarationDetailsAnswer,
               draftDuplicateDeclarationDetailAnswer,
               draftDeclarantTypeAnswer,
-              _,
               draftClaimantDetailsAsIndividualAnswer,
               draftClaimantDetailsAsImporterCompanyAnswer,
               _,

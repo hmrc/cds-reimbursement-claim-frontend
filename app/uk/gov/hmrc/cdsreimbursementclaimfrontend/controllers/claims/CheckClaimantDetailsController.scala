@@ -21,7 +21,7 @@ import cats.data.EitherT
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.data.Forms.{mapping, number}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAdd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, NamePhoneEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MrnContactDetails, NamePhoneEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -63,41 +63,60 @@ class CheckClaimantDetailsController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[CheckClaimantDetailsAnswer] = _.checkClaimantDetailsAnswer
+  implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CheckClaimantDetailsAnswer] { (fillingOutClaim, answers, router) =>
-        val emptyForm  = checkClaimantDetailsAnswerForm
-        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
-        Ok(renderTemplate(filledForm, fillingOutClaim, router))
+      withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router))
       }
     }
 
-  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def add(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CheckClaimantDetailsAnswer] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(renderTemplate(formWithErrors, fillingOutClaim, router)),
-            formOk => {
-              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkClaimantDetailsAnswer = Option(formOk)))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap(err => Error(s"Could not save Declarant Type: ${err.message}"))
-                .fold(
-                  e => {
-                    logger.warn("Submit Declarant Type error: ", e)
-                    errorHandler.errorResult()
-                  },
-                  _ => Redirect(router.nextPageForClaimantDetails())
-                )
-            }
+            formWithErrors => {
+              val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+            },
+            formOk => Redirect(router.nextPageForAddClaimantDetails(formOk))
           )
       }
+    }
 
+  def change(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
+        checkClaimantDetailsAnswerForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+            },
+            formOk =>
+              formOk match {
+                case YesClaimantDetailsAnswer =>
+                  Redirect(router.nextPageForChangeClaimantDetails(formOk))
+                case NoClaimantDetailsAnswer  =>
+                  val updatedClaim = removeContactDetails(fillingOutClaim)
+                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                    .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
+                    .fold(
+                      e => {
+                        logger.warn("Submit Declarant Type error: ", e)
+                        errorHandler.errorResult()
+                      },
+                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk))
+                    )
+              }
+          )
+      }
     }
 
   def renderTemplate(
@@ -108,16 +127,30 @@ class CheckClaimantDetailsController @Inject() (
     request: RequestWithSessionData[_],
     messages: Messages,
     viewConfig: ViewConfig
-  ): HtmlFormat.Appendable =
-    //val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
+  ): HtmlFormat.Appendable = {
+    val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
     claimantDetails(
       form,
+      mandatoryDataAvailable,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
       extractEstablishmentAddress(fillingOutClaim),
       extractContactDetails(fillingOutClaim),
       extractContactAddress(fillingOutClaim),
       router
     )
+  }
+
+  def updatedFormErrors[T](formWithErrors: Form[T], mandatoryDataAvailable: Boolean): Form[T] =
+    mandatoryDataAvailable match {
+      case true  => replaceFormError("error.required", "error.required.change", formWithErrors)
+      case false => replaceFormError("error.required", "error.required.add", formWithErrors)
+    }
+
+  def replaceFormError[T](originalError: String, replaceTo: String, formWithErrors: Form[T]): Form[T] =
+    formWithErrors.copy(errors = formWithErrors.errors.map { fe =>
+      val newMsgs = fe.messages.map(msg => if (msg === originalError) replaceTo else msg)
+      FormError(fe.key, newMsgs)
+    })
 
 }
 
@@ -126,8 +159,8 @@ object CheckClaimantDetailsController {
 
   sealed trait CheckClaimantDetailsAnswer extends Product with Serializable
 
-  case object UseContactDetails extends CheckClaimantDetailsAnswer
-  case object UseDetailsRegisteredWithCDS extends CheckClaimantDetailsAnswer
+  case object YesClaimantDetailsAnswer extends CheckClaimantDetailsAnswer
+  case object NoClaimantDetailsAnswer extends CheckClaimantDetailsAnswer
 
   val checkClaimantDetailsAnswerForm: Form[CheckClaimantDetailsAnswer] =
     Form(
@@ -136,11 +169,11 @@ object CheckClaimantDetailsController {
           .verifying("invalid", a => a === 0 || a === 1)
           .transform[CheckClaimantDetailsAnswer](
             value =>
-              if (value === 0) UseContactDetails
-              else UseDetailsRegisteredWithCDS,
+              if (value === 0) YesClaimantDetailsAnswer
+              else NoClaimantDetailsAnswer,
             {
-              case UseContactDetails           => 0
-              case UseDetailsRegisteredWithCDS => 1
+              case YesClaimantDetailsAnswer => 0
+              case NoClaimantDetailsAnswer  => 1
             }
           )
       )(identity)(Some(_))
@@ -186,57 +219,78 @@ object CheckClaimantDetailsController {
   def extractContactDetails(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
-    Applicative[Option]
-      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
-        declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            val consignee = declaration.displayResponseDetail.consigneeDetails
-            val name      = consignee.flatMap(_.contactDetails).flatMap(_.contactName)
-            val phone     = consignee.flatMap(_.contactDetails).flatMap(_.telephone)
-            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            val declarant = declaration.displayResponseDetail.declarantDetails
-            val name      = declarant.contactDetails.flatMap(_.contactName)
-            val phone     = declarant.contactDetails.flatMap(_.telephone)
-            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
-        }
+    draftC285Claim.mrnContactDetailsAnswer
+      .map { contact =>
+        NamePhoneEmail(Option(contact.fullName), Option(contact.phoneNumber), Option(contact.emailAddress))
       }
+      .orElse(
+        Applicative[Option]
+          .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
+            declarantType match {
+              case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+                val consignee = declaration.displayResponseDetail.consigneeDetails
+                val name      = consignee.flatMap(_.contactDetails).flatMap(_.contactName)
+                val phone     = consignee.flatMap(_.contactDetails).flatMap(_.telephone)
+                NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
+              case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+                val declarant = declaration.displayResponseDetail.declarantDetails
+                val name      = declarant.contactDetails.flatMap(_.contactName)
+                val phone     = declarant.contactDetails.flatMap(_.telephone)
+                NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
+            }
+          }
+      )
       .getOrElse(NamePhoneEmail(None, None, None))
   }
 
   def extractContactAddress(fillingOutClaim: FillingOutClaim): Option[NonUkAddress] = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    Applicative[Option]
-      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
-        (declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            declaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails)
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            declaration.displayResponseDetail.declarantDetails.contactDetails
-        }).flatMap { contactDetails =>
-          Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) { (addressLine1, postCode) =>
-            NonUkAddress(
-              addressLine1,
-              contactDetails.addressLine2,
-              None,
-              contactDetails.addressLine3.getOrElse(""),
-              postCode,
-              contactDetails.countryCode.map(Country(_)).getOrElse(Country.uk)
-            )
+    draftC285Claim.mrnContactAddressAnswer
+      .orElse(
+        Applicative[Option]
+          .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
+            (declarantType match {
+              case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+                declaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails)
+              case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+                declaration.displayResponseDetail.declarantDetails.contactDetails
+            }).flatMap { contactDetails =>
+              Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) {
+                (addressLine1, postCode) =>
+                  NonUkAddress(
+                    addressLine1,
+                    contactDetails.addressLine2,
+                    None,
+                    contactDetails.addressLine3.getOrElse(""),
+                    postCode,
+                    contactDetails.countryCode.map(Country(_)).getOrElse(Country.uk)
+                  )
+              }
+            }
           }
-        }
-      }
-      .flatten
+          .flatten
+      )
+  }
+
+  def removeContactDetails(fillingOutClaim: FillingOutClaim): FillingOutClaim = {
+    val draftC285Claim     = fillingOutClaim.draftClaim.fold(identity)
+    val displayDeclaration = draftC285Claim.displayDeclaration.map(dd =>
+      dd.copy(displayResponseDetail =
+        dd.displayResponseDetail.copy(
+          consigneeDetails =
+            dd.displayResponseDetail.consigneeDetails.map(consignee => consignee.copy(contactDetails = None)),
+          declarantDetails = dd.displayResponseDetail.declarantDetails.copy(contactDetails = None)
+        )
+      )
+    )
+    fillingOutClaim.copy(draftClaim = draftC285Claim.copy(displayDeclaration = displayDeclaration))
   }
 
   def validateSessionOrAcc14(fillingOutClaim: FillingOutClaim): Boolean = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     val contactDetails = extractContactDetails(fillingOutClaim)
     val contactAddress = extractContactAddress(fillingOutClaim)
-    if (
-      draftC285Claim.mrnContactDetailsAnswer.isDefined &&
-      draftC285Claim.mrnContactAddressAnswer.isDefined
-    )
+    if (draftC285Claim.mrnContactDetailsAnswer.isDefined && draftC285Claim.mrnContactAddressAnswer.isDefined)
       true
     else if (
       contactDetails.name.isDefined &&
