@@ -83,8 +83,8 @@ class BankAccountController @Inject() (
 
   def checkBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, dd, router) =>
-        val answers = dd.flatMap(p => p.displayResponseDetail.maskedBankDetails)
+      withAnswersAndRoutes[DisplayDeclaration] { (_, declaration, router) =>
+        val answers = declaration.flatMap(p => p.displayResponseDetail.maskedBankDetails)
         answers.fold(Redirect(router.nextPageForCheckBankAccountDetails())) { maskedBankDetails =>
           (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
             case (Some(cmbd), _)    =>
