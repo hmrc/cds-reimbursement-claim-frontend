@@ -126,7 +126,7 @@ class BankAccountController @Inject() (
 
   def enterBankAccountDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      submit(isAmend = false, continuePage)
+      submit(isAmend = false, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
     }
 
   def changeBankAccountDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =

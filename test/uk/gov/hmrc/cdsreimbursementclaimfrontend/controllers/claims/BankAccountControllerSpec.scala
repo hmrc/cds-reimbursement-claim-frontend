@@ -116,22 +116,6 @@ class BankAccountControllerSpec
     )
   }
 
-  //  private def getSessionWithPreviousAnswer(
-  //    maybeMrnContactDetailsAnswer: Option[MrnContactDetails],
-  //    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
-  //  ): (SessionData, FillingOutClaim) = {
-  //    val draftC285Claim      = DraftC285Claim.newDraftC285Claim
-  //      .copy(
-  //        mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer,
-  //        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
-  //        movementReferenceNumber = Some(sample[MovementReferenceNumber])
-  //      )
-  //    val ggCredId            = sample[GGCredId]
-  //    val signedInUserDetails = sample[SignedInUserDetails]
-  //    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-  //    (SessionData.empty.copy(journeyStatus = Some(journey)), journey)
-  //  }
-
   private def sessionWithMaskedBankDetails(
     maybeMaskedBankDetails: Option[MaskedBankDetails],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
