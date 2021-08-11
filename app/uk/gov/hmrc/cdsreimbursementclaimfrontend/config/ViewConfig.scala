@@ -22,11 +22,13 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URL
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
 @Singleton
 class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+
   private def getString(key: String): String     = servicesConfig.getString(key)
   private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
 
@@ -37,7 +39,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
 
-  val signOutUrl: String = getString("bas-gateway.signOutUrl")
+  val signOutUrl: URL = new URL(getString("bas-gateway.signOutUrl"))
 
   val ggTimeoutSeconds: Long =
     servicesConfig.getDuration("gg.timeout").toSeconds
@@ -112,6 +114,12 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
+
+  val selfBaseUrl: String = getString("self.url")
+
+  def buildCompleteSelfUrl(call: Call): URL = buildCompleteSelfUrl(call.url)
+
+  def buildCompleteSelfUrl(path: String) = new URL(s"$selfBaseUrl$path")
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

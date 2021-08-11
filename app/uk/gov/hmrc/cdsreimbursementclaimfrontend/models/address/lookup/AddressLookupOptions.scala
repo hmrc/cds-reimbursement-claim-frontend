@@ -19,33 +19,35 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions._
 
+import java.net.URL
+
 final case class AddressLookupOptions(
-  continueUrl: String,
-  signOutHref: Option[String] = None,
+  continueUrl: URL,
+  timeoutConfig: TimeoutConfig,
+  signOutHref: Option[URL] = None,
   accessibilityFooterUrl: Option[String] = None,
   selectPageConfig: Option[SelectPageConfig] = None,
-  timeoutConfig: TimeoutConfig,
-  confirmPageConfig: Option[ConfirmPageConfig] = Some(ConfirmPageConfig()),
-  phaseFeedbackLink: Option[String] = Some("private-beta"),
-  deskProServiceName: Option[String] = Some("cds-reimbursement-claim"),
-  showPhaseBanner: Option[Boolean] = Some(true),
-  ukMode: Option[Boolean] = Some(true)
+  confirmPageConfig: ConfirmPageConfig = ConfirmPageConfig(),
+  phaseFeedbackLink: Option[String] = None,
+  deskProServiceName: Option[String] = None,
+  showPhaseBanner: Option[Boolean] = None,
+  ukMode: Option[Boolean] = None
 )
 
 object AddressLookupOptions {
 
-  final case class SelectPageConfig(proposalListLimit: Option[Int])
+  final case class SelectPageConfig(proposalListLimit: Int)
 
   final case class ConfirmPageConfig(
-    showChangeLink: Option[Boolean] = Some(true),
-    showSearchAgainLink: Option[Boolean] = Some(true),
-    showConfirmChangeText: Option[Boolean] = Some(true)
+    showChangeLink: Option[Boolean] = None,
+    showSearchAgainLink: Option[Boolean] = None,
+    showConfirmChangeText: Option[Boolean] = None
   )
 
   final case class TimeoutConfig(
-    timeoutAmount: Long,
-    timeoutUrl: String,
-    timeoutKeepAliveUrl: Option[String] = None
+    timeoutAmount: Int,
+    timeoutUrl: URL,
+    timeoutKeepAliveUrl: Option[URL] = None
   )
 
   implicit val selectPageConfigFormat: OFormat[SelectPageConfig]         = Json.format[SelectPageConfig]

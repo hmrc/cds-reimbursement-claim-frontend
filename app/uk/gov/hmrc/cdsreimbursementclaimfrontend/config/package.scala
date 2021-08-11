@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
+package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
-import play.api.libs.json.{Json, OFormat}
+import cats.implicits.catsSyntaxEq
+import play.api.{Configuration, Environment, Mode}
 
-final case class InitiateAddressLookupRequest(
-  options: AddressLookupOptions,
-  labels: Option[AddressLookupLabels] = None,
-  version: Int = 2
-)
+package object config {
 
-object InitiateAddressLookupRequest {
-  implicit val format: OFormat[InitiateAddressLookupRequest] =
-    Json.format[InitiateAddressLookupRequest]
+  implicit class EnvironmentOps(val env: Environment) extends AnyVal {
+
+    def isLocal(implicit config: Configuration): Boolean = {
+      val runMode = config.getOptional[String]("run.mode")
+      if (env.mode.toString === Mode.Test.toString) true
+      else runMode.forall(_ === Mode.Dev.toString)
+    }
+  }
 }

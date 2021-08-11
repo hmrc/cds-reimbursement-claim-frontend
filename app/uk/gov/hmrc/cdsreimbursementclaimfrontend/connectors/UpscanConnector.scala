@@ -57,17 +57,18 @@ trait UpscanConnector {
 @Singleton
 class DefaultUpscanConnector @Inject() (
   http: HttpClient,
-  config: FileUploadConfig,
-  servicesConfig: ServicesConfig
+  fileUploadConfig: FileUploadConfig,
+  servicesConfig: ServicesConfig,
+  viewConfig: ViewConfig
 )(implicit
   ec: ExecutionContext
 ) extends UpscanConnector
     with Logging {
 
   private val upscanInitiateUrl: String = {
-    val protocol = config.readUpscanInitServiceProtocol
-    val host     = config.readUpscanInitServiceHost
-    val port     = config.readUpscanInitServicePort
+    val protocol = fileUploadConfig.readUpscanInitServiceProtocol
+    val host     = fileUploadConfig.readUpscanInitServiceHost
+    val port     = fileUploadConfig.readUpscanInitServicePort
     s"$protocol://$host:$port/upscan/v2/initiate"
   }
 
@@ -82,12 +83,10 @@ class DefaultUpscanConnector @Inject() (
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] = {
 
-    val selfBaseUrl = config.readSelfBaseUrl
-
     val payload = UpscanInitiateRequest(
       baseUrl + s"/cds-reimbursement-claim/upscan-call-back/upload-reference/${uploadReference.value}",
-      selfBaseUrl + successRedirect.url,
-      selfBaseUrl + errorRedirect.url,
+      viewConfig.selfBaseUrl + successRedirect.url,
+      viewConfig.selfBaseUrl + errorRedirect.url,
       0,
       maxFileSize
     )

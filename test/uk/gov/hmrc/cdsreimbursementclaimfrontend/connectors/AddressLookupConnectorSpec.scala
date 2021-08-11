@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AddressLookupGen._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -65,7 +65,7 @@ class AddressLookupConnectorSpec
   "The address lookup connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val request                    = sample[InitiateAddressLookupRequest]
+    val request                    = sample[AddressLookupRequest]
 
     val url = "http://localhost:9028/api/init"
 

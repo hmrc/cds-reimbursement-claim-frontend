@@ -30,7 +30,7 @@ import play.api.test.Helpers.{LOCATION, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AddressLookupGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
@@ -54,11 +54,11 @@ class AddressLookupServiceSpec
 
   val addressLookupService = new DefaultAddressLookupService(addressLookupConnector)
 
-  def mockInitiateAddressLookupResponse(request: InitiateAddressLookupRequest)(
+  def mockInitiateAddressLookupResponse(request: AddressLookupRequest)(
     response: Either[Error, HttpResponse]
-  ): CallHandler2[InitiateAddressLookupRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
+  ): CallHandler2[AddressLookupRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
     (addressLookupConnector
-      .initiate(_: InitiateAddressLookupRequest)(_: HeaderCarrier))
+      .initiate(_: AddressLookupRequest)(_: HeaderCarrier))
       .expects(request, *)
       .returning(EitherT.fromEither[Future](response))
 
@@ -76,7 +76,7 @@ class AddressLookupServiceSpec
 
       "succeed receiving user redirect URL" in {
         val locationUrl = sample[URL]
-        val request     = sample[InitiateAddressLookupRequest]
+        val request     = sample[AddressLookupRequest]
 
         mockInitiateAddressLookupResponse(request)(
           Right(HttpResponse(ACCEPTED, Json.obj(), headers = Map(LOCATION -> Seq(locationUrl.toString))))
@@ -87,7 +87,7 @@ class AddressLookupServiceSpec
       }
 
       "fail having no request accepted" in {
-        val request = sample[InitiateAddressLookupRequest]
+        val request = sample[AddressLookupRequest]
 
         mockInitiateAddressLookupResponse(request)(
           Right(HttpResponse(INTERNAL_SERVER_ERROR, Json.obj().toString()))
@@ -99,7 +99,7 @@ class AddressLookupServiceSpec
       }
 
       "fail having no location header provided" in {
-        val request = sample[InitiateAddressLookupRequest]
+        val request = sample[AddressLookupRequest]
 
         mockInitiateAddressLookupResponse(request)(
           Right(HttpResponse(ACCEPTED, Json.obj().toString()))

@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.AddressLookupConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
@@ -32,7 +32,7 @@ import scala.util.control.NonFatal
 trait AddressLookupConnector {
 
   def initiate(
-    request: InitiateAddressLookupRequest
+    request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
 
   def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse]
@@ -40,16 +40,16 @@ trait AddressLookupConnector {
 
 class DefaultAddressLookupConnector @Inject() (
   http: HttpClient,
-  serviceConfig: AddressLookupConfig
+  addressLookupServiceConfig: AddressLookupConfig
 )(implicit ec: ExecutionContext)
     extends AddressLookupConnector {
 
   def initiate(
-    request: InitiateAddressLookupRequest
+    request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] = EitherT {
     http
-      .POST[InitiateAddressLookupRequest, HttpResponse](
-        serviceConfig.triggerAddressLookupUrl,
+      .POST[AddressLookupRequest, HttpResponse](
+        addressLookupServiceConfig.startLookupUrl,
         request
       )
       .map(Right(_))
@@ -61,7 +61,7 @@ class DefaultAddressLookupConnector @Inject() (
   def retrieveAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, HttpResponse] =
     EitherT {
       http
-        .GET[HttpResponse](s"${serviceConfig.retrieveAddressUrl}?id=$addressId")
+        .GET[HttpResponse](s"${addressLookupServiceConfig.retrieveAddressUrl}?id=$addressId")
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))

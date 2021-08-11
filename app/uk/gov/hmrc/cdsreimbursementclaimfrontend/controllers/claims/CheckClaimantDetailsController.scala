@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Applicative
 import cats.data.EitherT
+import cats.implicits.catsSyntaxOptionId
 import cats.syntax.eq._
 import com.google.inject.{Inject, Singleton}
 import julienrf.json.derived
@@ -28,27 +29,34 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, NamePhoneEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
+import java.util.UUID
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckClaimantDetailsController @Inject() (
+  addressLookupService: AddressLookupService,
+  addressLookupConfig: AddressLookupConfig,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -92,6 +100,43 @@ class CheckClaimantDetailsController @Inject() (
             }
           )
       }
+    }
+
+  def changeAddress(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      implicit val timeoutConfig = TimeoutConfig(
+        timeoutAmount = viewConfig.timeout,
+        timeoutUrl = viewConfig.buildCompleteSelfUrl(baseRoutes.StartController.timedOut()),
+        timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
+      )
+
+      val addressSearchRequest =
+        AddressLookupRequest
+          .redirectBackTo(routes.CheckClaimantDetailsController.updateAddress(journey))
+          .signOutUserVia(viewConfig.signOutUrl)
+          .nameServiceAs("cds-reimbursement-claim")
+          .maximumShow(addressLookupConfig.maxAddressesToShow)
+          .searchUkAddressOnly(true)
+          .showConfirmChangeText(true)
+          .showSearchAgainLink(true)
+          .showChangeLink(true)
+          .showBanner(true)
+
+      addressLookupService
+        .initiate(addressSearchRequest)
+        .fold(logAndDisplayError("Error occurred starting address lookup"), url => Redirect(url.toString))
+    }
+
+  def updateAddress(journey: JourneyBindable, maybeId: Option[UUID] = None): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      maybeId.fold(Future.successful(BadRequest("")))(
+        addressLookupService
+          .retrieveUserAddress(_)
+          .fold(
+            logAndDisplayError("Error retrieving address: "),
+            address => Ok(address.toString)
+          )
+      )
     }
 
   def renderTemplate(

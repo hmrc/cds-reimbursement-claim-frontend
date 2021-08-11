@@ -20,14 +20,14 @@ import cats.data.EitherT
 import cats.syntax.eq._
 import com.google.inject.Inject
 import shapeless._
-import play.api.{Configuration, Environment, Mode}
+import play.api.{Configuration, Environment}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{EnvironmentOps, ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
@@ -52,10 +52,9 @@ class CheckEoriDetailsController @Inject() (
   cc: MessagesControllerComponents,
   val customsDataStoreService: CustomsDataStoreService,
   val servicesConfig: ServicesConfig,
-  val config: Configuration,
   val env: Environment,
   checkEoriDetailsPage: check_eori_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, config: Configuration)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -73,14 +72,11 @@ class CheckEoriDetailsController @Inject() (
     routes.CheckEoriDetailsController.submit()
   )
 
-  private val runMode              = config.getOptional[String]("run.mode")
-  private val isRunningLocal       =
-    if (env.mode.toString === Mode.Test.toString) true else runMode.forall(_ === Mode.Dev.toString)
-  private val customsEmailFrontend = "customs-email-frontend"
-
   private val customsEmailFrontendUrl: String = {
-    val startPage = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
-    if (isRunningLocal)
+    val customsEmailFrontend = "customs-email-frontend"
+    val startPage            = servicesConfig.getString(s"microservice.services.$customsEmailFrontend.start-page")
+
+    if (env.isLocal)
       s"${servicesConfig.baseUrl(customsEmailFrontend)}$startPage"
     else s"${servicesConfig.getString("self.url")}$startPage"
   }
