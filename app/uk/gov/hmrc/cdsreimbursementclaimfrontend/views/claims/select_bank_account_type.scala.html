@@ -24,7 +24,7 @@
 @key = @{"select-bank-account-type"}
 @title = @{messages(s"$key.title")}
 
-@postAction = @{ ???}
+@postAction = @{router.submitUrlForSelectBankAccountType()}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

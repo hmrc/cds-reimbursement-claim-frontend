@@ -54,7 +54,7 @@ class SelectBankAccountTypeController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[BankAccountType] = _.bankAccountTypeAnswer
 
-  def show()(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectBankAccountType(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountType] { (_, answer, router) =>
         val emptyForm  = SelectBankAccountTypeController.bankAccountTypeForm
@@ -63,7 +63,7 @@ class SelectBankAccountTypeController @Inject() (
       }
     }
 
-  def submit()(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectBankAccountTypeSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountType] { (fillingOutClaim, _, router) =>
         SelectBankAccountTypeController.bankAccountTypeForm
@@ -85,7 +85,7 @@ class SelectBankAccountTypeController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not capture bank account type answer"),
-                  _ => Redirect(???)
+                  _ => Redirect(router.nextPageForSelectBankAccountType())
                 )
             }
           )
