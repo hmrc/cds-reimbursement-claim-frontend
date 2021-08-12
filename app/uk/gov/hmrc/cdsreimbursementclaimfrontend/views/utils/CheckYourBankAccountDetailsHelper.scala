@@ -54,7 +54,6 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
             "govuk-link",
             List(
               ActionItem(
-                //TODO: Change routing for this link to go to the 'Enter account type' page
                 href = s"${routes.SelectBankAccountTypeController.selectBankAccountType(router.journeyBindable).url}",
                 Text(messages("bank-details.change")(lang))
               )
