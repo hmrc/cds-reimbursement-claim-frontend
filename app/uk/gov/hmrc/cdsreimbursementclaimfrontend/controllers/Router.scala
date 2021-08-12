@@ -74,6 +74,9 @@ trait SubmitRoutes extends Product with Serializable {
     if (isAmend) claimRoutes.BankAccountController.changeBankAccountDetailsSubmit(journeyBindable)
     else claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
+  def submitUrlForSelectBankAccountType(): Call =
+    claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -165,6 +168,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
     else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =
+    claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
+
+  def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
 }

@@ -87,6 +87,7 @@ object CompleteClaim {
               _, //Option[MrnContactDetails]
               _, //Option[NonUkAddress]
               maybeBankAccountDetails,
+              _,
               maybeBasisForClaim,
               maybeSupportingEvidences,
               _,
