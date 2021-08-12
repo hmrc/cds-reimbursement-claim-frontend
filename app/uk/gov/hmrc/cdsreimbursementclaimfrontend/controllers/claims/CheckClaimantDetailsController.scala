@@ -148,17 +148,24 @@ class CheckClaimantDetailsController @Inject() (
       response.fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
-  def updateAddress(journey: JourneyBindable, maybeId: Option[UUID] = None): Action[AnyContent] =
+  def updateAddress(journey: JourneyBindable, maybeAddressLookupId: Option[UUID] = None): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      println(journey)
-      maybeId.fold(Future.successful(BadRequest("")))(
-        addressLookupService
-          .retrieveUserAddress(_)
+      withAnswersAndRoutes[MrnContactDetails] { (claim, _, _) =>
+        def updateLookupAddress(id: UUID) =
+          for {
+            newAddress <- addressLookupService.retrieveUserAddress(id)
+            copyClaim   = FillingOutClaim.of(claim)(_.copy(mrnContactAddressAnswer = newAddress.some))
+            result     <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = copyClaim.some)))
+          } yield result
+
+        maybeAddressLookupId
+          .map(updateLookupAddress)
+          .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
-            logAndDisplayError("Error retrieving address: "),
-            address => Ok(address.toString)
+            logAndDisplayError("Error updating Address Lookup address: "),
+            _ => Redirect(routes.CheckClaimantDetailsController.show(journey))
           )
-      )
+      }(dataExtractor, request, journey)
     }
 
   def renderTemplate(
@@ -183,10 +190,9 @@ class CheckClaimantDetailsController @Inject() (
   }
 
   def updatedFormErrors[T](formWithErrors: Form[T], mandatoryDataAvailable: Boolean): Form[T] =
-    mandatoryDataAvailable match {
-      case true  => replaceFormError("error.required", "error.required.change", formWithErrors)
-      case false => replaceFormError("error.required", "error.required.add", formWithErrors)
-    }
+    if (mandatoryDataAvailable)
+      replaceFormError("error.required", "error.required.change", formWithErrors)
+    else replaceFormError("error.required", "error.required.add", formWithErrors)
 
   def replaceFormError[T](originalError: String, replaceTo: String, formWithErrors: Form[T]): Form[T] =
     formWithErrors.copy(errors = formWithErrors.errors.map { fe =>
@@ -255,7 +261,7 @@ object CheckClaimantDetailsController {
             Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
         }
       }
-      .getOrElse(None)
+      .flatten
   }
 
   def extractContactDetails(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
@@ -312,6 +318,38 @@ object CheckClaimantDetailsController {
           }
           .flatten
       )
+  }
+
+  def removeContactDetails(fillingOutClaim: FillingOutClaim): FillingOutClaim = {
+    val draftC285Claim     = fillingOutClaim.draftClaim.fold(identity)
+    val displayDeclaration = draftC285Claim.displayDeclaration.map(declaration =>
+      declaration.copy(displayResponseDetail =
+        declaration.displayResponseDetail.copy(
+          consigneeDetails =
+            declaration.displayResponseDetail.consigneeDetails.map(consignee => consignee.copy(contactDetails = None)),
+          declarantDetails = declaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
+        )
+      )
+    )
+    fillingOutClaim.copy(draftClaim = draftC285Claim.copy(displayDeclaration = displayDeclaration))
+  }
+
+  def validateSessionOrAcc14(fillingOutClaim: FillingOutClaim): Boolean = {
+    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+    val contactDetails = extractContactDetails(fillingOutClaim)
+    val contactAddress = extractContactAddress(fillingOutClaim)
+
+    if (draftC285Claim.mrnContactDetailsAnswer.isDefined && draftC285Claim.mrnContactAddressAnswer.isDefined)
+      true
+    else if (
+      contactDetails.name.isDefined &&
+      contactDetails.email.isDefined &&
+      contactAddress.map(_.line1).isDefined &&
+      contactAddress.map(_.postcode).isDefined
+    )
+      true
+    else
+      false
   }
 
 }
