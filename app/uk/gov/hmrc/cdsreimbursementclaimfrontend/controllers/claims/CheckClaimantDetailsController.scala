@@ -29,12 +29,11 @@ import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
@@ -56,7 +55,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CheckClaimantDetailsController @Inject() (
   addressLookupService: AddressLookupService,
-//  addressLookupConfig: AddressLookupConfig,
+  addressLookupConfig: AddressLookupConfig,
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -113,20 +112,20 @@ class CheckClaimantDetailsController @Inject() (
       val addressSearchRequest =
         AddressLookupRequest
           .redirectBackTo(routes.CheckClaimantDetailsController.updateAddress(journey))
-//          .signOutUserVia(viewConfig.signOutUrl)
-//          .nameServiceAs("cds-reimbursement-claim")
-//          .maximumShow(addressLookupConfig.maxAddressesToShow)
-//          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
-//          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
-//          .searchUkAddressOnly(true)
-//          .showConfirmChangeText(true)
-//          .showSearchAgainLink(true)
-//          .showChangeLink(true)
-//          .showBanner(true)
+          .signOutUserVia(viewConfig.signOutUrl)
+          .nameServiceAs("cds-reimbursement-claim")
+          .maximumShow(addressLookupConfig.maxAddressesToShow)
+          .makeAccessibilityFooterAvailableVia(viewConfig.accessibilityStatementUrl)
+          .makePhaseFeedbackAvailableVia(viewConfig.contactHmrcUrl)
+          .searchUkAddressOnly(true)
+          .showConfirmChangeText(true)
+          .showSearchAgainLink(true)
+          .showChangeLink(true)
+          .showBanner(true)
 
       val response = addressLookupService initiate addressSearchRequest
 
-      response.fold(logAndDisplayError("Error occurred starting address lookup"), url => Redirect(url.toString))
+      response.fold(logAndDisplayError("Error occurred starting address lookup: "), url => Redirect(url.toString))
     }
 
   def updateAddress(journey: JourneyBindable, maybeId: Option[UUID] = None): Action[AnyContent] =

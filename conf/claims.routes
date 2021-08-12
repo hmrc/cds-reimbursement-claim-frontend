@@ -40,7 +40,7 @@ POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.
 GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.enterMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterOrChangeContactDetailsController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant_details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.changeAddress(journey: JourneyBindable)
+GET         /:journey/claimant-details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.changeAddress(journey: JourneyBindable)
 GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.updateAddress(journey: JourneyBindable, id: Option[java.util.UUID] ?= None)
 
 GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)

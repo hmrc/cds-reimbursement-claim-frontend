@@ -20,8 +20,6 @@ import cats.data.Validated.Invalid
 import cats.data.{NonEmptyList, ValidatedNel}
 import play.api.libs.json._
 
-import java.net.URL
-
 package object models {
 
   // validation
@@ -42,14 +40,4 @@ package object models {
 
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
-
-  // URL format
-
-  def urlReads: Reads[URL] =
-    Reads.of[String].map(new URL(_))
-
-  def urlWrites: Writes[URL] =
-    Writes.of[String].contramap(_.toString)
-
-  implicit val urlFormat: Format[URL] = Format(urlReads, urlWrites)
 }

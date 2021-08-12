@@ -22,7 +22,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import java.net.URL
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
@@ -123,9 +122,9 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val selfBaseUrl: String = getString("self.url")
 
-  def buildCompleteSelfUrl(call: Call): URL = buildCompleteSelfUrl(call.url)
+  def buildCompleteSelfUrl(call: Call): String = buildCompleteSelfUrl(call.url)
 
-  def buildCompleteSelfUrl(path: String): URL = new URL(s"$selfBaseUrl$path")
+  def buildCompleteSelfUrl(path: String): String = s"$selfBaseUrl$path"
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

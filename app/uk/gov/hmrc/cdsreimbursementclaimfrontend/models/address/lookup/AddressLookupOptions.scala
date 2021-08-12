@@ -18,12 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.urlFormat
-
-import java.net.URL
 
 final case class AddressLookupOptions(
-  continueUrl: URL,
+  continueUrl: String,
   timeoutConfig: TimeoutConfig,
   signOutHref: Option[String] = None,
   accessibilityFooterUrl: Option[String] = None,
@@ -47,8 +44,8 @@ object AddressLookupOptions {
 
   final case class TimeoutConfig(
     timeoutAmount: Int,
-    timeoutUrl: URL,
-    timeoutKeepAliveUrl: Option[URL] = None
+    timeoutUrl: String,
+    timeoutKeepAliveUrl: Option[String] = None
   )
 
   implicit val selectPageConfigFormat: OFormat[SelectPageConfig]         = Json.format[SelectPageConfig]
