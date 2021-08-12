@@ -169,7 +169,7 @@ class BankAccountControllerSpec
         val request = FakeRequest()
         val result  = controller.checkBankAccountDetails(journey)(request)
 
-        checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails(journey))
+        checkIsRedirect(result, routes.SelectBankAccountTypeController.selectBankAccountType(journey))
 
       }
 
@@ -183,7 +183,7 @@ class BankAccountControllerSpec
 
         val request = FakeRequest()
         val result  = controller.checkBankAccountDetails(journey)(request)
-        checkIsRedirect(result, routes.BankAccountController.enterBankAccountDetails(journey))
+        checkIsRedirect(result, routes.SelectBankAccountTypeController.selectBankAccountType(journey))
       }
 
       "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(journeys) { journey =>

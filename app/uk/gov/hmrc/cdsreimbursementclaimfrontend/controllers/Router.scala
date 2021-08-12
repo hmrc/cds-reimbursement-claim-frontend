@@ -152,10 +152,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
     else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =
-    claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
+    claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
 
   def nextPageForSelectBankAccountType(): Call =
-    ???
+    claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
 }
 
