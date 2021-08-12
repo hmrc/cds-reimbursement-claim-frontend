@@ -18,9 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccount
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountAcc14
 
 import javax.inject.{Inject, Singleton}
 
@@ -31,18 +33,34 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
 
   private val key = "bank-details"
 
-  def bankAccountDetailsSummary(displayBankAccountDetails: BankAccount): List[SummaryListRow] =
+  def bankAccountDetailsSummary(
+    displayBankAccountDetails: BankAccountAcc14,
+    router: ReimbursementRoutes
+  ): List[SummaryListRow] =
     List(
-      makeAccountHolderNameRow(displayBankAccountDetails.accountName),
+      makeAccountHolderNameRow(displayBankAccountDetails.accountName, router),
       makeSortCodeRow(displayBankAccountDetails.sortCode),
       makeAccountNumberRow(displayBankAccountDetails.accountNumber)
     ).flattenOption
 
-  private def makeAccountHolderNameRow(accountHolderName: String): Option[SummaryListRow] =
+  private def makeAccountHolderNameRow(accountHolderName: String, router: ReimbursementRoutes): Option[SummaryListRow] =
     Some(
       SummaryListRow(
         Key(Text(messages(s"$key.account-name.label")(lang))),
-        Value(Text(accountHolderName))
+        Value(Text(accountHolderName)),
+        "",
+        Some(
+          Actions(
+            "govuk-link",
+            List(
+              ActionItem(
+                //TODO: Change routing for this link to go to the 'Enter account type' page
+                href = s"${routes.BankAccountController.checkBankAccountDetails(router.journeyBindable).url}",
+                Text(messages("bank-details.change")(lang))
+              )
+            )
+          )
+        )
       )
     )
 

@@ -19,11 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.CheckClaimantDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
@@ -44,11 +44,11 @@ object DraftClaim {
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer] = None,
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
     declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
-    checkClaimantDetailsAnswer: Option[CheckClaimantDetailsAnswer] = None,
     detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
     contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
-    bankAccountDetailsAnswer: Option[BankAccountDetailsAnswer] = None,
+    mrnContactAddressAnswer: Option[NonUkAddress] = None,
+    bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
     basisOfClaimAnswer: Option[BasisOfClaim] = None,
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
