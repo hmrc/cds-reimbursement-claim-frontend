@@ -20,12 +20,12 @@ import org.scalacheck.magnolia.{Typeclass, gen}
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 
 object AddressLookupGen {
 
-  implicit val arbitraryInitiateAddressRequest: Typeclass[InitiateAddressLookupRequest] =
-    gen[InitiateAddressLookupRequest]
+  implicit val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
+    gen[AddressLookupRequest]
 
   def genCountry: Gen[Country] =
     Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DN").map(Country(_))

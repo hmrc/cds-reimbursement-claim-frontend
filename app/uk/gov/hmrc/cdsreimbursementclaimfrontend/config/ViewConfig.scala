@@ -27,6 +27,7 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+
   private def getString(key: String): String     = servicesConfig.getString(key)
   private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
 
@@ -83,6 +84,12 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
 
+  lazy val contactHmrcUrl: String = {
+    val baseUrl     = servicesConfig.baseUrl("contact-frontend")
+    val contactPath = servicesConfig.getString(s"microservice.services.contact-frontend.contact-hmrc-url")
+    s"$baseUrl$contactPath"
+  }
+
   val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
 
   val abilityNetUrl: String = getString("external-url.ability-net")
@@ -112,6 +119,12 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
+
+  val selfBaseUrl: String = getString("self.url")
+
+  def buildCompleteSelfUrl(call: Call): String = buildCompleteSelfUrl(call.url)
+
+  def buildCompleteSelfUrl(path: String): String = s"$selfBaseUrl$path"
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 

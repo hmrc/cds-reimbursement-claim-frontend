@@ -25,9 +25,6 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class FileUploadConfig @Inject() (config: Configuration) {
 
-  def readSelfBaseUrl: String =
-    config.underlying.get[String]("self.url").value
-
   def readUpscanInitServiceProtocol: String =
     getUpscanInitiateConfig[String]("protocol")
 

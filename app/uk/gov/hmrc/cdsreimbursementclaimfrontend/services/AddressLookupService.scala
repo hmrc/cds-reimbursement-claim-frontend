@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.InitiateAddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -39,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait AddressLookupService {
 
   def initiate(
-    request: InitiateAddressLookupRequest
+    request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
 
   def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress]
@@ -50,7 +50,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
 ) extends AddressLookupService {
 
   def initiate(
-    request: InitiateAddressLookupRequest
+    request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL] = {
 
     def resolvingAddressLookupRedirectUrl(response: HttpResponse): Either[Error, URL] =

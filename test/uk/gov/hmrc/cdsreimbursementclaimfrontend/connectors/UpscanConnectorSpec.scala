@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
-import com.typesafe.config.ConfigFactory
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
@@ -34,56 +33,33 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class UpscanConnectorSpec extends AnyWordSpec with Matchers with MockFactory with HttpSupport with ConnectorSpec {
 
-  val configuration: Configuration = Configuration(
-    ConfigFactory.parseString(
-      """
-        | self {
-        |   url = host1.com
-        |  },
-        |  microservice {
-        |    services {
-        |      upscan-initiate {
-        |        protocol = http
-        |        host     = host2
-        |        port     = 123
-        |        supporting-evidence {
-        |         max-file-size = 1234
-        |        }
-        |      },
-        |      cds-reimbursement-claim {
-        |        protocol = http
-        |        host     = host3
-        |        port     = 123
-        |      }
-        |   }
-        |}
-        |""".stripMargin
-    )
-  )
+  private val env           = Environment.simple()
+  private val configuration = Configuration.load(env)
 
   val fileUploadConfig = new FileUploadConfig(configuration)
   val servicesConfig   = new ServicesConfig(configuration)
+  val viewConfig       = new ViewConfig(configuration, servicesConfig)
 
-  val connector = new DefaultUpscanConnector(mockHttp, fileUploadConfig, servicesConfig)
+  val connector = new DefaultUpscanConnector(mockHttp, fileUploadConfig, servicesConfig, viewConfig)
 
   "Upscan Connector" when {
 
     val reference = sample[UploadReference]
     val upload    = sample[UpscanUpload]
-    val baseUrl   = "http://host3:123/cds-reimbursement-claim"
+    val baseUrl   = "http://localhost:7501/cds-reimbursement-claim"
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     "initiating an upscan transaction" must {
-      val expectedUrl               = "http://host2:123/upscan/v2/initiate"
+      val expectedUrl               = "http://localhost:9570/upscan/v2/initiate"
       val mockUpscanInitiateSuccess = Call("GET", "/mock-success")
       val mockUpscanInitiateFailure = Call("GET", "/mock-fail")
       val maxFileSize               = sample[Long]
 
       val payload = UpscanInitiateRequest(
         s"$baseUrl/upscan-call-back/upload-reference/${reference.value}",
-        s"host1.com${mockUpscanInitiateSuccess.url}",
-        s"host1.com${mockUpscanInitiateFailure.url}",
+        s"http://localhost:7500${mockUpscanInitiateSuccess.url}",
+        s"http://localhost:7500${mockUpscanInitiateFailure.url}",
         0,
         maxFileSize
       )

@@ -46,12 +46,12 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
 
   def renderContactDetails(
     contactDetails: NamePhoneEmail,
-    contactAddress: Option[NonUkAddress],
+    maybeContactAddress: Option[NonUkAddress],
     router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
       if (contactDetails.nonEmpty()) Some(renderContactDetails(contactDetails, router)) else None,
-      contactAddress.map(renderContactAddress(_))
+      maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
     ).flattenOption
 
   def renderContactRegisteredWithCDS(namePhoneEmail: NamePhoneEmail): SummaryListRow = {
@@ -107,7 +107,7 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
     )
   }
 
-  def renderContactAddress(contactAddress: NonUkAddress): SummaryListRow = {
+  def renderContactAddress(contactAddress: NonUkAddress, router: ReimbursementRoutes): SummaryListRow = {
     val data = List(
       getParagraph(contactAddress.line1).some,
       contactAddress.line2.map(getParagraph),
@@ -121,7 +121,17 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
       Key(Text(messages(s"$key.contact.address")(lang))),
       Value(new HtmlContent(HtmlFormat.fill(data))),
       "",
-      Some(Actions("govuk-link", List(ActionItem("", Text(messages("claimant-details.change")(lang))))))
+      Some(
+        Actions(
+          "govuk-link",
+          List(
+            ActionItem(
+              href = s"${routes.CheckClaimantDetailsController.changeAddress(router.journeyBindable).url}",
+              Text(messages("claimant-details.change")(lang))
+            )
+          )
+        )
+      )
     )
 
   }
