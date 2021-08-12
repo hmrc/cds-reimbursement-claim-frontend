@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, OFormat}
 final case class MrnContactDetails(
   fullName: String,
   emailAddress: Email,
-  phoneNumber: PhoneNumber
+  phoneNumber: Option[PhoneNumber]
 )
 
 object MrnContactDetails {
