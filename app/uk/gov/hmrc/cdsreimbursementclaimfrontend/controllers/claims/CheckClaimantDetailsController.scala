@@ -42,7 +42,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, NamePhoneEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -53,10 +52,9 @@ class CheckClaimantDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   claimantDetails: pages.check_claimant_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionUpdates
@@ -69,7 +67,7 @@ class CheckClaimantDetailsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[CheckClaimantDetailsAnswer] { (fillingOutClaim, answers, router) =>
         val emptyForm  = checkClaimantDetailsAnswerForm
-        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+        val filledForm = answers.fold(emptyForm)(emptyForm.fill)
         Ok(renderTemplate(filledForm, fillingOutClaim, router))
       }
     }
@@ -88,16 +86,12 @@ class CheckClaimantDetailsController @Inject() (
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(err => Error(s"Could not save Declarant Type: ${err.message}"))
                 .fold(
-                  e => {
-                    logger.warn("Submit Declarant Type error: ", e)
-                    errorHandler.errorResult()
-                  },
+                  logAndDisplayError("Submit Declarant Type error: "),
                   _ => Redirect(router.nextPageForClaimantDetails())
                 )
             }
           )
       }
-
     }
 
   def renderTemplate(
@@ -179,7 +173,7 @@ object CheckClaimantDetailsController {
             Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
         }
       }
-      .getOrElse(None)
+      .flatten
   }
 
   def extractContactDetails(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {

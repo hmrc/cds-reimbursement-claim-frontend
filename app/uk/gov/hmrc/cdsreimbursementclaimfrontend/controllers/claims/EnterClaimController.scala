@@ -187,10 +187,7 @@ class EnterClaimController @Inject() (
                 .leftMap(_ => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not get radio button details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not get radio button details"),
                 _ =>
                   claims match {
                     case ClaimAnswersAreCorrect =>
@@ -222,13 +219,7 @@ class EnterClaimController @Inject() (
     EitherT
       .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap((_: Unit) => Error("could not update session"))
-      .fold(
-        e => {
-          logger.warn("could not save claims", e)
-          errorHandler.errorResult()
-        },
-        _ => nextPage
-      )
+      .fold(logAndDisplayError("could not save claims"), _ => nextPage)
   }
 
   protected def replaceUpdateRedirect(claimAnswer: ClaimsAnswer, newClaim: Claim, fillingOutClaim: FillingOutClaim)(
