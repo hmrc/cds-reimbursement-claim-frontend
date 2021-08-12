@@ -269,12 +269,12 @@ object CheckClaimantDetailsController {
 
   def removeContactDetails(fillingOutClaim: FillingOutClaim): FillingOutClaim = {
     val draftC285Claim     = fillingOutClaim.draftClaim.fold(identity)
-    val displayDeclaration = draftC285Claim.displayDeclaration.map(dd =>
-      dd.copy(displayResponseDetail =
-        dd.displayResponseDetail.copy(
+    val displayDeclaration = draftC285Claim.displayDeclaration.map(declaration =>
+      declaration.copy(displayResponseDetail =
+        declaration.displayResponseDetail.copy(
           consigneeDetails =
-            dd.displayResponseDetail.consigneeDetails.map(consignee => consignee.copy(contactDetails = None)),
-          declarantDetails = dd.displayResponseDetail.declarantDetails.copy(contactDetails = None)
+            declaration.displayResponseDetail.consigneeDetails.map(consignee => consignee.copy(contactDetails = None)),
+          declarantDetails = declaration.displayResponseDetail.declarantDetails.copy(contactDetails = None)
         )
       )
     )

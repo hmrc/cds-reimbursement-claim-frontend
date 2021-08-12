@@ -57,11 +57,10 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
-  def submitPageForClaimantDetails(isChange: Boolean): Call =
-    isChange match {
-      case true  => claimRoutes.CheckClaimantDetailsController.change(journeyBindable)
-      case false => claimRoutes.CheckClaimantDetailsController.add(journeyBindable)
-    }
+  def submitPageForClaimantDetails(isChange: Boolean): Call = {
+    val controller = claimRoutes.CheckClaimantDetailsController
+    if (isChange) controller.change(journeyBindable) else controller.add(journeyBindable)
+  }
 
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterOrChangeContactDetailsController.changeMrnContactDetailsSubmit(journeyBindable)
