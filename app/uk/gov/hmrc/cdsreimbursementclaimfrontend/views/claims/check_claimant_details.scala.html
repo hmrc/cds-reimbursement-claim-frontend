@@ -40,7 +40,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(form: Form[CheckClaimantDetailsAnswer], registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckClaimantDetailsController.languageKey}
 @title = @{messages(s"$key.title")}
@@ -54,33 +54,33 @@
     @pageHeading(messages(s"$key.registered.title"), "govuk-heading-m govuk-!-margin-bottom-6", "h2")
     @summary(SummaryList(claimantDetailsHelper.renderDetailsRegisteredWithCDS(registeredContactDetails, establishmentAddress)))
 
-    @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
-    @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
-    @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
+    @if(mandatoryDataAvailable) {
+        @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
+        @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
+        @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
+    }
 
-    @formWithCSRF(router.submitPageForClaimantDetails(), 'novalidate -> "novalidate") {
+    @formWithCSRF(router.submitPageForClaimantDetails(mandatoryDataAvailable), 'novalidate -> "novalidate") {
 
         @errorSummary(form.errors)
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.want-to-continue.title"),
+            legend = if(mandatoryDataAvailable) messages(s"$key.want-to-continue.title") else messages(s"$key.add-different.title"),
             legendAsHeading = true,
-            hintKey = Some(s"$key.want-to-continue.hint"),
+            hintKey = if(mandatoryDataAvailable) Some(s"$key.want-to-continue.hint") else None,
             inline = true,
             items = Seq(
                 RadioItem(
                     id = Some(s"$key-yes"),
                     value = Some("0"),
-                    content = Text(messages(s"$key.yes")),
-                    checked = form.value.contains(UseContactDetails)
+                    content = Text(messages(s"$key.yes"))
                 ),
                 RadioItem(
                     id = Some(s"$key-no"),
                     value = Some("1"),
-                    content = Text(messages(s"$key.no")),
-                    checked = form.value.contains(UseDetailsRegisteredWithCDS)
+                    content = Text(messages(s"$key.no"))
                 )
             )
         )

@@ -52,7 +52,8 @@ object JourneyStatus {
       source.copy(draftClaim = source.draftClaim.fold(f))
   }
 
-  implicit val format: OFormat[JourneyStatus] = derived.oformat()
+  implicit val format: OFormat[JourneyStatus]                  = derived.oformat()
+  implicit val fillingOutClaimFormat: OFormat[FillingOutClaim] = derived.oformat()
 
   implicit val eq: Eq[JourneyStatus] = Eq.fromUniversalEquals
 

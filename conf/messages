@@ -310,8 +310,10 @@ claimant-details.want-to-continue.title=Do you want to continue using these cont
 claimant-details.want-to-continue.hint=If you select No we will contact you using your CDS registered details.
 claimant-details.yes=Yes
 claimant-details.no=No
-claimant-details.error.required=Select whether you wish to remove contact details.
+claimant-details.error.required.change=Select whether you wish to remove contact details.
+claimant-details.error.required.add=Select whether you wish to add different contact details
 claimant-details.invalid=Select whether you wish to remove contact details.
+claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 
 #===================================================
 #  ENTER OR CHANGE CONTACT DETAILS PAGE
