@@ -25,9 +25,16 @@ import play.api.i18n.Messages
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BooleanFormatter
 
-sealed trait Address extends Product with Serializable
+final case class ContactAddress(
+  line1: String,
+  line2: Option[String],
+  line3: Option[String],
+  line4: String,
+  postcode: String,
+  country: Country
+)
 
-object Address {
+object ContactAddress {
 
   val addressLineAllowedCharacters: List[Char] =
     ('A' to 'Z').toList ::: ('a' to 'z').toList ::: ('0' to '9').toList :::
@@ -35,38 +42,17 @@ object Address {
 
   val addressLineMaxLength: Int = 35
 
-  final case class UkAddress( //TODO Remove after removing EnterDetailsRegisteredWithCdsController and EnterYourContactDetailsController
-    line1: String,
-    line2: Option[String],
-    town: Option[String],
-    county: Option[String],
-    postcode: Postcode
-  ) extends Address {
-    val countryCode: String = Country.uk.code
-  }
+  implicit val addressFormat: OFormat[ContactAddress] = derived.oformat[ContactAddress]()
 
-  final case class NonUkAddress( //TODO Rename after removing EnterDetailsRegisteredWithCdsController and EnterYourContactDetailsController
-    line1: String,
-    line2: Option[String],
-    line3: Option[String],
-    line4: String,
-    postcode: String,
-    country: Country
-  ) extends Address
-
-  implicit val nonUkAddressFormat: OFormat[NonUkAddress] = derived.oformat[NonUkAddress]()
-
-  implicit val format: OFormat[Address] = derived.oformat()
-
-  implicit val eq: Eq[Address] = Eq.fromUniversalEquals
+  implicit val eq: Eq[ContactAddress] = Eq.fromUniversalEquals
 
   // address is selected by the index of the address in the given list
-  def addressSelectForm(addresses: List[Address]): Form[Address] =
+  def addressSelectForm(addresses: List[ContactAddress]): Form[ContactAddress] =
     Form(
       formMapping(
         "address-select" -> number
           .verifying("invalid", i => i >= 0 && i < addresses.size)
-          .transform[Address](addresses.apply, addresses.indexOf(_))
+          .transform[ContactAddress](addresses.apply, addresses.indexOf(_))
       )(identity)(Some(_))
     )
 
@@ -82,7 +68,7 @@ object Address {
       .verifying(Constraint[String](validateAddressLine(_)))
   }
 
-  val nonUkAddressFormMapping: Mapping[NonUkAddress] =
+  val addressFormMapping: Mapping[ContactAddress] =
     formMapping(
       "nonUkAddress-line1" -> addressLineMapping,
       "nonUkAddress-line2" -> optional(addressLineMapping),
@@ -90,7 +76,7 @@ object Address {
       "nonUkAddress-line4" -> addressLineMapping,
       "postcode"           -> Postcode.mapping,
       "countryCode"        -> of(Country.formatter)
-    )(NonUkAddress.apply)(NonUkAddress.unapply)
+    )(ContactAddress.apply)(ContactAddress.unapply)
 
   val isUkForm: Form[Boolean] =
     Form(
@@ -99,20 +85,18 @@ object Address {
       )(identity)(Some(_))
     )
 
-  implicit class AddressOps(private val a: Address) extends AnyVal {
+  implicit class AddressOps(private val a: ContactAddress) extends AnyVal {
     def getAddressLines(implicit messages: Messages): List[String] = {
-      val lines = a match {
-        case u: UkAddress    => List(Some(u.line1), u.line2, u.town, u.county, Some(u.postcode.value))
-        case n: NonUkAddress =>
-          List(
-            Some(n.line1),
-            n.line2,
-            n.line3,
-            Some(n.line4),
-            Some(n.postcode),
-            messages.translate(s"country.${n.country.code}", Seq.empty)
-          )
-      }
+      val lines =
+        List(
+          Some(a.line1),
+          a.line2,
+          a.line3,
+          Some(a.line4),
+          Some(a.postcode),
+          messages.translate(s"country.${a.country.code}", Seq.empty)
+        )
+
       lines.collect { case Some(s) => s }
     }
   }

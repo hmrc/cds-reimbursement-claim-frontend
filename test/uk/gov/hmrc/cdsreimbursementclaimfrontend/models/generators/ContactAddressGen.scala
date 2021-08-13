@@ -18,11 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia.{Typeclass, gen}
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 
-object AddressLookupGen {
+object ContactAddressGen {
 
   implicit val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
     gen[AddressLookupRequest]
@@ -35,7 +34,7 @@ object AddressLookupGen {
     last  <- Gen.listOfN(3, Gen.alphaNumChar)
   } yield s"${first.mkString("")} ${last.mkString("")}"
 
-  implicit val arbitraryNonUkAddress: Typeclass[NonUkAddress] =
+  implicit val arbitraryContactAddress: Typeclass[ContactAddress] =
     Arbitrary(
       for {
         num      <- Gen.choose(1, 100)
@@ -45,7 +44,7 @@ object AddressLookupGen {
         town     <- genStringWithMaxSizeOfN(10)
         postcode <- genPostcode
         country  <- genCountry
-      } yield NonUkAddress(
+      } yield ContactAddress(
         line1 = s"$num $street",
         line2 = district,
         line3 = road,

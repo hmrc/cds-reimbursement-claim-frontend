@@ -35,8 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, Te
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -319,21 +318,20 @@ object EnterDetailsRegisteredWithCdsController {
   final case class DetailsRegisteredWithCdsFormData(
     fullName: String,
     emailAddress: Email,
-    contactAddress: NonUkAddress,
+    contactAddress: ContactAddress,
     addCompanyDetails: Boolean
   )
 
   object DetailsRegisteredWithCdsFormData {
     implicit val format: OFormat[DetailsRegisteredWithCdsFormData] =
       derived.oformat[DetailsRegisteredWithCdsFormData]()
-
   }
 
   val detailsRegisteredWithCdsForm: Form[DetailsRegisteredWithCdsFormData] = Form(
     mapping(
       "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
       "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
-      ""                                                                   -> Address.nonUkAddressFormMapping,
+      ""                                                                   -> ContactAddress.addressFormMapping,
       "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
     )(DetailsRegisteredWithCdsFormData.apply)(DetailsRegisteredWithCdsFormData.unapply)
   )
@@ -347,7 +345,7 @@ object EnterDetailsRegisteredWithCdsController {
     DetailsRegisteredWithCdsFormData(
       declaration.consigneeDetails.map(_.legalName).getOrElse(""),
       verifiedEmail,
-      NonUkAddress(
+      ContactAddress(
         establishmentAddress.map(_.addressLine1).getOrElse(""),
         establishmentAddress.flatMap(_.addressLine2),
         None,
@@ -368,7 +366,7 @@ object EnterDetailsRegisteredWithCdsController {
     DetailsRegisteredWithCdsFormData(
       declaration.declarantDetails.legalName,
       verifiedEmail,
-      NonUkAddress(
+      ContactAddress(
         establishmentAddress.addressLine1,
         establishmentAddress.addressLine2,
         None,

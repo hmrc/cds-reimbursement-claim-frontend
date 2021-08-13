@@ -21,7 +21,7 @@ import play.api.i18n.{Lang, Langs, MessagesApi}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckClaimantDetailsController, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
@@ -46,7 +46,7 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
 
   def renderContactDetails(
     contactDetails: NamePhoneEmail,
-    maybeContactAddress: Option[NonUkAddress],
+    maybeContactAddress: Option[ContactAddress],
     router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
@@ -107,7 +107,7 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
     )
   }
 
-  def renderContactAddress(contactAddress: NonUkAddress, router: ReimbursementRoutes): SummaryListRow = {
+  def renderContactAddress(contactAddress: ContactAddress, router: ReimbursementRoutes): SummaryListRow = {
     val data = List(
       getParagraph(contactAddress.line1).some,
       contactAddress.line2.map(getParagraph),

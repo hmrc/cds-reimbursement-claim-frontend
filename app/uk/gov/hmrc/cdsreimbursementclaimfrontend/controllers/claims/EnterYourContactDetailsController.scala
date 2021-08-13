@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, Te
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.{CompleteContactDetailsAnswer, IncompleteContactDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{Address, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
@@ -208,12 +208,9 @@ class EnterYourContactDetailsController @Inject() (
                               )
                           }
                         case MovementReferenceNumber(Right(_)) =>
-                          featureSwitch.NorthernIreland.isEnabled() match {
-                            case true  =>
-                              Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney))
-                            case false =>
-                              Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-                          }
+                          if (featureSwitch.NorthernIreland.isEnabled())
+                            Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney))
+                          else Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
 
                       }
                     case None                  =>
@@ -306,7 +303,7 @@ object EnterYourContactDetailsController {
     companyName: String,
     emailAddress: Email,
     phoneNumber: PhoneNumber,
-    contactAddress: NonUkAddress
+    contactAddress: ContactAddress
   )
 
   object ContactDetailsFormData {
@@ -318,7 +315,7 @@ object EnterYourContactDetailsController {
       "enter-your-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
       "enter-your-contact-details.contact-email"        -> Email.mappingMaxLength,
       "enter-your-contact-details.contact-phone-number" -> PhoneNumber.mapping,
-      ""                                                -> Address.nonUkAddressFormMapping
+      ""                                                -> ContactAddress.addressFormMapping
     )(ContactDetailsFormData.apply)(ContactDetailsFormData.unapply)
   )
 
@@ -330,7 +327,7 @@ object EnterYourContactDetailsController {
       contactDetails.flatMap(_.contactName).getOrElse(""),
       verifiedEmail,
       PhoneNumber(contactDetails.flatMap(_.telephone).getOrElse("")),
-      NonUkAddress(
+      ContactAddress(
         contactDetails.flatMap(_.addressLine1).getOrElse(""),
         contactDetails.flatMap(_.addressLine2),
         None,
