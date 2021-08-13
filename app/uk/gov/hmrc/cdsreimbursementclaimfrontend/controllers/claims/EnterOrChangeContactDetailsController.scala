@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Applicative
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.{mapping, nonEmptyText, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -29,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 
 import scala.concurrent.ExecutionContext
 
@@ -56,17 +57,26 @@ class EnterOrChangeContactDetailsController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
-  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
+  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show()
+  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show()
 
-  def show(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[MrnContactDetails] { (_, answers, router) =>
+      withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        val answers               = isMandatoryDataAvailable(fillingOutClaim) match {
+          case true  =>
+            val details = extractContactDetails(fillingOutClaim)
+            Applicative[Option].map2(details.name, details.email)((name, email) =>
+              MrnContactDetails(name, email, details.phoneNumber)
+            )
+          case false =>
+            None
+        }
         val mrnContactDetailsForm =
           answers.toList.foldLeft(EnterOrChangeContactDetailsController.mrnContactDetailsForm)((form, answer) =>
             form.fill(answer)
           )
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, isChange))
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined))
       }
     }
 
@@ -79,22 +89,19 @@ class EnterOrChangeContactDetailsController @Inject() (
         EnterOrChangeContactDetailsController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterOrChangeContactDetailsPage(requestFormWithErrors, router, isChange)
-              ),
-            contactDetailsFormData => {
+            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
+            formOk => {
 
-              val updatedJourney =
-                FillingOutClaim.of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = Some(contactDetailsFormData)))
+              val updatedClaim =
+                FillingOutClaim.of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = Some(formOk)))
 
               val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
                 logAndDisplayError("could not capture contact details"),
-                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails(isChange))
+                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails(!isMandatoryDataAvailable(updatedClaim)))
               )
             }
           )
@@ -108,18 +115,8 @@ object EnterOrChangeContactDetailsController {
     mapping(
       "enter-or-change-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
       "enter-or-change-contact-details.contact-email"        -> Email.mappingMaxLength,
-      "enter-or-change-contact-details.contact-phone-number" -> PhoneNumber.mapping
+      "enter-or-change-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
-
-  def toContactFormData(
-    mrnContactDetails: Option[ContactDetails],
-    verifiedEmail: Email
-  ): MrnContactDetails =
-    MrnContactDetails(
-      mrnContactDetails.flatMap(_.contactName).getOrElse(""),
-      verifiedEmail,
-      PhoneNumber(mrnContactDetails.flatMap(_.telephone).getOrElse(""))
-    )
 
 }

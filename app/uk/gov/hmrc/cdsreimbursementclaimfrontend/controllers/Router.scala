@@ -160,11 +160,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case NoClaimantDetailsAnswer  => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
     }
 
-  //TODO: fix routing to go to ALF address lookup page for enter contact details
-  // if coming from CheckClaimantDetails from the change link => next page is claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
-  // if coming from CheckClaimantDetails from selecting 'yes' in radio buttons (i.e no data from Acc14) => next page is ALF address page
-  def nextPageForEnterOrChangeMrnContactDetails(isChange: Boolean): Call =
-    if (isChange) claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+  def nextPageForEnterOrChangeMrnContactDetails(isAdressLookupNecessary: Boolean): Call =
+    if (isAdressLookupNecessary) claimRoutes.CheckClaimantDetailsController.changeAddress(journeyBindable)
     else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =

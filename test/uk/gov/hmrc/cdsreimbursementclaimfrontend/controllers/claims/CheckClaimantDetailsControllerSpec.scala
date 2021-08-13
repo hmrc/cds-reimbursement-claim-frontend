@@ -35,14 +35,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAdd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
@@ -94,43 +90,6 @@ class CheckClaimantDetailsControllerSpec
       SessionData.empty.copy(journeyStatus = Some(journey)),
       journey
     )
-  }
-
-  def generateAcc14WithAddresses(): DisplayDeclaration = {
-    val contactDetails       =
-      sample[ContactDetails].copy(
-        contactName = Some(sample[String]),
-        addressLine1 = Some(sample[String]),
-        addressLine2 = Some(sample[String]),
-        addressLine3 = Some(sample[String]),
-        addressLine4 = Some(sample[String]),
-        postalCode = Some(alphaCharGen(7)),
-        countryCode = Some("GB"),
-        telephone = Some(sample[PhoneNumber].value)
-      )
-    val establishmentAddress = sample[EstablishmentAddress]
-      .copy(
-        addressLine2 = Some(sample[String]),
-        addressLine3 = Some(sample[String]),
-        postalCode = Some(alphaCharGen(6)),
-        countryCode = "GB"
-      )
-    val consignee            = sample[ConsigneeDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
-
-    val declarant = sample[DeclarantDetails]
-      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
-
-    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-      dd.copy(displayResponseDetail =
-        dd.displayResponseDetail.copy(
-          consigneeDetails = Some(consignee),
-          declarantDetails = declarant
-        )
-      )
-    )
-
-    displayDeclaration
   }
 
   "CheckClaimantDetailsController" must {
@@ -544,9 +503,9 @@ class CheckClaimantDetailsControllerSpec
         )._2
 
       val extractedContactDetails = extractContactDetails(fillingOutClaim)
-      extractedContactDetails.name.getOrElse(fail)        shouldBe contactDetails.fullName
-      extractedContactDetails.phoneNumber.getOrElse(fail) shouldBe contactDetails.phoneNumber
-      extractedContactDetails.email.getOrElse(fail())     shouldBe contactDetails.emailAddress
+      extractedContactDetails.name.getOrElse(fail)    shouldBe contactDetails.fullName
+      extractedContactDetails.phoneNumber             shouldBe contactDetails.phoneNumber
+      extractedContactDetails.email.getOrElse(fail()) shouldBe contactDetails.emailAddress
 
       val extractedContactAddress = extractContactAddress(fillingOutClaim)
       extractedContactAddress.map(_.line1).getOrElse(fail)    shouldBe contactAddress.line1
@@ -569,7 +528,7 @@ class CheckClaimantDetailsControllerSpec
         Some(sample[NonUkAddress])
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe true
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe true
     }
 
     "return false if we have valid contact details but missing contact address" in {
@@ -581,7 +540,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
 
     }
     "return false if we have valid contact address but missing contact details" in {
@@ -593,7 +552,7 @@ class CheckClaimantDetailsControllerSpec
         Some(sample[NonUkAddress])
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
 
     }
 
@@ -607,7 +566,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe true
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe true
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
@@ -626,7 +585,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
     }
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
@@ -645,7 +604,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
 
     }
 
@@ -665,7 +624,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      validateSessionOrAcc14(fillingOutClaim) shouldBe false
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
 
     }
 

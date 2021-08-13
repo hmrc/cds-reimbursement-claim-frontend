@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import cats.{Functor, Id}
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ContactDetails, EstablishmentAddress, NdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DeclarantDetails, DisplayDeclaration, EstablishmentAddress, NdrcDetails}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 object Acc14Gen {
 
@@ -36,4 +39,42 @@ object Acc14Gen {
   implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
 
   implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
+
+  def generateAcc14WithAddresses(): DisplayDeclaration = {
+    val contactDetails       =
+      sample[ContactDetails].copy(
+        contactName = Some(alphaCharGen(20)),
+        addressLine1 = Some(alphaCharGen(20)),
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        addressLine4 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(7)),
+        countryCode = Some("GB"),
+        telephone = Some(sample[PhoneNumber].value)
+      )
+    val establishmentAddress = sample[EstablishmentAddress]
+      .copy(
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(6)),
+        countryCode = "GB"
+      )
+    val consignee            = sample[ConsigneeDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+
+    val declarant = sample[DeclarantDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+
+    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+      dd.copy(displayResponseDetail =
+        dd.displayResponseDetail.copy(
+          consigneeDetails = Some(consignee),
+          declarantDetails = declarant
+        )
+      )
+    )
+
+    displayDeclaration
+  }
+
 }

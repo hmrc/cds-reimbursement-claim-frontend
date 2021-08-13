@@ -80,7 +80,7 @@ class CheckClaimantDetailsController @Inject() (
   def add(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
+        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -96,7 +96,7 @@ class CheckClaimantDetailsController @Inject() (
   def change(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
+        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -177,7 +177,7 @@ class CheckClaimantDetailsController @Inject() (
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable = {
-    val mandatoryDataAvailable = validateSessionOrAcc14(fillingOutClaim)
+    val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
     claimantDetails(
       form,
       mandatoryDataAvailable,
@@ -269,7 +269,7 @@ object CheckClaimantDetailsController {
     val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
     draftC285Claim.mrnContactDetailsAnswer
       .map { contact =>
-        NamePhoneEmail(Option(contact.fullName), Option(contact.phoneNumber), Option(contact.emailAddress))
+        NamePhoneEmail(Option(contact.fullName), contact.phoneNumber, Option(contact.emailAddress))
       }
       .orElse(
         Applicative[Option]
@@ -331,10 +331,13 @@ object CheckClaimantDetailsController {
         )
       )
     )
-    fillingOutClaim.copy(draftClaim = draftC285Claim.copy(displayDeclaration = displayDeclaration))
+    fillingOutClaim.copy(draftClaim =
+      draftC285Claim
+        .copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None, displayDeclaration = displayDeclaration)
+    )
   }
 
-  def validateSessionOrAcc14(fillingOutClaim: FillingOutClaim): Boolean = {
+  def isMandatoryDataAvailable(fillingOutClaim: FillingOutClaim): Boolean = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     val contactDetails = extractContactDetails(fillingOutClaim)
     val contactAddress = extractContactAddress(fillingOutClaim)
