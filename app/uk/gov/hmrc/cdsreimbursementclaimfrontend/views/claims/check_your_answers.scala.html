@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -35,7 +36,7 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable, completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
@@ -74,7 +75,7 @@
         @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(completeClaim.supportingEvidences)))
+        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(journey, completeClaim.supportingEvidences)))
 
         @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))

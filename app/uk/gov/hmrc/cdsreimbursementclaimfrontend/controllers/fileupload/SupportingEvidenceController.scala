@@ -25,7 +25,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.configKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -68,35 +68,35 @@ class SupportingEvidenceController @Inject() (
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
-  def uploadSupportingEvidence(): Action[AnyContent] =
+  def uploadSupportingEvidence(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SupportingEvidencesAnswer] { (_, answer) =>
         if (answer.exists(_.length >= maxUploads))
-          Future.successful(Redirect(routes.SupportingEvidenceController.checkYourAnswers()))
+          Future.successful(Redirect(routes.SupportingEvidenceController.checkYourAnswers(journey)))
         else
           upscanService
             .initiate(
-              routes.SupportingEvidenceController.handleUpscanErrorRedirect(),
-              routes.SupportingEvidenceController.scanProgress,
+              routes.SupportingEvidenceController.handleUpscanErrorRedirect(journey),
+              reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
               config.readMaxFileSize(configKey)
             )
             .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
       }
     }
 
-  def uploadSupportingEvidenceSubmit(): Action[AnyContent] =
+  def uploadSupportingEvidenceSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async {
-      Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
+      Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
     }
 
-  def handleUpscanErrorRedirect(): Action[AnyContent] =
+  def handleUpscanErrorRedirect(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData {
-      Redirect(routes.SupportingEvidenceController.documentDidNotUpload())
+      Redirect(routes.SupportingEvidenceController.documentDidNotUpload(journey))
     }
 
-  def documentDidNotUpload(): Action[AnyContent] =
+  def documentDidNotUpload(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(uploadFailedPage())
+      Ok(uploadFailedPage(journey))
     }
 
   def attachDocument(
@@ -119,7 +119,7 @@ class SupportingEvidenceController @Inject() (
     FillingOutClaim.of(claim)(_.copy(supportingEvidencesAnswer = evidences))
   }
 
-  def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
+  def scanProgress(journey: JourneyBindable, uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SupportingEvidencesAnswer] { (fillingOutReturn, maybeAnswers) =>
         val result = for {
@@ -145,37 +145,37 @@ class SupportingEvidenceController @Inject() (
             upscanUpload.upscanCallBack match {
               case Some(_: UpscanSuccess) =>
                 Redirect(
-                  routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(uploadReference)
+                  routes.SupportingEvidenceController.chooseSupportingEvidenceDocumentType(journey, uploadReference)
                 )
               case Some(_: UpscanFailure) =>
-                Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures())
+                Redirect(routes.SupportingEvidenceController.handleUpscanCallBackFailures(journey))
               case None                   =>
-                Ok(scanProgressPage(upscanUpload))
+                Ok(scanProgressPage(journey, upscanUpload))
             }
         )
       }
     }
 
-  def scanProgressSubmit(
-    uploadReference: String
-  ): Action[AnyContent] =
+  def scanProgressSubmit(journey: JourneyBindable, uploadReference: String): Action[AnyContent] =
     authenticatedActionWithSessionData.async { _ =>
       Redirect(
-        routes.SupportingEvidenceController.scanProgress(UploadReference(uploadReference))
+        routes.SupportingEvidenceController.scanProgress(journey, UploadReference(uploadReference))
       )
     }
 
-  def handleUpscanCallBackFailures(): Action[AnyContent] =
+  def handleUpscanCallBackFailures(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(scanFailedPage())
+      Ok(scanFailedPage(journey))
     }
 
   def chooseSupportingEvidenceDocumentType(
+    journey: JourneyBindable,
     uploadReference: UploadReference
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       Ok(
         chooseDocumentTypePage(
+          journey,
           SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
           uploadReference
         )
@@ -183,6 +183,7 @@ class SupportingEvidenceController @Inject() (
     }
 
   def chooseSupportingEvidenceDocumentTypeSubmit(
+    journey: JourneyBindable,
     uploadReference: UploadReference
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -190,7 +191,8 @@ class SupportingEvidenceController @Inject() (
         SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors => BadRequest(chooseDocumentTypePage(requestFormWithErrors, uploadReference)),
+            requestFormWithErrors =>
+              BadRequest(chooseDocumentTypePage(journey, requestFormWithErrors, uploadReference)),
             documentType => {
               val answers = for {
                 documents <- maybeEvidences.map(_.toList)
@@ -217,7 +219,7 @@ class SupportingEvidenceController @Inject() (
 
               result.fold(
                 logAndDisplayError("Error assigning evidence document type"),
-                _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers())
+                _ => Redirect(routes.SupportingEvidenceController.checkYourAnswers(journey))
               )
             }
           )
@@ -225,6 +227,7 @@ class SupportingEvidenceController @Inject() (
     }
 
   def deleteSupportingEvidence(
+    journey: JourneyBindable,
     uploadReference: UploadReference,
     addNew: Boolean
   ): Action[AnyContent] =
@@ -244,29 +247,29 @@ class SupportingEvidenceController @Inject() (
           logAndDisplayError("Could not update session"),
           _ =>
             Redirect(
-              if (addNew) routes.SupportingEvidenceController.uploadSupportingEvidence()
-              else routes.SupportingEvidenceController.checkYourAnswers()
+              if (addNew) routes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+              else routes.SupportingEvidenceController.checkYourAnswers(journey)
             )
         )
       }
     }
 
-  def checkYourAnswers(): Action[AnyContent] =
+  def checkYourAnswers(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SupportingEvidencesAnswer] { (_, maybeSupportingEvidences) =>
         def redirectToUploadEvidence =
-          Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence())
+          Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(evidences, maxUploads))
+          Ok(checkYourAnswersPage(journey, evidences, maxUploads))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
     }
 
-  def checkYourAnswersSubmit(): Action[AnyContent] =
+  def checkYourAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async {
-      Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+      Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
     }
 }
 

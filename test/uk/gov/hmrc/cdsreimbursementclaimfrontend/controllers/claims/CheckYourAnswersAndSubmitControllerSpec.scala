@@ -48,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelecte
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -245,12 +246,12 @@ class CheckYourAnswersAndSubmitControllerSpec
 
     "handling requests to check all answers" must {
 
-      def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+      def performAction(journey: JourneyBindable): Future[Result] =
+        controller.checkAllAnswers(journey)(FakeRequest())
 
       "redirect to the start of the journey" when {
 
-        "there is no journey status in the session" in {
-
+        "there is no journey status in the session" in forAll(minSuccessful(1)) { journey: JourneyBindable =>
           val (session, _, _) = sessionWithCompleteClaimState()
 
           inSequence {
@@ -259,7 +260,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            performAction(),
+            performAction(journey),
             baseRoutes.StartController.start()
           )
 
@@ -458,9 +459,9 @@ class CheckYourAnswersAndSubmitControllerSpec
 
     "show a technical error page" when {
 
-      "the user has not completely filled in the claim" in {
-
-        def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+      "the user has not completely filled in the claim" in forAll(minSuccessful(1)) { journey: JourneyBindable =>
+        def performAction(journey: JourneyBindable): Future[Result] =
+          controller.checkAllAnswers(journey)(FakeRequest())
 
         val draftC285Claim = sample[DraftC285Claim].copy(commoditiesDetailsAnswer = None)
 
@@ -473,7 +474,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        checkIsTechnicalErrorPage(performAction())
+        checkIsTechnicalErrorPage(performAction(journey))
 
       }
 

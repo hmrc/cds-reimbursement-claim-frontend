@@ -34,6 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
@@ -307,8 +308,7 @@ class StartControllerSpec
 
       "there is filling out claim journey status" must {
 
-        "redirect the user to the main CYA page" in {
-
+        "redirect the user to the main CYA page" in forAll(minSuccessful(1)) { journey: JourneyBindable =>
           val fillingOutClaim = sample[FillingOutClaim]
           val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
 
@@ -318,7 +318,7 @@ class StartControllerSpec
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
 
         }
 

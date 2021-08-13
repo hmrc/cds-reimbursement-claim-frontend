@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +31,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(upscanUpload : UpscanUpload)(implicit request: RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
+@(journey: JourneyBindable, upscanUpload : UpscanUpload)(implicit request: RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
 
     @key = @{"supporting-evidence.scan-progress"}
     @title = @{messages(s"$key.title")}
@@ -42,7 +43,7 @@
         @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
         @paragraph(Html(messages(s"$key.p2")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @formWithCSRF(routes.SupportingEvidenceController.scanProgressSubmit(upscanUpload.uploadReference.value), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.SupportingEvidenceController.scanProgressSubmit(journey, upscanUpload.uploadReference.value), 'novalidate -> "novalidate") {
             @submitButton("button.continue")
         }
 

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -31,7 +32,10 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
 
   private val key = "supporting-evidence.check-your-answers"
 
-  def makeUploadedFilesRows(uploadedEvidences: SupportingEvidencesAnswer): List[SummaryListRow] =
+  def makeUploadedFilesRows(
+    journey: JourneyBindable,
+    uploadedEvidences: SupportingEvidencesAnswer
+  ): List[SummaryListRow] =
     uploadedEvidences.zipWithIndex.map { case (document, fileIndex) =>
       SummaryListRow(
         key = Key(Text(messages(s"$key.file-label", fileIndex + 1)(lang))),
@@ -41,7 +45,7 @@ class SupportingEvidenceHelper @Inject() (implicit langs: Langs, messages: Messa
             items = Seq(
               ActionItem(
                 href =
-                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(document.uploadReference, addNew = false).url}",
+                  s"${fileUploadRoutes.SupportingEvidenceController.deleteSupportingEvidence(journey, document.uploadReference, addNew = false).url}",
                 content = Text(messages("cya.remove")(lang))
               )
             )

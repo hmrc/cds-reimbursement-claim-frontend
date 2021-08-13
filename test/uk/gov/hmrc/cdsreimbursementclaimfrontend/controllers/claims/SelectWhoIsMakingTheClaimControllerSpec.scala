@@ -262,8 +262,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.CheckYourAnswersAndSubmitController
-            .checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         )
       }
 
