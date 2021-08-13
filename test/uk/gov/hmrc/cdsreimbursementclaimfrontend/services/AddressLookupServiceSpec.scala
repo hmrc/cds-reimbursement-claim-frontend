@@ -29,9 +29,9 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{LOCATION, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AddressLookupGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -113,7 +113,7 @@ class AddressLookupServiceSpec
 
     "retrieving address" should {
 
-      "succeed having valid address ID" in forAll { (id: UUID, address: NonUkAddress) =>
+      "succeed having valid address ID" in forAll { (id: UUID, address: ContactAddress) =>
         val json = Json.obj(
           "id"      -> id,
           "address" -> Json.obj(

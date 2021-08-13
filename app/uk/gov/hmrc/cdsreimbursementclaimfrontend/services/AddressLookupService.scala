@@ -25,7 +25,7 @@ import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.{JsPath, JsonValidationError, Reads}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
@@ -42,7 +42,7 @@ trait AddressLookupService {
     request: AddressLookupRequest
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, URL]
 
-  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress]
+  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress]
 }
 
 class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(implicit
@@ -62,7 +62,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
       .subflatMap(resolvingAddressLookupRedirectUrl)
   }
 
-  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, NonUkAddress] = {
+  def retrieveUserAddress(addressId: UUID)(implicit hc: HeaderCarrier): EitherT[Future, Error, ContactAddress] = {
     def formatErrors(errors: Seq[(JsPath, Seq[JsonValidationError])]): Error =
       Error(
         errors
@@ -76,7 +76,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
       .ensure(Error(s"Cannot retrieve an address by ID $addressId"))(_.status === OK)
       .subflatMap(
         _.json
-          .validate[NonUkAddress](addressLookupResponseReads)
+          .validate[ContactAddress](addressLookupResponseReads)
           .asEither
           .leftMap(formatErrors)
       )
@@ -85,18 +85,18 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
 
 object DefaultAddressLookupService {
 
-  implicit val addressLookupResponseReads: Reads[NonUkAddress] = (
+  implicit val addressLookupResponseReads: Reads[ContactAddress] = (
     (JsPath \ "address" \ "lines").read[Array[String]] and
       (JsPath \ "address" \ "postcode").read[String] and
       (JsPath \ "address" \ "country" \ "code").read[String].map(Country(_))
   ).apply((lines, postcode, country) =>
     lines match {
       case Array(line1, line2, line3, town) =>
-        NonUkAddress(line1, line2.some, line3.some, town, postcode, country)
+        ContactAddress(line1, line2.some, line3.some, town, postcode, country)
       case Array(line1, line2, town)        =>
-        NonUkAddress(line1, line2.some, None, town, postcode, country)
+        ContactAddress(line1, line2.some, None, town, postcode, country)
       case Array(line1, town)               =>
-        NonUkAddress(line1, None, None, town, postcode, country)
+        ContactAddress(line1, None, None, town, postcode, country)
     }
   )
 }

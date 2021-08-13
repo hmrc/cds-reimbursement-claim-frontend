@@ -28,35 +28,43 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
 
+import java.net.URL
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckClaimantDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with AddressLookupSupport
     with BeforeAndAfterEach
     with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
 
-  lazy val controller: CheckClaimantDetailsController = instanceOf[CheckClaimantDetailsController]
+  val controller: CheckClaimantDetailsController = instanceOf[CheckClaimantDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -73,7 +81,7 @@ class CheckClaimantDetailsControllerSpec
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
-    mrnContactAddressAnswer: Option[NonUkAddress] = None
+    mrnContactAddressAnswer: Option[ContactAddress] = None
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       displayDeclaration = displayDeclaration,
@@ -492,7 +500,7 @@ class CheckClaimantDetailsControllerSpec
     "Extract ContactDetails and ContactAddress from session store instead of Acc14" in {
       val acc14           = generateAcc14WithAddresses()
       val contactDetails  = sample[MrnContactDetails]
-      val contactAddress  = sample[NonUkAddress]
+      val contactAddress  = sample[ContactAddress]
       val fillingOutClaim =
         getSessionWithPreviousAnswer(
           Some(acc14),
@@ -525,7 +533,7 @@ class CheckClaimantDetailsControllerSpec
         Some(DeclarantTypeAnswer.Importer),
         Some(toSelectNumberOfClaims(JourneyBindable.Single)),
         Some(sample[MrnContactDetails]),
-        Some(sample[NonUkAddress])
+        Some(sample[ContactAddress])
       )._2
 
       isMandatoryDataAvailable(fillingOutClaim) shouldBe true
@@ -549,7 +557,7 @@ class CheckClaimantDetailsControllerSpec
         Some(DeclarantTypeAnswer.Importer),
         Some(toSelectNumberOfClaims(JourneyBindable.Single)),
         None,
-        Some(sample[NonUkAddress])
+        Some(sample[ContactAddress])
       )._2
 
       isMandatoryDataAvailable(fillingOutClaim) shouldBe false
@@ -627,6 +635,102 @@ class CheckClaimantDetailsControllerSpec
       isMandatoryDataAvailable(fillingOutClaim) shouldBe false
 
     }
+  }
 
+  "The address lookup" should {
+
+    "start successfully" in forAll(journeys) { journey =>
+      val lookupUrl = sample[URL]
+      val session   = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+        mockAddressLookupInitiation(Right(lookupUrl))
+      }
+
+      checkIsRedirect(
+        changeAddress(journey),
+        lookupUrl.toString
+      )
+    }
+
+    "fail to start once error response received downstream ALF service" in forAll(journeys) { journey =>
+      val session = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+        mockAddressLookupInitiation(Left(Error("Request was not accepted")))
+      }
+
+      checkIsTechnicalErrorPage(changeAddress(journey))
+    }
+
+    "update an address once complete" in forAll(journeys) { journey =>
+      val id           = sample[UUID]
+      val address      = sample[ContactAddress]
+      val acc14        = generateAcc14WithAddresses()
+      val (session, _) = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        Some(toSelectNumberOfClaims(journey))
+      )
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockAddressRetrieve(Right(address))
+        mockStoreSession(Right(()))
+      }
+
+      checkIsRedirect(
+        updateAddress(journey, Some(id)),
+        routes.CheckClaimantDetailsController.show(journey)
+      )
+    }
+
+    "fail to update address once bad address lookup ID provided" in forAll(journeys) { journey =>
+      val id           = sample[UUID]
+      val acc14        = generateAcc14WithAddresses()
+      val (session, _) = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        Some(toSelectNumberOfClaims(journey))
+      )
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockAddressRetrieve(Left(Error(s"No address found for $id")))
+      }
+
+      checkIsTechnicalErrorPage(updateAddress(journey, Some(id)))
+    }
+
+    "redirect to show page once address lookup ID is not provided" in forAll(journeys) { journey =>
+      val acc14        = generateAcc14WithAddresses()
+      val (session, _) = getSessionWithPreviousAnswer(
+        Some(acc14),
+        Some(DeclarantTypeAnswer.Importer),
+        Some(toSelectNumberOfClaims(journey))
+      )
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkIsRedirect(
+        updateAddress(journey),
+        routes.CheckClaimantDetailsController.show(journey)
+      )
+    }
+
+    def changeAddress(journey: JourneyBindable): Future[Result] =
+      controller.changeAddress(journey)(FakeRequest())
+
+    def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
+      controller.updateAddress(journey, maybeAddressId)(FakeRequest())
   }
 }
