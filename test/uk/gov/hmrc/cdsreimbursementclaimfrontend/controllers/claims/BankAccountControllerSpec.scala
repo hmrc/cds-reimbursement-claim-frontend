@@ -54,7 +54,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BankAccountControllerSpec
-    extends ControllerSpec
+  extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with TableDrivenPropertyChecks
@@ -93,9 +93,9 @@ class BankAccountControllerSpec
     )
 
   private def sessionWithClaimState(
-    maybeBankAccountDetails: Option[BankAccountDetails],
-    supportingEvidences: Option[SupportingEvidencesAnswer] = None
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+                                     maybeBankAccountDetails: Option[BankAccountDetails],
+                                     supportingEvidences: Option[SupportingEvidencesAnswer] = None
+                                   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
 
     val draftC285Claim =
       DraftC285Claim.newDraftC285Claim.copy(
@@ -117,9 +117,9 @@ class BankAccountControllerSpec
   }
 
   private def sessionWithMaskedBankDetails(
-    maybeMaskedBankDetails: Option[MaskedBankDetails],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+                                            maybeMaskedBankDetails: Option[MaskedBankDetails],
+                                            selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
+                                          ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
     val draftC285Claim        =
       DraftC285Claim.newDraftC285Claim.copy(

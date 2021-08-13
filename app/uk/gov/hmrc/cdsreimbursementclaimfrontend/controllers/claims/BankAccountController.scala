@@ -23,7 +23,6 @@ import play.api.Configuration
 import play.api.data.Forms._
 import play.api.data.{Form, Mapping}
 import play.api.i18n.Messages
-import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -36,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountAcc14, BankAccountDetails, DraftClaim, Error, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountAcc14, BankAccountDetails, BankAccountType, DraftClaim, Error, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -162,7 +161,7 @@ class BankAccountController @Inject() (
               reputationResponse <- {
                 val barsAccount       =
                   BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-                val isBusinessAccount = bankAccountDetails.isBusinessAccount.getOrElse(false)
+                val isBusinessAccount = BankAccountType.allAccountTypes.map(_.value).contains(0)
                 if (isBusinessAccount) {
                   claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                 } else {
@@ -230,23 +229,10 @@ object BankAccountController {
 
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(
-      "enter-bank-details.account-name"        -> accountNameMapping,
-      "enter-bank-details.is-business-account" -> optional(boolean),
-      "enter-bank-details.sort-code"           -> sortCodeMapping,
-      "enter-bank-details.account-number"      -> accountNumberMapping
+      "enter-bank-details.account-name"   -> accountNameMapping,
+      "enter-bank-details.sort-code"      -> sortCodeMapping,
+      "enter-bank-details.account-number" -> accountNumberMapping
     )(BankAccountDetails.apply)(BankAccountDetails.unapply)
   )
-
-  final case class AccountNumber(value: String) extends AnyVal
-
-  final case class AccountName(value: String) extends AnyVal
-
-  object AccountNumber {
-    implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
-  }
-
-  object AccountName {
-    implicit val format: OFormat[AccountName] = Json.format[AccountName]
-  }
 
 }

@@ -21,7 +21,6 @@ import cats.data.Validated.Valid
 import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.{AccountName, AccountNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
@@ -465,7 +464,6 @@ object CompleteClaim {
                             Some(
                               BankAccountDetails(
                                 AccountName(value.accountHolderName),
-                                Some(false),
                                 SortCode(value.sortCode),
                                 AccountNumber(value.accountNumber)
                               )
@@ -480,12 +478,7 @@ object CompleteClaim {
         }
     }
 
-    def bankAccountType: String =
-      completeClaim
-        .get(_.bankDetails)
-        .flatMap(_.isBusinessAccount)
-        .map(isBusiness => if (isBusiness) "Business Account" else "Non-Business Account")
-        .getOrElse("")
+    def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()
 
     def movementReferenceNumber: Either[EntryNumber, MRN] =
       completeClaim.get(_.movementReferenceNumber.value)
