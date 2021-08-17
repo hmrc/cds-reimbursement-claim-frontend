@@ -32,12 +32,12 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
 )
 
-@(form : Form[BankAccountDetails], router:ReimbursementRoutes, isAmend : Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[BankAccountDetails], router:ReimbursementRoutes, isChange : Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-bank-details"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{router.submitUrlForEnterOrChangeBankAccountDetails(isAmend)}
+    @postAction = @{router.submitUrlForEnterOrChangeBankAccountDetails(isChange)}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
