@@ -37,7 +37,10 @@ class DropDownHelper @Inject() (
     html(
       bulletList(
         typesOfEvidences.map { evidenceType =>
-          Html(messages(s"$parentKey.details.l${evidenceType.index}"))
+          titleAndDescription(
+            messages(s"$parentKey.details.b${evidenceType.index}"),
+            messages(s"$parentKey.details.l${evidenceType.index}")
+          )
         }
       )
     )
