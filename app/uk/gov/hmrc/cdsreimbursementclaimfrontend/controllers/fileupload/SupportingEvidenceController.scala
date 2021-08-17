@@ -68,9 +68,9 @@ class SupportingEvidenceController @Inject() (
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
-  def uploadSupportingEvidence(journey: JourneyBindable): Action[AnyContent] =
+  def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[SupportingEvidencesAnswer] { (_, answer) =>
+      withAnswersAndRoutes[SupportingEvidencesAnswer] { (_, answer, router) =>
         if (answer.exists(_.length >= maxUploads))
           Future.successful(Redirect(routes.SupportingEvidenceController.checkYourAnswers(journey)))
         else
@@ -80,7 +80,7 @@ class SupportingEvidenceController @Inject() (
               reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
               config.readMaxFileSize(configKey)
             )
-            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
+            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload, router)))
       }
     }
 

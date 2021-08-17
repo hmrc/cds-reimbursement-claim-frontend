@@ -796,9 +796,10 @@ supporting-evidence.check-your-answers.assistive=the file named {0}
 supporting-evidence.check-your-answers.add-another-file=<a href="{0}" class="govuk-link">Add another file</a>
 supporting-evidence.upload.title=Upload files to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
-supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. Files can be up to 10MB.
-supporting-evidence.upload.hint=We accept these file types JPG, PNG, and PDF.
+supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
+supporting-evidence.upload.scheduled.help-text=Upload supporting evidence of the commodities imported for all of your MRNs. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.amendReturn.help-text=The file can be up to 10MB. We accept these file types JPG, PNG, and PDF.
+supporting-evidence.upload.input-title=Select document
 file.error.required=Select a file containing your supporting evidence
 supporting-evidence.scan-progress.title=Wait a few seconds and then select ‘continue’
 supporting-evidence.scan-progress.p1=We are checking your file.
