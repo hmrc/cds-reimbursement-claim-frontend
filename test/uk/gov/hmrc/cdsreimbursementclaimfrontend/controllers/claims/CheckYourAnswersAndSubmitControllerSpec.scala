@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import org.scalamock.handlers.CallHandler3
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -61,11 +60,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckYourAnswersAndSubmitControllerSpec
-    extends ControllerSpec
-    with AuthSupport
-    with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
   val mockClaimService: ClaimService = mock[ClaimService]
 
@@ -90,8 +85,7 @@ class CheckYourAnswersAndSubmitControllerSpec
       .expects(submitClaimRequest, *, *)
       .returning(EitherT.fromEither[Future](response))
 
-  private def sessionWithCompleteClaimState(
-  ): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
+  private def sessionWithCompleteClaimState(): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val completeC285Claim   = sample[CompleteC285Claim]
@@ -251,7 +245,8 @@ class CheckYourAnswersAndSubmitControllerSpec
 
       "redirect to the start of the journey" when {
 
-        "there is no journey status in the session" in forAll(minSuccessful(1)) { journey: JourneyBindable =>
+        "there is no journey status in the session" in {
+          val journey         = sample[JourneyBindable]
           val (session, _, _) = sessionWithCompleteClaimState()
 
           inSequence {
@@ -459,9 +454,11 @@ class CheckYourAnswersAndSubmitControllerSpec
 
     "show a technical error page" when {
 
-      "the user has not completely filled in the claim" in forAll(minSuccessful(1)) { journey: JourneyBindable =>
+      "the user has not completely filled in the claim" in {
         def performAction(journey: JourneyBindable): Future[Result] =
           controller.checkAllAnswers(journey)(FakeRequest())
+
+        val journey = sample[JourneyBindable]
 
         val draftC285Claim = sample[DraftC285Claim].copy(commoditiesDetailsAnswer = None)
 

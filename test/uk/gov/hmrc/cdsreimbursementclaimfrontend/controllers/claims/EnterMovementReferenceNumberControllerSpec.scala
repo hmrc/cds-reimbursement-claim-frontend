@@ -548,7 +548,7 @@ class EnterMovementReferenceNumberControllerSpec
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
+        val result = performAction(journeyBindable, enterMovementReferenceNumberKey -> entryNumber.value)
 
         status(result) shouldBe 303
         redirectLocation(

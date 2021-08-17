@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionD
 import scala.concurrent.Future
 
 trait RedirectToStartBehaviour {
-  this: ControllerSpec with AuthSupport with SessionSupport with ScalaCheckDrivenPropertyChecks =>
+  this: ControllerSpec with AuthSupport with SessionSupport =>
 
   def redirectToStartWhenInvalidJourney(
     performAction: () => Future[Result],
@@ -45,7 +45,7 @@ trait RedirectToStartBehaviour {
         )
       }
 
-      "the journey status in session is not valid" in {
+      "the journey status in session is not valid" in new ScalaCheckDrivenPropertyChecks {
         forAll { j: JourneyStatus =>
           whenever(!isValidJourneyStatus(j)) {
             inSequence {
