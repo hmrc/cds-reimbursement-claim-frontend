@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.ChooseSupportingEvidenceDocumentType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.supportingEvidenceDocumentTypes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 @import cats.implicits.catsSyntaxOptionId
@@ -37,7 +37,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(journey: JourneyBindable, form: Form[ChooseSupportingEvidenceDocumentType], uploadReference : UploadReference)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable, form: Form[ChooseSupportingEvidenceDocumentType], uploadReference : UploadReference, evidenceTypes: Seq[UploadDocumentType])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.choose-document-type"}
     @title = @{messages(s"$key.title")}
@@ -61,11 +61,11 @@
                 form = form,
                 id = key,
                 name = key,
-                items = supportingEvidenceDocumentTypes.indices.foldLeft(Seq(SelectItem(
+                items = evidenceTypes.foldLeft(Seq(SelectItem(
                     value = Some(""),
                     text = messages(s"generic.defaultOption")
-                ))) { (selectItems, idx) =>
-                    val idxAsStr = idx.toString
+                ))) { (selectItems, evidenceType) =>
+                    val idxAsStr = evidenceType.index.toString
                     selectItems :+ SelectItem(
                         value = idxAsStr.some,
                         text  = messages(s"$key.document-type.d$idxAsStr"),

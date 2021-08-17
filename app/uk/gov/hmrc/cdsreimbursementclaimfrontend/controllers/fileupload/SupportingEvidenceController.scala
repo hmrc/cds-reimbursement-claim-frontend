@@ -26,16 +26,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.configKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.{chooseSupportEvidenceDocumentTypeForm, configKey}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.supportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, UpscanService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
@@ -51,6 +50,7 @@ class SupportingEvidenceController @Inject() (
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
+  featureSwitch: FeatureSwitchService,
   chooseDocumentTypePage: pages.choose_document_type,
   checkYourAnswersPage: pages.check_your_answers,
   scanProgressPage: pages.scan_progress,
@@ -68,6 +68,9 @@ class SupportingEvidenceController @Inject() (
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
+  def evidenceTypes: Seq[UploadDocumentType] =
+    UploadDocumentType.getCompleteListOfEvidenceTypes(featureSwitch.EntryNumber.isEnabled())
+
   def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[SupportingEvidencesAnswer] { (_, answer, router) =>
@@ -80,7 +83,7 @@ class SupportingEvidenceController @Inject() (
               reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
               config.readMaxFileSize(configKey)
             )
-            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload, router)))
+            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload, evidenceTypes, router)))
       }
     }
 
@@ -134,8 +137,7 @@ class SupportingEvidenceController @Inject() (
                                   )
                                 )
                               )
-                            case _ =>
-                              EitherT.pure[Future, Error](())
+                            case _ => EitherT.pure[Future, Error](())
                           }
         } yield upscanUpload
 
@@ -176,8 +178,9 @@ class SupportingEvidenceController @Inject() (
       Ok(
         chooseDocumentTypePage(
           journey,
-          SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm,
-          uploadReference
+          chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
+          uploadReference,
+          evidenceTypes
         )
       )
     }
@@ -188,11 +191,11 @@ class SupportingEvidenceController @Inject() (
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SupportingEvidencesAnswer] { (fillingOutClaim, maybeEvidences) =>
-        SupportingEvidenceController.chooseSupportEvidenceDocumentTypeForm
+        chooseSupportEvidenceDocumentTypeForm(evidenceTypes)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
-              BadRequest(chooseDocumentTypePage(journey, requestFormWithErrors, uploadReference)),
+              BadRequest(chooseDocumentTypePage(journey, requestFormWithErrors, uploadReference, evidenceTypes)),
             documentType => {
               val answers = for {
                 documents <- maybeEvidences.map(_.toList)
@@ -282,17 +285,19 @@ object SupportingEvidenceController {
   val configKey: String                 = "supporting-evidence"
   val chooseDocumentTypeDataKey: String = "supporting-evidence.choose-document-type"
 
-  val chooseSupportEvidenceDocumentTypeForm: Form[ChooseSupportingEvidenceDocumentType] =
+  def chooseSupportEvidenceDocumentTypeForm(
+    typesOfEvidences: Seq[UploadDocumentType]
+  ): Form[ChooseSupportingEvidenceDocumentType] =
     Form(
       mapping(
         chooseDocumentTypeDataKey -> number
           .verifying(
             "invalid supporting evidence document type",
-            documentTypeIndex => supportingEvidenceDocumentTypes.indices.contains(documentTypeIndex)
+            documentTypeIndex => typesOfEvidences.exists(_.index === documentTypeIndex)
           )
           .transform[UploadDocumentType](
-            documentTypeIndex => supportingEvidenceDocumentTypes(documentTypeIndex),
-            documentType => supportingEvidenceDocumentTypes.indexOf(documentType)
+            documentTypeIndex => typesOfEvidences(documentTypeIndex),
+            documentType => typesOfEvidences.indexOf(documentType)
           )
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )

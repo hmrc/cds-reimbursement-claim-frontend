@@ -777,16 +777,6 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
-supporting-evidence.upload.details.l0=Commercial Invoice (proof of sale and describes the commodities being sold; their price, description and quantity)
-supporting-evidence.upload.details.l1=Import and Export Declaration (proof of the import or export being declared)
-supporting-evidence.upload.details.l2=C88/E2 (proof to authorise imports from the country of destination)
-supporting-evidence.upload.details.l3=Packing List (a document that lists product type in each package)
-supporting-evidence.upload.details.l4=Air Waybill (transport document that accompanies the commodities (goods) and provides information about them)
-supporting-evidence.upload.details.l5=Bill of Lading (transport document that accompanies the commodities (goods) and provides information about them)
-supporting-evidence.upload.details.l6=Substitute Entry (a copy of the original customs declaration amended to show the correct details)
-supporting-evidence.upload.details.l8=Proof of Authority (in case you change your bank account details)
-supporting-evidence.upload.details.l9=Correspondence Trader (an email chain or letters between you and the trader)
-supporting-evidence.upload.details.l10=Other documents (if you have alternative supporting documents)
 supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
 supporting-evidence.check-your-answers.file-label=Document {0}
 supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
@@ -825,16 +815,26 @@ supporting-evidence.choose-document-type.error.number=Choose a file type to supp
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
 supporting-evidence.choose-document-type.label=Choose document type
-supporting-evidence.choose-document-type.document-type.d0=C88/E2
-supporting-evidence.choose-document-type.document-type.d1=Commercial Invoice
-supporting-evidence.choose-document-type.document-type.d2=Packing List
-supporting-evidence.choose-document-type.document-type.d3=Air Waybill
-supporting-evidence.choose-document-type.document-type.d4=Bill of Lading
-supporting-evidence.choose-document-type.document-type.d5=Substitute Entry
-supporting-evidence.choose-document-type.document-type.d6=Proof of Authority
-supporting-evidence.choose-document-type.document-type.d7=Correspondence Trader
-supporting-evidence.choose-document-type.document-type.d8=Import and Export Declaration
+supporting-evidence.choose-document-type.document-type.d0=Commercial Invoice
+supporting-evidence.upload.details.l0=Commercial Invoice (proof of sale and describes the commodities being sold; their price, description and quantity)
+supporting-evidence.choose-document-type.document-type.d1=Import and Export Declaration
+supporting-evidence.upload.details.l1=Import and Export Declaration (proof of the import or export being declared)
+supporting-evidence.choose-document-type.document-type.d2=C88/E2
+supporting-evidence.upload.details.l2=C88/E2 (proof to authorise imports from the country of destination)
+supporting-evidence.choose-document-type.document-type.d3=Packing List
+supporting-evidence.upload.details.l3=Packing List (a document that lists product type in each package)
+supporting-evidence.choose-document-type.document-type.d4=Air Waybill
+supporting-evidence.upload.details.l4=Air Waybill (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.choose-document-type.document-type.d5=Bill of Lading
+supporting-evidence.upload.details.l5=Bill of Lading (transport document that accompanies the commodities (goods) and provides information about them)
+supporting-evidence.choose-document-type.document-type.d6=Substitute Entry
+supporting-evidence.upload.details.l6=Substitute Entry (a copy of the original customs declaration amended to show the correct details)
+supporting-evidence.choose-document-type.document-type.d7=Proof of Authority
+supporting-evidence.upload.details.l7=Proof of Authority (in case you change your bank account details)
+supporting-evidence.choose-document-type.document-type.d8=Correspondence Trader
+supporting-evidence.upload.details.l8=Correspondence Trader (an email chain or letters between you and the trader)
 supporting-evidence.choose-document-type.document-type.d9=Other documents
+supporting-evidence.upload.details.l9=Other documents (if you have alternative supporting documents)
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES

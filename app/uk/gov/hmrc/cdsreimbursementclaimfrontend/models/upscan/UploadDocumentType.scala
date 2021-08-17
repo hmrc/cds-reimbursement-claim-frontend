@@ -19,34 +19,40 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait UploadDocumentType extends Product with Serializable
+sealed abstract class UploadDocumentType(val index: Int) extends Product with Serializable
 
 object UploadDocumentType {
 
-  case object C88E2 extends UploadDocumentType
-  case object CommercialInvoice extends UploadDocumentType
-  case object PackingList extends UploadDocumentType
-  case object AirWayBill extends UploadDocumentType
-  case object BillOfLading extends UploadDocumentType
-  case object SubstituteEntry extends UploadDocumentType
-  case object ScheduleOfMRNs extends UploadDocumentType
-  case object ProofOfAuthority extends UploadDocumentType
-  case object CorrespondenceTrader extends UploadDocumentType
-  case object Other extends UploadDocumentType
-  case object ImportAndExportDeclaration extends UploadDocumentType
+  case object CommercialInvoice extends UploadDocumentType(0)
+  case object ImportAndExportDeclaration extends UploadDocumentType(1)
+  case object C88E2 extends UploadDocumentType(index = 2)
+  case object PackingList extends UploadDocumentType(3)
+  case object AirWayBill extends UploadDocumentType(4)
+  case object BillOfLading extends UploadDocumentType(5)
+  case object SubstituteEntry extends UploadDocumentType(6)
+  case object ProofOfAuthority extends UploadDocumentType(7)
+  case object CorrespondenceTrader extends UploadDocumentType(8)
+  case object Other extends UploadDocumentType(9)
+  case object ScheduleOfMRNs extends UploadDocumentType(10)
 
-  implicit val format: OFormat[UploadDocumentType] = derived.oformat[UploadDocumentType]()
-
-  lazy val supportingEvidenceDocumentTypes = IndexedSeq(
-    C88E2,
+  private val completeListOfEvidencesTypes = Seq(
     CommercialInvoice,
+    ImportAndExportDeclaration,
+    C88E2,
     PackingList,
     AirWayBill,
     BillOfLading,
     SubstituteEntry,
     ProofOfAuthority,
     CorrespondenceTrader,
-    ImportAndExportDeclaration,
     Other
   )
+
+  private val mrnJourneyEvidenceTypes: Seq[UploadDocumentType] =
+    completeListOfEvidencesTypes.diff(Seq(C88E2))
+
+  def getCompleteListOfEvidenceTypes(isEntryNumberJourneyEnabled: Boolean): Seq[UploadDocumentType] =
+    if (isEntryNumberJourneyEnabled) completeListOfEvidencesTypes else mrnJourneyEvidenceTypes
+
+  implicit val format: OFormat[UploadDocumentType] = derived.oformat[UploadDocumentType]()
 }

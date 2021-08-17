@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import javax.inject.Inject
 import play.api.i18n.Messages
 import play.twirl.api.Html
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.title_and_description
@@ -28,26 +29,16 @@ class DropDownHelper @Inject() (
   titleAndDescription: title_and_description
 ) extends HtmlUtil {
 
-  val supportingEvidenceUploadKey = "supporting-evidence.upload.details"
-  val reasonAndBasisBasisKey      = "select-reason-and-basis-for-claim.basis.details"
-  val reasonAndBasisReasonKey     = "select-reason-and-basis-for-claim.reason.details"
-  val whoIsMakingTheClaimKey      = "select-who-is-making-the-claim.details"
+  val reasonAndBasisBasisKey  = "select-reason-and-basis-for-claim.basis.details"
+  val reasonAndBasisReasonKey = "select-reason-and-basis-for-claim.reason.details"
+  val whoIsMakingTheClaimKey  = "select-who-is-making-the-claim.details"
 
-  def uploadDropDownContent()(implicit messages: Messages): Html =
+  def render(typesOfEvidences: Seq[UploadDocumentType], parentKey: String)(implicit messages: Messages): Html =
     html(
       bulletList(
-        Seq(
-          Html(messages(s"$supportingEvidenceUploadKey.l0")),
-          Html(messages(s"$supportingEvidenceUploadKey.l1")),
-          Html(messages(s"$supportingEvidenceUploadKey.l2")),
-          Html(messages(s"$supportingEvidenceUploadKey.l3")),
-          Html(messages(s"$supportingEvidenceUploadKey.l4")),
-          Html(messages(s"$supportingEvidenceUploadKey.l5")),
-          Html(messages(s"$supportingEvidenceUploadKey.l6")),
-          Html(messages(s"$supportingEvidenceUploadKey.l8")),
-          Html(messages(s"$supportingEvidenceUploadKey.l9")),
-          Html(messages(s"$supportingEvidenceUploadKey.l10"))
-        )
+        typesOfEvidences.map { evidenceType =>
+          Html(messages(s"$parentKey.details.l${evidenceType.index}"))
+        }
       )
     )
 
