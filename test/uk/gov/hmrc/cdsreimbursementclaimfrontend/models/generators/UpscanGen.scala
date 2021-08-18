@@ -53,7 +53,10 @@ object UpscanGen extends OptionValues {
   def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
 
-  def genSupportingDocumentType: Gen[UploadDocumentType] =
-    Gen.oneOf(UploadDocumentType.supportingEvidenceDocumentTypes)
-
+  def genSupportingDocumentType(): Gen[UploadDocumentType] =
+    for {
+      isEntryNumberJourneyEnabled    <- Gen.oneOf(true, false)
+      supportingEvidenceDocumentType <-
+        Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes(isEntryNumberJourneyEnabled))
+    } yield supportingEvidenceDocumentType
 }

@@ -95,7 +95,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
           router.nextPageForBasisForClaim(
             basisForClaim,
             isAmend = true
-          ) shouldBe claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+          ) shouldBe claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable)
         }
       }
     }

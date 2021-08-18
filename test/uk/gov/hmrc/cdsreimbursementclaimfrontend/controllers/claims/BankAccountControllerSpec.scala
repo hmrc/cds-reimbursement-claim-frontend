@@ -239,7 +239,7 @@ class BankAccountControllerSpec
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey))
       }
 
       "Let skip upload supporting evidence page once users already uploaded evidences" in forAll(journeys) { journey =>
@@ -260,7 +260,7 @@ class BankAccountControllerSpec
         val request                  = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result                   = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
@@ -372,7 +372,7 @@ class BankAccountControllerSpec
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence())
+        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey))
       }
 
       "Let skip supporting evidence upload page once users already has uploaded evidences" in forAll(journeys) {
@@ -398,7 +398,7 @@ class BankAccountControllerSpec
           val request = FakeRequest().withFormUrlEncodedBody(form: _*)
           val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-          checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers())
+          checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(

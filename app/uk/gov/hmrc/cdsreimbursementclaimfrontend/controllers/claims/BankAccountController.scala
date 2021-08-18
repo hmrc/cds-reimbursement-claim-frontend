@@ -64,9 +64,9 @@ class BankAccountController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
 
-  private def continuePage(implicit request: RequestWithSessionData[AnyContent]): Call = {
-    lazy val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence()
-    lazy val checkYourAnswers = fileUploadRoutes.SupportingEvidenceController.checkYourAnswers()
+  private def continuePage(implicit request: RequestWithSessionData[AnyContent], journey: JourneyBindable): Call = {
+    lazy val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+    lazy val checkYourAnswers = fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey)
 
     val maybeEvidences = for {
       session   <- request.sessionData
@@ -129,7 +129,7 @@ class BankAccountController @Inject() (
 
   def changeBankAccountDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      submit(isAmend = true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+      submit(isAmend = true, routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
     }
 
   protected def submit(isAmend: Boolean, redirectTo: Call)(implicit

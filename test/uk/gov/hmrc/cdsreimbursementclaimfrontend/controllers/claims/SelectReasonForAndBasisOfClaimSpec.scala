@@ -25,7 +25,7 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, TemporaryJourneyExtractor, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.{CompleteReasonAndBasisOfClaimAnswer, IncompleteReasonAndBasisOfClaimAnswer}
@@ -157,7 +157,9 @@ class SelectReasonForAndBasisOfClaimSpec extends ControllerSpec with AuthSupport
 
         val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, claim, _) = sessionWithClaimState(Some(answers))
+
+        val journey = TemporaryJourneyExtractor.extractJourney(claim)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -168,22 +170,24 @@ class SelectReasonForAndBasisOfClaimSpec extends ControllerSpec with AuthSupport
           performAction(
             Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
           ),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
+          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
         )
       }
 
       "the user amends their answer" in {
-
         def performAction(data: Seq[(String, String)]): Future[Result] =
           controller.changeReasonForClaimAndBasisSubmit()(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
-        val mailForOrderGoods                                          = ReasonForClaim.Overpayment
-        val basisOfClaim                                               = BasisOfClaim.IncorrectCommodityCode
+
+        val mailForOrderGoods = ReasonForClaim.Overpayment
+        val basisOfClaim      = BasisOfClaim.IncorrectCommodityCode
 
         val answers = CompleteReasonAndBasisOfClaimAnswer(SelectReasonForClaimAndBasis(basisOfClaim, mailForOrderGoods))
 
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, claim, _) = sessionWithClaimState(Some(answers))
+
+        val journeyBindable = TemporaryJourneyExtractor.extractJourney(claim)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -194,7 +198,7 @@ class SelectReasonForAndBasisOfClaimSpec extends ControllerSpec with AuthSupport
           performAction(
             Seq("select-reason-and-basis-for-claim.basis" -> "3", "select-reason-and-basis-for-claim.reason" -> "1")
           ),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         )
       }
 
