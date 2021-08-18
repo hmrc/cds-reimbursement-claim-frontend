@@ -168,9 +168,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
     claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
 
   def nextPageForEnterBankAccountDetails(
-    isBankAccountType: Boolean
+    hasBankAccountType: Boolean
   ): Call =
-    isBankAccountType match {
+    hasBankAccountType match {
       case false => claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
       case true  => claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable)
     }
