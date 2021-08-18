@@ -25,7 +25,7 @@ object UploadDocumentType {
 
   case object CommercialInvoice extends UploadDocumentType(0)
   case object ImportAndExportDeclaration extends UploadDocumentType(1)
-  case object C88E2 extends UploadDocumentType(index = 2)
+  case object C88E2 extends UploadDocumentType(2)
   case object PackingList extends UploadDocumentType(3)
   case object AirWayBill extends UploadDocumentType(4)
   case object BillOfLading extends UploadDocumentType(5)
@@ -35,7 +35,7 @@ object UploadDocumentType {
   case object Other extends UploadDocumentType(9)
   case object ScheduleOfMRNs extends UploadDocumentType(10)
 
-  private val completeListOfEvidencesTypes = Seq(
+  private lazy val completeListOfEvidencesTypes = Seq(
     CommercialInvoice,
     ImportAndExportDeclaration,
     C88E2,
@@ -48,11 +48,17 @@ object UploadDocumentType {
     Other
   )
 
-  private val mrnJourneyEvidenceTypes: Seq[UploadDocumentType] =
+  private lazy val mrnJourneyEvidenceTypes: Seq[UploadDocumentType] =
     completeListOfEvidencesTypes.diff(Seq(C88E2))
 
-  def getCompleteListOfEvidenceTypes(isEntryNumberJourneyEnabled: Boolean): Seq[UploadDocumentType] =
+  def getListOfEvidenceTypes(isEntryNumberJourneyEnabled: Boolean): Seq[UploadDocumentType] =
     if (isEntryNumberJourneyEnabled) completeListOfEvidencesTypes else mrnJourneyEvidenceTypes
 
-  implicit val format: OFormat[UploadDocumentType] = derived.oformat[UploadDocumentType]()
+  val evidenceIndicesToTypes: Map[Int, UploadDocumentType] =
+    completeListOfEvidencesTypes.map(doc => doc.index -> doc).toMap
+
+  val evidenceTypesToIndices: Map[UploadDocumentType, Int] =
+    completeListOfEvidencesTypes.map(doc => doc -> doc.index).toMap
+
+  implicit val format: OFormat[UploadDocumentType]         = derived.oformat[UploadDocumentType]()
 }

@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.{evidenceIndicesToTypes, evidenceTypesToIndices}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
@@ -69,7 +70,7 @@ class SupportingEvidenceController @Inject() (
     _.supportingEvidencesAnswer
 
   def evidenceTypes: Seq[UploadDocumentType] =
-    UploadDocumentType.getCompleteListOfEvidenceTypes(featureSwitch.EntryNumber.isEnabled())
+    UploadDocumentType.getListOfEvidenceTypes(featureSwitch.EntryNumber.isEnabled())
 
   def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -295,10 +296,7 @@ object SupportingEvidenceController {
             "invalid supporting evidence document type",
             documentTypeIndex => typesOfEvidences.exists(_.index === documentTypeIndex)
           )
-          .transform[UploadDocumentType](
-            documentTypeIndex => typesOfEvidences(documentTypeIndex),
-            documentType => typesOfEvidences.indexOf(documentType)
-          )
+          .transform[UploadDocumentType](evidenceIndicesToTypes, evidenceTypesToIndices)
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )
 }

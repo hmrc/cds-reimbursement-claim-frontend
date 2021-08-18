@@ -29,11 +29,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEviden
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.supportingEvidenceDocumentTypes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
@@ -41,11 +40,10 @@ import scala.concurrent.Future
 
 class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
-  lazy val controller: SupportingEvidenceController = instanceOf[SupportingEvidenceController]
+  val controller = instanceOf[SupportingEvidenceController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
@@ -252,9 +250,6 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      def getDocTypeKey(documentType: UploadDocumentType) =
-        supportingEvidenceDocumentTypes.indexOf(documentType)
-
       "fail" when {
         "document type is missing" in {
           val journey         = sample[JourneyBindable]
@@ -274,7 +269,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "supporting evidence is not found" in {
           val journey         = sample[JourneyBindable]
           val uploadReference = sample[UploadReference]
-          val documentTypeKey = getDocTypeKey(sample(genSupportingDocumentType))
+          val documentType    = sample(genSupportingDocumentType())
           val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = None)
 
           inSequence {
@@ -284,7 +279,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsTechnicalErrorPage(
             performAction(journey, uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
             )
           )
         }
@@ -294,8 +289,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val supportingEvidence = sample[UploadDocument].copy(documentType = None)
           val answer             = List(supportingEvidence).toNel
 
-          val documentType    = sample(genSupportingDocumentType)
-          val documentTypeKey = getDocTypeKey(documentType)
+          val documentType = sample(genSupportingDocumentType())
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -316,7 +310,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsTechnicalErrorPage(
             performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
             )
           )
         }
@@ -329,8 +323,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val supportingEvidence = sample[UploadDocument].copy(documentType = None)
           val answer             = List(supportingEvidence).toNel
 
-          val documentType    = sample(genSupportingDocumentType)
-          val documentTypeKey = getDocTypeKey(documentType)
+          val documentType = sample(genSupportingDocumentType())
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -349,7 +342,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"$documentTypeKey")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
             ),
             routes.SupportingEvidenceController.checkYourAnswers(journeyBindable)
           )
