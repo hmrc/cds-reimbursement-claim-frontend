@@ -814,7 +814,6 @@ supporting-evidence.choose-document-type.title=Select the description of the fil
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.choose-document-type.label=Choose document type
 supporting-evidence.choose-document-type.document-type.d0=Commercial Invoice
 supporting-evidence.upload.details.b0=Commercial Invoice:
 supporting-evidence.upload.details.l0=Proof of sale and describes the commodities being sold; their price, description and quantity
