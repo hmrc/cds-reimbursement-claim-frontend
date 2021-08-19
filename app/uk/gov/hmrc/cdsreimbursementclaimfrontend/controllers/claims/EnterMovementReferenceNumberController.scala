@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Applicative
 import cats.data.EitherT
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
@@ -32,8 +33,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNBulkRoutes, MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -146,10 +150,16 @@ class EnterMovementReferenceNumberController @Inject() (
                             .leftMap(_ => Error("could not evaluate MRN flow"))
                         declaration    <-
                           fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
+                        contactDetails  = extractContactDetails(
+                                            declaration,
+                                            mrnJourneyFlow,
+                                            fillingOutClaim.signedInUserDetails.verifiedEmail
+                                          )
+                        contactAddress  = extractContactAddress(declaration, mrnJourneyFlow)
                         _              <-
                           EitherT(
                             updateSession(sessionStore, request)(
-                              updateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration)
+                              updateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration, contactDetails, contactAddress)
                             )
                           )
                             .leftMap(_ => Error("Could not save Display Declaration"))
@@ -177,10 +187,17 @@ class EnterMovementReferenceNumberController @Inject() (
   def updateMrnAndAcc14(
     fillingOutClaim: FillingOutClaim,
     mrnOrEntryNumber: MovementReferenceNumber,
-    acc14: DisplayDeclaration
+    acc14: DisplayDeclaration,
+    maybeContactDetails: Option[MrnContactDetails],
+    maybeContactAddress: Option[ContactAddress]
   ): SessionDataTransform = {
     val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(movementReferenceNumber = Option(mrnOrEntryNumber), displayDeclaration = Option(acc14))
+      _.copy(
+        movementReferenceNumber = Option(mrnOrEntryNumber),
+        displayDeclaration = Option(acc14),
+        mrnContactDetailsAnswer = maybeContactDetails,
+        mrnContactAddressAnswer = maybeContactAddress
+      )
     )
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
@@ -263,6 +280,45 @@ object EnterMovementReferenceNumberController {
         }
 
       case None => Left(Error("received no declaration information"))
+    }
+
+  def extractContactDetails(
+    displayDeclaration: DisplayDeclaration,
+    mrnJourney: MrnJourney,
+    email: Email
+  ): Option[MrnContactDetails] =
+    mrnJourney match {
+      case MrnImporter(_) =>
+        val consignee  = displayDeclaration.displayResponseDetail.consigneeDetails
+        val maybeName  = consignee.flatMap(_.contactDetails).flatMap(_.contactName)
+        val maybePhone = consignee.flatMap(_.contactDetails).flatMap(_.telephone)
+        maybeName.map(name => MrnContactDetails(name, email, maybePhone.map(PhoneNumber(_))))
+      case _              =>
+        val declarant  = displayDeclaration.displayResponseDetail.declarantDetails
+        val maybeName  = declarant.contactDetails.flatMap(_.contactName)
+        val maybePhone = declarant.contactDetails.flatMap(_.telephone)
+        maybeName.map(name => MrnContactDetails(name, email, maybePhone.map(PhoneNumber(_))))
+    }
+
+  def extractContactAddress(displayDeclaration: DisplayDeclaration, mrnJourney: MrnJourney): Option[ContactAddress] =
+    (mrnJourney match {
+      case MrnImporter(_) =>
+        val consignee = displayDeclaration.displayResponseDetail.consigneeDetails
+        consignee.flatMap(_.contactDetails)
+      case _              =>
+        val declarant = displayDeclaration.displayResponseDetail.declarantDetails
+        declarant.contactDetails
+    }).flatMap { contactDetails =>
+      Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) { (addressLine1, postCode) =>
+        ContactAddress(
+          addressLine1,
+          contactDetails.addressLine2,
+          None,
+          contactDetails.addressLine3.getOrElse(""),
+          postCode,
+          contactDetails.countryCode.map(Country(_)).getOrElse(Country.uk)
+        )
+      }
     }
 
 }

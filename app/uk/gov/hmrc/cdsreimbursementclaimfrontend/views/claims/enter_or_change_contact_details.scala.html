@@ -17,7 +17,7 @@
 
 @(form : Form[MrnContactDetails], router: ReimbursementRoutes, isChange: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"enter-or-change-contact-details"}
+@key = @{"enter-contact-details"}
 
 @postAction = @{if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
 

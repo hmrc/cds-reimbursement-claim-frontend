@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Applicative
 import cats.data.EitherT
+import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText, optional}
@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -37,12 +38,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnterOrChangeContactDetailsController @Inject() (
+class EnterContactDetailsController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -63,19 +63,13 @@ class EnterOrChangeContactDetailsController @Inject() (
   def show()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val answers               = isMandatoryDataAvailable(fillingOutClaim) match {
-          case true  =>
-            val details = extractContactDetails(fillingOutClaim)
-            Applicative[Option].map2(details.name, details.email)((name, email) =>
-              MrnContactDetails(name, email, details.phoneNumber)
-            )
-          case false =>
-            None
+        val draftC285Claim        = fillingOutClaim.draftClaim.fold(identity)
+        val answers               = (draftC285Claim.mrnContactDetailsAnswer, draftC285Claim.mrnContactAddressAnswer).mapN {
+          (contactDetails, _) =>
+            contactDetails
         }
         val mrnContactDetailsForm =
-          answers.toList.foldLeft(EnterOrChangeContactDetailsController.mrnContactDetailsForm)((form, answer) =>
-            form.fill(answer)
-          )
+          answers.foldLeft(EnterContactDetailsController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
         Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined))
       }
     }
@@ -86,7 +80,7 @@ class EnterOrChangeContactDetailsController @Inject() (
   def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        EnterOrChangeContactDetailsController.mrnContactDetailsForm
+        EnterContactDetailsController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
@@ -109,13 +103,13 @@ class EnterOrChangeContactDetailsController @Inject() (
     }
 }
 
-object EnterOrChangeContactDetailsController {
+object EnterContactDetailsController {
 
   val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
     mapping(
-      "enter-or-change-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
-      "enter-or-change-contact-details.contact-email"        -> Email.mappingMaxLength,
-      "enter-or-change-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
+      "enter-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-contact-details.contact-email"        -> Email.mappingMaxLength,
+      "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
     )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
 
