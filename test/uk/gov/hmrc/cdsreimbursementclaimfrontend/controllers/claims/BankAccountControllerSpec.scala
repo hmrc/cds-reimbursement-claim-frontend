@@ -29,8 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.AccountNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -44,9 +42,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, Error, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountNumber, BankAccountDetails, BankAccountType, Error, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -94,13 +91,18 @@ class BankAccountControllerSpec
 
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetails],
+    bankAccountType: Option[BankAccountType],
+    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
     supportingEvidences: Option[SupportingEvidencesAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
 
     val draftC285Claim =
       DraftC285Claim.newDraftC285Claim.copy(
         bankAccountDetailsAnswer = maybeBankAccountDetails,
-        supportingEvidencesAnswer = supportingEvidences
+        bankAccountTypeAnswer = bankAccountType,
+        supportingEvidencesAnswer = supportingEvidences,
+        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+        movementReferenceNumber = Some(sample[MovementReferenceNumber])
       )
 
     val ggCredId            = sample[GGCredId]
@@ -218,15 +220,17 @@ class BankAccountControllerSpec
 
     "Business Bank Account" should {
 
-      val businessBankAccount = sample[BankAccountDetails].copy(isBusinessAccount = Some(true))
+      val businessBankAccount = sample[BankAccountDetails]
+      val bankAccountType     = BankAccountType.BusinessBankAccount
 
-      "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in forAll(
+      "Let users check their bank details when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid = Yes and accountExists = Yes" in forAll(
         journeys
       ) { journey =>
         val businessResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = businessBankAccount
-        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val (session, _, _)    =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val updatedBankAccount = businessBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
@@ -239,35 +243,15 @@ class BankAccountControllerSpec
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-      }
-
-      "Let skip upload supporting evidence page once users already uploaded evidences" in forAll(journeys) { journey =>
-        val businessResponse         =
-          CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-        val bankDetailsAnswer        = businessBankAccount
-        val supportingEvidenceAnswer = sample[SupportingEvidencesAnswer]
-        val (session, _, _)          = sessionWithClaimState(Some(bankDetailsAnswer), Some(supportingEvidenceAnswer))
-        val updatedBankAccount       = businessBankAccount.copy(accountNumber = sample[AccountNumber])
-        val updatedSession           = updateSession(session, updatedBankAccount)
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
-          mockBusinessReputation(Right(businessResponse))
-        }
-        val form                     = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
-        val request                  = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result                   = controller.enterBankAccountDetailsSubmit(journey)(request)
-
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey))
+        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
         journeys
       ) { journey =>
         val answers         = businessBankAccount
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val form            = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
@@ -300,7 +284,8 @@ class BankAccountControllerSpec
         journeys
       ) { journey =>
         val answers            = businessBankAccount
-        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val (session, _, _)    =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val form               = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
@@ -331,7 +316,8 @@ class BankAccountControllerSpec
           otherError = Some(errorResponse)
         )
         val answers          = businessBankAccount
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val (session, _, _)  =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -351,15 +337,17 @@ class BankAccountControllerSpec
 
     "Personal Bank Account" should {
 
-      val personalBankAccount = sample[BankAccountDetails].copy(isBusinessAccount = None)
+      val personalBankAccount = sample[BankAccountDetails]
+      val bankAccountType     = BankAccountType.PersonalBankAccount
 
-      "Let users to upload supporting evidence when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in forAll(
+      "Let users check their bank details when the Bank Account Validation succeeds with accountNumberWithSortCodeIsValid" in forAll(
         journeys
       ) { journey =>
         val personalResponse   =
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = personalBankAccount
-        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val (session, _, _)    =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
@@ -368,44 +356,20 @@ class BankAccountControllerSpec
           mockStoreSession(updatedSession)(Right(()))
           mockPersonalReputation(Right(personalResponse))
         }
-        val form               = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
-        val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
-        val result             = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-        checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-      }
+        val form    = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
+        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
 
-      "Let skip supporting evidence upload page once users already has uploaded evidences" in forAll(journeys) {
-        journey =>
-          val personalResponse =
-            CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
-
-          val bankAccountAnswer = personalBankAccount
-          val evidenceAnswer    = sample[SupportingEvidencesAnswer]
-
-          val (session, _, _)    = sessionWithClaimState(Some(bankAccountAnswer), Some(evidenceAnswer))
-          val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
-          val updatedSession     = updateSession(session, updatedBankAccount)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-            mockStoreSession(updatedSession)(Right(()))
-            mockPersonalReputation(Right(personalResponse))
-          }
-
-          val form    = BankAccountController.enterBankDetailsForm.fill(updatedBankAccount).data.toSeq
-          val request = FakeRequest().withFormUrlEncodedBody(form: _*)
-          val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
-
-          checkIsRedirect(result, fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey))
+        checkIsRedirect(result, routes.BankAccountController.checkBankAccountDetails(journey))
       }
 
       "Fail when the Bank Account Validation fails with accountNumberWithSortCodeIsValid = (Indeterminate or Error or No) and accountExists = (Some(Indeterminate) or Some(Error) or Some(No) or None)" in forAll(
         journeys
       ) { journey =>
         val answers                               = personalBankAccount
-        val (session, _, _)                       = sessionWithClaimState(Some(answers))
+        val (session, _, _)                       =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val form                                  = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request                               = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountNumberWithSortCodeIsValidCases = Seq(No, Indeterminate, ReputationResponse.Error)
@@ -437,7 +401,8 @@ class BankAccountControllerSpec
         journeys
       ) { journey =>
         val answers            = personalBankAccount
-        val (session, _, _)    = sessionWithClaimState(Some(answers))
+        val (session, _, _)    =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         val form               = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
@@ -467,7 +432,8 @@ class BankAccountControllerSpec
           otherError = Some(errorResponse)
         )
         val answers          = personalBankAccount
-        val (session, _, _)  = sessionWithClaimState(Some(answers))
+        val (session, _, _)  =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)

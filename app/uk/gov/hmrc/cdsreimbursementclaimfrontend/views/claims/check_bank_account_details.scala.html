@@ -18,7 +18,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountAcc14
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountView
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
@@ -34,7 +34,7 @@
  summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(bankAccount : BankAccountAcc14, continuePageUrl: String, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(bankAccount : BankAccountView, continuePageUrl: String, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"bank-details"}
     @title = @{messages(s"$key.title")}
