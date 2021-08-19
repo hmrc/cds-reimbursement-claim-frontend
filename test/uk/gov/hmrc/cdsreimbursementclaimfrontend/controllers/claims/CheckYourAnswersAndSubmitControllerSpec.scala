@@ -26,12 +26,14 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -40,12 +42,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
@@ -54,6 +54,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmissionResponseGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -101,16 +102,55 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     )
   }
 
-  val mrn: MRN                                                                          = sample[MRN]
-  val declarantTypeAnswer: DeclarantTypeAnswer                                          = sample[DeclarantTypeAnswer]
-  val completeClaimantDetailsAsIndividualAnswer: CompleteDetailsRegisteredWithCdsAnswer =
-    sample[CompleteDetailsRegisteredWithCdsAnswer]
-  val basisOfClaim: BasisOfClaim                                                        = sample[BasisOfClaim]
-  val supportingEvidences: SupportingEvidencesAnswer                                    = sample[SupportingEvidencesAnswer]
-  val completeDutiesSelectedAnswer: DutiesSelectedAnswer                                = sample[DutiesSelectedAnswer]
-  val commodityDetailsAnswer: CommodityDetails                                          = sample[CommodityDetails]
-  val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer                      = sample[CompleteNorthernIrelandAnswer]
-  val claimsAnswer: ClaimsAnswer                                                        = sample[ClaimsAnswer]
+  val mrn: MRN                                                     = sample[MRN]
+  val declarantTypeAnswer: DeclarantTypeAnswer                     = AssociatedWithRepresentativeCompany
+  val basisOfClaim: BasisOfClaim                                   = sample[BasisOfClaim]
+  val supportingEvidences: SupportingEvidencesAnswer               = sample[SupportingEvidencesAnswer]
+  val completeDutiesSelectedAnswer: DutiesSelectedAnswer           = sample[DutiesSelectedAnswer]
+  val commodityDetailsAnswer: CommodityDetails                     = sample[CommodityDetails]
+  val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer = sample[CompleteNorthernIrelandAnswer]
+  val claimsAnswer: ClaimsAnswer                                   = sample[ClaimsAnswer]
+  val signedInUserDetails                                          = sample[SignedInUserDetails]
+  val declarantEstablishmentAddress                                = EstablishmentAddress(
+    addressLine1 = alphaCharGen(10),
+    addressLine2 = None,
+    addressLine3 = None,
+    postalCode = Some(alphaCharGen(10)),
+    countryCode = "GB"
+  )
+  val declarantDetails                                             = DeclarantDetails(
+    declarantEORI = "F-1",
+    legalName = "Fred Bread",
+    establishmentAddress = declarantEstablishmentAddress,
+    contactDetails = None
+  )
+  val detailsRegisteredWithCdsFormData                             = DetailsRegisteredWithCdsFormData(
+    fullName = declarantDetails.legalName,
+    emailAddress = signedInUserDetails.verifiedEmail,
+    contactAddress = ContactAddress(
+      line1 = declarantEstablishmentAddress.addressLine1,
+      line2 = declarantEstablishmentAddress.addressLine2,
+      line3 = declarantEstablishmentAddress.addressLine3,
+      line4 = "", //declarantEstablishmentAddress.addressLine4,
+      postcode = declarantEstablishmentAddress.postalCode.getOrElse(fail),
+      country = Country(declarantEstablishmentAddress.countryCode)
+    ),
+    addCompanyDetails = false
+  )
+
+  val mrnContactDetailsAnswer: MrnContactDetails = MrnContactDetails(
+    fullName = declarantDetails.legalName,
+    emailAddress = signedInUserDetails.verifiedEmail,
+    phoneNumber = None
+  )
+  val mrnContactAddressAnswer: ContactAddress    = ContactAddress(
+    line1 = declarantEstablishmentAddress.addressLine1,
+    line2 = declarantEstablishmentAddress.addressLine2,
+    line3 = declarantEstablishmentAddress.addressLine3,
+    line4 = "",
+    postcode = declarantEstablishmentAddress.postalCode.getOrElse(fail),
+    country = Country(declarantEstablishmentAddress.countryCode)
+  )
 
   val filledDraftC285Claim: DraftC285Claim = sample[DraftC285Claim].copy(
     movementReferenceNumber = Some(MovementReferenceNumber(Right(mrn))),
@@ -118,8 +158,10 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     declarationDetailsAnswer = None,
     duplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = Some(declarantTypeAnswer),
-    detailsRegisteredWithCdsAnswer = Some(completeClaimantDetailsAsIndividualAnswer),
+    detailsRegisteredWithCdsAnswer = None,
     contactDetailsAnswer = None,
+    mrnContactDetailsAnswer = None,
+    mrnContactAddressAnswer = None,
     bankAccountDetailsAnswer = None,
     basisOfClaimAnswer = Some(basisOfClaim),
     supportingEvidencesAnswer = Some(supportingEvidences),
@@ -152,18 +194,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
               )
             )
           ),
-          declarantDetails = DeclarantDetails(
-            declarantEORI = "F-1",
-            legalName = "Fred Bread",
-            establishmentAddress = EstablishmentAddress(
-              addressLine1 = "line-1",
-              addressLine2 = None,
-              addressLine3 = None,
-              postalCode = None,
-              countryCode = "GB"
-            ),
-            contactDetails = None
-          )
+          declarantDetails = declarantDetails
         )
       )
     ),
@@ -181,7 +212,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = declarantTypeAnswer,
-    completeDetailsRegisteredWithCdsAnswer = completeClaimantDetailsAsIndividualAnswer,
+    completeDetailsRegisteredWithCdsAnswer = CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCdsFormData),
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(basisOfClaim),
     maybeBankAccountDetailsAnswer = None,
@@ -214,18 +245,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
               )
             )
           ),
-          declarantDetails = DeclarantDetails(
-            declarantEORI = "F-1",
-            legalName = "Fred Bread",
-            establishmentAddress = EstablishmentAddress(
-              addressLine1 = "line-1",
-              addressLine2 = None,
-              addressLine3 = None,
-              postalCode = None,
-              countryCode = "GB"
-            ),
-            contactDetails = None
-          )
+          declarantDetails = declarantDetails
         )
       )
     ),
@@ -291,7 +311,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
           val draftClaim = filledDraftC285Claim
 
-          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+          val completelyFilledOutClaim =
+            sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
           val (session, _, _) = sessionWithCompleteClaimState()
 
@@ -340,7 +361,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
           val draftClaim = filledDraftC285Claim
 
-          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+          val completelyFilledOutClaim =
+            sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
           val (session, _, _) = sessionWithCompleteClaimState()
 
@@ -391,7 +413,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
           val draftClaim = filledDraftC285Claim
 
-          val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+          val completelyFilledOutClaim =
+            sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
           val (session, _, _) = sessionWithCompleteClaimState()
 
@@ -481,7 +504,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
         val draftClaim = filledDraftC285Claim
 
-        val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
+        val completelyFilledOutClaim =
+          sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
         val (session, _, _) = sessionWithCompleteClaimState()
 

@@ -31,18 +31,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaiman
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 
 import java.net.URL
 import java.util.UUID
@@ -63,6 +65,9 @@ class CheckClaimantDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache),
       bind[AddressLookupService].toInstance(addressLookupServiceMock)
     )
+
+  val featureSwitch = instanceOf[FeatureSwitchService]
+  featureSwitch.NorthernIreland.enable()
 
   val controller: CheckClaimantDetailsController = instanceOf[CheckClaimantDetailsController]
 
@@ -123,10 +128,15 @@ class CheckClaimantDetailsControllerSpec
     "display the page" when {
       "all mandatory data from Acc14 is available" in forAll(journeys) { journey =>
         val acc14                      = generateAcc14WithAddresses()
+        val mrnContactDetails          = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
+        val mrnContactAddress          = sample[ContactAddress]
+          .copy(line2 = Some(alphaCharGen(10)), line3 = Some(alphaCharGen(10)), country = Country.uk)
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toSelectNumberOfClaims(journey)),
+          Some(mrnContactDetails),
+          Some(mrnContactAddress)
         )
 
         inSequence {
@@ -149,14 +159,16 @@ class CheckClaimantDetailsControllerSpec
             paragraphs.get(5).text()  shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
             paragraphs.get(6).text()  shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
             //Contact Details
-            paragraphs.get(7).text()  shouldBe consignee.contactDetails.flatMap(_.contactName).getOrElse(fail)
-            paragraphs.get(8).text()  shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail)
-            paragraphs.get(9).text()  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
-            paragraphs.get(10).text() shouldBe consignee.contactDetails.flatMap(_.addressLine1).getOrElse(fail)
-            paragraphs.get(11).text() shouldBe consignee.contactDetails.flatMap(_.addressLine2).getOrElse(fail)
-            paragraphs.get(12).text() shouldBe consignee.contactDetails.flatMap(_.addressLine3).getOrElse(fail)
-            paragraphs.get(13).text() shouldBe consignee.contactDetails.flatMap(_.postalCode).getOrElse(fail)
-            paragraphs.size()         shouldBe 15
+            paragraphs.get(7).text()  shouldBe mrnContactDetails.fullName
+            paragraphs.get(8).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
+            paragraphs.get(9).text()  shouldBe mrnContactDetails.emailAddress.value
+            paragraphs.get(10).text() shouldBe mrnContactAddress.line1
+            paragraphs.get(11).text() shouldBe mrnContactAddress.line2.getOrElse(fail)
+            paragraphs.get(12).text() shouldBe mrnContactAddress.line3.getOrElse(fail)
+            paragraphs.get(13).text() shouldBe mrnContactAddress.line4
+            paragraphs.get(14).text() shouldBe mrnContactAddress.postcode
+            paragraphs.get(15).text() shouldBe "United Kingdom"
+            paragraphs.size()         shouldBe 16
           }
         )
       }
@@ -164,14 +176,13 @@ class CheckClaimantDetailsControllerSpec
       "not all mandatory data from Acc14 is available, no contact address is shown" in forAll(journeys) { journey =>
         val acc14 = generateAcc14WithAddresses()
 
-        val (session, foc)  = getSessionWithPreviousAnswer(
+        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
           Some(toSelectNumberOfClaims(journey)),
           None,
           None
         )
-        val fillingOutClaim = removeContactDetails(foc)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -186,12 +197,13 @@ class CheckClaimantDetailsControllerSpec
             val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
             //Registered Details with CDS
             paragraphs.get(0).text() shouldBe consignee.legalName
-            paragraphs.get(1).text() shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
-            paragraphs.get(2).text() shouldBe consignee.establishmentAddress.addressLine1
-            paragraphs.get(3).text() shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
-            paragraphs.get(4).text() shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
-            paragraphs.get(5).text() shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
-            paragraphs.size()        shouldBe 6
+            paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail)
+            paragraphs.get(2).text() shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
+            paragraphs.get(3).text() shouldBe consignee.establishmentAddress.addressLine1
+            paragraphs.get(4).text() shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
+            paragraphs.get(5).text() shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
+            paragraphs.get(6).text() shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
+            paragraphs.size()        shouldBe 7
           }
         )
       }
@@ -211,7 +223,7 @@ class CheckClaimantDetailsControllerSpec
           Some(DeclarantTypeAnswer.Importer),
           Some(toSelectNumberOfClaims(journey))
         )
-        val fillingOutClaim = removeContactDetails(foc)
+        val fillingOutClaim = foc
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -220,18 +232,19 @@ class CheckClaimantDetailsControllerSpec
 
         checkIsRedirect(
           submitAdd(Seq(languageKey -> "0"), journey),
-          routes.EnterOrChangeContactDetailsController.enterMrnContactDetails(journey)
+          routes.EnterContactDetailsController.enterMrnContactDetails(journey)
         )
       }
 
       "user chooses the No option" in forAll(journeys) { journey =>
+        featureSwitch.NorthernIreland.disable()
         val acc14           = generateAcc14WithAddresses()
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
           Some(toSelectNumberOfClaims(journey))
         )
-        val fillingOutClaim = removeContactDetails(foc)
+        val fillingOutClaim = foc
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -240,7 +253,7 @@ class CheckClaimantDetailsControllerSpec
 
         checkIsRedirect(
           submitAdd(Seq(languageKey -> "1"), journey),
-          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>
@@ -250,7 +263,7 @@ class CheckClaimantDetailsControllerSpec
           Some(DeclarantTypeAnswer.Importer),
           Some(toSelectNumberOfClaims(journey))
         )
-        val fillingOutClaim = removeContactDetails(foc)
+        val fillingOutClaim = foc
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -278,7 +291,7 @@ class CheckClaimantDetailsControllerSpec
             Some(DeclarantTypeAnswer.Importer),
             Some(toSelectNumberOfClaims(journey))
           )
-          val fillingOutClaim = removeContactDetails(foc)
+          val fillingOutClaim = foc
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -309,11 +322,14 @@ class CheckClaimantDetailsControllerSpec
         )
 
       "user chooses the Yes option" in forAll(journeys) { journey =>
+        featureSwitch.NorthernIreland.disable()
         val acc14   = generateAcc14WithAddresses()
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toSelectNumberOfClaims(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
 
         inSequence {
@@ -323,7 +339,7 @@ class CheckClaimantDetailsControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "0"), journey),
-          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+          routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
 
@@ -332,7 +348,9 @@ class CheckClaimantDetailsControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toSelectNumberOfClaims(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
 
         inSequence {
@@ -351,7 +369,9 @@ class CheckClaimantDetailsControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toSelectNumberOfClaims(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
 
         inSequence {
@@ -378,7 +398,9 @@ class CheckClaimantDetailsControllerSpec
           val session = getSessionWithPreviousAnswer(
             Some(acc14),
             Some(DeclarantTypeAnswer.Importer),
-            Some(toSelectNumberOfClaims(journey))
+            Some(toSelectNumberOfClaims(journey)),
+            Some(sample[MrnContactDetails]),
+            Some(sample[ContactAddress].copy(country = Country.uk))
           )._1
 
           inSequence {
@@ -423,17 +445,6 @@ class CheckClaimantDetailsControllerSpec
       val address = extractEstablishmentAddress(fillingOutClaim)
       address shouldBe acc14consignee.map(_.establishmentAddress)
 
-      val contactDetails = extractContactDetails(fillingOutClaim)
-      contactDetails.name                     shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.contactName)
-      contactDetails.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
-
-      val contactAddress = extractContactAddress(fillingOutClaim)
-      contactAddress.map(_.line1)        shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.addressLine1)
-      contactAddress.flatMap(_.line2)    shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.addressLine2)
-      contactAddress.map(_.postcode)     shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.postalCode)
-      contactAddress.map(_.country.code) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.countryCode)
-
     }
 
     "Acc14 extractors for DeclarantTypeAnswer.AssociatedWithImporterCompany" in {
@@ -454,17 +465,6 @@ class CheckClaimantDetailsControllerSpec
       val address = extractEstablishmentAddress(fillingOutClaim)
       address shouldBe acc14consignee.map(_.establishmentAddress)
 
-      val contactDetails = extractContactDetails(fillingOutClaim)
-      contactDetails.name                     shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.contactName)
-      contactDetails.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
-
-      val contactAddress = extractContactAddress(fillingOutClaim)
-      contactAddress.map(_.line1)        shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.addressLine1)
-      contactAddress.flatMap(_.line2)    shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.addressLine2)
-      contactAddress.map(_.postcode)     shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.postalCode)
-      contactAddress.map(_.country.code) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.countryCode)
-
     }
 
     "Acc14 extractors for DeclarantTypeAnswer.AssociatedWithRepresentativeCompany" in {
@@ -484,42 +484,6 @@ class CheckClaimantDetailsControllerSpec
 
       val address = extractEstablishmentAddress(fillingOutClaim)
       address.getOrElse(fail) shouldBe acc14Declarant.establishmentAddress
-
-      val contactDetails = extractContactDetails(fillingOutClaim)
-      contactDetails.name                     shouldBe acc14Declarant.contactDetails.flatMap(_.contactName)
-      contactDetails.phoneNumber.map(_.value) shouldBe acc14Declarant.contactDetails.flatMap(_.telephone)
-      namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
-
-      val contactAddress = extractContactAddress(fillingOutClaim)
-      contactAddress.map(_.line1)        shouldBe acc14Declarant.contactDetails.flatMap(_.addressLine1)
-      contactAddress.flatMap(_.line2)    shouldBe acc14Declarant.contactDetails.flatMap(_.addressLine2)
-      contactAddress.map(_.postcode)     shouldBe acc14Declarant.contactDetails.flatMap(_.postalCode)
-      contactAddress.map(_.country.code) shouldBe acc14Declarant.contactDetails.flatMap(_.countryCode)
-    }
-
-    "Extract ContactDetails and ContactAddress from session store instead of Acc14" in {
-      val acc14           = generateAcc14WithAddresses()
-      val contactDetails  = sample[MrnContactDetails]
-      val contactAddress  = sample[ContactAddress]
-      val fillingOutClaim =
-        getSessionWithPreviousAnswer(
-          Some(acc14),
-          Some(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany),
-          Some(toSelectNumberOfClaims(JourneyBindable.Single)),
-          Some(contactDetails),
-          Some(contactAddress)
-        )._2
-
-      val extractedContactDetails = extractContactDetails(fillingOutClaim)
-      extractedContactDetails.name.getOrElse(fail)    shouldBe contactDetails.fullName
-      extractedContactDetails.phoneNumber             shouldBe contactDetails.phoneNumber
-      extractedContactDetails.email.getOrElse(fail()) shouldBe contactDetails.emailAddress
-
-      val extractedContactAddress = extractContactAddress(fillingOutClaim)
-      extractedContactAddress.map(_.line1).getOrElse(fail)    shouldBe contactAddress.line1
-      extractedContactAddress.flatMap(_.line2)                shouldBe contactAddress.line2
-      extractedContactAddress.map(_.postcode).getOrElse(fail) shouldBe contactAddress.postcode
-      extractedContactAddress.map(_.country).getOrElse(fail)  shouldBe contactAddress.country
 
     }
 
@@ -574,7 +538,7 @@ class CheckClaimantDetailsControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe true
+      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {

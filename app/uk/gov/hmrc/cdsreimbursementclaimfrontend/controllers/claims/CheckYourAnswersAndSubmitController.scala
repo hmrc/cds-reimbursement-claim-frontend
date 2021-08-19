@@ -187,12 +187,12 @@ class CheckYourAnswersAndSubmitController @Inject() (
             sessionData,
             fillingOutClaim @ FillingOutClaim(
               _,
-              _,
+              signedInUserDetails,
               draftClaim: DraftC285Claim
             )
           ) =>
         CompleteC285Claim
-          .fromDraftClaim(draftClaim)
+          .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
           .fold[Future[Result]](
             e => {
               logger.warn(s"could not make a complete claim", e)

@@ -20,7 +20,7 @@ import cats.implicits._
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckClaimantDetailsController, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MrnContactDetails, NamePhoneEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
@@ -45,12 +45,12 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
     ).flattenOption
 
   def renderContactDetails(
-    contactDetails: NamePhoneEmail,
+    maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress],
     router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
-      if (contactDetails.nonEmpty()) Some(renderContactDetails(contactDetails, router)) else None,
+      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, router)),
       maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
     ).flattenOption
 
@@ -81,11 +81,11 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
     )
   }
 
-  def renderContactDetails(namePhoneEmail: NamePhoneEmail, router: ReimbursementRoutes): SummaryListRow = {
+  def renderContactDetails(contactDetails: MrnContactDetails, router: ReimbursementRoutes): SummaryListRow = {
     val data = List(
-      namePhoneEmail.name.map(getParagraph),
-      namePhoneEmail.phoneNumber.map(a => getParagraph(a.value)),
-      namePhoneEmail.email.map(a => getParagraph(a.value))
+      Some(getParagraph(contactDetails.fullName)),
+      contactDetails.phoneNumber.map(a => getParagraph(a.value)),
+      Some(getParagraph(contactDetails.emailAddress.value))
     ).flattenOption
 
     SummaryListRow(
@@ -97,8 +97,7 @@ class ClaimantDetailsHelper @Inject() (implicit langs: Langs, messages: Messages
           "govuk-link",
           List(
             ActionItem(
-              href =
-                s"${routes.EnterOrChangeContactDetailsController.changeMrnContactDetails(router.journeyBindable).url}",
+              href = s"${routes.EnterContactDetailsController.changeMrnContactDetails(router.journeyBindable).url}",
               Text(messages("claimant-details.change")(lang))
             )
           )

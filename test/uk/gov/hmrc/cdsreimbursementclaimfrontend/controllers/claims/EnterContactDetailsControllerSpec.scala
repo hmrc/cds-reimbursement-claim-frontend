@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 import scala.concurrent.Future
 
-class EnterOrChangeContactDetailsControllerSpec
+class EnterContactDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -56,7 +56,7 @@ class EnterOrChangeContactDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterOrChangeContactDetailsController = instanceOf[EnterOrChangeContactDetailsController]
+  lazy val controller: EnterContactDetailsController = instanceOf[EnterContactDetailsController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -76,9 +76,9 @@ class EnterOrChangeContactDetailsControllerSpec
   val phoneData = Some(sample[PhoneNumber])
 
   val goodData = Map(
-    "enter-or-change-contact-details.contact-name"         -> "Mr Pip",
-    "enter-or-change-contact-details.contact-email"        -> emailData.value,
-    "enter-or-change-contact-details.contact-phone-number" -> phoneData.getOrElse(fail).value
+    "enter-contact-details.contact-name"         -> "Mr Pip",
+    "enter-contact-details.contact-email"        -> emailData.value,
+    "enter-contact-details.contact-phone-number" -> phoneData.getOrElse(fail).value
   )
 
   private def getSessionWithPreviousAnswer(
@@ -146,7 +146,7 @@ class EnterOrChangeContactDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-or-change-contact-details.add.title")
+          messageFromMessageKey("enter-contact-details.add.title")
         )
       }
 
@@ -168,7 +168,7 @@ class EnterOrChangeContactDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-or-change-contact-details.change.title")
+          messageFromMessageKey("enter-contact-details.change.title")
         )
       }
 
@@ -189,16 +189,16 @@ class EnterOrChangeContactDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-or-change-contact-details.change.title"),
+          messageFromMessageKey("enter-contact-details.change.title"),
           doc => {
             doc
-              .getElementById("enter-or-change-contact-details.contact-name")
+              .getElementById("enter-contact-details.contact-name")
               .`val`() shouldBe contactDetails.fullName
             doc
-              .getElementById("enter-or-change-contact-details.contact-email")
+              .getElementById("enter-contact-details.contact-email")
               .`val`() shouldBe contactDetails.emailAddress.value
             doc
-              .getElementById("enter-or-change-contact-details.contact-phone-number")
+              .getElementById("enter-contact-details.contact-phone-number")
               .`val`() shouldBe contactDetails.phoneNumber.map(_.value).getOrElse(fail)
           }
         )
@@ -239,17 +239,17 @@ class EnterOrChangeContactDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(Seq.empty, journey),
-          messageFromMessageKey("enter-or-change-contact-details.change.title"),
+          messageFromMessageKey("enter-contact-details.change.title"),
           doc => {
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-or-change-contact-details.contact-name.error.required"
+              s"enter-contact-details.contact-name.error.required"
             )
             doc
               .select(".govuk-error-summary__list > li:nth-child(2) > a")
               .text() shouldBe messageFromMessageKey(
-              s"enter-or-change-contact-details.contact-email.error.required"
+              s"enter-contact-details.contact-email.error.required"
             )
           },
           BAD_REQUEST
@@ -260,10 +260,10 @@ class EnterOrChangeContactDetailsControllerSpec
   }
 
   "Form Validation" must {
-    val form         = EnterOrChangeContactDetailsController.mrnContactDetailsForm
-    val fullName     = "enter-or-change-contact-details.contact-name"
-    val emailAddress = "enter-or-change-contact-details.contact-email"
-    val phone        = "enter-or-change-contact-details.contact-phone-number"
+    val form         = EnterContactDetailsController.mrnContactDetailsForm
+    val fullName     = "enter-contact-details.contact-name"
+    val emailAddress = "enter-contact-details.contact-email"
+    val phone        = "enter-contact-details.contact-phone-number"
 
     val goodData = Map(
       fullName     -> "Nephilim Import Export Ltd",

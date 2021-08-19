@@ -22,7 +22,7 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
@@ -32,10 +32,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
@@ -71,7 +74,7 @@ object CompleteClaim {
 
   object CompleteC285Claim {
 
-    def fromDraftClaim(draftClaim: DraftClaim): Either[Error, CompleteC285Claim] =
+    def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, CompleteC285Claim] =
       draftClaim match {
         case DraftClaim.DraftC285Claim(
               id,
@@ -83,8 +86,8 @@ object CompleteClaim {
               draftDeclarantTypeAnswer,
               draftDetailsRegisteredWithCdsAnswer,
               draftContactDetailsAnswer,
-              _, //Option[MrnContactDetails]
-              _, //Option[NonUkAddress]
+              draftMrnContactDetails,
+              draftMrnContactAddress,
               maybeBankAccountDetails,
               _,
               maybeBasisForClaim,
@@ -108,8 +111,8 @@ object CompleteClaim {
                 validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
                 validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateDetailsRegisteredWithCdsAnswer(draftDetailsRegisteredWithCdsAnswer),
-                validateClaimantDetailsAsImporterAnswer(draftContactDetailsAnswer),
+                validateDetailsRegisteredWithCdsEntryNumber(draftDetailsRegisteredWithCdsAnswer),
+                validateClaimantContactDetailsEntryNumber(draftContactDetailsAnswer),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -160,8 +163,8 @@ object CompleteClaim {
             case Right(_) =>
               (
                 validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-                validateDetailsRegisteredWithCdsAnswer(draftDetailsRegisteredWithCdsAnswer),
-                validateClaimantDetailsAsImporterAnswer(draftContactDetailsAnswer),
+                validateDetailsRegisteredWithCdsMrn(draftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
+                validateClaimantContactDetailsMrn(draftMrnContactDetails, draftMrnContactAddress),
                 validateSupportingEvidencesAnswer(maybeSupportingEvidences),
                 validateCommodityDetailsAnswer(draftCommodityAnswer),
                 validateNorthernIrelandAnswer(draftNorthernIrelandAnswer),
@@ -289,7 +292,7 @@ object CompleteClaim {
   ): Validation[SupportingEvidencesAnswer] =
     maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
 
-  def validateClaimantDetailsAsImporterAnswer(
+  def validateClaimantContactDetailsEntryNumber(
     maybeClaimantDetailsAsImporterCompanyAnswer: Option[ContactDetailsAnswer]
   ): Validation[Option[CompleteContactDetailsAnswer]] =
     maybeClaimantDetailsAsImporterCompanyAnswer match {
@@ -305,7 +308,23 @@ object CompleteClaim {
       case None        => Valid(None)
     }
 
-  def validateDetailsRegisteredWithCdsAnswer(
+  def validateClaimantContactDetailsMrn(
+    maybeContactDetails: Option[MrnContactDetails],
+    maybeContactAddress: Option[ContactAddress]
+  ): Validation[Option[CompleteContactDetailsAnswer]] =
+    (maybeContactDetails, maybeContactAddress)
+      .mapN { (contactDetails, contactAddress) =>
+        val contactDetailsFormData = ContactDetailsFormData(
+          companyName = contactDetails.fullName,
+          emailAddress = contactDetails.emailAddress,
+          phoneNumber = contactDetails.phoneNumber.getOrElse(PhoneNumber("")),
+          contactAddress = contactAddress
+        )
+        Valid(Some(CompleteContactDetailsAnswer(contactDetailsFormData)))
+      }
+      .getOrElse(Valid(None))
+
+  def validateDetailsRegisteredWithCdsEntryNumber(
     maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
   ): Validation[CompleteDetailsRegisteredWithCdsAnswer] =
     maybeDetailsRegisteredWithCdsAnswer match {
@@ -317,6 +336,23 @@ object CompleteClaim {
         }
       case None        => invalid("missing claimant details type answer")
     }
+
+  def validateDetailsRegisteredWithCdsMrn(
+    maybeDeclarantType: Option[DeclarantTypeAnswer],
+    maybeDisplayDeclaration: Option[DisplayDeclaration],
+    verifiedEmail: Email
+  ): Validation[CompleteDetailsRegisteredWithCdsAnswer] =
+    (maybeDeclarantType, maybeDisplayDeclaration)
+      .mapN { (declarantType, displayDeclaration) =>
+        val detailsRegisteredWithCdsFormData = declarantType match {
+          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+            consigneeToClaimantDetails(displayDeclaration, verifiedEmail)
+          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+            declarantToClaimantDetails(displayDeclaration, verifiedEmail)
+        }
+        Valid(CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCdsFormData))
+      }
+      .getOrElse(invalid("Missing declarant type or display declaration"))
 
   def validateDeclarantTypeAnswer(
     maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
