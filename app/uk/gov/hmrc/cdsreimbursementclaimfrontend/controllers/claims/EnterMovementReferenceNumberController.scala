@@ -123,7 +123,7 @@ class EnterMovementReferenceNumberController @Inject() (
               val currentValue                   = mrnOrEntryNumber.stringValue
               (previousValue === currentValue && isAmend) match {
                 case true  =>
-                  Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                  Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
                 case false =>
                   mrnOrEntryNumber match {
                     case entryNumberAnswer @ MovementReferenceNumber(Left(_)) =>
