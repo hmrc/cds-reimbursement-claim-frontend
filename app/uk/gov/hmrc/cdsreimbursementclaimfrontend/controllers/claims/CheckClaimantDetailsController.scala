@@ -108,10 +108,8 @@ class CheckClaimantDetailsController @Inject() (
                 case YesClaimantDetailsAnswer =>
                   Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
                 case NoClaimantDetailsAnswer  =>
-                  val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-                  val updatedClaim   = fillingOutClaim.copy(draftClaim =
-                    draftC285Claim.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
-                  )
+                  val updatedClaim = FillingOutClaim
+                    .of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None))
                   EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
                     .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                     .fold(

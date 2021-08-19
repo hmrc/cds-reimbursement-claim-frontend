@@ -45,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
@@ -112,10 +112,10 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
   val claimsAnswer: ClaimsAnswer                                   = sample[ClaimsAnswer]
   val signedInUserDetails                                          = sample[SignedInUserDetails]
   val declarantEstablishmentAddress                                = EstablishmentAddress(
-    addressLine1 = "line-1",
+    addressLine1 = alphaCharGen(10),
     addressLine2 = None,
     addressLine3 = None,
-    postalCode = Some("AB11C22"),
+    postalCode = Some(alphaCharGen(10)),
     countryCode = "GB"
   )
   val declarantDetails                                             = DeclarantDetails(

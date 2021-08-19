@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Applicative
 import cats.data.EitherT
 import cats.implicits._
 import com.google.inject.{Inject, Singleton}
@@ -309,7 +308,7 @@ object EnterMovementReferenceNumberController {
         val declarant = displayDeclaration.displayResponseDetail.declarantDetails
         declarant.contactDetails
     }).flatMap { contactDetails =>
-      Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) { (addressLine1, postCode) =>
+      (contactDetails.addressLine1, contactDetails.postalCode).mapN { (addressLine1, postCode) =>
         ContactAddress(
           addressLine1,
           contactDetails.addressLine2,
