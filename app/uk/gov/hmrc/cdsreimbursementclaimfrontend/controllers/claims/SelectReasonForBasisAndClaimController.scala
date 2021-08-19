@@ -213,7 +213,10 @@ class SelectReasonForBasisAndClaimController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not store reason for reason and basis answer"),
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                _ =>
+                  Redirect(
+                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                  )
               )
             }
           )

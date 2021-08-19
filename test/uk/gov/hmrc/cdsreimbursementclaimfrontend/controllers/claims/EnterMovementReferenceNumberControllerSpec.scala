@@ -40,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{genOtherThan, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
@@ -532,7 +533,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           redirectLocation(
             result
-          ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+          ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable).url
       }
 
       "return to CYA page if the same entry number is submitted" in {
@@ -541,16 +542,18 @@ class EnterMovementReferenceNumberControllerSpec
         val entryNumber     = sample[EntryNumber]
         val answers         = sampleEntryNumberAnswer(entryNumber)
         val (session, _, _) = sessionWithClaimState(answers, Some(Individual))
+        val journeyBindable = sample[JourneyBindable]
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result          = performAction(JourneyBindable.Single, enterMovementReferenceNumberKey -> entryNumber.value)
+        val result = performAction(journeyBindable, enterMovementReferenceNumberKey -> entryNumber.value)
 
         status(result) shouldBe 303
         redirectLocation(
           result
-        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers().url
+        ).value        shouldBe routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable).url
       }
 
       "start a new claim if a different MRN is submitted" in forAll(keys) {

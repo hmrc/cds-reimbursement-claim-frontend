@@ -211,7 +211,7 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.dataKey -> "0")),
+          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "0")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }
@@ -227,7 +227,7 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.dataKey -> "1")),
+          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "1")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }
@@ -243,7 +243,7 @@ class SelectBankAccountTypeControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(SelectBankAccountTypeController.dataKey -> "1")),
+          performAction(journey, Seq(SelectBankAccountTypeController.selectBankAccountTypeKey -> "1")),
           routes.BankAccountController.enterBankAccountDetails(journey)
         )
       }

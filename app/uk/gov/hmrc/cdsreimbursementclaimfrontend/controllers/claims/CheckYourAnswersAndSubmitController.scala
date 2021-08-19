@@ -58,14 +58,10 @@ class CheckYourAnswersAndSubmitController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def checkAllAnswers(): Action[AnyContent] =
+  def checkAllAnswers(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim(request) { (_, _, completeClaim) =>
-        Ok(
-          checkYourAnswersPage(
-            completeClaim
-          )
-        )
+        Ok(checkYourAnswersPage(journey, completeClaim))
       }
     }
 

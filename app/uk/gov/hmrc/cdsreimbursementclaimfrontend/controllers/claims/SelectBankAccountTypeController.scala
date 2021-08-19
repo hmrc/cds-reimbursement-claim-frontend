@@ -96,12 +96,12 @@ class SelectBankAccountTypeController @Inject() (
 
 object SelectBankAccountTypeController {
 
-  val dataKey: String = "select-bank-account-type"
+  val selectBankAccountTypeKey: String = "select-bank-account-type"
 
   val bankAccountTypeForm: Form[BankAccountType] =
     Form(
       mapping(
-        dataKey -> number
+        selectBankAccountTypeKey -> number
           .verifying("invalid", a => allAccountTypes.map(_.value).contains(a))
           .transform[BankAccountType](allAccountsIntToType, allAccountsTypeToInt)
       )(identity)(Some(_))

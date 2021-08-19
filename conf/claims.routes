@@ -80,24 +80,24 @@ POST        /single/enter-reason-for-claim-and-basis                uk.gov.hmrc.
 GET         /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis()
 POST        /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit()
 
-GET         /:journey/check-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.show(journey: JourneyBindable)
-POST        /:journey/check-declaration-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.submit(journey: JourneyBindable)
+GET         /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.show(journey: JourneyBindable)
+POST        /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.submit(journey: JourneyBindable)
 
-GET         /:journey/check-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.show(journey: JourneyBindable)
-POST        /:journey/check-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.submit(journey: JourneyBindable)
+GET         /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.show(journey: JourneyBindable)
+POST        /:journey/check-duplicate-declaration-details           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDuplicateDeclarationDetailsController.submit(journey: JourneyBindable)
 
-GET         /:journey/check-these-bank-details-are-correct            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails(journey: JourneyBindable)
+GET         /:journey/check-these-bank-details-are-correct          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.checkBankAccountDetails(journey: JourneyBindable)
 
-GET         /:journey/enter-bank-account-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/enter-bank-account-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
+POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/change-bank-account-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/change-bank-account-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/change-bank-account-details                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails(journey: JourneyBindable)
+POST        /:journey/change-bank-account-details                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/bank-account-type                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
-POST        /:journey/bank-account-type                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
+GET         /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountType(journey: JourneyBindable)
+POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
 
-GET         /single/check-answers-accept-send                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers()
+GET         /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers(journey: JourneyBindable)
 POST        /single/check-answers-accept-send                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
 
 GET         /single/claim-submitted                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission()

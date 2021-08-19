@@ -669,7 +669,7 @@ class CheckYourAnswersHelper @Inject() (implicit
       }
     ).flattenOption
 
-  def makeSupportingEvidenceSummary(supportingEvidences: List[UploadDocument])(implicit
+  def makeSupportingEvidenceSummary(journey: JourneyBindable, supportingEvidences: List[UploadDocument])(implicit
     messages: Messages
   ): List[SummaryListRow] =
     supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
@@ -680,7 +680,7 @@ class CheckYourAnswersHelper @Inject() (implicit
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers().url}",
+                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1))
               )

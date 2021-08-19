@@ -250,7 +250,11 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
 
                     result.fold(
                       logAndDisplayError("could not capture claimant as individual details"),
-                      _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                      _ =>
+                        Redirect(
+                          routes.CheckYourAnswersAndSubmitController
+                            .checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                        )
                     )
                   } else if (o) {
                     // this means user doesn't want the importer company details so we trash that
@@ -276,7 +280,11 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
 
                     result.fold(
                       logAndDisplayError("could not capture claimant as individual details"),
-                      _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                      _ =>
+                        Redirect(
+                          routes.CheckYourAnswersAndSubmitController
+                            .checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                        )
                     )
 
                   } else {
@@ -304,7 +312,10 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                         )
                     )
                   }
-                case _                  => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                case _                  =>
+                  Redirect(
+                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                  )
               }
             }
           )

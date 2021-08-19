@@ -69,8 +69,8 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForEnterMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsController.enterMrnContactDetailsSubmit(journeyBindable)
 
-  def submitUrlForEnterOrChangeBankAccountDetails(isAmend: Boolean): Call =
-    if (isAmend) claimRoutes.BankAccountController.changeBankAccountDetailsSubmit(journeyBindable)
+  def submitUrlForEnterOrChangeBankAccountDetails(isChange: Boolean): Call =
+    if (isChange) claimRoutes.BankAccountController.changeBankAccountDetailsSubmit(journeyBindable)
     else claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
@@ -105,7 +105,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
@@ -116,26 +116,25 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
       case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
-    }
+    if (isAmend)
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {
       claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     } else {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     }
 
-  def nextPageForAddClaimantDetails(anwer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
-    anwer match {
+  def nextPageForAddClaimantDetails(answer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
+    answer match {
       case YesClaimantDetailsAnswer =>
         claimRoutes.EnterContactDetailsController.enterMrnContactDetailsSubmit(journeyBindable)
       case NoClaimantDetailsAnswer  =>
@@ -161,6 +160,14 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCheckBankAccountDetails(): Call =
     claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
+
+  def nextPageForEnterBankAccountDetails(
+    hasBankAccountType: Boolean
+  ): Call =
+    hasBankAccountType match {
+      case false => claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
+      case true  => claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable)
+    }
 
   def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)

@@ -148,8 +148,12 @@ class StartController @Inject() (
       case NonGovernmentGatewayJourney =>
         Redirect(routes.StartController.weOnlySupportGG())
 
-      case _: FillingOutClaim =>
-        Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+      case claim: FillingOutClaim =>
+        Redirect(
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(
+            TemporaryJourneyExtractor.extractJourney(claim)
+          )
+        )
 
       case _: JustSubmittedClaim =>
         Redirect(

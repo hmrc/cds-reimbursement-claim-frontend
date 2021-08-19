@@ -96,14 +96,16 @@ object TemporaryJourneyExtractor extends SessionDataExtractor {
 
   def extractJourney(implicit request: RequestWithSessionData[_]): JourneyBindable =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
-        getNumberOfClaims(draftClaim) match {
-          case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
-          case SelectNumberOfClaimsAnswer.Bulk       => JourneyBindable.Bulk
-          case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
-        }
-      case _                                                   =>
+      case Some(fillingOutClaim: FillingOutClaim) =>
+        extractJourney(fillingOutClaim)
+      case _                                      =>
         JourneyBindable.Single
     }
 
+  def extractJourney(fillingOutClaim: FillingOutClaim): JourneyBindable =
+    getNumberOfClaims(fillingOutClaim.draftClaim) match {
+      case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
+      case SelectNumberOfClaimsAnswer.Bulk       => JourneyBindable.Bulk
+      case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
+    }
 }

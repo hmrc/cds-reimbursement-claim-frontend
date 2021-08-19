@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
@@ -31,4 +32,6 @@ object BankAccountType {
   val allAccountsTypeToInt: Map[BankAccountType, Int] = allAccountTypes.map(a => a -> a.value).toMap
 
   implicit val format: OFormat[BankAccountType] = derived.oformat[BankAccountType]()
+
+  implicit val eq: Eq[BankAccountType] = Eq.fromUniversalEquals[BankAccountType]
 }

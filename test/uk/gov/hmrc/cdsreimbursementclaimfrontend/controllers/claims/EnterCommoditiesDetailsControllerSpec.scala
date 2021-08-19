@@ -246,8 +246,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
-          routes.CheckYourAnswersAndSubmitController
-            .checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         )
       }
 

@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountAcc14
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountView
 
 import javax.inject.{Inject, Singleton}
 
@@ -34,7 +34,7 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
   private val key = "bank-details"
 
   def bankAccountDetailsSummary(
-    displayBankAccountDetails: BankAccountAcc14,
+    displayBankAccountDetails: BankAccountView,
     router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
