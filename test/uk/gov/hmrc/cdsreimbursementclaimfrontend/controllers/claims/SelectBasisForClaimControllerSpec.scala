@@ -265,7 +265,7 @@ class SelectBasisForClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq("select-basis-for-claim" -> "4")),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
 

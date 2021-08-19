@@ -106,7 +106,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
@@ -117,26 +117,25 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
       case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
   def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
-    }
+    if (isAmend)
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {
       claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     } else {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     }
 
-  def nextPageForAddClaimantDetails(anwer: CheckClaimantDetailsAnswer): Call =
-    anwer match {
+  def nextPageForAddClaimantDetails(answer: CheckClaimantDetailsAnswer): Call =
+    answer match {
       case YesClaimantDetailsAnswer =>
         claimRoutes.EnterOrChangeContactDetailsController.enterMrnContactDetailsSubmit(journeyBindable)
       case NoClaimantDetailsAnswer  =>

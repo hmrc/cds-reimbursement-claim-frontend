@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import org.scalacheck.magnolia.{Typeclass, gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 
-object ClaimGen {
-  implicit val arbitraryMrnContactDetailsGen: Arbitrary[MrnContactDetails] = gen[MrnContactDetails]
+object JourneyBindableGen {
+
+  implicit val arbitraryJourneyBindable: Typeclass[JourneyBindable] = gen[JourneyBindable]
 }

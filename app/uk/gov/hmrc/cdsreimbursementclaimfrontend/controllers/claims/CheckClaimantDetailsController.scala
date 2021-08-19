@@ -36,8 +36,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaiman
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
@@ -291,7 +291,7 @@ object CheckClaimantDetailsController {
       .getOrElse(NamePhoneEmail(None, None, None))
   }
 
-  def extractContactAddress(fillingOutClaim: FillingOutClaim): Option[NonUkAddress] = {
+  def extractContactAddress(fillingOutClaim: FillingOutClaim): Option[ContactAddress] = {
     val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     draftC285Claim.mrnContactAddressAnswer
       .orElse(
@@ -305,7 +305,7 @@ object CheckClaimantDetailsController {
             }).flatMap { contactDetails =>
               Applicative[Option].map2(contactDetails.addressLine1, contactDetails.postalCode) {
                 (addressLine1, postCode) =>
-                  NonUkAddress(
+                  ContactAddress(
                     addressLine1,
                     contactDetails.addressLine2,
                     None,

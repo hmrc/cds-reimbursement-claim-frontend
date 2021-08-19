@@ -59,8 +59,11 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalafmtOnCompile := true)
   .settings(scalaVersion := "2.12.14")
   .settings(TwirlKeys.templateImports := Seq.empty)
-  .settings(routesImport := Seq("_root_.controllers.Assets.Asset"))
-  .settings(RoutesKeys.routesImport += "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable")
+  .settings(routesImport := Seq(
+    "_root_.controllers.Assets.Asset",
+    "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
+    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference"
+  ))
   .settings(majorVersion := 1)
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test

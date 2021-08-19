@@ -297,7 +297,10 @@ class EnterDeclarationDetailsController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not capture declaration details"),
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                _ =>
+                  Redirect(
+                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                  )
               )
             }
           )

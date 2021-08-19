@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -40,7 +40,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[NonUkAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:NamePhoneEmail, contactAddress:Option[ContactAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckClaimantDetailsController.languageKey}
 @title = @{messages(s"$key.title")}

@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import org.scalamock.handlers.CallHandler3
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -48,6 +47,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelecte
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -60,11 +60,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckYourAnswersAndSubmitControllerSpec
-    extends ControllerSpec
-    with AuthSupport
-    with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
   val mockClaimService: ClaimService = mock[ClaimService]
 
@@ -89,8 +85,7 @@ class CheckYourAnswersAndSubmitControllerSpec
       .expects(submitClaimRequest, *, *)
       .returning(EitherT.fromEither[Future](response))
 
-  private def sessionWithCompleteClaimState(
-  ): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
+  private def sessionWithCompleteClaimState(): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val completeC285Claim   = sample[CompleteC285Claim]
@@ -245,12 +240,13 @@ class CheckYourAnswersAndSubmitControllerSpec
 
     "handling requests to check all answers" must {
 
-      def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+      def performAction(journey: JourneyBindable): Future[Result] =
+        controller.checkAllAnswers(journey)(FakeRequest())
 
       "redirect to the start of the journey" when {
 
         "there is no journey status in the session" in {
-
+          val journey         = sample[JourneyBindable]
           val (session, _, _) = sessionWithCompleteClaimState()
 
           inSequence {
@@ -259,7 +255,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           }
 
           checkIsRedirect(
-            performAction(),
+            performAction(journey),
             baseRoutes.StartController.start()
           )
 
@@ -459,8 +455,10 @@ class CheckYourAnswersAndSubmitControllerSpec
     "show a technical error page" when {
 
       "the user has not completely filled in the claim" in {
+        def performAction(journey: JourneyBindable): Future[Result] =
+          controller.checkAllAnswers(journey)(FakeRequest())
 
-        def performAction(): Future[Result] = controller.checkAllAnswers()(FakeRequest())
+        val journey = sample[JourneyBindable]
 
         val draftC285Claim = sample[DraftC285Claim].copy(commoditiesDetailsAnswer = None)
 
@@ -473,7 +471,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        checkIsTechnicalErrorPage(performAction())
+        checkIsTechnicalErrorPage(performAction(journey))
 
       }
 

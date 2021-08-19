@@ -117,52 +117,51 @@ class EnterMovementReferenceNumberController @Inject() (
               }
               val previousValue                  = previousAnswer.map(_.stringValue).getOrElse("")
               val currentValue                   = mrnOrEntryNumber.stringValue
-              (previousValue === currentValue && isAmend) match {
-                case true  =>
-                  Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-                case false =>
-                  mrnOrEntryNumber match {
-                    case entryNumberAnswer @ MovementReferenceNumber(Left(_)) =>
-                      EitherT(updateSession(sessionStore, request)(updateMRN(fillingOutClaim, entryNumberAnswer)))
-                        .leftMap(_ => Error("Could not save Entry Number"))
-                        .fold(
-                          errorRedirect,
-                          _ =>
-                            Redirect(
-                              getRoutes(
-                                getNumberOfClaims(fillingOutClaim.draftClaim),
-                                Option(mrnOrEntryNumber),
-                                journey
-                              ).nextPageForEnterMRN(ErnImporter)
-                            )
-                        )
-                    case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
-                      val result = for {
-                        maybeAcc14     <- claimService
-                                            .getDisplayDeclaration(mrn)
-                                            .leftMap(_ => Error("Could not get declaration"))
-                        mrnJourneyFlow <-
-                          fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
-                            .leftMap(_ => Error("could not evaluate MRN flow"))
-                        declaration    <-
-                          fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
-                        _              <-
-                          EitherT(
-                            updateSession(sessionStore, request)(
-                              updateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration)
-                            )
-                          )
-                            .leftMap(_ => Error("Could not save Display Declaration"))
-                      } yield mrnJourneyFlow
-                      result.fold(
+              if (previousValue === currentValue && isAmend)
+                Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+              else {
+                mrnOrEntryNumber match {
+                  case entryNumberAnswer @ MovementReferenceNumber(Left(_)) =>
+                    EitherT(updateSession(sessionStore, request)(updateMRN(fillingOutClaim, entryNumberAnswer)))
+                      .leftMap(_ => Error("Could not save Entry Number"))
+                      .fold(
                         errorRedirect,
-                        mrnJourney =>
+                        _ =>
                           Redirect(
-                            getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
-                              .nextPageForEnterMRN(mrnJourney)
+                            getRoutes(
+                              getNumberOfClaims(fillingOutClaim.draftClaim),
+                              Option(mrnOrEntryNumber),
+                              journey
+                            ).nextPageForEnterMRN(ErnImporter)
                           )
                       )
-                  }
+                  case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
+                    val result = for {
+                      maybeAcc14     <- claimService
+                                          .getDisplayDeclaration(mrn)
+                                          .leftMap(_ => Error("Could not get declaration"))
+                      mrnJourneyFlow <-
+                        fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
+                          .leftMap(_ => Error("could not evaluate MRN flow"))
+                      declaration    <-
+                        fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
+                      _              <-
+                        EitherT(
+                          updateSession(sessionStore, request)(
+                            updateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration)
+                          )
+                        )
+                          .leftMap(_ => Error("Could not save Display Declaration"))
+                    } yield mrnJourneyFlow
+                    result.fold(
+                      errorRedirect,
+                      mrnJourney =>
+                        Redirect(
+                          getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
+                            .nextPageForEnterMRN(mrnJourney)
+                        )
+                    )
+                }
               }
             }
           )

@@ -17,8 +17,11 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +33,7 @@
     dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
-@(upscanUpload : UpscanUpload)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@(upscanUpload : UpscanUpload, typesOfEvidences: Seq[UploadDocumentType], router: ReimbursementRoutes)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
     @key = @{"supporting-evidence.upload"}
     @field = @{"file"}
@@ -61,9 +64,9 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.uploadDropDownContent)
+        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(typesOfEvidences, key))
 
         <form action="@href" method="post" enctype="multipart/form-data">
 
@@ -74,14 +77,13 @@
             @inputFile(
                 id = field,
                 name = field,
-                label = s"$key.title",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                hint = Some(s"$key.hint")
+                label = s"$key.input-title",
+                labelClasses = Some("govuk-label"),
+                isPageHeading = false
             )
 
             <div class="govuk-!-margin-bottom-9">
-                @submitButton("button.saveAndContinue")
+                @submitButton("button.continue")
             </div>
 
         </form>

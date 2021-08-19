@@ -30,9 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Address.NonUkAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AddressLookupGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -83,7 +83,7 @@ class EnterOrChangeContactDetailsControllerSpec
 
   private def getSessionWithPreviousAnswer(
     maybeMrnContactDetailsAnswer: Option[MrnContactDetails],
-    mrnContactAddressAnswer: Option[NonUkAddress],
+    mrnContactAddressAnswer: Option[ContactAddress],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim
@@ -154,7 +154,7 @@ class EnterOrChangeContactDetailsControllerSpec
         def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
 
         val contactDetailsAnswer = Some(sample[MrnContactDetails])
-        val contactAddressAnswer = Some(sample[NonUkAddress])
+        val contactAddressAnswer = Some(sample[ContactAddress])
         val session              = getSessionWithPreviousAnswer(
           contactDetailsAnswer,
           contactAddressAnswer,
@@ -176,7 +176,7 @@ class EnterOrChangeContactDetailsControllerSpec
         def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
         val phone                           = Some(sample[PhoneNumber])
         val contactDetails                  = sample[MrnContactDetails].copy(phoneNumber = phone)
-        val contactAddressAnswer            = Some(sample[NonUkAddress])
+        val contactAddressAnswer            = Some(sample[ContactAddress])
 
         val answers = Some(contactDetails)
         val session =

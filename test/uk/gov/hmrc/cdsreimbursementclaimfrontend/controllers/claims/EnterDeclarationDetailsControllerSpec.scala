@@ -431,7 +431,10 @@ class EnterDeclarationDetailsControllerSpec
             controller.enterDeclarationDetailsSubmit(),
             routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
           ),
-          (controller.changeDeclarationDetailsSubmit(), routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+          (
+            controller.changeDeclarationDetailsSubmit(),
+            routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          )
         )
 
         forAll(testCases) { (action, redirectPage) =>
