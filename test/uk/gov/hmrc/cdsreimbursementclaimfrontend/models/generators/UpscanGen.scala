@@ -26,6 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEviden
 
 object UpscanGen extends OptionValues {
 
+  def genEvidenceDocumentType(isEntryNumberJourneyEnabled: Boolean): Gen[UploadDocumentType] =
+    Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes(isEntryNumberJourneyEnabled))
+
   implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
   implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
@@ -37,6 +40,13 @@ object UpscanGen extends OptionValues {
   implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
   implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
+
+  implicit val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
+    for {
+      isEntryNumberJourneyEnabled <- Gen.oneOf(true, false)
+      evidenceType                <- genEvidenceDocumentType(isEntryNumberJourneyEnabled)
+    } yield evidenceType
+  }
 
   implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = gen[UploadDocument]
 
@@ -52,11 +62,4 @@ object UpscanGen extends OptionValues {
 
   def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
-
-  def genSupportingDocumentType(): Gen[UploadDocumentType] =
-    for {
-      isEntryNumberJourneyEnabled    <- Gen.oneOf(true, false)
-      supportingEvidenceDocumentType <-
-        Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes(isEntryNumberJourneyEnabled))
-    } yield supportingEvidenceDocumentType
 }
