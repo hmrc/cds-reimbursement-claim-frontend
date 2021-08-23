@@ -316,6 +316,13 @@ claimant-details.invalid=Select whether you wish to remove contact details.
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 
 #===================================================
+#  CLAIMANT TIMEOUT PAGE
+#===================================================
+claimant-details-timed-out.title=For your security, we signed you out
+claimant-details-timed-out.help=We did not save your additional contact details.
+claimant-details-timed-out.button=Check your contact details as registered with CDS
+
+#===================================================
 #  ENTER OR CHANGE CONTACT DETAILS PAGE
 #===================================================
 enter-contact-details.change.title=Change contact details
@@ -719,6 +726,15 @@ check-claim-summary.no=No, select different duties
 check-claim-summary.error.required=Select yes if details are correct
 check-claim-summary.error.invalid=Select yes if details are correct
 
+
+#===================================================
+#  CHECK CLAIM TIMEOUT PAGE
+#===================================================
+check-claim-timed-out.title=For your security, we signed you out numpty
+check-claim-timed-out.p1=This was because you were inactive for too long silly.
+check-claim-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
+check-claim-timed-out.button=Sign in
+
 #===================================================
 #  ENTER LEAD MRN OR ENTRY NUMBER PLACEHOLDER PAGE
 #===================================================
@@ -751,7 +767,7 @@ select-bank-account-type.error.required=Select if you are providing details for 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.p1=This is where you would like reimbursements (repayments) to be made in the UK.\
+enter-bank-details.p1=This is where you would like reimbursements (repayments) to be made in the UK.
 enter-bank-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-details.account-name.label=Name on the account
 enter-bank-details.account-name.error.required=Enter a valid account name
