@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReason
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
@@ -56,7 +55,7 @@ object CompleteClaim {
     maybeCompleteDeclarationDetailsAnswer: Option[CompleteDeclarationDetailsAnswer],
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: DeclarantTypeAnswer,
-    completeDetailsRegisteredWithCdsAnswer: CompleteDetailsRegisteredWithCdsAnswer,
+    completeDetailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsFormData,
     maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[BasisOfClaim],
     maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
@@ -325,15 +324,10 @@ object CompleteClaim {
       .getOrElse(Valid(None))
 
   def validateDetailsRegisteredWithCdsEntryNumber(
-    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
-  ): Validation[CompleteDetailsRegisteredWithCdsAnswer] =
+    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsFormData]
+  ): Validation[DetailsRegisteredWithCdsFormData] =
     maybeDetailsRegisteredWithCdsAnswer match {
-      case Some(value) =>
-        value match {
-          case DetailsRegisteredWithCdsAnswer.IncompleteDetailsRegisteredWithCdsAnswer(_) =>
-            invalid("incomplete claimant details type answer")
-          case c: CompleteDetailsRegisteredWithCdsAnswer                                  => Valid(c)
-        }
+      case Some(value) => Valid(value)
       case None        => invalid("missing claimant details type answer")
     }
 
@@ -341,7 +335,7 @@ object CompleteClaim {
     maybeDeclarantType: Option[DeclarantTypeAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     verifiedEmail: Email
-  ): Validation[CompleteDetailsRegisteredWithCdsAnswer] =
+  ): Validation[DetailsRegisteredWithCdsFormData] =
     (maybeDeclarantType, maybeDisplayDeclaration)
       .mapN { (declarantType, displayDeclaration) =>
         val detailsRegisteredWithCdsFormData = declarantType match {
@@ -350,7 +344,7 @@ object CompleteClaim {
           case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
             declarantToClaimantDetails(displayDeclaration, verifiedEmail)
         }
-        Valid(CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCdsFormData))
+        Valid(detailsRegisteredWithCdsFormData)
       }
       .getOrElse(invalid("Missing declarant type or display declaration"))
 
@@ -449,7 +443,7 @@ object CompleteClaim {
       completeClaim.get(_.maybeContactDetailsAnswer).map(_.contactDetailsFormData)
 
     def detailsRegisteredWithCds: DetailsRegisteredWithCdsFormData =
-      completeClaim.get(_.completeDetailsRegisteredWithCdsAnswer.detailsRegisteredWithCds)
+      completeClaim.get(_.detailsRegisteredWithCds)
 
     def commodityDetails: String =
       completeClaim.get(_.commodityDetailsAnswer.value)

@@ -22,7 +22,6 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -44,7 +43,7 @@ object DraftClaim {
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer] = None,
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
     declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
-    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
+    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsFormData] = None,
     contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None,
@@ -85,15 +84,7 @@ object DraftClaim {
         .fold(sys.error("no movement or entry reference number found"))(_.isRight)
 
     def detailsRegisteredWithCds: Option[DetailsRegisteredWithCdsFormData] = draftClaim match {
-      case dc: DraftC285Claim =>
-        dc.detailsRegisteredWithCdsAnswer match {
-          case Some(answer) =>
-            answer match {
-              case complete: CompleteDetailsRegisteredWithCdsAnswer     => Some(complete.detailsRegisteredWithCds)
-              case incomplete: IncompleteDetailsRegisteredWithCdsAnswer => incomplete.detailsRegisteredWithCds
-            }
-          case None         => None
-        }
+      case dc: DraftC285Claim => dc.detailsRegisteredWithCdsAnswer
       case _                  => None
     }
 
