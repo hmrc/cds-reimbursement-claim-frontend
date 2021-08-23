@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, Er
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
@@ -44,6 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Er
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -59,7 +60,8 @@ class CheckClaimantDetailsController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
-  claimantDetails: pages.check_claimant_details
+  claimantDetails: pages.check_claimant_details,
+  claimTimedOutPage: views.html.claimant_details_timed_out
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -121,11 +123,14 @@ class CheckClaimantDetailsController @Inject() (
       }
     }
 
+  def claimTimedOut(journeyBindable: JourneyBindable): Action[AnyContent] =
+    Action(implicit request => Ok(claimTimedOutPage(journeyBindable)))
+
   def changeAddress(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       implicit val timeoutConfig: TimeoutConfig = TimeoutConfig(
         timeoutAmount = viewConfig.timeout,
-        timeoutUrl = viewConfig.buildCompleteSelfUrl(baseRoutes.StartController.timedOut()),
+        timeoutUrl = viewConfig.claimTimedOutUrl(journey),
         timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
       )
 

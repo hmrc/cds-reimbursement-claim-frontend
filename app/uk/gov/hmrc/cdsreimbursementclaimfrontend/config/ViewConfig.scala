@@ -19,7 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
@@ -47,16 +48,21 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     servicesConfig.getDuration("gg.countdown").toSeconds
 
   val ggKeepAliveUrl: String =
-    "/claim-for-reimbursement-of-import-duties" + routes.StartController.keepAlive().url
+    "/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController.keepAlive().url
 
   val ggTimedOutUrl: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .timedOut()
       .url
 
   val ggSignOut: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .start()
+      .url
+
+  def claimTimedOutUrl(journeyBindable: JourneyBindable): String =
+    getString("external-url.cds") + claimsRoutes.CheckClaimantDetailsController
+      .claimTimedOut(journeyBindable)
       .url
 
   val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
@@ -128,5 +134,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 
-  def routeToSwitchLanguage: String => Call = (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
+  def routeToSwitchLanguage: String => Call = (lang: String) =>
+    baseRoutes.LanguageSwitchController.switchToLanguage(lang)
 }
