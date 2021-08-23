@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
+import cats.Eq
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
-import play.api.data.Forms.{mapping, number}
-import play.api.data._
+import play.api.data.Form
+import play.api.data.Forms.{boolean, mapping, number, optional}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.{chooseSupportEvidenceDocumentTypeForm, configKey}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.{DoNotAddAnotherDocument, YesAddAnotherDocument, addAnotherDocumentAnswerForm, chooseSupportEvidenceDocumentTypeForm, configKey}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -265,15 +266,30 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(journey, evidences, maxUploads))
+          Ok(checkYourAnswersPage(journey, evidences, maxUploads, addAnotherDocumentAnswerForm))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
     }
 
   def checkYourAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithSessionData.async {
-      Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+    authenticatedActionWithSessionData.async { implicit request =>
+      addAnotherDocumentAnswerForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            withAnswers[SupportingEvidencesAnswer] { (_, maybeEvidences) =>
+              maybeEvidences.fold(
+                Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+              )(evidences => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)))
+            },
+          {
+            case YesAddAnotherDocument   =>
+              Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+            case DoNotAddAnotherDocument =>
+              Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+          }
+        )
     }
 }
 
@@ -285,6 +301,7 @@ object SupportingEvidenceController {
 
   val configKey: String                 = "supporting-evidence"
   val chooseDocumentTypeDataKey: String = "supporting-evidence.choose-document-type"
+  val checkYourAnswersDataKey: String   = "supporting-evidence.check-your-answers"
 
   def chooseSupportEvidenceDocumentTypeForm(
     typesOfEvidences: Seq[UploadDocumentType]
@@ -298,5 +315,24 @@ object SupportingEvidenceController {
           )
           .transform[UploadDocumentType](evidenceIndicesToTypes, evidenceTypesToIndices)
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
+    )
+
+  sealed trait AddAnotherDocumentAnswer extends Product with Serializable
+  case object YesAddAnotherDocument extends AddAnotherDocumentAnswer
+  case object DoNotAddAnotherDocument extends AddAnotherDocumentAnswer
+
+  implicit val addAnotherDocumentAnswerEq: Eq[AddAnotherDocumentAnswer] =
+    Eq.fromUniversalEquals[AddAnotherDocumentAnswer]
+
+  val addAnotherDocumentAnswerForm: Form[AddAnotherDocumentAnswer] =
+    Form(
+      mapping(
+        checkYourAnswersDataKey -> optional(boolean)
+          .verifying("invalid-answer", _.isDefined)
+          .transform[AddAnotherDocumentAnswer](
+            opt => if (opt.exists(_ === true)) YesAddAnotherDocument else DoNotAddAnotherDocument,
+            answer => Some(answer === YesAddAnotherDocument)
+          )
+      )(identity)(Some(_))
     )
 }
