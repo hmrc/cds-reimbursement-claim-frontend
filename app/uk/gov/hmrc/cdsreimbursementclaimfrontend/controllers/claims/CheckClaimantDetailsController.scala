@@ -122,6 +122,7 @@ class CheckClaimantDetailsController @Inject() (
           )
       }
     }
+
   def claimTimedOut(journeyBindable: JourneyBindable): Action[AnyContent] =
     Action(implicit request => Ok(claimTimedOutPage(journeyBindable)))
 
