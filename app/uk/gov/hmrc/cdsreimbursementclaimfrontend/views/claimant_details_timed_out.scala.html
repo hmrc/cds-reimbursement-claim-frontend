@@ -9,7 +9,7 @@
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-        buttonLink: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button_link
+        button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
 
@@ -24,6 +24,6 @@
 
     @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
 
-    @buttonLink(messages(s"$key.button"), routes.CheckClaimantDetailsController.show(journeyBindable).url)
+    @button(messages(s"$key.button"), Some(routes.CheckClaimantDetailsController.show(journeyBindable).url))
 
 }
