@@ -61,7 +61,7 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .url
 
   def claimTimedOutUrl(journeyBindable: JourneyBindable): String =
-    "https://www.tax.service.gov.uk/claim-for-reimbursement-of-import-duties" + claimsRoutes.CheckClaimantDetailsController
+    getString("external-url.cds") + claimsRoutes.CheckClaimantDetailsController
       .claimTimedOut(journeyBindable)
       .url
 

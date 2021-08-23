@@ -94,7 +94,7 @@ class CheckClaimantDetailsController @Inject() (
       }
     }
 
-  def change(implicit journey: JourneyBindable): Action[AnyContent]       =
+  def change(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
