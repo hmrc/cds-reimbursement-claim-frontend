@@ -164,7 +164,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -250,7 +250,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)

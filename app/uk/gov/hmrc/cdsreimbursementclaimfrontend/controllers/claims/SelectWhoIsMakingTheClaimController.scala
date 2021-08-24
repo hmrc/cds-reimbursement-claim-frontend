@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -75,16 +76,16 @@ class SelectWhoIsMakingTheClaimController @Inject() (
           .fold(
             formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, isAmend, router)),
             formOk => {
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim
-                  .fold(_.copy(declarantTypeAnswer = Option(formOk)))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+              val updatedJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(declarantTypeAnswer = Option(formOk)))
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("Could not save Declarant Type"))
                 .fold(
                   logAndDisplayError("Submit Declarant Type error: "),
-                  _ => Redirect(router.nextPageForWhoIsMakingTheClaim(isAmend))
+                  _ =>
+                    Redirect(
+                      router.nextPageForWhoIsMakingTheClaim(fillingOutClaim.draftClaim.movementReferenceNumber, isAmend)
+                    )
                 )
             }
           )
