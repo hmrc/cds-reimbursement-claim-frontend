@@ -792,14 +792,12 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid Sort Code
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
-supporting-evidence.check-your-answers.title=Confirm these are the files you want to submit
-supporting-evidence.check-your-answers.file-label=Document {0}
-supporting-evidence.check-your-answers.help-text=You can add more files as evidence to support your claim.
-supporting-evidence.check-your-answers.do-you-want-to-upload-evidence=Do you want to upload any supporting evidence?
-supporting-evidence.check-your-answers.cya-change=Change
-supporting-evidence.check-your-answers.assistive=the file named {0}
-supporting-evidence.check-your-answers.add-another-file=<a href="{0}" class="govuk-link">Add another file</a>
-supporting-evidence.upload.title=Upload files to support your claim
+supporting-evidence.check-your-answers.title=You have added {0} document{1} to your claim
+supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. So we can process your claim efficiently, add the commercial invoice used in the import declaration.
+supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?
+supporting-evidence.check-your-answers.error.required=Select whether you would like to add a supporting document
+supporting-evidence.check-your-answers.invalid-answer=Select whether you would like to add a supporting document
+supporting-evidence.upload.title=Add documents to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.help-text=Upload supporting evidence you have received for the commodities you have imported. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.
 supporting-evidence.upload.scheduled.help-text=Upload supporting evidence of the commodities imported for all of your MRNs. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.

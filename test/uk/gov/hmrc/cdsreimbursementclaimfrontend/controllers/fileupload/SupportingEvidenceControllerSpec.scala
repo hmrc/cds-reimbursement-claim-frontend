@@ -21,7 +21,8 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, status, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswersDataKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -35,12 +36,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
 class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
-  val controller = instanceOf[SupportingEvidenceController]
+  private val controller    = instanceOf[SupportingEvidenceController]
+  private val featureSwitch = instanceOf[FeatureSwitchService]
+
+  featureSwitch.EntryNumber.enable()
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -269,7 +274,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "supporting evidence is not found" in {
           val journey         = sample[JourneyBindable]
           val uploadReference = sample[UploadReference]
-          val documentType    = sample(genSupportingDocumentType())
+          val documentType    = sample[UploadDocumentType]
           val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = None)
 
           inSequence {
@@ -287,9 +292,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "an error caught on session update" in {
           val journeyBindable    = sample[JourneyBindable]
           val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+          val documentType       = sample[UploadDocumentType]
           val answer             = List(supportingEvidence).toNel
-
-          val documentType = sample(genSupportingDocumentType())
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -321,9 +325,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         "document type is successfully selected" in {
           val journeyBindable    = sample[JourneyBindable]
           val supportingEvidence = sample[UploadDocument].copy(documentType = None)
+          val documentType       = sample[UploadDocumentType]
           val answer             = List(supportingEvidence).toNel
-
-          val documentType = sample(genSupportingDocumentType())
 
           val (session, journey, draftClaim) = sessionWithClaimState(answer)
 
@@ -686,7 +689,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
     "handling actions on check your answer" must {
 
-      def performAction(journey: JourneyBindable): Future[Result] = controller.checkYourAnswers(journey)(FakeRequest())
+      def performAction(journey: JourneyBindable): Future[Result] =
+        controller.checkYourAnswers(journey)(FakeRequest())
 
       "display the file upload page" when {
 
@@ -711,9 +715,6 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
             stripUUID(expectedRedirectUrl)
           )
         }
-      }
-
-      "display the file upload page" when {
 
         "the use has never answered this question" in {
           val journey         = sample[JourneyBindable]
@@ -731,9 +732,9 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
         }
       }
 
-      "display the check your answers page" when {
+      "show the count of uploaded documents in the title" when {
 
-        "the user has completed the supporting evidence section" in {
+        "displaying the check your answers page" in {
           val journey = sample[JourneyBindable]
           val answer  = sample[SupportingEvidencesAnswer]
 
@@ -747,10 +748,91 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           checkPageIsDisplayed(
             performAction(journey),
             messageFromMessageKey(
-              "supporting-evidence.check-your-answers.title"
+              "supporting-evidence.check-your-answers.title",
+              answer.size,
+              if (answer.size > 1) "s" else ""
             )
           )
         }
+      }
+    }
+
+    "submitting supporting evidence answers" must {
+
+      def performAction(journey: JourneyBindable, whetherAddNewDocument: Option[Boolean]): Future[Result] =
+        controller.checkYourAnswersSubmit(journey)(
+          FakeRequest()
+            .withFormUrlEncodedBody(checkYourAnswersDataKey -> whetherAddNewDocument.fold("")(_.toString))
+        )
+
+      "redirect to check all your answers page" when {
+
+        "user responded do not add more documents" in {
+          val journey = sample[JourneyBindable]
+          val answer  = sample[SupportingEvidencesAnswer]
+
+          val (session, _, _) = sessionWithClaimState(Some(answer))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(journey, whetherAddNewDocument = Some(false)),
+            claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
+          )
+        }
+      }
+
+      "redirect to upload new document page" when {
+
+        "user decided to add more documents" in {
+          val journey = sample[JourneyBindable]
+          val answer  = sample[SupportingEvidencesAnswer]
+
+          val (session, _, _) = sessionWithClaimState(Some(answer))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(journey, whetherAddNewDocument = Some(true)),
+            routes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+          )
+        }
+      }
+
+      "show validation error if answer is undefined" in {
+        val journey = sample[JourneyBindable]
+        val answer  = sample[SupportingEvidencesAnswer]
+
+        val (session, _, _) = sessionWithClaimState(Some(answer))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        status(performAction(journey, whetherAddNewDocument = None)) should be(BAD_REQUEST)
+      }
+
+      "redirect to upload evidence page if not answers exist" in {
+        val journey = sample[JourneyBindable]
+
+        val (session, _, _) = sessionWithClaimState(None)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(journey, whetherAddNewDocument = None),
+          routes.SupportingEvidenceController.uploadSupportingEvidence(journey)
+        )
       }
     }
   }
