@@ -228,9 +228,12 @@ class BankAccountController @Inject() (
 
 object BankAccountController {
 
-  val accountNumberRegex: Predicate[String]        = "^\\d{8}$".r.pattern.asPredicate()
+  val accountNumberRegex: Predicate[String] = "^\\d{6,8}$".r.pattern.asPredicate()
+
   val accountNumberMapping: Mapping[AccountNumber] =
-    nonEmptyText(minLength = 6, maxLength = 8)
+    nonEmptyText
+      .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
+      .verifying("invalid", accountNumberRegex.test(_))
       .transform[AccountNumber](
         s => {
           val paddedNumber = s.reverse.padTo(8, '0').reverse
@@ -238,7 +241,6 @@ object BankAccountController {
         },
         _.value
       )
-      .verifying("invalid", e => accountNumberRegex.test(e.value))
 
   val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
   val sortCodeMapping: Mapping[SortCode] =
