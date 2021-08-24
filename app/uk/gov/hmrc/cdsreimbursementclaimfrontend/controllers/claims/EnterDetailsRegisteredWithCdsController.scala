@@ -17,22 +17,16 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
-import cats.syntax.either._
-import cats.syntax.option._
 import com.google.inject.{Inject, Singleton}
-import julienrf.json.derived
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText, of}
-import play.api.libs.json.OFormat
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{DetailsRegisteredWithCdsFormData, consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.{CompleteDetailsRegisteredWithCdsAnswer, IncompleteDetailsRegisteredWithCdsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
@@ -44,7 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterDetailsRegisteredWithCdsController @Inject() (
@@ -59,38 +53,69 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
     with WithAuthAndSessionDataAction
     with SessionUpdates
     with Logging {
+
+  implicit val dataExtractor: DraftC285Claim => Option[DetailsRegisteredWithCdsAnswer] =
+    _.detailsRegisteredWithCdsAnswer
+
+  implicit protected val journeyBindable = JourneyBindable.Single
+
+  def enterDetailsRegisteredWithCds(): Action[AnyContent]  = show(false)
+  def changeDetailsRegisteredWithCds(): Action[AnyContent] = show(true)
+
+  def show(isAmend: Boolean): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (_, answers, router) =>
+        val emptyForm  = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
+        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+        Ok(detailsRegisteredWithCdsPage(filledForm, isAmend, router))
+      }
+    }
+
+  def enterDetailsRegisteredWithCdsSubmit(): Action[AnyContent]  = submit(false)
+  def changeDetailsRegisteredWithCdsSubmit(): Action[AnyContent] = submit(true)
+
+  def submit(isAmend: Boolean): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (fillingOutClaim, _, router) =>
+        EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => BadRequest(detailsRegisteredWithCdsPage(formWithErrors, isAmend, router)),
+            formOk => {
+              val updatedJourney =
+                FillingOutClaim.of(fillingOutClaim)(_.copy(detailsRegisteredWithCdsAnswer = Option(formOk)))
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("Could not save Details Registered with CDS Type"))
+                .fold(
+                  logAndDisplayError("Submit Details Registered with CDS: "),
+                  _ => Redirect(router.nextPageForDetailsRegisteredWithCDS(fillingOutClaim.draftClaim.declarantType))
+                )
+            }
+          )
+      }
+
+    }
+
 }
 
 object EnterDetailsRegisteredWithCdsController {
 
-  final case class DetailsRegisteredWithCdsFormData(
-    fullName: String,
-    emailAddress: Email,
-    contactAddress: ContactAddress,
-    addCompanyDetails: Boolean
-  )
-
-  object DetailsRegisteredWithCdsFormData {
-    implicit val format: OFormat[DetailsRegisteredWithCdsFormData] =
-      derived.oformat[DetailsRegisteredWithCdsFormData]()
-  }
-
-  val detailsRegisteredWithCdsForm: Form[DetailsRegisteredWithCdsFormData] = Form(
+  val detailsRegisteredWithCdsForm: Form[DetailsRegisteredWithCdsAnswer] = Form(
     mapping(
       "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
       "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
       ""                                                                   -> ContactAddress.addressFormMapping,
       "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
-    )(DetailsRegisteredWithCdsFormData.apply)(DetailsRegisteredWithCdsFormData.unapply)
+    )(DetailsRegisteredWithCdsAnswer.apply)(DetailsRegisteredWithCdsAnswer.unapply)
   )
 
   def consigneeToClaimantDetails(
     displayDeclaration: DisplayDeclaration,
     verifiedEmail: Email
-  ): DetailsRegisteredWithCdsFormData = {
+  ): DetailsRegisteredWithCdsAnswer = {
     val declaration          = displayDeclaration.displayResponseDetail
     val establishmentAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
-    DetailsRegisteredWithCdsFormData(
+    DetailsRegisteredWithCdsAnswer(
       declaration.consigneeDetails.map(_.legalName).getOrElse(""),
       verifiedEmail,
       ContactAddress(
@@ -108,10 +133,10 @@ object EnterDetailsRegisteredWithCdsController {
   def declarantToClaimantDetails(
     displayDeclaration: DisplayDeclaration,
     verifiedEmail: Email
-  ): DetailsRegisteredWithCdsFormData = {
+  ): DetailsRegisteredWithCdsAnswer = {
     val declaration          = displayDeclaration.displayResponseDetail
     val establishmentAddress = declaration.declarantDetails.establishmentAddress
-    DetailsRegisteredWithCdsFormData(
+    DetailsRegisteredWithCdsAnswer(
       declaration.declarantDetails.legalName,
       verifiedEmail,
       ContactAddress(

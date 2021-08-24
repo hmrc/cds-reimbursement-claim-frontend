@@ -24,7 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 trait SubmitRoutes extends Product with Serializable {
@@ -76,6 +77,10 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForSelectBankAccountType(): Call =
     claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
 
+  def submitDetailsRegisteredWithCds(isAmend: Boolean): Call =
+    if (isAmend) claimRoutes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit
+    else claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -120,10 +125,15 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case false => claimRoutes.SelectDutiesController.selectDuties()
     }
 
-  def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    if (isAmend)
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+  def nextPageForWhoIsMakingTheClaim(mrnOrEntryNumber: Option[Either[EntryNumber, MRN]], isAmend: Boolean): Call =
+    mrnOrEntryNumber match {
+      case Some(Right(_)) =>
+        if (isAmend)
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+        else claimRoutes.CheckClaimantDetailsController.show(journeyBindable)
+      case _              =>
+        claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+    }
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {
@@ -171,6 +181,19 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
+
+  def nextPageForDetailsRegisteredWithCDS(declarantType: Option[DeclarantTypeAnswer]): Call =
+    declarantType match {
+      case Some(declarantType) =>
+        declarantType match {
+          case DeclarantTypeAnswer.Importer =>
+            claimRoutes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
+          case _                            =>
+            claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+        }
+      case None                =>
+        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+    }
 
 }
 

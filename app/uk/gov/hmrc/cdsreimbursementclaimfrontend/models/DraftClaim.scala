@@ -21,7 +21,6 @@ import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -43,7 +42,7 @@ object DraftClaim {
     declarationDetailsAnswer: Option[DeclarationDetailsAnswer] = None,
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
     declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
-    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsFormData] = None,
+    detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
     contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None,
@@ -83,7 +82,7 @@ object DraftClaim {
       draftClaim.movementReferenceNumber
         .fold(sys.error("no movement or entry reference number found"))(_.isRight)
 
-    def detailsRegisteredWithCds: Option[DetailsRegisteredWithCdsFormData] = draftClaim match {
+    def detailsRegisteredWithCds: Option[DetailsRegisteredWithCdsAnswer] = draftClaim match {
       case dc: DraftC285Claim => dc.detailsRegisteredWithCdsAnswer
       case _                  => None
     }
