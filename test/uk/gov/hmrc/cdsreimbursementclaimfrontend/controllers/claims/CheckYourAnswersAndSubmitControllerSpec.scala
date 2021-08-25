@@ -26,11 +26,9 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.DetailsRegisteredWithCdsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer.CompleteDetailsRegisteredWithCdsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
@@ -124,7 +122,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     establishmentAddress = declarantEstablishmentAddress,
     contactDetails = None
   )
-  val detailsRegisteredWithCdsFormData                             = DetailsRegisteredWithCdsFormData(
+  val detailsRegisteredWithCdsFormData                             = DetailsRegisteredWithCdsAnswer(
     fullName = declarantDetails.legalName,
     emailAddress = signedInUserDetails.verifiedEmail,
     contactAddress = ContactAddress(
@@ -212,7 +210,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     maybeCompleteDeclarationDetailsAnswer = None,
     maybeCompleteDuplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = declarantTypeAnswer,
-    completeDetailsRegisteredWithCdsAnswer = CompleteDetailsRegisteredWithCdsAnswer(detailsRegisteredWithCdsFormData),
+    detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsFormData,
     maybeContactDetailsAnswer = None,
     maybeBasisOfClaimAnswer = Some(basisOfClaim),
     maybeBankAccountDetailsAnswer = None,

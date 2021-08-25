@@ -531,11 +531,11 @@ class BankAccountControllerSpec
       }
       "Reject accountNumber too short" in {
         val errors = form.bind(goodData.updated(accountNumber, numStringGen(5))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.minLength")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.length")
       }
       "Reject accountNumber too long" in {
         val errors = form.bind(goodData.updated(accountNumber, numStringGen(9))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("error.length")
       }
     }
   }
