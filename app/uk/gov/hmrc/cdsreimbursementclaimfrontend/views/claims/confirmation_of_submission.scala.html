@@ -62,10 +62,8 @@
             )
         )
 
-        @paragraph(Html(messages(s"$key.what-next.p2")), Some("govuk-body"))
-
         <p class="govuk-body"><a href="@{routes.StartController.startNewClaim().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
-        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.feedbackSignOut)), Some("govuk-body"))
+        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.serviceFeedBackUrl)), Some("govuk-body"))
 
     }

@@ -17,6 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Eq
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 import play.api.mvc.PathBindable
 
 sealed abstract class JourneyBindable(val value: String) extends Product with Serializable
@@ -41,6 +43,8 @@ object JourneyBindable {
     override def unbind(key: String, bindable: JourneyBindable): String =
       bindable.value
   }
+
+  implicit val format: OFormat[JourneyBindable] = derived.oformat()
 
   implicit val eq: Eq[JourneyBindable] = Eq.fromUniversalEquals[JourneyBindable]
 }

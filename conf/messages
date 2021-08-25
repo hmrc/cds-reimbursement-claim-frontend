@@ -66,7 +66,7 @@ recruitment-banner.message=Help improve GOV.UK
 recruitment-banner.dismiss=No thanks
 recruitment-banner.link=Get involved in making Government services better (opens in a new tab)
 
-exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>  This page will sign you out of this service where you can leave your feedback. 
+exit-survey.link-text=<a href="{0}" class="govuk-link">What did you think of this service?</a>
 
 #===================================================
 #  MESSAGES FOR PAGES
@@ -984,7 +984,6 @@ confirmation-of-submission.what-next.p1=Your application will be reviewed by HMR
 confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
-confirmation-of-submission.what-next.p2=Print or save a copy of this page for your records.
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
 
 #===================================================

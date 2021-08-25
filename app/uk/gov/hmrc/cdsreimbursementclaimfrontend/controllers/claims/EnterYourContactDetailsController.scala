@@ -289,7 +289,7 @@ class EnterYourContactDetailsController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not capture contact details"),
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
+                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(extractJourney))
               )
             }
           )

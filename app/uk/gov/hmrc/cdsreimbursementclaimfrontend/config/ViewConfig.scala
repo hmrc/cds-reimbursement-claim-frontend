@@ -65,10 +65,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .claimTimedOut(journeyBindable)
       .url
 
-  val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
-    config.get[String]("microservice.services.feedback.source")
-
-  val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
+  val serviceFeedBackUrl: String = {
+    val baseUrl = config.get[String]("microservice.services.feedback.url")
+    val path    = config.get[String]("microservice.services.feedback.source")
+    s"$baseUrl$path"
+  }
 
   val govUkUrl: String = getString("external-url.gov-uk")
 

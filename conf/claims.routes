@@ -100,11 +100,11 @@ GET         /:journey/bank-account-type                             uk.gov.hmrc.
 POST        /:journey/bank-account-type                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journey: JourneyBindable)
 
 GET         /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswers(journey: JourneyBindable)
-POST        /single/check-answers-accept-send                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit()
+POST        /:journey/check-answers-accept-send                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey: JourneyBindable)
 
-GET         /single/claim-submitted                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+GET         /:journey/claim-submitted                               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey: JourneyBindable)
 
-GET         /single/check-if-claim-was-sent                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError()
+GET         /:journey/check-if-claim-was-sent                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError(journey: JourneyBindable)
 
 GET         /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journey: JourneyBindable)

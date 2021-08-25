@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.Lang
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -65,7 +66,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
       }
     }
 
-  def checkAllAnswersSubmit(): Action[AnyContent] =
+  def checkAllAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
         val result =
@@ -82,7 +83,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                  case _: SubmitClaimError =>
                                    SubmitClaimFailed(
                                      fillingOutClaim.ggCredId,
-                                     fillingOutClaim.signedInUserDetails
+                                     fillingOutClaim.signedInUserDetails,
+                                     journey
                                    )
                                  case SubmitClaimSuccess(
                                        submitClaimResponse
@@ -91,7 +93,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                      fillingOutClaim.ggCredId,
                                      fillingOutClaim.signedInUserDetails,
                                      completeClaim,
-                                     submitClaimResponse
+                                     submitClaimResponse,
+                                     journey
                                    )
                                }
             _               <- EitherT(
@@ -107,17 +110,14 @@ class CheckYourAnswersAndSubmitController @Inject() (
             case SubmitClaimError(e) =>
               logger.warn(s"Could not submit return}", e)
               Redirect(
-                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError()
+                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError(journey)
               )
 
             case SubmitClaimSuccess(_) =>
               logger.info(
                 s"Successfully submitted claim with claim id :${completeClaim.id}"
               )
-              Redirect(
-                claimsRoutes.CheckYourAnswersAndSubmitController
-                  .confirmationOfSubmission()
-              )
+              Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
           }
         )
       }
@@ -147,33 +147,41 @@ class CheckYourAnswersAndSubmitController @Inject() (
       )
       .merge
 
-  def submissionError(): Action[AnyContent] =
+  def submissionError(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSubmitClaimFailed(request)(_ => Ok(submitClaimFailedPage()))
+      withSubmitClaimFailed(request, journey) { x =>
+        println(x)
+        Ok(submitClaimFailedPage())
+      }
     }
 
-  def confirmationOfSubmission(): Action[AnyContent] =
+  def confirmationOfSubmission(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withJustSubmittedClaim(request)(j => Ok(confirmationOfSubmissionPage(j)))
+      withJustSubmittedClaim(request, journey)(claim => Ok(confirmationOfSubmissionPage(claim)))
     }
 
   private def withJustSubmittedClaim(
-    request: RequestWithSessionData[_]
+    request: RequestWithSessionData[_],
+    journey: JourneyBindable
   )(f: JustSubmittedClaim => Future[Result]): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(j: JustSubmittedClaim) => f(j)
-      case _                           => Redirect(baseRoutes.StartController.start())
+      case Some(j: JustSubmittedClaim) if j.journey === journey => f(j)
+      case _                                                    =>
+        Redirect(baseRoutes.StartController.start())
     }
 
   private def withSubmitClaimFailed(
-    request: RequestWithSessionData[_]
+    request: RequestWithSessionData[_],
+    journey: JourneyBindable
   )(
     f: Either[SubmitClaimFailed, RetrievedUserType] => Future[Result]
   ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(s: SubmitClaimFailed)  => f(Left(s))
       case Some(_: JustSubmittedClaim) =>
-        Redirect(routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission())
+        Redirect(
+          claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey)
+        )
       case _                           => Redirect(baseRoutes.StartController.start())
     }
 

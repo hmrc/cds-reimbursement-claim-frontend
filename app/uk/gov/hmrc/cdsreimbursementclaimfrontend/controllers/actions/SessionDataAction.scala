@@ -38,9 +38,9 @@ final case class RequestWithSessionData[A](
   val userType: Option[UserType] = sessionData.flatMap(_.userType)
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus).collect {
-    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)       => signedInUserDetails
-    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _) => signedInUserDetails
-    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails)        => signedInUserDetails
+    case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)          => signedInUserDetails
+    case JourneyStatus.JustSubmittedClaim(_, signedInUserDetails, _, _, _) => signedInUserDetails
+    case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails, _)        => signedInUserDetails
   }
 
   def unapply(
