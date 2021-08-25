@@ -1,7 +1,7 @@
 ->         /govuk-frontend                                  govuk.Routes
 ->         /hmrc-frontend                                   hmrcfrontend.Routes
 
-GET        /claim-for-reimbursement-of-import-duties        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.showLandingPage()
+GET        /                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.showLandingPage()
 
 GET        /exit/cannot-check-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
 GET        /start                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()

@@ -149,10 +149,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def submissionError(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSubmitClaimFailed(request, journey) { x =>
-        println(x)
-        Ok(submitClaimFailedPage())
-      }
+      withSubmitClaimFailed(request, journey)(_ => Ok(submitClaimFailedPage()))
     }
 
   def confirmationOfSubmission(journey: JourneyBindable): Action[AnyContent] =
@@ -221,7 +218,5 @@ object CheckYourAnswersAndSubmitController {
     final case class SubmitClaimError(error: Error) extends SubmitClaimResult
 
     final case class SubmitClaimSuccess(response: SubmitClaimResponse) extends SubmitClaimResult
-
   }
-
 }

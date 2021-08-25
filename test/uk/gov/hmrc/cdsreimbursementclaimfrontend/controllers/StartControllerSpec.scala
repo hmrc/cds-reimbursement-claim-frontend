@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -291,7 +290,6 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
           val justSubmittedClaim = sample[JustSubmittedClaim]
           val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
-          val journey            = sample[JourneyBindable]
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
@@ -299,8 +297,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
-
+          checkIsRedirect(
+            result,
+            claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(justSubmittedClaim.journey)
+          )
         }
 
       }
