@@ -36,6 +36,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val cy: String            = "cy"
   val defaultLanguage: Lang = Lang(en)
 
+  val homePageUrl: String = getString("home-page")
+
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
 

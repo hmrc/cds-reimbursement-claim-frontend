@@ -21,7 +21,6 @@ import org.scalamock.handlers.CallHandler3
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -89,8 +88,11 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     val signedInUserDetails = sample[SignedInUserDetails]
     val completeC285Claim   = sample[CompleteC285Claim]
     val submissionResponse  = sample[SubmitClaimResponse]
+    val journeyBindable     = sample[JourneyBindable]
 
-    val journey = JustSubmittedClaim(ggCredId, signedInUserDetails, completeC285Claim, submissionResponse)
+    val journey =
+      JustSubmittedClaim(ggCredId, signedInUserDetails, completeC285Claim, submissionResponse, journeyBindable)
+
     (
       SessionData.empty.copy(
         journeyStatus = Some(journey)
@@ -258,14 +260,10 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
     "handling requests to check all answers" must {
 
-      def performAction(journey: JourneyBindable): Future[Result] =
-        controller.checkAllAnswers(journey)(FakeRequest())
-
       "redirect to the start of the journey" when {
 
         "there is no journey status in the session" in {
-          val journey         = sample[JourneyBindable]
-          val (session, _, _) = sessionWithCompleteClaimState()
+          val (session, claim, _) = sessionWithCompleteClaimState()
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -273,7 +271,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           }
 
           checkIsRedirect(
-            performAction(journey),
+            controller.checkAllAnswers(claim.journey)(FakeRequest()),
             baseRoutes.StartController.start()
           )
 
@@ -281,10 +279,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       }
 
       "show the confirmation page" in {
-
-        def performAction(): Future[Result] = controller.confirmationOfSubmission()(FakeRequest())
-
-        val (session, _, _) = sessionWithCompleteClaimState()
+        val (session, claim, _) = sessionWithCompleteClaimState()
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -292,7 +287,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
         }
 
         checkPageIsDisplayed(
-          performAction(),
+          controller.confirmationOfSubmission(claim.journey)(FakeRequest()),
           messageFromMessageKey("confirmation-of-submission.title")
         )
 
@@ -304,15 +299,12 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       "the submission is a success" must {
 
         "show the confirmation page" in {
-
-          def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
-
           val draftClaim = filledDraftC285Claim
 
           val completelyFilledOutClaim =
             sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
-          val (session, _, _) = sessionWithCompleteClaimState()
+          val (session, claim, _) = sessionWithCompleteClaimState()
 
           val submitClaimRequest = SubmitClaimRequest(
             completelyFilledOutClaim.draftClaim.id,
@@ -330,7 +322,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
                 completelyFilledOutClaim.ggCredId,
                 completelyFilledOutClaim.signedInUserDetails,
                 completeC285Claim,
-                submitClaimResponse
+                submitClaimResponse,
+                claim.journey
               )
             )
           )
@@ -343,8 +336,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           }
 
           checkIsRedirect(
-            performAction(),
-            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+            controller.checkAllAnswersSubmit(claim.journey)(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(claim.journey)
           )
 
         }
@@ -354,15 +347,12 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       "the submission is a failure" must {
 
         "show the submission error page" in {
-
-          def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
-
           val draftClaim = filledDraftC285Claim
 
           val completelyFilledOutClaim =
             sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
-          val (session, _, _) = sessionWithCompleteClaimState()
+          val (session, claim, _) = sessionWithCompleteClaimState()
 
           val submitClaimRequest = SubmitClaimRequest(
             completelyFilledOutClaim.draftClaim.id,
@@ -378,7 +368,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
             Some(
               SubmitClaimFailed(
                 completelyFilledOutClaim.ggCredId,
-                completelyFilledOutClaim.signedInUserDetails
+                completelyFilledOutClaim.signedInUserDetails,
+                claim.journey
               )
             )
           )
@@ -391,8 +382,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           }
 
           checkIsRedirect(
-            performAction(),
-            routes.CheckYourAnswersAndSubmitController.submissionError()
+            controller.checkAllAnswersSubmit(claim.journey)(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.submissionError(claim.journey)
           )
 
         }
@@ -403,18 +394,15 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
 
     "handling requests with a submission error session" must {
 
-      def performAction(): Future[Result] = controller.submissionError()(FakeRequest())
-
       "redirect to the start of the journey" when {
 
         "the journey is other than a failed submission" in {
-
           val draftClaim = filledDraftC285Claim
 
           val completelyFilledOutClaim =
             sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
-          val (session, _, _) = sessionWithCompleteClaimState()
+          val (session, claim, _) = sessionWithCompleteClaimState()
 
           val updatedSession = session.copy(journeyStatus = Some(completelyFilledOutClaim))
 
@@ -424,7 +412,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           }
 
           checkIsRedirect(
-            performAction(),
+            controller.submissionError(claim.journey)(FakeRequest()),
             baseRoutes.StartController.start()
           )
 
@@ -435,12 +423,11 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       "redirect to the confirmation page" when {
 
         "the claim has just been submitted" in {
-
           val draftClaim = filledDraftC285Claim
 
           val completelyFilledOutClaim = sample[FillingOutClaim].copy(draftClaim = draftClaim)
 
-          val (session, _, _) = sessionWithCompleteClaimState()
+          val (session, claim, _) = sessionWithCompleteClaimState()
 
           val submitClaimResponse = sample[SubmitClaimResponse]
 
@@ -452,7 +439,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
                 completelyFilledOutClaim.ggCredId,
                 completelyFilledOutClaim.signedInUserDetails,
                 completeC285Claim,
-                submitClaimResponse
+                submitClaimResponse,
+                claim.journey
               )
             )
           )
@@ -463,8 +451,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           }
 
           checkIsRedirect(
-            performAction(),
-            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+            controller.submissionError(claim.journey)(FakeRequest()),
+            routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(claim.journey)
           )
 
         }
@@ -476,36 +464,28 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     "show a technical error page" when {
 
       "the user has not completely filled in the claim" in {
-        def performAction(journey: JourneyBindable): Future[Result] =
-          controller.checkAllAnswers(journey)(FakeRequest())
-
-        val journey = sample[JourneyBindable]
-
         val draftC285Claim = sample[DraftC285Claim].copy(commoditiesDetailsAnswer = None)
 
         val fillingOutClaim = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
 
-        val (session, _, _) = sessionWithCompleteClaimState()
+        val (session, claim, _) = sessionWithCompleteClaimState()
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        checkIsTechnicalErrorPage(performAction(journey))
+        checkIsTechnicalErrorPage(controller.checkAllAnswers(claim.journey)(FakeRequest()))
 
       }
 
       "the submission was a success but the session could not be updated" in {
-
-        def performAction(): Future[Result] = controller.checkAllAnswersSubmit()(FakeRequest())
-
         val draftClaim = filledDraftC285Claim
 
         val completelyFilledOutClaim =
           sample[FillingOutClaim].copy(signedInUserDetails = signedInUserDetails, draftClaim = draftClaim)
 
-        val (session, _, _) = sessionWithCompleteClaimState()
+        val (session, claim, _) = sessionWithCompleteClaimState()
 
         val submitClaimRequest = SubmitClaimRequest(
           completelyFilledOutClaim.draftClaim.id,
@@ -523,7 +503,8 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
               completelyFilledOutClaim.ggCredId,
               completelyFilledOutClaim.signedInUserDetails,
               completeC285Claim,
-              submitClaimResponse
+              submitClaimResponse,
+              claim.journey
             )
           )
         )
@@ -535,23 +516,22 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           mockStoreSession(justSubmittedJourney)(Left(Error("BOOM!")))
         }
 
-        checkIsTechnicalErrorPage(performAction())
-
+        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(claim.journey)(FakeRequest()))
       }
 
     }
 
     "SubmissionError" should {
       "render the error page when the submission fails" in {
-        def performAction() = controller.submissionError()(FakeRequest())
+        val journey  = sample[JourneyBindable]
+        val ggCredId = sample[GGCredId]
+        val email    = sample[Email]
+        val eori     = sample[Eori]
 
-        val ggCredId            = sample[GGCredId]
-        val email               = sample[Email]
-        val eori                = sample[Eori]
         val signedInUserDetails =
           SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
 
-        val journeyStatus = SubmitClaimFailed(ggCredId, signedInUserDetails)
+        val journeyStatus = SubmitClaimFailed(ggCredId, signedInUserDetails, journey)
         val session       = SessionData.empty.copy(journeyStatus = Some(journeyStatus))
 
         inSequence {
@@ -559,7 +539,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
           mockGetSession(session)
         }
 
-        val page = performAction()
+        val page = controller.submissionError(journey)(FakeRequest())
         checkPageIsDisplayed(page, messages("submit-claim-error.title"))
 
       }

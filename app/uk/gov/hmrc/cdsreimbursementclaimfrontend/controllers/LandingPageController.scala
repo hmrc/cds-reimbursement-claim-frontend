@@ -31,7 +31,7 @@ class LandingPageController @Inject() (
     extends FrontendController(cc)
     with Logging {
 
-  def land(): Action[AnyContent] = Action { implicit request =>
+  def showLandingPage(): Action[AnyContent] = Action { implicit request =>
     Ok(landingPage())
   }
 }
