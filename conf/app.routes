@@ -1,21 +1,23 @@
-->         /govuk-frontend          govuk.Routes
-->         /hmrc-frontend           hmrcfrontend.Routes
+->         /govuk-frontend                       govuk.Routes
+->         /hmrc-frontend                        hmrcfrontend.Routes
 
-GET /exit/cannot-check-details                                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
-GET /start                                                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
-GET /start-new-return                                                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.startNewClaim()
-GET /sign-out-and-register-for-gg                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
-GET /sign-out-and-log-in                                                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()
-GET /exit/we-signed-you-out                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
-GET /keep-alive                                                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
+GET        /start/claim-for-reimbursement        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.land()
 
-GET /unauthorised                                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
-GET /not-eligible-to-make-a-claim                                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.IneligibleController.ineligible()
+GET        /exit/cannot-check-details            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.weOnlySupportGG()
+GET        /start                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.start()
+GET        /start-new-return                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.startNewClaim()
+GET        /sign-out-and-register-for-gg         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndRegisterForGG()
+GET        /sign-out-and-log-in                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.signOutAndSignIn()
+GET        /exit/we-signed-you-out               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.timedOut()
+GET        /keep-alive                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.StartController.keepAlive()
 
-GET         /language/:lang                                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET        /unauthorised                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.UnauthorisedController.unauthorised()
+GET        /not-eligible-to-make-a-claim         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.IneligibleController.ineligible()
 
-->  /govuk-frontend                                                         govuk.Routes
-->  /hmrc-frontend                                                          hmrcfrontend.Routes
-GET /assets/*file                                                           controllers.Assets.versioned(path = "/public", file: Asset)
+GET        /language/:lang                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET        /assets/*file            @controllers.Assets.versioned(path = "/public", file: Asset)
+->         /govuk-frontend                       govuk.Routes
+->         /hmrc-frontend                        hmrcfrontend.Routes
+GET        /assets/*file                         controllers.Assets.versioned(path = "/public", file: Asset)
+
+GET        /assets/*file                         @controllers.Assets.versioned(path = "/public", file: Asset)
