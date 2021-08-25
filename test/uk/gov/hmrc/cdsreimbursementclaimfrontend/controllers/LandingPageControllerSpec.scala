@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import play.twirl.api.{Html, HtmlFormat}
+import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 
-trait HtmlUtil {
+class LandingPageControllerSpec extends ControllerSpec {
 
-  def html(content: HtmlFormat.Appendable*): Html =
-    HtmlFormat.fill(collection.immutable.Seq(content: _*))
+  private val controller: LandingPageController = instanceOf[LandingPageController]
+  implicit val messagesApi: MessagesApi         = controller.messagesApi
+
+  "The Landing Page Controller" must {
+    "display the landing page" in {
+      checkPageIsDisplayed(
+        controller.showLandingPage()(FakeRequest()),
+        messageFromMessageKey("landing.title")
+      )
+    }
+  }
 }
-
-object HtmlUtil extends HtmlUtil

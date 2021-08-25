@@ -90,7 +90,7 @@
     pageTitle = Some(viewConfig.pageTitleWithServiceName(pageTitle.getOrElse(""), messages("service.title"), hasErrors)),
     beforeContentBlock = Some(beforeContentBlock),
     isWelshTranslationAvailable = false,
-    serviceUrl = Some(messages("service.homePageUrl")),
+    serviceUrl = Some(viewConfig.homePageUrl),
     signOutUrl = Some(viewConfig.ggSignOut),
     accessibilityStatementUrl = Some(messages(viewConfig.accessibilityStatementUrl)),
     phaseBanner = Some(StandardAlphaBanner(url = viewConfig.serviceFeedBackUrl)),

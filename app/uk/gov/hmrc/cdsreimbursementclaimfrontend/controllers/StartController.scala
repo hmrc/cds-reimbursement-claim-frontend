@@ -155,14 +155,15 @@ class StartController @Inject() (
           )
         )
 
-      case _: JustSubmittedClaim =>
+      case claim: JustSubmittedClaim =>
         Redirect(
-          controllers.claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(claim.journey)
         )
 
-      case _: SubmitClaimFailed =>
-        Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.submissionError())
-
+      case claim: SubmitClaimFailed =>
+        Redirect(
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.submissionError(claim.journey)
+        )
     }
 
   private def handleRetrievedUserType(

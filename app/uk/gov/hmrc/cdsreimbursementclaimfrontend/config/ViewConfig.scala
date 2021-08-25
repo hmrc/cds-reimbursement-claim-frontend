@@ -36,6 +36,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val cy: String            = "cy"
   val defaultLanguage: Lang = Lang(en)
 
+  val homePageUrl: String = getString("home-page")
+
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
 
@@ -65,10 +67,11 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
       .claimTimedOut(journeyBindable)
       .url
 
-  val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
-    config.get[String]("microservice.services.feedback.source")
-
-  val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
+  val serviceFeedBackUrl: String = {
+    val baseUrl = config.get[String]("microservice.services.feedback.url")
+    val path    = config.get[String]("microservice.services.feedback.source")
+    s"$baseUrl$path"
+  }
 
   val govUkUrl: String = getString("external-url.gov-uk")
 
