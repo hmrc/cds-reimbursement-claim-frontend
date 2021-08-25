@@ -20,19 +20,16 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
-import play.api.libs.json.{Json, OFormat}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.toContactDetailsFormData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.{CompleteContactDetailsAnswer, IncompleteContactDetailsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
@@ -42,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterYourContactDetailsController @Inject() (
@@ -58,272 +55,65 @@ class EnterYourContactDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  private def withContactDetailsAnswers(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      ContactDetailsAnswer
-    ) => Future[Result]
-  )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-          ) =>
-        val maybeContactDetails = draftClaim.fold(
-          _.contactDetailsAnswer
-        )
-        maybeContactDetails.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteContactDetailsAnswer.empty)
-        )(answer => f(sessionData, fillingOutClaim, addEmail(fillingOutClaim, answer)))
-    })
+  implicit val dataExtractor: DraftC285Claim => Option[ContactDetailsAnswer] =
+    _.entryNumberContactDetailsAnswer
 
-  private def addEmail(
-    fillingOutClaim: FillingOutClaim,
-    claimantDetails: ContactDetailsAnswer
-  ): ContactDetailsAnswer =
-    claimantDetails.fold(
-      ifIncomplete =>
-        IncompleteContactDetailsAnswer(
-          ifIncomplete.contactDetailsFormData.map(
-            _.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
-          )
-        ),
-      ifComplete =>
-        CompleteContactDetailsAnswer(
-          ifComplete.contactDetailsFormData.copy(emailAddress = fillingOutClaim.signedInUserDetails.verifiedEmail)
-        )
-    )
+  implicit protected val journeyBindable = JourneyBindable.Single
 
-  def enterContactDetails: Action[AnyContent] =
+  def enterContactDetails(): Action[AnyContent]  = show(false)
+  def changeContactDetails(): Action[AnyContent] = show(true)
+
+  def show(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.contactDetailsFormData match {
-              case Some(contactDetailsFormData) =>
-                Ok(
-                  enterYourContactDetailsPage(
-                    EnterYourContactDetailsController.contactDetailsForm.fill(contactDetailsFormData)
-                  )
-                )
-              case None                         =>
-                fillingOutClaim.draftClaim.fold(_.displayDeclaration) match {
-                  case Some(displayDeclaration) =>
-                    fillingOutClaim.draftClaim.fold(_.declarantTypeAnswer) match {
-                      case Some(declarantTypeAnswer) =>
-                        val contactDetails = declarantTypeAnswer match {
-                          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-                            toContactDetailsFormData(
-                              displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(_.contactDetails),
-                              fillingOutClaim.signedInUserDetails.verifiedEmail
-                            )
-                          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-                            toContactDetailsFormData(
-                              displayDeclaration.displayResponseDetail.declarantDetails.contactDetails,
-                              fillingOutClaim.signedInUserDetails.verifiedEmail
-                            )
-                        }
-                        Ok(
-                          enterYourContactDetailsPage(
-                            EnterYourContactDetailsController.contactDetailsForm
-                              .fill(contactDetails)
-                          )
-                        )
-                      case None                      =>
-                        Redirect(
-                          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(
-                            TemporaryJourneyExtractor.extractJourney
-                          )
-                        )
-                    }
-                  case None                     =>
-                    Ok(
-                      enterYourContactDetailsPage(
-                        EnterYourContactDetailsController.contactDetailsForm
-                      )
-                    )
-                }
-            },
-          ifComplete =>
-            Ok(
-              enterYourContactDetailsPage(
-                EnterYourContactDetailsController.contactDetailsForm.fill(
-                  ifComplete.contactDetailsFormData
-                )
-              )
-            )
-        )
+      withAnswersAndRoutes[ContactDetailsAnswer] { (_, answers, router) =>
+        val emptyForm  = EnterYourContactDetailsController.contactDetailsForm
+        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+        Ok(enterYourContactDetailsPage(filledForm, isAmend, router))
       }
     }
 
-  def enterContactDetailsSubmit: Action[AnyContent] =
+  def enterContactDetailsSubmit(): Action[AnyContent]  = submit(false)
+  def changeContactDetailsSubmit(): Action[AnyContent] = submit(true)
+
+  def submit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
+      withAnswersAndRoutes[ContactDetailsAnswer] { (fillingOutClaim, _, router) =>
         EnterYourContactDetailsController.contactDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterYourContactDetailsPage(
-                  requestFormWithErrors
+            formWithErrors => BadRequest(enterYourContactDetailsPage(formWithErrors, isAmend, router)),
+            formOk => {
+              val updatedJourney =
+                FillingOutClaim.of(fillingOutClaim)(_.copy(entryNumberContactDetailsAnswer = Option(formOk)))
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("Could not save Entry Number Contact Details"))
+                .fold(
+                  logAndDisplayError("Submit Entry Number Contact Details: "),
+                  _ => Redirect(router.nextPageForEntryNumberContactDetails(fillingOutClaim.draftClaim.declarantType))
                 )
-              ),
-            contactDetailsFormData => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteContactDetailsAnswer(
-                    contactDetailsFormData
-                  ),
-                complete => complete.copy(contactDetailsFormData = contactDetailsFormData)
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(contactDetailsAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                logAndDisplayError("could not capture contact details"),
-                _ =>
-                  fillingOutClaim.draftClaim.fold(_.movementReferenceNumber) match {
-                    case Some(referenceNumber) =>
-                      referenceNumber match {
-                        case MovementReferenceNumber(Left(_))  =>
-                          fillingOutClaim.draftClaim.declarantType match {
-                            case Some(declarantType) =>
-                              declarantType match {
-                                case DeclarantTypeAnswer.Importer =>
-                                  Redirect(routes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis())
-                                case _                            =>
-                                  Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-                              }
-                            case None                =>
-                              Redirect(
-                                routes.SelectWhoIsMakingTheClaimController
-                                  .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
-                              )
-                          }
-                        case MovementReferenceNumber(Right(_)) =>
-                          if (featureSwitch.NorthernIreland.isEnabled())
-                            Redirect(routes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(extractJourney))
-                          else Redirect(routes.SelectBasisForClaimController.selectBasisForClaim(extractJourney))
-
-                      }
-                    case None                  =>
-                      Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
-                  }
-              )
             }
           )
       }
-    }
 
-  def changeContactDetails: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withContactDetailsAnswers { (_, _, answers) =>
-        answers.fold(
-          ifIncomplete =>
-            ifIncomplete.contactDetailsFormData match {
-              case Some(contactDetailsFormData) =>
-                Ok(
-                  enterYourContactDetailsPage(
-                    EnterYourContactDetailsController.contactDetailsForm.fill(
-                      contactDetailsFormData
-                    ),
-                    isAmend = true
-                  )
-                )
-              case None                         =>
-                Ok(
-                  enterYourContactDetailsPage(
-                    EnterYourContactDetailsController.contactDetailsForm,
-                    isAmend = true
-                  )
-                )
-            },
-          ifComplete =>
-            Ok(
-              enterYourContactDetailsPage(
-                EnterYourContactDetailsController.contactDetailsForm.fill(
-                  ifComplete.contactDetailsFormData
-                ),
-                isAmend = true
-              )
-            )
-        )
-      }
-    }
-
-  def changeContactDetailsSubmit: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withContactDetailsAnswers { (_, fillingOutClaim, answers) =>
-        EnterYourContactDetailsController.contactDetailsForm
-          .bindFromRequest()
-          .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterYourContactDetailsPage(
-                  requestFormWithErrors
-                )
-              ),
-            contactDetailsFormData => {
-              val updatedAnswers = answers.fold(
-                _ =>
-                  CompleteContactDetailsAnswer(
-                    contactDetailsFormData
-                  ),
-                complete => complete.copy(contactDetailsFormData = contactDetailsFormData)
-              )
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(contactDetailsAnswer = Some(updatedAnswers)))
-
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
-              val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
-
-              result.fold(
-                logAndDisplayError("could not capture contact details"),
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit())
-              )
-            }
-          )
-      }
     }
 }
 
 object EnterYourContactDetailsController {
 
-  final case class ContactDetailsFormData(
-    companyName: String,
-    emailAddress: Email,
-    phoneNumber: PhoneNumber,
-    contactAddress: ContactAddress
-  )
-
-  object ContactDetailsFormData {
-    implicit val format: OFormat[ContactDetailsFormData] = Json.format[ContactDetailsFormData]
-  }
-
-  val contactDetailsForm: Form[ContactDetailsFormData] = Form(
+  val contactDetailsForm: Form[ContactDetailsAnswer] = Form(
     mapping(
       "enter-your-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
       "enter-your-contact-details.contact-email"        -> Email.mappingMaxLength,
       "enter-your-contact-details.contact-phone-number" -> PhoneNumber.mapping,
       ""                                                -> ContactAddress.addressFormMapping
-    )(ContactDetailsFormData.apply)(ContactDetailsFormData.unapply)
+    )(ContactDetailsAnswer.apply)(ContactDetailsAnswer.unapply)
   )
 
   def toContactDetailsFormData(
     contactDetails: Option[ContactDetails],
     verifiedEmail: Email
-  ): ContactDetailsFormData =
-    ContactDetailsFormData(
+  ): ContactDetailsAnswer =
+    ContactDetailsAnswer(
       contactDetails.flatMap(_.contactName).getOrElse(""),
       verifiedEmail,
       PhoneNumber(contactDetails.flatMap(_.telephone).getOrElse("")),

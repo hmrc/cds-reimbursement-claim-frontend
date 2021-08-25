@@ -88,7 +88,13 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                 .leftMap(_ => Error("Could not save Details Registered with CDS Type"))
                 .fold(
                   logAndDisplayError("Submit Details Registered with CDS: "),
-                  _ => Redirect(router.nextPageForDetailsRegisteredWithCDS(fillingOutClaim.draftClaim.declarantType))
+                  _ =>
+                    Redirect(
+                      router.nextPageForDetailsRegisteredWithCDS(
+                        formOk.addCompanyDetails,
+                        fillingOutClaim.draftClaim.declarantType
+                      )
+                    )
                 )
             }
           )

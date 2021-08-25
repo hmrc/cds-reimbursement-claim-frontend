@@ -23,9 +23,7 @@ import julienrf.json.derived
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ContactDetailsAnswer.CompleteContactDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
@@ -56,7 +54,7 @@ object CompleteClaim {
     maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
     declarantTypeAnswer: DeclarantTypeAnswer,
     detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
-    maybeContactDetailsAnswer: Option[CompleteContactDetailsAnswer],
+    maybeContactDetailsAnswer: Option[ContactDetailsAnswer],
     maybeBasisOfClaimAnswer: Option[BasisOfClaim],
     maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
     supportingEvidencesAnswer: SupportingEvidencesAnswer,
@@ -292,34 +290,26 @@ object CompleteClaim {
     maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
 
   def validateClaimantContactDetailsEntryNumber(
-    maybeClaimantDetailsAsImporterCompanyAnswer: Option[ContactDetailsAnswer]
-  ): Validation[Option[CompleteContactDetailsAnswer]] =
-    maybeClaimantDetailsAsImporterCompanyAnswer match {
-      case Some(value) =>
-        value match {
-          case ContactDetailsAnswer.IncompleteContactDetailsAnswer(
-                _
-              ) =>
-            invalid("incomplete claimant details as importer answer")
-          case completeClaimantDetailsAsImporterCompanyAnswer: CompleteContactDetailsAnswer =>
-            Valid(Some(completeClaimantDetailsAsImporterCompanyAnswer))
-        }
-      case None        => Valid(None)
+    maybeEntryNumberContactDetailsAnswer: Option[ContactDetailsAnswer]
+  ): Validation[Option[ContactDetailsAnswer]] =
+    maybeEntryNumberContactDetailsAnswer match {
+      case None => invalid("incomplete contact details")
+      case a    => Valid(a)
     }
 
   def validateClaimantContactDetailsMrn(
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress]
-  ): Validation[Option[CompleteContactDetailsAnswer]] =
+  ): Validation[Option[ContactDetailsAnswer]] =
     (maybeContactDetails, maybeContactAddress)
       .mapN { (contactDetails, contactAddress) =>
-        val contactDetailsFormData = ContactDetailsFormData(
+        val contactDetailsFormData = ContactDetailsAnswer(
           companyName = contactDetails.fullName,
           emailAddress = contactDetails.emailAddress,
           phoneNumber = contactDetails.phoneNumber.getOrElse(PhoneNumber("")),
           contactAddress = contactAddress
         )
-        Valid(Some(CompleteContactDetailsAnswer(contactDetailsFormData)))
+        Valid(Some(contactDetailsFormData))
       }
       .getOrElse(Valid(None))
 
@@ -439,8 +429,8 @@ object CompleteClaim {
         }
     }
 
-    def claimantDetailsAsImporterCompany: Option[ContactDetailsFormData] =
-      completeClaim.get(_.maybeContactDetailsAnswer).map(_.contactDetailsFormData)
+    def claimantDetailsAsImporterCompany: Option[ContactDetailsAnswer] =
+      completeClaim.get(_.maybeContactDetailsAnswer)
 
     def detailsRegisteredWithCds: DetailsRegisteredWithCdsAnswer =
       completeClaim.get(_.detailsRegisteredWithCdsAnswer)

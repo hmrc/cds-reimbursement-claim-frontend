@@ -18,46 +18,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.ContactDetailsFormData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
-sealed trait ContactDetailsAnswer extends Product with Serializable
+final case class ContactDetailsAnswer(
+  companyName: String,
+  emailAddress: Email,
+  phoneNumber: PhoneNumber,
+  contactAddress: ContactAddress
+)
 
 object ContactDetailsAnswer {
-
-  final case class IncompleteContactDetailsAnswer(
-    contactDetailsFormData: Option[ContactDetailsFormData]
-  ) extends ContactDetailsAnswer
-
-  object IncompleteContactDetailsAnswer {
-    val empty: IncompleteContactDetailsAnswer = IncompleteContactDetailsAnswer(None)
-
-    implicit val format: OFormat[IncompleteContactDetailsAnswer] =
-      derived.oformat[IncompleteContactDetailsAnswer]()
-  }
-
-  final case class CompleteContactDetailsAnswer(
-    contactDetailsFormData: ContactDetailsFormData
-  ) extends ContactDetailsAnswer
-
-  object CompleteContactDetailsAnswer {
-    implicit val format: OFormat[CompleteContactDetailsAnswer] =
-      derived.oformat[CompleteContactDetailsAnswer]()
-  }
-
-  implicit class ContactDetailsAnswerOps(
-    private val a: ContactDetailsAnswer
-  ) extends AnyVal {
-
-    def fold[A](
-      ifIncomplete: IncompleteContactDetailsAnswer => A,
-      ifComplete: CompleteContactDetailsAnswer => A
-    ): A =
-      a match {
-        case i: IncompleteContactDetailsAnswer => ifIncomplete(i)
-        case c: CompleteContactDetailsAnswer   => ifComplete(c)
-      }
-  }
-
-  implicit val format: OFormat[ContactDetailsAnswer] =
-    derived.oformat[ContactDetailsAnswer]()
+  implicit val format: OFormat[ContactDetailsAnswer] = derived.oformat[ContactDetailsAnswer]()
 }
