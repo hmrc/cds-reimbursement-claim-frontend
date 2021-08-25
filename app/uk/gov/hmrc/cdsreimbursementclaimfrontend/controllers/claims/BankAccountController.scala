@@ -234,7 +234,7 @@ object BankAccountController {
     nonEmptyText
       .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
       .verifying("error.length", s => s.length >= 6 && s.length <= 8)
-      .verifying("error.invalid", a => { println(accountNumberRegex.test(a)); accountNumberRegex.test(a) })
+      .verifying("error.invalid", a => accountNumberRegex.test(a))
       .transform[AccountNumber](
         s => {
           val paddedNumber = s.reverse.padTo(8, '0').reverse
