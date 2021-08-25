@@ -159,7 +159,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     duplicateDeclarationDetailsAnswer = None,
     declarantTypeAnswer = Some(declarantTypeAnswer),
     detailsRegisteredWithCdsAnswer = None,
-    contactDetailsAnswer = None,
+    entryNumberContactDetailsAnswer = None,
     mrnContactDetailsAnswer = None,
     mrnContactAddressAnswer = None,
     bankAccountDetailsAnswer = None,

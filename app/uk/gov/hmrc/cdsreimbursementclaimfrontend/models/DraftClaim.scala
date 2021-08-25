@@ -43,7 +43,7 @@ object DraftClaim {
     duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
     declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
     detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
-    contactDetailsAnswer: Option[ContactDetailsAnswer] = None,
+    entryNumberContactDetailsAnswer: Option[ContactDetailsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None,
     bankAccountDetailsAnswer: Option[BankAccountDetails] = None,

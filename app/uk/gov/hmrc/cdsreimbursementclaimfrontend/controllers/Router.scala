@@ -81,6 +81,9 @@ trait SubmitRoutes extends Product with Serializable {
     if (isAmend) claimRoutes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit
     else claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit
 
+  def submitEntryNumberContactDetails(isAmend: Boolean): Call =
+    if (isAmend) claimRoutes.EnterYourContactDetailsController.changeContactDetailsSubmit
+    else claimRoutes.EnterYourContactDetailsController.enterContactDetailsSubmit
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
@@ -182,7 +185,17 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
-  def nextPageForDetailsRegisteredWithCDS(declarantType: Option[DeclarantTypeAnswer]): Call =
+  def nextPageForDetailsRegisteredWithCDS(
+    addContactDetails: Boolean,
+    declarantType: Option[DeclarantTypeAnswer]
+  ): Call =
+    if (addContactDetails) {
+      claimRoutes.EnterYourContactDetailsController.enterContactDetails()
+    } else {
+      nextPageForEntryNumberContactDetails(declarantType)
+    }
+
+  def nextPageForEntryNumberContactDetails(declarantType: Option[DeclarantTypeAnswer]): Call =
     declarantType match {
       case Some(declarantType) =>
         declarantType match {
@@ -194,7 +207,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case None                =>
         claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
     }
-
 }
 
 trait SingleRoutes extends JourneyTypeRoutes {
