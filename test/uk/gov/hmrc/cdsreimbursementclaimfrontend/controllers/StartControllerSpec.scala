@@ -275,7 +275,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.submissionError())
+          checkIsRedirect(
+            result,
+            claims.routes.CheckYourAnswersAndSubmitController.submissionError(submitClaimFailed.journey)
+          )
 
         }
 
@@ -294,8 +297,10 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission())
-
+          checkIsRedirect(
+            result,
+            claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(justSubmittedClaim.journey)
+          )
         }
 
       }
