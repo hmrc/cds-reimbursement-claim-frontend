@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -42,7 +42,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnterContactDetailsController @Inject() (
+class EnterContactDetailsMrnController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -69,7 +69,7 @@ class EnterContactDetailsController @Inject() (
             contactDetails
         }
         val mrnContactDetailsForm =
-          answers.foldLeft(EnterContactDetailsController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
+          answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
         Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined))
       }
     }
@@ -80,7 +80,7 @@ class EnterContactDetailsController @Inject() (
   def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        EnterContactDetailsController.mrnContactDetailsForm
+        EnterContactDetailsMrnController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
@@ -103,7 +103,7 @@ class EnterContactDetailsController @Inject() (
     }
 }
 
-object EnterContactDetailsController {
+object EnterContactDetailsMrnController {
 
   val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
     mapping(
