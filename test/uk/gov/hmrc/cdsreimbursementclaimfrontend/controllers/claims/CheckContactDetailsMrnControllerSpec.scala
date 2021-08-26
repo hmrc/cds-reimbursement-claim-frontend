@@ -27,7 +27,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -51,7 +51,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckClaimantDetailsControllerSpec
+class CheckContactDetailsMrnControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -69,7 +69,7 @@ class CheckClaimantDetailsControllerSpec
   val featureSwitch = instanceOf[FeatureSwitchService]
   featureSwitch.NorthernIreland.enable()
 
-  val controller: CheckClaimantDetailsController = instanceOf[CheckClaimantDetailsController]
+  val controller: CheckContactDetailsMrnController = instanceOf[CheckContactDetailsMrnController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -105,7 +105,7 @@ class CheckClaimantDetailsControllerSpec
     )
   }
 
-  "CheckClaimantDetailsController" must {
+  "CheckContactDetailsMrnController" must {
 
     def showPageAction(journey: JourneyBindable): Future[Result] = controller.show(journey)(FakeRequest())
 
@@ -232,7 +232,7 @@ class CheckClaimantDetailsControllerSpec
 
         checkIsRedirect(
           submitAdd(Seq(languageKey -> "0"), journey),
-          routes.EnterContactDetailsController.enterMrnContactDetails(journey)
+          routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey)
         )
       }
 
@@ -361,7 +361,7 @@ class CheckClaimantDetailsControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckClaimantDetailsController.show(journey)
+          routes.CheckContactDetailsMrnController.show(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>
@@ -426,7 +426,7 @@ class CheckClaimantDetailsControllerSpec
 
   }
 
-  "CheckClaimantDetailsController Companion object" should {
+  "CheckContactDetailsMrnController Companion object" should {
 
     "Acc14 extractors for DeclarantTypeAnswer.Importer" in {
       val acc14           = generateAcc14WithAddresses()
@@ -650,7 +650,7 @@ class CheckClaimantDetailsControllerSpec
 
       checkIsRedirect(
         updateAddress(journey, Some(id)),
-        routes.CheckClaimantDetailsController.show(journey)
+        routes.CheckContactDetailsMrnController.show(journey)
       )
     }
 
@@ -687,7 +687,7 @@ class CheckClaimantDetailsControllerSpec
 
       checkIsRedirect(
         updateAddress(journey),
-        routes.CheckClaimantDetailsController.show(journey)
+        routes.CheckContactDetailsMrnController.show(journey)
       )
     }
 

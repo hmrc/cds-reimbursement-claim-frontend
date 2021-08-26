@@ -70,12 +70,12 @@ object ContactAddress {
 
   val addressFormMapping: Mapping[ContactAddress] =
     formMapping(
-      "nonUkAddress-line1" -> addressLineMapping,
-      "nonUkAddress-line2" -> optional(addressLineMapping),
-      "nonUkAddress-line3" -> optional(addressLineMapping),
-      "nonUkAddress-line4" -> addressLineMapping,
-      "postcode"           -> Postcode.mapping,
-      "countryCode"        -> of(Country.formatter)
+      "address-line1" -> addressLineMapping,
+      "address-line2" -> optional(addressLineMapping),
+      "address-line3" -> optional(addressLineMapping),
+      "address-line4" -> addressLineMapping,
+      "postcode"      -> Postcode.mapping,
+      "countryCode"   -> of(Country.formatter)
     )(ContactAddress.apply)(ContactAddress.unapply)
 
   val isUkForm: Form[Boolean] =

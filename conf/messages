@@ -291,10 +291,10 @@ postcode.error.required=Enter a valid postcode
 postcode.error.pattern=Enter a valid postcode
 postcode.error.tooLong=Enter a valid postcode
 countryCode.enter-claimant-details-as-registered-with-cds.error.required=Enter a country
-nonUkAddress-line1.error.pattern=Enter a valid address line 1
-nonUkAddress-line2.error.pattern=Enter a valid address line 2
-nonUkAddress-line3.error.pattern=Enter a valid address line 3
-nonUkAddress-line4.error.pattern=Enter a valid town or city
+address-line1.error.pattern=Enter a valid address line 1
+address-line2.error.pattern=Enter a valid address line 2
+address-line3.error.pattern=Enter a valid address line 3
+address-line4.error.pattern=Enter a valid town or city
 
 
 #===================================================
@@ -318,14 +318,14 @@ enter-your-contact-details.contact-phone-number.label=Phone number
 enter-your-contact-details.contact-phone-number.help=For international numbers include the country code.
 enter-your-contact-details.importer-contact-address.label=Contact address
 enter-your-contact-details.address.building.label=Building number or name
-enter-your-contact-details.nonUkAddress-building.error.required=Enter a building number or name
+enter-your-contact-details.address-building.error.required=Enter a building number or name
 enter-your-contact-details.address.line1.label=Address Line 1
 enter-your-contact-details.address.line1.error.required=Enter address line 1
-enter-your-contact-details.nonUkAddress-line1.error.required=Enter address line 1
+enter-your-contact-details.address-line1.error.required=Enter address line 1
 enter-your-contact-details.address.line2.label=Address Line 2 (optional)
 enter-your-contact-details.address.line3.label=Address Line 3 (optional)
 enter-your-contact-details.address.line4.label=Town or city
-enter-your-contact-details.nonUkAddress-line4.error.required=Enter a town or city
+enter-your-contact-details.address-line4.error.required=Enter a town or city
 enter-your-contact-details.address.line5.label=Postcode
 enter-your-contact-details.address.line6.label=Country
 enter-your-contact-details.countryCode.error.required=Enter a country
@@ -1066,13 +1066,13 @@ accessibility-statement.li5=listen to the service using a screen reader (includi
 #===================================================
 #  NON-UK ADDRESS - START
 #===================================================
-nonUkAddress-building.error.required=Enter a building name or number
-nonUkAddress-line1.error.required=Enter address line 1
-nonUkAddress-line4.error.required=Enter a town or city
-nonUkAddress-line1.error.tooLong=Enter a valid address line 1
-nonUkAddress-line2.error.tooLong=Enter a valid address line 2
-nonUkAddress-line3.error.tooLong=Enter a valid address line 3
-nonUkAddress-line4.error.tooLong=Enter a valid address line 4
+address-building.error.required=Enter a building name or number
+address-line1.error.required=Enter address line 1
+address-line4.error.required=Enter a town or city
+address-line1.error.tooLong=Enter a valid address line 1
+address-line2.error.tooLong=Enter a valid address line 2
+address-line3.error.tooLong=Enter a valid address line 3
+address-line4.error.tooLong=Enter a valid address line 4
 postcode.error.maxLength=Enter a valid postcode
 postcode.error.invalidCharacters=Enter a valid postcode
 countryCode.error.required=Enter a country

@@ -380,7 +380,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
+                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
                 )
@@ -397,7 +397,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
+                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
                 )
@@ -414,7 +414,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
+                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l2"))
                 )
@@ -431,7 +431,7 @@ class CheckYourAnswersHelper @Inject() (implicit
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterYourContactDetailsController.changeContactDetails().url}",
+                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
                 )

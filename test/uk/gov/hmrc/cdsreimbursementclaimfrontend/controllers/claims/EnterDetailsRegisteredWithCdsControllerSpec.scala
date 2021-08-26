@@ -65,10 +65,10 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
   val fullName          = "enter-claimant-details-as-registered-with-cds.individual-full-name"
   val emailAddress      = "enter-claimant-details-as-registered-with-cds.individual-email"
-  val addressLine1      = "nonUkAddress-line1"
-  val addressLine2      = "nonUkAddress-line2"
-  val addressLine3      = "nonUkAddress-line3"
-  val addressLine4      = "nonUkAddress-line4"
+  val addressLine1      = "address-line1"
+  val addressLine2      = "address-line2"
+  val addressLine3      = "address-line3"
+  val addressLine4      = "address-line4"
   val postCode          = "postcode"
   val countryCode       = "countryCode"
   val addCompanyDetails = "enter-claimant-details-as-registered-with-cds.add-company-details"
@@ -169,10 +169,10 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       doc
         .getElementById("enter-claimant-details-as-registered-with-cds.individual-email")
         .`val`()                                          shouldBe answers.emailAddress.value
-      doc.getElementById("nonUkAddress-line1").`val`()    shouldBe answers.contactAddress.line1
-      doc.getElementById("nonUkAddress-line2").`val`()    shouldBe answers.contactAddress.line2.getOrElse("")
-      doc.getElementById("nonUkAddress-line3").`val`()    shouldBe answers.contactAddress.line3.getOrElse("")
-      doc.getElementById("nonUkAddress-line4").`val`()    shouldBe answers.contactAddress.line4
+      doc.getElementById("address-line1").`val`()         shouldBe answers.contactAddress.line1
+      doc.getElementById("address-line2").`val`()         shouldBe answers.contactAddress.line2.getOrElse("")
+      doc.getElementById("address-line3").`val`()         shouldBe answers.contactAddress.line3.getOrElse("")
+      doc.getElementById("address-line4").`val`()         shouldBe answers.contactAddress.line4
       doc.getElementById("postcode").`val`()              shouldBe answers.contactAddress.postcode
       doc.select("#countryCode option[selected]").`val`() shouldBe answers.contactAddress.country.code
     }
@@ -196,15 +196,15 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       doc
         .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
-        .`val`()                                       shouldBe answers.fullName
+        .`val`()                                  shouldBe answers.fullName
       doc
         .getElementById("enter-claimant-details-as-registered-with-cds.individual-email")
-        .`val`()                                       shouldBe answers.emailAddress.value
-      doc.getElementById("nonUkAddress-line1").`val`() shouldBe address.line1
-      doc.getElementById("nonUkAddress-line2").`val`() shouldBe address.line2.getOrElse("")
-      doc.getElementById("nonUkAddress-line3").`val`() shouldBe address.line3.getOrElse("")
-      doc.getElementById("nonUkAddress-line4").`val`() shouldBe address.line4
-      doc.getElementById("postcode").`val`()           shouldBe address.postcode
+        .`val`()                                  shouldBe answers.emailAddress.value
+      doc.getElementById("address-line1").`val`() shouldBe address.line1
+      doc.getElementById("address-line2").`val`() shouldBe address.line2.getOrElse("")
+      doc.getElementById("address-line3").`val`() shouldBe address.line3.getOrElse("")
+      doc.getElementById("address-line4").`val`() shouldBe address.line4
+      doc.getElementById("postcode").`val`()      shouldBe address.postcode
     }
 
     "render incomplete data" in {
@@ -221,15 +221,15 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       doc
         .getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name")
-        .`val`()                                       shouldBe answers.fullName
+        .`val`()                                  shouldBe answers.fullName
       doc
         .getElementById("enter-claimant-details-as-registered-with-cds.individual-email")
-        .`val`()                                       shouldBe answers.emailAddress.value
-      doc.getElementById("nonUkAddress-line1").`val`() shouldBe address.line1
-      doc.getElementById("nonUkAddress-line2").`val`() shouldBe address.line2.getOrElse("")
-      doc.getElementById("nonUkAddress-line3").`val`() shouldBe address.line3.getOrElse("")
-      doc.getElementById("nonUkAddress-line4").`val`() shouldBe address.line4
-      doc.getElementById("postcode").`val`()           shouldBe address.postcode
+        .`val`()                                  shouldBe answers.emailAddress.value
+      doc.getElementById("address-line1").`val`() shouldBe address.line1
+      doc.getElementById("address-line2").`val`() shouldBe address.line2.getOrElse("")
+      doc.getElementById("address-line3").`val`() shouldBe address.line3.getOrElse("")
+      doc.getElementById("address-line4").`val`() shouldBe address.line4
+      doc.getElementById("postcode").`val`()      shouldBe address.postcode
     }
 
     "render empty data" in {
@@ -244,10 +244,10 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       doc.getElementById("enter-claimant-details-as-registered-with-cds.individual-full-name").`val`() shouldBe ""
       doc.getElementById("enter-claimant-details-as-registered-with-cds.individual-email").`val`()     shouldBe ""
-      doc.getElementById("nonUkAddress-line1").`val`()                                                 shouldBe ""
-      doc.getElementById("nonUkAddress-line2").`val`()                                                 shouldBe ""
-      doc.getElementById("nonUkAddress-line3").`val`()                                                 shouldBe ""
-      doc.getElementById("nonUkAddress-line4").`val`()                                                 shouldBe ""
+      doc.getElementById("address-line1").`val`()                                                      shouldBe ""
+      doc.getElementById("address-line2").`val`()                                                      shouldBe ""
+      doc.getElementById("address-line3").`val`()                                                      shouldBe ""
+      doc.getElementById("address-line4").`val`()                                                      shouldBe ""
       doc.getElementById("postcode").`val`()                                                           shouldBe ""
     }
 

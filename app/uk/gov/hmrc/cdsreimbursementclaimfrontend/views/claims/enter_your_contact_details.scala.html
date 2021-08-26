@@ -38,7 +38,7 @@
 @(form : Form[ContactDetailsAnswer], isAmend: Boolean, router:ReimbursementRoutes )(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-your-contact-details"}
-    @addressKey = @{"nonUkAddress"}
+    @addressKey = @{"address"}
 
     @postAction = @{ router.submitEntryNumberContactDetails(isAmend) }
 
