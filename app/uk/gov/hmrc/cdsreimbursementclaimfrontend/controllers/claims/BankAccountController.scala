@@ -229,25 +229,16 @@ class BankAccountController @Inject() (
 object BankAccountController {
 
   val numberRegex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
-  val charRegex: Predicate[String]   = "\\D+".r.pattern.asPredicate()
 
   def lengthError(acNum: String): Boolean =
     if ((acNum.length < 6 || acNum.length > 8) && numberRegex.test(acNum)) false
-    else if ((acNum.length >= 6 && acNum.length <= 8) && numberRegex.test(acNum)) true
-    else true
-
-  def invalidError(acNum: String): Boolean =
-    if ((acNum.length >= 6 && acNum.length <= 8) && charRegex.test(acNum)) false
-    else if ((acNum.length >= 6 && acNum.length <= 8) && numberRegex.test(acNum)) true
-    else if ((acNum.length < 6 || acNum.length > 8) && charRegex.test(acNum)) false
-    else if ((acNum.length < 6 || acNum.length > 8) && numberRegex.test(acNum)) true
     else true
 
   val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText
       .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
       .verifying("error.length", str => lengthError(str))
-      .verifying("error.invalid", str => invalidError(str))
+      .verifying("error.invalid", str => numberRegex.test(str))
       .transform[AccountNumber](
         s => {
           val paddedNumber = s.reverse.padTo(8, '0').reverse
