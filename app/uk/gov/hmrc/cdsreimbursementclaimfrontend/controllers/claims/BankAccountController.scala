@@ -228,13 +228,26 @@ class BankAccountController @Inject() (
 
 object BankAccountController {
 
-  val accountNumberRegex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
+  val numberRegex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
+  val charRegex: Predicate[String]   = "\\D+".r.pattern.asPredicate()
+
+  def lengthError(acNum: String): Boolean =
+    if ((acNum.length < 6 || acNum.length > 8) && numberRegex.test(acNum)) false
+    else if ((acNum.length >= 6 && acNum.length <= 8) && numberRegex.test(acNum)) true
+    else true
+
+  def invalidError(acNum: String): Boolean =
+    if ((acNum.length >= 6 && acNum.length <= 8) && charRegex.test(acNum)) false
+    else if ((acNum.length >= 6 && acNum.length <= 8) && numberRegex.test(acNum)) true
+    else if ((acNum.length < 6 || acNum.length > 8) && charRegex.test(acNum)) false
+    else if ((acNum.length < 6 || acNum.length > 8) && numberRegex.test(acNum)) true
+    else true
 
   val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText
       .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
-      .verifying("error.length", s => s.length >= 6 && s.length <= 8)
-      .verifying("error.invalid", a => accountNumberRegex.test(a))
+      .verifying("error.length", str => lengthError(str))
+      .verifying("error.invalid", str => invalidError(str))
       .transform[AccountNumber](
         s => {
           val paddedNumber = s.reverse.padTo(8, '0').reverse
