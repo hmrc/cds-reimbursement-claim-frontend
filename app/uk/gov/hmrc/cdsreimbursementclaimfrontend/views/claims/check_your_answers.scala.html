@@ -36,7 +36,7 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(journey: JourneyBindable, completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, journey: JourneyBindable)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
@@ -46,15 +46,18 @@
         @pageHeading(title)
 
         @pageHeading(messages(s"$key.reference-number.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
-        @summary(SummaryList(cyaHelper.makeReferenceNumberRowSummary(completeClaim.movementReferenceNumber)))
+        @summary(SummaryList(cyaHelper.makeReferenceNumberRowSummary(completeClaim.movementReferenceNumber.value)))
 
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeDeclarationDetailsSummary(completeClaim)))
 
+        @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(SummaryList(cyaHelper.makeClaimantTypeSummary(completeClaim)))
+
         @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimantDetailsSummary(completeClaim)))
 
-        @completeClaim.claimantDetailsAsImporterCompany.map{ _ =>
+        @completeClaim.maybeContactDetailsAnswer.map{ _ =>
             @pageHeading(messages(s"$key.claimant-details-as-importer.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim)))
         }
@@ -75,7 +78,7 @@
         @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(journey, completeClaim.supportingEvidences)))
+        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(journey, completeClaim.supportingEvidencesAnswer.toList)))
 
         @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
