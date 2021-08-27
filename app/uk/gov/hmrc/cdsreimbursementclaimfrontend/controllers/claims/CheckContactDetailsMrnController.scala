@@ -130,7 +130,7 @@ class CheckContactDetailsMrnController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       implicit val timeoutConfig: TimeoutConfig = TimeoutConfig(
         timeoutAmount = viewConfig.timeout,
-        timeoutUrl = viewConfig.buildCompleteSelfUrl(routes.CheckContactDetailsMrnController.claimTimedOut(journey)),
+        timeoutUrl = routes.CheckContactDetailsMrnController.claimTimedOut(journey).url,
         timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
       )
 
