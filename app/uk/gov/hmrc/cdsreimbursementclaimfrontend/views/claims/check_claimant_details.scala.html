@@ -19,8 +19,8 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.NamePhoneEmail
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
@@ -43,7 +43,7 @@
 
 @(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:Option[MrnContactDetails], contactAddress:Option[ContactAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{CheckClaimantDetailsController.languageKey}
+@key = @{CheckContactDetailsMrnController.languageKey}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

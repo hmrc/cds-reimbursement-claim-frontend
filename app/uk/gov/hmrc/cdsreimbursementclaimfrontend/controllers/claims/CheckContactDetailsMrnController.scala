@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -52,7 +52,7 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CheckClaimantDetailsController @Inject() (
+class CheckContactDetailsMrnController @Inject() (
   addressLookupService: AddressLookupService,
   addressLookupConfig: AddressLookupConfig,
   val authenticatedAction: AuthenticatedAction,
@@ -136,7 +136,7 @@ class CheckClaimantDetailsController @Inject() (
 
       val addressSearchRequest =
         AddressLookupRequest
-          .redirectBackTo(routes.CheckClaimantDetailsController.updateAddress(journey))
+          .redirectBackTo(routes.CheckContactDetailsMrnController.updateAddress(journey))
           .signOutUserVia(viewConfig.signOutUrl)
           .nameServiceAs("cds-reimbursement-claim")
           .maximumShow(addressLookupConfig.maxAddressesToShow)
@@ -168,7 +168,7 @@ class CheckClaimantDetailsController @Inject() (
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             logAndDisplayError("Error updating Address Lookup address: "),
-            _ => Redirect(routes.CheckClaimantDetailsController.show(journey))
+            _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
           )
       }(dataExtractor, request, journey)
     }
@@ -208,7 +208,7 @@ class CheckClaimantDetailsController @Inject() (
 
 }
 
-object CheckClaimantDetailsController {
+object CheckContactDetailsMrnController {
   val languageKey: String = "claimant-details"
 
   sealed trait CheckClaimantDetailsAnswer extends Product with Serializable

@@ -42,7 +42,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class EnterYourContactDetailsController @Inject() (
+class EnterContactDetailsEntryNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
@@ -66,7 +66,7 @@ class EnterYourContactDetailsController @Inject() (
   def show(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[ContactDetailsAnswer] { (_, answers, router) =>
-        val emptyForm  = EnterYourContactDetailsController.contactDetailsForm
+        val emptyForm  = EnterContactDetailsEntryNumberController.contactDetailsForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
         Ok(enterYourContactDetailsPage(filledForm, isAmend, router))
       }
@@ -78,7 +78,7 @@ class EnterYourContactDetailsController @Inject() (
   def submit(isAmend: Boolean): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[ContactDetailsAnswer] { (fillingOutClaim, _, router) =>
-        EnterYourContactDetailsController.contactDetailsForm
+        EnterContactDetailsEntryNumberController.contactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(enterYourContactDetailsPage(formWithErrors, isAmend, router)),
@@ -98,7 +98,7 @@ class EnterYourContactDetailsController @Inject() (
     }
 }
 
-object EnterYourContactDetailsController {
+object EnterContactDetailsEntryNumberController {
 
   val contactDetailsForm: Form[ContactDetailsAnswer] = Form(
     mapping(

@@ -44,7 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 import scala.concurrent.Future
 
-class EnterContactDetailsControllerSpec
+class EnterContactDetailsMrnControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -56,7 +56,7 @@ class EnterContactDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterContactDetailsController = instanceOf[EnterContactDetailsController]
+  lazy val controller: EnterContactDetailsMrnController = instanceOf[EnterContactDetailsMrnController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -225,7 +225,7 @@ class EnterContactDetailsControllerSpec
 
         checkIsRedirect(
           performAction(goodData.toSeq, journey),
-          routes.CheckClaimantDetailsController.changeAddress(journey)
+          routes.CheckContactDetailsMrnController.changeAddress(journey)
         )
       }
 
@@ -260,7 +260,7 @@ class EnterContactDetailsControllerSpec
   }
 
   "Form Validation" must {
-    val form         = EnterContactDetailsController.mrnContactDetailsForm
+    val form         = EnterContactDetailsMrnController.mrnContactDetailsForm
     val fullName     = "enter-contact-details.contact-name"
     val emailAddress = "enter-contact-details.contact-email"
     val phone        = "enter-contact-details.contact-phone-number"

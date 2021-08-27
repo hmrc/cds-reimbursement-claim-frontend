@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
 
-class EnterYourContactDetailsControllerSpec
+class EnterContactDetailsEntryNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -52,8 +52,8 @@ class EnterYourContactDetailsControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: EnterYourContactDetailsController =
-    instanceOf[EnterYourContactDetailsController]
+  lazy val controller: EnterContactDetailsEntryNumberController =
+    instanceOf[EnterContactDetailsEntryNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -122,10 +122,10 @@ class EnterYourContactDetailsControllerSpec
         .getElementById("enter-your-contact-details.contact-phone-number")
         .`val`()                                                             shouldBe contactDetails.phoneNumber.value
       doc.getElementById("enter-your-contact-details.contact-email").`val`() shouldBe contactDetails.emailAddress.value
-      doc.getElementById("nonUkAddress-line1").`val`()                       shouldBe contactDetails.contactAddress.line1
-      doc.getElementById("nonUkAddress-line2").`val`()                       shouldBe contactDetails.contactAddress.line2.getOrElse(fail)
-      doc.getElementById("nonUkAddress-line3").`val`()                       shouldBe contactDetails.contactAddress.line3.getOrElse(fail)
-      doc.getElementById("nonUkAddress-line4").`val`()                       shouldBe contactDetails.contactAddress.line4
+      doc.getElementById("address-line1").`val`()                            shouldBe contactDetails.contactAddress.line1
+      doc.getElementById("address-line2").`val`()                            shouldBe contactDetails.contactAddress.line2.getOrElse(fail)
+      doc.getElementById("address-line3").`val`()                            shouldBe contactDetails.contactAddress.line3.getOrElse(fail)
+      doc.getElementById("address-line4").`val`()                            shouldBe contactDetails.contactAddress.line4
       doc.getElementById("postcode").`val`()                                 shouldBe contactDetails.contactAddress.postcode
       doc.select("#countryCode option[selected]").`val`()                    shouldBe contactDetails.contactAddress.country.code
     }
@@ -135,10 +135,10 @@ class EnterYourContactDetailsControllerSpec
       val contactNameKey  = "enter-your-contact-details.contact-name"
       val emailAddressKey = "enter-your-contact-details.contact-email"
       val phoneNumberKey  = "enter-your-contact-details.contact-phone-number"
-      val addressLine1Key = "nonUkAddress-line1"
-      val addressLine2Key = "nonUkAddress-line2"
-      val addressLine3Key = "nonUkAddress-line3"
-      val addressLine4Key = "nonUkAddress-line4"
+      val addressLine1Key = "address-line1"
+      val addressLine2Key = "address-line2"
+      val addressLine3Key = "address-line3"
+      val addressLine4Key = "address-line4"
       val postCodeKey     = "postcode"
       val countryCodeKey  = "countryCode"
 
@@ -183,14 +183,14 @@ class EnterYourContactDetailsControllerSpec
   }
 
   "Form Validation" must {
-    val form         = EnterYourContactDetailsController.contactDetailsForm
+    val form         = EnterContactDetailsEntryNumberController.contactDetailsForm
     val fullName     = "enter-your-contact-details.contact-name"
     val emailAddress = "enter-your-contact-details.contact-email"
     val phone        = "enter-your-contact-details.contact-phone-number"
-    val addressLine1 = "nonUkAddress-line1"
-    val addressLine2 = "nonUkAddress-line2"
-    val addressLine3 = "nonUkAddress-line3"
-    val addressLine4 = "nonUkAddress-line4"
+    val addressLine1 = "address-line1"
+    val addressLine2 = "address-line2"
+    val addressLine3 = "address-line3"
+    val addressLine4 = "address-line4"
     val postCode     = "postcode"
     val countryCode  = "countryCode"
 

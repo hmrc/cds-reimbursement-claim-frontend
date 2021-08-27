@@ -31,20 +31,20 @@ POST        /single/change-declaration-details                      uk.gov.hmrc.
 GET         /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
 POST        /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit()
 
-GET         /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.show(journey: JourneyBindable)
-POST        /:journey/add-claimant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.add(journey: JourneyBindable)
-POST        /:journey/change-claimant-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.change(journey: JourneyBindable)
+GET         /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
+POST        /:journey/add-claimant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.add(journey: JourneyBindable)
+POST        /:journey/change-claimant-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.change(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/address-timeout              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.claimTimedOut(journey: JourneyBindable)
+GET         /:journey/claimant-details/address-timeout              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.claimTimedOut(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsController.changeMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsController.enterMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.changeAddress(journey: JourneyBindable)
-GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckClaimantDetailsController.updateAddress(journey: JourneyBindable, id: Option[java.util.UUID] ?= None)
+GET         /:journey/claimant-details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.changeAddress(journey: JourneyBindable)
+GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.updateAddress(journey: JourneyBindable, id: Option[java.util.UUID] ?= None)
 
 GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)
 POST        /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journey: JourneyBindable)
@@ -58,11 +58,11 @@ POST        /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.
 GET         /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds()
 POST        /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
 
-GET         /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetails()
-POST        /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.enterContactDetailsSubmit()
+GET         /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsEntryNumberController.enterContactDetails()
+POST        /single/enter-your-contact-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsEntryNumberController.enterContactDetailsSubmit()
 
-GET         /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetails()
-POST        /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterYourContactDetailsController.changeContactDetailsSubmit()
+GET         /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsEntryNumberController.changeContactDetails()
+POST        /single/change-your-contact-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsEntryNumberController.changeContactDetailsSubmit()
 
 GET         /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journey: JourneyBindable)
 POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journey: JourneyBindable)

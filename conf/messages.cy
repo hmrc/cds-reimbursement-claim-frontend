@@ -247,10 +247,10 @@ postcode.error.required=Nodwch god post dilys
 postcode.error.pattern=Nodwch god post dilys
 postcode.error.tooLong=Nodwch god post dilys
 countryCode.enter-claimant-details-as-registered-with-cds.error.required=Nodwch wlad
-nonUkAddress-line1.error.pattern=Nodwch gyfeiriad dilys – llinell 1
-nonUkAddress-line2.error.pattern=Nodwch gyfeiriad dilys – llinell 2
-nonUkAddress-line3.error.pattern=Nodwch gyfeiriad dilys – llinell 3
-nonUkAddress-line4.error.pattern=Nodwch dref neu ddinas ddilys
+address-line1.error.pattern=Nodwch gyfeiriad dilys – llinell 1
+address-line2.error.pattern=Nodwch gyfeiriad dilys – llinell 2
+address-line3.error.pattern=Nodwch gyfeiriad dilys – llinell 3
+address-line4.error.pattern=Nodwch dref neu ddinas ddilys
 
 
 #===================================================
@@ -274,14 +274,14 @@ enter-your-contact-details.contact-phone-number.label=Rhif ffôn
 enter-your-contact-details.contact-phone-number.help=Ar gyfer rhifau rhyngwladol, cofiwch gynnwys cod y wlad.
 enter-your-contact-details.importer-contact-address.label=Cyfeiriad cyswllt
 enter-your-contact-details.address.building.label=Rhif neu enw’r adeilad
-enter-your-contact-details.nonUkAddress-building.error.required=Nodwch rif neu enw’r adeilad
+enter-your-contact-details.address-building.error.required=Nodwch rif neu enw’r adeilad
 enter-your-contact-details.address.line1.label=Cyfeiriad – llinell 1
 enter-your-contact-details.address.line1.error.required=Nodwch gyfeiriad – llinell 1
-enter-your-contact-details.nonUkAddress-line1.error.required=Nodwch gyfeiriad – llinell 1
+enter-your-contact-details.address-line1.error.required=Nodwch gyfeiriad – llinell 1
 enter-your-contact-details.address.line2.label=Cyfeiriad – llinell 2 (dewisol)
 enter-your-contact-details.address.line3.label=Cyfeiriad – llinell 3 (dewisol)
 enter-your-contact-details.address.line4.label=Tref neu ddinas
-enter-your-contact-details.nonUkAddress-line4.error.required=Nodwch dref neu ddinas
+enter-your-contact-details.address-line4.error.required=Nodwch dref neu ddinas
 enter-your-contact-details.address.line5.label=Cod post
 enter-your-contact-details.address.line6.label=Gwlad
 enter-your-contact-details.countryCode.error.required=Nodwch wlad
@@ -834,13 +834,13 @@ accessibility-statement.li5=gwrando ar y gwasanaeth gan ddefnyddio darllenydd sg
 #===================================================
 #  NON-UK ADDRESS - START
 #===================================================
-nonUkAddress-building.error.required=Nodwch enw neu rif adeilad
-nonUkAddress-line1.error.required=Nodwch gyfeiriad – llinell 1
-nonUkAddress-line4.error.required=Nodwch dref neu ddinas
-nonUkAddress-line1.error.tooLong=Nodwch gyfeiriad dilys – llinell 1
-nonUkAddress-line2.error.tooLong=Nodwch gyfeiriad dilys – llinell 2
-nonUkAddress-line3.error.tooLong=Nodwch gyfeiriad dilys – llinell 3
-nonUkAddress-line4.error.tooLong=Nodwch gyfeiriad dilys – llinell 4
+address-building.error.required=Nodwch enw neu rif adeilad
+address-line1.error.required=Nodwch gyfeiriad – llinell 1
+address-line4.error.required=Nodwch dref neu ddinas
+address-line1.error.tooLong=Nodwch gyfeiriad dilys – llinell 1
+address-line2.error.tooLong=Nodwch gyfeiriad dilys – llinell 2
+address-line3.error.tooLong=Nodwch gyfeiriad dilys – llinell 3
+address-line4.error.tooLong=Nodwch gyfeiriad dilys – llinell 4
 postcode.error.maxLength=Nodwch god post dilys
 postcode.error.invalidCharacters=Nodwch god post dilys
 countryCode.error.required=Nodwch wlad
