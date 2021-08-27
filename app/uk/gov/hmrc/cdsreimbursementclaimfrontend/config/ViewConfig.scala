@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -60,11 +59,6 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
   val ggSignOut: String =
     signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .start()
-      .url
-
-  def claimTimedOutUrl(journeyBindable: JourneyBindable): String =
-    getString("tax-service-path") + claimsRoutes.CheckContactDetailsMrnController
-      .claimTimedOut(journeyBindable)
       .url
 
   val serviceFeedBackUrl: String = {
