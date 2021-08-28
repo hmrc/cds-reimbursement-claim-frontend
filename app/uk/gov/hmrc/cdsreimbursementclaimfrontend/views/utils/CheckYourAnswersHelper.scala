@@ -21,7 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBind
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -33,46 +32,6 @@ import javax.inject.{Inject, Singleton}
 class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitchService) {
 
   private val key = "check-your-answers"
-
-  def makeReferenceNumberRowSummary(
-    number: Either[EntryNumber, MRN]
-  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] = {
-    val referenceNumber = number match {
-      case Left(value)  =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.entry-reference-number.label"))),
-          value = Value(Text(value.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(journey).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.entry-reference-number.label"))
-                )
-              )
-            )
-          )
-        )
-      case Right(value) =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.mrn.label"))),
-          value = Value(Text(value.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(journey).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.mrn.label"))
-                )
-              )
-            )
-          )
-        )
-    }
-    List(referenceNumber)
-  }
 
   def makeDeclarationDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     completeClaim.movementReferenceNumber.value match {
@@ -305,25 +264,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
         )
         rows.flattenOption
     }
-
-  def makeClaimantTypeSummary(completeClaim: CompleteClaim)(implicit messages: Messages): Seq[SummaryListRow] =
-    Seq(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-type.l0"))),
-        value = Value(Text(completeClaim.declarantTypeAnswer.toString)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
-              )
-            )
-          )
-        )
-      )
-    )
 
   def makeClaimantDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
