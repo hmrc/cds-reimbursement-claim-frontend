@@ -18,14 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteNorthernIrelandAnswer
 
 object NorthernIrelandAnswerGen {
 
   implicit val arbitraryNorthernIrelandAnswer: Typeclass[ClaimNorthernIrelandAnswer] =
     gen[ClaimNorthernIrelandAnswer]
-
-  implicit val arbitraryCompleteNorthernIrelandAnswer: Typeclass[CompleteNorthernIrelandAnswer] =
-    gen[CompleteNorthernIrelandAnswer]
-
 }

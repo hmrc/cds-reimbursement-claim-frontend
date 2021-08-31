@@ -26,7 +26,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
@@ -83,10 +82,10 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       .expects(submitClaimRequest, *, *)
       .returning(EitherT.fromEither[Future](response))
 
-  private def sessionWithCompleteClaimState(): (SessionData, JustSubmittedClaim, CompleteC285Claim) = {
+  private def sessionWithCompleteClaimState(): (SessionData, JustSubmittedClaim, CompleteClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val completeC285Claim   = sample[CompleteC285Claim]
+    val completeC285Claim   = sample[CompleteClaim]
     val submissionResponse  = sample[SubmitClaimResponse]
     val journeyBindable     = sample[JourneyBindable]
 
@@ -102,29 +101,29 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     )
   }
 
-  val mrn: MRN                                                     = sample[MRN]
-  val declarantTypeAnswer: DeclarantTypeAnswer                     = AssociatedWithRepresentativeCompany
-  val basisOfClaim: BasisOfClaim                                   = sample[BasisOfClaim]
-  val supportingEvidences: SupportingEvidencesAnswer               = sample[SupportingEvidencesAnswer]
-  val completeDutiesSelectedAnswer: DutiesSelectedAnswer           = sample[DutiesSelectedAnswer]
-  val commodityDetailsAnswer: CommodityDetails                     = sample[CommodityDetails]
-  val completeNorthernIrelandAnswer: CompleteNorthernIrelandAnswer = sample[CompleteNorthernIrelandAnswer]
-  val claimsAnswer: ClaimsAnswer                                   = sample[ClaimsAnswer]
-  val signedInUserDetails                                          = sample[SignedInUserDetails]
-  val declarantEstablishmentAddress                                = EstablishmentAddress(
+  val mrn: MRN                                                         = sample[MRN]
+  val declarantTypeAnswer: DeclarantTypeAnswer                         = AssociatedWithRepresentativeCompany
+  val basisOfClaim: BasisOfClaim                                       = sample[BasisOfClaim]
+  val supportingEvidences: SupportingEvidencesAnswer                   = sample[SupportingEvidencesAnswer]
+  val completeDutiesSelectedAnswer: DutiesSelectedAnswer               = sample[DutiesSelectedAnswer]
+  val commodityDetailsAnswer: CommodityDetails                         = sample[CommodityDetails]
+  val northernIrelandAnswer: ClaimNorthernIrelandAnswer                = sample[ClaimNorthernIrelandAnswer]
+  val claimsAnswer: ClaimsAnswer                                       = sample[ClaimsAnswer]
+  val signedInUserDetails: SignedInUserDetails                         = sample[SignedInUserDetails]
+  val declarantEstablishmentAddress: EstablishmentAddress              = EstablishmentAddress(
     addressLine1 = alphaCharGen(10),
     addressLine2 = None,
     addressLine3 = None,
     postalCode = Some(alphaCharGen(10)),
     countryCode = "GB"
   )
-  val declarantDetails                                             = DeclarantDetails(
+  val declarantDetails: DeclarantDetails                               = DeclarantDetails(
     declarantEORI = "F-1",
     legalName = "Fred Bread",
     establishmentAddress = declarantEstablishmentAddress,
     contactDetails = None
   )
-  val detailsRegisteredWithCdsFormData                             = DetailsRegisteredWithCdsAnswer(
+  val detailsRegisteredWithCdsFormData: DetailsRegisteredWithCdsAnswer = DetailsRegisteredWithCdsAnswer(
     fullName = declarantDetails.legalName,
     emailAddress = signedInUserDetails.verifiedEmail,
     contactAddress = ContactAddress(
@@ -143,6 +142,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     emailAddress = signedInUserDetails.verifiedEmail,
     phoneNumber = None
   )
+
   val mrnContactAddressAnswer: ContactAddress    = ContactAddress(
     line1 = declarantEstablishmentAddress.addressLine1,
     line2 = declarantEstablishmentAddress.addressLine2,
@@ -168,7 +168,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
     reasonForBasisAndClaimAnswer = None,
-    claimNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer.claimNorthernIrelandAnswer),
+    claimNorthernIrelandAnswer = Some(northernIrelandAnswer),
     displayDeclaration = Some(
       DisplayDeclaration(
         displayResponseDetail = DisplayResponseDetail(
@@ -205,7 +205,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     scheduledDocumentAnswer = None
   )
 
-  val completeC285Claim: CompleteC285Claim = CompleteC285Claim(
+  val completeC285Claim: CompleteClaim = CompleteClaim(
     id = filledDraftC285Claim.id,
     movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
     maybeDuplicateMovementReferenceNumberAnswer = None,
@@ -218,7 +218,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     maybeBankAccountDetailsAnswer = None,
     supportingEvidencesAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,
-    completeNorthernIrelandAnswer = Some(completeNorthernIrelandAnswer),
+    northernIrelandAnswer = Some(northernIrelandAnswer),
     None,
     maybeDisplayDeclaration = Some(
       DisplayDeclaration(

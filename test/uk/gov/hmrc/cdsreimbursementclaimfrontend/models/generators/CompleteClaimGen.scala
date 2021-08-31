@@ -18,14 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 
-object CompleteClaimGen extends HigherPriorityCompleteReturnGen
+object CompleteClaimGen {
 
-trait HigherPriorityCompleteReturnGen extends LowerPriorityCompleteReturnGen {
   implicit val arbitraryCompleteClaim: Typeclass[CompleteClaim] = gen[CompleteClaim]
-}
-
-trait LowerPriorityCompleteReturnGen {
-  implicit val arbitraryCompleteC285Claim: Typeclass[CompleteC285Claim] = gen[CompleteC285Claim]
 }

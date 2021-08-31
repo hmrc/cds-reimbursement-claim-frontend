@@ -65,30 +65,16 @@
                 hintKey = None,
                 classes = "govuk-visually-hidden",
                 inline = true,
-                items = Seq(
+                items = DeclarantTypeAnswer.items.zipWithIndex.map(pair =>
                     RadioItem(
-                        id = Some(s"$key"),
-                        value = Some("0"),
-                        content = Text(messages(s"$key.importer")),
-                        checked = false
-                    ),
-                    RadioItem(
-                        id = Some(s"$key-associate-with-importer-company"),
-                        value = Some("1"),
-                        content = Text(messages(s"$key.associate-with-importer-company")),
-                        checked = false
-                    ),
-                    RadioItem(
-                        id = Some(s"$key-associate-with-representative-company"),
-                        value = Some("2"),
-                        content = Text(messages(s"$key.associate-with-representative-company")),
-                        checked = false
+                        id = Some(s"$key.importer${pair._2}"),
+                        value = Some(pair._2.toString),
+                        content = Text(messages(s"$key.importer${pair._2}")),
+                        checked = form.value.contains(pair._1)
                     )
                 )
             )
 
             @submitButton("button.continue")
-
         }
-
     }

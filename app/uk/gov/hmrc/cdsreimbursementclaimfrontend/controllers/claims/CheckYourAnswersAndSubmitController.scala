@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
@@ -59,16 +58,16 @@ class CheckYourAnswersAndSubmitController @Inject() (
     with SessionUpdates
     with Logging {
 
-  def checkAllAnswers(journey: JourneyBindable): Action[AnyContent] =
+  def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim(request) { (_, _, completeClaim) =>
-        Ok(checkYourAnswersPage(journey, completeClaim))
+      withCompleteDraftClaim { (_, _, completeClaim) =>
+        Ok(checkYourAnswersPage(completeClaim))
       }
     }
 
   def checkAllAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
+      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
         val result =
           for {
             response        <- EitherT.liftF(
@@ -147,46 +146,37 @@ class CheckYourAnswersAndSubmitController @Inject() (
       )
       .merge
 
-  def submissionError(journey: JourneyBindable): Action[AnyContent] =
+  def submissionError(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSubmitClaimFailed(request, journey)(_ => Ok(submitClaimFailedPage()))
+      withSubmitClaimFailed(_ => Ok(submitClaimFailedPage()))
     }
 
-  def confirmationOfSubmission(journey: JourneyBindable): Action[AnyContent] =
+  def confirmationOfSubmission(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withJustSubmittedClaim(request, journey)(claim => Ok(confirmationOfSubmissionPage(claim)))
+      withJustSubmittedClaim(claim => Ok(confirmationOfSubmissionPage(claim)))
     }
 
   private def withJustSubmittedClaim(
-    request: RequestWithSessionData[_],
-    journey: JourneyBindable
-  )(f: JustSubmittedClaim => Future[Result]): Future[Result] =
+    f: JustSubmittedClaim => Future[Result]
+  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(j: JustSubmittedClaim) if j.journey === journey => f(j)
-      case _                                                    =>
-        Redirect(baseRoutes.StartController.start())
+      case _                                                    => Redirect(baseRoutes.StartController.start())
     }
 
   private def withSubmitClaimFailed(
-    request: RequestWithSessionData[_],
-    journey: JourneyBindable
-  )(
     f: Either[SubmitClaimFailed, RetrievedUserType] => Future[Result]
-  ): Future[Result] =
+  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(s: SubmitClaimFailed)  => f(Left(s))
       case Some(_: JustSubmittedClaim) =>
-        Redirect(
-          claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey)
-        )
+        Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
       case _                           => Redirect(baseRoutes.StartController.start())
     }
 
   private def withCompleteDraftClaim(
-    request: RequestWithSessionData[_]
-  )(
     f: (SessionData, FillingOutClaim, CompleteClaim) => Future[Result]
-  ): Future[Result] =
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({
       case (
             sessionData,
@@ -196,17 +186,13 @@ class CheckYourAnswersAndSubmitController @Inject() (
               draftClaim: DraftC285Claim
             )
           ) =>
-        CompleteC285Claim
+        CompleteClaim
           .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
           .fold[Future[Result]](
-            e => {
-              logger.warn(s"could not make a complete claim", e)
-              errorHandler.errorResult()(request)
-            },
-            s => f(sessionData, fillingOutClaim, s)
+            error => logAndDisplayError("could not make a complete claim") apply error,
+            completeClaim => f(sessionData, fillingOutClaim, completeClaim)
           )
     })
-
 }
 
 object CheckYourAnswersAndSubmitController {
@@ -214,9 +200,7 @@ object CheckYourAnswersAndSubmitController {
   sealed trait SubmitClaimResult
 
   object SubmitClaimResult {
-
     final case class SubmitClaimError(error: Error) extends SubmitClaimResult
-
     final case class SubmitClaimSuccess(response: SubmitClaimResponse) extends SubmitClaimResult
   }
 }

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
-final case class CompleteNorthernIrelandAnswer(claimNorthernIrelandAnswer: ClaimNorthernIrelandAnswer)
+trait AnswerSummary[A] {
 
-object CompleteNorthernIrelandAnswer {
-  implicit val format: OFormat[CompleteNorthernIrelandAnswer] =
-    derived.oformat[CompleteNorthernIrelandAnswer]()
+  def render(answer: A)(implicit journey: JourneyBindable, messages: Messages): SummaryList
 }
