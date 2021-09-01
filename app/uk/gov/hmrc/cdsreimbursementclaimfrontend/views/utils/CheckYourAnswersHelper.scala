@@ -268,7 +268,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
   def makeClaimantDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-type.l0"))),
+        key = Key(Text(messages(s"$key.claimant-details.l0"))),
         value = Value(Text(completeClaim.detailsRegisteredWithCdsAnswer.fullName)),
         actions = Some(
           Actions(

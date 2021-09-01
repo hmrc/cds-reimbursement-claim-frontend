@@ -143,7 +143,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     phoneNumber = None
   )
 
-  val mrnContactAddressAnswer: ContactAddress    = ContactAddress(
+  val mrnContactAddressAnswer: ContactAddress = ContactAddress(
     line1 = declarantEstablishmentAddress.addressLine1,
     line2 = declarantEstablishmentAddress.addressLine2,
     line3 = declarantEstablishmentAddress.addressLine3,
