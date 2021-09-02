@@ -16,8 +16,6 @@ const CDSR = {
 
     backLinkContainer: document.querySelector('#cdsr-back-link'),
 
-    countrySelectElement: document.querySelector("#countryCode"),
-
     Init: () => {
 
         // Add back link
@@ -32,25 +30,6 @@ const CDSR = {
         if (CDSR.form) {
             CDSR.form.addEventListener('submit', CDSR.CheckFileInputs);
         }
-
-        // Set up country lookup input
-
-        if (CDSR.countrySelectElement && (!CDSR.lang || CDSR.lang === "en")) {
-            CDSR.RenderCountryAutoComplete();
-        }
-
-    },
-
-    RenderCountryAutoComplete: () => {
-
-        openregisterLocationPicker({
-            additionalSynonyms: [
-                { name: 'Albion', code: 'country:GB' }
-            ],
-            defaultValue: '',
-            selectElement: CDSR.countrySelectElement,
-            url: '/claim-for-reimbursement-of-import-duties/assets/json/location-autocomplete-graph.json'
-        });
 
     },
 
