@@ -91,7 +91,6 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
                   _ =>
                     Redirect(
                       router.nextPageForDetailsRegisteredWithCDS(
-                        formOk.addCompanyDetails,
                         fillingOutClaim.draftClaim.declarantType
                       )
                     )
