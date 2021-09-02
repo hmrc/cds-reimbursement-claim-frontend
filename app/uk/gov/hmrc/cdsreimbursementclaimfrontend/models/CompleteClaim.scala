@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, S
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 import java.util.UUID
 
@@ -45,7 +44,8 @@ final case class CompleteClaim(
   maybeCompleteDuplicateDeclarationDetailsAnswer: Option[CompleteDuplicateDeclarationDetailsAnswer],
   declarantTypeAnswer: DeclarantTypeAnswer,
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
-  maybeContactDetailsAnswer: Option[ContactDetailsAnswer],
+  mrnContactDetailsAnswer: Option[MrnContactDetails],
+  mrnContactAddressAnswer: Option[ContactAddress],
   maybeBasisOfClaimAnswer: Option[BasisOfClaim],
   maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
@@ -67,13 +67,12 @@ object CompleteClaim {
       case DraftClaim.DraftC285Claim(
             id,
             _,
-            Some(movementReferenceNumber: MovementReferenceNumber),
+            Some(MovementReferenceNumber(Right(mrn))),
             maybeDuplicateMovementReferenceNumber,
-            draftMaybeDeclarationDetailsAnswer,
-            draftDuplicateDeclarationDetailAnswer,
+            _,
+            _,
             draftDeclarantTypeAnswer,
-            draftDetailsRegisteredWithCdsAnswer,
-            draftContactDetailsAnswer,
+            _,
             draftMrnContactDetails,
             draftMrnContactAddress,
             maybeBankAccountDetails,
@@ -83,7 +82,7 @@ object CompleteClaim {
             _,
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
-            draftReasonAndBasisOfClaimAnswer,
+            _,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
             draftImporterEoriNumberAnswer,
@@ -93,110 +92,54 @@ object CompleteClaim {
             _,
             maybeScheduledDocument
           ) =>
-        movementReferenceNumber.value match {
-          case Left(_) =>
-            (
-              validateDeclarationDetailsAnswer(draftMaybeDeclarationDetailsAnswer),
-              validateDuplicateDeclarantDetailAnswer(draftDuplicateDeclarationDetailAnswer),
-              validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-              validateDetailsRegisteredWithCdsEntryNumber(draftDetailsRegisteredWithCdsAnswer),
-              validateClaimantContactDetailsEntryNumber(draftContactDetailsAnswer),
-              validateSupportingEvidencesAnswer(maybeSupportingEvidences),
-              validateCommodityDetailsAnswer(draftCommodityAnswer),
-              validateReasonAndBasisOfClaimAnswer(draftReasonAndBasisOfClaimAnswer)
+        (
+          validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
+          validateDetailsRegisteredWithCdsMrn(draftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
+          validateSupportingEvidencesAnswer(maybeSupportingEvidences),
+          validateCommodityDetailsAnswer(draftCommodityAnswer),
+          validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
+          validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
+        )
+          .mapN {
+            case (
+                  declarantTypeAnswer,
+                  detailsRegisteredWithCdsAnswer,
+                  supportingEvidenceAnswer,
+                  commodityDetailsAnswer,
+                  importerEoriNumberAnswer,
+                  declarantEoriNumberAnswer
+                ) =>
+              CompleteClaim(
+                id = id,
+                movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
+                maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
+                maybeCompleteDeclarationDetailsAnswer = None,
+                maybeCompleteDuplicateDeclarationDetailsAnswer = None,
+                declarantTypeAnswer,
+                detailsRegisteredWithCdsAnswer,
+                draftMrnContactDetails,
+                draftMrnContactAddress,
+                maybeBasisForClaim,
+                maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
+                supportingEvidenceAnswer,
+                commodityDetailsAnswer,
+                draftNorthernIrelandAnswer,
+                None,
+                maybeDisplayDeclaration,
+                maybeDuplicateDisplayDeclaration,
+                importerEoriNumberAnswer,
+                declarantEoriNumberAnswer,
+                claimsAnswer,
+                maybeScheduledDocument
+              )
+          }
+          .toEither
+          .leftMap { errors =>
+            Error(
+              s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
             )
-              .mapN {
-                case (
-                      completeDeclarationDetailsAnswer,
-                      completeDuplicateDeclarationDetailAnswer,
-                      completeDeclarantTypeAnswer,
-                      completeClaimantDetailsAsIndividualAnswer,
-                      completeClaimantDetailsAsImporterCompanyAnswer,
-                      supportingEvidenceAnswer,
-                      completeCommodityDetailsAnswer,
-                      completeReasonAndBasisOfClaimAnswer
-                    ) =>
-                  CompleteClaim(
-                    id = id,
-                    movementReferenceNumber = movementReferenceNumber,
-                    maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
-                    maybeCompleteDeclarationDetailsAnswer = Some(completeDeclarationDetailsAnswer),
-                    maybeCompleteDuplicateDeclarationDetailsAnswer = Some(completeDuplicateDeclarationDetailAnswer),
-                    completeDeclarantTypeAnswer,
-                    completeClaimantDetailsAsIndividualAnswer,
-                    completeClaimantDetailsAsImporterCompanyAnswer,
-                    maybeBasisForClaim,
-                    maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
-                    supportingEvidenceAnswer,
-                    completeCommodityDetailsAnswer,
-                    draftNorthernIrelandAnswer,
-                    completeReasonAndBasisOfClaimAnswer,
-                    maybeDisplayDeclaration = None,
-                    maybeDuplicateDisplayDeclaration = None,
-                    None,
-                    None,
-                    claimsAnswer,
-                    maybeScheduledDocument
-                  )
-              }
-              .toEither
-              .leftMap { errors =>
-                Error(
-                  s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
-                )
-              }
+          }
 
-          case Right(_) =>
-            (
-              validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-              validateDetailsRegisteredWithCdsMrn(draftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
-              validateClaimantContactDetailsMrn(draftMrnContactDetails, draftMrnContactAddress),
-              validateSupportingEvidencesAnswer(maybeSupportingEvidences),
-              validateCommodityDetailsAnswer(draftCommodityAnswer),
-              validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
-              validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
-            )
-              .mapN {
-                case (
-                      declarantTypeAnswer,
-                      claimantDetailsAsIndividualAnswer,
-                      claimantDetailsAsImporterCompanyAnswer,
-                      supportingEvidenceAnswer,
-                      commodityDetailsAnswer,
-                      importerEoriNumberAnswer,
-                      declarantEoriNumberAnswer
-                    ) =>
-                  CompleteClaim(
-                    id = id,
-                    movementReferenceNumber = movementReferenceNumber,
-                    maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
-                    maybeCompleteDeclarationDetailsAnswer = None,
-                    maybeCompleteDuplicateDeclarationDetailsAnswer = None,
-                    declarantTypeAnswer,
-                    claimantDetailsAsIndividualAnswer,
-                    claimantDetailsAsImporterCompanyAnswer,
-                    maybeBasisForClaim,
-                    maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
-                    supportingEvidenceAnswer,
-                    commodityDetailsAnswer,
-                    draftNorthernIrelandAnswer,
-                    None,
-                    maybeDisplayDeclaration,
-                    maybeDuplicateDisplayDeclaration,
-                    importerEoriNumberAnswer,
-                    declarantEoriNumberAnswer,
-                    claimsAnswer,
-                    maybeScheduledDocument
-                  )
-              }
-              .toEither
-              .leftMap { errors =>
-                Error(
-                  s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
-                )
-              }
-
-        }
       case _ => Left(Error("unknown claim type"))
     }
 
@@ -268,28 +211,12 @@ object CompleteClaim {
     maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
 
   def validateClaimantContactDetailsEntryNumber(
-    maybeEntryNumberContactDetailsAnswer: Option[ContactDetailsAnswer]
-  ): Validation[Option[ContactDetailsAnswer]] =
-    maybeEntryNumberContactDetailsAnswer match {
+    maybeMrnContactDetails: Option[MrnContactDetails]
+  ): Validation[Option[MrnContactDetails]] =
+    maybeMrnContactDetails match {
       case None => invalid("incomplete contact details")
       case a    => Valid(a)
     }
-
-  def validateClaimantContactDetailsMrn(
-    maybeContactDetails: Option[MrnContactDetails],
-    maybeContactAddress: Option[ContactAddress]
-  ): Validation[Option[ContactDetailsAnswer]] =
-    (maybeContactDetails, maybeContactAddress)
-      .mapN { (contactDetails, contactAddress) =>
-        val contactDetailsFormData = ContactDetailsAnswer(
-          companyName = contactDetails.fullName,
-          emailAddress = contactDetails.emailAddress,
-          phoneNumber = contactDetails.phoneNumber.getOrElse(PhoneNumber("")),
-          contactAddress = contactAddress
-        )
-        Valid(Some(contactDetailsFormData))
-      }
-      .getOrElse(Valid(None))
 
   def validateDetailsRegisteredWithCdsEntryNumber(
     maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
