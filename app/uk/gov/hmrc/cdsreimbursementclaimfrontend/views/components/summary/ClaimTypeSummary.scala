@@ -37,7 +37,8 @@ class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
               items = Seq(
                 ActionItem(
                   href = s"${routes.SelectWhoIsMakingTheClaimController.changeDeclarantType(journey).url}",
-                  content = Text(messages("cya.change"))
+                  content = Text(messages("cya.change")),
+                  visuallyHiddenText = Some(messages("check-your-answers.claimant-type.l0"))
                 )
               )
             )
