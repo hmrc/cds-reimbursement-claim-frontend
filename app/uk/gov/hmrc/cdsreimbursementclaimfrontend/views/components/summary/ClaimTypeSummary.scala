@@ -24,11 +24,14 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
 
-  def render(answer: DeclarantTypeAnswer)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
+  def render(key: String, answer: DeclarantTypeAnswer)(implicit
+    journey: JourneyBindable,
+    messages: Messages
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages("check-your-answers.claimant-type.l0"))),
+          key = Key(Text(messages(s"$key.l0"))),
           value = Value(
             Text(messages(s"select-who-is-making-the-claim.importer${DeclarantTypeAnswer.items.indexOf(answer)}"))
           ),
@@ -38,7 +41,7 @@ class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
                 ActionItem(
                   href = s"${routes.SelectWhoIsMakingTheClaimController.changeDeclarantType(journey).url}",
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages("check-your-answers.claimant-type.l0"))
+                  visuallyHiddenText = Some(messages(s"$key.l0"))
                 )
               )
             )
