@@ -320,80 +320,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
       )
     )
 
-  def makeClaimantDetailsAsImporterSummary(
-    completeClaim: CompleteClaim
-  )(implicit messages: Messages): List[SummaryListRow] =
-    List(
-      completeClaim.maybeContactDetailsAnswer.map { details =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0"))),
-          value = Value(Text(details.companyName)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
-                )
-              )
-            )
-          )
-        )
-      },
-      completeClaim.maybeContactDetailsAnswer.map { details =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l1"))),
-          value = Value(Text(details.emailAddress.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
-                )
-              )
-            )
-          )
-        )
-      },
-      completeClaim.maybeContactDetailsAnswer.map { details =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l2"))),
-          value = Value(Text(details.phoneNumber.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l2"))
-                )
-              )
-            )
-          )
-        )
-      },
-      completeClaim.maybeContactDetailsAnswer.map { details =>
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l3"))),
-          value = Value(Text(details.contactAddress.getAddressLines(messages).mkString(", "))),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.EnterContactDetailsEntryNumberController.changeContactDetails().url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
-                )
-              )
-            )
-          )
-        )
-      }
-    ).flattenOption
-
   def makeNorthernIrelandClaimSummary(
     completeClaim: CompleteClaim
   )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
@@ -416,6 +342,66 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
         )
       )
     )
+
+  def makeBasisAndOrReasonForClaim(
+    selectOfBasisClaimParentKey: String,
+    completeClaim: CompleteClaim
+  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
+    completeClaim.basisForClaim match {
+      case Left(selected)      =>
+        List(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
+            value = Value(
+              Text(messages(BasisOfClaimsMessage.ofEntryNumber(selectOfBasisClaimParentKey, selected.basisForClaim)))
+            ),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
+                  )
+                )
+              )
+            )
+          ),
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l1"))),
+            value = Value(Text(selected.reasonForClaim.repr)),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1"))
+                  )
+                )
+              )
+            )
+          )
+        )
+      case Right(basisOfClaim) =>
+        List(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
+            value = Value(Text(messages(BasisOfClaimsMessage.ofMrn(selectOfBasisClaimParentKey, basisOfClaim)))),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim(journey).url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
+                  )
+                )
+              )
+            )
+          )
+        )
+    }
 
   def makeCommodityDetailsSummary(
     completeClaim: CompleteClaim

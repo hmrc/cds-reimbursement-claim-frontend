@@ -78,17 +78,17 @@ trait SubmitRoutes extends Product with Serializable {
     claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
 
   def submitDetailsRegisteredWithCds(isAmend: Boolean): Call =
-    if (isAmend) claimRoutes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit
-    else claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit
+    if (isAmend) claimRoutes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
+    else claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
 
-  def submitEntryNumberContactDetails(isAmend: Boolean): Call =
-    if (isAmend) claimRoutes.EnterContactDetailsEntryNumberController.changeContactDetailsSubmit
-    else claimRoutes.EnterContactDetailsEntryNumberController.enterContactDetailsSubmit
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
+
+  def mergeWithSubKey(rootKey: String): String =
+    subKey.toList.foldLeft(rootKey)((root, sub) => s"$root.$sub")
 
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
@@ -186,14 +186,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
 
   def nextPageForDetailsRegisteredWithCDS(
-    addContactDetails: Boolean,
     declarantType: Option[DeclarantTypeAnswer]
-  ): Call =
-    if (addContactDetails) {
-      claimRoutes.EnterContactDetailsEntryNumberController.enterContactDetails()
-    } else {
-      nextPageForEntryNumberContactDetails(declarantType)
-    }
+  ): Call = nextPageForEntryNumberContactDetails(declarantType)
 
   def nextPageForEntryNumberContactDetails(declarantType: Option[DeclarantTypeAnswer]): Call =
     declarantType match {

@@ -24,11 +24,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class BasisOfClaimSummary extends AnswerSummary[BasisOfClaim] {
 
-  def render(answer: BasisOfClaim)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
+  def render(key: String, answer: BasisOfClaim)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages("check-your-answers.reason-and-basis.l0"))),
+          key = Key(Text(messages(s"$key.l0"))),
           value = Value(Text(messages(s"select-basis-for-claim.reason.d${answer.value}"))),
           actions = Some(
             Actions(
@@ -36,7 +36,7 @@ class BasisOfClaimSummary extends AnswerSummary[BasisOfClaim] {
                 ActionItem(
                   href = routes.SelectBasisForClaimController.changeBasisForClaim(journey).url,
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"check-your-answers.reason-and-basis.l0"))
+                  visuallyHiddenText = Some(messages(s"$key.l0"))
                 )
               )
             )

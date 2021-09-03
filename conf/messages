@@ -174,11 +174,9 @@ enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
-
 enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
-
 enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
@@ -772,8 +770,8 @@ check-claim-summary.error.invalid=Select yes if details are correct
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
 #===================================================
-check-claim-timed-out.title=For your security, we signed you out numpty
-check-claim-timed-out.p1=This was because you were inactive for too long silly.
+check-claim-timed-out.title=For your security, we signed you out.
+check-claim-timed-out.p1=This was because you were inactive for too long.
 check-claim-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
 check-claim-timed-out.button=Sign in
 
@@ -972,7 +970,8 @@ check-your-answers.claimant-company-details.label=Claimant’s company details
 check-your-answers.reason-and-basis.l0=This is the basis behind the claim
 check-your-answers.reason-and-basis.l1=This is the basis behind the claim
 check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
-check-your-answers.commodities-details.label=Commodities details
+check-your-answers.commodities-details.label=Details of the commodities
+check-your-answers.commodities-details.scheduled.label=This is the reason for the claim
 check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
@@ -997,6 +996,7 @@ check-your-answers.reference-number.h2=Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.commodity-details.h2=Commodity details
+check-your-answers.commodity-details.scheduled.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim calculation
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Attached documents
