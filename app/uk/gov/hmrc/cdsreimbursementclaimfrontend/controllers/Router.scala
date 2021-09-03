@@ -193,9 +193,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     declarantType match {
       case Some(declarantType) =>
         declarantType match {
-          case DeclarantTypeAnswer.Importer =>
-            claimRoutes.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-          case _                            =>
+          case _ =>
             claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case None                =>

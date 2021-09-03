@@ -99,8 +99,7 @@ class SelectBasisForClaimController @Inject() (
             formOk => {
               val updatedJourney = FillingOutClaim.of(fillingOutClaim)(
                 _.copy(
-                  basisOfClaimAnswer = formOk.reasonForClaim.some,
-                  reasonForBasisAndClaimAnswer = None
+                  basisOfClaimAnswer = formOk.reasonForClaim.some
                 )
               )
 
