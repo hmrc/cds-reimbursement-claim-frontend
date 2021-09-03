@@ -112,5 +112,7 @@ POST        /single/enter-claim/:id                                 uk.gov.hmrc.
 GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary()
 POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
 
+GET         /scheduled/select-duties/:taxCategory/:taxId            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.aaa(taxCategory:TaxCategory, taxId: TaxCode)
+
 GET         /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)

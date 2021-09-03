@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Clai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, TaxCategory, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -66,6 +66,15 @@ class EnterClaimController @Inject() (
     with SessionUpdates {
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimsAnswer] = _.claimsAnswer
+
+  def aaa(taxCategory: TaxCategory, taxCode: TaxCode): Action[AnyContent] = Action {
+    TaxCategory.validateTaxCategoryAndCode(taxCategory, taxCode) match {
+      case false =>
+        Redirect(routes.SelectDutiesController.selectDuties())
+      case true  =>
+        Ok("Category: " + taxCategory.value + "  " + taxCode.value)
+    }
+  }
 
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

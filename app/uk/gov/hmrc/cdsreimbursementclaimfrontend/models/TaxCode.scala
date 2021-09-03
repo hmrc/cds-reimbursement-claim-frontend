@@ -18,6 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import julienrf.json.derived
 import play.api.libs.json._
+import play.api.mvc.PathBindable
+import cats.syntax.eq._
 
 import scala.collection.immutable.HashSet
 
@@ -190,5 +192,17 @@ object TaxCode {
     allTaxCodesPartialFunctions.drop(1).foldLeft(allTaxCodesPartialFunctions(0))(_ orElse _)(in)
 
   implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
+
+  def parse(str: String): Either[String, TaxCode] =
+    TaxCode.allTaxCodes.find(a => a.value === str).toRight("No such tax id")
+
+  implicit lazy val taxIdBindable: PathBindable[TaxCode] = new PathBindable[TaxCode] {
+
+    override def bind(key: String, value: String): Either[String, TaxCode] =
+      parse(value)
+
+    override def unbind(key: String, bindable: TaxCode): String =
+      bindable.value
+  }
 
 }
