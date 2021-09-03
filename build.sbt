@@ -62,6 +62,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(routesImport := Seq(
     "_root_.controllers.Assets.Asset",
     "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
+    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bindables.TaxCategoryBindable",
     "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference"
   ))
   .settings(majorVersion := 1)
