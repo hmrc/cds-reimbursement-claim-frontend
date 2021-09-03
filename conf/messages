@@ -772,8 +772,8 @@ check-claim-summary.error.invalid=Select yes if details are correct
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
 #===================================================
-check-claim-timed-out.title=For your security, we signed you out numpty
-check-claim-timed-out.p1=This was because you were inactive for too long silly.
+check-claim-timed-out.title=For your security, we signed you out.
+check-claim-timed-out.p1=This was because you were inactive for too long.
 check-claim-timed-out.p2=To access the claim for reimbursement of import duties service, you’ll need to sign back in.
 check-claim-timed-out.button=Sign in
 
