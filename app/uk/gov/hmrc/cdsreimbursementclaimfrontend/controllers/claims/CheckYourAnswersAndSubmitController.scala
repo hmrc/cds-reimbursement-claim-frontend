@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
@@ -55,13 +55,15 @@ class CheckYourAnswersAndSubmitController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim { (_, _, completeClaim) =>
-        Ok(checkYourAnswersPage(completeClaim))
+      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
+        val routes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        Ok(checkYourAnswersPage(completeClaim, routes))
       }
     }
 
@@ -196,6 +198,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
 }
 
 object CheckYourAnswersAndSubmitController {
+
+  val checkYourAnswersKey = "check-your-answers"
 
   sealed trait SubmitClaimResult
 

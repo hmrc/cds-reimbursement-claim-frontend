@@ -28,5 +28,7 @@ final case class EstablishmentAddress(
 )
 
 object EstablishmentAddress {
-  implicit val format: OFormat[EstablishmentAddress] = derived.oformat[EstablishmentAddress]()
+
+  implicit val format: OFormat[EstablishmentAddress] =
+    derived.oformat[EstablishmentAddress]()
 }

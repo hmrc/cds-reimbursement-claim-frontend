@@ -22,27 +22,40 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNum
 
 object BankAccountGen {
 
-  implicit val arbitraryAccountName: Typeclass[AccountName] = Arbitrary(
+  def genAccountName: Gen[AccountName] =
     Gen
       .nonEmptyListOf(Gen.alphaChar)
       .map(_.take(40).mkString)
       .map(AccountName(_))
-  )
 
-  implicit val arbitrarySortCode: Typeclass[SortCode] = Arbitrary(
+  implicit val arbitraryAccountName: Typeclass[AccountName] =
+    Arbitrary(genAccountName)
+
+  def genSortCode: Gen[SortCode] =
     Gen
       .listOfN(6, Gen.numChar)
       .map(_.mkString)
       .map(SortCode(_))
-  )
 
-  implicit val arbitraryAccountNumber: Typeclass[AccountNumber] = Arbitrary(
+  implicit val arbitrarySortCode: Typeclass[SortCode] =
+    Arbitrary(genSortCode)
+
+  def genAccountNumber: Gen[AccountNumber] =
     Gen
       .listOfN(8, Gen.numChar)
       .map(_.mkString)
       .map(AccountNumber(_))
-  )
+
+  implicit val arbitraryAccountNumber: Typeclass[AccountNumber] =
+    Arbitrary(genAccountNumber)
+
+  def genBankAccountDetails: Gen[BankAccountDetails] =
+    for {
+      accountName   <- genAccountName
+      sortCode      <- genSortCode
+      accountNumber <- genAccountNumber
+    } yield BankAccountDetails(accountName, sortCode, accountNumber)
 
   implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
-    gen[BankAccountDetails]
+    Arbitrary(genBankAccountDetails)
 }

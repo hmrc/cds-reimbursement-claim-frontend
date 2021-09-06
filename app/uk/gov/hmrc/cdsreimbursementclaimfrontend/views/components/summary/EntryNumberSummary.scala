@@ -24,11 +24,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 
 class EntryNumberSummary extends AnswerSummary[EntryNumber] {
 
-  def render(answer: EntryNumber)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
+  def render(key: String, answer: EntryNumber)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"check-your-answers.entry-reference-number.label"))),
+          key = Key(Text(messages(s"$key.label"))),
           value = Value(Text(answer.value)),
           actions = Some(
             Actions(
@@ -36,7 +36,7 @@ class EntryNumberSummary extends AnswerSummary[EntryNumber] {
                 ActionItem(
                   href = s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(journey).url}",
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"check-your-answers.entry-reference-number.label"))
+                  visuallyHiddenText = Some(messages(s"$key.label"))
                 )
               )
             )
