@@ -33,7 +33,7 @@
     @key=@{"confirmation-of-submission"}
     @title = @{ messages(s"$key.title") }
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
         <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
             <h1 class="govuk-panel__title">@title</h1>

@@ -35,7 +35,7 @@
     @key = @{"supporting-evidence.upload-failed"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
         @pageHeading(title)
 
