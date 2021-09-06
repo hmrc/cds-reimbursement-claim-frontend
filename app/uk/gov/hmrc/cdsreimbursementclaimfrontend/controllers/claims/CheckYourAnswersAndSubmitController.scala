@@ -199,6 +199,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
 object CheckYourAnswersAndSubmitController {
 
+  val checkYourAnswersKey = "check-your-answers"
+
   sealed trait SubmitClaimResult
 
   object SubmitClaimResult {

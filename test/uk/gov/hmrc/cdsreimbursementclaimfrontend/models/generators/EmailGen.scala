@@ -20,17 +20,18 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 
+import java.util.Locale
+
 object EmailGen {
 
-  implicit val arbitraryEmail: Typeclass[Email] = Arbitrary(
+  def genEmail: Gen[Email] =
     for {
-      name   <- genNonEmptyStr(Gen.alphaLowerChar, max = 15)
+      name   <- genStringWithMaxSizeOfN(max = 15).map(_.toLowerCase(Locale.UK))
       at      = "@"
-      domain <- genNonEmptyStr(Gen.alphaLowerChar, max = 10)
+      domain <- genStringWithMaxSizeOfN(max = 10).map(_.toLowerCase(Locale.UK))
       dotCom  = ".com"
     } yield Email(Seq(name, at, domain, dotCom).mkString)
-  )
 
-  private def genNonEmptyStr(gen: Gen[Char], max: Int): Gen[String] =
-    Gen.chooseNum(1, max) flatMap (Gen.listOfN(_, gen).map(_.mkString))
+  implicit val arbitraryEmail: Typeclass[Email] =
+    Arbitrary(genEmail)
 }
