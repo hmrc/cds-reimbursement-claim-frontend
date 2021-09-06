@@ -18,15 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryList, SummaryListRow, Value}
 
-class MrnSummary extends AnswerSummary[MRN] {
+class CommodityDetailsSummary extends AnswerSummary[CommodityDetails] {
 
-  def render(key: String, answer: MRN)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
+  def render(key: String, answer: CommodityDetails)(implicit
+    journey: JourneyBindable,
+    messages: Messages
+  ): SummaryList =
     SummaryList(
-      Seq(
+      List(
         SummaryListRow(
           key = Key(Text(messages(s"$key.label"))),
           value = Value(Text(answer.value)),
@@ -34,7 +37,7 @@ class MrnSummary extends AnswerSummary[MRN] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(journey).url}",
+                  href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

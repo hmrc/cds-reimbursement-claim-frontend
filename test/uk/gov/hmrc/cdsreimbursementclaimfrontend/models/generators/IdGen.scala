@@ -29,11 +29,14 @@ object IdGen {
 
   implicit val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
 
-  implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(for {
-    c <- Gen.listOfN(2, Gen.alphaUpperChar)
-    n <- Gen.listOfN(12, Gen.numChar)
-    s <- Gen.const((c ++ n).mkString(""))
-  } yield Eori(s))
+  def genEori: Gen[Eori] =
+    for {
+      c <- Gen.listOfN(2, Gen.alphaUpperChar)
+      n <- Gen.listOfN(12, Gen.numChar)
+      s <- Gen.const((c ++ n).mkString(""))
+    } yield Eori(s)
+
+  implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
 
   def genMRN: Gen[MRN] = for {
     d1      <- Gen.listOfN(2, Gen.numChar)

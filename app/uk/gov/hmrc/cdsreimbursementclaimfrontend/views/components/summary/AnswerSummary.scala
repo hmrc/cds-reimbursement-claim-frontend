@@ -22,5 +22,5 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 trait AnswerSummary[A] {
 
-  def render(answer: A)(implicit journey: JourneyBindable, messages: Messages): SummaryList
+  def render(key: String, answer: A)(implicit journey: JourneyBindable, messages: Messages): SummaryList
 }

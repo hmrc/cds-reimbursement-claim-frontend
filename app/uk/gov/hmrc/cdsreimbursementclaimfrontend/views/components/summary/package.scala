@@ -22,12 +22,15 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
 
-  implicit val claimTypeSummary: ClaimTypeSummary     = new ClaimTypeSummary
-  implicit val entryNumberSummary: EntryNumberSummary = new EntryNumberSummary
-  implicit val mrnSummary: MrnSummary                 = new MrnSummary
+  implicit val commodityDetailsSummary: CommodityDetailsSummary = new CommodityDetailsSummary
+  implicit val claimTypeSummary: ClaimTypeSummary               = new ClaimTypeSummary
+  implicit val entryNumberSummary: EntryNumberSummary           = new EntryNumberSummary
+  implicit val mrnSummary: MrnSummary                           = new MrnSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
-    def review(implicit answerSummary: AnswerSummary[A], journey: JourneyBindable, messages: Messages): SummaryList =
-      answerSummary render answer
+    def review(
+      key: String
+    )(implicit answerSummary: AnswerSummary[A], journey: JourneyBindable, messages: Messages): SummaryList =
+      answerSummary.render(key, answer)
   }
 }
