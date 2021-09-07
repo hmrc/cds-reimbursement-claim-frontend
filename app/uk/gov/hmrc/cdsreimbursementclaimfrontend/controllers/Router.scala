@@ -113,7 +113,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+        case _                           =>
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      }
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
