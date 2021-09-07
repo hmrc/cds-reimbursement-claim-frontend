@@ -26,6 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -121,7 +122,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"${SelectBasisForClaimController.key}.title")
+          messageFromMessageKey(s"$selectBasisForClaimKey.title")
         )
       }
 
@@ -143,7 +144,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"${SelectBasisForClaimController.key}.title")
+          messageFromMessageKey(s"$selectBasisForClaimKey.title")
         )
       }
 
@@ -165,7 +166,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"${SelectBasisForClaimController.key}.title")
+          messageFromMessageKey(s"$selectBasisForClaimKey.title")
         )
       }
 
@@ -188,7 +189,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title")
+          messageFromMessageKey(s"$selectBasisForClaimKey.title")
         )
       }
 
@@ -211,7 +212,7 @@ class SelectBasisForClaimControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("select-basis-for-claim.title")
+          messageFromMessageKey(s"$selectBasisForClaimKey.title")
         )
 
       }
@@ -240,7 +241,7 @@ class SelectBasisForClaimControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("select-basis-for-claim" -> "2")),
+          performAction(Seq(selectBasisForClaimKey -> "2")),
           routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(JourneyBindable.Single)
         )
       }
@@ -264,7 +265,7 @@ class SelectBasisForClaimControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("select-basis-for-claim" -> "4")),
+          performAction(Seq(selectBasisForClaimKey -> "4")),
           routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
@@ -296,12 +297,12 @@ class SelectBasisForClaimControllerSpec
           performAction(
             Seq.empty
           ),
-          messageFromMessageKey("select-basis-for-claim.title"),
+          messageFromMessageKey(s"$selectBasisForClaimKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-basis-for-claim.error.required"
+              s"$selectBasisForClaimKey.error.required"
             ),
           BAD_REQUEST
         )
@@ -324,13 +325,13 @@ class SelectBasisForClaimControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq("select-basis-for-claim" -> "blah")),
-          messageFromMessageKey("select-basis-for-claim.title"),
+          performAction(Seq(selectBasisForClaimKey -> "blah")),
+          messageFromMessageKey(s"$selectBasisForClaimKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-basis-for-claim.error.number"
+              s"$selectBasisForClaimKey.error.number"
             ),
           BAD_REQUEST
         )

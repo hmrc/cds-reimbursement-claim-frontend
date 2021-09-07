@@ -22,11 +22,12 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
 
-  implicit val commodityDetailsSummary: CommodityDetailsSummary = new CommodityDetailsSummary
-  implicit val claimTypeSummary: ClaimTypeSummary               = new ClaimTypeSummary
-  implicit val entryNumberSummary: EntryNumberSummary           = new EntryNumberSummary
-  implicit val mrnSummary: MrnSummary                           = new MrnSummary
-  implicit val basisOfClaimSummary: BasisOfClaimSummary         = new BasisOfClaimSummary
+  implicit val commodityDetailsSummary: CommodityDetailsSummary     = new CommodityDetailsSummary
+  implicit val claimTypeSummary: ClaimTypeSummary                   = new ClaimTypeSummary
+  implicit val entryNumberSummary: EntryNumberSummary               = new EntryNumberSummary
+  implicit val mrnSummary: MrnSummary                               = new MrnSummary
+  implicit val basisOfClaimSummary: BasisOfClaimSummary             = new BasisOfClaimSummary
+  implicit val supportingEvidenceSummary: SupportingEvidenceSummary = new SupportingEvidenceSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
     def review(

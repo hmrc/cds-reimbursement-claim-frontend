@@ -591,56 +591,6 @@ select-basis-for-claim.reason.ern.d15=Miscellaneous
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
-#  SELECT REASON AND BASIS FOR CLAIM PAGE
-#===================================================
-select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
-select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
-select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.basis.error.required=Select a reason for claim
-select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
-select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
-select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
-select-reason-and-basis-for-claim.basis.details.heading=Examples of basis of claim
-
-select-reason-and-basis-for-claim.basis.details.l0=duplicate Entry Number (a claim if a duplicate Entry Number has been made and a trader overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
-select-reason-and-basis-for-claim.basis.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
-select-reason-and-basis-for-claim.basis.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
-select-reason-and-basis-for-claim.basis.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
-select-reason-and-basis-for-claim.basis.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
-select-reason-and-basis-for-claim.basis.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
-select-reason-and-basis-for-claim.basis.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-reason-and-basis-for-claim.reason.details.heading=Examples of reasons to claim
-select-reason-and-basis-for-claim.reason.details.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
-select-reason-and-basis-for-claim.reason.details.l1=overpayment (for example you paid duties that were not due)
-select-reason-and-basis-for-claim.reason.details.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
-
-select-reason-and-basis-for-claim.basis.d0=Duplicate Entry Number
-select-reason-and-basis-for-claim.basis.d1=Duty Suspension
-select-reason-and-basis-for-claim.basis.d2=End Use
-select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
-select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
-select-reason-and-basis-for-claim.basis.d5=Incorrect Value
-select-reason-and-basis-for-claim.basis.d6=Incorrect EORI & Deferment Acc. Num.
-select-reason-and-basis-for-claim.basis.d7=IP
-select-reason-and-basis-for-claim.basis.d8=Miscellaneous
-select-reason-and-basis-for-claim.basis.d9=OPR
-select-reason-and-basis-for-claim.basis.d10=Personal Effects
-select-reason-and-basis-for-claim.basis.d11=Preference
-select-reason-and-basis-for-claim.basis.d12=RGR
-select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
-
-select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
-select-reason-and-basis-for-claim.reason.d1=Overpayment
-select-reason-and-basis-for-claim.reason.d2=Special circumstances
-
-#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim
@@ -987,7 +937,6 @@ check-your-answers.bank-details.l3=Account number
 check-your-answers.attached-documents.label=Attached documents
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
-check-your-answers.file-label=Document {0}
 check-your-answers.bank-details.account-name.label=Account name
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
@@ -1002,7 +951,8 @@ check-your-answers.commodity-details.h2=Commodity details
 check-your-answers.commodity-details.scheduled.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim calculation
 check-your-answers.bank-details.h2=Bank details
-check-your-answers.attached-documents.h2=Attached documents
+check-your-answers.attached-documents.h2=Supporting documents
+check-your-answers.attached-documents.label=Uploaded
 check-your-answers.claimant-details.h2=Claimant’s CDS details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application

@@ -83,7 +83,7 @@
         @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(journey, completeClaim.supportingEvidencesAnswer.toList)))
+        @summary(completeClaim.supportingEvidencesAnswer.review(s"$key.attached-documents"))
 
         @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
