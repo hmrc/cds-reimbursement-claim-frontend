@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -33,7 +34,7 @@ class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
         SummaryListRow(
           key = Key(Text(messages(s"$key.l0"))),
           value = Value(
-            Text(messages(s"select-who-is-making-the-claim.importer${DeclarantTypeAnswer.items.indexOf(answer)}"))
+            Text(messages(s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswer.items.indexOf(answer)}"))
           ),
           actions = Some(
             Actions(
