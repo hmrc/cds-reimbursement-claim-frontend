@@ -260,7 +260,7 @@ class SelectDutiesControllerSpec
           performAction(
             Seq("select-duties[]" -> "A00", "select-duties[]" -> "A20")
           ),
-          routes.EnterClaimController.startClaim()
+          routes.EnterClaimController.startClaim(JourneyBindable.Single)
         )
       }
 

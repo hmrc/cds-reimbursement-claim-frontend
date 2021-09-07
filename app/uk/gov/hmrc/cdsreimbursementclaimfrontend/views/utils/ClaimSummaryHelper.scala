@@ -17,8 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -53,7 +53,8 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.enterClaim(claim.id).url}",
+                href =
+                  s"${routes.EnterClaimController.enterClaim(claim.taxCategory, claim.taxCode, JourneyBindable.Single).url}", //TODO pass in Journey
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
               )

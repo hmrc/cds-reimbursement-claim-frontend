@@ -33,10 +33,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, TaxCategory, TaxCode, upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
@@ -45,7 +45,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -56,7 +55,7 @@ class EnterClaimController @Inject() (
   val featureSwitch: FeatureSwitchService,
   val config: Configuration,
   enterClaimPage: pages.enter_claim,
-  enterEntryClaimPage: pages.enter_entry_claim,
+  enterScheduledClaimPage: pages.enter_claim_scheduled,
   checkClaimSummaryPage: pages.check_claim_summary
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -76,9 +75,9 @@ class EnterClaimController @Inject() (
     }
   }
 
-  def startClaim(): Action[AnyContent] =
+  def startClaim(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
+      withAnswersAndRoutes[ClaimsAnswer] { (fillingOutClaim, _, _) =>
         val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
         generateClaimsFromDuties(draftC285Claim).map(ClaimsAnswer(_)) match {
           case Left(error)         =>
@@ -88,31 +87,32 @@ class EnterClaimController @Inject() (
             logger.warn("No duties found to create claims ")
             Redirect(routes.SelectDutiesController.selectDuties())
           case Right(Some(claims)) =>
-            val nextPage = calculateNextPage(claims)
+            val nextPage = calculateNextPage(claims, journeyBindable)
             updateClaimAnswer(claims, fillingOutClaim, nextPage)
         }
       }
     }
 
-  def enterClaim(id: UUID): Action[AnyContent] =
+  def enterClaim(taxCategory: TaxCategory, taxCode: TaxCode, journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, answer) =>
-        answer.flatMap(_.find(_.id === id)) match {
+      implicit val journey: JourneyBindable = journeyBindable
+      withAnswersAndRoutes[ClaimsAnswer] { (_, answer, _) =>
+        answer.flatMap(_.find(claim => claim.taxCategory === taxCategory && claim.taxCode === taxCode)) match {
           case Some(claim) =>
-            fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
-              case true  =>
+            journeyBindable match {
+              case JourneyBindable.Single | JourneyBindable.Bulk =>
                 val emptyForm = mrnClaimAmountForm(claim.paidAmount)
                 val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
-                Ok(enterClaimPage(id, form, claim))
-              case false =>
+                Ok(enterClaimPage(form, claim))
+              case JourneyBindable.Scheduled                     =>
                 val form = Either
                   .cond(
                     claim.isFilled,
-                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
-                    entryClaimAmountForm
+                    scheduledClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
+                    scheduledClaimAmountForm
                   )
                   .merge
-                Ok(enterEntryClaimPage(id, form, claim))
+                Ok(enterScheduledClaimPage(form, claim))
             }
           case None        =>
             Ok("This claim no longer exists") //TODO replace this with the a proper error page
@@ -120,44 +120,53 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def enterClaimSubmit(id: UUID): Action[AnyContent] =
+  def enterClaimSubmit(
+    taxCategory: TaxCategory,
+    taxCode: TaxCode,
+    journeyBindable: JourneyBindable
+  ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      implicit val journey: JourneyBindable = journeyBindable
       withAnswers[ClaimsAnswer] { (fillingOutClaim, answers) =>
         answers match {
           case None         =>
-            Redirect(routes.EnterClaimController.startClaim())
+            Redirect(routes.EnterClaimController.startClaim(journeyBindable))
           case Some(claims) =>
-            claims.find(_.id === id) match {
+            claims.find(claim => claim.taxCategory === taxCategory && claim.taxCode === taxCode) match {
               case None        =>
-                Redirect(routes.EnterClaimController.startClaim())
+                Redirect(routes.EnterClaimController.startClaim(journeyBindable))
               case Some(claim) =>
-                fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
-                  case true  =>
+                journeyBindable match {
+                  case JourneyBindable.Single | JourneyBindable.Bulk =>
                     mrnClaimAmountForm(claim.paidAmount)
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                          BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
+                          val updatedErrors = formWithErrors.errors.map(_.copy(key = languageKey))
+                          BadRequest(
+                            enterClaimPage(formWithErrors.copy(errors = updatedErrors), claim)
+                          )
                         },
                         formOk => {
                           val newClaim = claim.copy(claimAmount = formOk.amount, isFilled = true)
-                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
+                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim, journeyBindable)
                         }
                       )
-                  case false =>
-                    entryClaimAmountForm
+                  case JourneyBindable.Scheduled                     =>
+                    scheduledClaimAmountForm
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                          BadRequest(enterEntryClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
+                          val updatedErrors = formWithErrors.errors.map(_.copy(key = scheduledLanguageKey))
+                          BadRequest(
+                            enterScheduledClaimPage(formWithErrors.copy(errors = updatedErrors), claim)
+                          )
                         },
                         formOk => {
                           val newClaim =
                             claim
                               .copy(paidAmount = formOk.paidAmount, claimAmount = formOk.claimAmount, isFilled = true)
-                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
+                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim, journeyBindable)
                         }
                       )
                 }
@@ -167,12 +176,12 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def checkClaimSummary(): Action[AnyContent] =
+  def checkClaimSummary(journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (_, answers) =>
         answers match {
           case Some(claims) => Ok(checkClaimSummaryPage(claims, checkClaimAnswerForm))
-          case None         => Redirect(routes.EnterClaimController.startClaim())
+          case None         => Redirect(routes.EnterClaimController.startClaim(journeyBindable))
         }
       }
     }
@@ -212,12 +221,12 @@ class EnterClaimController @Inject() (
       }
     }
 
-  protected def calculateNextPage(claimAnswer: ClaimsAnswer): Result =
+  protected def calculateNextPage(claimAnswer: ClaimsAnswer, journeyBindable: JourneyBindable): Result =
     claimAnswer.find(_.isFilled === false) match {
       case Some(claim) =>
-        Redirect(routes.EnterClaimController.enterClaim(claim.id))
+        Redirect(routes.EnterClaimController.enterClaim(claim.taxCategory, claim.taxCode, journeyBindable))
       case None        =>
-        Redirect(routes.EnterClaimController.checkClaimSummary())
+        Redirect(routes.EnterClaimController.checkClaimSummary(journeyBindable))
     }
 
   protected def updateClaimAnswer(claimAnswer: ClaimsAnswer, fillingOutClaim: FillingOutClaim, nextPage: Result)(
@@ -231,12 +240,19 @@ class EnterClaimController @Inject() (
       .fold(logAndDisplayError("could not save claims"), _ => nextPage)
   }
 
-  protected def replaceUpdateRedirect(claimAnswer: ClaimsAnswer, newClaim: Claim, fillingOutClaim: FillingOutClaim)(
-    implicit request: RequestWithSessionData[AnyContent]
+  protected def replaceUpdateRedirect(
+    claimAnswer: ClaimsAnswer,
+    newClaim: Claim,
+    fillingOutClaim: FillingOutClaim,
+    journeyBindable: JourneyBindable
+  )(implicit
+    request: RequestWithSessionData[AnyContent]
   ): Future[Result] = {
-    val notEditedClaims = claimAnswer.toList.filterNot(_.id === newClaim.id)
+    val notEditedClaims = claimAnswer.toList.filterNot(oldClaim =>
+      oldClaim.taxCategory === newClaim.taxCategory && oldClaim.taxCode === newClaim.taxCode
+    )
     val claims          = ClaimsAnswer(newClaim, notEditedClaims: _*)
-    val nextPage        = calculateNextPage(claims)
+    val nextPage        = calculateNextPage(claims, journeyBindable)
     updateClaimAnswer(claims, fillingOutClaim, nextPage)
   }
 
@@ -248,18 +264,22 @@ object EnterClaimController {
 
   final case class ClaimAndPaidAmount(paidAmount: BigDecimal, claimAmount: BigDecimal)
 
-  val entryClaimAmountForm: Form[ClaimAndPaidAmount] = Form(
+  val scheduledLanguageKey = "enter-claim.scheduled"
+
+  val scheduledClaimAmountForm: Form[ClaimAndPaidAmount] = Form(
     mapping(
-      "enter-claim.paid-amount"  -> moneyMapping(13, 2, "paid-amount.error.invalid"),
-      "enter-claim.claim-amount" -> moneyMapping(13, 2, "claim-amount.error.invalid")
+      s"$scheduledLanguageKey.paid-amount"  -> moneyMapping(13, 2, "paid-amount.error.invalid"),
+      s"$scheduledLanguageKey.claim-amount" -> moneyMapping(13, 2, "claim-amount.error.invalid")
     )(ClaimAndPaidAmount.apply)(ClaimAndPaidAmount.unapply)
       .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
 
+  val languageKey = "enter-claim"
+
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        "enter-claim" -> moneyMapping(13, 2, "claim-amount.error.invalid")
+        languageKey -> moneyMapping(13, 2, "claim-amount.error.invalid")
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
@@ -271,37 +291,47 @@ object EnterClaimController {
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
       .map(_.map { duty =>
-        claims.find(claim => claim.taxCode === duty.taxCode.value) match {
+        claims.find(claim => claim.taxCode === duty.taxCode) match {
           case Some(claim) => Some(claim)
           case None        => //No Claim for the given Duty, we have to create one
-            ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode.value) match {
-              case Some(ndrc) => Some(claimFromNdrc(ndrc))
-              case None       => Some(claimFromDuty(duty))
+            ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode) match {
+              case Some(ndrc) => claimFromNdrc(ndrc)
+              case None       => claimFromDuty(duty)
             }
         }
       })
       .map(_.flatten(Option.option2Iterable).toList)
   }
 
-  private def claimFromDuty(duty: Duty): Claim = Claim(
-    UUID.randomUUID(),
-    "001",
-    "Unknown",
-    duty.taxCode.value,
-    BigDecimal(0.0),
-    BigDecimal(0.0),
-    isFilled = false
-  )
+  private def claimFromDuty(duty: Duty): Option[Claim] =
+    TaxCategory.taxCodeToCategory
+      .get(duty.taxCode)
+      .map(taxCategory =>
+        Claim(
+          "001",
+          "Unknown",
+          taxCategory,
+          duty.taxCode,
+          BigDecimal(0.0),
+          BigDecimal(0.0),
+          isFilled = false
+        )
+      )
 
-  private def claimFromNdrc(ndrc: NdrcDetails): Claim = Claim(
-    UUID.randomUUID(),
-    ndrc.paymentMethod,
-    ndrc.paymentReference,
-    ndrc.taxType,
-    BigDecimal(ndrc.amount),
-    BigDecimal(0.0),
-    isFilled = false
-  )
+  private def claimFromNdrc(ndrc: NdrcDetails): Option[Claim] =
+    for {
+      taxCode     <- TaxCode.fromString(ndrc.taxType)
+      taxCategory <- TaxCategory.taxCodeToCategory.get(taxCode)
+      claim       <- Claim(
+                       ndrc.paymentMethod,
+                       ndrc.paymentReference,
+                       taxCategory,
+                       taxCode,
+                       BigDecimal(ndrc.amount),
+                       BigDecimal(0.0),
+                       isFilled = false
+                     ).some
+    } yield claim
 
   sealed trait CheckClaimAnswer extends Product with Serializable
 

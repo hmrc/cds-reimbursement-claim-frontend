@@ -106,13 +106,11 @@ POST        /:journey/change-commodity-details                      uk.gov.hmrc.
 GET         /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
 POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
 
-GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
-GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
-POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
-GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary()
+GET         /:journey/start-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim(journey: JourneyBindable)
+GET         /:journey/select-duties/:taxCategory/:taxId             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(taxCategory:TaxCategory, taxId: TaxCode, journey: JourneyBindable)
+POST        /:journey/select-duties/:taxCategory/:taxId             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(taxCategory:TaxCategory, taxId: TaxCode, journey: JourneyBindable)
+GET         /:journey/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary(journey: JourneyBindable)
 POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
-
-GET         /scheduled/select-duties/:taxCategory/:taxId            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.aaa(taxCategory:TaxCategory, taxId: TaxCode)
 
 GET         /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)

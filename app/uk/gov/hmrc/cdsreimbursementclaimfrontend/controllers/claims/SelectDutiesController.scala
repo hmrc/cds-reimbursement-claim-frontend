@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, TemporaryJourneyExtractor, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -100,7 +100,7 @@ class SelectDutiesController @Inject() (
                     .leftMap((_: Unit) => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not get duties selected "),
-                      _ => Redirect(routes.EnterClaimController.startClaim())
+                      _ => Redirect(routes.EnterClaimController.startClaim(TemporaryJourneyExtractor.extractJourney))
                     )
                 }
               )

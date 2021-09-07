@@ -19,13 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.data.NonEmptyList
 import play.api.libs.json.{Json, OFormat}
 
-import java.util.UUID
-
 final case class Claim(
-  id: UUID,
   paymentMethod: String,
   paymentReference: String,
-  taxCode: String,
+  taxCategory: TaxCategory,
+  taxCode: TaxCode,
   paidAmount: BigDecimal,
   claimAmount: BigDecimal,
   isFilled: Boolean
@@ -35,10 +33,9 @@ object Claim {
   implicit class ListClaimOps(val claims: NonEmptyList[Claim]) {
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
 
-    def isUkClaim(claim: Claim): Boolean     = TaxCode.listOfUKTaxCodes.map(code => code.value).contains(claim.taxCode)
-    def isEuClaim(claim: Claim): Boolean     = TaxCode.listOfEUTaxCodes.map(code => code.value).contains(claim.taxCode)
-    def isExciseClaim(claim: Claim): Boolean =
-      TaxCode.listOfUKExciseCodes.map(code => code.value).contains(claim.taxCode)
+    def isUkClaim(claim: Claim): Boolean     = TaxCode.listOfUKTaxCodes.contains(claim.taxCode)
+    def isEuClaim(claim: Claim): Boolean     = TaxCode.listOfEUTaxCodes.contains(claim.taxCode)
+    def isExciseClaim(claim: Claim): Boolean = TaxCode.listOfUKExciseCodes.contains(claim.taxCode)
 
     def ukClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isUkClaim(claim))
     def euClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isEuClaim(claim))

@@ -751,6 +751,17 @@ enter-claim.error.required=Enter an amount to claim
 enter-claim.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.invalid.claim=Enter a claim amount which is less than or equal to the paid amount
 
+enter-claim.scheduled.title=Claim details for {0} - {1} for all MRNs
+enter-claim.scheduled.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.scheduled.paid-amount=How much was paid, in pounds?
+enter-claim.scheduled.paid-amount.hint=This is the {0} - {1} amount you paid in the declaration.
+enter-claim.scheduled.claim-amount=How much should have been paid, in pounds?
+enter-claim.scheduled.claim-amount.hint=This is the {0} - {1} amount you should have paid. The claim amount must be lower than or equal to the paid amount.
+enter-claim.scheduled.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
+enter-claim.scheduled.paid-amount.error.invalid=You have entered an invalid paid amount. Enter a valid paid amount you wish to claim for
+
+
+
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================

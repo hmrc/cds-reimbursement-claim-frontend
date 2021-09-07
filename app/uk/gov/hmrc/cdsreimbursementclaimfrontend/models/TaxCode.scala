@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json._
 import play.api.mvc.PathBindable
@@ -192,6 +193,8 @@ object TaxCode {
     allTaxCodesPartialFunctions.drop(1).foldLeft(allTaxCodesPartialFunctions(0))(_ orElse _)(in)
 
   implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
+
+  implicit val eq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
 
   def parse(str: String): Either[String, TaxCode] =
     TaxCode.allTaxCodes.find(a => a.value === str).toRight("No such tax id")

@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.{Functor, Id}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -39,11 +39,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
-import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -52,17 +50,13 @@ class EnterClaimControllerSpec
     with AuthSupport
     with SessionSupport
     with BeforeAndAfterEach
-    with ScalaCheckDrivenPropertyChecks {
+    with TableDrivenPropertyChecks {
   lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  lazy val featureSwitch = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.EntryNumber.enable()
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -121,21 +115,25 @@ class EnterClaimControllerSpec
       case _                                                         => fail()
     }
 
-  def getMRNAnswer(): MovementReferenceNumber         = MovementReferenceNumber(Right(sample[MRN]))
-  def getEntryNumberAnswer(): MovementReferenceNumber = MovementReferenceNumber(
-    Left(sample[EntryNumber])
-  )
+  def getMRNAnswer(): MovementReferenceNumber = MovementReferenceNumber(Right(sample[MRN]))
 
   private def compareUrlsWithouthId(url1: String, url2: String): Any = {
     def removeId(in: String) = in.substring(0, in.lastIndexOf('/'))
     removeId(url1) shouldBe removeId(url2)
   }
 
+  private val journeys = Table(
+    "JourneyBindable",
+    JourneyBindable.Single,
+    JourneyBindable.Bulk,
+    JourneyBindable.Scheduled
+  )
+
   "startClaim page" must {
 
-    def performAction(): Future[Result] = controller.startClaim()(FakeRequest())
+    def performAction(journey: JourneyBindable): Future[Result] = controller.startClaim(journey)(FakeRequest())
 
-    "redirect to the start of the journey if the session is empty" in {
+    "redirect to the start of the journey if the session is empty" in forAll(journeys) { journey =>
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
@@ -143,12 +141,12 @@ class EnterClaimControllerSpec
       }
 
       checkIsRedirect(
-        performAction(),
+        performAction(journey),
         baseRoutes.StartController.start()
       )
     }
 
-    "Redirect to select duties if they were not selected previously" in {
+    "Redirect to select duties if they were not selected previously" in forAll(journeys) { journey =>
       val session = createSessionWithPreviousAnswers(None, None)._1
 
       inSequence {
@@ -157,17 +155,17 @@ class EnterClaimControllerSpec
       }
 
       checkIsRedirect(
-        performAction(),
+        performAction(journey),
         routes.SelectDutiesController.selectDuties()
       )
     }
 
-    "redirect to the checkClaim page if we have finished claims for all duties" in {
+    "redirect to the checkClaim page if we have finished claims for all duties" in forAll(journeys) { journey =>
       val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(10)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claim                = selectedTaxCodes.map(taxCode =>
         sample[Claim]
-          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       )
       val answers              = ClaimsAnswer(claim).getOrElse(fail())
       val session              = createSessionWithPreviousAnswers(Some(answers), dutiesSelectedAnswer)._1
@@ -178,14 +176,15 @@ class EnterClaimControllerSpec
       }
 
       checkIsRedirect(
-        performAction(),
-        routes.EnterClaimController.checkClaimSummary()
+        performAction(journey),
+        routes.EnterClaimController.checkClaimSummary(journey)
       )
 
     }
 
-    "Redirect to the enterClaim page if we have no claim for a duty" in {
+    "Redirect to the enterClaim page if we have no claim for a duty" in forAll(journeys) { journey =>
       val taxCode              = TaxCode.A20
+      val taxCategory          = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(taxCode))
       val session              = createSessionWithPreviousAnswers(None, Some(dutiesSelectedAnswer))._1
 
@@ -195,20 +194,27 @@ class EnterClaimControllerSpec
         mockStoreSession(Right(()))
       }
 
-      val result = performAction()
+      val result = performAction(journey)
 
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterClaimController.enterClaim(taxCategory, taxCode, journey).url
       )
     }
 
-    "Redirect to the enterClaim page if we have an unfinished claim for a duty" in {
+    "Redirect to the enterClaim page if we have an unfinished claim for a duty" in forAll(journeys) { journey =>
       val taxCode              = TaxCode.A20
+      val taxCategory          = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(taxCode))
       val claim                = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
 
       val session = createSessionWithPreviousAnswers(Some(ClaimsAnswer(claim)), Some(dutiesSelectedAnswer))._1
 
@@ -217,52 +223,67 @@ class EnterClaimControllerSpec
         mockGetSession(session)
       }
 
-      val result = performAction()
+      val result = performAction(journey)
 
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterClaimController.enterClaim(taxCategory, taxCode, journey).url
       )
     }
   }
 
-  "enterClaim page" must {
+  "enterClaim page on the MRN single journey" must {
 
-    def performAction(id: UUID): Future[Result] = controller.enterClaim(id)(FakeRequest())
+    def performAction(taxCategory: TaxCategory, taxCode: TaxCode, journeyBindable: JourneyBindable): Future[Result] =
+      controller.enterClaim(taxCategory, taxCode, journeyBindable)(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = createSessionWithPreviousAnswers(None)._1
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.A20
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
       }
 
       checkIsRedirect(
-        performAction(UUID.randomUUID()),
+        performAction(taxCategory, taxCode, journey),
         baseRoutes.StartController.start()
       )
     }
 
     //TODO finish error page
     "render an error when the claim id doesn't exist anymore" in {
-      val session = createSessionWithPreviousAnswers(None)._1
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
 
-      val result = performAction(UUID.randomUUID())
+      val result = performAction(taxCategory, taxCode, journey)
       status(result)          shouldBe OK
       contentAsString(result) shouldBe "This claim no longer exists"
     }
 
     "render when the user has not answered this question before" in {
-      val taxCode = TaxCode.B05
-      val claim   = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
-        .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
-      val answers = ClaimsAnswer(claim)
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
+        .copy(
+          claimAmount = BigDecimal(0),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
 
@@ -272,16 +293,24 @@ class EnterClaimControllerSpec
       }
 
       checkPageIsDisplayed(
-        performAction(claim.id),
-        messageFromMessageKey("enter-claim.title", taxCode.value, "Value Added Tax")
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax")
       )
     }
 
     "render the previous answer when the user has answered this question before" in {
-      val taxCode = TaxCode.B05
-      val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
-      val answers = ClaimsAnswer(claim)
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = true,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
 
@@ -291,39 +320,244 @@ class EnterClaimControllerSpec
       }
 
       checkPageIsDisplayed(
-        performAction(claim.id),
-        messageFromMessageKey("enter-claim.title", taxCode.value, "Value Added Tax"),
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax"),
         doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
       )
     }
 
   }
 
-  "enterClaimSubmit page" must {
+  "enterClaim page on the MRN scheduled journey" must {
 
-    def performAction(id: UUID, data: Seq[(String, String)]): Future[Result] =
-      controller.enterClaimSubmit(id)(FakeRequest().withFormUrlEncodedBody(data: _*))
+    def performAction(taxCategory: TaxCategory, taxCode: TaxCode, journeyBindable: JourneyBindable): Future[Result] =
+      controller.enterClaim(taxCategory, taxCode, journeyBindable)(FakeRequest())
 
     "redirect to the start of the journey if the session is empty" in {
-      val session = createSessionWithPreviousAnswers(None)._1
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.A20
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session.copy(journeyStatus = None))
       }
 
       checkIsRedirect(
-        performAction(UUID.randomUUID(), Seq.empty),
+        performAction(taxCategory, taxCode, journey),
         baseRoutes.StartController.start()
       )
     }
 
-    "user enters a valid paid and claim amount on the MRN journey" in {
-      val claim = sample[Claim]
+    //TODO finish error page
+    "render an error when the claim id doesn't exist anymore" in {
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val result = performAction(taxCategory, taxCode, journey)
+      status(result)          shouldBe OK
+      contentAsString(result) shouldBe "This claim no longer exists"
+    }
+
+    "render when the user has not answered this question before" in {
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
+        .copy(
+          claimAmount = BigDecimal(0),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$scheduledLanguageKey.title", taxCode.value, "Value Added Tax")
+      )
+    }
+
+    "render the previous answer when the user has answered this question before" in {
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = true,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$scheduledLanguageKey.title", taxCode.value, "Value Added Tax"),
+        doc => {
+          doc.getElementById(s"$scheduledLanguageKey.paid-amount").`val`()  shouldBe "5.00"
+          doc.getElementById(s"$scheduledLanguageKey.claim-amount").`val`() shouldBe "10.00"
+        }
+      )
+    }
+
+  }
+
+  "enterClaim page on the MRN bulk-multi journey" must {
+
+    def performAction(taxCategory: TaxCategory, taxCode: TaxCode, journeyBindable: JourneyBindable): Future[Result] =
+      controller.enterClaim(taxCategory, taxCode, journeyBindable)(FakeRequest())
+
+    "redirect to the start of the journey if the session is empty" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.A20
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+      }
+
+      checkIsRedirect(
+        performAction(taxCategory, taxCode, journey),
+        baseRoutes.StartController.start()
+      )
+    }
+
+    //TODO finish error page
+    "render an error when the claim id doesn't exist anymore" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val result = performAction(taxCategory, taxCode, journey)
+      status(result)          shouldBe OK
+      contentAsString(result) shouldBe "This claim no longer exists"
+    }
+
+    "render when the user has not answered this question before" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
+        .copy(
+          claimAmount = BigDecimal(0),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax")
+      )
+    }
+
+    "render the previous answer when the user has answered this question before" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = true,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+      val answers     = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers))._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(taxCategory, taxCode, journey),
+        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax"),
+        doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
+      )
+    }
+
+  }
+
+  "enterClaimSubmit page on the MRN single journey" must {
+
+    def performAction(
+      taxCategory: TaxCategory,
+      taxCode: TaxCode,
+      journeyBindable: JourneyBindable,
+      data: Seq[(String, String)]
+    ): Future[Result] =
+      controller.enterClaimSubmit(taxCategory, taxCode, journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+    "redirect to the start of the journey if the session is empty" in {
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+      }
+
+      checkIsRedirect(
+        performAction(taxCategory, taxCode, journey, Seq.empty),
+        baseRoutes.StartController.start()
+      )
+    }
+
+    "user enters a valid claim amount" in {
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
         .copy(
           claimAmount = BigDecimal(1.00).setScale(2),
           paidAmount = BigDecimal(10.00).setScale(2),
           isFilled = false,
-          taxCode = "A00"
+          taxCategory = taxCategory,
+          taxCode = taxCode
         )
 
       val answers = ClaimsAnswer(claim)
@@ -340,28 +574,100 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(
-          claim.id,
-          Seq(
-            "enter-claim" -> "5.00"
-          )
+          taxCategory,
+          taxCode,
+          journey,
+          Seq(languageKey -> "5.00")
         ),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterClaimController.checkClaimSummary(journey)
       )
     }
 
-    "user enters a valid paid and claim amount on the Entry Number journey" in {
+    "an invalid option value is submitted in" in {
+      val journey     = JourneyBindable.Single
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+
+      val answers = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(
+          taxCategory,
+          taxCode,
+          journey,
+          Seq(languageKey -> "dfsfs")
+        ),
+        messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
+        doc =>
+          doc
+            .select(".govuk-error-summary__list > li:nth-child(1) > a")
+            .text() shouldBe messageFromMessageKey(
+            s"enter-claim.claim-amount.error.invalid"
+          ),
+        BAD_REQUEST
+      )
+    }
+
+  }
+
+  "enterClaimSubmit page on the MRN scheduled journey" must {
+
+    def performAction(
+      taxCategory: TaxCategory,
+      taxCode: TaxCode,
+      journeyBindable: JourneyBindable,
+      data: Seq[(String, String)]
+    ): Future[Result] =
+      controller.enterClaimSubmit(taxCategory, taxCode, journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+    "redirect to the start of the journey if the session is empty" in {
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+      }
+
+      checkIsRedirect(
+        performAction(taxCategory, taxCode, journey, Seq.empty),
+        baseRoutes.StartController.start()
+      )
+    }
+
+    "user enters a valid paid and claim amount" in {
+      val journey            = JourneyBindable.Scheduled
+      val taxCode            = TaxCode.A00
+      val taxCategory        = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
       val updatedClaimAmount = "5.00"
       val claim              = sample[Claim]
         .copy(
           claimAmount = BigDecimal(1.00).setScale(2),
           paidAmount = BigDecimal(10.00).setScale(2),
           isFilled = false,
-          taxCode = "A00"
+          taxCategory = taxCategory,
+          taxCode = taxCode
         )
 
       val answers = ClaimsAnswer(claim)
 
-      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer(), None)._1
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
       val updatedAnswer  = claim.copy(claimAmount = BigDecimal(updatedClaimAmount).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
@@ -373,24 +679,34 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(
-          claim.id,
+          taxCategory,
+          taxCode,
+          journey,
           Seq(
-            "enter-claim.paid-amount"  -> "10.00",
-            "enter-claim.claim-amount" -> updatedClaimAmount
+            s"$scheduledLanguageKey.paid-amount"  -> "10.00",
+            s"$scheduledLanguageKey.claim-amount" -> updatedClaimAmount
           )
         ),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterClaimController.checkClaimSummary(journey)
       )
     }
 
     "an invalid option value is submitted" in {
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+      val journey     = JourneyBindable.Scheduled
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
 
       val answers = ClaimsAnswer(claim)
 
-      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getEntryNumberAnswer(), None)._1
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -399,23 +715,25 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(
-          claim.id,
+          taxCategory,
+          taxCode,
+          journey,
           Seq(
-            "enter-claim.paid-amount"  -> "sdfdf",
-            "enter-claim.claim-amount" -> "dfsfs"
+            s"$scheduledLanguageKey.paid-amount"  -> "sdfdf",
+            s"$scheduledLanguageKey.claim-amount" -> "dfsfs"
           )
         ),
-        messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
+        messageFromMessageKey(s"$scheduledLanguageKey.title", taxCode.value, "Customs Duty"),
         doc => {
           doc
             .select(".govuk-error-summary__list > li:nth-child(1) > a")
             .text() shouldBe messageFromMessageKey(
-            s"enter-claim.paid-amount.error.invalid"
+            s"$scheduledLanguageKey.paid-amount.error.invalid"
           )
           doc
             .select(".govuk-error-summary__list > li:nth-child(2) > a")
             .text() shouldBe messageFromMessageKey(
-            s"enter-claim.claim-amount.error.invalid"
+            s"$scheduledLanguageKey.claim-amount.error.invalid"
           )
         },
         BAD_REQUEST
@@ -424,11 +742,119 @@ class EnterClaimControllerSpec
 
   }
 
-  "checkSummaryClaim page" must {
+  "enterClaimSubmit page on the MRN bulk-multi journey" must {
 
-    def performAction(): Future[Result] = controller.checkClaimSummary()(FakeRequest())
+    def performAction(
+      taxCategory: TaxCategory,
+      taxCode: TaxCode,
+      journeyBindable: JourneyBindable,
+      data: Seq[(String, String)]
+    ): Future[Result] =
+      controller.enterClaimSubmit(taxCategory, taxCode, journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "redirect to the start of the journey if the session is empty" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.B05
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val session     = createSessionWithPreviousAnswers(None)._1
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session.copy(journeyStatus = None))
+      }
+
+      checkIsRedirect(
+        performAction(taxCategory, taxCode, journey, Seq.empty),
+        baseRoutes.StartController.start()
+      )
+    }
+
+    "user enters a valid paid and claim amount" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(1.00).setScale(2),
+          paidAmount = BigDecimal(10.00).setScale(2),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+
+      val answers = ClaimsAnswer(claim)
+
+      val session        = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
+      val updatedAnswer  = claim.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
+      val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockStoreSession(updatedSession)(Right(()))
+      }
+
+      checkIsRedirect(
+        performAction(
+          taxCategory,
+          taxCode,
+          journey,
+          Seq(
+            "enter-claim" -> "5.00"
+          )
+        ),
+        routes.EnterClaimController.checkClaimSummary(journey)
+      )
+    }
+
+    "an invalid option value is submitted" in {
+      val journey     = JourneyBindable.Bulk
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
+
+      val answers = ClaimsAnswer(claim)
+
+      val session = createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), None)._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      checkPageIsDisplayed(
+        performAction(
+          taxCategory,
+          taxCode,
+          journey,
+          Seq(
+            languageKey -> "dfsfs"
+          )
+        ),
+        messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
+        doc =>
+          doc
+            .select(".govuk-error-summary__list > li:nth-child(1) > a")
+            .text() shouldBe messageFromMessageKey(
+            s"enter-claim.claim-amount.error.invalid"
+          ),
+        BAD_REQUEST
+      )
+    }
+
+  }
+
+  "checkSummaryClaim page" must {
+
+    def performAction(journey: JourneyBindable): Future[Result] = controller.checkClaimSummary(journey)(FakeRequest())
+
+    "redirect to the start of the journey if the session is empty" in forAll(journeys) { journey =>
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
@@ -436,7 +862,7 @@ class EnterClaimControllerSpec
       }
 
       checkIsRedirect(
-        performAction(),
+        performAction(journey),
         baseRoutes.StartController.start()
       )
     }
@@ -466,10 +892,16 @@ class EnterClaimControllerSpec
       controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
-
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
 
       val answers = ClaimsAnswer(claim)
 
@@ -487,11 +919,17 @@ class EnterClaimControllerSpec
       )
     }
 
-    "Redirect to EnterBankAccountDetails if user says details are correct on the entry number journey" in {
-      featureSwitch.EntryNumber.enable()
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+    "Redirect to EnterBankAccountDetails if user says details are correct on the scheduled journey" in {
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
 
       val answers = ClaimsAnswer(claim)
 
@@ -500,7 +938,7 @@ class EnterClaimControllerSpec
           Some(answers),
           None,
           None,
-          getEntryNumberAnswer(),
+          getMRNAnswer(),
           Some(ClaimAnswersAreCorrect)
         )._1
 
@@ -511,15 +949,21 @@ class EnterClaimControllerSpec
       val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
       checkIsRedirect(
         result,
-        routes.BankAccountController.enterBankAccountDetails(JourneyBindable.Single)
+        routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
       )
     }
 
     "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in {
-
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+      val taxCode     = TaxCode.A00
+      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+      val claim       = sample[Claim]
+        .copy(
+          claimAmount = BigDecimal(10),
+          paidAmount = BigDecimal(5),
+          isFilled = false,
+          taxCategory = taxCategory,
+          taxCode = taxCode
+        )
 
       val answers = ClaimsAnswer(claim)
 
@@ -558,7 +1002,13 @@ class EnterClaimControllerSpec
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claims               = selectedTaxCodes.map(taxCode =>
         sample[Claim]
-          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+          .copy(
+            claimAmount = BigDecimal(10),
+            paidAmount = BigDecimal(5),
+            isFilled = true,
+            taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail),
+            taxCode = taxCode
+          )
       )
       val claimAnswers         = ClaimsAnswer(claims)
 
@@ -575,10 +1025,10 @@ class EnterClaimControllerSpec
     }
   }
 
-  "Entry Number Claim Amount Validation" must {
-    val form        = EnterClaimController.entryClaimAmountForm
-    val paidAmount  = "enter-claim.paid-amount"
-    val claimAmount = "enter-claim.claim-amount"
+  "Scheduled Claim Amount Validation" must {
+    val form        = EnterClaimController.scheduledClaimAmountForm
+    val paidAmount  = s"$scheduledLanguageKey.paid-amount"
+    val claimAmount = s"$scheduledLanguageKey.claim-amount"
 
     val goodData = Map(
       paidAmount  -> "99999999999.99",
