@@ -343,6 +343,66 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
       )
     )
 
+  def makeBasisAndOrReasonForClaim(
+    selectOfBasisClaimParentKey: String,
+    completeClaim: CompleteClaim
+  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
+    completeClaim.basisForClaim match {
+      case Left(selected)      =>
+        List(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
+            value = Value(
+              Text(messages(BasisOfClaimsMessage.ofEntryNumber(selectOfBasisClaimParentKey, selected.basisForClaim)))
+            ),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
+                  )
+                )
+              )
+            )
+          ),
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l1"))),
+            value = Value(Text(selected.reasonForClaim.repr)),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1"))
+                  )
+                )
+              )
+            )
+          )
+        )
+      case Right(basisOfClaim) =>
+        List(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
+            value = Value(Text(messages(BasisOfClaimsMessage.ofMrn(selectOfBasisClaimParentKey, basisOfClaim)))),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim(journey).url}",
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
+                  )
+                )
+              )
+            )
+          )
+        )
+    }
+
   def makeCommodityDetailsSummary(
     completeClaim: CompleteClaim
   )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =

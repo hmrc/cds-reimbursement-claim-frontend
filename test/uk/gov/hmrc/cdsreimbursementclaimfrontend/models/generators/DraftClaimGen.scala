@@ -16,9 +16,36 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import cats.implicits.catsSyntaxOptionId
+import org.scalacheck.Gen
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryCompleteBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.arbitraryContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.arbitraryMrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen.arbitraryDeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
+
+import java.util.UUID
 
 object DraftClaimGen extends HigherPriorityDraftClaimGen
 
@@ -27,5 +54,54 @@ trait HigherPriorityDraftClaimGen extends LowerPriorityDraftClaimGen {
 }
 
 trait LowerPriorityDraftClaimGen {
+
   implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = gen[DraftC285Claim]
+
+  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftC285Claim] =
+    for {
+      mrn                            <- genMRN
+      details                        <- arbitraryEntryDeclarationDetails.arbitrary
+      declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
+      detailsRegisteredWithCdsAnswer <- arbitraryDetailsRegisteredWithCds.arbitrary
+      mrnContactDetails              <- arbitraryMrnContactDetails.arbitrary
+      mrnContactAddressAnswer        <- arbitraryContactAddress.arbitrary
+      bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
+      bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
+      basisOfClaimAnswer             <- arbitraryCompleteBasisOfClaimAnswer.arbitrary
+      supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
+      dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
+      commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
+      claimNorthernIrelandAnswer     <- arbitraryNorthernIrelandAnswer.arbitrary
+      selectReasonForClaimAndBasis   <- gen[SelectReasonForClaimAndBasis].arbitrary
+      displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
+      eori                           <- arbitraryEori.arbitrary
+      claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
+      checkClaimAnswer               <- gen[CheckClaimAnswer].arbitrary
+      checkDeclarationDetailsAnswer  <- gen[CheckDeclarationDetailsAnswer].arbitrary
+      scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
+    } yield DraftC285Claim(
+      id = UUID.randomUUID(),
+      selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
+      movementReferenceNumber = MovementReferenceNumber(mrn).some,
+      declarationDetailsAnswer = CompleteDeclarationDetailsAnswer(details).some,
+      declarantTypeAnswer = declarantType.some,
+      detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
+      mrnContactDetailsAnswer = mrnContactDetails.some,
+      mrnContactAddressAnswer = mrnContactAddressAnswer.some,
+      bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
+      bankAccountTypeAnswer = bankAccountTypeAnswer.some,
+      basisOfClaimAnswer = basisOfClaimAnswer.some,
+      supportingEvidencesAnswer = supportingEvidencesAnswer.some,
+      dutiesSelectedAnswer = dutiesSelectedAnswer.some,
+      commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
+      claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
+      reasonForBasisAndClaimAnswer = CompleteReasonAndBasisOfClaimAnswer(selectReasonForClaimAndBasis).some,
+      displayDeclaration = displayDeclaration.some,
+      importerEoriNumberAnswer = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(eori)).some,
+      declarantEoriNumberAnswer = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(eori)).some,
+      claimsAnswer = claimsAnswer.some,
+      checkClaimAnswer = checkClaimAnswer.some,
+      checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,
+      scheduledDocumentAnswer = scheduledDocumentAnswer
+    )
 }

@@ -18,7 +18,6 @@
 @import play.api.mvc.Request
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeoutdialog.TimeoutDialog
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
@@ -39,7 +38,6 @@
     timeOut: Boolean = true,
     scriptsBlock: Option[Html] = None,
     suppressBackLink: Boolean = false,
-    signedInUserDetails: Option[SignedInUserDetails] = None,
     hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -65,16 +63,6 @@
 }
 
 @beforeContentBlock = {
-    @signedInUserDetails.map{ user =>
-        <div class="cds-user-banner">
-            <div>
-                <p class="govuk-body-s govuk-!-margin-top-2 govuk-!-margin-bottom-2">
-                    <strong class="govuk-!-margin-right-1 cds-wrap-content--forced">
-                        EORI @user.eori.value:</strong> @user.contactName.value
-                </p>
-            </div>
-        </div>
-    }
     <div class="cds-user-banner cds-no-border">
         @if(!suppressBackLink) {
             <div id="cdsr-back-link"></div>

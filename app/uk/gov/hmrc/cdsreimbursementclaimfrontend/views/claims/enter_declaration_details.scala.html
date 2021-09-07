@@ -43,7 +43,7 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -67,7 +67,6 @@
             id = s"$key.place-of-import",
             name = s"$key.place-of-import",
             label = s"$key.place-of-import.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"$key.place-of-import.help")
@@ -78,7 +77,6 @@
             id = s"$key.importer-name",
             name = s"$key.importer-name",
             label = s"$key.importer-name.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"$key.importer-name.help")
@@ -89,7 +87,6 @@
             id = s"$key.importer-email-address",
             name = s"$key.importer-email-address",
             label = s"$key.importer-email-address.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
             inputType = "email",
             autocomplete = Some("email"),
@@ -102,7 +99,6 @@
             id = s"$key.importer-phone-number",
             name = s"$key.importer-phone-number",
             label = s"$key.importer-phone-number.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             inputType = "tel",
             autocomplete = Some("tel"),
             isPageHeading = false,
@@ -115,7 +111,6 @@
             id = s"$key.declarant-name",
             name = s"$key.declarant-name",
             label = s"$key.declarant-name.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"$key.declarant-name.help")
@@ -126,7 +121,6 @@
             id = s"$key.declarant-email-address",
             name = s"$key.declarant-email-address",
             label = s"$key.declarant-email-address.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             isPageHeading = false,
             inputType = "email",
             autocomplete = Some("email"),
@@ -139,7 +133,6 @@
             id = s"$key.declarant-phone-number",
             name = s"$key.declarant-phone-number",
             label = s"$key.declarant-phone-number.label",
-            labelClasses = Some("govuk-label govuk-label--s"),
             inputType = "tel",
             autocomplete = Some("tel"),
             isPageHeading = false,

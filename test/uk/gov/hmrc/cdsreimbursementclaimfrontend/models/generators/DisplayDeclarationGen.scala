@@ -20,6 +20,8 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
 object DisplayDeclarationGen {
+  import DisplayResponseDetailGen.arbitraryDisplayResponseDetail
 
-  implicit val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] = gen[DisplayDeclaration]
+  implicit val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] =
+    gen[DisplayDeclaration]
 }
