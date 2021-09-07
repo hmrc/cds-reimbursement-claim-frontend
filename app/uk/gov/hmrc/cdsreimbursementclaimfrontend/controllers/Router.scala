@@ -67,6 +67,9 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForChangeMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
 
+  def submitUrlForAmendMrnContactDetails(): Call =
+    claimRoutes.EnterContactDetailsMrnController.amendMrnContactDetailsSubmit(journeyBindable)
+
   def submitUrlForEnterMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
 
@@ -167,8 +170,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case NoClaimantDetailsAnswer  => claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     }
 
-  def nextPageForEnterOrChangeMrnContactDetails(isAdressLookupNecessary: Boolean): Call =
-    if (isAdressLookupNecessary) claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
+  def nextPageForEnterMrnContactDetails(isAdressLookupNecessary: Boolean, isAmend: Boolean): Call =
+    if (isAmend) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else if (isAdressLookupNecessary)
+      claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =

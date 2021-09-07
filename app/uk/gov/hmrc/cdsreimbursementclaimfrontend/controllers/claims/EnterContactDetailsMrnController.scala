@@ -57,10 +57,11 @@ class EnterContactDetailsMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show()
-  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show()
+  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
+  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
+  def amendMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = true)
 
-  def show()(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val draftC285Claim        = fillingOutClaim.draftClaim.fold(identity)
@@ -70,20 +71,24 @@ class EnterContactDetailsMrnController @Inject() (
         }
         val mrnContactDetailsForm =
           answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined))
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined, isAmend))
       }
     }
 
-  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit(isChange = false)
-  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isChange = true)
+  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
+    submit(isChange = false, isAmend = false)
+  def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+    submit(isChange = true, isAmend = false)
+  def amendMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
+    submit(isChange = true, isAmend = true)
 
-  def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(isChange: Boolean, isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         EnterContactDetailsMrnController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
+            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange, isAmend)),
             formOk => {
 
               val updatedClaim =
@@ -95,7 +100,8 @@ class EnterContactDetailsMrnController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not capture contact details"),
-                _ => Redirect(router.nextPageForEnterOrChangeMrnContactDetails(!isMandatoryDataAvailable(updatedClaim)))
+                _ =>
+                  Redirect(router.nextPageForEnterMrnContactDetails(!isMandatoryDataAvailable(updatedClaim), isAmend))
               )
             }
           )
