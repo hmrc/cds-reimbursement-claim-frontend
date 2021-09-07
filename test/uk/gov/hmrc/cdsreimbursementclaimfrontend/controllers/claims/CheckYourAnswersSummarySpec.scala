@@ -24,6 +24,9 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -37,6 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{ite
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.{Individual, Scheduled}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
 class CheckYourAnswersSummarySpec
     extends ControllerSpec
@@ -80,19 +84,21 @@ class CheckYourAnswersSummarySpec
           val elements  = doc.select("#main-content > div > div > dl > div")
           val labels    = elements.select("dt").content
           val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val summaries = labels zip contents
+          val last      = labels.lastOption.value
+          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
 
           headers   should contain allElementsOf Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.basis.h2"
+            s"$checkYourAnswersKey.basis.h2",
+            s"$checkYourAnswersKey.attached-documents.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
               messages(
-                s"select-who-is-making-the-claim.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
+                s"$whoIsMakingTheClaimKey.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
               )
             ),
             (
@@ -101,9 +107,19 @@ class CheckYourAnswersSummarySpec
             ),
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
+              messages(s"$selectBasisForClaimKey.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
-          )
+          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+            (
+              messages(s"$checkYourAnswersKey.attached-documents.label"),
+              Paragraph(
+                uploadDocument.fileName,
+                uploadDocument.documentType.fold("")(documentType =>
+                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+                )
+              ).toString.replace("<br />", "<br>")
+            )
+          }.toList
         }
       )
     }
@@ -125,25 +141,44 @@ class CheckYourAnswersSummarySpec
           val headers = doc.select("#main-content > div > div > h2").content
 
           val elements  = doc.select("#main-content > div > div > dl > div")
-          val labels    = elements.select("dt").content
           val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val summaries = labels zip contents
+          val labels    = elements.select("dt").content
+          val last      = labels.lastOption.value
+          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
 
           headers   should contain allElementsOf Seq(
+            s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.basis.h2"
+            s"$checkYourAnswersKey.basis.h2",
+            s"$checkYourAnswersKey.attached-documents.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
+            (
+              messages(s"$checkYourAnswersKey.claimant-type.l0"),
+              messages(
+                s"$whoIsMakingTheClaimKey.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
+              )
+            ),
             (
               messages(s"$checkYourAnswersKey.commodities-details.scheduled.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
             ),
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
+              messages(s"$selectBasisForClaimKey.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
-          )
+          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+            (
+              messages(s"$checkYourAnswersKey.attached-documents.label"),
+              Paragraph(
+                uploadDocument.fileName,
+                uploadDocument.documentType.fold("")(documentType =>
+                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+                )
+              ).toString.replace("<br />", "<br>")
+            )
+          }.toList
         }
       )
     }

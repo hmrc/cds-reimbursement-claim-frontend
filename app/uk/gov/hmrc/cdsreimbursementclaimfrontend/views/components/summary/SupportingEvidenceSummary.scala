@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBinda
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Key, SummaryList, SummaryListRow, Value}
@@ -31,19 +31,7 @@ class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer]
   def render(key: String, answers: SupportingEvidencesAnswer)(implicit
     journey: JourneyBindable,
     messages: Messages
-  ): SummaryList = {
-
-    def renderDetails(uploadDocument: UploadDocument): String = {
-      val documentName = uploadDocument.fileName
-      val documentType = uploadDocument.documentType
-        .map(_.index)
-        .map { index =>
-          messages(s"$supportingEvidenceKey.choose-document-type.document-type.d$index")
-        }
-
-      s"$documentName${documentType.fold("")(documentType => s"<br />$documentType")}"
-    }
-
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
@@ -51,7 +39,17 @@ class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer]
           value = Value(
             HtmlContent(
               answers
-                .map(answer => s"""<p class="govuk-body">${renderDetails(answer)}</p>""".stripMargin)
+                .map(uploadDocument =>
+                  Paragraph(
+                    uploadDocument.fileName,
+                    uploadDocument.documentType
+                      .map(_.index)
+                      .map { index =>
+                        messages(s"$supportingEvidenceKey.choose-document-type.document-type.d$index")
+                      }
+                      .getOrElse("")
+                  ).toString
+                )
                 .toList
                 .mkString("")
             )
@@ -70,5 +68,4 @@ class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer]
         )
       )
     )
-  }
 }
