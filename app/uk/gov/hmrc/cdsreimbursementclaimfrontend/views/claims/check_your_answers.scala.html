@@ -44,7 +44,7 @@
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @layout(pageTitle = Some(s"$title")) {
 
         @pageHeading(title)
 
@@ -56,7 +56,6 @@
 
         @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(completeClaim.declarantTypeAnswer.review(s"$key.claimant-type"))
-
 
         @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimantDetailsSummary(completeClaim)))

@@ -343,27 +343,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
       )
     )
 
-  def makeCommodityDetailsSummary(
-    completeClaim: CompleteClaim
-  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
-    List(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.commodities-details.label"))),
-        value = Value(Text(completeClaim.commodityDetailsAnswer.value)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey).url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.commodities-details.label"))
-              )
-            )
-          )
-        )
-      )
-    )
-
   def makeClaimCalculationSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(

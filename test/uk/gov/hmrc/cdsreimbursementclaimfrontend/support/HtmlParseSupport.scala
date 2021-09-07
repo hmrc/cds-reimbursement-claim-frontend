@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer
+import org.jsoup.select.Elements
 
-object DetailsRegisteredWithCdsAnswerGen {
+trait HtmlParseSupport {
 
-  implicit val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
-    gen[DetailsRegisteredWithCdsAnswer]
+  implicit class ElementsOps(elements: Elements) {
+    def content: Seq[String] = elements.html().split("\n").toSeq
+  }
 }
+
+object HtmlParseSupport extends HtmlParseSupport

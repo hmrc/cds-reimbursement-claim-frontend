@@ -63,9 +63,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
-        val routes                 = extractRoutes(fillingOutClaim.draftClaim, journey)
-        Ok(checkYourAnswersPage(completeClaim, mandatoryDataAvailable, routes))
+        val routes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        Ok(checkYourAnswersPage(completeClaim, routes))
       }
     }
 
@@ -200,6 +199,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
 }
 
 object CheckYourAnswersAndSubmitController {
+
+  val checkYourAnswersKey = "check-your-answers"
 
   sealed trait SubmitClaimResult
 
