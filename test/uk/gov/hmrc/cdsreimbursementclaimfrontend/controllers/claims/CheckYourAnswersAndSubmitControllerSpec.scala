@@ -166,7 +166,6 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     supportingEvidencesAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
-    reasonForBasisAndClaimAnswer = None,
     claimNorthernIrelandAnswer = Some(northernIrelandAnswer),
     displayDeclaration = Some(
       DisplayDeclaration(
@@ -219,7 +218,6 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     supportingEvidencesAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,
     northernIrelandAnswer = Some(northernIrelandAnswer),
-    None,
     maybeDisplayDeclaration = Some(
       DisplayDeclaration(
         displayResponseDetail = DisplayResponseDetail(

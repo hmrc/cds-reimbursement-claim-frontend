@@ -23,12 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryCompleteBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -72,7 +70,6 @@ trait LowerPriorityDraftClaimGen {
       dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
       commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
       claimNorthernIrelandAnswer     <- arbitraryNorthernIrelandAnswer.arbitrary
-      selectReasonForClaimAndBasis   <- gen[SelectReasonForClaimAndBasis].arbitrary
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
@@ -95,7 +92,6 @@ trait LowerPriorityDraftClaimGen {
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
       claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
-      reasonForBasisAndClaimAnswer = CompleteReasonAndBasisOfClaimAnswer(selectReasonForClaimAndBasis).some,
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(eori)).some,
       declarantEoriNumberAnswer = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(eori)).some,

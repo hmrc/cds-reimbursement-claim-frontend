@@ -26,6 +26,7 @@ package object summary {
   implicit val claimTypeSummary: ClaimTypeSummary               = new ClaimTypeSummary
   implicit val entryNumberSummary: EntryNumberSummary           = new EntryNumberSummary
   implicit val mrnSummary: MrnSummary                           = new MrnSummary
+  implicit val basisOfClaimSummary: BasisOfClaimSummary         = new BasisOfClaimSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
     def review(
