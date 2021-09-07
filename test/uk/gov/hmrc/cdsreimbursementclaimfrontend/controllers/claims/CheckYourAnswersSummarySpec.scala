@@ -84,7 +84,8 @@ class CheckYourAnswersSummarySpec
 
           headers   should contain allElementsOf Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.commodity-details.h2"
+            s"$checkYourAnswersKey.commodity-details.h2",
+            s"$checkYourAnswersKey.basis.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -97,6 +98,10 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.commodities-details.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
+            ),
+            (
+              messages(s"$checkYourAnswersKey.basis.l0"),
+              messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
           )
         }
@@ -125,13 +130,18 @@ class CheckYourAnswersSummarySpec
           val summaries = labels zip contents
 
           headers   should contain allElementsOf Seq(
-            s"$checkYourAnswersKey.commodity-details.scheduled.h2"
+            s"$checkYourAnswersKey.commodity-details.scheduled.h2",
+            s"$checkYourAnswersKey.basis.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
             (
               messages(s"$checkYourAnswersKey.commodities-details.scheduled.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
+            ),
+            (
+              messages(s"$checkYourAnswersKey.basis.l0"),
+              messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
           )
         }
