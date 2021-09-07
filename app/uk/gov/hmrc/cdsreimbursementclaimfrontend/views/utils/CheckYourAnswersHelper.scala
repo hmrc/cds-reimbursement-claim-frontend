@@ -15,16 +15,15 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+
 import cats.syntax.all._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, _}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 import javax.inject.{Inject, Singleton}
 
@@ -463,25 +462,4 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
         )
       }
     ).flattenOption
-
-  def makeSupportingEvidenceSummary(journey: JourneyBindable, supportingEvidences: List[UploadDocument])(implicit
-    messages: Messages
-  ): List[SummaryListRow] =
-    supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.file-label", fileIndex + 1))),
-        value = Value(Text(document.fileName)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey).url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1))
-              )
-            )
-          )
-        )
-      )
-    }
 }
