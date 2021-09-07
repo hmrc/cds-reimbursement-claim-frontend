@@ -116,7 +116,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+        case _                           =>
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      }
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
@@ -170,9 +175,9 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case NoClaimantDetailsAnswer  => claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     }
 
-  def nextPageForEnterMrnContactDetails(isAdressLookupNecessary: Boolean, isAmend: Boolean): Call =
+  def nextPageForMrnContactDetails(isChange: Boolean, isAmend: Boolean): Call =
     if (isAmend) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    else if (isAdressLookupNecessary)
+    else if (isChange && !isAmend)
       claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
 

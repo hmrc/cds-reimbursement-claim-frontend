@@ -27,7 +27,7 @@ object ContactAddressGen {
     gen[AddressLookupRequest]
 
   def genCountry: Gen[Country] =
-    Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DN").map(Country(_))
+    Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DM").map(Country(_))
 
   def genPostcode: Gen[String] = for {
     first <- Gen.listOfN(3, Gen.alphaNumChar)

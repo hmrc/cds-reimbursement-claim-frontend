@@ -85,7 +85,8 @@ class CheckYourAnswersSummarySpec
           headers   should contain allElementsOf Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.basis.h2"
+            s"$checkYourAnswersKey.basis.h2",
+            s"$checkYourAnswersKey.contact-details.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -102,6 +103,10 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
               messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
+            ),
+            (
+              messages(s"$checkYourAnswersKey.contact-details.l0"),
+              claim.mrnContactDetailsAnswer.map(_.fullName).value
             )
           )
         }
@@ -131,7 +136,8 @@ class CheckYourAnswersSummarySpec
 
           headers   should contain allElementsOf Seq(
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.basis.h2"
+            s"$checkYourAnswersKey.basis.h2",
+            s"$checkYourAnswersKey.contact-details.h2"
           ).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -142,6 +148,10 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
               messages(s"select-basis-for-claim.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
+            ),
+            (
+              messages(s"$checkYourAnswersKey.contact-details.l0"),
+              claim.mrnContactDetailsAnswer.map(_.fullName).value
             )
           )
         }

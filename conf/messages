@@ -346,7 +346,6 @@ claimant-details.contact.description=These are the details we will use to contac
 claimant-details.contact.details=Contact details
 claimant-details.contact.address=Contact address
 claimant-details.change=Change
-claimant-details.thisbetterwork=Haha
 claimant-details.want-to-continue.title=Do you want to continue using these contact details?
 claimant-details.want-to-continue.hint=If you select No we will contact you using your CDS registered details.
 claimant-details.yes=Yes

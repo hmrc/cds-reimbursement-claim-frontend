@@ -19,7 +19,7 @@
 
 @key = @{"enter-contact-details"}
 
-@postAction = @{if (isChange && !isAmend) router.submitUrlForChangeMrnContactDetails()  else if (isChange && isAmend) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
+@postAction = @{if (isChange && !isAmend) router.submitUrlForChangeMrnContactDetails()  else if (isChange && isAmend) router.submitUrlForAmendMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
 
 @title = @{if (isChange) messages(s"$key.change.title") else messages(s"$key.add.title")}
 
@@ -66,7 +66,6 @@
             isPageHeading = false,
             classes = Some("govuk-input--width-20")
         )
-        @{if (isAmend) "raraarara" else "ta lelellfffj"}
         @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
         }
 

@@ -63,8 +63,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
-        val routes = extractRoutes(fillingOutClaim.draftClaim, journey)
-        Ok(checkYourAnswersPage(completeClaim, routes))
+        val routes                 = extractRoutes(fillingOutClaim.draftClaim, journey)
+        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        Ok(checkYourAnswersPage(completeClaim, mandatoryDataAvailable, routes))
       }
     }
 

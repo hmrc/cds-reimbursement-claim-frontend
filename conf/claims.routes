@@ -40,7 +40,7 @@ GET         /:journey/claimant-details/address-timeout              uk.gov.hmrc.
 GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET        /:journey/claimant-details/details-contact               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.amendMrnContactDetails(journey: JourneyBindable)
+GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.amendMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.amendMrnContactDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)

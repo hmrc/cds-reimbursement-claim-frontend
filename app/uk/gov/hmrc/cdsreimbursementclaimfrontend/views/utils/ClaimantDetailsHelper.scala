@@ -103,7 +103,7 @@ class ClaimantDetailsHelper @Inject() () {
             if (isAmend)
               ActionItem(
                 href = s"${routes.EnterContactDetailsMrnController.amendMrnContactDetails(router.journeyBindable).url}",
-                Text(messages("claimant-details.thisbetterwork"))
+                Text(messages("claimant-details.change"))
               )
             else
               ActionItem(

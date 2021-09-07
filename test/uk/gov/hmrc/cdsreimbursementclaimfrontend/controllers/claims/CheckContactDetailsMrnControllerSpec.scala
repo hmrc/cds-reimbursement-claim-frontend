@@ -160,8 +160,8 @@ class CheckContactDetailsMrnControllerSpec
             paragraphs.get(6).text()  shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
             //Contact Details
             paragraphs.get(7).text()  shouldBe mrnContactDetails.fullName
-            paragraphs.get(8).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
-            paragraphs.get(9).text()  shouldBe mrnContactDetails.emailAddress.value
+            paragraphs.get(8).text()  shouldBe mrnContactDetails.emailAddress.value
+            paragraphs.get(9).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
             paragraphs.get(10).text() shouldBe mrnContactAddress.line1
             paragraphs.get(11).text() shouldBe mrnContactAddress.line2.getOrElse(fail)
             paragraphs.get(12).text() shouldBe mrnContactAddress.line3.getOrElse(fail)
