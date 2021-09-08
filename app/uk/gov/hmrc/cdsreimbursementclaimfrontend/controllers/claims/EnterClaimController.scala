@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, TaxCategory, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.{moneyMapping,moneyMappingPositive}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -262,9 +262,9 @@ object EnterClaimController {
   val scheduledClaimAmountForm: Form[ClaimAndPaidAmount] = Form(
     mapping(
       s"$scheduledLanguageKey.paid-amount"  -> moneyMapping(13, 2, "paid-amount.error.invalid"),
-      s"$scheduledLanguageKey.claim-amount" -> moneyMapping(13, 2, "claim-amount.error.invalid")
+      s"$scheduledLanguageKey.claim-amount" -> moneyMappingPositive(13, 2, "claim-amount.error.invalid")
     )(ClaimAndPaidAmount.apply)(ClaimAndPaidAmount.unapply)
-      .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
+      .verifying("invalid.claim", a => a.claimAmount < a.paidAmount)
   )
 
   val singleLanguageKey = "enter-claim"

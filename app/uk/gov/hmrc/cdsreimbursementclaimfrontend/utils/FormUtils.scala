@@ -87,6 +87,10 @@ object FormUtils {
           }
     }
 
+  def moneyMappingPositive(precision: Int, scale: Int, errorMsg: String): Mapping[BigDecimal] =
+    of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
+      .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num >= 0) Valid else Invalid(errorMsg)))
+
   def moneyMapping(precision: Int, scale: Int, errorMsg: String): Mapping[BigDecimal] =
     of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
       .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid(errorMsg)))

@@ -1105,6 +1105,24 @@ class EnterClaimControllerSpec
         val errors = form.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
       }
+
+      "Reject when claimAmount = paidAmount" in {
+        val data   = Map(
+          paidAmount  -> "100",
+          claimAmount -> "100"
+        )
+        val errors = form.bind(data).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
+      }
+
+      "Accept when claimAmount = 0" in {
+        val data   = Map(
+          paidAmount  -> "100",
+          claimAmount -> "0"
+        )
+        val errors = form.bind(data).errors
+        errors shouldBe Nil
+      }
     }
   }
 
@@ -1152,6 +1170,12 @@ class EnterClaimControllerSpec
         val errors   = testForm.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
       }
+      "Reject when claimAmount = 0" in {
+        val data   = Map(claimAmount -> "0")
+        val errors = form.bind(data).errors
+        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+      }
+
     }
   }
 }
