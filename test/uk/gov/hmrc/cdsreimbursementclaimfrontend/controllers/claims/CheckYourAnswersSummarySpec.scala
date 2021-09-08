@@ -104,12 +104,15 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.commodities-details.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
-            ),
-            (
-              messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"$selectBasisForClaimKey.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
-          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+          ) ++ Seq(
+            claim.basisOfClaimAnswer.map { answer =>
+              (
+                messages(s"$checkYourAnswersKey.basis.l0"),
+                messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
+              )
+            }.toList
+          ).flatten ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
               Paragraph(
@@ -163,12 +166,15 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.commodities-details.scheduled.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
-            ),
-            (
-              messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"$selectBasisForClaimKey.reason.d${claim.basisOfClaimAnswer.map(_.value).value}")
             )
-          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+          ) ++ Seq(
+            claim.basisOfClaimAnswer.map { answer =>
+              (
+                messages(s"$checkYourAnswersKey.basis.l0"),
+                messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
+              )
+            }.toList
+          ).flatten ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
               Paragraph(
