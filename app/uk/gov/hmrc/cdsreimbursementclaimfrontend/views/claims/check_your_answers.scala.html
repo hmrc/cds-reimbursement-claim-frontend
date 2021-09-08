@@ -62,7 +62,7 @@
 
         @if(mandatoryDataAvailable) {
             @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
-            @summary(SummaryList(claimantDetailsHelper.renderContactDetails(completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer, true, router)))
+            @summary(SummaryList(claimantDetailsHelper.renderContactDetailsCya(completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer, router)))
         }
 
         @completeClaim.maybeBasisOfClaimAnswer.map { basisOfClaim =>
