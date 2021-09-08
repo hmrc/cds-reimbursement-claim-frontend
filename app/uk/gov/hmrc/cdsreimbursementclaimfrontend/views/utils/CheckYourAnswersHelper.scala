@@ -342,7 +342,9 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
       )
     )
 
-  def makeClaimCalculationSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
+  def makeClaimCalculationSummary(
+    completeClaim: CompleteClaim
+  )(implicit journey: JourneyBindable, messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.claim-uk-duty.label"))),
@@ -351,7 +353,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label"))
               )
@@ -366,7 +368,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label"))
               )
@@ -381,7 +383,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-excise-duty.label"))
               )
@@ -396,7 +398,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.total-claim.label"))
               )
