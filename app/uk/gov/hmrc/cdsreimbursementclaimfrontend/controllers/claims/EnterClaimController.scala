@@ -66,15 +66,6 @@ class EnterClaimController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[ClaimsAnswer] = _.claimsAnswer
 
-  def aaa(taxCategory: TaxCategory, taxCode: TaxCode): Action[AnyContent] = Action {
-    TaxCategory.validateTaxCategoryAndCode(taxCategory, taxCode) match {
-      case false =>
-        Redirect(routes.SelectDutiesController.selectDuties())
-      case true  =>
-        Ok("Category: " + taxCategory.value + "  " + taxCode.value)
-    }
-  }
-
   def startClaim(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[ClaimsAnswer] { (fillingOutClaim, _, _) =>
