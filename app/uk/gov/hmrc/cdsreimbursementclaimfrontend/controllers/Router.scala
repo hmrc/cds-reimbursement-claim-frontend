@@ -165,8 +165,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
         }
     }
 
-  def nextPageForChangeClaimantDetails(anwer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
-    anwer match {
+  def nextPageForChangeClaimantDetails(answer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
+    answer match {
       case YesClaimantDetailsAnswer =>
         featureSwitch.NorthernIreland.isEnabled() match {
           case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
@@ -176,9 +176,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
     }
 
   def nextPageForMrnContactDetails(isChange: Boolean, isAmend: Boolean): Call =
-    if (isAmend) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    else if (isChange && !isAmend)
-      claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
+    if (isAmend && !isChange) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else if (isChange && !isAmend) claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =

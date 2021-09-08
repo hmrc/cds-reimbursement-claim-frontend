@@ -79,7 +79,7 @@ class EnterContactDetailsMrnController @Inject() (
   def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     submit(isChange = true, isAmend = false)
   def amendMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
-    submit(isChange = true, isAmend = true)
+    submit(isChange = false, isAmend = true)
 
   def submit(isChange: Boolean, isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
