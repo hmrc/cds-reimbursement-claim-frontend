@@ -39,8 +39,6 @@ POST        /:journey/add-claimant-details                          uk.gov.hmrc.
 POST        /:journey/change-claimant-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.changeDetailsSubmit(journey: JourneyBindable)
 POST        /:journey/amend-claimant-detail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.amendDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/address-timeout              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.claimTimedOut(journey: JourneyBindable)
-
 GET         /:journey/claimant-details/change-contact-details              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
 POST        /:journey/claimant-details/change-contact-details              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 

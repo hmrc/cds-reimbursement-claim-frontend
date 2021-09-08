@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryCompleteBasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.arbitraryContactAddress
@@ -65,7 +65,7 @@ trait LowerPriorityDraftClaimGen {
       mrnContactAddressAnswer        <- arbitraryContactAddress.arbitrary
       bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
-      basisOfClaimAnswer             <- arbitraryCompleteBasisOfClaimAnswer.arbitrary
+      maybeBasisOfClaimAnswer        <- genBasisOfClaimAnswerOpt
       supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
       commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
@@ -87,7 +87,7 @@ trait LowerPriorityDraftClaimGen {
       mrnContactAddressAnswer = mrnContactAddressAnswer.some,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
-      basisOfClaimAnswer = basisOfClaimAnswer.some,
+      basisOfClaimAnswer = maybeBasisOfClaimAnswer,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,

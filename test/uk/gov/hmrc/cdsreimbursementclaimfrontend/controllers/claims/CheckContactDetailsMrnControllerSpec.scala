@@ -107,7 +107,8 @@ class CheckContactDetailsMrnControllerSpec
 
   "CheckContactDetailsMrnController" must {
 
-    def showPageAction(journey: JourneyBindable): Future[Result] = controller.show(journey)(FakeRequest())
+    def showPageAction(journey: JourneyBindable): Future[Result] =
+      controller.checkDetailsAndChange(journey)(FakeRequest())
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
@@ -212,7 +213,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle add submit requests" when {
 
       def submitAdd(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.add(journeyBindable)(
+        controller.addDetails(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -317,7 +318,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle change submit requests" when {
 
       def submitChange(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.change(journeyBindable)(
+        controller.changeDetailsSubmit(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -361,7 +362,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckContactDetailsMrnController.show(journey)
+          routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>
@@ -650,7 +651,7 @@ class CheckContactDetailsMrnControllerSpec
 
       checkIsRedirect(
         updateAddress(journey, Some(id)),
-        routes.CheckContactDetailsMrnController.show(journey)
+        routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
       )
     }
 
@@ -687,7 +688,7 @@ class CheckContactDetailsMrnControllerSpec
 
       checkIsRedirect(
         updateAddress(journey),
-        routes.CheckContactDetailsMrnController.show(journey)
+        routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
       )
     }
 
