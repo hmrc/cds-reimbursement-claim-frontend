@@ -156,7 +156,8 @@ class CheckYourAnswersSummarySpec
           ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.attached-documents.h2"
+            s"$checkYourAnswersKey.attached-documents.h2",
+            s"$checkYourAnswersKey.scheduled-document.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -169,6 +170,10 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.commodities-details.scheduled.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
+            ),
+            (
+              messages(s"$checkYourAnswersKey.scheduled-document.label"),
+              claim.scheduledDocumentAnswer.map(_.uploadDocument.fileName).value
             )
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (

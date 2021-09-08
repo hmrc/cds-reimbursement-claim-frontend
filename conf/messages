@@ -846,16 +846,17 @@ supporting-evidence.upload.details.l8=An email chain or letters between you and 
 supporting-evidence.choose-document-type.document-type.d9=Other documents
 supporting-evidence.upload.details.b9=Other documents:
 supporting-evidence.upload.details.l9=If you have alternative supporting documents
+supporting-evidence.choose-document-type.document-type.d10=Scheduled document
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
-schedule-document.upload.title=Add a scheduled document
-schedule-document.upload.help-text=Upload the scheduled document with all the MRNs. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.<br/><br/>Your document should include a list of all MRNs linked with the claim.
-schedule-document.upload.things-to-show.p1=Each MRN should show:
-schedule-document.upload.things-to-show.l1=the amount of tax you paid on it
-schedule-document.upload.things-to-show.l2=the amount you should have paid on it
-schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
+schedule-document.upload.title=Add a document which shows all the MRNs in this claim
+schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to 10MB and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
+schedule-document.upload.things-to-show.p1=The document should show:
+schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each MRN
+schedule-document.upload.things-to-show.l2=the amount that was paid to HMRC for each MRN
+schedule-document.upload.things-to-show.l3=the amount that should have been paid to HMRC for each MRN
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
 schedule-document.size-fail.title=There is a problem with the file you uploaded
@@ -876,13 +877,11 @@ schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG
 schedule-document.format-virus-fail.p3=You’ll need to try again.
 schedule-document.format-virus-fail.button.tryAgain=Try again
 
-schedule-document.review.title=You have successfully uploaded a scheduled document
-schedule-document.review.file-label=Document
-schedule-document.review.help-text=Your document should include a list of all MRNs linked with the claim.
-schedule-document.review.p1=Each MRN should show:
-schedule-document.review.bullet1=the amount of tax you paid on it
-schedule-document.review.bullet2=the amount you should have paid on it
-schedule-document.review.bullet3=which duty is being reclaimed on it
+schedule-document.review.title=You have successfully uploaded a document showing all the MRNs in this claim
+schedule-document.review.p1=The document should show:
+schedule-document.review.bullet1=the type of duty or tax you are claiming for each MRN
+schedule-document.review.bullet2=the amount that was paid to HMRC for each MRN
+schedule-document.review.bullet3=the amount that should have been paid to HMRC for each MRN
 schedule-document.review.remove=Remove
 schedule-document.review.assistive=the file named {0}
 
@@ -950,6 +949,8 @@ check-your-answers.claim-calculation.h2=Claim calculation
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
+check-your-answers.scheduled-document.h2=Scheduled document
+check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Claimant’s CDS details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
