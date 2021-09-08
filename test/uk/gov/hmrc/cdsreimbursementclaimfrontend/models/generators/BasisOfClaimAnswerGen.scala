@@ -16,11 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import org.scalacheck.Gen
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 
 object BasisOfClaimAnswerGen {
 
-  implicit val arbitraryCompleteBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
+  def genBasisOfClaimAnswerOpt: Gen[Option[BasisOfClaim]] =
+    Gen.option(arbitraryBasisOfClaimAnswer.arbitrary)
+
+  implicit val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
     gen[BasisOfClaim]
 }

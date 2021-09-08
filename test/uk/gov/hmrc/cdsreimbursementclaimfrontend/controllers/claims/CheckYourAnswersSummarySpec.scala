@@ -16,7 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.implicits.catsSyntaxApply
+import org.jsoup.Jsoup
+import org.jsoup.safety.Whitelist
 import org.scalatest.OptionValues
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -44,6 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
 class CheckYourAnswersSummarySpec
     extends ControllerSpec
+    with ScalaCheckPropertyChecks
     with OptionValues
     with HtmlParseSupport
     with SessionSupport
@@ -87,12 +92,13 @@ class CheckYourAnswersSummarySpec
           val last      = labels.lastOption.value
           val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
 
-          headers   should contain allElementsOf Seq(
+          headers   should contain allElementsOf ((
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
+          ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.basis.h2",
             s"$checkYourAnswersKey.attached-documents.h2"
-          ).map(messages(_))
+          )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
             (
@@ -105,14 +111,12 @@ class CheckYourAnswersSummarySpec
               messages(s"$checkYourAnswersKey.commodities-details.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
             )
-          ) ++ Seq(
-            claim.basisOfClaimAnswer.map { answer =>
-              (
-                messages(s"$checkYourAnswersKey.basis.l0"),
-                messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
-              )
-            }.toList
-          ).flatten ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+          ) ++ claim.basisOfClaimAnswer.map { answer =>
+            (
+              messages(s"$checkYourAnswersKey.basis.l0"),
+              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+            )
+          }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
               Paragraph(
@@ -149,12 +153,13 @@ class CheckYourAnswersSummarySpec
           val last      = labels.lastOption.value
           val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
 
-          headers   should contain allElementsOf Seq(
+          headers   should contain allElementsOf ((
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
+          ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.basis.h2",
             s"$checkYourAnswersKey.attached-documents.h2"
-          ).map(messages(_))
+          )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
             (
@@ -167,14 +172,12 @@ class CheckYourAnswersSummarySpec
               messages(s"$checkYourAnswersKey.commodities-details.scheduled.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
             )
-          ) ++ Seq(
-            claim.basisOfClaimAnswer.map { answer =>
-              (
-                messages(s"$checkYourAnswersKey.basis.l0"),
-                messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
-              )
-            }.toList
-          ).flatten ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+          ) ++ claim.basisOfClaimAnswer.map { answer =>
+            (
+              messages(s"$checkYourAnswersKey.basis.l0"),
+              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+            )
+          }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
               Paragraph(
