@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer
+final case class Paragraph(head: String, tail: String*) {
 
-object DetailsRegisteredWithCdsAnswerGen {
-
-  implicit val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
-    gen[DetailsRegisteredWithCdsAnswer]
+  override def toString: String = {
+    val content = head +: tail.filter(_.nonEmpty)
+    s"""<p class="govuk-body">${content mkString "<br />"}</p>"""
+  }
 }

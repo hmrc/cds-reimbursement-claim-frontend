@@ -52,7 +52,6 @@ object DraftClaim {
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
-    reasonForBasisAndClaimAnswer: Option[ReasonAndBasisOfClaimAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
     duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
     importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,

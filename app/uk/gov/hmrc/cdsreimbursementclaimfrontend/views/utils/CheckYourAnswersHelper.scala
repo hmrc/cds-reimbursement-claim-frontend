@@ -15,16 +15,15 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+
 import cats.syntax.all._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryListRow, _}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 import javax.inject.{Inject, Singleton}
 
@@ -343,90 +342,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
       )
     )
 
-  def makeCommodityDetailsSummary(
-    completeClaim: CompleteClaim
-  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
-    List(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.commodities-details.label"))),
-        value = Value(Text(completeClaim.commodityDetailsAnswer.value)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey).url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.commodities-details.label"))
-              )
-            )
-          )
-        )
-      )
-    )
-
-  def makeBasisAndOrReasonForClaim(
-    selectOfBasisClaimParentKey: String,
-    completeClaim: CompleteClaim
-  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
-    completeClaim.basisForClaim match {
-      case Left(selected)      =>
-        List(
-          SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
-            value = Value(
-              Text(messages(BasisOfClaimsMessage.ofEntryNumber(selectOfBasisClaimParentKey, selected.basisForClaim)))
-            ),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
-                  )
-                )
-              )
-            )
-          ),
-          SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l1"))),
-            value = Value(Text(selected.reasonForClaim.repr)),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = s"${routes.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis().url}",
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l1"))
-                  )
-                )
-              )
-            )
-          )
-        )
-      case Right(basisOfClaim) =>
-        List(
-          SummaryListRow(
-            key = Key(Text(messages(s"$key.reason-and-basis.l0"))),
-            value = Value(Text(messages(BasisOfClaimsMessage.ofMrn(selectOfBasisClaimParentKey, basisOfClaim)))),
-            actions = Some(
-              Actions(
-                items = Seq(
-                  ActionItem(
-                    href = s"${routes.SelectBasisForClaimController.changeBasisForClaim(journey).url}",
-                    content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.reason-and-basis.l0"))
-                  )
-                )
-              )
-            )
-          )
-        )
-    }
-
-  def makeClaimCalculationSummary(
-    completeClaim: CompleteClaim
-  )(implicit journey: JourneyBindable, messages: Messages): List[SummaryListRow] =
+  def makeClaimCalculationSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(
       SummaryListRow(
         key = Key(Text(messages(s"$key.claim-uk-duty.label"))),
@@ -435,7 +351,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-uk-duty.label"))
               )
@@ -450,7 +366,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-eu-duty.label"))
               )
@@ -465,7 +381,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claim-excise-duty.label"))
               )
@@ -480,7 +396,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.checkClaimSummary(journey).url}",
+                href = s"${routes.EnterClaimController.checkClaimSummary().url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.total-claim.label"))
               )
@@ -546,25 +462,4 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
         )
       }
     ).flattenOption
-
-  def makeSupportingEvidenceSummary(journey: JourneyBindable, supportingEvidences: List[UploadDocument])(implicit
-    messages: Messages
-  ): List[SummaryListRow] =
-    supportingEvidences.zipWithIndex.map { case (document, fileIndex) =>
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.file-label", fileIndex + 1))),
-        value = Value(Text(document.fileName)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey).url}",
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.file-label", fileIndex + 1))
-              )
-            )
-          )
-        )
-      )
-    }
 }

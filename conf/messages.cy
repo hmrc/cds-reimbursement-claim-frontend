@@ -443,53 +443,6 @@ select-basis-for-claim.reason.d15=Gwall dosbarthiad risg (ar gyfer mewnforion i 
 select-basis-for-claim.reason.d16=Amrywiol
 
 #===================================================
-#  SELECT REASON AND BASIS FOR CLAIM PAGE
-#===================================================
-select-reason-and-basis-for-claim.title=Dewiswch y rheswm a/neu’r sail dros hawlio
-select-reason-and-basis-for-claim.help-text=Bydd hyn yn ein helpu ni i ddeall pam eich bod yn gwneud yr hawliad hwn fel ein bod yn gallu ei adolygu a’i ddilysu.
-select-reason-and-basis-for-claim.reason.select-label=Dewiswch y rheswm dros hawlio
-select-reason-and-basis-for-claim.basis.select-label=Dewiswch sail yr hawliad
-select-reason-and-basis-for-claim.error.number=Dewiswch y rheswm a/neu’r sail dros hawlio
-select-reason-and-basis-for-claim.error.required=Dewiswch y rheswm a/neu’r sail dros hawlio
-select-reason-and-basis-for-claim.basis.error.required=Dewiswch reswm dros hawlio
-select-reason-and-basis-for-claim.basis.error.number=Dewiswch sail ar gyfer hawlio
-select-reason-and-basis-for-claim.reason.error.number=Dewiswch reswm dros hawlio
-select-reason-and-basis-for-claim.reason.error.required=Dewiswch reswm dros hawlio
-select-reason-and-basis-for-claim.basis.details.heading=Enghreifftiau o sail yr hawliad
-select-reason-and-basis-for-claim.basis.details.l0=rhif MRN neu rif mewnforio dyblyg (gwneud hawliad os oes rhif MRN neu rif mewnforio dyblyg wedi’i greu ac os yw’r masnachwr wedi talu gormod o dollau)
-select-reason-and-basis-for-claim.basis.details.l1=gohirio tollau (nwyddau lle mae’n rhaid talu ffioedd mewnforio ond nad ydynt yn cael eu casglu nes eu bod yn gadael y pwynt gohirio taliad tolldaliadau)
-select-reason-and-basis-for-claim.basis.details.l2=rhyddhad defnydd terfynol (yn rhoi cyfradd tollau ac/neu ardoll ffafriol ar rai nwyddau sy’n cael eu mewnforio o wledydd y tu allan i’r UE)
-select-reason-and-basis-for-claim.basis.details.l3=cod nwyddau anghywir (gwneud hawliad os yw’r masnachwr wedi rhoi cod nwyddau anghywir yn wreiddiol ac wedi gordalu tollau)
-select-reason-and-basis-for-claim.basis.details.l4=cod gweithdrefn tolldaliadau anghywir (gwneud hawliad os yw’r masnachwr wedi rhoi cod gweithdrefn tolldaliadau anghywir ac wedi gordalu tollau)
-select-reason-and-basis-for-claim.basis.details.l5=gwerth anghywir (gwneud hawliad os yw’r masnachwr wedi rhoi’r gwerth anghywir ar gyfer cyfanswm tolldaliadau yn wreiddiol ac wedi gordalu tollau)
-select-reason-and-basis-for-claim.basis.details.l6=rhif EORI a rhif cyfrif gohirio anghywir (gwneud hawliad os yw’r masnachwr wedi rhoi rhif EORI a/neu rif cyfrif gohirio anghywir)
-select-reason-and-basis-for-claim.basis.details.l7=rhyddhad prosesu mewnol o’r Tolldaliadau (mae Hawliau Eiddo Deallusol a TAW mewnforio ar nwyddau sy’n cael eu mewnforio o wledydd y tu allan i’r UE ac yna eu hallforio o wledydd y tu allan i’r UE)
-select-reason-and-basis-for-claim.basis.details.l8=rhyddhad prosesu allanol (yn caniatáu i fasnachwyr yr UE allforio nwyddau o’r UE dros dro i’w prosesu neu eu hatgyweirio mewn trydedd wlad (y tu allan i’r UE) ac yna hawlio rhyddhad tollau
-select-reason-and-basis-for-claim.basis.details.l9=ffafriaeth (craffu ar ôl clirio a dilysu dogfennau i ategu hawliadau cwsmeriaid am gyfraddau tollau ffafriol)
-select-reason-and-basis-for-claim.basis.details.l10=tystiolaeth o ran dychwelyd y nwyddau/yr ad-daliad a roddwyd (hawliad a wnaed gan fasnachwr os yw wedi darparu tystiolaeth o ran dychwelyd y nwyddau/yr ad-daliad a roddwyd a’r tollau a ordalwyd)
-select-reason-and-basis-for-claim.reason.details.heading=Enghreifftiau o resymau dros hawlio
-select-reason-and-basis-for-claim.reason.details.l0=nwyddau drwy gyfrwng archebu drwy’r post –nid yw tollau’n ddyledus (er enghraifft, rydych yn talu’r tollau ond rydych yn gofyn i CThEM annilysu’r datganiad tollau)
-select-reason-and-basis-for-claim.reason.details.l1=gordaliad (er enghraifft, gwnaethoch dalu tollau nad oeddent yn ddyledus)
-select-reason-and-basis-for-claim.reason.details.l2=amgylchiadau arbennig (sefyllfaoedd megis y rheiny sydd y tu allan i risg masnachol arferol ac nid y rheiny sydd yn sgil esgeulustod na thwyll ar eich rhan)
-select-reason-and-basis-for-claim.basis.d0=Mewnforio dyblyg
-select-reason-and-basis-for-claim.basis.d1=Gwaharddiad Toll
-select-reason-and-basis-for-claim.basis.d2=Defnydd Terfynol
-select-reason-and-basis-for-claim.basis.d3=Cod nwyddau anghywir
-select-reason-and-basis-for-claim.basis.d4=CPC anghywir
-select-reason-and-basis-for-claim.basis.d5=Gwerth anghywir
-select-reason-and-basis-for-claim.basis.d6=Rhif EORI a rhif cyfrif gohirio anghywir
-select-reason-and-basis-for-claim.basis.d7=IP
-select-reason-and-basis-for-claim.basis.d8=Amrywiol
-select-reason-and-basis-for-claim.basis.d9=Rhyddhad prosesu allanol
-select-reason-and-basis-for-claim.basis.d10=Nwyddau personol
-select-reason-and-basis-for-claim.basis.d11=Ffafriaeth
-select-reason-and-basis-for-claim.basis.d12=RGR
-select-reason-and-basis-for-claim.basis.d13=Tystiolaeth o ran Dychwelyd y Nwyddau/yr Ad-daliad a Roddwyd
-select-reason-and-basis-for-claim.reason.d0=Nwyddau drwy gyfrwng archebu drwy’r post –nid yw tollau’n ddyledus
-select-reason-and-basis-for-claim.reason.d1=Gordaliad
-select-reason-and-basis-for-claim.reason.d2=Amgylchiadau arbennig
-
-#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Nodwch fanylion y nwyddau yr hoffech ad-daliad ar eu cyfer

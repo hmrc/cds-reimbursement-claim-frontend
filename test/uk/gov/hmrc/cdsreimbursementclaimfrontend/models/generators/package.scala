@@ -31,6 +31,11 @@ package object generators {
       .flatMap(Gen.listOfN(_, Gen.alphaChar))
       .map(_.mkString(""))
 
+  def genLocalDateTime: Gen[LocalDateTime] =
+    Gen
+      .chooseNum(0L, 10000L)
+      .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
+
   implicit val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
@@ -52,14 +57,7 @@ package object generators {
   )
 
   implicit val arbitraryLocalDateTime: Arbitrary[LocalDateTime] =
-    Arbitrary(
-      Gen
-        .chooseNum(0L, 10000L)
-        .map(l =>
-          LocalDateTime
-            .ofInstant(Instant.ofEpochMilli(l), ZoneId.systemDefault())
-        )
-    )
+    Arbitrary(genLocalDateTime)
 
   implicit val arbitraryInstant: Arbitrary[Instant] =
     Arbitrary(

@@ -27,6 +27,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementRef
 import scala.concurrent.Future
 
 trait SessionDataExtractor extends Results {
+
+  def extractRoutes(claim: DraftClaim, journeyBindable: JourneyBindable): ReimbursementRoutes = {
+    val numOfClaims = getNumberOfClaims(claim)
+    val refType     = getMovementReferenceNumber(claim)
+    getRoutes(numOfClaims, refType, journeyBindable)
+  }
+
   def withAnswers[T](
     f: (FillingOutClaim, Option[T]) => Future[Result]
   )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
@@ -48,9 +55,7 @@ trait SessionDataExtractor extends Results {
   ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
-        val numOfClaims = getNumberOfClaims(draftClaim)
-        val refType     = getMovementReferenceNumber(draftClaim)
-        val router      = getRoutes(numOfClaims, refType, journeyBindable)
+        val router = extractRoutes(draftClaim, journeyBindable)
         draftClaim
           .fold(extractor(_))
           .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))

@@ -58,7 +58,7 @@
         }
     }
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 

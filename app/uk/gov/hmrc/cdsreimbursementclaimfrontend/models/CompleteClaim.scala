@@ -22,12 +22,10 @@ import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.SelectReasonForClaimAndBasis
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ReasonAndBasisOfClaimAnswer.CompleteReasonAndBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -51,7 +49,6 @@ final case class CompleteClaim(
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
   commodityDetailsAnswer: CommodityDetails,
   northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
-  maybeCompleteReasonAndBasisOfClaimAnswer: Option[CompleteReasonAndBasisOfClaimAnswer],
   maybeDisplayDeclaration: Option[DisplayDeclaration],
   maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
@@ -82,7 +79,6 @@ object CompleteClaim {
             _,
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
-            _,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
             draftImporterEoriNumberAnswer,
@@ -124,7 +120,6 @@ object CompleteClaim {
                 supportingEvidenceAnswer,
                 commodityDetailsAnswer,
                 draftNorthernIrelandAnswer,
-                None,
                 maybeDisplayDeclaration,
                 maybeDuplicateDisplayDeclaration,
                 importerEoriNumberAnswer,
@@ -174,22 +169,6 @@ object CompleteClaim {
             invalid("incomplete eori number answer")
           case completeImporterEoriNumberAnswer: CompleteImporterEoriNumberAnswer =>
             Valid(Some(completeImporterEoriNumberAnswer))
-        }
-      case None        => Valid(None)
-    }
-
-  def validateReasonAndBasisOfClaimAnswer(
-    maybeReasonAndBasisOfClaimAnswer: Option[ReasonAndBasisOfClaimAnswer]
-  ): Validation[Option[CompleteReasonAndBasisOfClaimAnswer]] =
-    maybeReasonAndBasisOfClaimAnswer match {
-      case Some(value) =>
-        value match {
-          case ReasonAndBasisOfClaimAnswer.IncompleteReasonAndBasisOfClaimAnswer(
-                _
-              ) =>
-            invalid("incomplete reason and basis of claim answer")
-          case completeReasonAndBasisOfClaimAnswer: CompleteReasonAndBasisOfClaimAnswer =>
-            Valid(Some(completeReasonAndBasisOfClaimAnswer))
         }
       case None        => Valid(None)
     }
@@ -287,17 +266,6 @@ object CompleteClaim {
 
     def entryDeclarationDetails: Option[EntryDeclarationDetails] =
       completeClaim.maybeCompleteDeclarationDetailsAnswer.map(_.declarationDetails)
-
-    def basisForClaim: Either[SelectReasonForClaimAndBasis, BasisOfClaim] =
-      (completeClaim.maybeCompleteReasonAndBasisOfClaimAnswer, completeClaim.maybeBasisOfClaimAnswer) match {
-        case (Some(rc), None) => Left(rc.selectReasonForBasisAndClaim)
-        case (None, Some(r))  => Right(r)
-        case (None, None)     =>
-          sys.error(
-            "invalid state: either select reason for basis and claim or reason for claim should have been provided"
-          )
-        case _                => sys.error("invalid state: cannot have both reason-for-claim-and-basis and reason-for-claim")
-      }
 
     def bankDetails: Option[BankAccountDetails] =
       completeClaim.movementReferenceNumber.value match {

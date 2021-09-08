@@ -68,7 +68,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       bind[ClaimService].toInstance(mockClaimService)
     )
 
-  lazy val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]
+  val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -166,7 +166,6 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     supportingEvidencesAnswer = Some(supportingEvidences),
     dutiesSelectedAnswer = Some(completeDutiesSelectedAnswer),
     commoditiesDetailsAnswer = Some(commodityDetailsAnswer),
-    reasonForBasisAndClaimAnswer = None,
     claimNorthernIrelandAnswer = Some(northernIrelandAnswer),
     displayDeclaration = Some(
       DisplayDeclaration(
@@ -219,7 +218,6 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
     supportingEvidencesAnswer = supportingEvidences,
     commodityDetailsAnswer = commodityDetailsAnswer,
     northernIrelandAnswer = Some(northernIrelandAnswer),
-    None,
     maybeDisplayDeclaration = Some(
       DisplayDeclaration(
         displayResponseDetail = DisplayResponseDetail(

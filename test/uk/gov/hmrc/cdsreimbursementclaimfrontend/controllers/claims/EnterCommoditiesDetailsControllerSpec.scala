@@ -68,8 +68,7 @@ class EnterCommoditiesDetailsControllerSpec
       DraftC285Claim.newDraftC285Claim
         .copy(
           commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
-          selectNumberOfClaimsAnswer = numberOfClaims,
-          reasonForBasisAndClaimAnswer = None
+          selectNumberOfClaimsAnswer = numberOfClaims
         )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -113,7 +112,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleMrnAnswer()
           )
@@ -139,7 +137,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -167,7 +164,6 @@ class EnterCommoditiesDetailsControllerSpec
 
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
-              reasonForBasisAndClaimAnswer = None,
               basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
               movementReferenceNumber = sampleEntryNumberAnswer()
             )
@@ -200,7 +196,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -230,7 +225,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -264,7 +258,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )

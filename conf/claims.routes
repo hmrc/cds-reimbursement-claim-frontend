@@ -70,12 +70,6 @@ POST        /:journey/choose-basis-for-claim                        uk.gov.hmrc.
 GET         /:journey/change-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaim(journey: JourneyBindable)
 POST        /:journey/change-basis-for-claim                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.changeBasisForClaimSubmit(journey: JourneyBindable)
 
-GET         /single/enter-reason-for-claim-and-basis                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasis()
-POST        /single/enter-reason-for-claim-and-basis                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.selectReasonForClaimAndBasisSubmit()
-
-GET         /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasis()
-POST        /single/change-reason-for-claim-and-basis               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectReasonForBasisAndClaimController.changeReasonForClaimAndBasisSubmit()
-
 GET         /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.show(journey: JourneyBindable)
 POST        /:journey/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.submit(journey: JourneyBindable)
 
