@@ -104,7 +104,7 @@ GET         /:journey/start-claim                                   uk.gov.hmrc.
 GET         /:journey/select-duties/:taxCategory/:taxId             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(taxCategory:TaxCategory, taxId: TaxCode, journey: JourneyBindable)
 POST        /:journey/select-duties/:taxCategory/:taxId             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(taxCategory:TaxCategory, taxId: TaxCode, journey: JourneyBindable)
 GET         /:journey/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary(journey: JourneyBindable)
-POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
+POST        /:journey/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit(journey: JourneyBindable)
 
 GET         /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)

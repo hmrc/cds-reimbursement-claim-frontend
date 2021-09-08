@@ -33,18 +33,18 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   private val key = "check-claim-summary"
 
-  def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+  def makeUkClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
     makeTotalRow(claimsAnswer.ukClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer))
 
-  def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+  def makeEuClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
     makeTotalRow(claimsAnswer.euClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer))
 
-  def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
+  def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
     makeTotalRow(
       claimsAnswer.exciseClaims(claimsAnswer)
     ) :: makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer))
 
-  def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
+  def makeClaimSummaryRows(claims: List[Claim])(implicit journey: JourneyBindable): List[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
         key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
@@ -53,8 +53,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
           Actions(
             items = Seq(
               ActionItem(
-                href =
-                  s"${routes.EnterClaimController.enterClaim(claim.taxCategory, claim.taxCode, JourneyBindable.Single).url}", //TODO pass in Journey
+                href = s"${routes.EnterClaimController.enterClaim(claim.taxCategory, claim.taxCode, journey).url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
               )

@@ -142,7 +142,7 @@ class EnterClaimController @Inject() (
                       .bindFromRequest()
                       .fold(
                         formWithErrors => {
-                          val updatedErrors = formWithErrors.errors.map(_.copy(key = languageKey))
+                          val updatedErrors = formWithErrors.errors.map(_.copy(key = singleLanguageKey))
                           BadRequest(
                             enterClaimPage(formWithErrors.copy(errors = updatedErrors), claim)
                           )
@@ -178,6 +178,7 @@ class EnterClaimController @Inject() (
 
   def checkClaimSummary(journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      implicit val journey: JourneyBindable = journeyBindable
       withAnswers[ClaimsAnswer] { (_, answers) =>
         answers match {
           case Some(claims) => Ok(checkClaimSummaryPage(claims, checkClaimAnswerForm))
@@ -186,8 +187,9 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def checkClaimSummarySubmit(): Action[AnyContent] =
+  def checkClaimSummarySubmit(journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
+      implicit val journey: JourneyBindable = journeyBindable
       withAnswers[ClaimsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
         EnterClaimController.checkClaimAnswerForm
           .bindFromRequest()
@@ -274,12 +276,12 @@ object EnterClaimController {
       .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
 
-  val languageKey = "enter-claim"
+  val singleLanguageKey = "enter-claim"
 
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
       mapping(
-        languageKey -> moneyMapping(13, 2, "claim-amount.error.invalid")
+        singleLanguageKey -> moneyMapping(13, 2, "claim-amount.error.invalid")
       )(ClaimAmount.apply)(ClaimAmount.unapply)
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
@@ -340,12 +342,12 @@ object EnterClaimController {
 
   implicit val checkClaimAnswerFormat: OFormat[CheckClaimAnswer] = derived.oformat[CheckClaimAnswer]()
 
-  val messageKey: String = "check-claim-summary"
+  val summaryLanguageKey: String = "check-claim-summary"
 
   val checkClaimAnswerForm: Form[CheckClaimAnswer] =
     Form(
       mapping(
-        messageKey -> number
+        summaryLanguageKey -> number
           .verifying("invalid", a => a === 0 || a === 1)
           .transform[CheckClaimAnswer](
             value =>

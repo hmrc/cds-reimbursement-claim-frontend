@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -39,7 +40,7 @@
 )
 
 
-@(claims: NonEmptyList[Claim], form: Form[CheckClaimAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(claims: NonEmptyList[Claim], form: Form[CheckClaimAnswer])(implicit request: RequestWithSessionData[_], journey:JourneyBindable, messages: Messages, viewConfig: ViewConfig)
 
 
 @key = @{
@@ -81,7 +82,7 @@
     @pageHeading(messages(s"$key.overall-total.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(SummaryList(List(claimSummaryHelper.makeClaimTotalRow(claims))))
 
-    @formWithCSRF(routes.EnterClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterClaimController.checkClaimSummarySubmit(journey), 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,

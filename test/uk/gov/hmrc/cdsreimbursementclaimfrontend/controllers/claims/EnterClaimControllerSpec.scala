@@ -294,7 +294,7 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(taxCategory, taxCode, journey),
-        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax")
+        messageFromMessageKey(s"$singleLanguageKey.title", taxCode.value, "Value Added Tax")
       )
     }
 
@@ -321,7 +321,7 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(taxCategory, taxCode, journey),
-        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax"),
+        messageFromMessageKey(s"$singleLanguageKey.title", taxCode.value, "Value Added Tax"),
         doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
       )
     }
@@ -487,7 +487,7 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(taxCategory, taxCode, journey),
-        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax")
+        messageFromMessageKey(s"$singleLanguageKey.title", taxCode.value, "Value Added Tax")
       )
     }
 
@@ -514,7 +514,7 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(taxCategory, taxCode, journey),
-        messageFromMessageKey(s"$languageKey.title", taxCode.value, "Value Added Tax"),
+        messageFromMessageKey(s"$singleLanguageKey.title", taxCode.value, "Value Added Tax"),
         doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
       )
     }
@@ -577,7 +577,7 @@ class EnterClaimControllerSpec
           taxCategory,
           taxCode,
           journey,
-          Seq(languageKey -> "5.00")
+          Seq(singleLanguageKey -> "5.00")
         ),
         routes.EnterClaimController.checkClaimSummary(journey)
       )
@@ -610,7 +610,7 @@ class EnterClaimControllerSpec
           taxCategory,
           taxCode,
           journey,
-          Seq(languageKey -> "dfsfs")
+          Seq(singleLanguageKey -> "dfsfs")
         ),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
         doc =>
@@ -834,7 +834,7 @@ class EnterClaimControllerSpec
           taxCode,
           journey,
           Seq(
-            languageKey -> "dfsfs"
+            singleLanguageKey -> "dfsfs"
           )
         ),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
@@ -870,9 +870,10 @@ class EnterClaimControllerSpec
 
   "checkClaimSummarySubmit page" must {
 
-    def performAction(): Future[Result] = controller.checkClaimSummarySubmit()(FakeRequest())
+    def performAction(journey: JourneyBindable): Future[Result] =
+      controller.checkClaimSummarySubmit(journey)(FakeRequest())
 
-    "redirect to the start of the journey if the session is empty" in {
+    "redirect to the start of the journey if the session is empty" in forAll(journeys) { journey =>
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
@@ -880,7 +881,7 @@ class EnterClaimControllerSpec
       }
 
       checkIsRedirect(
-        performAction(),
+        performAction(journey),
         baseRoutes.StartController.start()
       )
     }
@@ -888,38 +889,41 @@ class EnterClaimControllerSpec
 
   "checkClaimSummarySubmit page" must {
 
-    def performAction(data: Seq[(String, String)]): Future[Result] =
-      controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+    def performAction(journey: JourneyBindable, data: Seq[(String, String)]): Future[Result] =
+      controller.checkClaimSummarySubmit(journey)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
-      val taxCode     = TaxCode.A00
-      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
-      val claim       = sample[Claim]
-        .copy(
-          claimAmount = BigDecimal(10),
-          paidAmount = BigDecimal(5),
-          isFilled = false,
-          taxCategory = taxCategory,
-          taxCode = taxCode
+    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in forAll(journeys) {
+      journey =>
+        val taxCode     = TaxCode.A00
+        val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+        val claim       = sample[Claim]
+          .copy(
+            claimAmount = BigDecimal(10),
+            paidAmount = BigDecimal(5),
+            isFilled = false,
+            taxCategory = taxCategory,
+            taxCode = taxCode
+          )
+
+        val answers = ClaimsAnswer(claim)
+
+        val session =
+          createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), Some(ClaimAnswersAreCorrect))._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result = performAction(journey, Seq(summaryLanguageKey -> "0"))
+        checkIsRedirect(
+          result,
+          routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
         )
-
-      val answers = ClaimsAnswer(claim)
-
-      val session =
-        createSessionWithPreviousAnswers(Some(answers), None, None, getMRNAnswer(), Some(ClaimAnswersAreCorrect))._1
-
-      inSequence {
-        mockAuthWithNoRetrievals()
-        mockGetSession(session)
-      }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
-      checkIsRedirect(
-        result,
-        routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
-      )
     }
 
-    "Redirect to EnterBankAccountDetails if user says details are correct on the scheduled journey" in {
+    "Redirect to EnterBankAccountDetails if user says details are correct on the scheduled journey" in forAll(
+      journeys
+    ) { journey =>
       val taxCode     = TaxCode.A00
       val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
       val claim       = sample[Claim]
@@ -946,45 +950,46 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
+      val result = performAction(journey, Seq(EnterClaimController.summaryLanguageKey -> "0"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
       )
     }
 
-    "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in {
-      val taxCode     = TaxCode.A00
-      val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
-      val claim       = sample[Claim]
-        .copy(
-          claimAmount = BigDecimal(10),
-          paidAmount = BigDecimal(5),
-          isFilled = false,
-          taxCategory = taxCategory,
-          taxCode = taxCode
+    "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in forAll(journeys) {
+      journey =>
+        val taxCode     = TaxCode.A00
+        val taxCategory = TaxCategory.taxCodeToCategory.get(taxCode).getOrElse(fail)
+        val claim       = sample[Claim]
+          .copy(
+            claimAmount = BigDecimal(10),
+            paidAmount = BigDecimal(5),
+            isFilled = false,
+            taxCategory = taxCategory,
+            taxCode = taxCode
+          )
+
+        val answers = ClaimsAnswer(claim)
+
+        val session =
+          createSessionWithPreviousAnswers(
+            Some(answers),
+            None,
+            None,
+            getMRNAnswer(),
+            Some(ClaimAnswersAreIncorrect)
+          )._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result = performAction(journey, Seq(EnterClaimController.summaryLanguageKey -> "1"))
+        checkIsRedirect(
+          result,
+          routes.SelectDutiesController.selectDuties()
         )
-
-      val answers = ClaimsAnswer(claim)
-
-      val session =
-        createSessionWithPreviousAnswers(
-          Some(answers),
-          None,
-          None,
-          getMRNAnswer(),
-          Some(ClaimAnswersAreIncorrect)
-        )._1
-
-      inSequence {
-        mockAuthWithNoRetrievals()
-        mockGetSession(session)
-      }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "1"))
-      checkIsRedirect(
-        result,
-        routes.SelectDutiesController.selectDuties()
-      )
     }
   }
 
