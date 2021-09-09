@@ -95,7 +95,8 @@ class CheckYourAnswersSummarySpec
           ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.attached-documents.h2"
+            s"$checkYourAnswersKey.attached-documents.h2",
+            s"$checkYourAnswersKey.contact-details.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -156,7 +157,8 @@ class CheckYourAnswersSummarySpec
           ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.attached-documents.h2"
+            s"$checkYourAnswersKey.attached-documents.h2",
+            s"$checkYourAnswersKey.contact-details.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
