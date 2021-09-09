@@ -45,6 +45,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
+import scala.collection.JavaConverters._
+
 class CheckYourAnswersSummarySpec
     extends ControllerSpec
     with OptionValues
@@ -84,11 +86,16 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val elements  = doc.select("#main-content > div > div > dl > div")
-          val labels    = elements.select("dt").content
-          val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val last      = labels.lastOption.value
-          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
+          val summaries = doc.select("#main-content > div > div > dl > div")
+            .asScala
+            .flatMap(element => {
+              val label = element.select("dt").html()
+              element
+                .select("dd")
+                .not(".govuk-summary-list__actions")
+                .content
+                .map(value => (label, value))
+            }).toList
 
           headers   should contain allElementsOf ((
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
@@ -145,11 +152,16 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val elements  = doc.select("#main-content > div > div > dl > div")
-          val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val labels    = elements.select("dt").content
-          val last      = labels.lastOption.value
-          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
+          val summaries = doc.select("#main-content > div > div > dl > div")
+            .asScala
+            .flatMap(element => {
+              val label = element.select("dt").html()
+              element
+                .select("dd")
+                .not(".govuk-summary-list__actions")
+                .content
+                .map(value => (label, value))
+            }).toList
 
           headers   should contain allElementsOf ((
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
