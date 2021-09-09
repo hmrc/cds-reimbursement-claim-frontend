@@ -34,20 +34,24 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
   private val key = "check-claim-summary"
 
   def makeUkClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.ukClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) ::: List(
+      makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
+    )
 
   def makeEuClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.euClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) ::: List(
+      makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
+    )
 
   def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer)(implicit journey: JourneyBindable): List[SummaryListRow] =
-    makeTotalRow(
-      claimsAnswer.exciseClaims(claimsAnswer)
-    ) :: makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) ::: List(
+      makeTotalRow(claimsAnswer.exciseClaims(claimsAnswer))
+    )
 
   def makeClaimSummaryRows(claims: List[Claim])(implicit journey: JourneyBindable): List[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
-        key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
+        key = Key(Text(s"${claim.taxCode.value} - ${messages(s"select-duties.duty.${claim.taxCode}")(lang)}")),
         value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claim.claimAmount))),
         actions = Some(
           Actions(

@@ -39,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, TaxCategory, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.{moneyMapping,moneyMappingPositive}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.{moneyMapping, moneyMappingPositive}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -167,9 +167,8 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def checkClaimSummary(journeyBindable: JourneyBindable): Action[AnyContent] =
+  def checkClaimSummary(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      implicit val journey: JourneyBindable = journeyBindable
       withAnswers[ClaimsAnswer] { (_, answers) =>
         answers match {
           case Some(claims) => Ok(checkClaimSummaryPage(claims, checkClaimAnswerForm))
@@ -178,9 +177,8 @@ class EnterClaimController @Inject() (
       }
     }
 
-  def checkClaimSummarySubmit(journeyBindable: JourneyBindable): Action[AnyContent] =
+  def checkClaimSummarySubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      implicit val journey: JourneyBindable = journeyBindable
       withAnswers[ClaimsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
         EnterClaimController.checkClaimAnswerForm
           .bindFromRequest()
