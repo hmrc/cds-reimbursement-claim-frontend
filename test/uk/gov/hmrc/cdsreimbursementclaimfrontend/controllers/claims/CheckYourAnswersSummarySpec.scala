@@ -17,8 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxApply
-import org.jsoup.Jsoup
-import org.jsoup.safety.Whitelist
+//import org.jsoup.Jsoup
+//import org.jsoup.safety.Whitelist
 import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -43,7 +43,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 
 import scala.collection.JavaConverters._
 
@@ -90,12 +89,15 @@ class CheckYourAnswersSummarySpec
             .select("#main-content > div > div > dl > div")
             .asScala
             .flatMap { element =>
-              val label = element.select("dt").html()
-              element
-                .select("dd")
-                .not(".govuk-summary-list__actions")
-                .content
-                .map(value => (label, value))
+              val label      = element.select("dt").text()
+              val value      = element.select("dd").not(".govuk-summary-list__actions")
+              val paragraphs = value.select("p")
+
+              if (paragraphs.isEmpty)
+                Seq((label, value.text()))
+              else
+                paragraphs.content
+                  .map(s => (label, s.replace("<br>", " ")))
             }
             .toList
 
@@ -122,17 +124,14 @@ class CheckYourAnswersSummarySpec
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+              messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
             )
           }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              Paragraph(
-                uploadDocument.fileName,
-                uploadDocument.documentType.fold("")(documentType =>
-                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-                )
-              ).toString.replace("<br />", "<br>")
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
+                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+              )}"
             )
           }.toList
         }
@@ -159,12 +158,15 @@ class CheckYourAnswersSummarySpec
             .select("#main-content > div > div > dl > div")
             .asScala
             .flatMap { element =>
-              val label = element.select("dt").html()
-              element
-                .select("dd")
-                .not(".govuk-summary-list__actions")
-                .content
-                .map(value => (label, value))
+              val label      = element.select("dt").text()
+              val value      = element.select("dd").not(".govuk-summary-list__actions")
+              val paragraphs = value.select("p")
+
+              if (paragraphs.isEmpty)
+                Seq((label, value.text()))
+              else
+                paragraphs.content
+                  .map(s => (label, s.replace("<br>", " ")))
             }
             .toList
 
@@ -191,17 +193,14 @@ class CheckYourAnswersSummarySpec
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+              messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
             )
           }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              Paragraph(
-                uploadDocument.fileName,
-                uploadDocument.documentType.fold("")(documentType =>
-                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-                )
-              ).toString.replace("<br />", "<br>")
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
+                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+              )}"
             )
           }.toList
         }
