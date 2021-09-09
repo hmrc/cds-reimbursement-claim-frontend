@@ -24,7 +24,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.isMandatoryDataAvailable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
@@ -63,9 +62,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
-        val routes                 = extractRoutes(fillingOutClaim.draftClaim, journey)
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
-        Ok(checkYourAnswersPage(completeClaim, mandatoryDataAvailable, routes))
+        val routes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        Ok(checkYourAnswersPage(completeClaim, routes))
       }
     }
 

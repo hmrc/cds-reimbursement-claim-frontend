@@ -501,7 +501,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe true
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe true
     }
 
     "return false if we have valid contact details but missing contact address" in {
@@ -513,7 +513,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
     "return false if we have valid contact address but missing contact details" in {
@@ -525,7 +525,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
 
@@ -539,7 +539,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
@@ -558,7 +558,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
@@ -577,7 +577,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
 
@@ -597,7 +597,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
   }

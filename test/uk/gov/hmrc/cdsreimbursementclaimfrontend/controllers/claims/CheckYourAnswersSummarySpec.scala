@@ -86,18 +86,20 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val summaries = doc.select("#main-content > div > div > dl > div")
+          val summaries = doc
+            .select("#main-content > div > div > dl > div")
             .asScala
-            .flatMap(element => {
+            .flatMap { element =>
               val label = element.select("dt").html()
               element
                 .select("dd")
                 .not(".govuk-summary-list__actions")
                 .content
                 .map(value => (label, value))
-            }).toList
+            }
+            .toList
 
-          headers   should contain allElementsOf ((
+          headers should contain allElementsOf ((
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
           ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
@@ -153,18 +155,20 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val summaries = doc.select("#main-content > div > div > dl > div")
+          val summaries = doc
+            .select("#main-content > div > div > dl > div")
             .asScala
-            .flatMap(element => {
+            .flatMap { element =>
               val label = element.select("dt").html()
               element
                 .select("dd")
                 .not(".govuk-summary-list__actions")
                 .content
                 .map(value => (label, value))
-            }).toList
+            }
+            .toList
 
-          headers   should contain allElementsOf ((
+          headers should contain allElementsOf ((
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
           ).toList ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",

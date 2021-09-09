@@ -85,7 +85,7 @@ class CheckContactDetailsMrnController @Inject() (
   def add(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -104,7 +104,7 @@ class CheckContactDetailsMrnController @Inject() (
   def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -187,7 +187,7 @@ class CheckContactDetailsMrnController @Inject() (
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable = {
-    val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+    val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
     val draftC285Claim         = fillingOutClaim.draftClaim.fold(identity)
     claimantDetailsPage(
       form,
@@ -275,12 +275,4 @@ object CheckContactDetailsMrnController {
       }
       .flatten
   }
-
-  def isMandatoryDataAvailable(fillingOutClaim: FillingOutClaim): Boolean = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    (draftC285Claim.mrnContactDetailsAnswer, draftC285Claim.mrnContactAddressAnswer)
-      .mapN((_, _) => true)
-      .getOrElse(false)
-  }
-
 }

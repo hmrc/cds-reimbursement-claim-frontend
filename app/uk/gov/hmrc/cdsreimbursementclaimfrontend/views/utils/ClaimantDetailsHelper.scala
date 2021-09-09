@@ -54,16 +54,6 @@ class ClaimantDetailsHelper @Inject() () {
       maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
     ).flattenOption
 
-  def renderContactDetailsCya(
-    maybeContactDetails: Option[MrnContactDetails],
-    maybeContactAddress: Option[ContactAddress],
-    router: ReimbursementRoutes
-  )(implicit messages: Messages): List[SummaryListRow] =
-    List(
-      maybeContactDetails.map(contactDetails => renderContactDetailsCya(contactDetails, router)),
-      maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
-    ).flattenOption
-
   def renderContactRegisteredWithCDS(namePhoneEmail: NamePhoneEmail)(implicit messages: Messages): SummaryListRow = {
     val data = List(
       namePhoneEmail.name.map(getParagraph),
@@ -121,34 +111,6 @@ class ClaimantDetailsHelper @Inject() () {
                   s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
                 Text(messages("claimant-details.change"))
               )
-          )
-        )
-      )
-    )
-
-  }
-
-  def renderContactDetailsCya(contactDetails: MrnContactDetails, router: ReimbursementRoutes)(implicit
-    messages: Messages
-  ): SummaryListRow = {
-    val data = List(
-      Some(getParagraph(contactDetails.fullName)),
-      Some(getParagraph(contactDetails.emailAddress.value)),
-      contactDetails.phoneNumber.map(a => getParagraph(a.value))
-    ).flattenOption
-
-    SummaryListRow(
-      Key(Text(messages(s"$key.contact.details"))),
-      Value(new HtmlContent(HtmlFormat.fill(data))),
-      "",
-      Some(
-        Actions(
-          "govuk-link",
-          List(
-            ActionItem(
-              href = s"${routes.CheckContactDetailsMrnController.checkDetailsAndAmend(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
-            )
           )
         )
       )
