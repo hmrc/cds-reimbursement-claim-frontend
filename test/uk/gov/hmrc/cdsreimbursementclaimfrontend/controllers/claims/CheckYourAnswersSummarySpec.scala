@@ -17,8 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxApply
-//import org.jsoup.Jsoup
-//import org.jsoup.safety.Whitelist
 import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
