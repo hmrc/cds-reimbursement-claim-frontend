@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia.{Typeclass, gen}
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 
 object ContactAddressGen {
 
@@ -33,6 +33,9 @@ object ContactAddressGen {
     first <- Gen.listOfN(3, Gen.alphaNumChar)
     last  <- Gen.listOfN(3, Gen.alphaNumChar)
   } yield s"${first.mkString("")} ${last.mkString("")}"
+
+  def genContactAddressOpt: Gen[Option[ContactAddress]] =
+    Gen.option(arbitraryContactAddress.arbitrary)
 
   implicit val arbitraryContactAddress: Typeclass[ContactAddress] =
     Arbitrary(

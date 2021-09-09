@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.catsSyntaxApply
+import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
 import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -99,13 +99,15 @@ class CheckYourAnswersSummarySpec
             }
             .toList
 
-          headers should contain allElementsOf ((
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
-          ).toList ++ Seq(
+          headers should contain allElementsOf (Seq(
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
+              s"$checkYourAnswersKey.contact-details.h2"
+            )
+          ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.attached-documents.h2",
-            s"$checkYourAnswersKey.contact-details.h2"
+            s"$checkYourAnswersKey.attached-documents.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -131,7 +133,48 @@ class CheckYourAnswersSummarySpec
                 messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
               )}"
             )
-          }.toList
+          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+            .mapN { (_, address) =>
+              Seq(
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line1
+                  )
+                ),
+                address.line2.map { line2 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line2
+                  )
+                },
+                address.line3.map { line3 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line3
+                  )
+                },
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line4
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.postcode
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    messages(address.country.messageKey)
+                  )
+                )
+              ).flatMap(_.toList)
+            }
+            .getOrElse(Seq.empty)
         }
       )
     }
@@ -168,13 +211,15 @@ class CheckYourAnswersSummarySpec
             }
             .toList
 
-          headers should contain allElementsOf ((
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
-          ).toList ++ Seq(
+          headers should contain allElementsOf (Seq(
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
+              s"$checkYourAnswersKey.contact-details.h2"
+            )
+          ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
-            s"$checkYourAnswersKey.attached-documents.h2",
-            s"$checkYourAnswersKey.contact-details.h2"
+            s"$checkYourAnswersKey.attached-documents.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -200,7 +245,48 @@ class CheckYourAnswersSummarySpec
                 messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
               )}"
             )
-          }.toList
+          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+            .mapN { (_, address) =>
+              Seq(
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line1
+                  )
+                ),
+                address.line2.map { line2 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line2
+                  )
+                },
+                address.line3.map { line3 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line3
+                  )
+                },
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line4
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.postcode
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    messages(address.country.messageKey)
+                  )
+                )
+              ).flatMap(_.toList)
+            }
+            .getOrElse(Seq.empty)
         }
       )
     }
