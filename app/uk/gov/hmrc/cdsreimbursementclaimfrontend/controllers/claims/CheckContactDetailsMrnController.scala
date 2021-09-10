@@ -60,7 +60,7 @@ class CheckContactDetailsMrnController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
-  claimantDetails: pages.check_claimant_details
+  claimantDetailsPage: pages.check_claimant_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -70,44 +70,52 @@ class CheckContactDetailsMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def show(implicit journey: JourneyBindable): Action[AnyContent] =
+  def checkDetailsAndChange(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
+  def checkDetailsAndAmend(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = true)
+
+  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router))
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, isAmend, router))
       }
     }
 
-  def add(implicit journey: JourneyBindable): Action[AnyContent] =
+  def addDetails(implicit journey: JourneyBindable): Action[AnyContent] = add(isAmend = false)
+
+  def add(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, isAmend, router))
             },
             formOk => Redirect(router.nextPageForAddClaimantDetails(formOk, featureSwitch))
           )
       }
     }
 
-  def change(implicit journey: JourneyBindable): Action[AnyContent] =
+  def changeDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)
+  def amendDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit(isAmend = true)
+
+  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, isAmend, router))
             },
             formOk =>
               formOk match {
                 case YesClaimantDetailsAnswer =>
-                  Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
+                  Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch, isAmend))
                 case NoClaimantDetailsAnswer  =>
                   val updatedClaim = FillingOutClaim
                     .of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None))
@@ -115,7 +123,7 @@ class CheckContactDetailsMrnController @Inject() (
                     .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                     .fold(
                       e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
+                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch, isAmend))
                     )
               }
           )
@@ -164,7 +172,7 @@ class CheckContactDetailsMrnController @Inject() (
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             logAndDisplayError("Error updating Address Lookup address: "),
-            _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
+            _ => Redirect(routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey))
           )
       }(dataExtractor, request, journey)
     }
@@ -172,17 +180,19 @@ class CheckContactDetailsMrnController @Inject() (
   def renderTemplate(
     form: Form[CheckClaimantDetailsAnswer],
     fillingOutClaim: FillingOutClaim,
+    isAmend: Boolean,
     router: ReimbursementRoutes
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable = {
-    val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+    val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
     val draftC285Claim         = fillingOutClaim.draftClaim.fold(identity)
-    claimantDetails(
+    claimantDetailsPage(
       form,
       mandatoryDataAvailable,
+      isAmend,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
       extractEstablishmentAddress(fillingOutClaim),
       draftC285Claim.mrnContactDetailsAnswer,
@@ -265,12 +275,4 @@ object CheckContactDetailsMrnController {
       }
       .flatten
   }
-
-  def isMandatoryDataAvailable(fillingOutClaim: FillingOutClaim): Boolean = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    (draftC285Claim.mrnContactDetailsAnswer, draftC285Claim.mrnContactAddressAnswer)
-      .mapN((_, _) => true)
-      .getOrElse(false)
-  }
-
 }

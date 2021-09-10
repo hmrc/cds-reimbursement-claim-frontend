@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
-final case class Paragraph(head: String, tail: String*) {
+import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 
-  override def toString: String = {
-    val content = head +: tail.filter(_.nonEmpty)
-    s"""<p class="govuk-body">${content mkString "<br />"}</p>"""
+object Paragraph {
+
+  def apply(head: String, tail: String*): HtmlFormat.Appendable = {
+    val content = head +: tail.filter(_.nonEmpty) mkString "<br />"
+    new paragraph_block()(Html(content), Some("govuk-body"))
   }
 }

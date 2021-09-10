@@ -333,7 +333,6 @@ enter-your-contact-details.add-company-details.yes=Yes
 enter-your-contact-details.add-company-details.error.required=Choose if you want to add company details
 countryCode.enter-your-contact-details.error.required=Enter a country
 
-
 #===================================================
 #  CLAIMANT DETAILS PAGE
 #===================================================
@@ -917,6 +916,9 @@ check-your-answers.claimant-details.l1=Email address
 check-your-answers.claimant-details.l2=Phone number
 check-your-answers.claimant-details.l3=Contact address
 check-your-answers.claimant-company-details.label=Claimant’s company details
+check-your-answers.contact-details.h2=Contact details
+check-your-answers.contact-details.l0=Contact details
+check-your-answers.contact-details.l1=Contact address
 check-your-answers.basis.h2=Basis for claim
 check-your-answers.basis.l0=This is the basis behind the claim
 check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
