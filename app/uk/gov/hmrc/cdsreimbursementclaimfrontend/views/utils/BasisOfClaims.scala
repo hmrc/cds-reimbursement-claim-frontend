@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{CorrectionToRiskClassification, DuplicateEntry, IncorrectExciseValue, allClaimsTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectExciseValue, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, DraftClaim, TaxCode}
 
 sealed trait BasisOfClaims {
@@ -65,7 +65,7 @@ object BasisOfClaims {
       val items = isNorthernIrelandJourney match {
         case ClaimNorthernIrelandAnswer.No  =>
           claims.diff(
-            List(IncorrectExciseValue, CorrectionToRiskClassification)
+            List(IncorrectExciseValue, IncorrectAdditionalInformationCode)
           )
         case ClaimNorthernIrelandAnswer.Yes =>
           if (hasNorthernIrelandExciseCodes) claims

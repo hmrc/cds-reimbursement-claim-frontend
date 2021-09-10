@@ -107,7 +107,8 @@ class CheckContactDetailsMrnControllerSpec
 
   "CheckContactDetailsMrnController" must {
 
-    def showPageAction(journey: JourneyBindable): Future[Result] = controller.show(journey)(FakeRequest())
+    def showPageAction(journey: JourneyBindable): Future[Result] =
+      controller.checkDetailsAndChange(journey)(FakeRequest())
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
@@ -160,8 +161,8 @@ class CheckContactDetailsMrnControllerSpec
             paragraphs.get(6).text()  shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
             //Contact Details
             paragraphs.get(7).text()  shouldBe mrnContactDetails.fullName
-            paragraphs.get(8).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
-            paragraphs.get(9).text()  shouldBe mrnContactDetails.emailAddress.value
+            paragraphs.get(8).text()  shouldBe mrnContactDetails.emailAddress.value
+            paragraphs.get(9).text()  shouldBe mrnContactDetails.phoneNumber.map(_.value).getOrElse(fail)
             paragraphs.get(10).text() shouldBe mrnContactAddress.line1
             paragraphs.get(11).text() shouldBe mrnContactAddress.line2.getOrElse(fail)
             paragraphs.get(12).text() shouldBe mrnContactAddress.line3.getOrElse(fail)
@@ -212,7 +213,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle add submit requests" when {
 
       def submitAdd(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.add(journeyBindable)(
+        controller.addDetails(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -317,7 +318,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle change submit requests" when {
 
       def submitChange(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.change(journeyBindable)(
+        controller.changeDetailsSubmit(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -361,7 +362,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckContactDetailsMrnController.show(journey)
+          routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>
@@ -500,7 +501,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe true
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe true
     }
 
     "return false if we have valid contact details but missing contact address" in {
@@ -512,7 +513,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
     "return false if we have valid contact address but missing contact details" in {
@@ -524,7 +525,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
 
@@ -538,7 +539,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
@@ -557,7 +558,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
@@ -576,7 +577,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
 
@@ -596,7 +597,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      isMandatoryDataAvailable(fillingOutClaim) shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
 
     }
   }
@@ -650,7 +651,7 @@ class CheckContactDetailsMrnControllerSpec
 
       checkIsRedirect(
         updateAddress(journey, Some(id)),
-        routes.CheckContactDetailsMrnController.show(journey)
+        routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
       )
     }
 
@@ -687,7 +688,7 @@ class CheckContactDetailsMrnControllerSpec
 
       checkIsRedirect(
         updateAddress(journey),
-        routes.CheckContactDetailsMrnController.show(journey)
+        routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey)
       )
     }
 

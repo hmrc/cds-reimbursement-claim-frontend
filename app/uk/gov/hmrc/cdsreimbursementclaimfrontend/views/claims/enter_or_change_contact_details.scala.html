@@ -15,11 +15,11 @@
 )
 
 
-@(form : Form[MrnContactDetails], router: ReimbursementRoutes, isChange: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[MrnContactDetails], router: ReimbursementRoutes, isChange: Boolean, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-contact-details"}
 
-@postAction = @{if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
+@postAction = @{if (isChange && !isAmend) router.submitUrlForChangeMrnContactDetails()  else if (isChange && isAmend) router.submitUrlForAmendMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()}
 
 @title = @{if (isChange) messages(s"$key.change.title") else messages(s"$key.add.title")}
 

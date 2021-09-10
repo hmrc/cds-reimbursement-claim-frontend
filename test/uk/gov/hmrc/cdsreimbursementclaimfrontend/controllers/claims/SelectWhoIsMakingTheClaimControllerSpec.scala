@@ -176,7 +176,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.CheckContactDetailsMrnController.show(journeyBindable)
+          routes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
         )
       }
 

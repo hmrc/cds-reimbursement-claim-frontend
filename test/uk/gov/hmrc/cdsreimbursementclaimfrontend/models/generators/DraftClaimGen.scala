@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.arbitraryContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.arbitraryMrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetailsOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen.arbitraryDeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
@@ -61,8 +61,8 @@ trait LowerPriorityDraftClaimGen {
       details                        <- arbitraryEntryDeclarationDetails.arbitrary
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
       detailsRegisteredWithCdsAnswer <- arbitraryDetailsRegisteredWithCds.arbitrary
-      mrnContactDetails              <- arbitraryMrnContactDetails.arbitrary
-      mrnContactAddressAnswer        <- arbitraryContactAddress.arbitrary
+      maybeContactDetails            <- genMrnContactDetailsOpt
+      maybeContactAddressAnswer      <- genContactAddressOpt
       bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
       maybeBasisOfClaimAnswer        <- genBasisOfClaimAnswerOpt
@@ -83,8 +83,8 @@ trait LowerPriorityDraftClaimGen {
       declarationDetailsAnswer = CompleteDeclarationDetailsAnswer(details).some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
-      mrnContactDetailsAnswer = mrnContactDetails.some,
-      mrnContactAddressAnswer = mrnContactAddressAnswer.some,
+      mrnContactDetailsAnswer = maybeContactDetails,
+      mrnContactAddressAnswer = maybeContactAddressAnswer,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
       basisOfClaimAnswer = maybeBasisOfClaimAnswer,

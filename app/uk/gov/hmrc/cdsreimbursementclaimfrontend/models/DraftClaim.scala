@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
@@ -30,6 +31,7 @@ import java.util.UUID
 
 sealed trait DraftClaim extends Product with Serializable {
   val id: UUID
+  def isMandatoryDataAvailable: Boolean
 }
 
 object DraftClaim {
@@ -60,7 +62,11 @@ object DraftClaim {
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
     scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None
-  ) extends DraftClaim
+  ) extends DraftClaim {
+
+    def isMandatoryDataAvailable: Boolean =
+      (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
+  }
 
   object DraftC285Claim {
     val newDraftC285Claim: DraftC285Claim = DraftC285Claim(UUID.randomUUID())

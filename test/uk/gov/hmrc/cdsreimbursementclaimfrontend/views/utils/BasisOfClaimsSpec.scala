@@ -89,7 +89,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           Preference,
           RGR,
           ProofOfReturnRefundGiven,
-          CorrectionToRiskClassification,
+          IncorrectAdditionalInformationCode,
           Miscellaneous
         )
       )
@@ -112,7 +112,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         RGR,
         ProofOfReturnRefundGiven,
         IncorrectExciseValue,
-        CorrectionToRiskClassification,
+        IncorrectAdditionalInformationCode,
         Miscellaneous
       )
     )
@@ -135,7 +135,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         RGR,
         ProofOfReturnRefundGiven,
         IncorrectExciseValue,
-        CorrectionToRiskClassification,
+        IncorrectAdditionalInformationCode,
         Miscellaneous
       )
     )

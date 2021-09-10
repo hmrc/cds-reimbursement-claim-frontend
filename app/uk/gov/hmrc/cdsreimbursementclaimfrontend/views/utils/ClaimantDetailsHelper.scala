@@ -46,10 +46,11 @@ class ClaimantDetailsHelper @Inject() () {
   def renderContactDetails(
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress],
+    isAmend: Boolean,
     router: ReimbursementRoutes
   )(implicit messages: Messages): List[SummaryListRow] =
     List(
-      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, router)),
+      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, isAmend, router)),
       maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
     ).flattenOption
 
@@ -82,13 +83,13 @@ class ClaimantDetailsHelper @Inject() () {
     )
   }
 
-  def renderContactDetails(contactDetails: MrnContactDetails, router: ReimbursementRoutes)(implicit
+  def renderContactDetails(contactDetails: MrnContactDetails, isAmend: Boolean, router: ReimbursementRoutes)(implicit
     messages: Messages
   ): SummaryListRow = {
     val data = List(
       Some(getParagraph(contactDetails.fullName)),
-      contactDetails.phoneNumber.map(a => getParagraph(a.value)),
-      Some(getParagraph(contactDetails.emailAddress.value))
+      Some(getParagraph(contactDetails.emailAddress.value)),
+      contactDetails.phoneNumber.map(a => getParagraph(a.value))
     ).flattenOption
 
     SummaryListRow(
@@ -99,14 +100,22 @@ class ClaimantDetailsHelper @Inject() () {
         Actions(
           "govuk-link",
           List(
-            ActionItem(
-              href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
-            )
+            if (isAmend)
+              ActionItem(
+                href = s"${routes.EnterContactDetailsMrnController.amendMrnContactDetails(router.journeyBindable).url}",
+                Text(messages("claimant-details.change"))
+              )
+            else
+              ActionItem(
+                href =
+                  s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
+                Text(messages("claimant-details.change"))
+              )
           )
         )
       )
     )
+
   }
 
   def renderContactAddress(contactAddress: ContactAddress, router: ReimbursementRoutes)(implicit

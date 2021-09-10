@@ -51,7 +51,24 @@ object UpscanGen extends OptionValues {
     } yield evidenceType
   }
 
-  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = gen[UploadDocument]
+  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
+    for {
+      uploadReference  <- gen[UploadReference].arbitrary
+      upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
+      uploadedOn       <- genLocalDateTime
+      upscanSuccess    <- arbitraryUpscanSuccess.arbitrary
+      name             <- genStringWithMaxSizeOfN(6)
+      extension        <- Gen.oneOf("pdf", "doc", "csv")
+      documentType     <- arbitrarySupportingEvidenceDocumentType.arbitrary
+    } yield UploadDocument(
+      uploadReference = uploadReference,
+      upscanUploadMeta = upscanUploadMeta,
+      uploadedOn = uploadedOn,
+      upscanSuccess = upscanSuccess,
+      fileName = s"$name.$extension",
+      documentType = Some(documentType)
+    )
+  }
 
   implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
     for {

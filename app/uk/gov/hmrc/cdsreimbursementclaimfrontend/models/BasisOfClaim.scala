@@ -38,7 +38,7 @@ object BasisOfClaim {
   case object RGR extends BasisOfClaim(11)
   case object ProofOfReturnRefundGiven extends BasisOfClaim(12)
   case object IncorrectExciseValue extends BasisOfClaim(13) //Northern Ireland only
-  case object CorrectionToRiskClassification extends BasisOfClaim(14) //Northern Ireland only
+  case object IncorrectAdditionalInformationCode extends BasisOfClaim(14) //Northern Ireland only
   case object Miscellaneous extends BasisOfClaim(15)
 
   val allClaimsTypes: List[BasisOfClaim] = List(
@@ -56,7 +56,7 @@ object BasisOfClaim {
     RGR,
     ProofOfReturnRefundGiven,
     IncorrectExciseValue,
-    CorrectionToRiskClassification,
+    IncorrectAdditionalInformationCode,
     Miscellaneous
   )
 

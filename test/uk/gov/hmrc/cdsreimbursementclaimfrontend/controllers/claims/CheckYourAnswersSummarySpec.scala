@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.catsSyntaxApply
-import org.jsoup.Jsoup
-import org.jsoup.safety.Whitelist
+import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
 import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -43,7 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
+
+import scala.collection.JavaConverters._
 
 class CheckYourAnswersSummarySpec
     extends ControllerSpec
@@ -84,15 +83,28 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val elements  = doc.select("#main-content > div > div > dl > div")
-          val labels    = elements.select("dt").content
-          val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val last      = labels.lastOption.value
-          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
+          val summaries = doc
+            .select("#main-content > div > div > dl > div")
+            .asScala
+            .flatMap { element =>
+              val label      = element.select("dt").text()
+              val value      = element.select("dd").not(".govuk-summary-list__actions")
+              val paragraphs = value.select("p")
 
-          headers   should contain allElementsOf ((
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
-          ).toList ++ Seq(
+              if (paragraphs.isEmpty)
+                Seq((label, value.text()))
+              else
+                paragraphs.content
+                  .map(s => (label, s.replace("<br>", " ")))
+            }
+            .toList
+
+          headers should contain allElementsOf (Seq(
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
+              s"$checkYourAnswersKey.contact-details.h2"
+            )
+          ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2"
@@ -112,19 +124,62 @@ class CheckYourAnswersSummarySpec
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+              messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
             )
           }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              Paragraph(
-                uploadDocument.fileName,
-                uploadDocument.documentType.fold("")(documentType =>
-                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-                )
-              ).toString.replace("<br />", "<br>")
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
+                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+              )}"
             )
-          }.toList
+          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+            .mapN { (details, address) =>
+              Seq(
+                Some((messages(s"claimant-details.contact.details"), details.fullName)),
+                details.phoneNumber.map { phoneNumber =>
+                  (messages(s"claimant-details.contact.details"), phoneNumber.value)
+                },
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value)),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line1
+                  )
+                ),
+                address.line2.map { line2 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line2
+                  )
+                },
+                address.line3.map { line3 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line3
+                  )
+                },
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line4
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.postcode
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    messages(address.country.messageKey)
+                  )
+                )
+              ).flatMap(_.toList)
+            }
+            .getOrElse(Seq.empty)
         }
       )
     }
@@ -145,15 +200,28 @@ class CheckYourAnswersSummarySpec
         doc => {
           val headers = doc.select("#main-content > div > div > h2").content
 
-          val elements  = doc.select("#main-content > div > div > dl > div")
-          val contents  = elements.select("dd").not(".govuk-summary-list__actions").content
-          val labels    = elements.select("dt").content
-          val last      = labels.lastOption.value
-          val summaries = (labels ++ Seq.fill(contents.length - labels.length)(last)) zip contents
+          val summaries = doc
+            .select("#main-content > div > div > dl > div")
+            .asScala
+            .flatMap { element =>
+              val label      = element.select("dt").text()
+              val value      = element.select("dd").not(".govuk-summary-list__actions")
+              val paragraphs = value.select("p")
 
-          headers   should contain allElementsOf ((
-            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2")
-          ).toList ++ Seq(
+              if (paragraphs.isEmpty)
+                Seq((label, value.text()))
+              else
+                paragraphs.content
+                  .map(s => (label, s.replace("<br>", " ")))
+            }
+            .toList
+
+          headers should contain allElementsOf (Seq(
+            claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
+              s"$checkYourAnswersKey.contact-details.h2"
+            )
+          ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
@@ -178,19 +246,62 @@ class CheckYourAnswersSummarySpec
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              Jsoup.clean(messages(s"$selectBasisForClaimKey.reason.d${answer.value}"), Whitelist.none())
+              messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
             )
           }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              Paragraph(
-                uploadDocument.fileName,
-                uploadDocument.documentType.fold("")(documentType =>
-                  messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-                )
-              ).toString.replace("<br />", "<br>")
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
+                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
+              )}"
             )
-          }.toList
+          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+            .mapN { (details, address) =>
+              Seq(
+                Some((messages(s"claimant-details.contact.details"), details.fullName)),
+                details.phoneNumber.map { phoneNumber =>
+                  (messages(s"claimant-details.contact.details"), phoneNumber.value)
+                },
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value)),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line1
+                  )
+                ),
+                address.line2.map { line2 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line2
+                  )
+                },
+                address.line3.map { line3 =>
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    line3
+                  )
+                },
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.line4
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    address.postcode
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"claimant-details.contact.address"),
+                    messages(address.country.messageKey)
+                  )
+                )
+              ).flatMap(_.toList)
+            }
+            .getOrElse(Seq.empty)
         }
       )
     }
