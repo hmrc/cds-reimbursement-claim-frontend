@@ -31,7 +31,7 @@
 
 @title = @{messages("timed-out.title")}
 
-@layout(pageTitle = Some(s"$title"), timeOut = false) {
+@layout(pageTitle = Some(s"$title"), timeOut = false, suppressBackLink = true) {
 
   @pageHeading(title)
 
