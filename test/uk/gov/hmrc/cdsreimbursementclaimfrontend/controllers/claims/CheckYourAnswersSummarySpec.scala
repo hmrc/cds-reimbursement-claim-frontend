@@ -137,8 +137,10 @@ class CheckYourAnswersSummarySpec
             .mapN { (details, address) =>
               Seq(
                 Some((messages(s"claimant-details.contact.details"), details.fullName)),
-                Some((messages(s"claimant-details.contact.details"), details.phoneNumber.value.toString)),
-                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value.toString)),
+                details.phoneNumber.map { phoneNumber =>
+                  (messages(s"claimant-details.contact.details"), phoneNumber.value)
+                },
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value)),
                 Some(
                   (
                     messages(s"claimant-details.contact.address"),
@@ -252,8 +254,10 @@ class CheckYourAnswersSummarySpec
             .mapN { (details, address) =>
               Seq(
                 Some((messages(s"claimant-details.contact.details"), details.fullName)),
-                Some((messages(s"claimant-details.contact.details"), details.phoneNumber.value.toString)),
-                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value.toString)),
+                details.phoneNumber.map { phoneNumber =>
+                  (messages(s"claimant-details.contact.details"), phoneNumber.value)
+                },
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value)),
                 Some(
                   (
                     messages(s"claimant-details.contact.address"),
