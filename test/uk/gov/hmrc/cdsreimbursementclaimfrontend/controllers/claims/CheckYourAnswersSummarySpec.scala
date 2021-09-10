@@ -134,8 +134,11 @@ class CheckYourAnswersSummarySpec
               )}"
             )
           }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
-            .mapN { (_, address) =>
+            .mapN { (details, address) =>
               Seq(
+                Some((messages(s"claimant-details.contact.details"), details.fullName)),
+                Some((messages(s"claimant-details.contact.details"), details.phoneNumber.value.toString)),
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value.toString)),
                 Some(
                   (
                     messages(s"claimant-details.contact.address"),
@@ -246,8 +249,11 @@ class CheckYourAnswersSummarySpec
               )}"
             )
           }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
-            .mapN { (_, address) =>
+            .mapN { (details, address) =>
               Seq(
+                Some((messages(s"claimant-details.contact.details"), details.fullName)),
+                Some((messages(s"claimant-details.contact.details"), details.phoneNumber.value.toString)),
+                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value.toString)),
                 Some(
                   (
                     messages(s"claimant-details.contact.address"),
