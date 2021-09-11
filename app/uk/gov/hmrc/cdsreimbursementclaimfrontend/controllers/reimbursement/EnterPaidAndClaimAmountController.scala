@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.twirl.api.Html
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
-@this()
-
-@(title:String,description:String)
-
-<strong>@title</strong> @Html(description)
+class EnterPaidAndClaimAmountController {}

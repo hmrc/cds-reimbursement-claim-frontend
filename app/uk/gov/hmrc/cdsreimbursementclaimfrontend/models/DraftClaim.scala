@@ -52,6 +52,7 @@ object DraftClaim {
     basisOfClaimAnswer: Option[BasisOfClaim] = None,
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
+    dutyTypesSelectedAnswer: Option[DutyTypesSelectedAnswer] = None,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,

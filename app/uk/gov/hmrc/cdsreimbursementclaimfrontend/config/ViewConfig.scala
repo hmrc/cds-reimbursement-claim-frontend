@@ -117,6 +117,8 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val importExportUrl: String = getString("external-url.import-export")
 
+  val ukTradeTariffGuidance: String = getString("external-url.uk-trade-tariff-guidance")
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt

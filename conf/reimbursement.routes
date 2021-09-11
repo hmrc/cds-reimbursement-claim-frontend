@@ -1,0 +1,4 @@
+GET         /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyTypesController.showDutyTypes()
+POST        /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyTypesController.submitDutyTypes()
+
+GET         /scheduled/select-duties/start                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutySubTypesController.start()
