@@ -52,7 +52,9 @@ object DraftClaim {
     basisOfClaimAnswer: Option[BasisOfClaim] = None,
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
-    dutyTypesSelectedAnswer: Option[DutyTypesSelectedAnswer] = None,
+    dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
+//    dutySubTypesSelectedAnswer: DutySubTypesSelectedAnswer = Map.empty,
+//    dutyPaidAndClaimAmountAnswer: DutyPaidAndClaimAmountAnswer = Map.empty,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
@@ -100,6 +102,7 @@ object DraftClaim {
       case draftC285Claim: DraftC285Claim =>
         draftC285Claim.movementReferenceNumber.map(_.value)
     }
+
   }
 
   implicit val eq: Eq[DraftClaim]          = Eq.fromUniversalEquals

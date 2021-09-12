@@ -16,17 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
-/*
-    Show the full list of categories a user can choose from
-    Store selection
-    Process changes to selections compared to what is in the session store
-      - if deselection, then remove the sub-categories and associated claim amounts from session cache
-      - if new selections, then works as normal, go to next page which will work out which type has no sub-types selected
-
-
-      Correct URL: scheduled/select-duties/select-duty-types
- */
-
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
@@ -42,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutyTypesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutyTypesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -56,7 +45,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SelectDutyTypesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
+  val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
   val config: Configuration,
   selectDutyTypesPage: pages.select_duty_types
@@ -67,41 +56,28 @@ class SelectDutyTypesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DutyTypesSelectedAnswer] = _.dutyTypesSelectedAnswer
+  implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesSelectedAnswer] { (fillingOutClaim, _) =>
-      fillingOutClaim.draftClaim
-        .fold(_.dutyTypesSelectedAnswer)
-        .fold(
-          Ok(
-            selectDutyTypesPage(
-              selectDutyTypesForm
-            )
-          )
-        )(dutyType =>
-          Ok(
-            selectDutyTypesPage(
-              selectDutyTypesForm
-                .fill(dutyType)
-            )
-          )
-        )
+    withAnswers[DutyTypesAnswer] { (_, answer) =>
+      answer.fold(
+        Ok(selectDutyTypesPage(selectDutyTypesForm))
+      )(dutyType => Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType))))
     }
   }
 
   def submitDutyTypes(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
-      withAnswers[DutyTypesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
+      withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedAnswer =>
-              previousAnswer.fold {
+              answer.fold {
                 updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
-              }(pa =>
-                if (selectedAnswer === pa) {
+              }(dutyTypesSelectedAnswer =>
+                if (selectedAnswer === dutyTypesSelectedAnswer) {
                   Redirect(reimbursementRoutes.SelectDutySubTypesController.start())
                 } else {
                   updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
@@ -112,7 +88,7 @@ class SelectDutyTypesController @Inject() (
     }
 
   private def updateDutyTypeAnswer(
-    dutyTypesSelectedAnswer: DutyTypesSelectedAnswer,
+    dutyTypesSelectedAnswer: DutyTypesAnswer,
     fillingOutClaim: FillingOutClaim
   )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
     val newDraftClaim: DraftC285Claim   =
@@ -120,7 +96,7 @@ class SelectDutyTypesController @Inject() (
     val updatedJourney: FillingOutClaim = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
     EitherT
-      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+      .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap((_: Unit) => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
@@ -133,7 +109,7 @@ class SelectDutyTypesController @Inject() (
 object SelectDutyTypesController {
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  def selectDutyTypesForm: Form[DutyTypesSelectedAnswer] = Form(
+  def selectDutyTypesForm: Form[DutyTypesAnswer] = Form(
     mapping(
       "select-duty-types" -> list(
         mapping(

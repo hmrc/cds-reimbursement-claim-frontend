@@ -24,8 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 package object answers {
 
   type SupportingEvidencesAnswer = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer      = NonEmptyList[Duty]
-  type DutyTypesSelectedAnswer   = NonEmptyList[DutyType]
+  type DutiesSelectedAnswer      = NonEmptyList[Duty] //FIXME: rename appropriately
+  type DutyTypesAnswer           = NonEmptyList[DutyType]
   type ClaimsAnswer              = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {

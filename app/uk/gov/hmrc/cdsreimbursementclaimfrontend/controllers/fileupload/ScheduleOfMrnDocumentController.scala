@@ -200,5 +200,5 @@ class ScheduleOfMrnDocumentController @Inject() (
 }
 
 object ScheduleOfMrnDocumentController {
-  val configKey = "schedule-of-mrn"
+  val configKey: String = "schedule-of-mrn"
 }

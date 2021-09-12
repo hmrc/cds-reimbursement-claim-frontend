@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutyTypesSelectedAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -35,7 +35,7 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutyTypesSelectedAnswer])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutyTypesAnswer])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duty-types"}
     @title = @{messages(s"$key.title")}

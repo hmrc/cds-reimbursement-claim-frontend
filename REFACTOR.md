@@ -13,5 +13,7 @@ that the work done can be prioritised and tracked.
 | 5       | Rename claims package to reflect true nature of code  under that package                                                                                            |               |
 | 6       | JourneyBindable should be under the models package                                                                                                                  |               |
 | 7       | Need a mechanism which allows easy updating for the  enumerations which work forms which have list based  components e.g.checkboxes, radio buttons                  |               |
-| 8       | Remove redundant message keys 
-| 9       | Remove redundant test data generators
+| 8       | Remove redundant message keys                                                                                                                                       |               |
+| 9       | Remove redundant test data generators                                                                                                                               |               |
+| 10      | Refactor redundant signed in user details model to eliminate unused data                                                                                            |               |
+| 11      | Remove redundant user type model                                                                                                                                    |               |

@@ -17,30 +17,28 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.kernel.Eq
-import cats.syntax.eq._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import play.api.mvc.PathBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
-sealed abstract class DutyType(val value: String) extends Product with Serializable
+sealed trait DutyType extends Product with Serializable
 
 object DutyType {
 
-  case object UkDuty extends DutyType("uk-duty")
-  case object EuDuty extends DutyType("eu-duty")
-  case object Beer extends DutyType("beer")
-  case object Wine extends DutyType("wine")
-  case object MadeWine extends DutyType("made-wine")
-  case object LowAlcoholBeverages extends DutyType("low-alcohol-beverages")
-  case object Spirits extends DutyType("spirits")
-  case object CiderPerry extends DutyType("cider-and-perry")
-  case object HydrocarbonOils extends DutyType("hydrocarbon-oils")
-  case object Biofuels extends DutyType("biofuels")
-  case object MiscellaneousRoadFuels extends DutyType("miscellaneous-road-fuels")
-  case object Tobacco extends DutyType("tobacco-products")
-  case object ClimateChangeLevy extends DutyType("climate-change-levy")
+  case object UkDuty extends DutyType
+  case object EuDuty extends DutyType
+  case object Beer extends DutyType
+  case object Wine extends DutyType
+  case object MadeWine extends DutyType
+  case object LowAlcoholBeverages extends DutyType
+  case object Spirits extends DutyType
+  case object CiderPerry extends DutyType
+  case object HydrocarbonOils extends DutyType
+  case object Biofuels extends DutyType
+  case object MiscellaneousRoadFuels extends DutyType
+  case object Tobacco extends DutyType
+  case object ClimateChangeLevy extends DutyType
 
   val dutyTypes: List[DutyType] = List(
     UkDuty,
@@ -77,7 +75,7 @@ object DutyType {
     ClimateChangeLevy
   )
 
-  val categoryToTaxCode: Map[DutyType, List[TaxCode]] = Map(
+  val dutyTypeToTaxCodes: Map[DutyType, List[TaxCode]] = Map(
     UkDuty                 -> TaxCode.listOfUKTaxCodes,
     EuDuty                 -> TaxCode.listOfEUTaxCodes,
     Beer                   -> List(NI407, NI440, NI441, NI442, NI443, NI444, NI445, NI446, NI447, NI473),
@@ -107,25 +105,6 @@ object DutyType {
     Tobacco                -> List(NI611, NI615, NI619, NI623, NI627, NI633),
     ClimateChangeLevy      -> List(NI99A, NI99B, NI99C, NI99D)
   )
-
-  val allDutyTypesMap: Map[String, DutyType] = dutyTypes.map(a => a.value -> a).toMap
-
-  def validateTaxCategoryAndCode(category: DutyType, code: TaxCode): Boolean =
-    categoryToTaxCode.get(category).map(_.exists(_ === code)).getOrElse(false)
-
-  implicit val eq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
-
-  def parse(str: String): Either[String, DutyType] =
-    dutyTypes.find(a => a.value === str).toRight("No such category")
-
-  implicit lazy val taxCategoryBindable: PathBindable[DutyType] = new PathBindable[DutyType] {
-
-    override def bind(key: String, value: String): Either[String, DutyType] =
-      parse(value)
-
-    override def unbind(key: String, bindable: DutyType): String =
-      bindable.value
-  }
 
   implicit val taxCategoryEq: Eq[DutyType] = Eq.fromUniversalEquals[DutyType]
 
