@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, TemporaryJourneyExtractor}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyExtractor, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.{Individual, Scheduled}
@@ -188,7 +188,7 @@ class EnterMovementReferenceNumberControllerSpec
           val mrn                = sample[MRN]
           val mrnAnswer          = sampleMrnAnswer(mrn)
           val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
-          val router             = TemporaryJourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
+          val router             = JourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
           val templateKey        =
             if (!isEntryNumberFeatureEnabled && journeyBindable == JourneyBindable.Single)
               "enter-no-legacy-mrn"
@@ -226,7 +226,7 @@ class EnterMovementReferenceNumberControllerSpec
           val mrn                = sample[MRN]
           val mrnAnswer          = sampleMrnAnswer(mrn)
           val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
-          val router             = TemporaryJourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
+          val router             = JourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
           val templateKey        =
             if (!isEntryNumberFeatureEnabled && journeyBindable == JourneyBindable.Single)
               "enter-no-legacy-mrn"
@@ -262,7 +262,7 @@ class EnterMovementReferenceNumberControllerSpec
         val invalidMRN         = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
         val invalidMRNAnswer   = sampleMrnAnswer(invalidMRN)
         val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
-        val router             = TemporaryJourneyExtractor.getRoutes(numberOfClaimsType, invalidMRNAnswer, journeyBindable)
+        val router             = JourneyExtractor.getRoutes(numberOfClaimsType, invalidMRNAnswer, journeyBindable)
         val templateKey        =
           if (!isEntryNumberFeatureEnabled && journeyBindable == JourneyBindable.Single)
             "enter-no-legacy-mrn"
@@ -293,7 +293,7 @@ class EnterMovementReferenceNumberControllerSpec
           val invalidEntryNumberAnswer = sampleEntryNumberAnswer(invalidEntryNumber)
           val numberOfClaimsType       = toSelectNumberOfClaims(journeyBindable)
           val router                   =
-            TemporaryJourneyExtractor.getRoutes(numberOfClaimsType, invalidEntryNumberAnswer, journeyBindable)
+            JourneyExtractor.getRoutes(numberOfClaimsType, invalidEntryNumberAnswer, journeyBindable)
           val templateKey              =
             if (!isEntryNumberFeatureEnabled && journeyBindable == JourneyBindable.Single)
               "enter-no-legacy-mrn"

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.implicits.catsSyntaxOptionId
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
@@ -52,8 +52,6 @@ trait HigherPriorityDraftClaimGen extends LowerPriorityDraftClaimGen {
 }
 
 trait LowerPriorityDraftClaimGen {
-
-  implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = gen[DraftC285Claim]
 
   def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftC285Claim] =
     for {
@@ -100,4 +98,11 @@ trait LowerPriorityDraftClaimGen {
       checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,
       scheduledDocumentAnswer = scheduledDocumentAnswer
     )
+
+  implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = Arbitrary {
+    for {
+      numberOfClaims <- gen[SelectNumberOfClaimsAnswer].arbitrary
+      claim          <- genValidDraftClaim(numberOfClaims)
+    } yield claim
+  }
 }

@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.Validated.Valid
+import cats.data.Validated
+import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
@@ -26,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.CompleteDuplicateDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -63,7 +65,7 @@ object CompleteClaim {
     draftClaim match {
       case DraftClaim.DraftC285Claim(
             id,
-            _,
+            numberOfClaims,
             Some(MovementReferenceNumber(Right(mrn))),
             maybeDuplicateMovementReferenceNumber,
             _,
@@ -94,7 +96,8 @@ object CompleteClaim {
           validateSupportingEvidencesAnswer(maybeSupportingEvidences),
           validateCommodityDetailsAnswer(draftCommodityAnswer),
           validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
-          validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer)
+          validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer),
+          validateScheduledDocumentAnswer(maybeScheduledDocument, numberOfClaims)
         )
           .mapN {
             case (
@@ -103,7 +106,8 @@ object CompleteClaim {
                   supportingEvidenceAnswer,
                   commodityDetailsAnswer,
                   importerEoriNumberAnswer,
-                  declarantEoriNumberAnswer
+                  declarantEoriNumberAnswer,
+                  maybeScheduledDocumentAnswer
                 ) =>
               CompleteClaim(
                 id = id,
@@ -125,7 +129,7 @@ object CompleteClaim {
                 importerEoriNumberAnswer,
                 declarantEoriNumberAnswer,
                 claimsAnswer,
-                maybeScheduledDocument
+                maybeScheduledDocumentAnswer
               )
           }
           .toEither
@@ -150,7 +154,7 @@ object CompleteClaim {
           case DeclarantEoriNumberAnswer.IncompleteDeclarantEoriNumberAnswer(
                 _
               ) =>
-            invalid("incomplete declarant eori number answer")
+            invalidNel("incomplete declarant eori number answer")
           case completeDeclarantEoriNumberAnswer: CompleteDeclarantEoriNumberAnswer =>
             Valid(Some(completeDeclarantEoriNumberAnswer))
         }
@@ -166,7 +170,7 @@ object CompleteClaim {
           case ImporterEoriNumberAnswer.IncompleteImporterEoriNumberAnswer(
                 _
               ) =>
-            invalid("incomplete eori number answer")
+            invalidNel("incomplete eori number answer")
           case completeImporterEoriNumberAnswer: CompleteImporterEoriNumberAnswer =>
             Valid(Some(completeImporterEoriNumberAnswer))
         }
@@ -181,7 +185,7 @@ object CompleteClaim {
   def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
     maybeClaimsAnswer match {
       case Some(value) => Valid(value)
-      case None        => invalid("missing supporting evidence answer")
+      case None        => invalidNel("missing supporting evidence answer")
     }
 
   def validateSupportingEvidencesAnswer(
@@ -193,7 +197,7 @@ object CompleteClaim {
     maybeMrnContactDetails: Option[MrnContactDetails]
   ): Validation[Option[MrnContactDetails]] =
     maybeMrnContactDetails match {
-      case None => invalid("incomplete contact details")
+      case None => invalidNel("incomplete contact details")
       case a    => Valid(a)
     }
 
@@ -202,7 +206,7 @@ object CompleteClaim {
   ): Validation[DetailsRegisteredWithCdsAnswer] =
     maybeDetailsRegisteredWithCdsAnswer match {
       case Some(value) => Valid(value)
-      case None        => invalid("missing claimant details type answer")
+      case None        => invalidNel("missing claimant details type answer")
     }
 
   def validateDetailsRegisteredWithCdsMrn(
@@ -220,14 +224,14 @@ object CompleteClaim {
         }
         Valid(detailsRegisteredWithCdsFormData)
       }
-      .getOrElse(invalid("Missing declarant type or display declaration"))
+      .getOrElse(invalidNel("Missing declarant type or display declaration"))
 
   def validateDeclarantTypeAnswer(
     maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
   ): Validation[DeclarantTypeAnswer] =
     maybeDeclarantTypeAnswer match {
       case Some(value) => Valid(value)
-      case None        => invalid("missing declarant type answer")
+      case None        => invalidNel("missing declarant type answer")
     }
 
   def validateDeclarationDetailsAnswer(
@@ -237,11 +241,11 @@ object CompleteClaim {
       case Some(value) =>
         value match {
           case DeclarationDetailsAnswer.IncompleteDeclarationDetailsAnswer(_)     =>
-            invalid("incomplete declaration details answer")
+            invalidNel("incomplete declaration details answer")
           case completeDeclarationDetailsAnswer: CompleteDeclarationDetailsAnswer =>
             Valid(completeDeclarationDetailsAnswer)
         }
-      case None        => invalid("missing declaration details answer")
+      case None        => invalidNel("missing declaration details answer")
     }
 
   def validateDuplicateDeclarantDetailAnswer(
@@ -251,12 +255,25 @@ object CompleteClaim {
       case Some(value) =>
         value match {
           case DuplicateDeclarationDetailsAnswer.IncompleteDuplicateDeclarationDetailAnswer(_)     =>
-            invalid("incomplete duplicate declaration details answer")
+            invalidNel("incomplete duplicate declaration details answer")
           case completeDuplicateDeclarationDetailAnswer: CompleteDuplicateDeclarationDetailsAnswer =>
             Valid(completeDuplicateDeclarationDetailAnswer)
         }
       case None        => Valid(CompleteDuplicateDeclarationDetailsAnswer(None))
     }
+
+  def validateScheduledDocumentAnswer(
+    maybeScheduledDocument: Option[ScheduledDocumentAnswer],
+    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+  ): Validation[Option[ScheduledDocumentAnswer]] =
+    Validated.condNel(
+      numberOfClaims.exists(answer =>
+        (answer === Scheduled && maybeScheduledDocument.isDefined) ||
+          (answer =!= Scheduled) && maybeScheduledDocument.isEmpty
+      ),
+      maybeScheduledDocument,
+      "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"
+    )
 
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) extends AnyVal {
 
