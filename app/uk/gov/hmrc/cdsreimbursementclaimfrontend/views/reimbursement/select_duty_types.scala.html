@@ -46,7 +46,7 @@
         CheckboxItem(
             name = Some(s"${key}[]"),
             value = dutyTypeWithIndex._2.toString,
-            content = Text(messages(s"${key}.type.${dutyTypeWithIndex._2.toString}")),
+            content = Text(messages(s"${key}.custom.type.${dutyTypeWithIndex._2.toString}")),
             checked = form.data.exists(_._2 == dutyTypeWithIndex._2.toString)
             )
         }
@@ -56,7 +56,7 @@
         CheckboxItem(
             name = Some(s"${key}[]"),
             value = dutyTypeWithIndex._2.toString,
-            content = Text(messages(s"${key}.type.${dutyTypeWithIndex._2.toString}")),
+            content = Text(messages(s"${key}.excise.type.${dutyTypeWithIndex._2.toString}")),
             checked = form.data.exists(_._2 == dutyTypeWithIndex._2.toString)
             )
         }
