@@ -38,6 +38,7 @@
     timeOut: Boolean = true,
     scriptsBlock: Option[Html] = None,
     suppressBackLink: Boolean = false,
+    suppressSignOutLink: Boolean = false,
     hasErrors: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
 
@@ -53,6 +54,14 @@
             keepAliveButtonText= Some(messages("session-expired.keep-alive-button-text")),
             signOutButtonText= Some(messages("session-expired.sign-out-button-text"))
         ))}
+}
+
+@signOutUrl = @{
+    if(suppressSignOutLink) {
+        None
+    } else {
+        Some(viewConfig.ggSignOut)
+    }
 }
 
 @scripts = {
@@ -78,7 +87,7 @@
     beforeContentBlock = Some(beforeContentBlock),
     isWelshTranslationAvailable = false,
     serviceUrl = Some(viewConfig.homePageUrl),
-    signOutUrl = Some(viewConfig.ggSignOut),
+    signOutUrl = signOutUrl,
     accessibilityStatementUrl = Some(messages(viewConfig.accessibilityStatementUrl)),
     phaseBanner = Some(StandardAlphaBanner(url = viewConfig.serviceFeedBackUrl)),
     nonce = CSPNonce.get,
