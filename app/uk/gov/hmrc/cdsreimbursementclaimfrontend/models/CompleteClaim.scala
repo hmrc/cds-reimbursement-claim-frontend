@@ -267,7 +267,7 @@ object CompleteClaim {
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): Validation[Option[ScheduledDocumentAnswer]] =
     Validated.condNel(
-      numberOfClaims.exists(answer =>
+      numberOfClaims.forall(answer =>
         (answer === Scheduled && maybeScheduledDocument.isDefined) ||
           (answer =!= Scheduled) && maybeScheduledDocument.isEmpty
       ),
