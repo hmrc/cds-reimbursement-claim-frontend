@@ -21,8 +21,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 
-@import play.api.data.Form
-@import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
@@ -31,7 +29,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.languageKey
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.singleLanguageKey
 
 @this(
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
@@ -45,7 +43,7 @@
 
 @(form : Form[ClaimAmount], claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, journey:JourneyBindable)
 
-    @key = @{languageKey}
+    @key = @{singleLanguageKey}
     @title = @{messages(s"$key.title", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}"))}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

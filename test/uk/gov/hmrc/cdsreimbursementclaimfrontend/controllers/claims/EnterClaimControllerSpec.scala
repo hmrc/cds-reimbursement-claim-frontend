@@ -1022,7 +1022,7 @@ class EnterClaimControllerSpec
     }
 
     "Generate new claims from duties" in {
-      val numberOfDuties       = 10
+      val numberOfDuties       = 2
       val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)

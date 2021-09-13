@@ -23,8 +23,9 @@ import julienrf.json.derived
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
+import play.api.i18n.Messages
 import play.api.libs.json.OFormat
-import play.api.mvc._
+import play.api.mvc.{Action, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor.extractJourney
@@ -57,8 +58,12 @@ class EnterClaimController @Inject() (
   enterClaimPage: pages.enter_claim,
   enterScheduledClaimPage: pages.enter_claim_scheduled,
   checkClaimSummaryPage: pages.check_claim_summary
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
-    extends FrontendController(cc)
+)(implicit
+  ec: ExecutionContext,
+  viewConfig: ViewConfig,
+  cc: MessagesControllerComponents,
+  errorHandler: ErrorHandler
+) extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
@@ -88,7 +93,7 @@ class EnterClaimController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       implicit val journey: JourneyBindable = journeyBindable
       withAnswersAndRoutes[ClaimsAnswer] { (_, answer, _) =>
-        answer.flatMap(_.find(claim => claim.taxCategory === taxCategory && claim.taxCode === taxCode)) match {
+        answer.flatMap(findClaim(_, taxCategory, taxCode)) match {
           case Some(claim) =>
             journeyBindable match {
               case JourneyBindable.Single | JourneyBindable.Bulk =>
@@ -106,7 +111,13 @@ class EnterClaimController @Inject() (
                 Ok(enterScheduledClaimPage(form, claim))
             }
           case None        =>
-            Ok("This claim no longer exists") //TODO replace this with the a proper error page
+            Ok(
+              errorHandler.standardErrorTemplate(
+                Messages("enter-claim.claim-was-removed.title"),
+                Messages("enter-claim.claim-was-removed.heading"),
+                Messages("enter-claim.claim-was-removed.message")
+              )
+            )
         }
       }
     }
@@ -123,7 +134,7 @@ class EnterClaimController @Inject() (
           case None         =>
             Redirect(routes.EnterClaimController.startClaim(journeyBindable))
           case Some(claims) =>
-            claims.find(claim => claim.taxCategory === taxCategory && claim.taxCode === taxCode) match {
+            findClaim(claims, taxCategory, taxCode) match {
               case None        =>
                 Redirect(routes.EnterClaimController.startClaim(journeyBindable))
               case Some(claim) =>
@@ -247,6 +258,9 @@ class EnterClaimController @Inject() (
     updateClaimAnswer(claims, fillingOutClaim, nextPage)
   }
 
+  def findClaim(claims: ClaimsAnswer, taxCategory: TaxCategory, taxCode: TaxCode): Option[Claim] =
+    claims.find(claim => claim.taxCategory === taxCategory && claim.taxCode === taxCode)
+
 }
 
 object EnterClaimController {
@@ -282,10 +296,10 @@ object EnterClaimController {
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
       .map(_.map { duty =>
-        claims.find(claim => claim.taxCode === duty.taxCode) match {
+        claims.find(claim => claim.taxCode.value === duty.taxCode) match {
           case Some(claim) => Some(claim)
           case None        => //No Claim for the given Duty, we have to create one
-            ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode) match {
+            ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode.value) match {
               case Some(ndrc) => claimFromNdrc(ndrc)
               case None       => claimFromDuty(duty)
             }

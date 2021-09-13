@@ -708,7 +708,9 @@ enter-claim.scheduled.claim-amount.hint=This is the {0} - {1} amount you should 
 enter-claim.scheduled.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.scheduled.paid-amount.error.invalid=You have entered an invalid paid amount. Enter a valid paid amount you wish to claim for
 
-
+enter-claim.claim-was-removed.title=Deleted Duty
+enter-claim.claim-was-removed.heading=This duty was removed
+enter-claim.claim-was-removed.message=You see this page, because the duty was removed by you previously. You cannot make a claim for a non-existend duty. You can continue your journey, just keep clicking back or forward.
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
