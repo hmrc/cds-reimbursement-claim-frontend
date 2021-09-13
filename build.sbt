@@ -83,6 +83,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s")
   .settings(Compile / doc / sources := Seq.empty)
 
-lazy val welshExport = taskKey[Unit]("Generate Welsh Translations'")
+lazy val welshTranslation = taskKey[Unit]("Generate Welsh Translations'")
 
-welshExport := WelshTranslation.welshExport()
+welshTranslation := WelshTranslation.importAndExport()
