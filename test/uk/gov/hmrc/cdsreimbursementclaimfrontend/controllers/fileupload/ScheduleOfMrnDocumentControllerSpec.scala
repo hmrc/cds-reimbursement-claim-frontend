@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.mvc.Result
 import play.api.test.FakeRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
@@ -33,8 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, Eori, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
-import scala.concurrent.Future
 
 class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
@@ -70,10 +68,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show file upload page" when {
 
         "number of uploads has not exceeded limit" in {
-
-          def performAction(): Future[Result] =
-            controller.uploadScheduledDocument()(FakeRequest())
-
+          val isAmend         = sample[Boolean]
           val uploadReference = sample[UploadReference]
           val (session, _, _) = sessionWithClaimState(None)
           val upscanUpload    = genUpscanUpload(uploadReference)
@@ -82,13 +77,13 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             mockAuthWithNoRetrievals()
             mockGetSession(session)
             mockUpscanInitiate(
-              routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(),
-              routes.ScheduleOfMrnDocumentController.scanProgress
+              routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(isAmend),
+              reference => routes.ScheduleOfMrnDocumentController.scanProgress(reference, isAmend)
             )(Right(upscanUpload))
           }
 
           checkPageIsDisplayed(
-            performAction(),
+            controller.uploadScheduledDocument(isAmend)(FakeRequest()),
             messageFromMessageKey("schedule-document.upload.title")
           )
         }
@@ -97,14 +92,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show the file upload failed page" when {
 
         "uploaded file size exceeds threshold" in {
-          def performAction(): Future[Result] =
-            controller.handleFileSizeErrorCallback()(
-              FakeRequest(
-                "GET",
-                routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback().url
-              )
-            )
-
+          val isAmend         = sample[Boolean]
           val (session, _, _) = sessionWithClaimState(None)
 
           inSequence {
@@ -113,18 +101,82 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
           }
 
           checkIsRedirect(
-            performAction(),
-            routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
+            controller.handleFileSizeErrorCallback(isAmend)(
+              FakeRequest(
+                "GET",
+                routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(isAmend).url
+              )
+            ),
+            routes.ScheduleOfMrnDocumentController.showFileSizeErrorPage(isAmend)
+          )
+        }
+      }
+
+      "show review page" when {
+        "document is uploaded" in {
+          val isAmend        = sample[Boolean]
+          val uploadDocument = sample[UploadDocument]
+
+          val answer = ScheduledDocumentAnswer(uploadDocument)
+
+          val (session, _, _) = sessionWithClaimState(answer.some)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            controller.review(isAmend)(FakeRequest()),
+            messageFromMessageKey("schedule-document.review.title")
+          )
+        }
+      }
+
+      "redirect to Check Your Answers page" when {
+        "document is amended" in {
+          val uploadDocument = sample[UploadDocument]
+
+          val answer = ScheduledDocumentAnswer(uploadDocument)
+
+          val (session, _, _) = sessionWithClaimState(answer.some)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            controller.reviewSubmit(isAmend = true)(FakeRequest()),
+            claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Scheduled)
+          )
+        }
+      }
+
+      "redirect to Select Who Is Making Claim page" when {
+        "no document is being amended" in {
+          val uploadDocument = sample[UploadDocument]
+
+          val answer = ScheduledDocumentAnswer(uploadDocument)
+
+          val (session, _, _) = sessionWithClaimState(answer.some)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            controller.reviewSubmit(isAmend = false)(FakeRequest()),
+            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled)
           )
         }
       }
 
       "handling requests to delete schedule document" must {
-        def performAction(): Future[Result] =
-          controller.deleteScheduledDocument()(FakeRequest())
         "redirect to upload scheduled document page" when {
-
           "removing stored evidence" in {
+            val isAmend        = sample[Boolean]
             val uploadDocument = sample[UploadDocument]
 
             val answer = ScheduledDocumentAnswer(uploadDocument)
@@ -144,22 +196,17 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             }
 
             checkIsRedirect(
-              performAction(),
-              routes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+              controller.deleteScheduledDocument(isAmend)(FakeRequest()),
+              routes.ScheduleOfMrnDocumentController.uploadScheduledDocument(isAmend)
             )
           }
-
         }
-
       }
 
       "show file format or infected file error page" when {
-        "an upscan failure call back is received" in {
-          def performAction(): Future[Result] =
-            controller.handleFormatOrVirusCheckErrorCallback()(
-              FakeRequest()
-            )
 
+        "an upscan failure call back is received" in {
+          val isAmend         = sample[Boolean]
           val (session, _, _) = sessionWithClaimState(None)
 
           inSequence {
@@ -168,7 +215,9 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
           }
 
           checkPageIsDisplayed(
-            performAction(),
+            controller.handleFormatOrVirusCheckErrorCallback(isAmend)(
+              FakeRequest()
+            ),
             messageFromMessageKey(
               "schedule-document.format-virus-fail.title"
             )
@@ -177,12 +226,9 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       }
 
       "handle file format or virus upscan call back" in {
-        def performAction(uploadReference: UploadReference): Future[Result] =
-          controller.scanProgress(uploadReference)(FakeRequest())
-
+        val isAmend         = sample[Boolean]
         val uploadReference = sample[UploadReference]
-
-        val upscanFailure = sample[UpscanFailure]
+        val upscanFailure   = sample[UpscanFailure]
 
         val upscanUpload =
           sample[UpscanUpload].copy(
@@ -199,8 +245,8 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
         }
 
         checkIsRedirect(
-          performAction(uploadReference),
-          routes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
+          controller.scanProgress(uploadReference, isAmend)(FakeRequest()),
+          routes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback(isAmend)
         )
       }
     }
