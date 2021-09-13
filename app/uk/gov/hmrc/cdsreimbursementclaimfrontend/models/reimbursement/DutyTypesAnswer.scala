@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import cats.data.NonEmptyList
+import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 
-final case class DutyTypesAnswer(dutyTypesSelected: NonEmptyList[DutyType])
+final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
 
 object DutyTypesAnswer {
+  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
   implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
 }

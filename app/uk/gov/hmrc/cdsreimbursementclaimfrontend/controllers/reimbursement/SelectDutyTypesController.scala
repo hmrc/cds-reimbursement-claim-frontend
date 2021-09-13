@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -31,8 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutyTypesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -78,7 +78,7 @@ class SelectDutyTypesController @Inject() (
                 updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
               }(dutyTypesSelectedAnswer =>
                 if (selectedAnswer === dutyTypesSelectedAnswer) {
-                  Redirect(reimbursementRoutes.SelectDutySubTypesController.start())
+                  Redirect(reimbursementRoutes.SelectDutyCodesController.start())
                 } else {
                   updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
                 }
@@ -100,7 +100,7 @@ class SelectDutyTypesController @Inject() (
       .leftMap((_: Unit) => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
-        _ => Redirect(reimbursementRoutes.SelectDutySubTypesController.start())
+        _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
       )
   }
 
@@ -116,8 +116,8 @@ object SelectDutyTypesController {
           "" -> number
         )(DutyType.apply)(DutyType.unapply)
       ).verifying("error.required", _.nonEmpty)
-    )(listOfDutyTypes => DutyTypesSelectedAnswer(listOfDutyTypes.head, listOfDutyTypes.tail: _*))(
-      nonEmptyListOfDutyTypes => Some(nonEmptyListOfDutyTypes.toList)
+    )(selectedDutyTypes => DutyTypesAnswer(selectedDutyTypes))(dutyTypesAnswer =>
+      Some(dutyTypesAnswer.dutyTypesSelected)
     )
   )
 

@@ -25,7 +25,6 @@ package object answers {
 
   type SupportingEvidencesAnswer = NonEmptyList[UploadDocument]
   type DutiesSelectedAnswer      = NonEmptyList[Duty] //FIXME: rename appropriately
-  type DutyTypesAnswer           = NonEmptyList[DutyType]
   type ClaimsAnswer              = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {

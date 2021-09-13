@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
 
 import java.util.UUID
 

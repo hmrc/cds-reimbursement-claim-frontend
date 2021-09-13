@@ -22,6 +22,8 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
+import java.util.Locale
+
 sealed trait DutyType extends Product with Serializable
 
 object DutyType {
@@ -105,6 +107,41 @@ object DutyType {
     Tobacco                -> List(NI611, NI615, NI619, NI623, NI627, NI633),
     ClimateChangeLevy      -> List(NI99A, NI99B, NI99C, NI99D)
   )
+
+  def toDutyType(repr: String): Option[DutyType] =
+    repr match {
+      case "ukduty"                 => Some(UkDuty)
+      case "euduty"                 => Some(EuDuty)
+      case "beer"                   => Some(Beer)
+      case "wine"                   => Some(Wine)
+      case "madewine"               => Some(MadeWine)
+      case "lowalcoholbeverages"    => Some(LowAlcoholBeverages)
+      case "spirits"                => Some(Spirits)
+      case "ciderperry"             => Some(CiderPerry)
+      case "hydrocarbonoils"        => Some(HydrocarbonOils)
+      case "biofuels"               => Some(Biofuels)
+      case "miscellaneousroadfuels" => Some(MiscellaneousRoadFuels)
+      case "tobacco"                => Some(Tobacco)
+      case "climatechangelevy"      => Some(ClimateChangeLevy)
+      case _                        => None
+    }
+
+  def typeToString(dutyType: DutyType): String =
+    dutyType match {
+      case UkDuty                 => UkDuty.toString.toLowerCase(Locale.UK)
+      case EuDuty                 => EuDuty.toString.toLowerCase(Locale.UK)
+      case Beer                   => Beer.toString.toLowerCase(Locale.UK)
+      case Wine                   => Wine.toString.toLowerCase(Locale.UK)
+      case MadeWine               => MadeWine.toString.toLowerCase(Locale.UK)
+      case LowAlcoholBeverages    => LowAlcoholBeverages.toString.toLowerCase(Locale.UK)
+      case Spirits                => Spirits.toString.toLowerCase(Locale.UK)
+      case CiderPerry             => CiderPerry.toString.toLowerCase(Locale.UK)
+      case HydrocarbonOils        => HydrocarbonOils.toString.toLowerCase(Locale.UK)
+      case Biofuels               => Biofuels.toString.toLowerCase(Locale.UK)
+      case MiscellaneousRoadFuels => MiscellaneousRoadFuels.toString.toLowerCase(Locale.UK)
+      case Tobacco                => Tobacco.toString.toLowerCase(Locale.UK)
+      case ClimateChangeLevy      => ClimateChangeLevy.toString.toLowerCase(Locale.UK)
+    }
 
   implicit val taxCategoryEq: Eq[DutyType] = Eq.fromUniversalEquals[DutyType]
 

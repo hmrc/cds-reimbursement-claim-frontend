@@ -28,12 +28,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutyTypesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
@@ -123,7 +122,7 @@ class SelectDutyTypesControllerSpec
 
       "the user has answered this question before with the previously selected duty types checked" in {
 
-        val (session, _, _) = sessionWithDutyTypesState(DutyTypesSelectedAnswer(List(DutyType.UkDuty)))
+        val (session, _, _) = sessionWithDutyTypesState(Some(DutyTypesAnswer(List(DutyType.UkDuty))))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -141,11 +140,53 @@ class SelectDutyTypesControllerSpec
 
     "handle submit requests" when {
 
-      "user chooses a valid option" in {
+      "user has never answered this question before" in {
 
-        val answers = DutyTypesSelectedAnswer(List(DutyType.UkDuty))
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(None)
 
-        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(answers)
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            Seq("select-duty-types[0]" -> "0")
+          ),
+          routes.SelectDutyCodesController.start()
+        )
+      }
+
+      "user does change his selection" in {
+
+        val answers = DutyTypesAnswer(List(DutyType.EuDuty))
+
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(Some(answers))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            Seq("select-duty-types[0]" -> "0")
+          ),
+          routes.SelectDutyCodesController.start()
+        )
+      }
+
+      "user does not change his selection" in {
+
+        val answers = DutyTypesAnswer(List(DutyType.UkDuty))
+
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -158,7 +199,7 @@ class SelectDutyTypesControllerSpec
           performAction(
             Seq("select-duty-types[0]" -> "0")
           ),
-          routes.SelectDutySubTypesController.start()
+          routes.SelectDutyCodesController.start()
         )
       }
 
@@ -168,9 +209,9 @@ class SelectDutyTypesControllerSpec
 
       "no duty type is selected" in {
 
-        val answers = DutyTypesSelectedAnswer(List(DutyType.UkDuty))
+        val answers = DutyTypesAnswer(List(DutyType.UkDuty))
 
-        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(answers)
+        val (session, fillingOutClaim, draftC285Claim) = sessionWithDutyTypesState(Some(answers))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
