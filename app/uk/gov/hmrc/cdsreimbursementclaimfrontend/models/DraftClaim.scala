@@ -54,8 +54,6 @@ object DraftClaim {
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
-//    dutySubTypesSelectedAnswer: DutySubTypesSelectedAnswer = Map.empty,
-//    dutyPaidAndClaimAmountAnswer: DutyPaidAndClaimAmountAnswer = Map.empty,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,

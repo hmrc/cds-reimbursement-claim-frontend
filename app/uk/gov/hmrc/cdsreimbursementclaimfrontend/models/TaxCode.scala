@@ -21,7 +21,6 @@ import play.api.libs.json._
 
 import scala.collection.immutable.HashSet
 
-//FIXME: rename to DutyCode to make the nomenclature consistent - change BE accordingly
 sealed abstract class TaxCode(val value: String) extends Product with Serializable {
   override def toString() = value
 }

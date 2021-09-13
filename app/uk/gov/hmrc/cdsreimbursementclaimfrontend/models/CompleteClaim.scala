@@ -78,8 +78,6 @@ object CompleteClaim {
             maybeSupportingEvidences,
             _,
             _,
-//            _,
-//            _, //duty paid and claim amount
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
