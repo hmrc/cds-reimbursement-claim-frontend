@@ -17,30 +17,29 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.kernel.Eq
+import cats.implicits.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
-import java.util.Locale
-
-sealed trait DutyType extends Product with Serializable
+sealed abstract class DutyType(val repr: String) extends Product with Serializable
 
 object DutyType {
 
-  case object UkDuty extends DutyType
-  case object EuDuty extends DutyType
-  case object Beer extends DutyType
-  case object Wine extends DutyType
-  case object MadeWine extends DutyType
-  case object LowAlcoholBeverages extends DutyType
-  case object Spirits extends DutyType
-  case object CiderPerry extends DutyType
-  case object HydrocarbonOils extends DutyType
-  case object Biofuels extends DutyType
-  case object MiscellaneousRoadFuels extends DutyType
-  case object Tobacco extends DutyType
-  case object ClimateChangeLevy extends DutyType
+  case object UkDuty extends DutyType("ukduty")
+  case object EuDuty extends DutyType("euduty")
+  case object Beer extends DutyType("beer")
+  case object Wine extends DutyType("wine")
+  case object MadeWine extends DutyType("madewin")
+  case object LowAlcoholBeverages extends DutyType("lowalcoholbeverages")
+  case object Spirits extends DutyType("spirits")
+  case object CiderPerry extends DutyType("cideperry")
+  case object HydrocarbonOils extends DutyType("hydrocarbonoils")
+  case object Biofuels extends DutyType("biofuels")
+  case object MiscellaneousRoadFuels extends DutyType("miscellaneousroadfuels")
+  case object Tobacco extends DutyType("tobacco")
+  case object ClimateChangeLevy extends DutyType("climatechangelevy")
 
   val dutyTypes: List[DutyType] = List(
     UkDuty,
@@ -108,40 +107,9 @@ object DutyType {
     ClimateChangeLevy      -> List(NI99A, NI99B, NI99C, NI99D)
   )
 
-  def toDutyType(repr: String): Option[DutyType] =
-    repr match {
-      case "ukduty"                 => Some(UkDuty)
-      case "euduty"                 => Some(EuDuty)
-      case "beer"                   => Some(Beer)
-      case "wine"                   => Some(Wine)
-      case "madewine"               => Some(MadeWine)
-      case "lowalcoholbeverages"    => Some(LowAlcoholBeverages)
-      case "spirits"                => Some(Spirits)
-      case "ciderperry"             => Some(CiderPerry)
-      case "hydrocarbonoils"        => Some(HydrocarbonOils)
-      case "biofuels"               => Some(Biofuels)
-      case "miscellaneousroadfuels" => Some(MiscellaneousRoadFuels)
-      case "tobacco"                => Some(Tobacco)
-      case "climatechangelevy"      => Some(ClimateChangeLevy)
-      case _                        => None
-    }
+  def toDutyType(repr: String): Option[DutyType] = dutyTypes.find(_.repr === repr)
 
-  def typeToString(dutyType: DutyType): String =
-    dutyType match {
-      case UkDuty                 => UkDuty.toString.toLowerCase(Locale.UK)
-      case EuDuty                 => EuDuty.toString.toLowerCase(Locale.UK)
-      case Beer                   => Beer.toString.toLowerCase(Locale.UK)
-      case Wine                   => Wine.toString.toLowerCase(Locale.UK)
-      case MadeWine               => MadeWine.toString.toLowerCase(Locale.UK)
-      case LowAlcoholBeverages    => LowAlcoholBeverages.toString.toLowerCase(Locale.UK)
-      case Spirits                => Spirits.toString.toLowerCase(Locale.UK)
-      case CiderPerry             => CiderPerry.toString.toLowerCase(Locale.UK)
-      case HydrocarbonOils        => HydrocarbonOils.toString.toLowerCase(Locale.UK)
-      case Biofuels               => Biofuels.toString.toLowerCase(Locale.UK)
-      case MiscellaneousRoadFuels => MiscellaneousRoadFuels.toString.toLowerCase(Locale.UK)
-      case Tobacco                => Tobacco.toString.toLowerCase(Locale.UK)
-      case ClimateChangeLevy      => ClimateChangeLevy.toString.toLowerCase(Locale.UK)
-    }
+  def typeToString(dutyType: DutyType): String = dutyType.repr
 
   implicit val taxCategoryEq: Eq[DutyType] = Eq.fromUniversalEquals[DutyType]
 
