@@ -78,6 +78,8 @@ object CompleteClaim {
             maybeSupportingEvidences,
             _,
             _,
+            _,
+            _,
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
             maybeDisplayDeclaration,

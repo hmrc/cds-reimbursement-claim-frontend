@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyPaidAndClaimAmountAnswer, DutyTypesAnswer}
 
 import java.util.UUID
 
@@ -54,6 +54,8 @@ object DraftClaim {
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
+    dutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
+    dutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer] = None,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,

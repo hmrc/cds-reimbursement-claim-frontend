@@ -622,6 +622,92 @@ select-duty-types.excise.type.8=Miscellaneous road fuels
 select-duty-types.excise.type.9=Tobacco products
 select-duty-types.excise.type.10=Climate Change Levy
 
+select-duty-codes.title=Select the {0} you want to claim for all MRNs in the file you uploaded
+select-duty-codes.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
+select-duty-codes.error.required=Select one or more duties to be reimbursed for.
+select-duty-codes.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
+select-duty-codes.checkbox-legend.1={0}
+
+#===================================================
+#  DUTY CODES
+#===================================================
+duty-code.A00=Customs Duty
+duty-code.A20=Additional Duty
+duty-code.A30=Definitive Anti-Dumping Duty
+duty-code.A35=Provisional Anti-Dumping Duty
+duty-code.A40=Definitive Countervailing Duty
+duty-code.A45=Provisional Countervailing Duty
+duty-code.B00=Value Added Tax
+duty-code.A50=Customs Duty
+duty-code.A70=Additional Duty
+duty-code.A80=Definitive Anti-Dumping Duty
+duty-code.A85=Provisional Anti-Dumping Duty
+duty-code.A90=Definitive Countervailing Duty
+duty-code.A95=Provisional Countervailing Duty
+duty-code.B05=Value Added Tax
+duty-code.407=Beer made in the UK (standard rate, that is, annual production more than 60,000 hectolitres)
+duty-code.411=Wine (sparkling), of fresh grape, 8.5% vol. and above, but not exceeding 15% vol.
+duty-code.412=Wine (sparkling]), of fresh grape, exceeding 5.5% vol. but less than 8.5% vol.
+duty-code.413=Wine (still), exceeding 5.5% vol. but not exceeding 15% vol.
+duty-code.415=Wine (still or sparkling), exceeding 15% vol. but not exceeding 22% vol.
+duty-code.419=Wine (still or sparkling), exceeding 22% vol.
+duty-code.421=Made-wine (sparkling), exceeding 8.5% vol. but not exceeding 15% vol.
+duty-code.422=Made-wine (sparkling), exceeding 5.5% vol. but less than 8.5% vol.
+duty-code.423=Made-wine (still), exceeding 5.5% vol. but not exceeding 15% vol.
+duty-code.425=Made-wine (still or sparkling), exceeding 15% vol. but not exceeding 22% vol.
+duty-code.429=Made-wine (still or sparkling), exceeding 22% vol.
+duty-code.431=Low alcohol beverage of less than 1.2% vol.
+duty-code.433=Wine, spirit based beverage exceeding 1.2% vol., but not exceeding 4% vol.
+duty-code.435=Wine, spirit based beverage exceeding 4% vol., but not exceeding 5.5% vol.
+duty-code.438=Spirit-based beverages exceeding 1.2% vol. but not exceeding 8% vol.
+duty-code.440=Beer made in the UK – small brewery beer eligible to reduced rates (variable rate, that is, annual production more than 5,000 hectolitres but not exceeding 60,000 hectolitres)
+duty-code.441=Imported beer - small brewery beer eligible to reduced rates (variable rate, that is, annual production more than 5,000 hectolitres but not exceeding 60,000 hectolitres)
+duty-code.442=Beer made in the UK - small brewery beer eligible to reduced rates (variable rate, that is, annual production no more than 5,000 hectolitres)
+duty-code.443=Imported beer - small brewery beer eligible to reduced rates (variable rate, that is, annual production no more than 5,000 hectolitres)
+duty-code.444=Beer made in the UK – reduced rate of general beer duty (applies to beer exceeding 1.2% above but not exceeding 2.8% above)
+duty-code.445=Beer made in the UK – high strength beer duty (applies to beer exceeding 7.5% above – general beer duty is also due on all UK produced high strength beer)
+duty-code.446=Imported beer – reduced rate of general beer duty (applies to beer exceeding 1.2% above but not exceeding 2.8% above)
+duty-code.447=Imported beer – high strength beer duty (applies to beer exceeding 7.5% above – general beer duty is also due on all imported high strength beer)
+duty-code.451=Spirits other than UK produced whisky
+duty-code.461=UK produced whisky - wholly malt
+duty-code.462=UK produced whisky - wholly grain
+duty-code.463=UK produced whisky - blended
+duty-code.473=Beer based beverage exceeding 1.2% vol. or Annual production more than 60,000 hectolitres
+duty-code.481=Cider and Perry (sparkling), made in the UK or imported, exceeding 1.2% but not exceeding 5.5% Cider and Perry (still), made in the UK or imported, exceeding 1.2% but less than 6.9%
+duty-code.483=Cider and Perry (still), made in the UK or imported exceeding 7.5% but not exceeding 8.5%
+duty-code.485=Cider and Perry (sparkling), made in the UK or imported exceeding 5.5% but not exceeding 8.5%
+duty-code.487=Cider and Perry (still), made in the UK or imported exceeding 6.9% but not exceeding 7.5%
+duty-code.511=Light oil (unmarked) - aviation gasoline (including light oil aviation turbine fuel)
+duty-code.520=Light oil (unmarked) - other unrebated light oil
+duty-code.521=Light oil, furnace fuel
+duty-code.522=Light oil, unleaded fuel
+duty-code.540=Heavy oil – other (unmarked) heavy oil (other than kerosene) intended for use as heating fuel, or as fuel for an engine, which would otherwise be eligible for a full rebate
+duty-code.541=Heavy oil (unmarked, including Diesel Engine Road Vehicle (DERV) or road fuel extender and unmarked kerosene or unmarked gas oil for which no marking waiver has been granted
+duty-code.542=Heavy oil kerosene to be used as motor fuel off-road or in an excepted vehicle
+duty-code.546=Unrebated Kerosene
+duty-code.551=Heavy oil, kerosene (marked or unmarked under marking waiver, including heavy oil aviation turbine fuel) to be used other than as motor fuel off-road or in an excepted vehicle
+duty-code.556=Heavy gas oil (marked or unmarked under marking waiver)
+duty-code.561=Heavy oil, fuel oil (unmarked)
+duty-code.570=Heavy oil, other (unmarked)
+duty-code.571=Biodiesel to be used as motor fuel off road or in an excepted vehicle
+duty-code.572=Biodiesel blended with kerosene for use as heating fuel
+duty-code.589=Biodiesel
+duty-code.591=Road fuel gases - natural gas including biogas
+duty-code.592=Road fuel gases – other than natural gas, for example, LPG
+duty-code.595=Bioethanol
+duty-code.597=Aqua methanol
+duty-code.611=Cigarettes
+duty-code.615=Cigars
+duty-code.619=Hand rolling tobacco
+duty-code.623=Smoking tobacco – other
+duty-code.627=Chewing tobacco
+duty-code.633=Tobacco for Heating
+duty-code.99A=Solid fuels, for example, coal and lignite, coke and semi-coke of coal or lignite, and petroleum coke
+duty-code.99B=Any petroleum gas, or other gaseous hydrocarbon supplied in a liquid state
+duty-code.99C=Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
+duty-code.99D=Electricity
+
+
 
 #===================================================
 #  MAKE CLAIM PAGES
