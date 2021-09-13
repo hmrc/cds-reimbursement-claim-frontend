@@ -21,7 +21,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
@@ -135,7 +137,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-      case false => claimRoutes.SelectDutiesController.selectDuties()
+      case false =>
+        if (journeyBindable === Scheduled) {
+          reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+        } else {
+          claimRoutes.SelectDutiesController.selectDuties()
+        }
     }
 
   def nextPageForWhoIsMakingTheClaim(mrnOrEntryNumber: Option[Either[EntryNumber, MRN]], isAmend: Boolean): Call =

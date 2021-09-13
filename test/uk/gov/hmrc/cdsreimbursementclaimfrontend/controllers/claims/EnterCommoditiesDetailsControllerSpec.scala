@@ -25,7 +25,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -33,6 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
+
 import scala.concurrent.Future
 
 class EnterCommoditiesDetailsControllerSpec
@@ -211,7 +214,11 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
-          routes.SelectDutiesController.selectDuties()
+          if (journeyBindable === Scheduled) {
+            reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+          } else {
+            routes.SelectDutiesController.selectDuties()
+          }
         )
       }
 

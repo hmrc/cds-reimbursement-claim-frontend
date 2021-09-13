@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 package object answers {
@@ -34,6 +35,11 @@ package object answers {
   object DutiesSelectedAnswer {
     def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
     def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
+  }
+
+  object DutyTypesSelectedAnswer {
+    def apply(head: DutyType, tail: DutyType*): NonEmptyList[DutyType] = NonEmptyList.of(head, tail: _*)
+    def apply(l: List[DutyType]): Option[NonEmptyList[DutyType]]       = NonEmptyList.fromList(l)
   }
 
   object ClaimsAnswer {

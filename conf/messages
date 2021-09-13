@@ -1,4 +1,3 @@
-
 service.name=Claim for reimbursement of import duties
 service.text=Claim for reimbursement of import duties
 service.title=Claim for reimbursement of import duties
@@ -599,6 +598,30 @@ enter-commodities-details.error.maxLength=Claim reason must be 500 characters or
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+
+#===================================================
+#  REIMBURSEMENT PAGES
+#===================================================
+select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
+select-duty-types.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select one or more of the paid duty types.
+select-duty-types.error.required=Select one or more duty types you want to claim for.
+select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
+select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
+select-duty-types.checkbox-legend.2=Excise Duties
+select-duty-types.type.0=UK Duty
+select-duty-types.type.1=EU Duty
+select-duty-types.type.2=Beer
+select-duty-types.type.3=Wine
+select-duty-types.type.4=Made-wine
+select-duty-types.type.5=Low alcohol beverages
+select-duty-types.type.6=Spirits
+select-duty-types.type.7=Cider and perry
+select-duty-types.type.8=Hydrocarbon oils
+select-duty-types.type.9=Biofuels
+select-duty-types.type.10=Miscellaneous road fuels
+select-duty-types.type.11=Tobacco products
+select-duty-types.type.12=Climate Change Levy
+
 
 #===================================================
 #  MAKE CLAIM PAGES
