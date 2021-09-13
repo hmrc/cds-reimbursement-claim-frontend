@@ -91,10 +91,8 @@ class SelectDutyTypesController @Inject() (
     dutyTypesSelectedAnswer: DutyTypesAnswer,
     fillingOutClaim: FillingOutClaim
   )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
-    val newDraftClaim: DraftC285Claim   =
-      fillingOutClaim.draftClaim.fold(_.copy(dutyTypesSelectedAnswer = Some(dutyTypesSelectedAnswer)))
-    val updatedJourney: FillingOutClaim = fillingOutClaim.copy(draftClaim = newDraftClaim)
-
+    val updatedJourney =
+      FillingOutClaim.of(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(dutyTypesSelectedAnswer)))
     EitherT
       .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap((_: Unit) => Error("could not update session"))

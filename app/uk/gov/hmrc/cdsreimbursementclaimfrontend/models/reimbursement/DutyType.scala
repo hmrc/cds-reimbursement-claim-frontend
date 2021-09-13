@@ -149,13 +149,6 @@ object DutyType {
 
   def apply(value: Int): DutyType = DutyType.dutyTypes(value)
 
-  def unapply(dutyType: DutyType): Option[Int] = {
-    val index = DutyType.dutyTypes.indexOf(dutyType)
-    if (index > -1) {
-      Some(index)
-    } else {
-      None
-    }
-  }
+  def unapply(dutyType: DutyType): Option[Int] = Option(DutyType.dutyTypes.indexOf(dutyType)).filter(_ > -1)
 
 }
