@@ -22,7 +22,7 @@ import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
-import play.api.data.Forms.{list, mapping, number}
+import play.api.data.Forms.{list, mapping, nonEmptyText}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -111,7 +111,11 @@ object SelectDutyTypesController {
     mapping(
       "select-duty-types" -> list(
         mapping(
-          "" -> number
+          "" -> nonEmptyText
+            .verifying(
+              "invalid duty type code",
+              code => DutyType.dutyTypes.map(_.repr).exists(_ === code)
+            )
         )(DutyType.apply)(DutyType.unapply)
       ).verifying("error.required", _.nonEmpty)
     )(selectedDutyTypes => DutyTypesAnswer(selectedDutyTypes))(dutyTypesAnswer =>

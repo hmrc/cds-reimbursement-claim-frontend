@@ -132,7 +132,7 @@ class SelectDutyTypesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("select-duty-types.title"),
-          doc => isCheckboxChecked(doc, DutyType.dutyTypes.indexOf(DutyType.UkDuty).toString) shouldBe true
+          doc => isCheckboxChecked(doc, "ukduty") shouldBe true
         )
       }
 
@@ -154,7 +154,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "0")
+            Seq("select-duty-types[0]" -> "ukduty")
           ),
           routes.SelectDutyCodesController.start()
         )
@@ -176,7 +176,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "0")
+            Seq("select-duty-types[0]" -> "ukduty")
           ),
           routes.SelectDutyCodesController.start()
         )
@@ -197,7 +197,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "0")
+            Seq("select-duty-types[0]" -> "ukduty")
           ),
           routes.SelectDutyCodesController.start()
         )
