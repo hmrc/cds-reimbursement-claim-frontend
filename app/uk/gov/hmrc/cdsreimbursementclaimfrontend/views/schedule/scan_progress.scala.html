@@ -14,7 +14,7 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(upscanUpload : UpscanUpload, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
+@(upscanUpload : UpscanUpload)(implicit request: RequestWithSessionData[_], messages:Messages, appConfig: ViewConfig)
 
 @key = @{"schedule-document.scan-progress"}
 @title = @{messages(s"$key.title")}
@@ -26,7 +26,7 @@
     @paragraph(Html(messages(s"$key.p1")), Some("govuk-body"))
     @paragraph(Html(messages(s"$key.p2")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-    @formWithCSRF(routes.ScheduleOfMrnDocumentController.scanProgressSubmit(upscanUpload.uploadReference.value, isAmend), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.ScheduleOfMrnDocumentController.scanProgressSubmit(upscanUpload.uploadReference.value), 'novalidate -> "novalidate") {
         @submitButton("button.continue")
     }
 }

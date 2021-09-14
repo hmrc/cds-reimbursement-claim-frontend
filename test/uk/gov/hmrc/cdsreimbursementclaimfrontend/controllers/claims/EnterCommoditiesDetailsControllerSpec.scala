@@ -138,7 +138,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -165,7 +165,7 @@ class EnterCommoditiesDetailsControllerSpec
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
               basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-              movementReferenceNumber = sampleEntryNumberAnswer()
+              movementReferenceNumber = sampleMrnAnswer()
             )
 
           val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -197,7 +197,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -226,7 +226,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -259,7 +259,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))

@@ -69,35 +69,35 @@ class ScheduleOfMrnDocumentController @Inject() (
   implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
 
-  def uploadScheduledDocument(isAmend: Boolean): Action[AnyContent] =
+  def uploadScheduledDocument(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
         if (answer.toList.length >= maxUploads)
-          Future.successful(Redirect(routes.ScheduleOfMrnDocumentController.review(isAmend)))
+          Future.successful(Redirect(routes.ScheduleOfMrnDocumentController.review()))
         else
           upscanService
             .initiate(
-              routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(isAmend),
-              reference => routes.ScheduleOfMrnDocumentController.scanProgress(reference, isAmend),
+              routes.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(),
+              routes.ScheduleOfMrnDocumentController.scanProgress,
               config.readMaxFileSize(configKey)
             )
             .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload)))
       }
     }
 
-  def uploadScheduledDocumentSubmit(isAmend: Boolean): Action[AnyContent] =
+  def uploadScheduledDocumentSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async {
-      Redirect(routes.ScheduleOfMrnDocumentController.uploadScheduledDocument(isAmend))
+      Redirect(routes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
     }
 
-  def handleFileSizeErrorCallback(isAmend: Boolean): Action[AnyContent] =
+  def handleFileSizeErrorCallback(): Action[AnyContent] =
     authenticatedActionWithSessionData {
-      Redirect(uploadRoutes.ScheduleOfMrnDocumentController.showFileSizeErrorPage(isAmend))
+      Redirect(uploadRoutes.ScheduleOfMrnDocumentController.showFileSizeErrorPage())
     }
 
-  def showFileSizeErrorPage(isAmend: Boolean): Action[AnyContent] =
+  def showFileSizeErrorPage(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(fileSizeErrorPage(isAmend))
+      Ok(fileSizeErrorPage())
     }
 
   def addDocument(
@@ -118,7 +118,7 @@ class ScheduleOfMrnDocumentController @Inject() (
     FillingOutClaim.of(claim)(_.copy(scheduledDocumentAnswer = answer.some))
   }
 
-  def scanProgress(uploadReference: UploadReference, isAmend: Boolean): Action[AnyContent] =
+  def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (fillingOut, _) =>
         val result = for {
@@ -140,27 +140,26 @@ class ScheduleOfMrnDocumentController @Inject() (
           upscanUpload =>
             upscanUpload.upscanCallBack match {
               case Some(_: UpscanSuccess) =>
-                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.review(isAmend))
+                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.review())
               case Some(_: UpscanFailure) =>
-                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback(isAmend))
+                Redirect(uploadRoutes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback())
               case None                   =>
-                Ok(scanProgressPage(upscanUpload, isAmend))
+                Ok(scanProgressPage(upscanUpload))
             }
         )
       }
     }
 
   def scanProgressSubmit(
-    uploadReference: String,
-    isAmend: Boolean
+    uploadReference: String
   ): Action[AnyContent] =
     authenticatedActionWithSessionData { _ =>
       Redirect(
-        uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(UploadReference(uploadReference), isAmend)
+        uploadRoutes.ScheduleOfMrnDocumentController.scanProgress(UploadReference(uploadReference))
       )
     }
 
-  def deleteScheduledDocument(isAmend: Boolean): Action[AnyContent] =
+  def deleteScheduledDocument(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (fillingOutClaim, _) =>
         val newJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = None))
@@ -171,38 +170,35 @@ class ScheduleOfMrnDocumentController @Inject() (
 
         result.fold(
           logAndDisplayError("Could not update session"),
-          _ => Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument(isAmend))
+          _ => Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
         )
       }
     }
 
-  def review(isAmend: Boolean): Action[AnyContent] =
+  def review(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (_, answer) =>
         def redirectToUploadEvidence =
-          Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument(isAmend))
+          Redirect(uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument())
 
         def listUploadedItems(scheduleDocument: ScheduledDocumentAnswer) =
-          Ok(reviewPage(scheduleDocument, isAmend))
+          Ok(reviewPage(scheduleDocument))
 
         answer.fold(redirectToUploadEvidence)(listUploadedItems)
       }
     }
 
-  def reviewSubmit(isAmend: Boolean): Action[AnyContent] =
+  def reviewSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData {
-      Redirect(
-        if (isAmend) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Scheduled)
-        else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled)
-      )
+      Redirect(claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled))
     }
 
-  def handleFormatOrVirusCheckErrorCallback(isAmend: Boolean): Action[AnyContent] =
+  def handleFormatOrVirusCheckErrorCallback(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(formatVirusErrorPage(isAmend))
+      Ok(formatVirusErrorPage())
     }
 }
 
 object ScheduleOfMrnDocumentController {
-  val configKey = "schedule-of-mrn"
+  val configKey: String = "schedule-of-mrn"
 }

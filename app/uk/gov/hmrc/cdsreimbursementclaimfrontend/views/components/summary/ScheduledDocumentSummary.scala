@@ -39,7 +39,7 @@ class ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.ScheduleOfMrnDocumentController.review(isAmend = true).url}",
+                  href = s"${routes.ScheduleOfMrnDocumentController.review().url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

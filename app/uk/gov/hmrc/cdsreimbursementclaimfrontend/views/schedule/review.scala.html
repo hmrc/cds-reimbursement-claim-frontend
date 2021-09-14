@@ -15,7 +15,7 @@
         bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@(scheduledDocument: ScheduledDocumentAnswer, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(scheduledDocument: ScheduledDocumentAnswer)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"schedule-document.review"}
 
@@ -54,14 +54,14 @@
                 }
             </dt>
             <dd class="govuk-summary-list__actions">
-                @defining(routes.ScheduleOfMrnDocumentController.deleteScheduledDocument(isAmend).url) { deleteUrl =>
+                @defining(routes.ScheduleOfMrnDocumentController.deleteScheduledDocument().url) { deleteUrl =>
                     <a class="govuk-link" href=@deleteUrl>@{messages(s"cya.remove")}</a>
                 }
             </dd>
         </div>
     </dl>
 
-    @formWithCSRF(routes.ScheduleOfMrnDocumentController.reviewSubmit(isAmend), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.ScheduleOfMrnDocumentController.reviewSubmit(), 'novalidate -> "novalidate") {
 
         @submitButton("button.continue")
 
