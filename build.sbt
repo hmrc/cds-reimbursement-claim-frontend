@@ -62,7 +62,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(routesImport := Seq(
     "_root_.controllers.Assets.Asset",
     "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
-    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference"
+    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
+    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType"
   ))
   .settings(majorVersion := 1)
   .settings(
@@ -82,6 +83,6 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s")
   .settings(Compile / doc / sources := Seq.empty)
 
-lazy val welshExport = taskKey[Unit]("Generate Welsh Translations'")
+lazy val welshTranslation = taskKey[Unit]("Generate Welsh Translations'")
 
-welshExport := WelshTranslation.welshExport()
+welshTranslation := WelshTranslation.importAndExport()

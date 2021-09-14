@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.twirl.api.Html
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-@this()
+import cats.Eq
+import play.api.libs.json.{Json, OFormat}
 
-@(title:String,description:String)
+final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
 
-<strong>@title</strong> @Html(description)
+object DutyTypesAnswer {
+  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
+  implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
+}

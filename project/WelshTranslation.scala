@@ -27,7 +27,7 @@ object WelshTranslation {
    *  - a new messages.cy file (from the english version + git history)
    *  - a csv file to send to the translation team with all the missing translations
    */
-  def welshExport(): Unit = {
+  def importAndExport(): Unit = {
     val newlinesToTranslate = ListBuffer[String]()
     val newWelshLines = fileEn
       .map { line =>
@@ -52,7 +52,7 @@ object WelshTranslation {
 
     val translationTeamFile = (newlinesToTranslate.toList ::: changedTranslations).mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
 
-    Files.write(Paths.get("conf/NEW_WELSH_messages.cy"), newWelshLanguageFile)
+    Files.write(Paths.get("conf/messages.cy"), newWelshLanguageFile)
     Files.write(Paths.get("conf/CdsReimbursementNewOrChanged.csv"), translationTeamFile)
 
     ()

@@ -201,4 +201,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
   }
 
+  def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
+    document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
+
 }
