@@ -109,7 +109,8 @@ class ClaimantDetailsHelper @Inject() () {
               ActionItem(
                 href =
                   s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
-                Text(messages("claimant-details.change"))
+                content = Text(messages("claimant-details.change")),
+                visuallyHiddenText = Some(messages(s"$key.contact.details"))
               )
           )
         )
@@ -140,7 +141,8 @@ class ClaimantDetailsHelper @Inject() () {
           List(
             ActionItem(
               href = s"${routes.CheckContactDetailsMrnController.changeAddress(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
+              content = Text(messages("claimant-details.change")),
+              visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )
           )
         )
