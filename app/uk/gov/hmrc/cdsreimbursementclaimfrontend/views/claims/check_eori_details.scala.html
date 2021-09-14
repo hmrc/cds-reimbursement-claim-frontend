@@ -43,7 +43,7 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), signedInUserDetails = Some(userDetails), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

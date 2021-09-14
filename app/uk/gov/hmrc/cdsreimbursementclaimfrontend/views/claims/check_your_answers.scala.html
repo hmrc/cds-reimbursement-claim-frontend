@@ -16,11 +16,16 @@
 
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import cats.syntax.all._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 @this(
@@ -34,37 +39,48 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(completeClaim : CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(completeClaim: CompleteClaim, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, journey: JourneyBindable)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails) {
+    @contactSummary = @{
+        (completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
+            (contactDetails, contactAddress).review("claimant-details")
+        }
+    }
+
+    @layout(pageTitle = Some(s"$title")) {
 
         @pageHeading(title)
 
         @pageHeading(messages(s"$key.reference-number.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
-        @summary(SummaryList(cyaHelper.makeReferenceNumberRowSummary(completeClaim.movementReferenceNumber)))
+        @summary(completeClaim.movementReferenceNumber.value.fold(_.review(s"$key.entry-reference-number"), _.review(s"$key.mrn")))
 
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeDeclarationDetailsSummary(completeClaim)))
 
+        @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(completeClaim.declarantTypeAnswer.review(s"$key.claimant-type"))
+
         @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimantDetailsSummary(completeClaim)))
 
-        @completeClaim.claimantDetailsAsImporterCompany.map{ _ =>
-            @pageHeading(messages(s"$key.claimant-details-as-importer.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(SummaryList(cyaHelper.makeClaimantDetailsAsImporterSummary(completeClaim)))
+        @contactSummary.map { details =>
+            @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
+            @summary(details)
         }
 
-        @pageHeading(messages(s"$key.reason-basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBasisAndOrReasonForClaim(completeClaim)))
+        @completeClaim.maybeBasisOfClaimAnswer.map { basisOfClaim =>
+            @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(basisOfClaim.review(s"$key.basis"))
+        }
 
-        @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"${key}.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
+        @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
         @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim))) else ""}
 
-        @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeCommodityDetailsSummary(completeClaim)))
+        @pageHeading(messages(lang(s"$key.commodity-details", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(completeClaim.commodityDetailsAnswer.review(router.mergeWithSubKey(s"$key.commodities-details")))
 
         @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
@@ -73,12 +89,12 @@
         @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeSupportingEvidenceSummary(completeClaim.supportingEvidences)))
+        @summary(completeClaim.supportingEvidencesAnswer.review(s"$key.attached-documents"))
 
         @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
-        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(), 'novalidate -> "novalidate") {
+        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey), 'novalidate -> "novalidate") {
             @submitButton("button.accept-and-send")
         }
 

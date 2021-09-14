@@ -42,7 +42,7 @@ trait AuthSupport {
 
   def mockAuth[R](predicate: Predicate, retrieval: Retrieval[R])(
     result: Future[R]
-  ): Unit =
+  ): Any =
     (mockAuthConnector
       .authorise(_: Predicate, _: Retrieval[R])(
         _: HeaderCarrier,
@@ -51,7 +51,7 @@ trait AuthSupport {
       .expects(predicate, retrieval, *, *)
       .returning(result)
 
-  def mockAuthWithNoRetrievals(): Unit =
+  def mockAuthWithNoRetrievals(): Any =
     mockAuth(EmptyPredicate, EmptyRetrieval)(Future.successful(()))
 
   val expectedRetrievals
@@ -64,7 +64,7 @@ trait AuthSupport {
     retrievedEnrolments: Set[Enrolment],
     retrievedCredentials: Option[Credentials],
     retrievedName: Option[Name]
-  ): Unit =
+  ): Any =
     mockAuth(EmptyPredicate, expectedRetrievals)(
       Future successful (
         new ~(retrievedAffinityGroup, retrievedEmail) and Enrolments(
@@ -77,7 +77,7 @@ trait AuthSupport {
     retrievedEmail: Option[String],
     retrievedCredentials: Credentials,
     retrievedName: Name
-  ): Unit =
+  ): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       retrievedEmail,
@@ -86,7 +86,7 @@ trait AuthSupport {
       Some(retrievedName)
     )
 
-  def mockAuthWithEoriEnrolmentRetrievals(): Unit =
+  def mockAuthWithEoriEnrolmentRetrievals(): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Individual),
       None,
@@ -106,7 +106,7 @@ trait AuthSupport {
       Some(Name(Some("John Smith"), Some("Smith")))
     )
 
-  def mockAuthWithOrgWithEoriEnrolmentRetrievals(): Unit =
+  def mockAuthWithOrgWithEoriEnrolmentRetrievals(): Any =
     mockAuthWithAllRetrievals(
       Some(AffinityGroup.Organisation),
       None,
@@ -126,7 +126,7 @@ trait AuthSupport {
       Some(Name(Some("John Smith"), Some("Smith")))
     )
 
-  def mockAuthWithNonGGUserRetrievals(): Unit =
+  def mockAuthWithNonGGUserRetrievals(): Any =
     mockAuthWithAllRetrievals(
       None,
       None,

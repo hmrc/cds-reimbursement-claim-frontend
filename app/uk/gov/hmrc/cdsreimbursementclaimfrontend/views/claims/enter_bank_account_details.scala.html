@@ -18,11 +18,9 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.BankAccountDetails
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -31,35 +29,26 @@
  paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
  formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
  inputText : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_text,
- checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
 )
 
-@(form : Form[BankAccountDetails], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[BankAccountDetails], router:ReimbursementRoutes, isChange : Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-bank-details"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.BankAccountController.changeBankAccountDetailsSubmit else routes.BankAccountController.enterBankAccountDetailsSubmit}
-
-    @options = @{List(
-        CheckboxItem(
-            name = Some(s"$key[]"),
-            value = "true",
-            content = Text("Is business account"),
-            checked = form.data.exists(_._2 == "true")
-        ))
-    }
+    @postAction = @{router.submitUrlForEnterOrChangeBankAccountDetails(isChange)}
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form)
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.p1", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.p2", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -69,19 +58,9 @@
                 name = s"$key.account-name",
                 label = s"$key.account-name.label",
                 isPageHeading = false,
-                hint = Some(s"${key}.account-name.help-text"),
-                classes = Some("govuk-input--width-20"),
-                labelClasses = Some("govuk-label govuk-label--s")
+                classes = Some("govuk-input--width-20")
             )
 
-            @checkboxes(
-                field = form(s"$key.is-business-account"),
-                singleton = true,
-                legendAsHeading = false,
-                legend = "",
-                items = options,
-                hint = None
-            )
 
             @inputText(
                 form = form,
@@ -89,9 +68,8 @@
                 name = s"$key.sort-code",
                 label = s"$key.sort-code.label",
                 isPageHeading = false,
-                hint = Some(s"${key}.sort-code.help"),
-                classes = Some("govuk-input--width-5"),
-                labelClasses = Some("govuk-label govuk-label--s")
+                hint = Some(s"$key.sort-code.help-text"),
+                classes = Some("govuk-input--width-5")
             )
 
             @inputText(
@@ -100,9 +78,8 @@
                 name = s"$key.account-number",
                 label = s"$key.account-number.label",
                 isPageHeading = false,
-                hint = Some(s"${key}.account-number.help-text"),
-                classes = Some("govuk-input--width-10"),
-                labelClasses = Some("govuk-label govuk-label--s")
+                hint = Some(s"$key.account-number.help-text"),
+                classes = Some("govuk-input--width-10")
             )
 
             @submitButton("button.continue")

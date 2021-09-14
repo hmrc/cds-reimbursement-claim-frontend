@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{CorrectionToRiskClassification, DuplicateEntry, IncorrectExciseValue, allClaimsTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectExciseValue, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, DraftClaim, TaxCode}
 
 sealed trait BasisOfClaims {
@@ -29,13 +29,13 @@ sealed trait BasisOfClaims {
 object BasisOfClaims {
 
   final case class MrnBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.d${basisOfClaim.value}"
+    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
+      BasisOfClaimsMessage.ofMrn(parentKey, basisOfClaim)
   }
 
   final case class EntryNumberBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim) =
-      s"$parentKey.reason.ern.d${basisOfClaim.value}"
+    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
+      BasisOfClaimsMessage.ofEntryNumber(parentKey, basisOfClaim)
   }
 
   def apply(): Builder = Builder(allClaimsTypes)
@@ -65,7 +65,7 @@ object BasisOfClaims {
       val items = isNorthernIrelandJourney match {
         case ClaimNorthernIrelandAnswer.No  =>
           claims.diff(
-            List(IncorrectExciseValue, CorrectionToRiskClassification)
+            List(IncorrectExciseValue, IncorrectAdditionalInformationCode)
           )
         case ClaimNorthernIrelandAnswer.Yes =>
           if (hasNorthernIrelandExciseCodes) claims

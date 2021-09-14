@@ -1,0 +1,99 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.data.Form
+@import play.twirl.api.Html
+@import play.api.i18n.Messages
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+
+@this(
+ layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+ submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+ pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+ formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+ errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+ paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+ checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+)
+
+@(form : Form[DutyTypesAnswer])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+
+    @key = @{"select-duty-types"}
+    @title = @{messages(s"$key.title")}
+
+    @postAction = @{reimbursementRoutes.SelectDutyTypesController.submitDutyTypes()}
+
+    @customs_options = @{DutyType.customDutyTypes.map { dutyType =>
+        CheckboxItem(
+            name = Some(s"${key}[]"),
+            value = dutyType.repr,
+            content = Text(messages(s"${key}.custom.type.${dutyType.repr}")),
+            checked = form.data.exists(_._2 == dutyType.repr)
+            )
+        }
+    }
+
+    @excise_options = @{DutyType.exciseDutyTypes.map { dutyType =>
+        CheckboxItem(
+            name = Some(s"${key}[]"),
+            value = dutyType.repr,
+            content = Text(messages(s"${key}.excise.type.${dutyType.repr}")),
+            checked = form.data.exists(_._2 == dutyType.repr)
+            )
+        }
+    }
+
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+
+        @errorSummary(form.errors)
+
+        @pageHeading(title)
+
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+
+        @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
+
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+
+            @checkboxes(
+                field = form(s"${key}-custom"),
+                legendAsHeading = true,
+                legend = messages(s"$key.checkbox-legend.1"),
+                items = customs_options.toList,
+                hint = None
+            )
+
+            @checkboxes(
+                field = form(s"${key}-excise"),
+                legendAsHeading = true,
+                legend = messages(s"$key.checkbox-legend.2"),
+                items = excise_options.toList,
+                hint = None
+            )
+
+            @submitButton("button.continue")
+
+        }
+
+    }

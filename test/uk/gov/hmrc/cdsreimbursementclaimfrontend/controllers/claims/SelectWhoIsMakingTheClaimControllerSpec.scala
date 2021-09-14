@@ -164,7 +164,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -176,8 +176,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.EnterDetailsRegisteredWithCdsController
-            .enterDetailsRegisteredWithCds()
+          routes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
         )
       }
 
@@ -251,7 +250,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = sampleEntryNumberAnswer()
+            movementReferenceNumber = sampleMrnAnswer()
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
@@ -263,8 +262,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.CheckYourAnswersAndSubmitController
-            .checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         )
       }
 

@@ -17,8 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.instances.future.catsStdInstancesForFuture
 import cats.implicits.catsSyntaxEq
+import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.{mapping, number}
@@ -28,14 +28,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.claim_northern_ireland
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -102,10 +101,7 @@ class ClaimNorthernIrelandController @Inject() (
                   .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                   .leftMap((_: Unit) => Error("could not update session"))
                   .fold(
-                    e => {
-                      logger.warn("could not capture select number of claims", e)
-                      errorHandler.errorResult()
-                    },
+                    logAndDisplayError("could not capture select number of claims"),
                     _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))
                   )
               }

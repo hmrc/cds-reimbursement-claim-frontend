@@ -17,12 +17,24 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.api.Logger
+import play.api.mvc.{Request, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 
 trait Logging {
 
   val logger: Logger = Logger(this.getClass)
 
+  def logAndDisplayError(
+    description: String
+  )(implicit errorHandler: ErrorHandler, request: Request[_]): Error => Result = {
+    import errorHandler._
+    error => {
+      logger warn (description, error)
+      errorResult()
+    }
+  }
 }
 
 object Logging {

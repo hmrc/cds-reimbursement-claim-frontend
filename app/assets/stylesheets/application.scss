@@ -3,7 +3,6 @@ $hmrc-assets-path: "/claim-for-reimbursement-of-import-duties/assets/lib/hmrc-fr
 
 @import "lib/govuk-frontend/govuk/all";
 @import "lib/hmrc-frontend/hmrc/all";
-@import "autocomplete";
 @import "language-selection";
 
 @media print {
@@ -23,16 +22,23 @@ $hmrc-assets-path: "/claim-for-reimbursement-of-import-duties/assets/lib/hmrc-fr
 
 // Custom CDR styles
 
-.govuk-panel--confirmation {
-    word-break:break-word;
-}
-
-.cds-user-banner {
-    display:flex;
-    border-bottom: 1px solid #b1b4b6;
-    justify-content:space-between;
-}
-
 .cds-no-border {
     border:none;
+}
+
+.cds-wrap-content {
+
+    @media only screen and (max-width: 600px) {
+        word-wrap:break-word;
+        overflow-wrap:break-word;
+        -webkit-hyphens:auto;
+        -ms-hyphens:auto;
+        -moz-hyphens:auto;
+        hyphens:auto;
+    }
+
+    &--forced {
+        word-break:break-word;
+    }
+
 }

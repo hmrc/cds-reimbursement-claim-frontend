@@ -27,6 +27,7 @@ import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor.extractJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{ClaimAmount, ClaimAndPaidAmount, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -186,16 +187,13 @@ class EnterClaimController @Inject() (
                 .leftMap(_ => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not get radio button details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not get radio button details"),
                 _ =>
                   claims match {
                     case ClaimAnswersAreCorrect =>
                       if (fillingOutClaim.draftClaim.fold(_.isMrnFlow))
-                        Redirect(routes.BankAccountController.checkBankAccountDetails())
-                      else Redirect(routes.BankAccountController.enterBankAccountDetails())
+                        Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
+                      else Redirect(routes.BankAccountController.enterBankAccountDetails(extractJourney))
 
                     case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
                   }
@@ -221,13 +219,7 @@ class EnterClaimController @Inject() (
     EitherT
       .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap((_: Unit) => Error("could not update session"))
-      .fold(
-        e => {
-          logger.warn("could not save claims", e)
-          errorHandler.errorResult()
-        },
-        _ => nextPage
-      )
+      .fold(logAndDisplayError("could not save claims"), _ => nextPage)
   }
 
   protected def replaceUpdateRedirect(claimAnswer: ClaimsAnswer, newClaim: Claim, fillingOutClaim: FillingOutClaim)(

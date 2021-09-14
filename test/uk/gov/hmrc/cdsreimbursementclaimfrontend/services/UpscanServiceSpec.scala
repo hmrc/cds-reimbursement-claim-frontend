@@ -21,7 +21,6 @@ import cats.instances.future._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
@@ -36,7 +35,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenPropertyChecks with MockFactory {
+class UpscanServiceSpec extends AnyWordSpec with Matchers with MockFactory {
 
   val mockUpscanConnector: UpscanConnector = mock[UpscanConnector]
   val mockUpscanService                    = new UpscanServiceImpl(mockUpscanConnector)
@@ -51,6 +50,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
 
   "UpscanService" when {
     "receiving an upscan related request" must {
+
       "get the upscan upload reference data" when {
         "given a valid upload reference" in {
           val response = Right(HttpResponse(OK, Json.toJson(upscanUpload), Map[String, Seq[String]]().empty))
@@ -84,6 +84,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
         "the upscan initiate service returns a successful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
+          val maxFileSize = sample[Long]
           val response    = Right(
             HttpResponse(
               OK,
@@ -92,8 +93,10 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
             )
           )
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier))
-            .expects(mockFailure, mockSuccess, *, *)
+            .initiate(_: Call, _: Call, _: UploadReference, _: Long)(
+              _: HeaderCarrier
+            ))
+            .expects(mockFailure, mockSuccess, *, *, *)
             .returning(EitherT.fromEither[Future](response))
           (mockUpscanConnector
             .saveUpscanUpload(_: UpscanUpload)(_: HeaderCarrier))
@@ -101,7 +104,7 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
             .returning(EitherT.fromEither[Future](Right(HttpResponse(OK, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate(mockFailure, (_: UploadReference) => mockSuccess)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxFileSize)
               .value
           ).isRight shouldBe true
         }
@@ -111,13 +114,16 @@ class UpscanServiceSpec extends AnyWordSpec with Matchers with ScalaCheckDrivenP
         "the upscan initiate service returns an unsuccessful response" in {
           val mockSuccess = Call("GET", "/mock-success")
           val mockFailure = Call("GET", "/mock-fail")
+          val maxFileSize = sample[Long]
           (mockUpscanConnector
-            .initiate(_: Call, _: Call, _: UploadReference)(_: HeaderCarrier))
-            .expects(mockFailure, mockSuccess, *, *)
-            .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, "{}"))))
+            .initiate(_: Call, _: Call, _: UploadReference, _: Long)(
+              _: HeaderCarrier
+            ))
+            .expects(mockFailure, mockSuccess, *, *, *)
+            .returning(EitherT.fromEither[Future](Right(HttpResponse(BAD_REQUEST, emptyJsonBody))))
           await(
             mockUpscanService
-              .initiate(mockFailure, (_: UploadReference) => mockSuccess)
+              .initiate(mockFailure, (_: UploadReference) => mockSuccess, maxFileSize)
               .value
           ).isLeft shouldBe true
         }

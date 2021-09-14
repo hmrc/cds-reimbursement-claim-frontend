@@ -50,7 +50,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
 
         @errorSummary(form)
 
@@ -60,17 +60,16 @@
 
         @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
-            @paragraph(Html(messages(s"${key}.paid-amount-label", formatAmountOfMoneyWithPoundSign(claim.paidAmount))), Some("govuk-body"))
+            @paragraph(Html(messages(s"$key.paid-amount-label", formatAmountOfMoneyWithPoundSign(claim.paidAmount))), Some("govuk-body"))
 
             @inputText(
                 form = form,
                 id = key,
                 name = key,
                 label = s"$key.claim-amount",
-                labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input govuk-input--width-5"),
-                hint = Some(s"${key}.claim-amount.hint"),
+                hint = Some(s"$key.claim-amount.hint"),
                 prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
             )
 

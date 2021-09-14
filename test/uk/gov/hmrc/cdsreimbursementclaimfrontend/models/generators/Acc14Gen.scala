@@ -16,10 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import cats.{Functor, Id}
 import org.scalacheck.magnolia._
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.{genCountry, genPostcode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.genUkPhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 object Acc14Gen {
 
@@ -32,5 +38,85 @@ object Acc14Gen {
   } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
 
   implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
+
+  def genContactDetails: Gen[ContactDetails] =
+    for {
+      contactName  <- Gen.option(genStringWithMaxSizeOfN(7))
+      addressLine1 <- Gen.option(Gen.posNum[Int].map(num => s"$num ${genStringWithMaxSizeOfN(7)}"))
+      addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine3 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine4 <- Gen.option(genStringWithMaxSizeOfN(10))
+      postalCode   <- Gen.option(genPostcode)
+      countryCode  <- Gen.option(genCountry.map(_.code))
+      telephone    <- Gen.option(genUkPhoneNumber.map(_.value))
+      emailAddress <- Gen.option(genEmail.map(_.value))
+    } yield ContactDetails(
+      contactName,
+      addressLine1,
+      addressLine2,
+      addressLine3,
+      addressLine4,
+      postalCode,
+      countryCode,
+      telephone,
+      emailAddress
+    )
+
+  implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
+
+  def genEstablishmentAddress: Gen[EstablishmentAddress] =
+    for {
+      num          <- Gen.choose(1, 100)
+      street       <- genStringWithMaxSizeOfN(7)
+      addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine3 <- Gen.option(genStringWithMaxSizeOfN(20))
+      postalCode   <- Gen.option(genPostcode)
+      countryCode  <- genCountry
+    } yield EstablishmentAddress(
+      s"$num $street",
+      addressLine2,
+      addressLine3,
+      postalCode,
+      countryCode.code
+    )
+
+  implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
+
+  def generateAcc14WithAddresses(): DisplayDeclaration = {
+    val contactDetails       =
+      sample[ContactDetails].copy(
+        contactName = Some(alphaCharGen(20)),
+        addressLine1 = Some(alphaCharGen(20)),
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        addressLine4 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(7)),
+        countryCode = Some("GB"),
+        telephone = Some(sample[PhoneNumber].value)
+      )
+    val establishmentAddress = sample[EstablishmentAddress]
+      .copy(
+        addressLine2 = Some(alphaCharGen(20)),
+        addressLine3 = Some(alphaCharGen(20)),
+        postalCode = Some(alphaCharGen(6)),
+        countryCode = "GB"
+      )
+    val consignee            = sample[ConsigneeDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+
+    val declarant = sample[DeclarantDetails]
+      .copy(establishmentAddress = establishmentAddress, contactDetails = Some(contactDetails))
+
+    val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+      dd.copy(displayResponseDetail =
+        dd.displayResponseDetail.copy(
+          consigneeDetails = Some(consignee),
+          declarantDetails = declarant
+        )
+      )
+    )
+
+    displayDeclaration
+  }
 
 }

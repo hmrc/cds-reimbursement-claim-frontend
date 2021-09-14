@@ -41,7 +41,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @formWithCSRF(routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
 
@@ -56,7 +56,6 @@
                 id = key,
                 name = key,
                 label = lang(key,router.refNumberKey,"input-title").head,
-                labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 hint = lang(key,router.refNumberKey,"help").headOption

@@ -41,7 +41,8 @@ trait UpscanService {
 
   def initiate(
     errorRedirect: Call,
-    successRedirect: UploadReference => Call
+    successRedirect: UploadReference => Call,
+    maxFileSize: Long
   )(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, UpscanUpload]
@@ -53,15 +54,14 @@ trait UpscanService {
 }
 
 @Singleton
-class UpscanServiceImpl @Inject() (
-  upscanConnector: UpscanConnector
-)(implicit ec: ExecutionContext)
+class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec: ExecutionContext)
     extends UpscanService
     with Logging {
 
-  override def initiate(
+  def initiate(
     errorRedirect: Call,
-    successRedirect: UploadReference => Call
+    successRedirect: UploadReference => Call,
+    maxFileSize: Long
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, UpscanUpload] =
     for {
       uploadReference   <- EitherT.pure(UploadReference(UUID.randomUUID().toString))
@@ -69,7 +69,8 @@ class UpscanServiceImpl @Inject() (
                              .initiate(
                                errorRedirect,
                                successRedirect(uploadReference),
-                               uploadReference
+                               uploadReference,
+                               maxFileSize
                              )
                              .map[Either[Error, HttpResponse]] { response =>
                                if (response.status =!= Status.OK) {
@@ -116,5 +117,4 @@ class UpscanServiceImpl @Inject() (
         Left(Error(s"call to get upscan upload failed ${response.status}"))
       }
     }
-
 }

@@ -25,7 +25,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -69,8 +71,7 @@ class EnterCommoditiesDetailsControllerSpec
       DraftC285Claim.newDraftC285Claim
         .copy(
           commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
-          selectNumberOfClaimsAnswer = numberOfClaims,
-          reasonForBasisAndClaimAnswer = None
+          selectNumberOfClaimsAnswer = numberOfClaims
         )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -114,7 +115,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleMrnAnswer()
           )
@@ -140,7 +140,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -168,7 +167,6 @@ class EnterCommoditiesDetailsControllerSpec
 
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
-              reasonForBasisAndClaimAnswer = None,
               basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
               movementReferenceNumber = sampleEntryNumberAnswer()
             )
@@ -201,7 +199,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -217,7 +214,11 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
-          routes.SelectDutiesController.selectDuties()
+          if (journeyBindable === Scheduled) {
+            reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+          } else {
+            routes.SelectDutiesController.selectDuties()
+          }
         )
       }
 
@@ -231,7 +232,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )
@@ -247,8 +247,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
-          routes.CheckYourAnswersAndSubmitController
-            .checkAllAnswers()
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         )
       }
 
@@ -266,7 +265,6 @@ class EnterCommoditiesDetailsControllerSpec
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
-            reasonForBasisAndClaimAnswer = None,
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
             movementReferenceNumber = sampleEntryNumberAnswer()
           )

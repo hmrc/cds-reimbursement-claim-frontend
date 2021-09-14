@@ -33,9 +33,9 @@
     @key=@{"confirmation-of-submission"}
     @title = @{ messages(s"$key.title") }
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
-        <div class="govuk-panel govuk-panel--confirmation">
+        <div class="govuk-panel govuk-panel--confirmation cds-wrap-content">
             <h1 class="govuk-panel__title">@title</h1>
             <div class="govuk-panel__body">
                 <span>@messages(s"$key.reimbursement-amount")</span><br>
@@ -44,7 +44,7 @@
             <br>
             <div class="govuk-panel__body">
                 <span>@messages(s"$key.claim-reference")</span><br>
-                <strong>@justSubmittedClaim.submissionResponse.caseNumber</strong>
+                <strong class="cds-wrap-content--forced">@justSubmittedClaim.submissionResponse.caseNumber</strong>
             </div>
         </div>
 
@@ -62,10 +62,8 @@
             )
         )
 
-        @paragraph(Html(messages(s"$key.what-next.p2")), Some("govuk-body"))
+        <p class="govuk-body govuk-!-margin-bottom-9"><a href="@{routes.LandingPageController.showLandingPage().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
 
-        <p class="govuk-body"><a href="@{routes.StartController.startNewClaim().url}" class="govuk-link">@messages(s"$key.what-next.link.1.start-another-claim")</a></p>
-
-        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.feedbackSignOut)), Some("govuk-body"))
+        @paragraph(Html(messages(s"exit-survey.link-text", viewConfig.serviceFeedBackUrl)), Some("govuk-body"))
 
     }

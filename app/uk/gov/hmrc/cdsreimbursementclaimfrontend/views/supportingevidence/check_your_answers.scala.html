@@ -15,47 +15,102 @@
  *@
 
 @import play.api.i18n.Messages
+@import play.api.data.Form
 @import play.twirl.api.Html
-
+@import play.twirl.api.TwirlFeatureImports.defining
 
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.supportingevidence.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.AddAnotherDocumentAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    fileUploadCya: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.SupportingEvidenceHelper,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    radios: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(evidences: SupportingEvidenceAnswer, maxUploads: Int)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable, evidences: SupportingEvidencesAnswer, maxUploads: Int, form: Form[AddAnotherDocumentAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.check-your-answers"}
 
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"$key.title", evidences.size, if (evidences.size > 1) "s" else "")}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+    @postAction = @{ routes.SupportingEvidenceController.checkYourAnswersSubmit(journey) }
+
+    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+
+        @errorSummary(form.errors)
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @summary(SummaryList(fileUploadCya.makeUploadedFilesRows(evidences)))
+        <dl class="govuk-summary-list govuk-!-margin-bottom-8">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key"></dt>
+                <dd class="govuk-summary-list__actions"></dd>
+            </div>
+            @evidences.toList.map { evidence =>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        @defining(evidence.fileName) { name =>
+                            @name<br />
+                            <span style="font-weight: normal">
+                                @{evidence.documentType.fold("")(documentType =>
+                                    messages(s"supporting-evidence.choose-document-type.document-type.d${documentType.index}")
+                                )}
+                            </span>
+                        }
+                    </dt>
+                    <dd class="govuk-summary-list__actions">
+                        @defining(routes.SupportingEvidenceController.deleteSupportingEvidence(journey, evidence.uploadReference, addNew = false).url) { changeUrl =>
+                            <a class="govuk-link" href=@changeUrl>
+                                @{messages(s"cya.remove")}
+                            </a>
+                        }
+                    </dd>
+                </div>
+            }
+        </dl>
 
-        @if(evidences.size < maxUploads){
-            @paragraph(Html(messages(s"$key.add-another-file", routes.SupportingEvidenceController.uploadSupportingEvidence().url)), Some("govuk-body"))
-        }
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @formWithCSRF(routes.SupportingEvidenceController.checkYourAnswersSubmit(), 'novalidate -> "novalidate") {
+            @if(evidences.size < maxUploads) {
+                @radios(
+                    form = form,
+                    name = key,
+                    legend = messages(s"$key.add-another-document-question"),
+                    legendAsHeading = false,
+                    hintKey = None,
+                    classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
+                    inline = true,
+                    items = Seq(
+                        RadioItem(
+                            value = Some("true"),
+                            content = Text(messages("generic.yes")),
+                            checked = false
+                        ),
+                        RadioItem(
+                            value = Some("false"),
+                            content = Text(messages("generic.no")),
+                            checked = false
+                        )
+                    )
+                )
+            }
 
-            @submitButton("button.confirm-and-continue")
-
+            @submitButton("button.continue")
         }
 
     }

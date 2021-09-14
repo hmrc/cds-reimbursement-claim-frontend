@@ -34,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, TimeUtils}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -190,10 +189,7 @@ class EnterDeclarationDetailsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture declaration details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not capture declaration details"),
                 _ =>
                   Redirect(
                     routes.SelectWhoIsMakingTheClaimController
@@ -300,11 +296,11 @@ class EnterDeclarationDetailsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture declaration details", e)
-                  errorHandler.errorResult()
-                },
-                _ => Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+                logAndDisplayError("could not capture declaration details"),
+                _ =>
+                  Redirect(
+                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                  )
               )
             }
           )
@@ -415,10 +411,7 @@ class EnterDeclarationDetailsController @Inject() (
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(
-                e => {
-                  logger.warn("could not capture duplicate declaration details", e)
-                  errorHandler.errorResult()
-                },
+                logAndDisplayError("could not capture duplicate declaration details"),
                 _ =>
                   Redirect(
                     routes.EnterCommoditiesDetailsController

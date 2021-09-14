@@ -44,7 +44,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -59,7 +59,6 @@
                 id = key,
                 name = key,
                 label = s"$key.enter-mrn.label",
-                labelClasses = Some("govuk-label govuk-label--s"),
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 hint = Some(s"$key.help")

@@ -123,7 +123,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def instanceOf[A : ClassTag]: A = fakeApplication.injector.instanceOf[A]
 
   lazy implicit val materializer: Materializer = fakeApplication.materializer
-  lazy val viewConfig                          = instanceOf[ViewConfig]
+  lazy implicit val viewConfig                 = instanceOf[ViewConfig]
 
   abstract override def beforeAll(): Unit = {
     Play.start(fakeApplication)
@@ -200,5 +200,8 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     case JourneyBindable.Bulk      => SelectNumberOfClaimsAnswer.Bulk
     case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
   }
+
+  def isCheckboxChecked(document: Document, fieldValue: String): Boolean =
+    document.select(s"""input[value="$fieldValue"] """).hasAttr("checked")
 
 }

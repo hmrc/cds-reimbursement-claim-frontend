@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
@@ -37,22 +38,25 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     completeClaim: CompleteClaim,
-    submissionResponse: SubmitClaimResponse
+    submissionResponse: SubmitClaimResponse,
+    journey: JourneyBindable
   ) extends JourneyStatus
 
   final case class SubmitClaimFailed(
     ggCredId: GGCredId,
-    signedInUserDetails: SignedInUserDetails
+    signedInUserDetails: SignedInUserDetails,
+    journey: JourneyBindable
   ) extends JourneyStatus
 
   final case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
-    def of(source: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
-      source.copy(draftClaim = source.draftClaim.fold(f))
+    def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
+      fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
   }
 
-  implicit val format: OFormat[JourneyStatus] = derived.oformat()
+  implicit val format: OFormat[JourneyStatus]                  = derived.oformat()
+  implicit val fillingOutClaimFormat: OFormat[FillingOutClaim] = derived.oformat()
 
   implicit val eq: Eq[JourneyStatus] = Eq.fromUniversalEquals
 

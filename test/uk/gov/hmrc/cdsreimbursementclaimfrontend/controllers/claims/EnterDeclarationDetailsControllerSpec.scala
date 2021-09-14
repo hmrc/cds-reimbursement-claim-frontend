@@ -431,16 +431,22 @@ class EnterDeclarationDetailsControllerSpec
             controller.enterDeclarationDetailsSubmit(),
             routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
           ),
-          (controller.changeDeclarationDetailsSubmit(), routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
+          (
+            controller.changeDeclarationDetailsSubmit(),
+            routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+          )
         )
 
         forAll(testCases) { (action, redirectPage) =>
+          val mrn                = sample[MRN]
           val declarationDetails = sample[EntryDeclarationDetails]
           val answers            = IncompleteDeclarationDetailsAnswer(declarationDetails.some)
 
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumber = MovementReferenceNumber(mrn).some)
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()

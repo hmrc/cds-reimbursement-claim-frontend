@@ -17,14 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
+import cats.implicits.catsSyntaxEq
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import org.scalatest.OptionValues
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 
 object UpscanGen extends OptionValues {
+
+  def genEvidenceDocumentType(isEntryNumberJourneyEnabled: Boolean): Gen[UploadDocumentType] =
+    Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes(isEntryNumberJourneyEnabled))
 
   implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
@@ -38,21 +44,49 @@ object UpscanGen extends OptionValues {
 
   implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val arbitrarySupportingDocumentType: Typeclass[SupportingEvidenceDocumentType] =
-    gen[SupportingEvidenceDocumentType]
+  implicit val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
+    for {
+      isEntryNumberJourneyEnabled <- Gen.oneOf(true, false)
+      evidenceType                <- genEvidenceDocumentType(isEntryNumberJourneyEnabled)
+    } yield evidenceType
+  }
 
-  implicit val arbitrarySupportingEvidence: Typeclass[SupportingEvidence] = gen[SupportingEvidence]
+  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
+    for {
+      uploadReference  <- gen[UploadReference].arbitrary
+      upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
+      uploadedOn       <- genLocalDateTime
+      upscanSuccess    <- arbitraryUpscanSuccess.arbitrary
+      name             <- genStringWithMaxSizeOfN(6)
+      extension        <- Gen.oneOf("pdf", "doc", "csv")
+      documentType     <- arbitrarySupportingEvidenceDocumentType.arbitrary
+    } yield UploadDocument(
+      uploadReference = uploadReference,
+      upscanUploadMeta = upscanUploadMeta,
+      uploadedOn = uploadedOn,
+      upscanSuccess = upscanSuccess,
+      fileName = s"$name.$extension",
+      documentType = Some(documentType)
+    )
+  }
 
-  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidenceAnswer] = Arbitrary(
+  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
-      evidences <- arbitrarySupportingEvidenceAnswerOfN(n).arbitrary
+      evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
     } yield evidences.value
   )
 
-  def arbitrarySupportingEvidenceAnswerOpt: Typeclass[Option[SupportingEvidenceAnswer]] =
+  def arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  def arbitrarySupportingEvidenceAnswerOfN(n: Int): Typeclass[Option[SupportingEvidenceAnswer]] =
+  def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
+
+  def genScheduledDocumentAnswer(answer: SelectNumberOfClaimsAnswer): Gen[Option[ScheduledDocumentAnswer]] =
+    if (answer === Scheduled)
+      gen[UploadDocument].arbitrary.map { doc =>
+        Some(ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs))))
+      }
+    else None
 }

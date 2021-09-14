@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -38,20 +37,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
 import scala.concurrent.Future
 
-class StartControllerSpec
-    extends ControllerSpec
-    with AuthSupport
-    with SessionSupport
-    with RedirectToStartBehaviour
-    with ScalaCheckDrivenPropertyChecks {
+class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with RedirectToStartBehaviour {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-  implicit lazy val messagesApi: MessagesApi           = instanceOf[MessagesApi]
-  lazy val controller: StartController                 = instanceOf[StartController]
+
+  implicit lazy val messagesApi: MessagesApi = instanceOf[MessagesApi]
+  lazy val controller: StartController       = instanceOf[StartController]
 
   "Start controller" when {
 
@@ -280,7 +275,10 @@ class StartControllerSpec
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.submissionError())
+          checkIsRedirect(
+            result,
+            claims.routes.CheckYourAnswersAndSubmitController.submissionError(submitClaimFailed.journey)
+          )
 
         }
 
@@ -299,8 +297,10 @@ class StartControllerSpec
           }
 
           val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission())
-
+          checkIsRedirect(
+            result,
+            claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(justSubmittedClaim.journey)
+          )
         }
 
       }
@@ -308,7 +308,6 @@ class StartControllerSpec
       "there is filling out claim journey status" must {
 
         "redirect the user to the main CYA page" in {
-
           val fillingOutClaim = sample[FillingOutClaim]
           val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
 
@@ -317,11 +316,10 @@ class StartControllerSpec
             mockGetSession(sessionData)
           }
 
-          val result = performAction()
-          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-
+          val result  = performAction()
+          val journey = TemporaryJourneyExtractor.extractJourney(fillingOutClaim)
+          checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
         }
-
       }
 
       "there is non government way journey status" must {
@@ -547,9 +545,7 @@ class StartControllerSpec
           messageFromMessageKey("timed-out.title")
         )
       }
-
     }
-
   }
 
 }

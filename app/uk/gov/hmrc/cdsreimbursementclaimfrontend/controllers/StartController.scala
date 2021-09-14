@@ -33,7 +33,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.{controllers, views}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -42,7 +41,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class StartController @Inject() (
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   val authenticatedActionWithRetrievedData: AuthenticatedActionWithRetrievedData,
   val sessionDataActionWithRetrievedData: SessionDataActionWithRetrievedData,
@@ -51,7 +49,7 @@ class StartController @Inject() (
   val config: Configuration,
   weOnlySupportGGPage: views.html.we_only_support_gg,
   timedOutPage: views.html.timed_out
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthRetrievalsAndSessionDataAction
     with WithAuthAndSessionDataAction
@@ -91,10 +89,7 @@ class StartController @Inject() (
       } yield ()
 
       result.fold(
-        { e =>
-          logger.warn("could not initiate claim journey:", e)
-          errorHandler.errorResult()
-        },
+        logAndDisplayError("could not initiate claim journey:"),
         _ =>
           Redirect(
             controllers.claims.routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
@@ -153,17 +148,22 @@ class StartController @Inject() (
       case NonGovernmentGatewayJourney =>
         Redirect(routes.StartController.weOnlySupportGG())
 
-      case _: FillingOutClaim =>
-        Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers())
-
-      case _: JustSubmittedClaim =>
+      case claim: FillingOutClaim =>
         Redirect(
-          controllers.claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission()
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(
+            TemporaryJourneyExtractor.extractJourney(claim)
+          )
         )
 
-      case _: SubmitClaimFailed =>
-        Redirect(controllers.claims.routes.CheckYourAnswersAndSubmitController.submissionError())
+      case claim: JustSubmittedClaim =>
+        Redirect(
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(claim.journey)
+        )
 
+      case claim: SubmitClaimFailed =>
+        Redirect(
+          controllers.claims.routes.CheckYourAnswersAndSubmitController.submissionError(claim.journey)
+        )
     }
 
   private def handleRetrievedUserType(
@@ -198,8 +198,7 @@ class StartController @Inject() (
       )
     ).map {
       case Left(e) =>
-        logger.warn("could not update session:", e)
-        errorHandler.errorResult()
+        logAndDisplayError("could not update session:").apply(e)
 
       case Right(_) =>
         Redirect(routes.StartController.weOnlySupportGG())
@@ -227,7 +226,7 @@ class StartController @Inject() (
                        email,
                        eori,
                        Email(""),
-                       name.map(s => ContactName(s.name.getOrElse("No name"))).getOrElse(ContactName("No name")) //FIXME
+                       ContactName(name.flatMap(_.name).getOrElse("No name"))
                      ),
                      DraftC285Claim.newDraftC285Claim
                    )
@@ -238,10 +237,7 @@ class StartController @Inject() (
     } yield ()
 
     result.fold(
-      { e =>
-        logger.warn("could not initiate claim journey:", e)
-        errorHandler.errorResult()
-      },
+      logAndDisplayError("could not initiate claim journey:"),
       _ =>
         Redirect(
           controllers.claims.routes.CheckEoriDetailsController.show()

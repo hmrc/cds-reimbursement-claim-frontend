@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.config
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.{Inject, Singleton}
@@ -27,12 +27,15 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
+
   private def getString(key: String): String     = servicesConfig.getString(key)
   private def getDuration(key: String): Duration = servicesConfig.getDuration(key)
 
   val en: String            = "en"
   val cy: String            = "cy"
   val defaultLanguage: Lang = Lang(en)
+
+  val homePageUrl: String = getString("home-page")
 
   val ggCreateAccountUrl: String = "/bas-gateway?accountType=individual&continueUrl=" +
     "%2Fclaim-for-reimbursement-of-import-duties%2Fstart&origin=cds-reimbursement-claim-frontend"
@@ -46,22 +49,23 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     servicesConfig.getDuration("gg.countdown").toSeconds
 
   val ggKeepAliveUrl: String =
-    "/claim-for-reimbursement-of-import-duties" + routes.StartController.keepAlive().url
+    "/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController.keepAlive().url
 
   val ggTimedOutUrl: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .timedOut()
       .url
 
   val ggSignOut: String =
-    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + routes.StartController
+    signOutUrl + "?continue=/claim-for-reimbursement-of-import-duties" + baseRoutes.StartController
       .start()
       .url
 
-  val serviceFeedBackUrl: String = config.get[String]("microservice.services.feedback.url") +
-    config.get[String]("microservice.services.feedback.source")
-
-  val feedbackSignOut: String = signOutUrl + s"?continue=$serviceFeedBackUrl"
+  val serviceFeedBackUrl: String = {
+    val baseUrl = config.get[String]("microservice.services.feedback.url")
+    val path    = config.get[String]("microservice.services.feedback.source")
+    s"$baseUrl$path"
+  }
 
   val govUkUrl: String = getString("external-url.gov-uk")
 
@@ -82,6 +86,12 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
     s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
 
   val accessibilityStatementUrl: String = getString("external-url.accessibility-statement")
+
+  lazy val contactHmrcUrl: String = {
+    val baseUrl     = servicesConfig.baseUrl("contact-frontend")
+    val contactPath = servicesConfig.getString(s"microservice.services.contact-frontend.contact-hmrc-url")
+    s"$baseUrl$contactPath"
+  }
 
   val eoriNumberHelpUrl: String = getString("external-url.eori-number-help")
 
@@ -107,13 +117,22 @@ class ViewConfig @Inject() (config: Configuration, servicesConfig: ServicesConfi
 
   val importExportUrl: String = getString("external-url.import-export")
 
+  val ukTradeTariffGuidance: String = getString("external-url.uk-trade-tariff-guidance")
+
   val footerLinkItems: Seq[String] = config.getOptional[Seq[String]]("footerLinkItems").getOrElse(Seq())
 
   lazy val timeout: Int = getDuration("gg.timeout").toSeconds.toInt
 
   lazy val countdown: Int = getDuration("gg.countdown").toSeconds.toInt
 
+  val selfBaseUrl: String = getString("self.url")
+
+  def buildCompleteSelfUrl(call: Call): String = buildCompleteSelfUrl(call.url)
+
+  def buildCompleteSelfUrl(path: String): String = s"$selfBaseUrl$path"
+
   def languageMap: Map[String, Lang] = Map("english" -> Lang("en"), "cymraeg" -> Lang("cy"))
 
-  def routeToSwitchLanguage: String => Call = (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
+  def routeToSwitchLanguage: String => Call = (lang: String) =>
+    baseRoutes.LanguageSwitchController.switchToLanguage(lang)
 }

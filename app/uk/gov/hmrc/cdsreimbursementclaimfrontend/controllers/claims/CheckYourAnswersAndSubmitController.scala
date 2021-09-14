@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
 import com.google.inject.{Inject, Singleton}
 import play.api.i18n.Lang
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -26,8 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim.CompleteC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
@@ -47,32 +47,29 @@ class CheckYourAnswersAndSubmitController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
   claimService: ClaimService,
   checkYourAnswersPage: pages.check_your_answers,
   confirmationOfSubmissionPage: pages.confirmation_of_submission,
   submitClaimFailedPage: pages.submit_claim_error
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
+    with SessionDataExtractor
     with SessionUpdates
     with Logging {
 
-  def checkAllAnswers(): Action[AnyContent] =
+  def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim(request) { (_, _, completeClaim) =>
-        Ok(
-          checkYourAnswersPage(
-            completeClaim
-          )
-        )
+      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
+        val routes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        Ok(checkYourAnswersPage(completeClaim, routes))
       }
     }
 
-  def checkAllAnswersSubmit(): Action[AnyContent] =
+  def checkAllAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim(request) { (_, fillingOutClaim, completeClaim) =>
+      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
         val result =
           for {
             response        <- EitherT.liftF(
@@ -87,7 +84,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                  case _: SubmitClaimError =>
                                    SubmitClaimFailed(
                                      fillingOutClaim.ggCredId,
-                                     fillingOutClaim.signedInUserDetails
+                                     fillingOutClaim.signedInUserDetails,
+                                     journey
                                    )
                                  case SubmitClaimSuccess(
                                        submitClaimResponse
@@ -96,7 +94,8 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                      fillingOutClaim.ggCredId,
                                      fillingOutClaim.signedInUserDetails,
                                      completeClaim,
-                                     submitClaimResponse
+                                     submitClaimResponse,
+                                     journey
                                    )
                                }
             _               <- EitherT(
@@ -107,26 +106,19 @@ class CheckYourAnswersAndSubmitController @Inject() (
           } yield response
 
         result.fold(
-          { e =>
-            logger.warn("Error while trying to update session", e)
-
-            errorHandler.errorResult()
-          },
+          logAndDisplayError("Error while trying to update session"),
           {
             case SubmitClaimError(e) =>
               logger.warn(s"Could not submit return}", e)
               Redirect(
-                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError()
+                claimsRoutes.CheckYourAnswersAndSubmitController.submissionError(journey)
               )
 
             case SubmitClaimSuccess(_) =>
               logger.info(
                 s"Successfully submitted claim with claim id :${completeClaim.id}"
               )
-              Redirect(
-                claimsRoutes.CheckYourAnswersAndSubmitController
-                  .confirmationOfSubmission()
-              )
+              Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
           }
         )
       }
@@ -156,73 +148,63 @@ class CheckYourAnswersAndSubmitController @Inject() (
       )
       .merge
 
-  def submissionError(): Action[AnyContent] =
+  def submissionError(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withSubmitClaimFailed(request)(_ => Ok(submitClaimFailedPage()))
+      withSubmitClaimFailed(_ => Ok(submitClaimFailedPage()))
     }
 
-  def confirmationOfSubmission(): Action[AnyContent] =
+  def confirmationOfSubmission(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withJustSubmittedClaim(request)(j => Ok(confirmationOfSubmissionPage(j)))
+      withJustSubmittedClaim(claim => Ok(confirmationOfSubmissionPage(claim)))
     }
 
   private def withJustSubmittedClaim(
-    request: RequestWithSessionData[_]
-  )(f: JustSubmittedClaim => Future[Result]): Future[Result] =
+    f: JustSubmittedClaim => Future[Result]
+  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
-      case Some(j: JustSubmittedClaim) => f(j)
-      case _                           => Redirect(baseRoutes.StartController.start())
+      case Some(j: JustSubmittedClaim) if j.journey === journey => f(j)
+      case _                                                    => Redirect(baseRoutes.StartController.start())
     }
 
   private def withSubmitClaimFailed(
-    request: RequestWithSessionData[_]
-  )(
     f: Either[SubmitClaimFailed, RetrievedUserType] => Future[Result]
-  ): Future[Result] =
+  )(implicit request: RequestWithSessionData[_], journey: JourneyBindable): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(s: SubmitClaimFailed)  => f(Left(s))
       case Some(_: JustSubmittedClaim) =>
-        Redirect(routes.CheckYourAnswersAndSubmitController.confirmationOfSubmission())
+        Redirect(claimsRoutes.CheckYourAnswersAndSubmitController.confirmationOfSubmission(journey))
       case _                           => Redirect(baseRoutes.StartController.start())
     }
 
   private def withCompleteDraftClaim(
-    request: RequestWithSessionData[_]
-  )(
     f: (SessionData, FillingOutClaim, CompleteClaim) => Future[Result]
-  ): Future[Result] =
+  )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.unapply({
       case (
             sessionData,
             fillingOutClaim @ FillingOutClaim(
               _,
-              _,
+              signedInUserDetails,
               draftClaim: DraftC285Claim
             )
           ) =>
-        CompleteC285Claim
-          .fromDraftClaim(draftClaim)
+        CompleteClaim
+          .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
           .fold[Future[Result]](
-            e => {
-              logger.warn(s"could not make a complete claim", e)
-              errorHandler.errorResult()(request)
-            },
-            s => f(sessionData, fillingOutClaim, s)
+            error => logAndDisplayError("could not make a complete claim") apply error,
+            completeClaim => f(sessionData, fillingOutClaim, completeClaim)
           )
     })
-
 }
 
 object CheckYourAnswersAndSubmitController {
 
+  val checkYourAnswersKey: String = "check-your-answers"
+
   sealed trait SubmitClaimResult
 
   object SubmitClaimResult {
-
     final case class SubmitClaimError(error: Error) extends SubmitClaimResult
-
     final case class SubmitClaimSuccess(response: SubmitClaimResponse) extends SubmitClaimResult
-
   }
-
 }

@@ -19,10 +19,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia.Typeclass
 
+import java.net.URL
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 import java.util.UUID
 
 package object generators {
+
+  def genStringWithMaxSizeOfN(max: Int): Gen[String] =
+    Gen
+      .choose(1, max)
+      .flatMap(Gen.listOfN(_, Gen.alphaChar))
+      .map(_.mkString(""))
+
+  def genLocalDateTime: Gen[LocalDateTime] =
+    Gen
+      .chooseNum(0L, 10000L)
+      .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
 
   implicit val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
@@ -45,14 +57,7 @@ package object generators {
   )
 
   implicit val arbitraryLocalDateTime: Arbitrary[LocalDateTime] =
-    Arbitrary(
-      Gen
-        .chooseNum(0L, 10000L)
-        .map(l =>
-          LocalDateTime
-            .ofInstant(Instant.ofEpochMilli(l), ZoneId.systemDefault())
-        )
-    )
+    Arbitrary(genLocalDateTime)
 
   implicit val arbitraryInstant: Arbitrary[Instant] =
     Arbitrary(
@@ -62,4 +67,12 @@ package object generators {
     )
 
   implicit val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
+
+  implicit val arbitraryUrl: Arbitrary[URL] = Arbitrary(
+    for {
+      protocol <- Gen.oneOf("http", "https")
+      hostname <- genStringWithMaxSizeOfN(7)
+      domain   <- Gen.oneOf("com", "co.uk", "lv")
+    } yield new URL(s"$protocol://$hostname.$domain")
+  )
 }

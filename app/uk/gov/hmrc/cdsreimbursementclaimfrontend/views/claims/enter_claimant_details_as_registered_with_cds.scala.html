@@ -18,12 +18,12 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -38,14 +38,14 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form : Form[DetailsRegisteredWithCdsFormData], isAmend : Boolean = false)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[DetailsRegisteredWithCdsAnswer], isAmend : Boolean, router:ReimbursementRoutes )(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-claimant-details-as-registered-with-cds"}
-    @addressKey = @{"nonUkAddress"}
+    @addressKey = @{"address"}
 
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{if(isAmend) routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit else routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit}
+    @postAction = @{ router.submitDetailsRegisteredWithCds(isAmend) }
 
     @line1Key = @{s"$addressKey-line1"}
     @line2Key = @{s"$addressKey-line2"}
@@ -57,7 +57,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form)
 
@@ -74,8 +74,7 @@
                 label = s"${key}.individual-full-name.label",
                 isPageHeading = false,
                 hint = Some(s"$key.individual-full-name.help"),
-                classes = Some("govuk-input--width-20"),
-                labelClasses = Some("govuk-label govuk-label--s")
+                classes = Some("govuk-input--width-20")
             )
 
             @inputText(
@@ -87,8 +86,7 @@
                 inputType = "email",
                 autocomplete = Some("email"),
                 spellcheck = Some(false),
-                classes = Some("govuk-input--width-20"),
-                labelClasses = Some("govuk-label govuk-label--s")
+                classes = Some("govuk-input--width-20")
             )
 
             @fieldSet(s"$key.individual-contact-address.label", false) {
@@ -100,8 +98,7 @@
                     autocomplete = Some("address-line1"),
                     label = s"$key.address.line1.label",
                     isPageHeading = false,
-                    classes = Some("govuk-input--width-20"),
-                    labelClasses = Some("govuk-label govuk-label--s")
+                    classes = Some("govuk-input--width-20")
                 )
 
                 @inputText(
@@ -111,8 +108,7 @@
                     autocomplete = Some("address-line2"),
                     label = s"$key.address.line2.label",
                     isPageHeading = false,
-                    classes = Some("govuk-input--width-20"),
-                    labelClasses = Some("govuk-label govuk-label--s")
+                    classes = Some("govuk-input--width-20")
                 )
 
                 @inputText(
@@ -122,8 +118,7 @@
                     autocomplete = Some("address-line3"),
                     label = s"$key.address.line3.label",
                     isPageHeading = false,
-                    classes = Some("govuk-input--width-20"),
-                    labelClasses = Some("govuk-label govuk-label--s")
+                    classes = Some("govuk-input--width-20")
                 )
 
                 @inputText(
@@ -133,8 +128,7 @@
                     autocomplete = Some("address-level2"),
                     label = s"$key.address.line4.label",
                     isPageHeading = false,
-                    classes = Some("govuk-input--width-20"),
-                    labelClasses = Some("govuk-label govuk-label--s")
+                    classes = Some("govuk-input--width-20")
                 )
 
                 @inputText(
@@ -144,8 +138,7 @@
                     autocomplete = Some("postal-code"),
                     label = s"$key.address.line5.label",
                     isPageHeading = false,
-                    classes = Some("govuk-!-width-one-quarter"),
-                    labelClasses = Some("govuk-label govuk-label--s")
+                    classes = Some("govuk-!-width-one-quarter")
                 )
 
                 @countryCode(

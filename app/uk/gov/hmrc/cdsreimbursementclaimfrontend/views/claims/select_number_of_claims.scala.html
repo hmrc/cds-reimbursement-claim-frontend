@@ -45,7 +45,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form)
 
@@ -69,21 +69,21 @@
                         value = Some("0"),
                         content = Text(messages(s"$key.individual.title")),
                         hint = Some(Hint(content = Text(messages(s"$key.individual.hint")))),
-                        checked = (form.value == Some(Individual))
+                        checked = form.value.contains(Individual)
                     ),
                     RadioItem(
                         id = Some(s"$key-bulk"),
                         value = Some("1"),
                         content = Text(messages(s"$key.bulk.title")),
                         hint = Some(Hint(content = Text(messages(s"$key.bulk.hint")))),
-                        checked = (form.value == Some(Bulk))
+                        checked = form.value.contains(Bulk)
                     ),
                     RadioItem(
                         id = Some(s"$key-scheduled"),
                         value = Some("2"),
                         content = Text(messages(s"$key.scheduled.title")),
                         hint = Some(Hint(content = Text(messages(s"$key.scheduled.hint")))),
-                        checked = (form.value == Some(Scheduled))
+                        checked = form.value.contains(Scheduled)
                     )
                 )
             )

@@ -17,8 +17,11 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +33,7 @@
     dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper
 )
 
-@(upscanUpload : UpscanUpload)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
+@(upscanUpload : UpscanUpload, typesOfEvidences: Seq[UploadDocumentType], router: ReimbursementRoutes)(implicit request : RequestWithSessionData[_], messages: Messages, appConfig: ViewConfig)
 
     @key = @{"supporting-evidence.upload"}
     @field = @{"file"}
@@ -38,32 +41,32 @@
     @meta = @{upscanUpload.upscanUploadMeta.uploadRequest.fields}
     @href = @{upscanUpload.upscanUploadMeta.uploadRequest.href}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, suppressBackLink = true) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
 
         <div id="cdsr-dynamic-error-summary" class="govuk-!-display-none">
             <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
                 <h2 class="govuk-error-summary__title" id="error-summary-title">
-                    There’s a problem
+                    There is a problem
                 </h2>
                 <div class="govuk-error-summary__body">
                     <ul class="govuk-list govuk-error-summary__list">
                         <li>
-                            <a href="#file">@(messages(s"${key}.error.required"))</a>
+                            <a href="#file">@(messages(s"$key.error.required"))</a>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <span id="file-upload-error" class="govuk-error-message">
-                <span class="govuk-visually-hidden">Error:</span> @(messages(s"${key}.error.required"))
+                <span class="govuk-visually-hidden">Error:</span> @(messages(s"$key.error.required"))
             </span>
         </div>
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"${key}.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.uploadDropDownContent)
+        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(typesOfEvidences, key))
 
         <form action="@href" method="post" enctype="multipart/form-data">
 
@@ -74,14 +77,13 @@
             @inputFile(
                 id = field,
                 name = field,
-                label = s"$key.title",
-                labelClasses = Some("govuk-label govuk-label--s"),
-                isPageHeading = false,
-                hint = Some(s"$key.hint")
+                label = s"$key.input-title",
+                labelClasses = Some("govuk-label"),
+                isPageHeading = false
             )
 
             <div class="govuk-!-margin-bottom-9">
-                @submitButton("button.saveAndContinue")
+                @submitButton("button.continue")
             </div>
 
         </form>

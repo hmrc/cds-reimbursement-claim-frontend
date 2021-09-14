@@ -1,0 +1,86 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.i18n.Messages
+@import play.twirl.api.Html
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil._
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+
+@this(
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    bulletList: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    dropdownDetails: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details
+)
+
+@()(implicit request: Request[_], messages: Messages, viewConfig: ViewConfig)
+
+@key = @{"landing"}
+@title = @{messages(s"$key.title")}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @pageHeading(title)
+
+    <p class="govuk-body">@messages(s"$key.help.p1")</p>
+    <p class="govuk-body">@messages(s"$key.help.p2")</p>
+
+    <h2 class="govuk-heading-l">@messages(s"$key.who.heading")</h2>
+
+    <p class="govuk-body">@messages(s"$key.who.p1")</p>
+    <p class="govuk-body">@Html(messages(s"$key.who.p2", viewConfig.eoriNumberHelpUrl, viewConfig.mrnGuideUrl))</p>
+    <p class="govuk-body">@messages(s"$key.who.p3")</p>
+
+    @bulletList((1 to 3).map(i => Html(messages(s"$key.who.l$i"))))
+
+    <p class="govuk-body">@messages(s"$key.who.p4")</p>
+
+    <h2 class="govuk-heading-l">@messages(s"$key.why.heading")</h2>
+
+    <p class="govuk-body">@messages(s"$key.why.p1")</p>
+
+
+    @bulletList(
+        Seq(
+            Html(messages(s"$key.why.l1")),
+            Html(messages(s"$key.why.l2"))
+        )
+    )
+
+    <p class="govuk-body">
+        <a href="@{routes.StartController.startNewClaim()}" role="button" draggable="false" class="govuk-button govuk-!-margin-top-2 govuk-!-margin-bottom-8 govuk-button--start" data-module="govuk-button">
+            @messages(s"$key.start-button")
+            <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+            </svg>
+        </a>
+    </p>
+
+    <h2 class="govuk-heading-l">@messages(s"$key.before.heading")</h2>
+
+    <p class="govuk-body">@messages(s"$key.before.p1")</p>
+
+    @bulletList((1 to 9).map(i => Html(messages(s"$key.before.l$i"))))
+
+    @dropdownDetails(summary = s"$key.details.heading",
+        html(
+            paragraph(Html(messages(s"$key.details.p1")), Some("govuk-body")),
+            bulletList((1 to 10).map(i => Html(messages(s"$key.details.l$i"))))
+        ))
+}

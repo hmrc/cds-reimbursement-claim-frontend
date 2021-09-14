@@ -16,12 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MrnJourney}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
@@ -54,16 +61,48 @@ trait SubmitRoutes extends Product with Serializable {
       claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
     else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
 
+  def submitPageForClaimantDetails(isChange: Boolean, isAmend: Boolean): Call = {
+    val controller = claimRoutes.CheckContactDetailsMrnController
+    if (isChange && !isAmend) controller.changeDetailsSubmit(journeyBindable)
+    else if (isAmend) controller.amendDetailsSubmit(journeyBindable)
+    else controller.addDetails(journeyBindable)
+  }
+
+  def submitUrlForChangeMrnContactDetails(): Call =
+    claimRoutes.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journeyBindable)
+
+  def submitUrlForAmendMrnContactDetails(): Call =
+    claimRoutes.EnterContactDetailsMrnController.amendMrnContactDetailsSubmit(journeyBindable)
+
+  def submitUrlForEnterMrnContactDetails(): Call =
+    claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
+
+  def submitUrlForEnterOrChangeBankAccountDetails(isChange: Boolean): Call =
+    if (isChange) claimRoutes.BankAccountController.changeBankAccountDetailsSubmit(journeyBindable)
+    else claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
+
+  def submitUrlForSelectBankAccountType(): Call =
+    claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
+
+  def submitDetailsRegisteredWithCds(isAmend: Boolean): Call =
+    if (isAmend) claimRoutes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
+    else claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
+
 }
 
 trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
+  def mergeWithSubKey(rootKey: String): String =
+    subKey.toList.foldLeft(rootKey)((root, sub) => s"$root.$sub")
+
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
-        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+        if (journeyBindable === JourneyBindable.Scheduled)
+          uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+        else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
       case DeclarationAnswersAreIncorrect =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
@@ -81,7 +120,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+        case _                           =>
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      }
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
@@ -92,14 +136,23 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.SelectDutiesController.selectDuties()
+      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      case false =>
+        if (journeyBindable === Scheduled) {
+          reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+        } else {
+          claimRoutes.SelectDutiesController.selectDuties()
+        }
     }
 
-  def nextPageForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
-      case false => claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+  def nextPageForWhoIsMakingTheClaim(mrnOrEntryNumber: Option[Either[EntryNumber, MRN]], isAmend: Boolean): Call =
+    mrnOrEntryNumber match {
+      case Some(Right(_)) =>
+        if (isAmend)
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+        else claimRoutes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
+      case _              =>
+        claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
     }
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
@@ -107,9 +160,70 @@ trait JourneyTypeRoutes extends Product with Serializable {
       claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     } else {
       if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers()
+      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     }
 
+  def nextPageForAddClaimantDetails(answer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
+    answer match {
+      case YesClaimantDetailsAnswer =>
+        claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
+      case NoClaimantDetailsAnswer  =>
+        featureSwitch.NorthernIreland.isEnabled() match {
+          case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+          case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+        }
+    }
+
+  def nextPageForChangeClaimantDetails(
+    answer: CheckClaimantDetailsAnswer,
+    featureSwitch: FeatureSwitchService,
+    isAmend: Boolean
+  ): Call =
+    answer match {
+      case YesClaimantDetailsAnswer =>
+        if (isAmend) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+        else
+          featureSwitch.NorthernIreland.isEnabled() match {
+            case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+            case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+          }
+      case NoClaimantDetailsAnswer  =>
+        claimRoutes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
+    }
+
+  def nextPageForMrnContactDetails(isChange: Boolean, isAmend: Boolean): Call =
+    if (isAmend && !isChange) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else if (isChange && !isAmend) claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
+    else claimRoutes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
+
+  def nextPageForCheckBankAccountDetails(): Call =
+    claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
+
+  def nextPageForEnterBankAccountDetails(
+    hasBankAccountType: Boolean
+  ): Call =
+    hasBankAccountType match {
+      case false => claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
+      case true  => claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable)
+    }
+
+  def nextPageForSelectBankAccountType(): Call =
+    claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
+
+  def nextPageForDetailsRegisteredWithCDS(
+    declarantType: Option[DeclarantTypeAnswer]
+  ): Call = nextPageForEntryNumberContactDetails(declarantType)
+
+  def nextPageForEntryNumberContactDetails(declarantType: Option[DeclarantTypeAnswer]): Call =
+    declarantType match {
+      case Some(declarantType) =>
+        declarantType match {
+          case _ =>
+            claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+        }
+      case None                =>
+        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+    }
 }
 
 trait SingleRoutes extends JourneyTypeRoutes {
@@ -166,9 +280,9 @@ case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with Submi
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
-  val refNumberKey                    = None
-  override val subKey: Option[String] = None
-  override val journeyBindable        = JourneyBindable.Single
+  val refNumberKey    = None
+  val subKey          = None
+  val journeyBindable = JourneyBindable.Single
 
   val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
