@@ -130,26 +130,6 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
         }
       }
 
-      "redirect to Check Your Answers page" when {
-        "document is amended" in {
-          val uploadDocument = sample[UploadDocument]
-
-          val answer = ScheduledDocumentAnswer(uploadDocument)
-
-          val (session, _, _) = sessionWithClaimState(answer.some)
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkIsRedirect(
-            controller.reviewSubmit()(FakeRequest()),
-            claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Scheduled)
-          )
-        }
-      }
-
       "redirect to Select Who Is Making Claim page" when {
         "no document is being amended" in {
           val uploadDocument = sample[UploadDocument]
