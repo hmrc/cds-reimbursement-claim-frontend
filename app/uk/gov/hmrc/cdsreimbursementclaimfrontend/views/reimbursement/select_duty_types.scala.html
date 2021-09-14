@@ -42,22 +42,22 @@
 
     @postAction = @{reimbursementRoutes.SelectDutyTypesController.submitDutyTypes()}
 
-    @customs_options = @{DutyType.customDutyTypes.zipWithIndex.map { dutyTypeWithIndex =>
+    @customs_options = @{DutyType.customDutyTypes.map { dutyType =>
         CheckboxItem(
             name = Some(s"${key}[]"),
-            value = dutyTypeWithIndex._2.toString,
-            content = Text(messages(s"${key}.custom.type.${dutyTypeWithIndex._2.toString}")),
-            checked = form.data.exists(_._2 == dutyTypeWithIndex._2.toString)
+            value = dutyType.repr,
+            content = Text(messages(s"${key}.custom.type.${dutyType.repr}")),
+            checked = form.data.exists(_._2 == dutyType.repr)
             )
         }
     }
 
-    @excise_options = @{DutyType.exciseDutyTypes.zipWithIndex.map { dutyTypeWithIndex =>
+    @excise_options = @{DutyType.exciseDutyTypes.map { dutyType =>
         CheckboxItem(
             name = Some(s"${key}[]"),
-            value = dutyTypeWithIndex._2.toString,
-            content = Text(messages(s"${key}.excise.type.${dutyTypeWithIndex._2.toString}")),
-            checked = form.data.exists(_._2 == dutyTypeWithIndex._2.toString)
+            value = dutyType.repr,
+            content = Text(messages(s"${key}.excise.type.${dutyType.repr}")),
+            checked = form.data.exists(_._2 == dutyType.repr)
             )
         }
     }
@@ -77,7 +77,7 @@
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @checkboxes(
-                field = form(s"$key"),
+                field = form(s"${key}-custom"),
                 legendAsHeading = true,
                 legend = messages(s"$key.checkbox-legend.1"),
                 items = customs_options.toList,
@@ -85,7 +85,7 @@
             )
 
             @checkboxes(
-                field = form(s"$key"),
+                field = form(s"${key}-excise"),
                 legendAsHeading = true,
                 legend = messages(s"$key.checkbox-legend.2"),
                 items = excise_options.toList,
