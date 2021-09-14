@@ -269,7 +269,7 @@ object CompleteClaim {
     Validated.condNel(
       numberOfClaims.forall(answer =>
         (answer === Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= Scheduled) && maybeScheduledDocument.isEmpty
+          (answer =!= Scheduled && maybeScheduledDocument.isEmpty)
       ),
       maybeScheduledDocument,
       "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"

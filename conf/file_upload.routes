@@ -20,14 +20,14 @@ GET         /scheduled/scheduled-document-upload/upload                         
 POST        /scheduled/scheduled-document-upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocumentSubmit(isAmend: Boolean)
 
 GET         /scheduled/scheduled-document-upload/handle-size-fail-redirect         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback(isAmend: Boolean)
-GET         /scheduled/scheduled-document-upload/size-fail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.showFileSizeErrorPage(isAmend: Boolean)
+GET         /scheduled/scheduled-document-upload/size-fail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.showFileSizeErrorPage(isAmend: Boolean ?= false)
 
-GET         /scheduled/scheduled-document-upload/progress/:id                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id: UploadReference, isAmend: Boolean)
+GET         /scheduled/scheduled-document-upload/progress/:id                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id: UploadReference, isAmend: Boolean ?= false)
 POST        /scheduled/scheduled-document-upload/progress                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id: String, isAmend: Boolean)
 
-GET         /scheduled/scheduled-document-upload/format-virus-fail                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback(isAmend: Boolean)
+GET         /scheduled/scheduled-document-upload/format-virus-fail                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback(isAmend: Boolean ?= false)
 
-GET         /scheduled/scheduled-document-upload/review                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.review(isAmend: Boolean)
+GET         /scheduled/scheduled-document-upload/review                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.review(isAmend: Boolean ?= false)
 POST        /scheduled/scheduled-document-upload/review                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.reviewSubmit(isAmend: Boolean)
 
 GET         /scheduled/scheduled-document-upload/delete-scheduled-document         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.deleteScheduledDocument(isAmend: Boolean)
