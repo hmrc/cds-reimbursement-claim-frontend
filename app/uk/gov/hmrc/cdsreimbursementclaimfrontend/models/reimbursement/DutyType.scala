@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import cats.kernel.Eq
 import cats.implicits.catsSyntaxEq
+import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
@@ -31,7 +31,7 @@ object DutyType {
   case object EuDuty extends DutyType("euduty")
   case object Beer extends DutyType("beer")
   case object Wine extends DutyType("wine")
-  case object MadeWine extends DutyType("madewin")
+  case object MadeWine extends DutyType("madewine")
   case object LowAlcoholBeverages extends DutyType("lowalcoholbeverages")
   case object Spirits extends DutyType("spirits")
   case object CiderPerry extends DutyType("cideperry")
@@ -115,8 +115,9 @@ object DutyType {
 
   implicit val format: OFormat[DutyType] = derived.oformat[DutyType]()
 
-  def apply(value: Int): DutyType = DutyType.dutyTypes(value)
+  def apply(value: String): DutyType =
+    DutyType.toDutyType(value).getOrElse(sys.error(s"Could not map to a duty type : $value"))
 
-  def unapply(dutyType: DutyType): Option[Int] = Option(DutyType.dutyTypes.indexOf(dutyType)).filter(_ > -1)
+  def unapply(dutyType: DutyType): Option[String] = Some(dutyType.repr)
 
 }
