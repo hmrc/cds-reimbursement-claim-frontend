@@ -49,7 +49,8 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             List(
               ActionItem(
                 href = s"${routes.CheckContactDetailsMrnController.checkDetailsAndAmend(journey).url}",
-                Text(messages("cya.change"))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.contact.details"))
               )
             )
           )
@@ -76,7 +77,8 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             List(
               ActionItem(
                 href = s"${routes.CheckContactDetailsMrnController.changeAddress(journey).url}",
-                Text(messages("cya.change"))
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.contact.address"))
               )
             )
           )
