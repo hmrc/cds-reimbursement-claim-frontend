@@ -57,7 +57,7 @@ class SelectDutyCodesController @Inject() (
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
         ) { dutyTypesAnswer =>
-          val fil: FillingOutClaim = answer.fold(
+          val updatedJourneyStatus: FillingOutClaim = answer.fold(
             fillingOutClaim
           ) { dutyCodesAnswer =>
             val updatedReimbursementState = ReimbursementState.computeReimbursementState(
@@ -76,21 +76,26 @@ class SelectDutyCodesController @Inject() (
           }
 
           EitherT
-            .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(fil))))
+            .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
             .leftMap((_: Unit) => Error("could not update session"))
             .fold(
               logAndDisplayError("could not update reimbursement state"),
-              _ => Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes())
+              _ =>
+                dutyTypesAnswer.dutyTypesSelected.headOption
+                  .fold { //FIXME: not head option but first duty type with no duty code answer
+                    logger.info("could not find duty type")
+                    errorHandler.errorResult
+                  }(dutyType => Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
             )
         }
     }
   }
 
-  def showDutyCodes(dutyType: String): Action[AnyContent] = Action {
+  def showDutyCodes(dutyType: DutyType): Action[AnyContent] = Action {
     Ok(s"show $dutyType")
   }
 
-  def submitDutyCodes(dutyType: String): Action[AnyContent] = Action {
+  def submitDutyCodes(dutyType: DutyType): Action[AnyContent] = Action {
     Ok(s"submitted: $dutyType")
   }
 

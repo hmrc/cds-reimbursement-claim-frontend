@@ -40,14 +40,14 @@
     @key = @{"select-duty-codes"}
     @title = @{messages(s"$key.title")}
 
-    @postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes("")}
+    @postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
 
-    @options = @{DutyType.dutyTypeToTaxCodes(dutyType).zipWithIndex.map { dutyCodesWithIndex =>
+    @options = @{DutyType.dutyTypeToTaxCodes(dutyType).map { dutyCode =>
         CheckboxItem(
-            name = Some(s"${key}[]"),
-            value = dutyCodesWithIndex._2.toString,
-            content = Text(messages(s"duty-code.${dutyCodesWithIndex._2.toString}")),
-            checked = form.data.exists(_._2 == dutyCodesWithIndex._2.toString)
+                name = Some(s"${key}[]"),
+                value = dutyCode.value,
+                content = Text(messages(s"${key}.${dutyCode.value}")),
+                checked = form.data.exists(_._2 == dutyCode.value)
             )
         }
     }

@@ -608,25 +608,50 @@ select-duty-types.error.required=Select one or more duty types you want to claim
 select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
-select-duty-types.custom.type.ukduty=UK Duty
-select-duty-types.custom.type.euduty=EU Duty
+select-duty-types.custom.type.uk-duty=UK Duty
+select-duty-types.custom.type.eu-duty=EU Duty
 select-duty-types.excise.type.beer=Beer
 select-duty-types.excise.type.wine=Wine
-select-duty-types.excise.type.madewine=Made-wine
-select-duty-types.excise.type.lowalcoholbeverages=Low alcohol beverages
+select-duty-types.excise.type.made-wine=Made-wine
+select-duty-types.excise.type.low-alcohol-beverages=Low alcohol beverages
 select-duty-types.excise.type.spirits=Spirits
-select-duty-types.excise.type.cideperry=Cider and perry
-select-duty-types.excise.type.hydrocarbonoils=Hydrocarbon oils
+select-duty-types.excise.type.cider-perry=Cider and perry
+select-duty-types.excise.type.hydrocarbon-oils=Hydrocarbon oils
 select-duty-types.excise.type.biofuels=Biofuels
-select-duty-types.excise.type.miscellaneousroadfuels=Miscellaneous road fuels
+select-duty-types.excise.type.miscellaneous-road-fuels=Miscellaneous road fuels
 select-duty-types.excise.type.tobacco=Tobacco products
-select-duty-types.excise.type.climatechangelevy=Climate Change Levy
+select-duty-types.excise.type.climate-change-levy=Climate Change Levy
 
-select-duty-codes.title=Select the {0} you want to claim for all MRNs in the file you uploaded
+select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
 select-duty-codes.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
 select-duty-codes.error.required=Select one or more duties to be reimbursed for.
 select-duty-codes.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
-select-duty-codes.checkbox-legend.1={0}
+select-duty-codes.h1.uk-duty=UK
+select-duty-codes.h1.eu-duty=EU
+select-duty-codes.h1.beer=beer
+select-duty-codes.h1.wine=wine
+select-duty-codes.h1.made-wine=made-wine
+select-duty-codes.h1.low-alcohol-beverages=low alcohol beverages
+select-duty-codes.h1.spirits=spirits
+select-duty-codes.h1.cider-perry=cider and perry
+select-duty-codes.h1.hydrocarbon-oils=hydrocarbon oils
+select-duty-codes.h1.biofuels=biofuels
+select-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
+select-duty-codes.h1.tobacco=tobacco products
+select-duty-codes.h1.climate-change-levy=Climate Change Levy
+select-duty-codes.legend.uk-duty=UK Duty
+select-duty-codes.legend.eu-duty=EU Duty
+select-duty-codes.legend.beer=Beer
+select-duty-codes.legend.wine=Wine
+select-duty-codes.legend.made-wine=Made-wine
+select-duty-codes.legend.low-alcohol-beverages=Low alcohol beverages
+select-duty-codes.legend.spirits=Spirits
+select-duty-codes.legend.cider-perry=Cider and perry
+select-duty-codes.legend.hydrocarbon-oils=Hydrocarbon oils
+select-duty-codes.legend.biofuels=Biofuels
+select-duty-codes.legend.miscellaneous-road-fuels=Miscellaneous road fuels
+select-duty-codes.legend.tobacco=Tobacco products
+select-duty-codes.legend.climate-change-levy=Climate Change Levy
 
 #===================================================
 #  DUTY CODES
