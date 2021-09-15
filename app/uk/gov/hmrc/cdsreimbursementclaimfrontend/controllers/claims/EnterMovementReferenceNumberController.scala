@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNBulkRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNMultipleRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
@@ -210,7 +210,7 @@ class EnterMovementReferenceNumberController @Inject() (
   def localRouter(journey: JourneyBindable): ReimbursementRoutes =
     journey match {
       case JourneyBindable.Single    => MRNSingleRoutes
-      case JourneyBindable.Bulk      => MRNBulkRoutes
+      case JourneyBindable.Multiple  => MRNMultipleRoutes
       case JourneyBindable.Scheduled => MRNScheduledRoutes
     }
 

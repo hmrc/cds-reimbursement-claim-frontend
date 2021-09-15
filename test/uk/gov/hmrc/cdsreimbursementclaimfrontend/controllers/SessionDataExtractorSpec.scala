@@ -108,7 +108,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
-            selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Bulk),
+            selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
             movementReferenceNumber = sampleMrnAnswer(),
             claimNorthernIrelandAnswer = expectedData
           )
@@ -116,7 +116,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        val result = sessionTester.method(expectedData, MRNBulkRoutes)(dataExtractor, request, JourneyBindable.Bulk)
+        val result =
+          sessionTester.method(expectedData, MRNMultipleRoutes)(dataExtractor, request, JourneyBindable.Multiple)
         status(result) shouldBe 200
       }
 
@@ -129,7 +130,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
-            selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Bulk),
+            selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
             movementReferenceNumber = sampleMrnAnswer(),
             claimNorthernIrelandAnswer = expectedData
           )
@@ -182,7 +183,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result =
-          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Bulk)
+          sessionTester.method(expectedData, JourneyNotDetectedRoutes)(dataExtractor, request, JourneyBindable.Multiple)
         status(result) shouldBe 200
       }
 

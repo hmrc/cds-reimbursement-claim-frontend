@@ -28,12 +28,12 @@ sealed abstract class JourneyBindable(val value: String) extends Product with Se
 object JourneyBindable {
 
   case object Single extends JourneyBindable("single")
-  case object Bulk extends JourneyBindable("bulk")
+  case object Multiple extends JourneyBindable("multiple")
   case object Scheduled extends JourneyBindable("scheduled")
 
   def parse(in: String): JourneyBindable = in match {
     case "single"    => Single
-    case "bulk"      => Bulk
+    case "multiple"  => Multiple
     case "scheduled" => Scheduled
   }
 

@@ -76,7 +76,7 @@
                         value = Some("1"),
                         content = Text(messages(s"$key.bulk.title")),
                         hint = Some(Hint(content = Text(messages(s"$key.bulk.hint")))),
-                        checked = form.value.contains(Bulk)
+                        checked = form.value.contains(Multiple)
                     ),
                     RadioItem(
                         id = Some(s"$key-scheduled"),

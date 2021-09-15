@@ -91,7 +91,7 @@ class SelectNumberOfClaimsControllerSpec
   def isIndividualChecked(document: Document): Boolean =
     isChecked(document, "select-number-of-claims-individual")
 
-  def isBulkChecked(document: Document): Boolean =
+  def isMultipleChecked(document: Document): Boolean =
     isChecked(document, "select-number-of-claims-bulk")
 
   def isScheduledChecked(document: Document): Boolean =
@@ -155,7 +155,7 @@ class SelectNumberOfClaimsControllerSpec
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
             isIndividualChecked(doc) shouldBe false
-            isBulkChecked(doc)       shouldBe false
+            isMultipleChecked(doc)   shouldBe false
             isScheduledChecked(doc)  shouldBe false
           }
         )
@@ -174,15 +174,15 @@ class SelectNumberOfClaimsControllerSpec
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
             isIndividualChecked(doc) shouldBe true
-            isBulkChecked(doc)       shouldBe false
+            isMultipleChecked(doc)   shouldBe false
             isScheduledChecked(doc)  shouldBe false
 
           }
         )
       }
 
-      "the user has answered this question before and chosen Bulk " in {
-        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Bulk))
+      "the user has answered this question before and chosen Multiple " in {
+        val session = getSessionWithPreviousAnswer(Some(SelectNumberOfClaimsAnswer.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -194,7 +194,7 @@ class SelectNumberOfClaimsControllerSpec
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
             isIndividualChecked(doc) shouldBe false
-            isBulkChecked(doc)       shouldBe true
+            isMultipleChecked(doc)   shouldBe true
             isScheduledChecked(doc)  shouldBe false
 
           }
@@ -214,7 +214,7 @@ class SelectNumberOfClaimsControllerSpec
           messageFromMessageKey("select-number-of-claims.title"),
           doc => {
             isIndividualChecked(doc) shouldBe false
-            isBulkChecked(doc)       shouldBe false
+            isMultipleChecked(doc)   shouldBe false
             isScheduledChecked(doc)  shouldBe true
           }
         )
@@ -242,9 +242,9 @@ class SelectNumberOfClaimsControllerSpec
         )
       }
 
-      "user chooses the Bulk option" in {
+      "user chooses the Multiple option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Bulk)
+        val updatedSession = updateSession(session, SelectNumberOfClaimsAnswer.Multiple)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -254,7 +254,7 @@ class SelectNumberOfClaimsControllerSpec
 
         checkIsRedirect(
           performAction(Seq(SelectNumberOfClaimsController.dataKey -> "1")),
-          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Bulk)
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 

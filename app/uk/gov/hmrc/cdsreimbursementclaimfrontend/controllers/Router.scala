@@ -223,9 +223,9 @@ trait SingleRoutes extends JourneyTypeRoutes {
   override val journeyBindable        = JourneyBindable.Single
 }
 
-trait BulkRoutes extends JourneyTypeRoutes {
+trait MultipleRoutes extends JourneyTypeRoutes {
   override val subKey: Option[String] = Some("bulk")
-  override val journeyBindable        = JourneyBindable.Bulk
+  override val journeyBindable        = JourneyBindable.Multiple
 }
 
 trait ScheduledRoutes extends JourneyTypeRoutes {
@@ -266,8 +266,8 @@ object ReimbursementRoutes {
 
 case object MRNSingleRoutes extends MRNRoutes with SingleRoutes with SubmitRoutes
 case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes with SubmitRoutes
-case object MRNBulkRoutes extends MRNRoutes with BulkRoutes with SubmitRoutes
-case object EntryBulkRoutes extends EntryNumberRoutes with BulkRoutes with SubmitRoutes
+case object MRNMultipleRoutes extends MRNRoutes with MultipleRoutes with SubmitRoutes
+case object EntryMultipleRoutes extends EntryNumberRoutes with MultipleRoutes with SubmitRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with SubmitRoutes
 case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 

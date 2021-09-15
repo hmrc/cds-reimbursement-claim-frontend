@@ -60,7 +60,7 @@ class BankAccountControllerSpec
   private val journeys = Table(
     "JourneyBindable",
     JourneyBindable.Single,
-    JourneyBindable.Bulk,
+    JourneyBindable.Multiple,
     JourneyBindable.Scheduled
   )
 
