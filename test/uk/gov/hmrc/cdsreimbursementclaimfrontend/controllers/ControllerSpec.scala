@@ -197,7 +197,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def toSelectNumberOfClaims(journeyBindable: JourneyBindable): SelectNumberOfClaimsAnswer = journeyBindable match {
     case JourneyBindable.Single    => SelectNumberOfClaimsAnswer.Individual
-    case JourneyBindable.Bulk      => SelectNumberOfClaimsAnswer.Bulk
+    case JourneyBindable.Multiple  => SelectNumberOfClaimsAnswer.Multiple
     case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
   }
 

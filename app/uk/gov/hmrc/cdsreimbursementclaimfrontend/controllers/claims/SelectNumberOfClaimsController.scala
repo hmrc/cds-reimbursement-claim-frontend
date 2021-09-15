@@ -86,7 +86,7 @@ class SelectNumberOfClaimsController @Inject() (
                   _ => {
                     val redirectUrl = updatedAnswers match {
                       case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
-                      case SelectNumberOfClaimsAnswer.Bulk       => JourneyBindable.Bulk
+                      case SelectNumberOfClaimsAnswer.Multiple   => JourneyBindable.Multiple
                       case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
                     }
                     Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))

@@ -33,21 +33,21 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
   val allRoutes = Table(
     "Routes",
     MRNSingleRoutes,
-    MRNBulkRoutes,
+    MRNMultipleRoutes,
     MRNScheduledRoutes
   )
 
   "The next page after the enter movement reference number" must {
 
     "check declaration details when the user is the importer" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNBulkRoutes, MRNBulkRoutes)) { router =>
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(MrnImporter(sample[DisplayDeclaration])) shouldBe
           claimRoutes.CheckDeclarationDetailsController.show(router.journeyBindable)
       }
     }
 
     "enter importer Eori number when there is a 3rd party importer" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNBulkRoutes, MRNBulkRoutes)) { router =>
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(ThirdPartyImporter(sample[DisplayDeclaration])) shouldBe
           claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
       }
