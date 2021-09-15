@@ -223,6 +223,14 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
           routes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
         )
       }
+
+      "uploadScheduledDocumentSubmit" in {
+        checkIsRedirect(
+          
+        )
+      }
+
+
     }
   }
 }
