@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
 import com.typesafe.config.ConfigFactory
+import org.scalatest.Ignore
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -36,6 +37,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@Ignore
 class SessionCacheSpec
     extends AnyWordSpec
     with Matchers
