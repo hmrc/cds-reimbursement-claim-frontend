@@ -72,8 +72,8 @@ class EnterMovementReferenceNumberControllerSpec
     ("JourneyBindable", "isEntryNumberFeatureEnabled"),
     (JourneyBindable.Single, true),
     (JourneyBindable.Single, false),
-    (JourneyBindable.Bulk, true),
-    (JourneyBindable.Bulk, false),
+    (JourneyBindable.Multiple, true),
+    (JourneyBindable.Multiple, false),
     (JourneyBindable.Scheduled, true),
     (JourneyBindable.Scheduled, false)
   )
@@ -152,7 +152,7 @@ class EnterMovementReferenceNumberControllerSpec
         runJourney(true, JourneyBindable.Single, "What is your Movement Reference Number (MRN)?")
       }
       "show title on the bulk journey" in {
-        runJourney(true, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
+        runJourney(true, JourneyBindable.Multiple, "Enter the lead Movement Reference Number (MRN)")
       }
       "show title on the scheduled journey" in {
         runJourney(true, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
@@ -164,7 +164,7 @@ class EnterMovementReferenceNumberControllerSpec
         runJourney(false, JourneyBindable.Single, "Enter the Movement Reference Number (MRN)")
       }
       "show title on the bulk journey" in {
-        runJourney(false, JourneyBindable.Bulk, "Enter the lead Movement Reference Number (MRN)")
+        runJourney(false, JourneyBindable.Multiple, "Enter the lead Movement Reference Number (MRN)")
       }
       "show title on the scheduled journey" in {
         runJourney(false, JourneyBindable.Scheduled, "Enter the lead Movement Reference Number (MRN)")
