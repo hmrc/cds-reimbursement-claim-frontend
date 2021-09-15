@@ -65,7 +65,7 @@ object CompleteClaim {
     draftClaim match {
       case DraftClaim.DraftC285Claim(
             id,
-            numberOfClaims,
+            typeOfClaim,
             Some(MovementReferenceNumber(Right(mrn))),
             maybeDuplicateMovementReferenceNumber,
             _,
@@ -97,7 +97,7 @@ object CompleteClaim {
           validateCommodityDetailsAnswer(draftCommodityAnswer),
           validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
           validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer),
-          validateScheduledDocumentAnswer(maybeScheduledDocument, numberOfClaims)
+          validateScheduledDocumentAnswer(maybeScheduledDocument, typeOfClaim)
         )
           .mapN {
             case (

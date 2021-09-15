@@ -45,8 +45,8 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def sessionWithClaimState(
-    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
+  private def sessionWithScheduleOfMrnDocumentState(
+    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(scheduledDocumentAnswer = scheduledDocumentAnswer)
     val ggCredId            = sample[GGCredId]
@@ -69,7 +69,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
         "number of uploads has not exceeded limit" in {
           val uploadReference = sample[UploadReference]
-          val (session, _, _) = sessionWithClaimState(None)
+          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
           val upscanUpload    = genUpscanUpload(uploadReference)
 
           inSequence {
@@ -91,7 +91,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show the file upload failed page" when {
 
         "uploaded file size exceeds threshold" in {
-          val (session, _, _) = sessionWithClaimState(None)
+          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -116,7 +116,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
           val answer = ScheduledDocumentAnswer(uploadDocument)
 
-          val (session, _, _) = sessionWithClaimState(answer.some)
+          val (session, _, _) = sessionWithScheduleOfMrnDocumentState(answer.some)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -136,7 +136,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
           val answer = ScheduledDocumentAnswer(uploadDocument)
 
-          val (session, _, _) = sessionWithClaimState(answer.some)
+          val (session, _, _) = sessionWithScheduleOfMrnDocumentState(answer.some)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -157,7 +157,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
             val answer = ScheduledDocumentAnswer(uploadDocument)
 
-            val (session, journey, draftClaim) = sessionWithClaimState(answer.some)
+            val (session, journey, draftClaim) = sessionWithScheduleOfMrnDocumentState(answer.some)
 
             val updatedDraftReturn = draftClaim.copy(scheduledDocumentAnswer = None)
             val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
@@ -182,7 +182,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show file format or infected file error page" when {
 
         "an upscan failure call back is received" in {
-          val (session, _, _) = sessionWithClaimState(None)
+          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -210,7 +210,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             upscanCallBack = Some(upscanFailure)
           )
 
-        val (session, _, _) = sessionWithClaimState(None)
+        val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
 
         inSequence {
           mockAuthWithNoRetrievals()
