@@ -97,7 +97,7 @@ trait SessionDataExtractor extends Results {
 }
 
 //This method should be used in controllers, where we did not introduce the JourneyBindable yet
-object TemporaryJourneyExtractor extends SessionDataExtractor {
+object JourneyExtractor extends SessionDataExtractor {
 
   def extractJourney(implicit request: RequestWithSessionData[_]): JourneyBindable =
     request.sessionData.flatMap(_.journeyStatus) match {

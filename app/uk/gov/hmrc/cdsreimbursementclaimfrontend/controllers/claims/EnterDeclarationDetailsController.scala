@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, TemporaryJourneyExtractor, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, JourneyExtractor, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -193,7 +193,7 @@ class EnterDeclarationDetailsController @Inject() (
                 _ =>
                   Redirect(
                     routes.SelectWhoIsMakingTheClaimController
-                      .selectDeclarantType(TemporaryJourneyExtractor.extractJourney)
+                      .selectDeclarantType(JourneyExtractor.extractJourney)
                   )
               )
             }
@@ -299,7 +299,7 @@ class EnterDeclarationDetailsController @Inject() (
                 logAndDisplayError("could not capture declaration details"),
                 _ =>
                   Redirect(
-                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(TemporaryJourneyExtractor.extractJourney)
+                    routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyExtractor.extractJourney)
                   )
               )
             }
@@ -366,7 +366,7 @@ class EnterDeclarationDetailsController @Inject() (
                 case Right(_)          =>
                   Redirect(
                     routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(
-                      TemporaryJourneyExtractor.extractJourney
+                      JourneyExtractor.extractJourney
                     )
                   )
               }
@@ -415,7 +415,7 @@ class EnterDeclarationDetailsController @Inject() (
                 _ =>
                   Redirect(
                     routes.EnterCommoditiesDetailsController
-                      .enterCommoditiesDetails(TemporaryJourneyExtractor.extractJourney)
+                      .enterCommoditiesDetails(JourneyExtractor.extractJourney)
                   )
               )
             }
