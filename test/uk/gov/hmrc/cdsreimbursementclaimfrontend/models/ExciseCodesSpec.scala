@@ -45,7 +45,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
       codes.size shouldBe 14
       codes        should not contain IncorrectExciseValue
-      codes        should not contain CorrectionToRiskClassification
+      codes        should not contain IncorrectAdditionalInformationCode
     }
 
     "Return all excise codes for Northern Ireland" in {
@@ -69,7 +69,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
 
       codes.size shouldBe 16
       codes        should contain(IncorrectExciseValue)
-      codes        should contain(CorrectionToRiskClassification)
+      codes        should contain(IncorrectAdditionalInformationCode)
     }
 
     "Return all excise codes except IncorrectExciseValue for Northern Ireland" in {
@@ -89,7 +89,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val codes: List[BasisOfClaim] = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
 
       codes.size shouldBe 15
-      codes        should contain(CorrectionToRiskClassification)
+      codes        should contain(IncorrectAdditionalInformationCode)
     }
 
   }

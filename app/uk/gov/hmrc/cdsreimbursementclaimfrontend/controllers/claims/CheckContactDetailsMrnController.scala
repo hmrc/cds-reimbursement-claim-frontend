@@ -44,9 +44,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Er
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,8 +60,7 @@ class CheckContactDetailsMrnController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   cc: MessagesControllerComponents,
-  claimantDetails: pages.check_claimant_details,
-  claimTimedOutPage: views.html.claimant_details_timed_out
+  claimantDetailsPage: pages.check_claimant_details
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -78,10 +77,10 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def add(implicit journey: JourneyBindable): Action[AnyContent] =
+  def addDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -94,10 +93,10 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def change(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -123,14 +122,11 @@ class CheckContactDetailsMrnController @Inject() (
       }
     }
 
-  def claimTimedOut(journeyBindable: JourneyBindable): Action[AnyContent] =
-    Action(implicit request => Ok(claimTimedOutPage(journeyBindable)))
-
   def changeAddress(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       implicit val timeoutConfig: TimeoutConfig = TimeoutConfig(
         timeoutAmount = viewConfig.timeout,
-        timeoutUrl = routes.CheckContactDetailsMrnController.claimTimedOut(journey).url,
+        timeoutUrl = baseRoutes.StartController.timedOut().url,
         timeoutKeepAliveUrl = viewConfig.buildCompleteSelfUrl(viewConfig.ggKeepAliveUrl).some
       )
 
@@ -182,9 +178,9 @@ class CheckContactDetailsMrnController @Inject() (
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable = {
-    val mandatoryDataAvailable = isMandatoryDataAvailable(fillingOutClaim)
+    val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
     val draftC285Claim         = fillingOutClaim.draftClaim.fold(identity)
-    claimantDetails(
+    claimantDetailsPage(
       form,
       mandatoryDataAvailable,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
@@ -269,12 +265,4 @@ object CheckContactDetailsMrnController {
       }
       .flatten
   }
-
-  def isMandatoryDataAvailable(fillingOutClaim: FillingOutClaim): Boolean = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    (draftC285Claim.mrnContactDetailsAnswer, draftC285Claim.mrnContactAddressAnswer)
-      .mapN((_, _) => true)
-      .getOrElse(false)
-  }
-
 }

@@ -46,7 +46,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), signedInUserDetails = request.signedInUserDetails, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 

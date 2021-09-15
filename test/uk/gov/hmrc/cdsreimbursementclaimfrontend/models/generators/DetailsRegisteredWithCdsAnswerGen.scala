@@ -20,7 +20,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCdsAnswer
 
 object DetailsRegisteredWithCdsAnswerGen {
+
   implicit val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
     gen[DetailsRegisteredWithCdsAnswer]
-
 }

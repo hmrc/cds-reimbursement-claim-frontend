@@ -68,7 +68,7 @@ class CheckYourAnswersAndSubmitControllerSpec extends ControllerSpec with AuthSu
       bind[ClaimService].toInstance(mockClaimService)
     )
 
-  lazy val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]
+  val controller: CheckYourAnswersAndSubmitController = instanceOf[CheckYourAnswersAndSubmitController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 

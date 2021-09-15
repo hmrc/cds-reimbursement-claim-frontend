@@ -87,8 +87,8 @@ class ClaimantDetailsHelper @Inject() () {
   ): SummaryListRow = {
     val data = List(
       Some(getParagraph(contactDetails.fullName)),
-      contactDetails.phoneNumber.map(a => getParagraph(a.value)),
-      Some(getParagraph(contactDetails.emailAddress.value))
+      Some(getParagraph(contactDetails.emailAddress.value)),
+      contactDetails.phoneNumber.map(a => getParagraph(a.value))
     ).flattenOption
 
     SummaryListRow(
@@ -101,12 +101,14 @@ class ClaimantDetailsHelper @Inject() () {
           List(
             ActionItem(
               href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
+              content = Text(messages("claimant-details.change")),
+              visuallyHiddenText = Some(messages(s"$key.contact.details"))
             )
           )
         )
       )
     )
+
   }
 
   def renderContactAddress(contactAddress: ContactAddress, router: ReimbursementRoutes)(implicit
@@ -131,7 +133,8 @@ class ClaimantDetailsHelper @Inject() () {
           List(
             ActionItem(
               href = s"${routes.CheckContactDetailsMrnController.changeAddress(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
+              content = Text(messages("claimant-details.change")),
+              visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )
           )
         )

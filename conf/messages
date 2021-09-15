@@ -1,4 +1,3 @@
-
 service.name=Claim for reimbursement of import duties
 service.text=Claim for reimbursement of import duties
 service.title=Claim for reimbursement of import duties
@@ -333,7 +332,6 @@ enter-your-contact-details.add-company-details.yes=Yes
 enter-your-contact-details.add-company-details.error.required=Choose if you want to add company details
 countryCode.enter-your-contact-details.error.required=Enter a country
 
-
 #===================================================
 #  CLAIMANT DETAILS PAGE
 #===================================================
@@ -591,56 +589,6 @@ select-basis-for-claim.reason.ern.d15=Miscellaneous
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
-#  SELECT REASON AND BASIS FOR CLAIM PAGE
-#===================================================
-select-reason-and-basis-for-claim.title=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
-select-reason-and-basis-for-claim.reason.select-label=Choose which reason for claim
-select-reason-and-basis-for-claim.basis.select-label=Choose which basis for claim
-select-reason-and-basis-for-claim.error.number=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.error.required=Select the reason and or basis for claim
-select-reason-and-basis-for-claim.basis.error.required=Select a reason for claim
-select-reason-and-basis-for-claim.basis.error.number= Select a basis for claim
-select-reason-and-basis-for-claim.reason.error.number= Select a reason for claim
-select-reason-and-basis-for-claim.reason.error.required=Select a reason for claim
-select-reason-and-basis-for-claim.basis.details.heading=Examples of basis of claim
-
-select-reason-and-basis-for-claim.basis.details.l0=duplicate Entry Number (a claim if a duplicate Entry Number has been made and a trader overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l1=duty suspension (goods liable to import charges but not collected until they leave the point of deferring payment of customs duties)
-select-reason-and-basis-for-claim.basis.details.l2=end use relief (gives a favourable rate of duty and/or levy on some goods imported from non-EU countries)
-select-reason-and-basis-for-claim.basis.details.l3=incorrect commodity code (a claim made if a trader originally entered an incorrect commodity code and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l4=incorrect customs procedure code (a claim made if a trader entered an incorrect CPC and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l5=incorrect value (a claim made if a trader originally entered an incorrect total customs value and overpaid duties)
-select-reason-and-basis-for-claim.basis.details.l6=incorrect EORI and deferment account number (a claim made if a trader entered a wrong EORI and/or deferment account number)
-select-reason-and-basis-for-claim.basis.details.l7=inward processing relief from Customs Duty (IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU)
-select-reason-and-basis-for-claim.basis.details.l8=outward processing relief (allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
-select-reason-and-basis-for-claim.basis.details.l9=preference (post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates)
-select-reason-and-basis-for-claim.basis.details.l10=proof of return/refund given (a claim made by a trader if they have provided a proof of return/refund and overpaid duties)
-select-reason-and-basis-for-claim.reason.details.heading=Examples of reasons to claim
-select-reason-and-basis-for-claim.reason.details.l0=mail order goods - duties not due (for example you pay the duties but you ask HMRC to invalidate the customs declaration)
-select-reason-and-basis-for-claim.reason.details.l1=overpayment (for example you paid duties that were not due)
-select-reason-and-basis-for-claim.reason.details.l2=special circumstances (situations such as outside normal commercial risk and not due to negligence or deception on your part)
-
-select-reason-and-basis-for-claim.basis.d0=Duplicate Entry Number
-select-reason-and-basis-for-claim.basis.d1=Duty Suspension
-select-reason-and-basis-for-claim.basis.d2=End Use
-select-reason-and-basis-for-claim.basis.d3=Incorrect Commodity Code
-select-reason-and-basis-for-claim.basis.d4=Incorrect CPC
-select-reason-and-basis-for-claim.basis.d5=Incorrect Value
-select-reason-and-basis-for-claim.basis.d6=Incorrect EORI & Deferment Acc. Num.
-select-reason-and-basis-for-claim.basis.d7=IP
-select-reason-and-basis-for-claim.basis.d8=Miscellaneous
-select-reason-and-basis-for-claim.basis.d9=OPR
-select-reason-and-basis-for-claim.basis.d10=Personal Effects
-select-reason-and-basis-for-claim.basis.d11=Preference
-select-reason-and-basis-for-claim.basis.d12=RGR
-select-reason-and-basis-for-claim.basis.d13=Proof of Return/Refund Given
-
-select-reason-and-basis-for-claim.reason.d0=Mail Order Goods – duties not due
-select-reason-and-basis-for-claim.reason.d1=Overpayment
-select-reason-and-basis-for-claim.reason.d2=Special circumstances
-
-#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim
@@ -650,6 +598,30 @@ enter-commodities-details.error.maxLength=Claim reason must be 500 characters or
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+
+#===================================================
+#  REIMBURSEMENT PAGES
+#===================================================
+select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
+select-duty-types.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select one or more of the paid duty types.
+select-duty-types.error.required=Select one or more duty types you want to claim for.
+select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
+select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
+select-duty-types.checkbox-legend.2=Excise Duties
+select-duty-types.custom.type.ukduty=UK Duty
+select-duty-types.custom.type.euduty=EU Duty
+select-duty-types.excise.type.beer=Beer
+select-duty-types.excise.type.wine=Wine
+select-duty-types.excise.type.madewine=Made-wine
+select-duty-types.excise.type.lowalcoholbeverages=Low alcohol beverages
+select-duty-types.excise.type.spirits=Spirits
+select-duty-types.excise.type.cideperry=Cider and perry
+select-duty-types.excise.type.hydrocarbonoils=Hydrocarbon oils
+select-duty-types.excise.type.biofuels=Biofuels
+select-duty-types.excise.type.miscellaneousroadfuels=Miscellaneous road fuels
+select-duty-types.excise.type.tobacco=Tobacco products
+select-duty-types.excise.type.climatechangelevy=Climate Change Levy
+
 
 #===================================================
 #  MAKE CLAIM PAGES
@@ -967,8 +939,11 @@ check-your-answers.claimant-details.l1=Email address
 check-your-answers.claimant-details.l2=Phone number
 check-your-answers.claimant-details.l3=Contact address
 check-your-answers.claimant-company-details.label=Claimant’s company details
-check-your-answers.reason-and-basis.l0=This is the basis behind the claim
-check-your-answers.reason-and-basis.l1=This is the basis behind the claim
+check-your-answers.contact-details.h2=Contact details
+check-your-answers.contact-details.l0=Contact details
+check-your-answers.contact-details.l1=Contact address
+check-your-answers.basis.h2=Basis for claim
+check-your-answers.basis.l0=This is the basis behind the claim
 check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
 check-your-answers.commodities-details.label=Details of the commodities
 check-your-answers.commodities-details.scheduled.label=This is the reason for the claim
@@ -981,10 +956,8 @@ check-your-answers.bank-details.l0=Bank account name
 check-your-answers.bank-details.l1=Type of bank account
 check-your-answers.bank-details.l2=Sort code
 check-your-answers.bank-details.l3=Account number
-check-your-answers.attached-documents.label=Attached documents
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
-check-your-answers.file-label=Document {0}
 check-your-answers.bank-details.account-name.label=Account name
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
@@ -999,8 +972,8 @@ check-your-answers.commodity-details.h2=Commodity details
 check-your-answers.commodity-details.scheduled.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Claim calculation
 check-your-answers.bank-details.h2=Bank details
-check-your-answers.attached-documents.h2=Attached documents
-check-your-answers.reason-basis.h2=Basis for claim
+check-your-answers.attached-documents.h2=Supporting documents
+check-your-answers.attached-documents.label=Uploaded
 check-your-answers.claimant-details.h2=Claimant’s CDS details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
@@ -1026,42 +999,6 @@ confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
-
-#===================================================
-#  ACCESSIBILITY - START
-#===================================================
-
-accessibility-statement.title=Accessibility statement
-accessibility-statement.heading1=Using this service
-accessibility-statement.heading2=How accessible this service is
-accessibility-statement.heading3=Reporting accessibility problems with this service
-accessibility-statement.heading4=What to do if you are not happy with how we respond to your complaint
-accessibility-statement.heading5=Contacting us by phone or getting a visit from us in person
-accessibility-statement.heading6=How we tested this service
-accessibility-statement.p1=This accessibility statement explains how accessible this service is, what to do if you have difficulty using it and how to report accessibility problems with the service. This service is part of the wider GOV.UK website. There is a separate <a href="{0}" class="govuk-link">accessibility statement</a> for the main GOV.UK website.
-accessibility-statement.p2=Claimants can use the service to apply to claim reimbursements on overpayments for import charges, including Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties. They can use the service if the amount already paid in the import declaration is inaccurate or the import declaration was rejected so they need to claim back all or some of the amount already paid.
-accessibility-statement.p3=This service is run by HM Revenue and Customs (HMRC).
-accessibility-statement.p4=We want as many people as possible to be able to use this service. This means you should be able to:
-accessibility-statement.p5=We have also made the text in the service as simple as possible to understand. <a href="{0}" class="govuk-link">AbilityNet has advice</a> on making your device easier to use if you have a disability.
-accessibility-statement.p6=HMRC is committed to making these forms accessible in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. The service was tested on 1 March 2021 and found to be compliant with the <a href="{0}" class="govuk-link">Web Content Accessibility Guidelines version 2.1 AAA standard.</a> Since then, it has been extended. We cannot be certain that it is fully compliant. The full service will be tested by HMRC within the next three months.
-accessibility-statement.p7=We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">report the accessibility problem (opens in a new tab)</a>.
-accessibility-statement.p8=The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint, <a href="{0}" class="govuk-link">contact the Equality Advisory and Support Service (EASS)</a>, or
-accessibility-statement.p82=the <a href="{0}" class="govuk-link">Equality Commission for Northern Ireland (ECNI)</a> if you live in Northern Ireland.
-accessibility-statement.p9=We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
-accessibility-statement.p10=We can provide a British Sign Language (BSL) interpreter, or you can arrange a visit from an HMRC advisor to help you complete the service.
-accessibility-statement.p11=Find out how to <a href="{0}" class="govuk-link">contact us.</a>
-accessibility-statement.p12=The service was tested on 1 March 2021 and checked for compliance with WCAG 2.1 AAA. It was built using parts that were tested by the <a href="{0}" class="govuk-link">Digital Accessibility Centre.</a>
-accessibility-statement.p13=This page was prepared on 28 January 2021. It was last updated on 28 January 2021.
-accessibility-statement.p14=<a href="{0}" class="govuk-link" target="_blank">Get help with this page.</a>
-accessibility-statement.li1=change colours, contrast levels and fonts
-accessibility-statement.li2=zoom in up to 300% without the text spilling off the screen
-accessibility-statement.li3=get from the start of the service to the end using just a keyboard
-accessibility-statement.li4=get from the start of the service to the end using speech recognition software
-accessibility-statement.li5=listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
-
-#===================================================
-#  ACCESSIBILITY - START
-#===================================================
 
 #===================================================
 #  NON-UK ADDRESS - START

@@ -21,7 +21,9 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
@@ -61,7 +63,8 @@ trait SubmitRoutes extends Product with Serializable {
 
   def submitPageForClaimantDetails(isChange: Boolean): Call = {
     val controller = claimRoutes.CheckContactDetailsMrnController
-    if (isChange) controller.change(journeyBindable) else controller.add(journeyBindable)
+    if (isChange) controller.submit(journeyBindable)
+    else controller.addDetails(journeyBindable)
   }
 
   def submitUrlForChangeMrnContactDetails(): Call =
@@ -113,7 +116,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
     if (isAmend) {
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      basisOfClaim match {
+        case BasisOfClaim.DuplicateEntry =>
+          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+        case _                           =>
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+      }
     } else
       basisOfClaim match {
         case BasisOfClaim.DuplicateEntry =>
@@ -125,7 +133,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-      case false => claimRoutes.SelectDutiesController.selectDuties()
+      case false =>
+        if (journeyBindable === Scheduled) {
+          reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+        } else {
+          claimRoutes.SelectDutiesController.selectDuties()
+        }
     }
 
   def nextPageForWhoIsMakingTheClaim(mrnOrEntryNumber: Option[Either[EntryNumber, MRN]], isAmend: Boolean): Call =
@@ -149,7 +162,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForAddClaimantDetails(answer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
     answer match {
       case YesClaimantDetailsAnswer =>
-        claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
+        claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetails(journeyBindable)
       case NoClaimantDetailsAnswer  =>
         featureSwitch.NorthernIreland.isEnabled() match {
           case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
@@ -157,19 +170,23 @@ trait JourneyTypeRoutes extends Product with Serializable {
         }
     }
 
-  def nextPageForChangeClaimantDetails(anwer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
-    anwer match {
+  def nextPageForChangeClaimantDetails(
+    answer: CheckClaimantDetailsAnswer,
+    featureSwitch: FeatureSwitchService
+  ): Call =
+    answer match {
       case YesClaimantDetailsAnswer =>
         featureSwitch.NorthernIreland.isEnabled() match {
           case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
           case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
-      case NoClaimantDetailsAnswer  => claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+      case NoClaimantDetailsAnswer  =>
+        claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     }
 
-  def nextPageForEnterOrChangeMrnContactDetails(isAdressLookupNecessary: Boolean): Call =
-    if (isAdressLookupNecessary) claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
-    else claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+  def nextPageForMrnContactDetails(isChange: Boolean): Call =
+    if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+    else claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
 
   def nextPageForCheckBankAccountDetails(): Call =
     claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)

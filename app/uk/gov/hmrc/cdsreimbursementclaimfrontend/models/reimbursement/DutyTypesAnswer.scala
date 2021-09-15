@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,28 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.twirl.api.Html
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-@this()
+import cats.Eq
+import play.api.libs.json.{Json, OFormat}
 
-@(
-	summary: String,
-	content: Html,
-	assistiveText: Option[String] = None,
-	assistivePrefix: Option[String] = None
-)
+final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
 
-<details class="govuk-details" data-module="govuk-details">
-	<summary class="govuk-details__summary">
-		<span class="govuk-details__summary-text">
-			@assistivePrefix.map(a => Html(s"""<span class="govuk-visually-hidden">${a}</span> """))
-			@summary
-			@assistiveText.map(a => Html(s""" <span class="govuk-visually-hidden">${a}</span>"""))
-		</span>
-	</summary>
-	<div class="govuk-details__text">
-		@content
-	</div>
-</details>
+object DutyTypesAnswer {
+  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
+  implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
+}

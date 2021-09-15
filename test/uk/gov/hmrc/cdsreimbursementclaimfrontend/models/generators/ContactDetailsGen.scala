@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import org.scalacheck.Gen
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 object ContactDetailsGen {
+
+  def genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
+    Gen.option(arbitraryMrnContactDetails.arbitrary)
 
   implicit val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
 }

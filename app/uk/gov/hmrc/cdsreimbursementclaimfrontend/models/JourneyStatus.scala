@@ -51,8 +51,8 @@ object JourneyStatus {
   final case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
-    def of(source: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
-      source.copy(draftClaim = source.draftClaim.fold(f))
+    def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
+      fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
   }
 
   implicit val format: OFormat[JourneyStatus]                  = derived.oformat()

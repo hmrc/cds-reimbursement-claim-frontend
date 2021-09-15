@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.api.i18n.Messages
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
-@this()
+import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 
-@(alert: String)(implicit messages: Messages)
+object Paragraph {
 
-<div class="hmcts-banner hmcts-banner--success" tabindex="-1" role="alert">
-  <svg class="hmcts-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25"><path d="M25,6.2L8.7,23.2L0,14.1l4-4.2l4.7,4.9L21,2L25,6.2z"></path></svg>
-  <div class="hmcts-banner__message">
-    <span class="hmcts-banner__assistive">@messages("generic.success")</span>
-    @alert
-  </div>
-
-</div>
+  def apply(head: String, tail: String*): HtmlFormat.Appendable = {
+    val content = head +: tail.filter(_.nonEmpty) mkString "<br />"
+    new paragraph_block()(Html(content), Some("govuk-body"))
+  }
+}

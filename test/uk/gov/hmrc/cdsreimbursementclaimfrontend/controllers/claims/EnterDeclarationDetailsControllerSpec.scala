@@ -438,12 +438,15 @@ class EnterDeclarationDetailsControllerSpec
         )
 
         forAll(testCases) { (action, redirectPage) =>
+          val mrn                = sample[MRN]
           val declarationDetails = sample[EntryDeclarationDetails]
           val answers            = IncompleteDeclarationDetailsAnswer(declarationDetails.some)
 
           val (session, fillingOutClaim, draftC285Claim) = sessionWithDeclaration(Some(answers))
 
-          val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+          val updatedJourney = fillingOutClaim.copy(draftClaim =
+            draftC285Claim.copy(movementReferenceNumber = MovementReferenceNumber(mrn).some)
+          )
 
           inSequence {
             mockAuthWithNoRetrievals()

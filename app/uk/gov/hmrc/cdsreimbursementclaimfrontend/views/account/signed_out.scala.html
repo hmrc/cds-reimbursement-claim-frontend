@@ -30,7 +30,7 @@
 
     @title = @{messages("signed-out.title")}
 
-    @layout(pageTitle = Some(s"$title")) {
+    @layout(pageTitle = Some(s"$title"), timeOut = false, suppressBackLink = true, suppressSignOutLink = true) {
 
         @pageHeading(title)
 

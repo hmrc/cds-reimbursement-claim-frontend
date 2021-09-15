@@ -17,11 +17,14 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.{Functor, Id}
-import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, ContactDetails, DeclarantDetails, DisplayDeclaration, EstablishmentAddress, NdrcDetails}
 import org.scalacheck.magnolia._
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.{genCountry, genPostcode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen.genEmail
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen.genUkPhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 
 object Acc14Gen {
@@ -36,7 +39,46 @@ object Acc14Gen {
 
   implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
 
+  def genContactDetails: Gen[ContactDetails] =
+    for {
+      contactName  <- Gen.option(genStringWithMaxSizeOfN(7))
+      addressLine1 <- Gen.option(Gen.posNum[Int].map(num => s"$num ${genStringWithMaxSizeOfN(7)}"))
+      addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine3 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine4 <- Gen.option(genStringWithMaxSizeOfN(10))
+      postalCode   <- Gen.option(genPostcode)
+      countryCode  <- Gen.option(genCountry.map(_.code))
+      telephone    <- Gen.option(genUkPhoneNumber.map(_.value))
+      emailAddress <- Gen.option(genEmail.map(_.value))
+    } yield ContactDetails(
+      contactName,
+      addressLine1,
+      addressLine2,
+      addressLine3,
+      addressLine4,
+      postalCode,
+      countryCode,
+      telephone,
+      emailAddress
+    )
+
   implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
+
+  def genEstablishmentAddress: Gen[EstablishmentAddress] =
+    for {
+      num          <- Gen.choose(1, 100)
+      street       <- genStringWithMaxSizeOfN(7)
+      addressLine2 <- Gen.option(genStringWithMaxSizeOfN(10))
+      addressLine3 <- Gen.option(genStringWithMaxSizeOfN(20))
+      postalCode   <- Gen.option(genPostcode)
+      countryCode  <- genCountry
+    } yield EstablishmentAddress(
+      s"$num $street",
+      addressLine2,
+      addressLine3,
+      postalCode,
+      countryCode.code
+    )
 
   implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
 

@@ -31,17 +31,16 @@ POST        /single/change-declaration-details                      uk.gov.hmrc.
 GET         /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
 POST        /single/enter-duplicate-declaration-details             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.enterDuplicateDeclarationDetailsSubmit()
 
-GET         /:journey/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
-POST        /:journey/add-claimant-details                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.add(journey: JourneyBindable)
-POST        /:journey/change-claimant-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.change(journey: JourneyBindable)
+GET         /:journey/claimant-details/check                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.show(journey: JourneyBindable)
+POST        /:journey/claimant-details/check                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.submit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/address-timeout              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.claimTimedOut(journey: JourneyBindable)
+POST        /:journey/claimant-details/add                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.addDetails(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.changeMrnContactDetailsSubmit(journey: JourneyBindable)
 
-GET         /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
-POST        /:journey/claimant-details/details-contact              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
+GET         /:journey/claimant-details/enter-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetails(journey: JourneyBindable)
+POST        /:journey/claimant-details/enter-contact-details        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/claimant-details/change-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.changeAddress(journey: JourneyBindable)
 GET         /:journey/claimant-details/update-address               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.updateAddress(journey: JourneyBindable, id: Option[java.util.UUID] ?= None)

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.twirl.api.Html
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.support
 
-@this()
+import org.jsoup.select.Elements
 
-@(heading: String, subHeading: Option[String], reference: Option[String])
+trait HtmlParseSupport {
 
-<div class="govuk-box-highlight">
-  <h1 class="heading-xlarge">@heading</h1>
-  @subHeading.map(s =>
-      Html(
-            s"""
-            |<span class="heading-large">
-            |${s}
-            |${reference.map(r => s"""<strong>$r</strong>""")}
-            |</span>
-            |""".stripMargin)
-  )
-</div>
+  implicit class ElementsOps(elements: Elements) {
+    def content: Seq[String] = elements.html().split("\n").toSeq
+  }
+}
+
+object HtmlParseSupport extends HtmlParseSupport

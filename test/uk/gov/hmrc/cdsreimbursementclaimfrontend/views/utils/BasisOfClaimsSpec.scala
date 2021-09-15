@@ -67,7 +67,8 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   "contain Northern Ireland claims" in {
     val draftC285Claim = sample[DraftC285Claim].copy(
       movementReferenceNumber = sampleEntryNumberAnswer(),
-      claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some
+      claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some,
+      displayDeclaration = None
     )
 
     val claims = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
@@ -88,7 +89,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           Preference,
           RGR,
           ProofOfReturnRefundGiven,
-          CorrectionToRiskClassification,
+          IncorrectAdditionalInformationCode,
           Miscellaneous
         )
       )
@@ -111,7 +112,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         RGR,
         ProofOfReturnRefundGiven,
         IncorrectExciseValue,
-        CorrectionToRiskClassification,
+        IncorrectAdditionalInformationCode,
         Miscellaneous
       )
     )
@@ -134,7 +135,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         RGR,
         ProofOfReturnRefundGiven,
         IncorrectExciseValue,
-        CorrectionToRiskClassification,
+        IncorrectAdditionalInformationCode,
         Miscellaneous
       )
     )

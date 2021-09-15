@@ -77,6 +77,7 @@ object CompleteClaim {
             maybeBasisForClaim,
             maybeSupportingEvidences,
             _,
+            _,
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
