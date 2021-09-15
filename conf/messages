@@ -955,7 +955,6 @@ check-your-answers.bank-details.l0=Bank account name
 check-your-answers.bank-details.l1=Type of bank account
 check-your-answers.bank-details.l2=Sort code
 check-your-answers.bank-details.l3=Account number
-check-your-answers.attached-documents.label=Attached documents
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
 check-your-answers.bank-details.account-name.label=Account name

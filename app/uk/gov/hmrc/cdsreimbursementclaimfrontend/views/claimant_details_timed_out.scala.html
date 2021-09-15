@@ -40,6 +40,6 @@
 
     @paragraph(Html(messages(s"$key.help")), Some("govuk-body"))
 
-    @button(messages(s"$key.button"), Some(routes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable).url))
+    @button(messages(s"$key.button"), Some(routes.CheckContactDetailsMrnController.show(journeyBindable).url))
 
 }

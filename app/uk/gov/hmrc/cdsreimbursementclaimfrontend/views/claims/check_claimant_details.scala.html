@@ -42,7 +42,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
 )
 
-@(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, isAmend: Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:Option[MrnContactDetails], contactAddress:Option[ContactAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CheckClaimantDetailsAnswer], mandatoryDataAvailable:Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress:Option[EstablishmentAddress], contactDetails:Option[MrnContactDetails], contactAddress:Option[ContactAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckContactDetailsMrnController.languageKey}
 @title = @{messages(s"$key.title")}
@@ -61,10 +61,10 @@
     @if(mandatoryDataAvailable) {
         @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
         @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
-        @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, isAmend, router)))
+        @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
     }
 
-    @formWithCSRF(router.submitPageForClaimantDetails(mandatoryDataAvailable, isAmend), 'novalidate -> "novalidate") {
+    @formWithCSRF(router.submitPageForClaimantDetails(mandatoryDataAvailable), 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
