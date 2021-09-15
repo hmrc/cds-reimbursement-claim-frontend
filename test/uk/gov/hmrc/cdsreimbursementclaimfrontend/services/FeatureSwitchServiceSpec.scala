@@ -27,18 +27,15 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks{
+class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks {
 
   "FeatureSwitchService" should {
     val configuration = Configuration.from(Map("feature.bulk-claim" -> "abc"))
     val featureSwitch = new FeatureSwitchService(configuration)
 
-    val featureList = Table("Features",
-      featureSwitch.BulkClaim,
-      featureSwitch.EntryNumber,
-      featureSwitch.NorthernIreland
+    val featureList =
+      Table("Features", featureSwitch.BulkClaim, featureSwitch.EntryNumber, featureSwitch.NorthernIreland)
 
-    )
     "enable and disable All features" in forAll(featureList) { feature =>
       feature.enable()
       featureSwitch.forName(feature.name).isEnabled() shouldBe true

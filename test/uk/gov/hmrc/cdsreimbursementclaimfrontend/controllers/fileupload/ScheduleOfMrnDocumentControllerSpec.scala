@@ -224,13 +224,6 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
         )
       }
 
-      "uploadScheduledDocumentSubmit" in {
-        checkIsRedirect(
-          
-        )
-      }
-
-
     }
   }
 }

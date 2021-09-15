@@ -35,7 +35,7 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
       case EntryNumber.name     => EntryNumber
     }
 
-  sealed trait FeatureName {
+  sealed trait FeatureName extends Product with Serializable {
 
     val name: String
     val confPropertyName: String   = s"features.$name"

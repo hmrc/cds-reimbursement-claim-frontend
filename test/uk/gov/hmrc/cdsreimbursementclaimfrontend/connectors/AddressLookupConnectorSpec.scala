@@ -68,14 +68,14 @@ class AddressLookupConnectorSpec
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     "handling requests to submit claim" must {
-      val request                    = sample[AddressLookupRequest]
-      val url = "http://localhost:9028/api/init"
+      val request = sample[AddressLookupRequest]
+      val url     = "http://localhost:9028/api/init"
       behave like connectorBehaviour(mockPost(url, Seq(), request)(_), () => connector.initiate(request))
     }
 
     "Retrieve address" must {
-      val uuid                    = UUID.randomUUID()
-      val url = s"http://localhost:9028/api/confirmed?id=$uuid"
+      val uuid = UUID.randomUUID()
+      val url  = s"http://localhost:9028/api/confirmed?id=$uuid"
       behave like connectorBehaviour(mockGet(url)(_), () => connector.retrieveAddress(uuid))
     }
 
