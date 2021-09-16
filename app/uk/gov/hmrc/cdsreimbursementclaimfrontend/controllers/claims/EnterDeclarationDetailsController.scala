@@ -20,16 +20,15 @@ import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, nonEmptyText, of}
 import play.api.data.{Form, Mapping}
-import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, JourneyExtractor, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.{CompleteDeclarationDetailsAnswer, IncompleteDeclarationDetailsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DuplicateDeclarationDetailsAnswer.{CompleteDuplicateDeclarationDetailsAnswer, IncompleteDuplicateDeclarationDetailAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{EntryDeclarationDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -425,21 +424,6 @@ class EnterDeclarationDetailsController @Inject() (
 }
 
 object EnterDeclarationDetailsController {
-
-  final case class EntryDeclarationDetails(
-    dateOfImport: DateOfImport,
-    placeOfImport: String,
-    importerName: String,
-    importerEmailAddress: Email,
-    importerPhoneNumber: PhoneNumber,
-    declarantName: String,
-    declarantEmailAddress: Email,
-    declarantPhoneNumber: PhoneNumber
-  )
-
-  object EntryDeclarationDetails {
-    implicit val format: OFormat[EntryDeclarationDetails] = Json.format[EntryDeclarationDetails]
-  }
 
   val entryDeclarationDetailsForm: Form[EntryDeclarationDetails] = Form(
     mapping(

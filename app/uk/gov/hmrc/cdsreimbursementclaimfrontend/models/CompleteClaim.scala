@@ -21,7 +21,6 @@ import cats.data.Validated
 import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarationDetailsController.EntryDeclarationDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
@@ -89,7 +88,9 @@ object CompleteClaim {
             Some(claimsAnswer),
             _,
             _,
-            maybeScheduledDocument
+            maybeScheduledDocument,
+            _,
+            _
           ) =>
         (
           validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
