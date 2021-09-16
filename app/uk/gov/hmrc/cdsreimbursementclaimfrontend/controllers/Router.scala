@@ -224,7 +224,7 @@ trait SingleRoutes extends JourneyTypeRoutes {
 }
 
 trait MultipleRoutes extends JourneyTypeRoutes {
-  override val subKey: Option[String] = Some("bulk")
+  override val subKey: Option[String] = Some("multiple")
   override val journeyBindable        = JourneyBindable.Multiple
 }
 

@@ -598,6 +598,7 @@ enter-commodities-details.error.maxLength=Claim reason must be 500 characters or
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+enter-commodities-details.multiple.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
 
 #===================================================
 #  REIMBURSEMENT PAGES
