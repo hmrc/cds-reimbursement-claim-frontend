@@ -64,8 +64,8 @@ object DraftClaim {
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
     scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
-    associatedMovementReferenceNumbers: Option[AssociatedMRNsAnswer] = None,
-    associatedDisplayDeclarations: Option[AssociatedEntryDeclarationDetailsAnswer] = None
+    associatedMovementReferenceNumbersAnswer: Option[AssociatedMRNsAnswer] = None,
+    associatedDisplayDeclarationsAnswer: Option[AssociatedEntryDeclarationDetailsAnswer] = None
   ) extends DraftClaim {
 
     def isMandatoryDataAvailable: Boolean =
