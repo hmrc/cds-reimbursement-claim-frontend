@@ -155,9 +155,9 @@ check-eori-details.invalid=Select yes if details are correct
 select-number-of-claims.title=How many MRNs do you want to submit in this claim?
 select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/930056/8120_CDS_Movement_Reference_Number__MRN__guide_v7_accessible.pdf" target="_blank">Find out more about this number (opens in a new tab).</a>
 select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
-select-number-of-claims.individual.title=<b>One MRN</b>
-select-number-of-claims.multiple.title=<b>Multiple/bulk MRNs - Manual entry</b>
-select-number-of-claims.scheduled.title=<b>Multiple/bulk MRNs - Document upload</b>
+select-number-of-claims.individual.title=One MRN
+select-number-of-claims.multiple.title=Multiple/bulk MRNs - Manual entry
+select-number-of-claims.scheduled.title=Multiple/bulk MRNs - Document upload
 select-number-of-claims.individual.hint=Enter one MRN manually.
 select-number-of-claims.multiple.hint=Enter each number manually.
 select-number-of-claims.scheduled.hint=You can enter a bulk claim by uploading a document with MRNs or Entry numbers for multiple declarations.
