@@ -152,13 +152,14 @@ check-eori-details.invalid=Select yes if details are correct
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
-select-number-of-claims.title=Select number of claims
-select-number-of-claims.help-text=You can make more than one claim. Multiple (bulk) claims must be from the same importer, have the same reason for overpayment and contain either MRNs or Entry numbers, but not mixed.
-select-number-of-claims.individual.title=Individual claim
-select-number-of-claims.multiple.title=Multiple (bulk) claims - manual entry of MRNs or Entry numbers
-select-number-of-claims.scheduled.title=Multiple (bulk) claims - upload a scheduled document
-select-number-of-claims.individual.hint=Enter one claim only using an MRN or Entry number for one declaration.
-select-number-of-claims.multiple.hint=You can enter a bulk claim by manually adding multiple MRNs or Entry numbers for each declaration.
+select-number-of-claims.title=How many MRNs do you want to submit in this claim?
+select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/930056/8120_CDS_Movement_Reference_Number__MRN__guide_v7_accessible.pdf" target="_blank">Find out more about this number (opens in a new tab).</a>
+select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
+select-number-of-claims.individual.title=<b>One MRN</b>
+select-number-of-claims.multiple.title=<b>Multiple/bulk MRNs - Manual entry</b>
+select-number-of-claims.scheduled.title=<b>Multiple/bulk MRNs - Document upload</b>
+select-number-of-claims.individual.hint=Enter one MRN manually.
+select-number-of-claims.multiple.hint=Enter each number manually.
 select-number-of-claims.scheduled.hint=You can enter a bulk claim by uploading a document with MRNs or Entry numbers for multiple declarations.
 select-number-of-claims.error.required=Select the number of claims
 select-number-of-claims.invalid=Select the number of claims
