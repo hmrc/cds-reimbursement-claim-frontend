@@ -155,10 +155,10 @@ check-eori-details.invalid=Select yes if details are correct
 select-number-of-claims.title=Select number of claims
 select-number-of-claims.help-text=You can make more than one claim. Multiple (bulk) claims must be from the same importer, have the same reason for overpayment and contain either MRNs or Entry numbers, but not mixed.
 select-number-of-claims.individual.title=Individual claim
-select-number-of-claims.bulk.title=Multiple (bulk) claims - manual entry of MRNs or Entry numbers
+select-number-of-claims.multiple.title=Multiple (bulk) claims - manual entry of MRNs or Entry numbers
 select-number-of-claims.scheduled.title=Multiple (bulk) claims - upload a scheduled document
 select-number-of-claims.individual.hint=Enter one claim only using an MRN or Entry number for one declaration.
-select-number-of-claims.bulk.hint=You can enter a bulk claim by manually adding multiple MRNs or Entry numbers for each declaration.
+select-number-of-claims.multiple.hint=You can enter a bulk claim by manually adding multiple MRNs or Entry numbers for each declaration.
 select-number-of-claims.scheduled.hint=You can enter a bulk claim by uploading a document with MRNs or Entry numbers for multiple declarations.
 select-number-of-claims.error.required=Select the number of claims
 select-number-of-claims.invalid=Select the number of claims
@@ -173,9 +173,9 @@ enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
 enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
 enter-movement-reference-number.invalid=Enter a valid MRN or entry number
 enter-movement-reference-number.error.required=Enter a valid MRN or entry number
-enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
-enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
+enter-movement-reference-number.multiple.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.multiple.enter-mrn.label=Enter Lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN

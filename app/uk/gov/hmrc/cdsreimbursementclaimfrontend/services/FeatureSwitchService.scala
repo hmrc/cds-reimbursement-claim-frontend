@@ -28,12 +28,11 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FeatureSwitchService @Inject() (configuration: Configuration) {
 
-  def forName(name: String): FeatureName = // scalastyle:ignore cyclomatic.complexity
-    name match {
-      case NorthernIreland.name => NorthernIreland
-      case BulkClaim.name       => BulkClaim
-      case EntryNumber.name     => EntryNumber
-    }
+  def of(name: String): Option[FeatureName] = Seq(
+    BulkMultiple,
+    BulkClaim,
+    NorthernIreland
+  ).find(_.name === name)
 
   sealed trait FeatureName extends Product with Serializable {
 
@@ -76,8 +75,7 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
   }
 
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
-
+  case object BulkMultiple extends { val name = "bulk-multiple" } with FeatureName
   case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
-
   case object EntryNumber extends { val name = "entry-number" } with FeatureName
 }
