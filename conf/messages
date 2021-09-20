@@ -153,7 +153,7 @@ check-eori-details.invalid=Select yes if details are correct
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
 select-number-of-claims.title=How many MRNs do you want to submit in this claim?
-select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. <a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/930056/8120_CDS_Movement_Reference_Number__MRN__guide_v7_accessible.pdf" target="_blank">Find out more about this number (opens in a new tab).</a>
+select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. <a href="{0}" target="_blank">Find out more about this number (opens in a new tab).</a>
 select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
 select-number-of-claims.individual.title=One MRN
 select-number-of-claims.multiple.title=Multiple/bulk MRNs - Manual entry
@@ -167,31 +167,18 @@ select-number-of-claims.invalid=Choose how many MRNs you want to submit in this 
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
-enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
-enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
-enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
-enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
-enter-movement-reference-number.invalid=Enter a valid MRN or entry number
-enter-movement-reference-number.error.required=Enter a valid MRN or entry number
-enter-movement-reference-number.multiple.title=Enter the lead Movement Reference Number (MRN)
+enter-movement-reference-number.title=Tell us your Movement Reference Number (MRN)
+enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-movement-reference-number.enter-mrn.label=Enter MRN
+enter-movement-reference-number.invalid.number=Enter a movement reference number.
+enter-movement-reference-number.error.required=Enter a movement reference number.
+enter-movement-reference-number.multiple.title=Tell us your lead Movement Reference Number (MRN)
 enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.multiple.enter-mrn.label=Enter Lead MRN
+enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
-
-#===================================================
-#  ENTER NO LEGACY MRN PAGE
-#===================================================
-enter-no-legacy-mrn.title=Enter the Movement Reference Number (MRN)
-enter-no-legacy-mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-no-legacy-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
-enter-no-legacy-mrn.details=We are currently not accepting Entry numbers. If you only have Entry number please refer to C285 Chief.
-enter-no-legacy-mrn.error.required=Enter a valid MRN
-enter-no-legacy-mrn.invalid.number=Enter a valid MRN
-enter-no-legacy-mrn.invalid=Enter a valid MRN
-enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
@@ -218,7 +205,6 @@ enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry numb
 enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
 enter-duplicate-movement-reference-number.entry.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
 enter-duplicate-movement-reference-number.entry.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
-
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE

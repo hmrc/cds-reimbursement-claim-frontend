@@ -21,24 +21,23 @@ import cats.implicits._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.data._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import play.twirl.api.HtmlFormat
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNMultipleRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -53,9 +52,7 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   claimService: ClaimService,
-  featureSwitch: FeatureSwitchService,
-  enterMovementReferenceNumberPage: pages.enter_movement_reference_number,
-  enterNoLegacyMrnPage: pages.enter_no_legacy_mrn
+  enterMovementReferenceNumberPage: pages.enter_movement_reference_number
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -66,133 +63,96 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
-  private def resolveEnterMrnPageFor(
-    feature: FeatureSwitchService
-  )(form: Form[MovementReferenceNumber], isAmend: Boolean, router: ReimbursementRoutes)(implicit
-    request: RequestWithSessionData[AnyContent]
-  ): HtmlFormat.Appendable =
-    router.journeyBindable match {
-      case JourneyBindable.Single =>
-        feature.EntryNumber.isEnabled() match {
-          case true  => enterMovementReferenceNumberPage(form, isAmend, router)
-          case false => enterNoLegacyMrnPage(form, isAmend, router)
-        }
-      case _                      => enterMovementReferenceNumberPage(form, isAmend, router)
-    }
-
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
   def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(isAmend = true, journey)
 
   protected def changeOrEnterMrn(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (_, previousAnswer) =>
-        val router    = localRouter(journey)
-        val emptyForm = movementReferenceNumberForm(featureSwitch.EntryNumber.isEnabled())
+        val emptyForm = movementReferenceNumberForm()
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
-        Ok(resolveEnterMrnPageFor(featureSwitch)(form, isAmend, router))
+        Ok(enterMovementReferenceNumberPage(form, isAmend, localRouter(journey)))
       }
     }
 
-  def enterMrnSubmit(journey: JourneyBindable): Action[AnyContent]  = mrnSubmit(false, journey)
-  def changeMrnSubmit(journey: JourneyBindable): Action[AnyContent] = mrnSubmit(true, journey)
+  def enterMrnSubmit(journey: JourneyBindable): Action[AnyContent]  = mrnSubmit(isAmend = false, journey)
+  def changeMrnSubmit(journey: JourneyBindable): Action[AnyContent] = mrnSubmit(isAmend = true, journey)
 
   def mrnSubmit(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MovementReferenceNumber] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController
-          .movementReferenceNumberForm(featureSwitch.EntryNumber.isEnabled())
+          .movementReferenceNumberForm()
           .bindFromRequest()
           .fold(
             formWithErrors =>
               BadRequest(
-                resolveEnterMrnPageFor(featureSwitch)(
-                  formWithErrors.copy(errors =
-                    transformFormErrors(featureSwitch.EntryNumber.isEnabled(), journey, formWithErrors.errors)
-                  ),
-                  isAmend,
-                  localRouter(journey)
-                )
+                enterMovementReferenceNumberPage(formWithErrors, isAmend, localRouter(journey))
               ),
-            mrnOrEntryNumber => {
-              val errorRedirect: Error => Result = e => {
-                logger.warn("Mrn or Entry Number submission failed: ", e)
-                Redirect(baseRoutes.IneligibleController.ineligible())
-              }
-              val previousValue                  = previousAnswer.map(_.stringValue).getOrElse("")
-              val currentValue                   = mrnOrEntryNumber.stringValue
-              (previousValue === currentValue && isAmend) match {
-                case true  =>
-                  Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
-                case false =>
-                  mrnOrEntryNumber match {
-                    case entryNumberAnswer @ MovementReferenceNumber(Left(_)) =>
-                      EitherT(updateSession(sessionStore, request)(updateMRN(fillingOutClaim, entryNumberAnswer)))
-                        .leftMap(_ => Error("Could not save Entry Number"))
-                        .fold(
-                          errorRedirect,
-                          _ =>
-                            Redirect(
-                              getRoutes(
-                                getNumberOfClaims(fillingOutClaim.draftClaim),
-                                Option(mrnOrEntryNumber),
-                                journey
-                              ).nextPageForEnterMRN(ErnImporter)
-                            )
+            mrnNumber => {
+              val previousValue = previousAnswer.map(_.stringValue).getOrElse("")
+              val currentValue  = mrnNumber.stringValue
+              if (previousValue === currentValue && isAmend) {
+                Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+              } else
+                mrnNumber.value
+                  .map { mrn =>
+                    val result = for {
+                      maybeAcc14     <- claimService
+                                          .getDisplayDeclaration(mrn)
+                                          .leftMap(_ => Error("Could not get declaration"))
+                      mrnJourneyFlow <-
+                        fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
+                          .leftMap(_ => Error("could not evaluate MRN flow"))
+                      declaration    <-
+                        fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
+                      contactDetails  = extractContactDetails(
+                                          declaration,
+                                          mrnJourneyFlow,
+                                          fillingOutClaim.signedInUserDetails.verifiedEmail
+                                        )
+                      contactAddress  = extractContactAddress(declaration, mrnJourneyFlow)
+                      _              <-
+                        EitherT(
+                          updateSession(sessionStore, request)(
+                            updateMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+                          )
                         )
-                    case mrnAnswer @ MovementReferenceNumber(Right(mrn))      =>
-                      val result = for {
-                        maybeAcc14     <- claimService
-                                            .getDisplayDeclaration(mrn)
-                                            .leftMap(_ => Error("Could not get declaration"))
-                        mrnJourneyFlow <-
-                          fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
-                            .leftMap(_ => Error("could not evaluate MRN flow"))
-                        declaration    <-
-                          fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
-                        contactDetails  = extractContactDetails(
-                                            declaration,
-                                            mrnJourneyFlow,
-                                            fillingOutClaim.signedInUserDetails.verifiedEmail
-                                          )
-                        contactAddress  = extractContactAddress(declaration, mrnJourneyFlow)
-                        _              <-
-                          EitherT(
-                            updateSession(sessionStore, request)(
-                              updateMrnAndAcc14(fillingOutClaim, mrnAnswer, declaration, contactDetails, contactAddress)
-                            )
-                          )
-                            .leftMap(_ => Error("Could not save Display Declaration"))
-                      } yield mrnJourneyFlow
-                      result.fold(
-                        errorRedirect,
-                        mrnJourney =>
-                          Redirect(
-                            getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnOrEntryNumber), journey)
-                              .nextPageForEnterMRN(mrnJourney)
-                          )
-                      )
+                          .leftMap(_ => Error("Could not save Display Declaration"))
+                    } yield mrnJourneyFlow
+                    result.fold(
+                      e => {
+                        logger.warn("Mrn or Entry Number submission failed: ", e)
+                        Redirect(baseRoutes.IneligibleController.ineligible())
+                      },
+                      mrnJourney =>
+                        Redirect(
+                          getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), Option(mrnNumber), journey)
+                            .nextPageForEnterMRN(mrnJourney)
+                        )
+                    )
                   }
-              }
+                  .valueOr(_ => Future.successful(Redirect(baseRoutes.IneligibleController.ineligible())))
             }
           )
       }
     }
 
-  def updateMRN(fillingOutClaim: FillingOutClaim, mrnOrEntryNumber: MovementReferenceNumber): SessionDataTransform = {
-    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumber = Option(mrnOrEntryNumber)))
+  def updateMRN(fillingOutClaim: FillingOutClaim, mrn: MovementReferenceNumber): SessionDataTransform = {
+    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumber = Option(mrn)))
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
   def updateMrnAndAcc14(
     fillingOutClaim: FillingOutClaim,
-    mrnOrEntryNumber: MovementReferenceNumber,
+    mrn: MovementReferenceNumber,
     acc14: DisplayDeclaration,
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress]
   ): SessionDataTransform = {
     val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
       _.copy(
-        movementReferenceNumber = Option(mrnOrEntryNumber),
+        movementReferenceNumber = Option(mrn),
         displayDeclaration = Option(acc14),
         mrnContactDetailsAnswer = maybeContactDetails,
         mrnContactAddressAnswer = maybeContactAddress
@@ -213,30 +173,17 @@ class EnterMovementReferenceNumberController @Inject() (
       case JourneyBindable.Multiple  => MRNMultipleRoutes
       case JourneyBindable.Scheduled => MRNScheduledRoutes
     }
-
 }
 
 object EnterMovementReferenceNumberController {
 
   val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
-  val enterNoLegacyMrnKey: String             = "enter-no-legacy-mrn"
 
-  def transformFormErrors(
-    isEntryNumberEnabled: Boolean,
-    journeyBindable: JourneyBindable,
-    errors: Seq[FormError]
-  ): Seq[FormError] = {
-    val langKey =
-      if (!isEntryNumberEnabled && journeyBindable === JourneyBindable.Single) enterNoLegacyMrnKey
-      else enterMovementReferenceNumberKey
-    errors.map(_.copy(key = langKey))
-  }
-
-  def movementReferenceNumberMapping(isEntryNumberEnabled: Boolean): Mapping[Either[EntryNumber, MRN]] =
+  def movementReferenceNumberMapping(): Mapping[Either[EntryNumber, MRN]] =
     nonEmptyText
       .verifying(
         "invalid.number",
-        str => EntryNumber.isValid(str) && isEntryNumberEnabled || MRN.isValid(str)
+        str => str.isEmpty || MRN.isValid(str)
       )
       .transform[Either[EntryNumber, MRN]](
         str =>
@@ -248,10 +195,10 @@ object EnterMovementReferenceNumberController {
         }
       )
 
-  def movementReferenceNumberForm(isEntryNumberEnabled: Boolean): Form[MovementReferenceNumber] =
+  def movementReferenceNumberForm(): Form[MovementReferenceNumber] =
     Form(
       mapping(
-        enterMovementReferenceNumberKey -> movementReferenceNumberMapping(isEntryNumberEnabled)
+        enterMovementReferenceNumberKey -> movementReferenceNumberMapping()
       )(MovementReferenceNumber.apply)(MovementReferenceNumber.unapply)
     )
 

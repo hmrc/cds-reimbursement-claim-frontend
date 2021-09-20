@@ -181,18 +181,6 @@ enter-movement-reference-number.scheduled.help-text=
 enter-movement-reference-number.scheduled.enter-mrn.label=
 
 #===================================================
-#  ENTER NO LEGACY MRN PAGE
-#===================================================
-enter-no-legacy-mrn.title=
-enter-no-legacy-mrn.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017.
-enter-no-legacy-mrn.help-text=Bydd y Cyfeirnod Symud (MRN) yn cael ei roi ar ôl datgan mewnforio. <a target="_blank href="{0}">Rhagor o wybodaeth am y rhif yma (yn agor mewn tab newydd)</a>.
-enter-no-legacy-mrn.details=
-enter-no-legacy-mrn.error.required=
-enter-no-legacy-mrn.invalid.number=
-enter-no-legacy-mrn.invalid=
-enter-no-legacy-mrn.enter-mrn.label=
-
-#===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.mrn.title=
