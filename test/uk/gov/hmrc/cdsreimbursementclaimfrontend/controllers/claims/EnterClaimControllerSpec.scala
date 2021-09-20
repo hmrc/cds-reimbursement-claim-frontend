@@ -369,13 +369,12 @@ class EnterClaimControllerSpec
           )
         ),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
-        doc => {
+        doc =>
           doc
             .select(".govuk-error-summary__list > li:nth-child(1) > a")
             .text() shouldBe messageFromMessageKey(
             s"enter-claim.error.required"
-          )
-        },
+          ),
         BAD_REQUEST
       )
     }

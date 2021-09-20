@@ -62,6 +62,9 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
+  private def genEntryNumberAnswer(): MovementReferenceNumber =
+    sample(genEntryNumber.map(MovementReferenceNumber(_)))
+
   private def getSessionWithPreviousAnswer(
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     movementReferenceNumber: MovementReferenceNumber,
@@ -140,7 +143,7 @@ class SelectDutiesControllerSpec
       def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
       "the user has not answered this question before" in {
-        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
+        val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -161,7 +164,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a single choice" in {
         val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), sample[MovementReferenceNumber])._1
+        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), genEntryNumberAnswer())._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -182,7 +185,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a multiple choices" in {
         val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), sample[MovementReferenceNumber])._1
+        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), genEntryNumberAnswer())._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -245,7 +248,7 @@ class SelectDutiesControllerSpec
 
       "user chooses a valid option" in {
         val answers        = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A20))
-        val session        = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
+        val session        = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
         val updatedSession = updateSession(session, answers)
 
         inSequence {
@@ -269,7 +272,7 @@ class SelectDutiesControllerSpec
         controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "an invalid option value is submitted" in {
-        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
+        val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
 
         inSequence {
           mockAuthWithNoRetrievals()

@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, MovementReferenceNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
@@ -36,6 +36,12 @@ object IdGen {
     } yield Eori(s)
 
   implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
+
+  def genEntryNumber: Gen[EntryNumber] = for {
+    prefix <- Gen.listOfN(9, Gen.numChar)
+    letter <- Gen.listOfN(1, Gen.alphaUpperChar)
+    suffix <- Gen.listOfN(8, Gen.numChar)
+  } yield EntryNumber((prefix ++ letter ++ suffix).mkString)
 
   def genMRN: Gen[MRN] = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
