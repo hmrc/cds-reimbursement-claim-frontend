@@ -26,7 +26,7 @@ class BasisOfClaimsHintsSpec extends AnyWordSpec with ScalaCheckDrivenPropertyCh
   "The basis of claims examples" should {
     "drop N items" in {
       forAll(Gen.choose(0, 13)) { n =>
-        BasisOfClaimsHints.skip(n).items should be((0 to 13).drop(n))
+        BasisOfClaimsHints.beginWith(n).items should be(n to 13)
       }
     }
   }

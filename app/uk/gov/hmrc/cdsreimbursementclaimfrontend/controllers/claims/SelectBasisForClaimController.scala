@@ -136,5 +136,5 @@ object SelectBasisForClaimController {
       .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
   def getBasisOfClaimsHints(journeyBindable: JourneyBindable): BasisOfClaimsHints =
-    BasisOfClaimsHints.skip(if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
+    BasisOfClaimsHints.beginWith(if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
 }

@@ -39,8 +39,8 @@ final case class BasisOfClaimsHints(items: Seq[Int]) extends AnyVal {
 
 object BasisOfClaimsHints {
 
-  def skip(n: Int): BasisOfClaimsHints =
-    BasisOfClaimsHints((0 to 13).drop(n))
+  def beginWith(elementIndex: Int): BasisOfClaimsHints =
+    BasisOfClaimsHints(elementIndex to 13)
 
   val titleAndDescription: title_and_description = new title_and_description()
   val bulletList: bullets                        = new bullets()
