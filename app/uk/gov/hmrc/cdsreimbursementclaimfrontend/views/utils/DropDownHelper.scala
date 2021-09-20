@@ -42,18 +42,6 @@ class DropDownHelper @Inject() (
       )
     )
 
-  def render(basisOfClaimsExamples: BasisOfClaimsHints, parentKey: String)(implicit messages: Messages): Html =
-    html(
-      bulletList(
-        basisOfClaimsExamples.items.map(i =>
-          titleAndDescription(
-            messages(basisOfClaimsExamples.buildLabelKey(parentKey, i)),
-            messages(basisOfClaimsExamples.buildTextKey(parentKey, i))
-          )
-        )
-      )
-    )
-
   def whoIsDropDownContent()(implicit messages: Messages): Html =
     html(
       bulletList(

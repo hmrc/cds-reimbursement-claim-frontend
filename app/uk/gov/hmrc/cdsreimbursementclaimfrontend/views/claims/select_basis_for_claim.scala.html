@@ -24,8 +24,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.{BasisOfClaims, BasisOfClaimsHints}
 
 @this(
      formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
@@ -34,7 +33,6 @@
      pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
      radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
      dropdownDetails : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.dropdown_details,
-     dropdownHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.DropDownHelper,
      paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
      errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
@@ -67,7 +65,7 @@
 
         @paragraph(Html(messages(lang(key , router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(basisOfClaimsHints, key))
+        @dropdownDetails(summary = s"$key.details.heading", content = basisOfClaimsHints.toHtml(key))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

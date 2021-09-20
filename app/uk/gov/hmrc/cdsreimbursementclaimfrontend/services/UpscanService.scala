@@ -29,9 +29,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{Logging, TimeUtils}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
+import java.time.{Clock, LocalDateTime}
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -89,7 +90,7 @@ class UpscanServiceImpl @Inject() (upscanConnector: UpscanConnector)(implicit ec
                              Error("could not parse http response")
                            )
       upscanUpload      <- EitherT.pure(
-                             UpscanUpload(uploadReference, upscanUploadMeta, TimeUtils.now(), None)
+                             UpscanUpload(uploadReference, upscanUploadMeta, LocalDateTime.now(Clock.systemUTC()), None)
                            )
       _                 <- upscanConnector.saveUpscanUpload(upscanUpload).map { response =>
                              response.status match {

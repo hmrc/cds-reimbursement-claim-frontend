@@ -82,16 +82,10 @@ trait SessionDataExtractor extends Results {
     (journeyBindable, numberOfClaims, maybeMrnOrEntryNmber) match {
       case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual, Some(MovementReferenceNumber(Right(_))))   =>
         MRNSingleRoutes
-      case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual, Some(MovementReferenceNumber(Left(_))))    =>
-        EntrySingleRoutes
       case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Right(_))))   =>
         MRNMultipleRoutes
-      case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Left(_))))    =>
-        EntryMultipleRoutes
       case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
         MRNScheduledRoutes
-      case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
-        EntryScheduledRoutes
       case _                                                                                                          => JourneyNotDetectedRoutes
     }
 }

@@ -69,7 +69,7 @@ class SelectBasisForClaimController @Inject() (
           selectReasonForClaimPage(
             filledForm,
             getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-            getBasisOfClaimsHints(fillingOutClaim.draftClaim, journey),
+            getBasisOfClaimsHints(journey),
             isAmend,
             router
           )
@@ -91,7 +91,7 @@ class SelectBasisForClaimController @Inject() (
                 selectReasonForClaimPage(
                   formWithErrors,
                   getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-                  getBasisOfClaimsHints(fillingOutClaim.draftClaim, journey),
+                  getBasisOfClaimsHints(journey),
                   isAmend,
                   router
                 )
@@ -135,6 +135,6 @@ object SelectBasisForClaimController {
       .withoutJourneyClaimsIfApplies(journey)
       .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
-  def getBasisOfClaimsHints(claim: DraftClaim, journeyBindable: JourneyBindable): BasisOfClaimsHints =
-    BasisOfClaimsHints.of(claim) skip (if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
+  def getBasisOfClaimsHints(journeyBindable: JourneyBindable): BasisOfClaimsHints =
+    BasisOfClaimsHints.skip(if (journeyBindable === JourneyBindable.Scheduled) 1 else 0)
 }

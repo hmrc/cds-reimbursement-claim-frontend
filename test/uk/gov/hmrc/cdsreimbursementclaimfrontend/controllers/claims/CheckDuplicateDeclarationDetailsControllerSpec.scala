@@ -33,8 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
+
 import scala.concurrent.Future
 
 class CheckDuplicateDeclarationDetailsControllerSpec
@@ -70,7 +71,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = sampleMrnAnswer(),
+        movementReferenceNumber = Some(sample[MovementReferenceNumber]),
         selectNumberOfClaimsAnswer = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]

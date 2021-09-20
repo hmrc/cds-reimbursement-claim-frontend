@@ -27,7 +27,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
@@ -40,7 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
@@ -58,16 +57,10 @@ class SelectDutiesControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  lazy val controller: SelectDutiesController = instanceOf[SelectDutiesController]
+  val controller: SelectDutiesController = instanceOf[SelectDutiesController]
 
-  implicit lazy val messagesApi: MessagesApi = controller.messagesApi
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  def getMRNAnswer(): MovementReferenceNumber         = MovementReferenceNumber(Right(sample[MRN]))
-  def getEntryNumberAnswer(): MovementReferenceNumber = MovementReferenceNumber(
-    Left(sample[EntryNumber])
-  )
+  implicit val messagesApi: MessagesApi = controller.messagesApi
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private def getSessionWithPreviousAnswer(
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
@@ -126,7 +119,7 @@ class SelectDutiesControllerSpec
 
         def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
-        val session = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
+        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -147,7 +140,7 @@ class SelectDutiesControllerSpec
       def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
       "the user has not answered this question before" in {
-        val session = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
+        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -168,7 +161,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a single choice" in {
         val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
+        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), sample[MovementReferenceNumber])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -189,7 +182,7 @@ class SelectDutiesControllerSpec
 
       "the user has answered this question before with a multiple choices" in {
         val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer())._1
+        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), sample[MovementReferenceNumber])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -219,7 +212,12 @@ class SelectDutiesControllerSpec
         val basisOfClaim     = IncorrectExciseValue
 
         val session =
-          getSessionWithPreviousAnswer(Some(previousAnswer), getEntryNumberAnswer(), Some(acc14), basisOfClaim)._1
+          getSessionWithPreviousAnswer(
+            Some(previousAnswer),
+            sample[MovementReferenceNumber],
+            Some(acc14),
+            basisOfClaim
+          )._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -247,7 +245,7 @@ class SelectDutiesControllerSpec
 
       "user chooses a valid option" in {
         val answers        = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A20))
-        val session        = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
+        val session        = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
         val updatedSession = updateSession(session, answers)
 
         inSequence {
@@ -271,7 +269,7 @@ class SelectDutiesControllerSpec
         controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "an invalid option value is submitted" in {
-        val session = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._1
+        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -294,11 +292,6 @@ class SelectDutiesControllerSpec
     }
 
     "Available Duties" should {
-      "Return all UK and EU duties for an Entry Number" in {
-        val session         = getSessionWithPreviousAnswer(None, getEntryNumberAnswer())._2
-        val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable shouldBe DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_))).toRight(fail())
-      }
 
       "Return Acc14 duties for an MRN" in {
         val taxCodes        = Random.shuffle(TaxCode.allTaxCodes).take(20)
@@ -306,7 +299,7 @@ class SelectDutiesControllerSpec
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session         = getSessionWithPreviousAnswer(None, getMRNAnswer(), Some(acc14))._2
+        val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
@@ -318,7 +311,7 @@ class SelectDutiesControllerSpec
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session         = getSessionWithPreviousAnswer(None, getMRNAnswer(), Some(acc14), basisOfClaim)._2
+        val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14), basisOfClaim)._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }

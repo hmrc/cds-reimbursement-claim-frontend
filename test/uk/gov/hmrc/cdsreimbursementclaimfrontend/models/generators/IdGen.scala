@@ -19,8 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, MovementReferenceNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
@@ -47,25 +46,6 @@ object IdGen {
 
   implicit val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 
-  def sampleMrnAnswer(mrn: MRN = sample[MRN]): Option[MovementReferenceNumber] =
-    Some(MovementReferenceNumber(Right(mrn)))
-
-  def genEntryNumber: Gen[EntryNumber] = for {
-    prefix <- Gen.listOfN(9, Gen.numChar)
-    letter <- Gen.listOfN(1, Gen.alphaUpperChar)
-    suffix <- Gen.listOfN(8, Gen.numChar)
-  } yield EntryNumber((prefix ++ letter ++ suffix).mkString)
-
-  implicit val entryNumberGen: Typeclass[EntryNumber] = Arbitrary(genEntryNumber)
-
-  def sampleEntryNumberAnswer(entryNumber: EntryNumber = sample[EntryNumber]): Option[MovementReferenceNumber] =
-    Some(MovementReferenceNumber(Left(entryNumber)))
-
-  def genMovementReferenceNumber: Gen[MovementReferenceNumber] = Gen.oneOf(
-    genMRN.map(MovementReferenceNumber(_)),
-    genEntryNumber.map(MovementReferenceNumber(_))
-  )
-
   implicit val arbitraryMovementReferenceNumber: Typeclass[MovementReferenceNumber] =
-    Arbitrary(genMovementReferenceNumber)
+    Arbitrary(genMRN.map(MovementReferenceNumber(_)))
 }
