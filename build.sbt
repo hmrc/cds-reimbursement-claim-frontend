@@ -1,4 +1,3 @@
-import play.sbt.routes.RoutesKeys
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
@@ -59,12 +58,15 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalafmtOnCompile := true)
   .settings(scalaVersion := "2.12.14")
   .settings(TwirlKeys.templateImports := Seq.empty)
-  .settings(routesImport := Seq(
-    "_root_.controllers.Assets.Asset",
-    "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
-    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
-    "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType"
-  ))
+  .settings(
+    routesImport := Seq(
+      "_root_.controllers.Assets.Asset",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode"
+    )
+  )
   .settings(majorVersion := 1)
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test

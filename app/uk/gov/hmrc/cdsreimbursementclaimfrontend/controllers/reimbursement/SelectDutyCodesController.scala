@@ -34,6 +34,24 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/*
+
+    Given the selected duties types in the session I need to find all the associated codes for each one
+    and then display each duty type with their associated code.
+
+    There must be at least one selected duty code from each category
+
+    Once all the duty types have had at least one duty code selected we move onto the financial claim amounts page
+
+    If the user goes back and modifies their duty type selection then they list of associated codes are updated (complex logic around this)
+
+
+
+
+
+
+ */
+
 class SelectDutyCodesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
@@ -62,15 +80,13 @@ class SelectDutyCodesController @Inject() (
           ) { dutyCodesAnswer =>
             val updatedReimbursementState = ReimbursementState.computeReimbursementState(
               dutyTypesAnswer,
-              dutyCodesAnswer,
-              fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
+              dutyCodesAnswer
             )
 
             FillingOutClaim.of(fillingOutClaim)(
               _.copy(
                 dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
-                dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer),
-                dutyPaidAndClaimAmountAnswer = updatedReimbursementState.dutyPaidAndClaimAmountAnswer
+                dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
               )
             )
           }
@@ -81,11 +97,18 @@ class SelectDutyCodesController @Inject() (
             .fold(
               logAndDisplayError("could not update reimbursement state"),
               _ =>
-                dutyTypesAnswer.dutyTypesSelected.headOption
-                  .fold { //FIXME: not head option but first duty type with no duty code answer
-                    logger.info("could not find duty type")
-                    errorHandler.errorResult
-                  }(dutyType => Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
+                updatedJourneyStatus.draftClaim
+                  .fold(_.dutyCodesSelectedAnswer)
+                  .fold {
+                    logger.info("could not find duty codes")
+                    errorHandler.errorResult()
+                  }(dutyCodes =>
+                    dutyCodes.dutyCodes.find(dutyTypeToDutyCode => dutyTypeToDutyCode._2.isEmpty) match {
+                      case Some(dutyTypeToDutyCode) =>
+                        Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyTypeToDutyCode._1))
+                      case None                     => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                    }
+                  )
             )
         }
     }

@@ -16,64 +16,51 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import cats.implicits.catsSyntaxEq
-import scala.annotation.tailrec
-
 final case class ReimbursementState(
   dutyTypesAnswer: DutyTypesAnswer,
-  dutyCodesAnswer: DutyCodesAnswer,
-  dutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer]
+  dutyCodesAnswer: DutyCodesAnswer
 )
 
 object ReimbursementState {
-  def findDutyTypesToRemove(xs: Set[DutyType], ys: Set[DutyType]): Set[DutyType] = ys.diff(xs)
-  def findDutyTypesToAdd(xs: Set[DutyType], ys: Set[DutyType]): Set[DutyType]    = xs.diff(ys)
 
-  def addNewDutyCodes(
-    dutyTypes: List[DutyType],
-    updatedDutyCodesAnswer: Map[DutyType, List[TaxCode]]
-  ): Map[DutyType, List[TaxCode]] = {
-    @tailrec
-    def loop(xs: List[DutyType], updatedDutyCodesAnswer: Map[DutyType, List[TaxCode]]): Map[DutyType, List[TaxCode]] =
-      xs match {
-        case Nil          => updatedDutyCodesAnswer
-        case ::(head, tl) => loop(tl, updatedDutyCodesAnswer + (head -> List()))
-      }
-    loop(dutyTypes, updatedDutyCodesAnswer)
-  }
+  /*
+
+    what you are really doing here is filtering so use the filter functions on a list to do that with the correct predicate function
+
+    you will always receive the latest duty types answer in the session when calling this function
+
+    based on this latest list of selected duty types what we need to do is compare this list with the list of duty types mapped to tax codes in the session, we can have:
+
+    current session duty types list       |       duty codes answer duty types lists          |       outcome
+                                          equal                -                                         no change to duty code answer in the session
+               deleted types                            deleted ones exist                               return update duty code answer in the session
+               deleted types                            deleted ones do not exist                        no change to duty code answer in the session
+               add types                                add ones do not exist                            update duty code codes answer in the session to add new types
+
+
+
+   */
 
   //TODO: another case: they dont change the duty type but they change the tax code selection associated to the a duty type - then what? need to remove that from this Map and also alter the duty paud and claim amount map
   def computeReimbursementState(
     dutyTypesAnswer: DutyTypesAnswer,
-    dutyCodesAnswer: DutyCodesAnswer,
-    maybeDutyPaidAndClaimAnswer: Option[DutyPaidAndClaimAmountAnswer]
-  ): ReimbursementState =
-    //TODO: implement this and get this done
-    if (dutyTypesAnswer.dutyTypesSelected === dutyCodesAnswer.dutyCodes.keys.toList) { // There are no changes to the selection of the duties - the dutytpes is consitent with the dutycodes
-      ReimbursementState(dutyTypesAnswer, dutyCodesAnswer, maybeDutyPaidAndClaimAnswer)
-    } else { // there changes but we don't know what they are i.e. deselection, additional selections, different combinations of selections, or different permutation of smae size selections
-      // either we need to add or remove duty types to the Map
-      // if we check what we need to remove - remove those
-      val dutyTypesSelected      = dutyTypesAnswer.dutyTypesSelected.toSet
-      val dutyTypesWithDutyCodes = dutyCodesAnswer.dutyCodes.keys.toSet
-      val onesToRemove           = findDutyTypesToRemove(dutyTypesSelected, dutyTypesWithDutyCodes)
+    dutyCodesAnswer: DutyCodesAnswer
+  ): ReimbursementState = {
 
-      val newMap: Map[DutyType, List[TaxCode]] =
-        dutyCodesAnswer.dutyCodes.filter(d => onesToRemove.contains(d._1))
+    // This removes deleted duty types and their associated duty codes in the Map
+    val filteredDutyCodes =
+      dutyCodesAnswer.dutyCodes.filter(dutyType => dutyTypesAnswer.dutyTypesSelected.contains(dutyType._1))
 
-      val onesToAdd = findDutyTypesToAdd(newMap.keys.toSet, dutyTypesWithDutyCodes)
+    // Now add in the ones which are for new duty types added
+    val dutyTypesNotInDutyTypeAnswer =
+      dutyTypesAnswer.dutyTypesSelected.filterNot(dutyType => filteredDutyCodes.keys.toList.contains(dutyType))
 
-      val updatedDutyCodesAnswer = DutyCodesAnswer(addNewDutyCodes(onesToAdd.toList, dutyCodesAnswer.dutyCodes))
+    val updatedDutyCodesAnswer = DutyCodesAnswer(
+      filteredDutyCodes ++ dutyTypesNotInDutyTypeAnswer.map(e => (e, List.empty))
+    )
 
-      val d: Option[DutyPaidAndClaimAmountAnswer] = maybeDutyPaidAndClaimAnswer
-        .map { e =>
-          e.dutyPaidAndClaimAmountsEntered.filter(k => onesToRemove.contains(k._1))
-        }
-        .map { d =>
-          DutyPaidAndClaimAmountAnswer(d)
-        }
+    ReimbursementState(dutyTypesAnswer, updatedDutyCodesAnswer)
 
-      ReimbursementState(dutyTypesAnswer, updatedDutyCodesAnswer, d)
-    }
+  }
+
 }
