@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, MovementReferenceNumber}
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
@@ -43,12 +44,12 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         BasisOfClaims(items =
           List(
             DuplicateEntry,
+            IncorrectEoriAndDefermentAccountNumber,
             DutySuspension,
             EndUseRelief,
             IncorrectCommodityCode,
             IncorrectCpc,
             IncorrectValue,
-            IncorrectEoriAndDefermentAccountNumber,
             InwardProcessingReliefFromCustomsDuty,
             OutwardProcessingRelief,
             PersonalEffects,
@@ -75,12 +76,12 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       BasisOfClaims(items =
         List(
           DuplicateEntry,
+          IncorrectEoriAndDefermentAccountNumber,
           DutySuspension,
           EndUseRelief,
           IncorrectCommodityCode,
           IncorrectCpc,
           IncorrectValue,
-          IncorrectEoriAndDefermentAccountNumber,
           InwardProcessingReliefFromCustomsDuty,
           OutwardProcessingRelief,
           PersonalEffects,
@@ -94,7 +95,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "filter duplicate entry claim for scheduled journey" in {
+  "filter duplicate entry claim and incorrect EORI for scheduled journey" in {
     BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Scheduled).claims should be(
       List(
         DutySuspension,
@@ -102,7 +103,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         IncorrectCommodityCode,
         IncorrectCpc,
         IncorrectValue,
-        IncorrectEoriAndDefermentAccountNumber,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,
@@ -116,16 +116,37 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "contain contain duplicate entry claim for single journey" in {
-    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Single).claims should be(
+  "filter duplicate entry claim and incorrect EORI for multiple journey" in {
+    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Multiple).claims should be(
       List(
-        DuplicateEntry,
         DutySuspension,
         EndUseRelief,
         IncorrectCommodityCode,
         IncorrectCpc,
         IncorrectValue,
+        InwardProcessingReliefFromCustomsDuty,
+        OutwardProcessingRelief,
+        PersonalEffects,
+        Preference,
+        RGR,
+        ProofOfReturnRefundGiven,
+        IncorrectExciseValue,
+        IncorrectAdditionalInformationCode,
+        Miscellaneous
+      )
+    )
+  }
+
+  "contain duplicate entry and incorrect EORI claim for single journey" in {
+    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Single).claims should be(
+      List(
+        DuplicateEntry,
         IncorrectEoriAndDefermentAccountNumber,
+        DutySuspension,
+        EndUseRelief,
+        IncorrectCommodityCode,
+        IncorrectCpc,
+        IncorrectValue,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,

@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectExciseValue, allClaimsTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectEoriAndDefermentAccountNumber, IncorrectExciseValue, allClaimsTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, DraftClaim, TaxCode}
 
 final case class BasisOfClaims(items: List[BasisOfClaim]) extends AnyVal {
   def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
@@ -35,7 +36,11 @@ object BasisOfClaims {
   final case class Builder(claims: List[BasisOfClaim]) {
 
     def filterUsing(journey: JourneyBindable): Builder =
-      copy(if (journey === JourneyBindable.Scheduled) claims.diff(List(DuplicateEntry)) else claims)
+      copy(
+        if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple)
+          claims.diff(List(DuplicateEntry, IncorrectEoriAndDefermentAccountNumber))
+        else claims
+      )
 
     def withoutNorthernIrelandClaimsIfApplies(claim: DraftClaim): BasisOfClaims = {
 
