@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimCo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarationDetailsAnswer.CompleteDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
@@ -37,7 +36,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EnterDeclarationDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
@@ -56,7 +54,6 @@ trait LowerPriorityDraftClaimGen {
   def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftC285Claim] =
     for {
       mrn                            <- genMRN
-      details                        <- arbitraryEntryDeclarationDetails.arbitrary
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
       detailsRegisteredWithCdsAnswer <- arbitraryDetailsRegisteredWithCds.arbitrary
       maybeContactDetails            <- genMrnContactDetailsOpt
@@ -78,7 +75,6 @@ trait LowerPriorityDraftClaimGen {
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
       movementReferenceNumber = MovementReferenceNumber(mrn).some,
-      declarationDetailsAnswer = CompleteDeclarationDetailsAnswer(details).some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
       mrnContactDetailsAnswer = maybeContactDetails,

@@ -42,8 +42,6 @@ object DraftClaim {
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer] = None,
     movementReferenceNumber: Option[MovementReferenceNumber] = None,
     duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber] = None,
-    declarationDetailsAnswer: Option[DeclarationDetailsAnswer] = None,
-    duplicateDeclarationDetailsAnswer: Option[DuplicateDeclarationDetailsAnswer] = None,
     declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
     detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
