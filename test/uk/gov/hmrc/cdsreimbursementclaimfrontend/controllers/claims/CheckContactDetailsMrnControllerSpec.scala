@@ -152,7 +152,6 @@ class CheckContactDetailsMrnControllerSpec
             val paragraphs = doc.select("dd > p")
             val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
             //Registered Details with CDS
-            paragraphs.get(0).text()  shouldBe consignee.legalName
             paragraphs.get(1).text()  shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
             paragraphs.get(2).text()  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
             paragraphs.get(3).text()  shouldBe consignee.establishmentAddress.addressLine1
@@ -177,7 +176,7 @@ class CheckContactDetailsMrnControllerSpec
       "not all mandatory data from Acc14 is available, no contact address is shown" in forAll(journeys) { journey =>
         val acc14 = generateAcc14WithAddresses()
 
-        val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
+        val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
           Some(toSelectNumberOfClaims(journey)),
@@ -187,26 +186,14 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session)
         }
 
-        checkPageIsDisplayed(
+        checkIsRedirect(
           showPageAction(journey),
-          messageFromMessageKey("claimant-details.title"),
-          doc => {
-            val paragraphs = doc.select("dd > p")
-            val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
-            //Registered Details with CDS
-            paragraphs.get(0).text() shouldBe consignee.legalName
-            paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail)
-            paragraphs.get(2).text() shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
-            paragraphs.get(3).text() shouldBe consignee.establishmentAddress.addressLine1
-            paragraphs.get(4).text() shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
-            paragraphs.get(5).text() shouldBe consignee.establishmentAddress.addressLine3.getOrElse(fail)
-            paragraphs.get(6).text() shouldBe consignee.establishmentAddress.postalCode.getOrElse(fail)
-            paragraphs.size()        shouldBe 7
-          }
+          routes.CheckContactDetailsMrnController.addShow(journey)
         )
+
       }
     }
 
@@ -362,7 +349,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckContactDetailsMrnController.show(journey)
+          routes.CheckContactDetailsMrnController.addShow(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>

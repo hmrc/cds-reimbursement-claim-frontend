@@ -141,12 +141,17 @@ trait JourneyTypeRoutes extends Product with Serializable {
         }
     }
 
-  def nextPageForWhoIsMakingTheClaim(mrnOrEntryNumber: Option[Either[EntryNumber, MRN]], isAmend: Boolean): Call =
+  def nextPageForWhoIsMakingTheClaim(
+    mrnOrEntryNumber: Option[Either[EntryNumber, MRN]],
+    isAmend: Boolean,
+    mandatoryDataAvailable: Boolean
+  ): Call =
     mrnOrEntryNumber match {
       case Some(Right(_)) =>
         if (isAmend)
           claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-        else claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+        else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+        else claimRoutes.CheckContactDetailsMrnController.addShow(journeyBindable)
       case _              =>
         claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
     }
@@ -181,7 +186,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
           case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case NoClaimantDetailsAnswer  =>
-        claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+        claimRoutes.CheckContactDetailsMrnController.addShow(journeyBindable)
     }
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
