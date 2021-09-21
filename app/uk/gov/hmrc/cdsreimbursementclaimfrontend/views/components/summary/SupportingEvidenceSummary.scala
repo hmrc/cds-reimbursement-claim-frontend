@@ -17,19 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Key, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer] {
 
   def render(key: String, answers: SupportingEvidencesAnswer)(implicit
-    journey: JourneyBindable,
+    router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -58,7 +58,7 @@ class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer]
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.SupportingEvidenceController.checkYourAnswers(journey).url}",
+                  href = s"${routes.SupportingEvidenceController.checkYourAnswers(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
@@ -30,11 +30,17 @@ package object summary {
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary   = new ScheduledDocumentSummary
   implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary
+  implicit val displayDeclarationSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
     def review(
       key: String
-    )(implicit answerSummary: AnswerSummary[A], journey: JourneyBindable, messages: Messages): SummaryList =
+    )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
       answerSummary.render(key, answer)
+  }
+
+  implicit class SummaryListOps(val summaryList: SummaryList) extends AnyVal {
+    def drop(n: Int): SummaryList =
+      SummaryList(summaryList.rows.drop(n))
   }
 }

@@ -17,29 +17,34 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class CommodityDetailsSummary extends AnswerSummary[CommodityDetails] {
 
   def render(key: String, answer: CommodityDetails)(implicit
-    journey: JourneyBindable,
+    router: ReimbursementRoutes,
     messages: Messages
-  ): SummaryList =
+  ): SummaryList = {
+    val label = messages(lang(key, router.subKey, "label"))
+
     SummaryList(
       List(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(Text(label)),
           value = Value(Text(answer.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey).url}",
+                  href =
+                    s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.label"))
+                  visuallyHiddenText = Some(label)
                 )
               )
             )
@@ -47,4 +52,5 @@ class CommodityDetailsSummary extends AnswerSummary[CommodityDetails] {
         )
       )
     )
+  }
 }

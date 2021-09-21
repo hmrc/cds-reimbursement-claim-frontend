@@ -20,7 +20,6 @@ import cats.syntax.all._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -31,99 +30,6 @@ import javax.inject.{Inject, Singleton}
 class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitchService) {
 
   private val key = "check-your-answers"
-
-  def makeDeclarationDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
-    completeClaim.movementReferenceNumber.value match {
-      case Left(_)  => List()
-      case Right(_) =>
-        val rows: List[Option[SummaryListRow]] = List(
-          completeClaim.maybeDisplayDeclaration.map { details =>
-            SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l0"))),
-              value = Value(Text(details.displayResponseDetail.acceptanceDate)),
-              actions = None
-            )
-          },
-          completeClaim.maybeDisplayDeclaration.map { details =>
-            SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l8"))),
-              value = Value(Text(formatAmountOfMoneyWithPoundSign(details.totalPaidCharges))),
-              actions = None
-            )
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.consigneeName.map { name =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l2"))),
-                value = Value(Text(name)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.consigneeEmail.map { email =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l3"))),
-                value = Value(Text(email)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.consigneeTelephone.map { tel =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l4"))),
-                value = Value(Text(tel)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.consigneeAddress.map { address =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l10"))),
-                value = Value(Text(address)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.map { details =>
-            SummaryListRow(
-              key = Key(Text(messages(s"$key.declaration-details.l5"))),
-              value = Value(Text(details.declarantName)),
-              actions = None
-            )
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.declarantContactAddress.map { address =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l9"))),
-                value = Value(Text(address)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.declarantTelephoneNumber.map { tel =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l7"))),
-                value = Value(Text(tel)),
-                actions = None
-              )
-            }
-          },
-          completeClaim.maybeDisplayDeclaration.flatMap { details =>
-            details.declarantEmailAddress.map { email =>
-              SummaryListRow(
-                key = Key(Text(messages(s"$key.declaration-details.l6"))),
-                value = Value(Text(email)),
-                actions = None
-              )
-            }
-          }
-        )
-        rows.flattenOption
-    }
 
   def makeClaimantDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
     List(

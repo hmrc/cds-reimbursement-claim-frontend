@@ -90,9 +90,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
-  def mergeWithSubKey(rootKey: String): String =
-    subKey.toList.foldLeft(rootKey)((root, sub) => s"$root.$sub")
-
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
