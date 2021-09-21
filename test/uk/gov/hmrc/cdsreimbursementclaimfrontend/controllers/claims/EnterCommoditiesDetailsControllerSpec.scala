@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
 
 import scala.concurrent.Future
 
@@ -116,7 +116,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleMrnAnswer()
+            movementReferenceNumber = Some(sample[MovementReferenceNumber])
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
@@ -141,7 +141,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleMrnAnswer()
+            movementReferenceNumber = Some(sample[MovementReferenceNumber])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -168,7 +168,7 @@ class EnterCommoditiesDetailsControllerSpec
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
               basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-              movementReferenceNumber = sampleMrnAnswer()
+              movementReferenceNumber = Some(sample[MovementReferenceNumber])
             )
 
           val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -200,7 +200,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleMrnAnswer()
+            movementReferenceNumber = Some(sample[MovementReferenceNumber])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -233,7 +233,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleMrnAnswer()
+            movementReferenceNumber = Some(sample[MovementReferenceNumber])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -266,7 +266,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = sampleMrnAnswer()
+            movementReferenceNumber = Some(sample[MovementReferenceNumber])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))

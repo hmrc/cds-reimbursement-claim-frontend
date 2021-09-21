@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, SelectNumberOfClaimsAnswer, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData}
 
 import scala.concurrent.Future
 
@@ -109,7 +109,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
-            movementReferenceNumber = sampleMrnAnswer(),
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
@@ -131,7 +131,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
-            movementReferenceNumber = sampleMrnAnswer(),
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
@@ -153,7 +153,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftC285Claim].copy(
             selectNumberOfClaimsAnswer = None,
-            movementReferenceNumber = sampleMrnAnswer(),
+            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)

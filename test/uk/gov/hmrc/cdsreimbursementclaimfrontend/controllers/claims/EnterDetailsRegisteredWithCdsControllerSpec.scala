@@ -265,7 +265,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val updatedJourney = fillingOutClaim.copy(draftClaim =
         draftC285Claim.copy(
-          movementReferenceNumber = sampleMrnAnswer(),
+          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
           selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Individual),
           declarantTypeAnswer = Some(DeclarantTypeAnswer.AssociatedWithImporterCompany)
         )

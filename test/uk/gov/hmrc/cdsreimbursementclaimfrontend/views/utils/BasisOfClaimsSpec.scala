@@ -26,8 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaims.{EntryNumberBasisOfClaims, MrnBasisOfClaims}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, MovementReferenceNumber}
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
@@ -35,14 +34,14 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
     "filter Northern Ireland claims" in {
       val draftC285Claim = sample[DraftC285Claim].copy(
-        movementReferenceNumber = sampleMrnAnswer(),
+        movementReferenceNumber = Some(sample[MovementReferenceNumber]),
         claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.No.some
       )
 
       val claims = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
 
       claims should be(
-        MrnBasisOfClaims(items =
+        BasisOfClaims(items =
           List(
             DuplicateEntry,
             IncorrectEoriAndDefermentAccountNumber,
@@ -66,7 +65,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
   "contain Northern Ireland claims" in {
     val draftC285Claim = sample[DraftC285Claim].copy(
-      movementReferenceNumber = sampleEntryNumberAnswer(),
+      movementReferenceNumber = sample[MovementReferenceNumber].some,
       claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some,
       displayDeclaration = None
     )
@@ -74,7 +73,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     val claims = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
 
     claims should be(
-      EntryNumberBasisOfClaims(items =
+      BasisOfClaims(items =
         List(
           DuplicateEntry,
           IncorrectEoriAndDefermentAccountNumber,
@@ -161,19 +160,11 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     )
   }
 
-  "build MRN basis of claims key" in {
+  "build basis of claims key" in {
     val basisOfClaim = sample[BasisOfClaim]
 
-    MrnBasisOfClaims(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
+    BasisOfClaims(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
       s"key.reason.d${basisOfClaim.value}"
-    )
-  }
-
-  "build Entry Number basis of claims key" in {
-    val basisOfClaim = sample[BasisOfClaim]
-
-    EntryNumberBasisOfClaims(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
-      s"key.reason.ern.d${basisOfClaim.value}"
     )
   }
 }
