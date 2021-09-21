@@ -104,7 +104,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         IncorrectCommodityCode,
         IncorrectCpc,
         IncorrectValue,
-        IncorrectEoriAndDefermentAccountNumber,
         InwardProcessingReliefFromCustomsDuty,
         OutwardProcessingRelief,
         PersonalEffects,

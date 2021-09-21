@@ -25,12 +25,12 @@ sealed abstract class BasisOfClaim(val value: Int) extends Product with Serializ
 object BasisOfClaim {
 
   case object DuplicateEntry extends BasisOfClaim(0)
-  case object DutySuspension extends BasisOfClaim(1)
-  case object EndUseRelief extends BasisOfClaim(2)
-  case object IncorrectCommodityCode extends BasisOfClaim(3)
-  case object IncorrectCpc extends BasisOfClaim(4)
-  case object IncorrectValue extends BasisOfClaim(5)
-  case object IncorrectEoriAndDefermentAccountNumber extends BasisOfClaim(6)
+  case object IncorrectEoriAndDefermentAccountNumber extends BasisOfClaim(1)
+  case object DutySuspension extends BasisOfClaim(2)
+  case object EndUseRelief extends BasisOfClaim(3)
+  case object IncorrectCommodityCode extends BasisOfClaim(4)
+  case object IncorrectCpc extends BasisOfClaim(5)
+  case object IncorrectValue extends BasisOfClaim(6)
   case object InwardProcessingReliefFromCustomsDuty extends BasisOfClaim(7)
   case object OutwardProcessingRelief extends BasisOfClaim(8)
   case object PersonalEffects extends BasisOfClaim(9)
