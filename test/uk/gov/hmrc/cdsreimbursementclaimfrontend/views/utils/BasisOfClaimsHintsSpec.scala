@@ -16,42 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim.newDraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints.{EntryNumberBasisOfClaimsHints, MrnBasisOfClaimsHints}
 
 class BasisOfClaimsHintsSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   "The basis of claims examples" should {
     "drop N items" in {
-      val draft = newDraftC285Claim
-
-      forAll(Gen.choose(0, 13), genMovementReferenceNumber) { (n, reference) =>
-        val newDraft = draft.copy(movementReferenceNumber = reference.some)
-        BasisOfClaimsHints.of(newDraft).skip(n).items should be((0 to 13).drop(n))
-      }
-    }
-
-    "build MRN basis of claims examples key" in {
-      val examples = MrnBasisOfClaimsHints(List.empty)
-
-      forAll { n: Int =>
-        examples.buildLabelKey(parentKey = "key", n) should be(s"key.details.b$n")
-        examples.buildTextKey(parentKey = "key", n)  should be(s"key.details.l$n")
-      }
-    }
-
-    "build Entry Number basis of claims examples key" in {
-      val examples = EntryNumberBasisOfClaimsHints(List.empty)
-
-      forAll { n: Int =>
-        examples.buildLabelKey(parentKey = "key", n) should be(s"key.details.ern.b$n")
-        examples.buildTextKey(parentKey = "key", n)  should be(s"key.details.ern.l$n")
+      forAll(Gen.choose(0, 13)) { n =>
+        BasisOfClaimsHints.beginWith(n).items should be(n to 13)
       }
     }
   }

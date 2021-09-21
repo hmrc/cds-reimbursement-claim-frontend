@@ -21,22 +21,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBinda
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectExciseValue, allClaimsTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, DraftClaim, TaxCode}
 
-sealed trait BasisOfClaims {
-  val items: List[BasisOfClaim]
-  def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String
+final case class BasisOfClaims(items: List[BasisOfClaim]) extends AnyVal {
+  def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
+    s"$parentKey.reason.d${basisOfClaim.value}"
 }
 
 object BasisOfClaims {
-
-  final case class MrnBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
-      BasisOfClaimsMessage.ofMrn(parentKey, basisOfClaim)
-  }
-
-  final case class EntryNumberBasisOfClaims(items: List[BasisOfClaim]) extends BasisOfClaims {
-    def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
-      BasisOfClaimsMessage.ofEntryNumber(parentKey, basisOfClaim)
-  }
 
   def apply(): Builder = Builder(allClaimsTypes)
 
@@ -72,7 +62,7 @@ object BasisOfClaims {
           else claims.diff(List(IncorrectExciseValue))
       }
 
-      if (claim.isMrnFlow) MrnBasisOfClaims(items) else EntryNumberBasisOfClaims(items)
+      BasisOfClaims(items)
     }
   }
 

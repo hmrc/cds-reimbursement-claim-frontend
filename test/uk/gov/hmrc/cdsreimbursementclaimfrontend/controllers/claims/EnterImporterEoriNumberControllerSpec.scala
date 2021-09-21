@@ -63,7 +63,7 @@ class EnterImporterEoriNumberControllerSpec
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
       importerEoriNumberAnswer = maybeImporterEoriNumberAnswer,
-      movementReferenceNumber = sampleMrnAnswer()
+      movementReferenceNumber = Some(sample[MovementReferenceNumber])
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]

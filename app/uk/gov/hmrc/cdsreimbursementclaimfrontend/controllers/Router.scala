@@ -252,24 +252,13 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   }
 }
 
-trait EntryNumberRoutes extends ReferenceNumberTypeRoutes {
-  val refNumberKey                                        = Some("entry")
-  def nextPageForEnterMRN(importer: MrnJourney): Call     =
-    claimRoutes.EnterDeclarationDetailsController.enterDeclarationDetails()
-  def nextPageForDuplicateMRN(importer: MrnJourney): Call =
-    claimRoutes.EnterDeclarationDetailsController.enterDuplicateDeclarationDetails()
-}
-
 object ReimbursementRoutes {
   type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes
 }
 
 case object MRNSingleRoutes extends MRNRoutes with SingleRoutes with SubmitRoutes
-case object EntrySingleRoutes extends EntryNumberRoutes with SingleRoutes with SubmitRoutes
 case object MRNMultipleRoutes extends MRNRoutes with MultipleRoutes with SubmitRoutes
-case object EntryMultipleRoutes extends EntryNumberRoutes with MultipleRoutes with SubmitRoutes
 case object MRNScheduledRoutes extends MRNRoutes with ScheduledRoutes with SubmitRoutes
-case object EntryScheduledRoutes extends EntryNumberRoutes with ScheduledRoutes with SubmitRoutes
 
 case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes {
   val refNumberKey    = None

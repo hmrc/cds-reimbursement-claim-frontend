@@ -162,7 +162,7 @@ class EnterMovementReferenceNumberControllerSpec
       "display the title and the previously saved MRN" in {
         val journeyBindable    = sample[JourneyBindable]
         val mrn                = sample[MRN]
-        val mrnAnswer          = sampleMrnAnswer(mrn)
+        val mrnAnswer          = MovementReferenceNumber(mrn).some
         val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
         val router             = JourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
 
@@ -195,7 +195,7 @@ class EnterMovementReferenceNumberControllerSpec
       "display the title and the previously saved MRN" in {
         val journeyBindable    = sample[JourneyBindable]
         val mrn                = sample[MRN]
-        val mrnAnswer          = sampleMrnAnswer(mrn)
+        val mrnAnswer          = MovementReferenceNumber(mrn).some
         val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
         val router             = JourneyExtractor.getRoutes(numberOfClaimsType, mrnAnswer, journeyBindable)
 
@@ -228,7 +228,7 @@ class EnterMovementReferenceNumberControllerSpec
       "reject an invalid MRN" in {
         val journeyBindable    = sample[JourneyBindable]
         val invalidMRN         = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
-        val invalidMRNAnswer   = sampleMrnAnswer(invalidMRN)
+        val invalidMRNAnswer   = MovementReferenceNumber(invalidMRN).some
         val numberOfClaimsType = toSelectNumberOfClaims(journeyBindable)
         val router             = JourneyExtractor.getRoutes(numberOfClaimsType, invalidMRNAnswer, journeyBindable)
 
@@ -279,7 +279,7 @@ class EnterMovementReferenceNumberControllerSpec
       "Update an MRN, Eori is importer's Eori" in {
         val journeyBindable   = sample[JourneyBindable]
         val mrn               = sample[MRN]
-        val mrnAnswer         = sampleMrnAnswer(mrn)
+        val mrnAnswer         = MovementReferenceNumber(mrn).some
         val (session, foc, _) =
           sessionWithClaimState(mrnAnswer, Some(toSelectNumberOfClaims(journeyBindable)))
 
@@ -306,7 +306,7 @@ class EnterMovementReferenceNumberControllerSpec
       "On submitting the same MRN as before, don't save it, Eori is importer's Eori" in {
         val journeyBindable   = sample[JourneyBindable]
         val mrn               = sample[MRN]
-        val mrnAnswer         = sampleMrnAnswer(mrn)
+        val mrnAnswer         = MovementReferenceNumber(mrn).some
         val (session, foc, _) = sessionWithClaimState(mrnAnswer, Some(toSelectNumberOfClaims(journeyBindable)))
 
         val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = foc.signedInUserDetails.eori.value)
@@ -363,7 +363,7 @@ class EnterMovementReferenceNumberControllerSpec
       "return to CYA page if the same MRN is submitted" in {
         val journeyBindable = sample[JourneyBindable]
         val mrn             = sample[MRN]
-        val answers         = sampleMrnAnswer(mrn)
+        val answers         = MovementReferenceNumber(mrn).some
         val (session, _, _) = sessionWithClaimState(answers, Some(toSelectNumberOfClaims(journeyBindable)))
         inSequence {
           mockAuthWithNoRetrievals()
@@ -380,7 +380,7 @@ class EnterMovementReferenceNumberControllerSpec
       "start a new claim if a different MRN is submitted" in {
         val journeyBindable = sample[JourneyBindable]
         val mrn             = sample[MRN]
-        val answers         = sampleMrnAnswer(mrn)
+        val answers         = MovementReferenceNumber(mrn).some
         val (session, _, _) =
           sessionWithClaimState(answers, Some(toSelectNumberOfClaims(journeyBindable)))
 

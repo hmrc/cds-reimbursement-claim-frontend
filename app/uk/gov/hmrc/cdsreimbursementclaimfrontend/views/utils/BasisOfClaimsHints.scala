@@ -16,41 +16,32 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import play.api.i18n.Messages
+import play.twirl.api.Html
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.{bullets, title_and_description}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints.{bulletList, titleAndDescription}
 
-sealed trait BasisOfClaimsHints {
-  val items: Seq[Int]
+final case class BasisOfClaimsHints(items: Seq[Int]) extends AnyVal {
 
-  def buildLabelKey(parentKey: String, index: Int): String
-  def buildTextKey(parentKey: String, index: Int): String
+  def toHtml(parentKey: String)(implicit messages: Messages): Html =
+    html(
+      bulletList(
+        items.map(i =>
+          titleAndDescription(
+            messages(s"$parentKey.details.b$i"),
+            messages(s"$parentKey.details.l$i")
+          )
+        )
+      )
+    )
 }
 
 object BasisOfClaimsHints {
 
-  final case class MrnBasisOfClaimsHints(items: Seq[Int]) extends BasisOfClaimsHints {
-    def buildLabelKey(parentKey: String, index: Int): String =
-      s"$parentKey.details.b$index"
+  def beginWith(elementIndex: Int): BasisOfClaimsHints =
+    BasisOfClaimsHints(elementIndex to 13)
 
-    def buildTextKey(parentKey: String, index: Int): String =
-      s"$parentKey.details.l$index"
-  }
-
-  final case class EntryNumberBasisOfClaimsHints(items: Seq[Int]) extends BasisOfClaimsHints {
-    def buildLabelKey(parentKey: String, index: Int): String =
-      s"$parentKey.details.ern.b$index"
-
-    def buildTextKey(parentKey: String, index: Int): String =
-      s"$parentKey.details.ern.l$index"
-  }
-
-  def of(draftClaim: DraftClaim): Builder = Builder(draftClaim.isMrnFlow)
-
-  final case class Builder(isMrnFlow: Boolean) {
-
-    def skip(n: Int): BasisOfClaimsHints = {
-      val items = (0 to 13).drop(n)
-      if (isMrnFlow) MrnBasisOfClaimsHints(items)
-      else EntryNumberBasisOfClaimsHints(items)
-    }
-  }
+  val titleAndDescription: title_and_description = new title_and_description()
+  val bulletList: bullets                        = new bullets()
 }
