@@ -43,12 +43,12 @@ object BasisOfClaim {
 
   val allClaimsTypes: List[BasisOfClaim] = List(
     DuplicateEntry,
+    IncorrectEoriAndDefermentAccountNumber,
     DutySuspension,
     EndUseRelief,
     IncorrectCommodityCode,
     IncorrectCpc,
     IncorrectValue,
-    IncorrectEoriAndDefermentAccountNumber,
     InwardProcessingReliefFromCustomsDuty,
     OutwardProcessingRelief,
     PersonalEffects,
