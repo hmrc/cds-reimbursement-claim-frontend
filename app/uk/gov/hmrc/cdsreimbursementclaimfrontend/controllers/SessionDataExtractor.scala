@@ -84,10 +84,10 @@ trait SessionDataExtractor extends Results {
         MRNSingleRoutes
       case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual, Some(MovementReferenceNumber(Left(_))))    =>
         EntrySingleRoutes
-      case (JourneyBindable.Bulk, SelectNumberOfClaimsAnswer.Bulk, Some(MovementReferenceNumber(Right(_))))           =>
-        MRNBulkRoutes
-      case (JourneyBindable.Bulk, SelectNumberOfClaimsAnswer.Bulk, Some(MovementReferenceNumber(Left(_))))            =>
-        EntryBulkRoutes
+      case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Right(_))))   =>
+        MRNMultipleRoutes
+      case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Left(_))))    =>
+        EntryMultipleRoutes
       case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
         MRNScheduledRoutes
       case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled, Some(MovementReferenceNumber(Left(_))))  =>
@@ -97,7 +97,7 @@ trait SessionDataExtractor extends Results {
 }
 
 //This method should be used in controllers, where we did not introduce the JourneyBindable yet
-object TemporaryJourneyExtractor extends SessionDataExtractor {
+object JourneyExtractor extends SessionDataExtractor {
 
   def extractJourney(implicit request: RequestWithSessionData[_]): JourneyBindable =
     request.sessionData.flatMap(_.journeyStatus) match {
@@ -110,7 +110,7 @@ object TemporaryJourneyExtractor extends SessionDataExtractor {
   def extractJourney(fillingOutClaim: FillingOutClaim): JourneyBindable =
     getNumberOfClaims(fillingOutClaim.draftClaim) match {
       case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
-      case SelectNumberOfClaimsAnswer.Bulk       => JourneyBindable.Bulk
+      case SelectNumberOfClaimsAnswer.Multiple   => JourneyBindable.Multiple
       case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
     }
 }

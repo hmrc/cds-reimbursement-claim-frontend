@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.TemporaryJourneyExtractor._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -56,11 +56,10 @@ class EnterContactDetailsMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
-  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
-  def amendMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = true)
+  def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
+  def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
 
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val draftC285Claim        = fillingOutClaim.draftClaim.fold(identity)
@@ -70,24 +69,22 @@ class EnterContactDetailsMrnController @Inject() (
         }
         val mrnContactDetailsForm =
           answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, answers.isDefined, isAmend))
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, isChange))
       }
     }
 
   def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
-    submit(isChange = false, isAmend = false)
+    submit(isChange = false)
   def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    submit(isChange = true, isAmend = false)
-  def amendMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
-    submit(isChange = false, isAmend = true)
+    submit(isChange = true)
 
-  def submit(isChange: Boolean, isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         EnterContactDetailsMrnController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange, isAmend)),
+            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
             formOk => {
 
               val updatedClaim =
@@ -99,7 +96,7 @@ class EnterContactDetailsMrnController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not capture contact details"),
-                _ => Redirect(router.nextPageForMrnContactDetails(isChange, isAmend))
+                _ => Redirect(router.nextPageForMrnContactDetails(isChange))
               )
             }
           )

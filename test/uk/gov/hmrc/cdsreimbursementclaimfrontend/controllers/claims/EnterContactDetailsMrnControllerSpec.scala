@@ -67,7 +67,7 @@ class EnterContactDetailsMrnControllerSpec
   private val journeys = Table(
     "JourneyBindable",
     JourneyBindable.Single,
-    JourneyBindable.Bulk,
+    JourneyBindable.Multiple,
     JourneyBindable.Scheduled
   )
 
@@ -173,7 +173,7 @@ class EnterContactDetailsMrnControllerSpec
       }
 
       "the user has entered contact details previously" in forAll(journeys) { journey =>
-        def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
+        def performAction(): Future[Result] = controller.changeMrnContactDetails(journey)(FakeRequest())
         val phone                           = Some(sample[PhoneNumber])
         val contactDetails                  = sample[MrnContactDetails].copy(phoneNumber = phone)
         val contactAddressAnswer            = Some(sample[ContactAddress])
@@ -225,7 +225,7 @@ class EnterContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           performAction(goodData.toSeq, journey),
-          routes.CheckContactDetailsMrnController.changeAddress(journey)
+          routes.CheckContactDetailsMrnController.show(journey)
         )
       }
 

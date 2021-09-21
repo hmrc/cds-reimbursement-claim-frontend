@@ -100,7 +100,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
 
   def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(
     result: Option[HttpResponse]
-  ): Unit =
+  ): Any =
     (mockHttp
       .POST(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],
@@ -119,7 +119,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
     url: String,
     body: A,
     headers: Seq[(String, String)] = Seq.empty
-  )(result: Option[HttpResponse]): Unit =
+  )(result: Option[HttpResponse]): Any =
     (mockHttp
       .PUT(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],

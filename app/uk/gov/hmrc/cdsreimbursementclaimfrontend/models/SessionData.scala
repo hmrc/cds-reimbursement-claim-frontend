@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Format, Json}
 
 final case class SessionData(
@@ -26,10 +27,12 @@ final case class SessionData(
 
 object SessionData {
 
+  def apply(status: JourneyStatus): SessionData =
+    SessionData(status.some, None)
+
   implicit val format: Format[SessionData] = Json.format
 
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
   val empty: SessionData = SessionData(None, None)
-
 }

@@ -22,17 +22,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class FeatureSwitchController @Inject() (featureSwitchService: FeatureSwitchService, mcc: MessagesControllerComponents)
+class FeatureSwitchController @Inject() (featureSwitch: FeatureSwitchService, mcc: MessagesControllerComponents)
     extends FrontendController(mcc) {
 
   def enable(featureName: String): Action[AnyContent] = Action {
-    featureSwitchService.forName(featureName).enable()
-    Ok(s"Enabled feature $featureName")
+    featureSwitch
+      .of(featureName)
+      .map(_.enable())
+      .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Enabled feature $featureName"))
   }
 
   def disable(featureName: String): Action[AnyContent] = Action {
-    featureSwitchService.forName(featureName).disable()
-    Ok(s"Disabled feature $featureName")
+    featureSwitch
+      .of(featureName)
+      .map(_.disable())
+      .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Disabled feature $featureName"))
   }
-
 }

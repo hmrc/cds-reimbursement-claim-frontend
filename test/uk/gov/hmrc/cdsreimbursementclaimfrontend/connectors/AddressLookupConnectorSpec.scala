@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class AddressLookupConnectorSpec
@@ -65,12 +66,18 @@ class AddressLookupConnectorSpec
   "The address lookup connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val request                    = sample[AddressLookupRequest]
-
-    val url = "http://localhost:9028/api/init"
 
     "handling requests to submit claim" must {
+      val request = sample[AddressLookupRequest]
+      val url     = "http://localhost:9028/api/init"
       behave like connectorBehaviour(mockPost(url, Seq(), request)(_), () => connector.initiate(request))
     }
+
+    "Retrieve address" must {
+      val uuid = UUID.randomUUID()
+      val url  = s"http://localhost:9028/api/confirmed?id=$uuid"
+      behave like connectorBehaviour(mockGet(url)(_), () => connector.retrieveAddress(uuid))
+    }
+
   }
 }

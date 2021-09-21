@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{ErnImporter, MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -33,33 +33,23 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
   val allRoutes = Table(
     "Routes",
     MRNSingleRoutes,
-    MRNBulkRoutes,
-    MRNScheduledRoutes,
-    EntrySingleRoutes,
-    EntryBulkRoutes,
-    EntryScheduledRoutes
+    MRNMultipleRoutes,
+    MRNScheduledRoutes
   )
 
   "The next page after the enter movement reference number" must {
 
     "check declaration details when the user is the importer" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNBulkRoutes, MRNBulkRoutes)) { router =>
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(MrnImporter(sample[DisplayDeclaration])) shouldBe
           claimRoutes.CheckDeclarationDetailsController.show(router.journeyBindable)
       }
     }
 
     "enter importer Eori number when there is a 3rd party importer" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNBulkRoutes, MRNBulkRoutes)) { router =>
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(ThirdPartyImporter(sample[DisplayDeclaration])) shouldBe
           claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
-      }
-    }
-
-    "enter declaration details when using Entry Number" in {
-      forAll(Table("EntryRoutes", EntrySingleRoutes, EntryBulkRoutes, EntryBulkRoutes)) { router =>
-        router.nextPageForEnterMRN(ErnImporter) shouldBe
-          claimRoutes.EnterDeclarationDetailsController.enterDeclarationDetails()
       }
     }
   }
@@ -103,8 +93,8 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
   "The next page after check declaration details" must {
 
-    val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes, EntryScheduledRoutes)
-    val singleRoutes    = Table("Single routes", MRNSingleRoutes, EntrySingleRoutes)
+    val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes)
+    val singleRoutes    = Table("Single routes", MRNSingleRoutes)
 
     "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
       router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
@@ -169,7 +159,5 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
           .changeNorthernIrelandClaimSubmit(router.journeyBindable)
       }
     }
-
   }
-
 }

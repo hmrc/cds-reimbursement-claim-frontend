@@ -15,6 +15,9 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
-import cats.data.Validated.Invalid
 import cats.data.{NonEmptyList, ValidatedNel}
 import play.api.libs.json._
 
@@ -25,8 +24,6 @@ package object models {
   // validation
 
   type Validation[A] = ValidatedNel[String, A]
-
-  def invalid[A](error: String): Validation[A] = Invalid(NonEmptyList.one(error))
 
   // NEL format
 

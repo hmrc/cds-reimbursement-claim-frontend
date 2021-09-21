@@ -59,7 +59,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
     (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+    (SelectNumberOfClaimsAnswer.Multiple, JourneyBindable.Multiple),
     (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
@@ -176,7 +176,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         checkIsRedirect(
           performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.CheckContactDetailsMrnController.checkDetailsAndChange(journeyBindable)
+          routes.CheckContactDetailsMrnController.show(journeyBindable)
         )
       }
 

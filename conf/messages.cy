@@ -155,10 +155,10 @@ check-eori-details.invalid=Dewiswch ‘Iawn’ os yw’r manylion hyn yn gywir n
 select-number-of-claims.title=Dewiswch nifer yr hawliadau
 select-number-of-claims.help-text=Gallwch wneud mwy nag un hawliad. Mae’n rhaid i hawliadau lluosog (swmp) fod gan yr un mewnforiwr, bod â’r un rheswm dros ordalu a chynnwys naill ai Cyfeirnodau Symud (MRN) neu rifau mewnforio, ond nid cymysgedd o’r ddau.
 select-number-of-claims.individual.title=Hawliad unigol
-select-number-of-claims.bulk.title=Hawliadau lluosog (swmp) – cofnodi Cyfeirnodau Symud neu rifau mewnforio â llaw
+select-number-of-claims.multiple.title=Hawliadau lluosog (swmp) – cofnodi Cyfeirnodau Symud neu rifau mewnforio â llaw
 select-number-of-claims.scheduled.title=Hawliadau lluosog (swmp) – uwchlwytho dogfen atodol
 select-number-of-claims.individual.hint=Nodwch un hawliad yn unig gan ddefnyddio Cyfeirnod Symud neu rif mewnforio ar gyfer un datganiad.
-select-number-of-claims.bulk.hint=Gallwch nodi hawliad swmp drwy ychwanegu Cyfeirnodau Symud neu rifau mewnforio lluosog ar gyfer pob datganiad.
+select-number-of-claims.multiple.hint=Gallwch nodi hawliad swmp drwy ychwanegu Cyfeirnodau Symud neu rifau mewnforio lluosog ar gyfer pob datganiad.
 select-number-of-claims.scheduled.hint=Gallwch nodi hawliad swmp drwy uwchlwytho dogfen gyda Chyfeirnodau Symud neu rifau mewnforio ar gyfer datganiadau lluosog.
 select-number-of-claims.error.required=Dewiswch nifer yr hawliadau
 select-number-of-claims.invalid=Dewiswch nifer yr hawliadau
@@ -173,24 +173,12 @@ enter-movement-reference-number.enter-mrn.label=Nodwch y rhif MRN neu’r rhif m
 enter-movement-reference-number.invalid.number=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.invalid=Nodwch rif MRN neu rif mewnforio dilys
 enter-movement-reference-number.error.required=Nodwch rif MRN neu rif mewnforio dilys
-enter-movement-reference-number.bulk.title=
-enter-movement-reference-number.bulk.help-text=
-enter-movement-reference-number.bulk.enter-mrn.label=
+enter-movement-reference-number.multiple.title=
+enter-movement-reference-number.multiple.help-text=
+enter-movement-reference-number.multiple.enter-mrn.label=
 enter-movement-reference-number.scheduled.title=
 enter-movement-reference-number.scheduled.help-text=
 enter-movement-reference-number.scheduled.enter-mrn.label=
-
-#===================================================
-#  ENTER NO LEGACY MRN PAGE
-#===================================================
-enter-no-legacy-mrn.title=
-enter-no-legacy-mrn.help=Mae’n rhaid i’r rhif fod yn 18 neu’n 17 nod, er enghraifft 19GB03I52858027017.
-enter-no-legacy-mrn.help-text=Bydd y Cyfeirnod Symud (MRN) yn cael ei roi ar ôl datgan mewnforio. <a target="_blank href="{0}">Rhagor o wybodaeth am y rhif yma (yn agor mewn tab newydd)</a>.
-enter-no-legacy-mrn.details=
-enter-no-legacy-mrn.error.required=
-enter-no-legacy-mrn.invalid.number=
-enter-no-legacy-mrn.invalid=
-enter-no-legacy-mrn.enter-mrn.label=
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE

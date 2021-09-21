@@ -46,11 +46,10 @@ class ClaimantDetailsHelper @Inject() () {
   def renderContactDetails(
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress],
-    isAmend: Boolean,
     router: ReimbursementRoutes
   )(implicit messages: Messages): List[SummaryListRow] =
     List(
-      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, isAmend, router)),
+      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, router)),
       maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
     ).flattenOption
 
@@ -83,7 +82,7 @@ class ClaimantDetailsHelper @Inject() () {
     )
   }
 
-  def renderContactDetails(contactDetails: MrnContactDetails, isAmend: Boolean, router: ReimbursementRoutes)(implicit
+  def renderContactDetails(contactDetails: MrnContactDetails, router: ReimbursementRoutes)(implicit
     messages: Messages
   ): SummaryListRow = {
     val data = List(
@@ -100,17 +99,11 @@ class ClaimantDetailsHelper @Inject() () {
         Actions(
           "govuk-link",
           List(
-            if (isAmend)
-              ActionItem(
-                href = s"${routes.EnterContactDetailsMrnController.amendMrnContactDetails(router.journeyBindable).url}",
-                Text(messages("claimant-details.change"))
-              )
-            else
-              ActionItem(
-                href =
-                  s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
-                Text(messages("claimant-details.change"))
-              )
+            ActionItem(
+              href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
+              content = Text(messages("claimant-details.change")),
+              visuallyHiddenText = Some(messages(s"$key.contact.details"))
+            )
           )
         )
       )
@@ -140,7 +133,8 @@ class ClaimantDetailsHelper @Inject() () {
           List(
             ActionItem(
               href = s"${routes.CheckContactDetailsMrnController.changeAddress(router.journeyBindable).url}",
-              Text(messages("claimant-details.change"))
+              content = Text(messages("claimant-details.change")),
+              visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )
           )
         )

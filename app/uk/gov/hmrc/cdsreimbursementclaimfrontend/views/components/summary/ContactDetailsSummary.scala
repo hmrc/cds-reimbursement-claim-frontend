@@ -48,8 +48,9 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             "govuk-link",
             List(
               ActionItem(
-                href = s"${routes.CheckContactDetailsMrnController.checkDetailsAndAmend(journey).url}",
-                Text(messages("cya.change"))
+                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url}",
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.contact.details"))
               )
             )
           )
@@ -75,8 +76,9 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             "govuk-link",
             List(
               ActionItem(
-                href = s"${routes.CheckContactDetailsMrnController.changeAddress(journey).url}",
-                Text(messages("cya.change"))
+                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url}",
+                content = Text(messages("cya.change")),
+                visuallyHiddenText = Some(messages(s"$key.contact.address"))
               )
             )
           )

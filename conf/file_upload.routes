@@ -22,8 +22,8 @@ POST        /scheduled/scheduled-document-upload/upload                         
 GET         /scheduled/scheduled-document-upload/handle-size-fail-redirect         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFileSizeErrorCallback()
 GET         /scheduled/scheduled-document-upload/size-fail                         uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.showFileSizeErrorPage()
 
-GET         /scheduled/scheduled-document-upload/progress/:id                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id : UploadReference)
-POST        /scheduled/scheduled-document-upload/progress                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id : String)
+GET         /scheduled/scheduled-document-upload/progress/:id                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgress(id: UploadReference)
+POST        /scheduled/scheduled-document-upload/progress                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.scanProgressSubmit(id: String)
 
 GET         /scheduled/scheduled-document-upload/format-virus-fail                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
 

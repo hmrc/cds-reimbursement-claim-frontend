@@ -317,7 +317,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           }
 
           val result  = performAction()
-          val journey = TemporaryJourneyExtractor.extractJourney(fillingOutClaim)
+          val journey = JourneyExtractor.extractJourney(fillingOutClaim)
           checkIsRedirect(result, claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
         }
       }

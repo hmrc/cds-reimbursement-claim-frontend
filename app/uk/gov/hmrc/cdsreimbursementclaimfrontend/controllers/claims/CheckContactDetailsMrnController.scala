@@ -70,19 +70,14 @@ class CheckContactDetailsMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  def checkDetailsAndChange(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
-  def checkDetailsAndAmend(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = true)
-
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, isAmend, router))
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router))
       }
     }
 
-  def addDetails(implicit journey: JourneyBindable): Action[AnyContent] = add(isAmend = false)
-
-  def add(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def addDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
@@ -91,17 +86,14 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, isAmend, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
             },
             formOk => Redirect(router.nextPageForAddClaimantDetails(formOk, featureSwitch))
           )
       }
     }
 
-  def changeDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)
-  def amendDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = submit(isAmend = true)
-
-  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
@@ -110,12 +102,12 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, isAmend, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
             },
             formOk =>
               formOk match {
                 case YesClaimantDetailsAnswer =>
-                  Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch, isAmend))
+                  Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
                 case NoClaimantDetailsAnswer  =>
                   val updatedClaim = FillingOutClaim
                     .of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None))
@@ -123,7 +115,7 @@ class CheckContactDetailsMrnController @Inject() (
                     .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                     .fold(
                       e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch, isAmend))
+                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
                     )
               }
           )
@@ -172,7 +164,7 @@ class CheckContactDetailsMrnController @Inject() (
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
             logAndDisplayError("Error updating Address Lookup address: "),
-            _ => Redirect(routes.CheckContactDetailsMrnController.checkDetailsAndChange(journey))
+            _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
           )
       }(dataExtractor, request, journey)
     }
@@ -180,7 +172,6 @@ class CheckContactDetailsMrnController @Inject() (
   def renderTemplate(
     form: Form[CheckClaimantDetailsAnswer],
     fillingOutClaim: FillingOutClaim,
-    isAmend: Boolean,
     router: ReimbursementRoutes
   )(implicit
     request: RequestWithSessionData[_],
@@ -192,7 +183,6 @@ class CheckContactDetailsMrnController @Inject() (
     claimantDetailsPage(
       form,
       mandatoryDataAvailable,
-      isAmend,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
       extractEstablishmentAddress(fillingOutClaim),
       draftC285Claim.mrnContactDetailsAnswer,

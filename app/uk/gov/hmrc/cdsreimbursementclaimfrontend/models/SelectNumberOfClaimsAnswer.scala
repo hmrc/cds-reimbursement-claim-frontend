@@ -24,10 +24,10 @@ sealed abstract class SelectNumberOfClaimsAnswer(val value: Int) extends Product
 
 object SelectNumberOfClaimsAnswer {
   case object Individual extends SelectNumberOfClaimsAnswer(0)
-  case object Bulk extends SelectNumberOfClaimsAnswer(1)
+  case object Multiple extends SelectNumberOfClaimsAnswer(1)
   case object Scheduled extends SelectNumberOfClaimsAnswer(2)
 
-  val allClaimsTypes: List[SelectNumberOfClaimsAnswer]         = List(Individual, Bulk, Scheduled)
+  val allClaimsTypes: List[SelectNumberOfClaimsAnswer]         = List(Individual, Multiple, Scheduled)
   val allClaimsIntToType: Map[Int, SelectNumberOfClaimsAnswer] = allClaimsTypes.map(a => a.value -> a).toMap
   val allClaimsTypeToInt: Map[SelectNumberOfClaimsAnswer, Int] = allClaimsTypes.map(a => a -> a.value).toMap
 

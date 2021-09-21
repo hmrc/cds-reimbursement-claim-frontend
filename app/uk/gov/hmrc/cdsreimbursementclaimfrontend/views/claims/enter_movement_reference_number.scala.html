@@ -37,7 +37,7 @@
 @(form: Form[MovementReferenceNumber], isAmend: Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-movement-reference-number"}
-    @title = @{messages(lang(key,router.subKey,"title"))}
+    @title = @{messages(lang(key, router.subKey, "title"))}
 
     @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit(router.journeyBindable)
                     else routes.EnterMovementReferenceNumberController.enterMrnSubmit(router.journeyBindable) }
@@ -58,14 +58,12 @@
                 form = form,
                 id = key,
                 name = key,
-                label = s"$key.enter-mrn.label",
+                label = lang(key, router.subKey, "enter-mrn.label").head,
                 isPageHeading = false,
                 classes = Some("govuk-input--width-20"),
                 hint = Some(s"$key.help")
             )
 
             @submitButton("button.continue")
-
         }
-
     }

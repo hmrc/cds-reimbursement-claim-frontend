@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 final case class ScheduledDocumentAnswer(uploadDocument: UploadDocument) extends AnyVal
 
 object ScheduledDocumentAnswer {
 
-  implicit val format: OFormat[ScheduledDocumentAnswer] = derived.oformat[ScheduledDocumentAnswer]()
+  implicit val format: OFormat[ScheduledDocumentAnswer] =
+    Json.format[ScheduledDocumentAnswer]
 }

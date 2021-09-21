@@ -51,7 +51,9 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-inset-text govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.p1", viewConfig.mrnGuideUrl)), Some("govuk-body"))
+
+        @paragraph(Html(messages(s"$key.p2")), Some("govuk-body"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -74,9 +76,9 @@
                     RadioItem(
                         id = Some(s"$key-bulk"),
                         value = Some("1"),
-                        content = Text(messages(s"$key.bulk.title")),
-                        hint = Some(Hint(content = Text(messages(s"$key.bulk.hint")))),
-                        checked = form.value.contains(Bulk)
+                        content = Text(messages(s"$key.multiple.title")),
+                        hint = Some(Hint(content = Text(messages(s"$key.multiple.hint")))),
+                        checked = form.value.contains(Multiple)
                     ),
                     RadioItem(
                         id = Some(s"$key-scheduled"),

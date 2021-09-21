@@ -152,45 +152,33 @@ check-eori-details.invalid=Select yes if details are correct
 #===================================================
 #  SELECT NUMBER OF CLAIMS PAGE
 #===================================================
-select-number-of-claims.title=Select number of claims
-select-number-of-claims.help-text=You can make more than one claim. Multiple (bulk) claims must be from the same importer, have the same reason for overpayment and contain either MRNs or Entry numbers, but not mixed.
-select-number-of-claims.individual.title=Individual claim
-select-number-of-claims.bulk.title=Multiple (bulk) claims - manual entry of MRNs or Entry numbers
-select-number-of-claims.scheduled.title=Multiple (bulk) claims - upload a scheduled document
-select-number-of-claims.individual.hint=Enter one claim only using an MRN or Entry number for one declaration.
-select-number-of-claims.bulk.hint=You can enter a bulk claim by manually adding multiple MRNs or Entry numbers for each declaration.
+select-number-of-claims.title=How many MRNs do you want to submit in this claim?
+select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. <a href="{0}" target="_blank">Find out more about this number (opens in a new tab).</a>
+select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
+select-number-of-claims.individual.title=One MRN
+select-number-of-claims.multiple.title=Multiple/bulk MRNs - Manual entry
+select-number-of-claims.scheduled.title=Multiple/bulk MRNs - Document upload
+select-number-of-claims.individual.hint=Enter one MRN manually.
+select-number-of-claims.multiple.hint=Enter each number manually.
 select-number-of-claims.scheduled.hint=You can enter a bulk claim by uploading a document with MRNs or Entry numbers for multiple declarations.
-select-number-of-claims.error.required=Select the number of claims
-select-number-of-claims.invalid=Select the number of claims
+select-number-of-claims.error.required=Choose how many MRNs you want to submit in this claim.
+select-number-of-claims.invalid=Choose how many MRNs you want to submit in this claim.
 
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
-enter-movement-reference-number.title=What is your Movement Reference Number (MRN)?
-enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>. You can also add an Entry number found in your CHIEF documentation.
-enter-movement-reference-number.enter-mrn.label=Enter the MRN or Entry number
-enter-movement-reference-number.invalid.number=Enter a valid MRN or entry number
-enter-movement-reference-number.invalid=Enter a valid MRN or entry number
-enter-movement-reference-number.error.required=Enter a valid MRN or entry number
-enter-movement-reference-number.bulk.title=Enter the lead Movement Reference Number (MRN)
-enter-movement-reference-number.bulk.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.bulk.enter-mrn.label=Enter Lead MRN
+enter-movement-reference-number.title=Tell us your Movement Reference Number (MRN)
+enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
+enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-movement-reference-number.enter-mrn.label=Enter MRN
+enter-movement-reference-number.invalid.number=Enter a movement reference number.
+enter-movement-reference-number.error.required=Enter a movement reference number.
+enter-movement-reference-number.multiple.title=Tell us your lead Movement Reference Number (MRN)
+enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead Movement Reference Number (MRN)
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
-enter-movement-reference-number.scheduled.enter-mrn.label=Enter Lead MRN
-
-#===================================================
-#  ENTER NO LEGACY MRN PAGE
-#===================================================
-enter-no-legacy-mrn.title=Enter the Movement Reference Number (MRN)
-enter-no-legacy-mrn.help=Must be 18 characters, for example 19GB03I52858027017.
-enter-no-legacy-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
-enter-no-legacy-mrn.details=We are currently not accepting Entry numbers. If you only have Entry number please refer to C285 Chief.
-enter-no-legacy-mrn.error.required=Enter a valid MRN
-enter-no-legacy-mrn.invalid.number=Enter a valid MRN
-enter-no-legacy-mrn.invalid=Enter a valid MRN
-enter-no-legacy-mrn.enter-mrn.label=Enter the MRN number
+enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
@@ -217,7 +205,6 @@ enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry numb
 enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
 enter-duplicate-movement-reference-number.entry.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
 enter-duplicate-movement-reference-number.entry.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
-
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
@@ -348,7 +335,7 @@ claimant-details.want-to-continue.title=Do you want to continue using these cont
 claimant-details.want-to-continue.hint=If you select No we will contact you using your CDS registered details.
 claimant-details.yes=Yes
 claimant-details.no=No
-claimant-details.error.required.change=Select whether you wish to remove contact details.
+claimant-details.error.required.change=Select whether you wish to continue using these contact details.
 claimant-details.error.required.add=Select whether you wish to add different contact details
 claimant-details.invalid=Select whether you wish to remove contact details.
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
@@ -474,15 +461,15 @@ check-declaration-details.scheduled.mrn-number.label=Lead MRN
 #===================================================
 #  CLAIM NORTHERN IRELAND PAGE
 #===================================================
-claim-northern-ireland.title=Were your commodities (goods) imported or moved through Northern Ireland?
+claim-northern-ireland.title=Were your goods imported to or moved through Northern Ireland?
 claim-northern-ireland.help-text=
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
 claim-northern-ireland.error.required= Select either Yes or No to confirm whether or not the commodities (goods) were moved or imported into Northern Ireland.
 claim-northern-ireland.invalid= Select either Yes or No to confirm whether or not the commodities (goods) were moved or imported into Northern Ireland.
 
-claim-northern-ireland.scheduled.help-text=If you select Yes, then all your MRNs in this claim must have been imported or moved through Northern Ireland.
-
+claim-northern-ireland.scheduled.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.multiple.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
@@ -598,6 +585,7 @@ enter-commodities-details.error.maxLength=Claim reason must be 500 characters or
 enter-commodities-details.hint=Explain why you would like to be reimbursed and why you are entitled to this claim.
 
 enter-commodities-details.scheduled.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
+enter-commodities-details.multiple.hint=Explain why you would like to be reimbursed and why you are entitled to this claim. Your reason must apply to all MRNs in this claim.
 
 #===================================================
 #  REIMBURSEMENT PAGES
@@ -979,16 +967,17 @@ supporting-evidence.upload.details.l8=An email chain or letters between you and 
 supporting-evidence.choose-document-type.document-type.d9=Other documents
 supporting-evidence.upload.details.b9=Other documents:
 supporting-evidence.upload.details.l9=If you have alternative supporting documents
+supporting-evidence.choose-document-type.document-type.d10=Scheduled document
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES
 #===================================================
-schedule-document.upload.title=Add a scheduled document
-schedule-document.upload.help-text=Upload the scheduled document with all the MRNs. The documents can be up to a maximum of 10MB size per file. Valid file format: JPG, PNG, PDF.<br/><br/>Your document should include a list of all MRNs linked with the claim.
-schedule-document.upload.things-to-show.p1=Each MRN should show:
-schedule-document.upload.things-to-show.l1=the amount of tax you paid on it
-schedule-document.upload.things-to-show.l2=the amount you should have paid on it
-schedule-document.upload.things-to-show.l3=which duty is being reclaimed on it
+schedule-document.upload.title=Add a document which shows all the MRNs in this claim
+schedule-document.upload.help-text=Upload a list of all MRNs in this claim, known as a scheduled document. This document can be up to 10MB and must be a JPG, PNG or PDF. The MRNs in the document must all be from the same importer and have the same reason for overpayment.
+schedule-document.upload.things-to-show.p1=The document should show:
+schedule-document.upload.things-to-show.l1=the type of duty or tax you are claiming for each MRN
+schedule-document.upload.things-to-show.l2=the amount that was paid to HMRC for each MRN
+schedule-document.upload.things-to-show.l3=the amount that should have been paid to HMRC for each MRN
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
 schedule-document.size-fail.title=There is a problem with the file you uploaded
@@ -1009,13 +998,11 @@ schedule-document.format-virus-fail.p2=We only accept these file types: JPG, PNG
 schedule-document.format-virus-fail.p3=You’ll need to try again.
 schedule-document.format-virus-fail.button.tryAgain=Try again
 
-schedule-document.review.title=You have successfully uploaded a scheduled document
-schedule-document.review.file-label=Document
-schedule-document.review.help-text=Your document should include a list of all MRNs linked with the claim.
-schedule-document.review.p1=Each MRN should show:
-schedule-document.review.bullet1=the amount of tax you paid on it
-schedule-document.review.bullet2=the amount you should have paid on it
-schedule-document.review.bullet3=which duty is being reclaimed on it
+schedule-document.review.title=You have successfully uploaded a document showing all the MRNs in this claim
+schedule-document.review.p1=The document should show:
+schedule-document.review.bullet1=the type of duty or tax you are claiming for each MRN
+schedule-document.review.bullet2=the amount that was paid to HMRC for each MRN
+schedule-document.review.bullet3=the amount that should have been paid to HMRC for each MRN
 schedule-document.review.remove=Remove
 schedule-document.review.assistive=the file named {0}
 
@@ -1067,7 +1054,6 @@ check-your-answers.bank-details.l0=Bank account name
 check-your-answers.bank-details.l1=Type of bank account
 check-your-answers.bank-details.l2=Sort code
 check-your-answers.bank-details.l3=Account number
-check-your-answers.attached-documents.label=Attached documents
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
 check-your-answers.bank-details.account-name.label=Account name
@@ -1086,6 +1072,8 @@ check-your-answers.claim-calculation.h2=Claim calculation
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
+check-your-answers.scheduled-document.h2=Scheduled document
+check-your-answers.scheduled-document.label=Scheduled document
 check-your-answers.claimant-details.h2=Claimant’s CDS details
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
@@ -1111,42 +1099,6 @@ confirmation-of-submission.what-next.l1=confirm your claim and bank transfer
 confirmation-of-submission.what-next.l2=ask for more information
 confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
-
-#===================================================
-#  ACCESSIBILITY - START
-#===================================================
-
-accessibility-statement.title=Accessibility statement
-accessibility-statement.heading1=Using this service
-accessibility-statement.heading2=How accessible this service is
-accessibility-statement.heading3=Reporting accessibility problems with this service
-accessibility-statement.heading4=What to do if you are not happy with how we respond to your complaint
-accessibility-statement.heading5=Contacting us by phone or getting a visit from us in person
-accessibility-statement.heading6=How we tested this service
-accessibility-statement.p1=This accessibility statement explains how accessible this service is, what to do if you have difficulty using it and how to report accessibility problems with the service. This service is part of the wider GOV.UK website. There is a separate <a href="{0}" class="govuk-link">accessibility statement</a> for the main GOV.UK website.
-accessibility-statement.p2=Claimants can use the service to apply to claim reimbursements on overpayments for import charges, including Customs Duties, Excise Duties, Countervailing Duties and specific other customs duties. They can use the service if the amount already paid in the import declaration is inaccurate or the import declaration was rejected so they need to claim back all or some of the amount already paid.
-accessibility-statement.p3=This service is run by HM Revenue and Customs (HMRC).
-accessibility-statement.p4=We want as many people as possible to be able to use this service. This means you should be able to:
-accessibility-statement.p5=We have also made the text in the service as simple as possible to understand. <a href="{0}" class="govuk-link">AbilityNet has advice</a> on making your device easier to use if you have a disability.
-accessibility-statement.p6=HMRC is committed to making these forms accessible in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. The service was tested on 1 March 2021 and found to be compliant with the <a href="{0}" class="govuk-link">Web Content Accessibility Guidelines version 2.1 AAA standard.</a> Since then, it has been extended. We cannot be certain that it is fully compliant. The full service will be tested by HMRC within the next three months.
-accessibility-statement.p7=We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">report the accessibility problem (opens in a new tab)</a>.
-accessibility-statement.p8=The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint, <a href="{0}" class="govuk-link">contact the Equality Advisory and Support Service (EASS)</a>, or
-accessibility-statement.p82=the <a href="{0}" class="govuk-link">Equality Commission for Northern Ireland (ECNI)</a> if you live in Northern Ireland.
-accessibility-statement.p9=We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
-accessibility-statement.p10=We can provide a British Sign Language (BSL) interpreter, or you can arrange a visit from an HMRC advisor to help you complete the service.
-accessibility-statement.p11=Find out how to <a href="{0}" class="govuk-link">contact us.</a>
-accessibility-statement.p12=The service was tested on 1 March 2021 and checked for compliance with WCAG 2.1 AAA. It was built using parts that were tested by the <a href="{0}" class="govuk-link">Digital Accessibility Centre.</a>
-accessibility-statement.p13=This page was prepared on 28 January 2021. It was last updated on 28 January 2021.
-accessibility-statement.p14=<a href="{0}" class="govuk-link" target="_blank">Get help with this page.</a>
-accessibility-statement.li1=change colours, contrast levels and fonts
-accessibility-statement.li2=zoom in up to 300% without the text spilling off the screen
-accessibility-statement.li3=get from the start of the service to the end using just a keyboard
-accessibility-statement.li4=get from the start of the service to the end using speech recognition software
-accessibility-statement.li5=listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
-
-#===================================================
-#  ACCESSIBILITY - START
-#===================================================
 
 #===================================================
 #  NON-UK ADDRESS - START

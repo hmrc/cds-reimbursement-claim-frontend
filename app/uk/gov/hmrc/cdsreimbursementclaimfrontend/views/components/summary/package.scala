@@ -28,6 +28,7 @@ package object summary {
   implicit val mrnSummary: MrnSummary                               = new MrnSummary
   implicit val basisOfClaimSummary: BasisOfClaimSummary             = new BasisOfClaimSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary = new SupportingEvidenceSummary
+  implicit val scheduledDocumentSummary: ScheduledDocumentSummary   = new ScheduledDocumentSummary
   implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {

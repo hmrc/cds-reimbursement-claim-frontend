@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
 
-class TemporaryJourneyExtractorSpec extends AnyWordSpec with Matchers {
+class JourneyExtractorSpec extends AnyWordSpec with Matchers {
 
   def fakeRequest2MessageRequest[A](fakeRequest: FakeRequest[A]): MessagesRequest[A] =
     new MessagesRequest[A](fakeRequest, play.api.test.Helpers.stubMessagesApi())
@@ -46,7 +46,7 @@ class TemporaryJourneyExtractorSpec extends AnyWordSpec with Matchers {
       val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-      TemporaryJourneyExtractor.extractJourney(request) shouldBe JourneyBindable.Single
+      JourneyExtractor.extractJourney(request) shouldBe JourneyBindable.Single
     }
 
     "Return the JourneyBindable belonging to the SelectNumberOfClaimsAnswer" in new TableDrivenPropertyChecks {
@@ -54,7 +54,7 @@ class TemporaryJourneyExtractorSpec extends AnyWordSpec with Matchers {
       val testCases = Table(
         ("NumberOfClaimsType", "JourneyBindable"),
         (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
-        (SelectNumberOfClaimsAnswer.Bulk, JourneyBindable.Bulk),
+        (SelectNumberOfClaimsAnswer.Multiple, JourneyBindable.Multiple),
         (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
       )
 
@@ -67,7 +67,7 @@ class TemporaryJourneyExtractorSpec extends AnyWordSpec with Matchers {
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
-        TemporaryJourneyExtractor.extractJourney(request) shouldBe journeyBindable
+        JourneyExtractor.extractJourney(request) shouldBe journeyBindable
       }
 
     }

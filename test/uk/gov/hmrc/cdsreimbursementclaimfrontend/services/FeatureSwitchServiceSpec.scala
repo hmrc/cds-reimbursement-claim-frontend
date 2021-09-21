@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
+import org.scalatest.OptionValues
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.api.test.FakeRequest
@@ -26,18 +28,20 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-class FeatureSwitchServiceSpec extends ControllerSpec {
+class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyChecks with OptionValues {
 
   "FeatureSwitchService" should {
     val configuration = Configuration.from(Map("feature.bulk-claim" -> "abc"))
     val featureSwitch = new FeatureSwitchService(configuration)
 
-    "enable and disable bulk-claim" in {
-      val bulkClaim = "bulk-claim"
-      featureSwitch.BulkClaim.enable()
-      featureSwitch.forName(bulkClaim).isEnabled() shouldBe true
-      featureSwitch.BulkClaim.disable()
-      featureSwitch.forName(bulkClaim).isEnabled() shouldBe false
+    val featureList =
+      Table("Features", featureSwitch.BulkClaim, featureSwitch.BulkMultiple, featureSwitch.NorthernIreland)
+
+    "enable and disable All features" in forAll(featureList) { feature =>
+      feature.enable()
+      featureSwitch.of(feature.name).value.isEnabled() shouldBe true
+      feature.disable()
+      featureSwitch.of(feature.name).value.isEnabled() shouldBe false
     }
 
     "Enable viewing of pages" in {

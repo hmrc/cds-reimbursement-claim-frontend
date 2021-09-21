@@ -151,7 +151,7 @@ class StartController @Inject() (
       case claim: FillingOutClaim =>
         Redirect(
           controllers.claims.routes.CheckYourAnswersAndSubmitController.checkAllAnswers(
-            TemporaryJourneyExtractor.extractJourney(claim)
+            JourneyExtractor.extractJourney(claim)
           )
         )
 
