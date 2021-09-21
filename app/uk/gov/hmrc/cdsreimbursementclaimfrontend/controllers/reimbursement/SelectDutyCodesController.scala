@@ -32,6 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementState.f
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, reimbursement}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -40,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pa
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelectDutyCodesController @Inject() (
@@ -176,7 +178,13 @@ class SelectDutyCodesController @Inject() (
           //FIXME : clean up these algorithms and also do case analysis to make sure all cases are covered
           updatedJourney.draftClaim.fold(_.dutyCodesSelectedAnswer) match {
             case Some(value) =>
-              value.dutyCodes.find(d => d._2.isEmpty) match {
+              implicit val s = DutyType.DutyTypeOrdering
+
+              val sortedMap = SortedMap[DutyType, List[TaxCode]](
+                value.dutyCodes.toSeq.sortBy(s => f(s)): _*
+              ) //FIXME is there a more efficient implementation as this always has to sort
+              println(s"\n\n\n\n codes are : ${value.dutyCodes.toString()}")
+              sortedMap.find(d => d._2.isEmpty) match {
                 case Some(value) =>
                   Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(value._1))
                 case None        => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
@@ -190,20 +198,21 @@ class SelectDutyCodesController @Inject() (
 }
 
 object SelectDutyCodesController {
-  def selectDutyCodesForm(dutyType: DutyType): Form[DutyCodesAnswer] = Form(
-    mapping(
-      "select-duty-codes" -> list(
-        mapping(
-          "" -> nonEmptyText
-            .verifying(
-              "invalid duty code",
-              code => TaxCode.allTaxCodes.map(_.value).exists(_ === code)
-            )
-        )(TaxCode.apply)(TaxCode.unapply)
-      ).verifying("error.required", _.nonEmpty)
-    )(selectedDutyCodes => DutyCodesAnswer(Map.apply(dutyType -> selectedDutyCodes)))(dutyCodesAnswer =>
-      dutyCodesAnswer.dutyCodes.values.headOption
+  def selectDutyCodesForm(dutyType: DutyType): Form[DutyCodesAnswer] =
+    Form( //FIXME make the form a Tuple[DutyType, List[TaxCode]]
+      mapping(
+        "select-duty-codes" -> list(
+          mapping(
+            "" -> nonEmptyText
+              .verifying(
+                "invalid duty code",
+                code => TaxCode.allTaxCodes.map(_.value).exists(_ === code)
+              )
+          )(TaxCode.apply)(TaxCode.unapply)
+        ).verifying("error.required", _.nonEmpty)
+      )(selectedDutyCodes => DutyCodesAnswer(Map.apply(dutyType -> selectedDutyCodes)))(dutyCodesAnswer =>
+        dutyCodesAnswer.dutyCodes.values.headOption
+      )
     )
-  )
 
 }

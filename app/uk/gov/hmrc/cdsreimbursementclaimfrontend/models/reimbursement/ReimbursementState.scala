@@ -16,6 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+
+import scala.collection.immutable.SortedMap
+
 final case class ReimbursementState(
   dutyTypesAnswer: DutyTypesAnswer,
   dutyCodesAnswer: DutyCodesAnswer
@@ -61,8 +65,23 @@ object ReimbursementState {
 
     println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${updatedDutyCodesAnswer.toString}")
 
-    ReimbursementState(dutyTypesAnswer, updatedDutyCodesAnswer)
+    val sortedList = updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(s => f(s))
+
+    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${sortedList.toString}")
+
+    implicit val s = DutyType.DutyTypeOrdering
+
+    val sortedMap = SortedMap[DutyType, List[TaxCode]](updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(s => f(s)): _*)
+
+    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${sortedMap.toString}")
+
+    ReimbursementState(dutyTypesAnswer, DutyCodesAnswer(sortedMap))
 
   }
 
+  def f(ts: (DutyType, List[TaxCode])): Int =
+    DutyType.dutyTypeToInt(ts._1)
+
+  def cmp(t1: (DutyType, List[TaxCode]), t2: (DutyType, List[TaxCode])): Boolean =
+    if (DutyType.dutyTypeToInt(t1._1) < DutyType.dutyTypeToInt(t2._1)) true else false
 }
