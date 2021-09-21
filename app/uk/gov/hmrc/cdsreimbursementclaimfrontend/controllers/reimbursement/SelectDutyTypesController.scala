@@ -75,7 +75,10 @@ class SelectDutyTypesController @Inject() (
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedAnswer =>
               answer.fold {
-                updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
+                updateDutyTypeAnswer(
+                  selectedAnswer,
+                  fillingOutClaim
+                ) //FIXME: check if this should be an error page instead? when can this be empty at this point?
               }(dutyTypesSelectedAnswer =>
                 if (selectedAnswer === dutyTypesSelectedAnswer) {
                   Redirect(reimbursementRoutes.SelectDutyCodesController.start())

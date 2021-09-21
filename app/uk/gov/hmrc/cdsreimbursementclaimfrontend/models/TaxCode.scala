@@ -189,6 +189,9 @@ object TaxCode {
   implicit def classToNameString(in: TaxCode): String =
     allTaxCodesPartialFunctions.drop(1).foldLeft(allTaxCodesPartialFunctions(0))(_ orElse _)(in)
 
+  def apply(string: String): TaxCode            = TaxCode.allTaxCodesMap(string)
+  def unapply(taxCode: TaxCode): Option[String] = Some(taxCode.value)
+
   implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
 
 }

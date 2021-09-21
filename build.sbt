@@ -1,7 +1,6 @@
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import wartremover.Wart
 
 val appName = "cds-reimbursement-claim-frontend"
 
@@ -11,30 +10,30 @@ addCommandAlias("fix", "all compile:scalafix test:scalafix")
 
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-lazy val wartremoverSettings =
-  Seq(
-    Compile / compile / wartremoverErrors ++= Warts.allBut(
-      Wart.DefaultArguments,
-      Wart.ImplicitConversion,
-      Wart.ImplicitParameter,
-      Wart.Nothing,
-      Wart.Overloading,
-      Wart.ToString
-    ),
-    WartRemover.autoImport.wartremoverExcluded += target.value,
-    Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
-      (Compile / routes).value ++
-        (baseDirectory.value ** "*.sc").get ++
-        Seq(sourceManaged.value / "main" / "sbt-buildinfo" / "BuildInfo.scala"),
-    Test / compile / wartremoverErrors --= Seq(
-      Wart.Any,
-      Wart.NonUnitStatements,
-      Wart.Null,
-      Wart.PublicInference,
-      Wart.Equals,
-      Wart.GlobalExecutionContext
-    )
-  )
+//lazy val wartremoverSettings =
+//  Seq(
+//    Compile / compile / wartremoverErrors ++= Warts.allBut(
+//      Wart.DefaultArguments,
+//      Wart.ImplicitConversion,
+//      Wart.ImplicitParameter,
+//      Wart.Nothing,
+//      Wart.Overloading,
+//      Wart.ToString
+//    ),
+//    WartRemover.autoImport.wartremoverExcluded += target.value,
+//    Compile / compile / WartRemover.autoImport.wartremoverExcluded ++=
+//      (Compile / routes).value ++
+//        (baseDirectory.value ** "*.sc").get ++
+//        Seq(sourceManaged.value / "main" / "sbt-buildinfo" / "BuildInfo.scala"),
+//    Test / compile / wartremoverErrors --= Seq(
+//      Wart.Any,
+//      Wart.NonUnitStatements,
+//      Wart.Null,
+//      Wart.PublicInference,
+//      Wart.Equals,
+//      Wart.GlobalExecutionContext
+//    )
+//  )
 
 lazy val scoverageSettings =
   Seq(
@@ -79,7 +78,7 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(wartremoverSettings: _*)
+//  .settings(wartremoverSettings: _*)
   .settings(scoverageSettings: _*)
   .settings(PlayKeys.playDefaultPort := 7500)
   .settings(scalacOptions += s"-Wconf:src=${target.value}/scala-${scalaBinaryVersion.value}/routes/.*:s")

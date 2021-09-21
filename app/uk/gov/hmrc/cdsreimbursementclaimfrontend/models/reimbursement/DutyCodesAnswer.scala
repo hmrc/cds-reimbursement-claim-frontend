@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
+import cats.Eq
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
@@ -42,6 +43,6 @@ object DutyCodesAnswer {
           (DutyType.typeToString(dutyCodes._1), dutyCodes._2)
         })
     }
-
-  implicit val format: OFormat[DutyCodesAnswer] = Json.format[DutyCodesAnswer]
+  implicit val eq: Eq[DutyCodesAnswer]                                     = Eq.fromUniversalEquals[DutyCodesAnswer]
+  implicit val format: OFormat[DutyCodesAnswer]                            = Json.format[DutyCodesAnswer]
 }

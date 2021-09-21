@@ -59,6 +59,8 @@ object ReimbursementState {
       filteredDutyCodes ++ dutyTypesNotInDutyTypeAnswer.map(e => (e, List.empty))
     )
 
+    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${updatedDutyCodesAnswer.toString}")
+
     ReimbursementState(dutyTypesAnswer, updatedDutyCodesAnswer)
 
   }

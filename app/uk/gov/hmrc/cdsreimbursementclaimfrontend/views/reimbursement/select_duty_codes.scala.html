@@ -38,7 +38,7 @@
 @(form : Form[DutyCodesAnswer], dutyType : DutyType)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duty-codes"}
-    @title = @{messages(s"$key.title")}
+    @title = @{messages(s"$key.title", messages(s"${key}.h1.${dutyType.repr}"))}
 
     @postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
 
@@ -46,7 +46,7 @@
         CheckboxItem(
                 name = Some(s"${key}[]"),
                 value = dutyCode.value,
-                content = Text(messages(s"${key}.${dutyCode.value}")),
+                content = Text(messages(s"$key.duty-code.${dutyCode.value}")),
                 checked = form.data.exists(_._2 == dutyCode.value)
             )
         }
@@ -69,7 +69,7 @@
             @checkboxes(
                 field = form(s"$key"),
                 legendAsHeading = true,
-                legend = messages(s"$key.checkbox-legend"),
+                legend = messages(s"$key.legend.${dutyType.repr}"),
                 items = options.toList,
                 hint = None
             )
