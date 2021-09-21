@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
 import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers

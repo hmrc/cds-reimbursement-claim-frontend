@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.BasisOfClaimsHints.{bulletList, titleAndDescription}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.{bullets, title_and_description}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.BasisOfClaimsHints.{bulletList, titleAndDescription}
 
 final case class BasisOfClaimsHints(items: Seq[Int]) extends AnyVal {
 

@@ -19,10 +19,10 @@
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html._
 
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -39,7 +39,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, router: ReimbursementRoutes, form: Form[CheckDeclarationDetailsAnswer], isDuplicate: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[CheckDeclarationDetailsAnswer], isDuplicate: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
 
 @key = @{"check-declaration-details"}
 @title = @{messages(s"$key.title")}
@@ -53,12 +53,14 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text", declaration.displayResponseDetail.declarationId)), Some("govuk-body govuk-!-margin-bottom-6"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
-        @summary(SummaryList(declarationDetailsUtils.declarationSummary(declaration, router)))
 
-        @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(declaration.summary(key))
+
+        @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
+
         @radios(
             form = form,
             name = key,
@@ -69,13 +71,11 @@
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key"),
                     value = Some("0"),
                     content = Text(messages(s"$key.yes")),
                     checked = false
                 ),
                 RadioItem(
-                    id = Some(s"$key-eori-incorrect"),
                     value = Some("1"),
                     content = Text(messages(s"$key.no")),
                     checked = false
@@ -84,6 +84,4 @@
         )
         @submitButton("button.continue")
     }
-
 }
-

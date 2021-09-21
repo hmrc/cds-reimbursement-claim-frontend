@@ -37,6 +37,7 @@ class DeclarationDetailsUtils @Inject() (implicit langs: Langs, messages: Messag
     messages: Messages
   ): List[SummaryListRow] =
     List(
+      Some(SummaryListRow(Key(Text(""), ""))),
       makeMrnNumberRow(displayDeclaration.displayResponseDetail.declarationId, router),
       makeAcceptanceDate(displayDeclaration.displayResponseDetail.acceptanceDate),
       makePaidChargesRow(displayDeclaration.totalPaidCharges),
@@ -46,7 +47,7 @@ class DeclarationDetailsUtils @Inject() (implicit langs: Langs, messages: Messag
       makeConsigneeAddress(displayDeclaration.consigneeAddress),
       makeDeclarantEmailAddress(displayDeclaration.declarantEmailAddress),
       makeDeclarantTelephoneNumber(displayDeclaration.declarantTelephoneNumber),
-      makeDeclarantAddress((displayDeclaration.declarantContactAddress))
+      makeDeclarantAddress(displayDeclaration.declarantContactAddress)
     ).flattenOption
 
   private def makeMrnNumberRow(declarationId: String, router: ReimbursementRoutes)(implicit
