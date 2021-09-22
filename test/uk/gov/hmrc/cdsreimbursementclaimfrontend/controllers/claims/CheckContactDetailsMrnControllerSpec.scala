@@ -110,6 +110,9 @@ class CheckContactDetailsMrnControllerSpec
     def showPageAction(journey: JourneyBindable): Future[Result] =
       controller.show(journey)(FakeRequest())
 
+    def showPageActionAddDetails(journey: JourneyBindable): Future[Result] =
+      controller.addDetailsShow(journey)(FakeRequest())
+
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
         val session = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
@@ -152,7 +155,6 @@ class CheckContactDetailsMrnControllerSpec
             val paragraphs = doc.select("dd > p")
             val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
             //Registered Details with CDS
-            paragraphs.get(0).text()  shouldBe consignee.legalName
             paragraphs.get(1).text()  shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
             paragraphs.get(2).text()  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
             paragraphs.get(3).text()  shouldBe consignee.establishmentAddress.addressLine1
@@ -174,7 +176,30 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
 
-      "not all mandatory data from Acc14 is available, no contact address is shown" in forAll(journeys) { journey =>
+      "not all mandatory data from Acc14 is available, page redirects" in forAll(journeys) { journey =>
+        val acc14 = generateAcc14WithAddresses()
+
+        val (session, _) = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey)),
+          None,
+          None
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          showPageAction(journey),
+          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
+        )
+
+      }
+
+      "not all mandatory data from Acc14 is available, no contact details are shown" in forAll(journeys) { journey =>
         val acc14 = generateAcc14WithAddresses()
 
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
@@ -187,18 +212,17 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session)
         }
 
         checkPageIsDisplayed(
-          showPageAction(journey),
+          showPageActionAddDetails(journey),
           messageFromMessageKey("claimant-details.title"),
           doc => {
             val paragraphs = doc.select("dd > p")
             val consignee  = acc14.displayResponseDetail.consigneeDetails.getOrElse(fail())
             //Registered Details with CDS
-            paragraphs.get(0).text() shouldBe consignee.legalName
-            paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail)
+            paragraphs.get(1).text() shouldBe consignee.contactDetails.flatMap(_.telephone).getOrElse(fail())
             paragraphs.get(2).text() shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail.value
             paragraphs.get(3).text() shouldBe consignee.establishmentAddress.addressLine1
             paragraphs.get(4).text() shouldBe consignee.establishmentAddress.addressLine2.getOrElse(fail)
@@ -213,7 +237,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle add submit requests" when {
 
       def submitAdd(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.addDetails(journeyBindable)(
+        controller.addDetailsSubmit(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -362,7 +386,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckContactDetailsMrnController.show(journey)
+          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>

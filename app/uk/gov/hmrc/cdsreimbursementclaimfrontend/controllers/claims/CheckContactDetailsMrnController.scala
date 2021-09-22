@@ -73,11 +73,20 @@ class CheckContactDetailsMrnController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router))
+        if (fillingOutClaim.draftClaim.isMandatoryDataAvailable)
+          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, true))
+        else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
     }
 
-  def addDetails(implicit journey: JourneyBindable): Action[AnyContent] =
+  def addDetailsShow(implicit journey: JourneyBindable): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, false))
+      }
+    }
+
+  def addDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
@@ -172,14 +181,14 @@ class CheckContactDetailsMrnController @Inject() (
   def renderTemplate(
     form: Form[CheckClaimantDetailsAnswer],
     fillingOutClaim: FillingOutClaim,
-    router: ReimbursementRoutes
+    router: ReimbursementRoutes,
+    mandatoryDataAvailable: Boolean = true
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages,
     viewConfig: ViewConfig
   ): HtmlFormat.Appendable = {
-    val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
-    val draftC285Claim         = fillingOutClaim.draftClaim.fold(identity)
+    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
     claimantDetailsPage(
       form,
       mandatoryDataAvailable,

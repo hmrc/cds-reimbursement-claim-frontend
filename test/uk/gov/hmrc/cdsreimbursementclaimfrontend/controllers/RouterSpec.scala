@@ -79,7 +79,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       }
     }
 
-    "redirect to check your answers when answer is amended" in {
+    "be check your answers when answer is amended" in {
       forAll(allRoutes) { router =>
         forAll(nonDuplicateClaimTable) { basisForClaim =>
           router.nextPageForBasisForClaim(
@@ -115,6 +115,31 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     }
   }
 
+  "The next page after select who is making the claim" must {
+
+    "be check your answers when answer is amended" in {
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
+        router.nextPageForWhoIsMakingTheClaim(isAmend = true, mandatoryDataAvailable = true) shouldBe
+          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable)
+      }
+    }
+
+    "be check contact details when contact details are returned" in {
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
+        router.nextPageForWhoIsMakingTheClaim(isAmend = false, mandatoryDataAvailable = true) shouldBe
+          claimRoutes.CheckContactDetailsMrnController.show(router.journeyBindable)
+      }
+    }
+
+    "be add contact details when no contact details are returned" in {
+      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
+        router.nextPageForWhoIsMakingTheClaim(isAmend = false, mandatoryDataAvailable = false) shouldBe
+          claimRoutes.CheckContactDetailsMrnController.addDetailsShow(router.journeyBindable)
+      }
+    }
+
+  }
+
   "Submit urls in templates must point to the same controller" when {
 
     "CheckDeclarationDetails" in {
@@ -129,6 +154,24 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       forAll(allRoutes) { router =>
         router.submitUrlForCheckDuplicateDeclarationDetails() shouldBe claimRoutes.CheckDuplicateDeclarationDetailsController
           .submit(router.journeyBindable)
+      }
+    }
+
+    "CheckContactDetailsMrnController and changing details" in {
+      forAll(allRoutes) { router =>
+        router.submitPageForClaimantDetails(isChange = true) shouldBe claimRoutes.CheckContactDetailsMrnController
+          .submit(
+            router.journeyBindable
+          )
+      }
+    }
+
+    "CheckContactDetailsMrnController and adding details" in {
+      forAll(allRoutes) { router =>
+        router.submitPageForClaimantDetails(isChange = false) shouldBe claimRoutes.CheckContactDetailsMrnController
+          .addDetailsSubmit(
+            router.journeyBindable
+          )
       }
     }
 

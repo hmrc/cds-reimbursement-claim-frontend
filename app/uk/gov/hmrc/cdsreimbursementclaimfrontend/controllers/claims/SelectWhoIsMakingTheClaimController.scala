@@ -82,7 +82,10 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   logAndDisplayError("Submit Declarant Type error: "),
                   _ =>
                     Redirect(
-                      router.nextPageForWhoIsMakingTheClaim(fillingOutClaim.draftClaim.movementReferenceNumber, isAmend)
+                      router.nextPageForWhoIsMakingTheClaim(
+                        isAmend,
+                        fillingOutClaim.draftClaim.isMandatoryDataAvailable
+                      )
                     )
                 )
             }
