@@ -181,6 +181,11 @@ enter-movement-reference-number.scheduled.help-text=The Movement Reference Numbe
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 #===================================================
+#  ENTER ASSOCIATED MRN PAGE
+#===================================================
+enter-associated-mrn.title=Tell us your {0} Movement Reference Number (MRN)
+
+#===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)

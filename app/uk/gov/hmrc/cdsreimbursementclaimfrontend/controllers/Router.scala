@@ -93,9 +93,14 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
-        if (journeyBindable === JourneyBindable.Scheduled)
-          uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
-        else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+        journeyBindable match {
+          case JourneyBindable.Scheduled =>
+            uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+          case JourneyBindable.Multiple  =>
+            claimRoutes.EnterAssociatedMRNController.enterAssociatedMrn(2)
+          case _                         =>
+            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
+        }
       case DeclarationAnswersAreIncorrect =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
