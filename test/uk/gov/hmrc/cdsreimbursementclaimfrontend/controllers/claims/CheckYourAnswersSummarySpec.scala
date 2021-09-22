@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{ite
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.{Individual, Scheduled}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -101,6 +102,7 @@ class CheckYourAnswersSummarySpec
 
           headers should contain allElementsOf (Seq(
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
             claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
               s"$checkYourAnswersKey.contact-details.h2"
             )
@@ -133,7 +135,54 @@ class CheckYourAnswersSummarySpec
                 messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
               )}"
             )
-          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+          }.toList ++ claim.displayDeclaration.toList
+            .flatMap { declaration =>
+              Seq(
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.import-date-label"),
+                    declaration.displayResponseDetail.acceptanceDate
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.paid-charges-label"),
+                    formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)
+                  )
+                ),
+                declaration.consigneeName.map { name =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-name-label"),
+                    name
+                  )
+                },
+                declaration.consigneeEmail.map { email =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-email-label"),
+                    email
+                  )
+                },
+                declaration.consigneeAddress.map { address =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-address-label"),
+                    address.replace("<br />", " ")
+                  )
+                },
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.declarant-name-label"),
+                    declaration.declarantName
+                  )
+                ),
+                declaration.declarantContactAddress.map { address =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.declarant-address-label"),
+                    address.replace("<br />", " ")
+                  )
+                }
+              )
+            }
+            .flatMap(_.toList) ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
             .mapN { (details, address) =>
               Seq(
                 Some((messages(s"claimant-details.contact.details"), details.fullName)),
@@ -218,6 +267,7 @@ class CheckYourAnswersSummarySpec
 
           headers should contain allElementsOf (Seq(
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
+            claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
             claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
               s"$checkYourAnswersKey.contact-details.h2"
             )
@@ -255,7 +305,54 @@ class CheckYourAnswersSummarySpec
                 messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
               )}"
             )
-          }.toList ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
+          }.toList ++ claim.displayDeclaration.toList
+            .flatMap { declaration =>
+              Seq(
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.import-date-label"),
+                    declaration.displayResponseDetail.acceptanceDate
+                  )
+                ),
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.paid-charges-label"),
+                    formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)
+                  )
+                ),
+                declaration.consigneeName.map { name =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-name-label"),
+                    name
+                  )
+                },
+                declaration.consigneeEmail.map { email =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-email-label"),
+                    email
+                  )
+                },
+                declaration.consigneeAddress.map { address =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.importer-address-label"),
+                    address.replace("<br />", " ")
+                  )
+                },
+                Some(
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.declarant-name-label"),
+                    declaration.declarantName
+                  )
+                ),
+                declaration.declarantContactAddress.map { address =>
+                  (
+                    messages(s"$checkYourAnswersKey.declaration-details.declarant-address-label"),
+                    address.replace("<br />", " ")
+                  )
+                }
+              )
+            }
+            .flatMap(_.toList) ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
             .mapN { (details, address) =>
               Seq(
                 Some((messages(s"claimant-details.contact.details"), details.fullName)),

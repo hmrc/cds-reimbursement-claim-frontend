@@ -17,14 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class BasisOfClaimSummary extends AnswerSummary[BasisOfClaim] {
 
-  def render(key: String, answer: BasisOfClaim)(implicit journey: JourneyBindable, messages: Messages): SummaryList =
+  def render(key: String, answer: BasisOfClaim)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
@@ -34,7 +35,7 @@ class BasisOfClaimSummary extends AnswerSummary[BasisOfClaim] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href = routes.SelectBasisForClaimController.changeBasisForClaim(journey).url,
+                  href = routes.SelectBasisForClaimController.changeBasisForClaim(router.journeyBindable).url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.l0"))
                 )

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{DuplicateEntry, IncorrectAdditionalInformationCode, IncorrectEoriAndDefermentAccountNumber, IncorrectExciseValue, allClaimsTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, DraftClaim, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 
 final case class BasisOfClaims(items: List[BasisOfClaim]) extends AnyVal {
   def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =

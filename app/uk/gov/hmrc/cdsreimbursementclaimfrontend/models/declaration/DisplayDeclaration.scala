@@ -43,7 +43,7 @@ object DisplayDeclaration {
       declaration.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
 
     def consigneeAddress: Option[String] =
-      declaration.consigneeDetails.map(details => establishmentAddress(details.establishmentAddress).mkString(", "))
+      declaration.consigneeDetails.map(details => establishmentAddress(details.establishmentAddress).mkString("<br />"))
 
     def declarantName: String = declaration.declarantDetails.legalName
 
@@ -55,7 +55,7 @@ object DisplayDeclaration {
 
     def declarantContactAddress: Option[String] =
       Option(declaration.declarantDetails.establishmentAddress).map(address =>
-        establishmentAddress(address).mkString(", ")
+        establishmentAddress(address).mkString("<br />")
       )
 
     def declarantAddress(contactDetails: ContactDetails): List[String] = {

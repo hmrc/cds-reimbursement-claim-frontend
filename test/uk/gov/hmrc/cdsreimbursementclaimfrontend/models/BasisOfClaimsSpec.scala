@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, ClaimNorthernIrelandAnswer, MovementReferenceNumber}
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 

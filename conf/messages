@@ -181,6 +181,11 @@ enter-movement-reference-number.scheduled.help-text=The Movement Reference Numbe
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 #===================================================
+#  ENTER ASSOCIATED MRN PAGE
+#===================================================
+enter-associated-mrn.title=Tell us your {0} Movement Reference Number (MRN)
+
+#===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
@@ -383,26 +388,14 @@ select-who-is-making-the-claim.details.l2=A representative company can be a pers
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
-check-declaration-details.title=Check these details are correct
+check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a>.
-check-declaration-details.mrn-number.label=MRN
-check-declaration-details.import-date.label=Import date
-check-declaration-details.paid-charges.label=Paid charges
-check-declaration-details.importer-name.label=Importer name
-check-declaration-details.importer-email.label=Importer email
-check-declaration-details.importer-telephone.label=Importer telephone
-check-declaration-details.importer-contact-address.label=Importer contact address
-check-declaration-details.declarant-name.label=Declarant name
-check-declaration-details.declarant-email.label=Declarant email
-check-declaration-details.declarant-telephone.label=Declarant telephone
-check-declaration-details.declarant-contact-address.label=Declarant contact address
-check-declaration-details.is-information-correct=Is this MRN information correct?
+check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
 check-declaration-details.error.invalid=Select yes if these details are correct or no if they are incorrect
 check-declaration-details.error.number=Select yes if these details are correct or no if they are incorrect
 check-declaration-details.error.required=Select yes if these details are correct or no if they are incorrect
-
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
@@ -590,7 +583,6 @@ select-duties.duty.99A=Solid fuels, for example, coal and lignite, coke and semi
 select-duties.duty.99B=Any petroleum gas, or other gaseous hydrocarbon supplied in a liquid state
 select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 select-duties.duty.99D=Electricity
-
 
 #===================================================
 #  ENTER CLAIM PAGE
@@ -802,17 +794,17 @@ check-your-answers.help-text=These are the details of your claim. Review them ca
 check-your-answers.entry-reference-number.label=Entry reference number
 check-your-answers.mrn.label=MRN
 check-your-answers.declaration-details.label=Declaration details
-check-your-answers.declaration-details.l0=Import date
-check-your-answers.declaration-details.l1=Place of import
-check-your-answers.declaration-details.l2=Importer name
-check-your-answers.declaration-details.l3=Importer email
-check-your-answers.declaration-details.l4=Import phone number
-check-your-answers.declaration-details.l5=Declarant name
-check-your-answers.declaration-details.l6=Declarant email
-check-your-answers.declaration-details.l7=Declarant phone number
-check-your-answers.declaration-details.l8=Paid charges
-check-your-answers.declaration-details.l9=Declarant contact address
-check-your-answers.declaration-details.l10=Importer contact address
+check-your-answers.declaration-details.mrn-label=MRN
+check-your-answers.declaration-details.multiple.mrn-label=Lead MRN
+check-your-answers.declaration-details.scheduled.mrn-label=Lead MRN
+check-your-answers.declaration-details.import-date-label=Import date
+check-your-answers.declaration-details.paid-charges-label=Paid charges
+check-your-answers.declaration-details.importer-name-label=Importer name
+check-your-answers.declaration-details.importer-email-label=Importer email
+check-your-answers.declaration-details.importer-telephone-label=Importer telephone
+check-your-answers.declaration-details.importer-address-label=Importer address
+check-your-answers.declaration-details.declarant-name-label=Declarant name
+check-your-answers.declaration-details.declarant-address-label=Declarant address
 check-your-answers.claimant-type.h2=Claimant type
 check-your-answers.claimant-type.l0=Type of claimant
 check-your-answers.duplicate-declaration-details.label=Duplicate declaration details
