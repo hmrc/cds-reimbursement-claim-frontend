@@ -59,10 +59,15 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesAnswer] { (_, answer) =>
+    withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
       answer.fold(
         Ok(selectDutyTypesPage(selectDutyTypesForm))
-      )(dutyType => Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType))))
+      )(dutyType =>
+        if (isClaimComplete(fillingOutClaim))
+          Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
+        else
+          Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
+      )
     }
   }
 
@@ -101,8 +106,30 @@ class SelectDutyTypesController @Inject() (
       .leftMap((_: Unit) => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
-        _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+        _ =>
+          if (isClaimComplete(updatedJourney))
+            Redirect(routes.CheckReimbursementClaimController.showReimbursementClaim())
+          else
+            Redirect(reimbursementRoutes.SelectDutyCodesController.start())
       )
+  }
+
+  private def isClaimComplete(fillingOutClaim: FillingOutClaim) = {
+    val dutyTypesAnswer              = fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer)
+    val dutyCodesAnswer              = fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer)
+    val dutyPaidAndClaimAmountAnswer = fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
+
+    //FIXME refactor to make it simpler
+    (dutyTypesAnswer, dutyCodesAnswer, dutyPaidAndClaimAmountAnswer) match {
+      case (Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(dutyPaidAndClaimAmountAnswer)) =>
+        if (dutyTypesAnswer.dutyTypesSelected.exists(dutyType => dutyCodesAnswer.dutyCodes(dutyType).size === 0)) false
+        else if (
+          dutyTypesAnswer.dutyTypesSelected
+            .exists(dutyType => dutyPaidAndClaimAmountAnswer.dutyPaidAndClaimAmountsEntered(dutyType).isEmpty)
+        ) false
+        else true
+      case _                                                                                  => false
+    }
   }
 
 }

@@ -20,16 +20,16 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 final case class DutyPaidAndClaimAmountAnswer(
-  dutyPaidAndClaimAmountsEntered: Map[DutyType, Map[TaxCode, List[DutyPaidAndClaimAmount]]]
+  dutyPaidAndClaimAmountsEntered: Map[DutyType, Map[TaxCode, DutyPaidAndClaimAmount]]
 )
 
 object DutyPaidAndClaimAmountAnswer {
 
-  implicit def dutyPaidAndClaimAmountAnswerFormat: Format[Map[DutyType, Map[TaxCode, List[DutyPaidAndClaimAmount]]]] =
-    new Format[Map[DutyType, Map[TaxCode, List[DutyPaidAndClaimAmount]]]] {
-      override def reads(json: JsValue): JsResult[Map[DutyType, Map[TaxCode, List[DutyPaidAndClaimAmount]]]] =
+  implicit def dutyPaidAndClaimAmountAnswerFormat: Format[Map[DutyType, Map[TaxCode, DutyPaidAndClaimAmount]]] =
+    new Format[Map[DutyType, Map[TaxCode, DutyPaidAndClaimAmount]]] {
+      override def reads(json: JsValue): JsResult[Map[DutyType, Map[TaxCode, DutyPaidAndClaimAmount]]] =
         json
-          .validate[Map[String, Map[String, List[DutyPaidAndClaimAmount]]]]
+          .validate[Map[String, Map[String, DutyPaidAndClaimAmount]]]
           .map { stringToStringToDutyPaidAndClaimAmounts =>
             stringToStringToDutyPaidAndClaimAmounts.map { dutyTypeTuple =>
               DutyType.toDutyType(dutyTypeTuple._1) match {
@@ -46,7 +46,7 @@ object DutyPaidAndClaimAmountAnswer {
             }
           }
 
-      override def writes(o: Map[DutyType, Map[TaxCode, List[DutyPaidAndClaimAmount]]]): JsValue =
+      override def writes(o: Map[DutyType, Map[TaxCode, DutyPaidAndClaimAmount]]): JsValue =
         Json.toJson(o.map { dutyTypesTuple =>
           (
             DutyType.typeToString(dutyTypesTuple._1),

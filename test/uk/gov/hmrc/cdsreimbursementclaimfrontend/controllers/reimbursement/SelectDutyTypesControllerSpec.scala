@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypesAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
 
@@ -56,10 +56,16 @@ class SelectDutyTypesControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithDutyTypesState(
-    maybeDutyTypesSelectedAnswer: Option[DutyTypesAnswer]
+    maybeDutyTypesSelectedAnswer: Option[DutyTypesAnswer],
+    maybeDutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
+    maybeDutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(dutyTypesSelectedAnswer = maybeDutyTypesSelectedAnswer)
+      DraftC285Claim.newDraftC285Claim.copy(
+        dutyTypesSelectedAnswer = maybeDutyTypesSelectedAnswer,
+        dutyCodesSelectedAnswer = maybeDutyCodesSelectedAnswer,
+        dutyPaidAndClaimAmountAnswer = maybeDutyPaidAndClaimAmountAnswer
+      )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -101,6 +107,41 @@ class SelectDutyTypesControllerSpec
 
     }
 
+    "redirect to the summary reimbursement claim page" when {
+
+      "claims have been made against all duty codes" in {
+
+        def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
+
+        val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
+        val dutyCodesAnswer          =
+          DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
+        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
+          Map(
+            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
+          )
+        )
+
+        val (session, fillingOutClaim, draftC285Claim) =
+          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        }
+
+        checkIsRedirect(
+          performAction(),
+          routes.CheckReimbursementClaimController.showReimbursementClaim()
+        )
+
+      }
+
+    }
+
     "display the page" when {
 
       def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
@@ -132,7 +173,7 @@ class SelectDutyTypesControllerSpec
         checkPageIsDisplayed(
           performAction(),
           messageFromMessageKey("select-duty-types.title"),
-          doc => isCheckboxChecked(doc, "ukduty") shouldBe true
+          doc => isCheckboxChecked(doc, "uk-duty") shouldBe true
         )
       }
 
@@ -154,7 +195,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "ukduty")
+            Seq("select-duty-types[0]" -> "uk-duty")
           ),
           routes.SelectDutyCodesController.start()
         )
@@ -176,7 +217,7 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "ukduty")
+            Seq("select-duty-types[0]" -> "uk-duty")
           ),
           routes.SelectDutyCodesController.start()
         )
@@ -197,9 +238,40 @@ class SelectDutyTypesControllerSpec
 
         checkIsRedirect(
           performAction(
-            Seq("select-duty-types[0]" -> "ukduty")
+            Seq("select-duty-types[0]" -> "uk-duty")
           ),
           routes.SelectDutyCodesController.start()
+        )
+      }
+
+      "user deletes a duty type and all other duty types have associated duty codes and claims" in {
+
+        val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
+        val dutyCodesAnswer          =
+          DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
+        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
+          Map(
+            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
+          )
+        )
+
+        val (session, fillingOutClaim, draftC285Claim) =
+          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
+
+        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(
+            Seq("select-duty-types[0]" -> "eu-duty")
+          ),
+          routes.CheckReimbursementClaimController.showReimbursementClaim()
         )
       }
 

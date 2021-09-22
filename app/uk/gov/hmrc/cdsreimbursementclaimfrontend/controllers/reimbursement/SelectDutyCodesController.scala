@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementState.f
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, reimbursement}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -148,7 +148,11 @@ class SelectDutyCodesController @Inject() (
         selectDutyCodesForm(dutyType)
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectDutyCodesPage(formWithErrors, dutyType)),
+            { formWithErrors =>
+              println(s"\n\n\n\n form with errors is ${formWithErrors.toString}\n\n\n\n\n\n")
+              BadRequest(selectDutyCodesPage(formWithErrors, dutyType))
+
+            },
             selectedAnswer => updateDutyTypeAnswer(dutyType, selectedAnswer, answer, fillingOutClaim)
           )
       }
@@ -168,6 +172,7 @@ class SelectDutyCodesController @Inject() (
 
     val updatedJourney =
       FillingOutClaim.of(fillingOutClaim)(_.copy(dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedMap))))
+
     EitherT
       .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap((_: Unit) => Error("could not update session"))

@@ -6,3 +6,5 @@ GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.
 POST        /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
 
 GET         /scheduled/select-duties/enter-claim/start              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterPaidAndClaimAmountController.start()
+
+GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.showReimbursementClaim()
