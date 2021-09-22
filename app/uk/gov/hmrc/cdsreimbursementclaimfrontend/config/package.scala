@@ -21,7 +21,7 @@ import play.api.{Configuration, Environment, Mode}
 
 package object config {
 
-  implicit class EnvironmentOps(val env: Environment) extends AnyVal {
+  implicit class EnvironmentOps(private val env: Environment) extends AnyVal {
 
     def isLocal(implicit config: Configuration): Boolean = {
       val runMode = config.getOptional[String]("run.mode")

@@ -151,7 +151,7 @@ class SelectDutyCodesController @Inject() (
 
     val updatedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
       currentAnswer.fold(Map[reimbursement.DutyType, List[models.TaxCode]]()) { dutyCodesAnswer =>
-        dutyCodesAnswer.dutyCodes ++ List((dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType)))
+        dutyCodesAnswer.dutyCodes ++ List(dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType))
       }
 
     val updatedJourney =

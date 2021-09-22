@@ -38,13 +38,13 @@
 @(form : Form[DutyCodesAnswer], dutyType : DutyType)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"select-duty-codes"}
-    @title = @{messages(s"$key.title", messages(s"${key}.h1.${dutyType.repr}"))}
+    @title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
 
     @postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
 
     @options = @{DutyType.dutyTypeToTaxCodes(dutyType).map { dutyCode =>
         CheckboxItem(
-                name = Some(s"${key}[]"),
+                name = Some(s"$key[]"),
                 value = dutyCode.value,
                 content = Text(messages(s"$key.duty-code.${dutyCode.value}")),
                 checked = form.data.exists(_._2 == dutyCode.value)

@@ -48,7 +48,7 @@ object DutyCodesAnswer {
         })
     }
 
-  implicit class DutyCodesAnswerOps(private val dutyCodesAnswer: DutyCodesAnswer) {
+  implicit class DutyCodesAnswerOps(private val dutyCodesAnswer: DutyCodesAnswer) extends AnyVal {
     def existsDutyTypeWithNoDutyCodesAnswer: Option[DutyType] =
       sortedDutyTypeToDutyCodesMap.find(d => d._2.isEmpty).map { dutyTypeToDutyCodeMap =>
         dutyTypeToDutyCodeMap._1

@@ -31,14 +31,14 @@ package object summary {
   implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary
   implicit val displayDeclarationSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
 
-  implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
+  implicit class AnswerSummaryOps[A](private val answer: A) extends AnyVal {
     def review(
       key: String
     )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
       answerSummary.render(key, answer)
   }
 
-  implicit class SummaryListOps(val summaryList: SummaryList) extends AnyVal {
+  implicit class SummaryListOps(private val summaryList: SummaryList) extends AnyVal {
     def drop(n: Int): SummaryList =
       SummaryList(summaryList.rows.drop(n))
   }
