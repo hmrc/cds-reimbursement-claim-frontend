@@ -24,6 +24,8 @@ final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
 object DutyCodesAnswer {
 
+  val empty: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
+
   implicit def dutyCodesAnswerFormat: Format[Map[DutyType, List[TaxCode]]] =
     new Format[Map[DutyType, List[TaxCode]]] {
       override def reads(json: JsValue): JsResult[Map[DutyType, List[TaxCode]]] =
@@ -43,6 +45,13 @@ object DutyCodesAnswer {
           (DutyType.typeToString(dutyCodes._1), dutyCodes._2)
         })
     }
-  implicit val eq: Eq[DutyCodesAnswer]                                     = Eq.fromUniversalEquals[DutyCodesAnswer]
-  implicit val format: OFormat[DutyCodesAnswer]                            = Json.format[DutyCodesAnswer]
+
+  implicit class DutyCodesAnswerOps(private val dutyCodesAnswer: DutyCodesAnswer) {
+    def existsDutyTypeWithNoDutyCodesAnswer: Option[DutyType] =
+      dutyCodesAnswer.dutyCodes.find(d => d._2.isEmpty).map { dutyTypeToDutyCodeMap =>
+        dutyTypeToDutyCodeMap._1
+      }
+  }
+  implicit val eq: Eq[DutyCodesAnswer]          = Eq.fromUniversalEquals[DutyCodesAnswer]
+  implicit val format: OFormat[DutyCodesAnswer] = Json.format[DutyCodesAnswer]
 }

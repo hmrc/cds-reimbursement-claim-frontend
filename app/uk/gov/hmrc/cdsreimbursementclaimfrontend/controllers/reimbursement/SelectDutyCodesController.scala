@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementState.f
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, reimbursement}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -41,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pa
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelectDutyCodesController @Inject() (
@@ -67,37 +65,10 @@ class SelectDutyCodesController @Inject() (
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
         ) { dutyTypesAnswer =>
-          //TODO: refactor
           val updatedJourneyStatus: FillingOutClaim = answer.fold {
-
-            val updatedReimbursementState = ReimbursementState.computeReimbursementState(
-              dutyTypesAnswer,
-              DutyCodesAnswer(Map.empty)
-            )
-
-            println(s"\n\n\n\n\n ${updatedReimbursementState.toString}")
-
-            FillingOutClaim.of(fillingOutClaim)(
-              _.copy(
-                dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
-                dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
-              )
-            )
-
+            updateJourneyStatus(dutyTypesAnswer, DutyCodesAnswer.empty, fillingOutClaim)
           } { dutyCodesAnswer =>
-            val updatedReimbursementState = ReimbursementState.computeReimbursementState(
-              dutyTypesAnswer,
-              dutyCodesAnswer
-            )
-
-            println(s"\n\n\n\n\n ${updatedReimbursementState.toString}")
-
-            FillingOutClaim.of(fillingOutClaim)(
-              _.copy(
-                dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
-                dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
-              )
-            )
+            updateJourneyStatus(dutyTypesAnswer, dutyCodesAnswer, fillingOutClaim)
           }
 
           EitherT
@@ -111,10 +82,10 @@ class SelectDutyCodesController @Inject() (
                   updatedJourneyStatus.draftClaim.fold(_.dutyCodesSelectedAnswer)
                 ) match {
                   case (Some(_), Some(dutyCodesAnswer: DutyCodesAnswer)) =>
-                    dutyCodesAnswer.dutyCodes.find(d => d._2.isEmpty) match {
-                      case Some(value) =>
-                        Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(value._1))
-                      case None        => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                    dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
+                      case Some(dutyType) =>
+                        Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
+                      case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
                     }
                   case _                                                 =>
                     logger.warn("could not find duty types or duty codes")
@@ -141,37 +112,52 @@ class SelectDutyCodesController @Inject() (
       }
   }
 
-  //TODO: loop until all the duty types have associated duty codes
   def submitDutyCodes(dutyType: DutyType): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
-      withAnswers[DutyCodesAnswer] { (fillingOutClaim, answer) =>
+      withAnswers[DutyCodesAnswer] { (fillingOutClaim, maybeCurrentAnswer) =>
         selectDutyCodesForm(dutyType)
           .bindFromRequest()
           .fold(
-            { formWithErrors =>
-              println(s"\n\n\n\n form with errors is ${formWithErrors.toString}\n\n\n\n\n\n")
-              BadRequest(selectDutyCodesPage(formWithErrors, dutyType))
-
-            },
-            selectedAnswer => updateDutyTypeAnswer(dutyType, selectedAnswer, answer, fillingOutClaim)
+            formWithErrors => BadRequest(selectDutyCodesPage(formWithErrors, dutyType)),
+            selectedAnswer => updateSessionCache(dutyType, selectedAnswer, maybeCurrentAnswer, fillingOutClaim)
           )
       }
     }
 
-  private def updateDutyTypeAnswer(
+  private def updateJourneyStatus(
+    dutyTypesAnswer: DutyTypesAnswer,
+    dutyCodesAnswer: DutyCodesAnswer,
+    fillingOutClaim: FillingOutClaim
+  ): FillingOutClaim = {
+    val updatedReimbursementState = ReimbursementState.computeReimbursementState(
+      dutyTypesAnswer,
+      dutyCodesAnswer
+    )
+
+    FillingOutClaim.of(fillingOutClaim)(
+      _.copy(
+        dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
+        dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
+      )
+    )
+  }
+
+  private def updateSessionCache(
     dutyType: DutyType,
     dutyTypesSelectedAnswer: DutyCodesAnswer,
     currentAnswer: Option[DutyCodesAnswer],
     fillingOutClaim: FillingOutClaim
   )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
 
-    val updatedMap: Map[DutyType, List[TaxCode]] =
-      currentAnswer.fold(Map[reimbursement.DutyType, List[models.TaxCode]]()) { ca =>
-        ca.dutyCodes ++ List((dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType)))
+    val updatedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
+      currentAnswer.fold(Map[reimbursement.DutyType, List[models.TaxCode]]()) { dutyCodesAnswer =>
+        dutyCodesAnswer.dutyCodes ++ List((dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType)))
       }
 
     val updatedJourney =
-      FillingOutClaim.of(fillingOutClaim)(_.copy(dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedMap))))
+      FillingOutClaim.of(fillingOutClaim)(
+        _.copy(dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap)))
+      )
 
     EitherT
       .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -179,22 +165,14 @@ class SelectDutyCodesController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          //FIXME: need to check here if there are any duty types which have any list of tax codes which is empty - if so then show page with that duty type else redirect to claims and paid amounts
-          //FIXME : clean up these algorithms and also do case analysis to make sure all cases are covered
           updatedJourney.draftClaim.fold(_.dutyCodesSelectedAnswer) match {
-            case Some(value) =>
-              implicit val s = DutyType.DutyTypeOrdering
-
-              val sortedMap = SortedMap[DutyType, List[TaxCode]](
-                value.dutyCodes.toSeq.sortBy(s => f(s)): _*
-              ) //FIXME is there a more efficient implementation as this always has to sort
-              println(s"\n\n\n\n codes are : ${value.dutyCodes.toString()}")
-              sortedMap.find(d => d._2.isEmpty) match {
-                case Some(value) =>
-                  Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(value._1))
-                case None        => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+            case Some(dutyCodesAnswer) =>
+              dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
+                case Some(dutyType) =>
+                  Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
+                case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
               }
-            case None        =>
+            case None                  =>
               logger.warn("could not find duty codes")
               errorHandler.errorResult()
           }
@@ -204,7 +182,7 @@ class SelectDutyCodesController @Inject() (
 
 object SelectDutyCodesController {
   def selectDutyCodesForm(dutyType: DutyType): Form[DutyCodesAnswer] =
-    Form( //FIXME make the form a Tuple[DutyType, List[TaxCode]]
+    Form(
       mapping(
         "select-duty-codes" -> list(
           mapping(
@@ -215,7 +193,7 @@ object SelectDutyCodesController {
               )
           )(TaxCode.apply)(TaxCode.unapply)
         ).verifying("error.required", _.nonEmpty)
-      )(selectedDutyCodes => DutyCodesAnswer(Map.apply(dutyType -> selectedDutyCodes)))(dutyCodesAnswer =>
+      )(selectedDutyCodes => DutyCodesAnswer(Map(dutyType -> selectedDutyCodes)))(dutyCodesAnswer =>
         dutyCodesAnswer.dutyCodes.values.headOption
       )
     )

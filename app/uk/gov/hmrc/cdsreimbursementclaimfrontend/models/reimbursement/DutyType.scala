@@ -58,7 +58,7 @@ object DutyType {
     ClimateChangeLevy
   )
 
-  val dutyTypeToInt: Map[DutyType, Int] = dutyTypes.zipWithIndex.toMap
+  val dutyTypeToRankMap: Map[DutyType, Int] = dutyTypes.zipWithIndex.toMap
 
   val customDutyTypes: List[DutyType] = List(
     UkDuty,
@@ -138,6 +138,6 @@ object DutyType {
   def unapply(dutyType: DutyType): Option[String] = Some(dutyType.repr)
 
   object DutyTypeOrdering extends Ordering[DutyType] {
-    def compare(a: DutyType, b: DutyType) = DutyType.dutyTypeToInt(a) compare DutyType.dutyTypeToInt(b)
+    def compare(a: DutyType, b: DutyType) = DutyType.dutyTypeToRankMap(a) compare DutyType.dutyTypeToRankMap(b)
   }
 }

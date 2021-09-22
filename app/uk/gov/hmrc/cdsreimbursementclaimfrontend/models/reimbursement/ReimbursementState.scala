@@ -27,61 +27,40 @@ final case class ReimbursementState(
 
 object ReimbursementState {
 
-  /*
-
-    what you are really doing here is filtering so use the filter functions on a list to do that with the correct predicate function
-
-    you will always receive the latest duty types answer in the session when calling this function
-
-    based on this latest list of selected duty types what we need to do is compare this list with the list of duty types mapped to tax codes in the session, we can have:
-
-    current session duty types list       |       duty codes answer duty types lists          |       outcome
-                                          equal                -                                         no change to duty code answer in the session
-               deleted types                            deleted ones exist                               return update duty code answer in the session
-               deleted types                            deleted ones do not exist                        no change to duty code answer in the session
-               add types                                add ones do not exist                            update duty code codes answer in the session to add new types
-
-
-
-   */
-
-  //TODO: another case: they dont change the duty type but they change the tax code selection associated to the a duty type - then what? need to remove that from this Map and also alter the duty paud and claim amount map
   def computeReimbursementState(
     dutyTypesAnswer: DutyTypesAnswer,
     dutyCodesAnswer: DutyCodesAnswer
   ): ReimbursementState = {
 
-    // This removes deleted duty types and their associated duty codes in the Map
-    val filteredDutyCodes =
-      dutyCodesAnswer.dutyCodes.filter(dutyType => dutyTypesAnswer.dutyTypesSelected.contains(dutyType._1))
+    val dutyCodesForCurrentlySelectedDutyTypes =
+      dutyCodesAnswer.dutyCodes
+        .filter(dutyTypesToDutyCodesMap =>
+          dutyTypesAnswer.dutyTypesSelected
+            .contains(dutyTypesToDutyCodesMap._1)
+        )
 
-    // Now add in the ones which are for new duty types added
-    val dutyTypesNotInDutyTypeAnswer =
-      dutyTypesAnswer.dutyTypesSelected.filterNot(dutyType => filteredDutyCodes.keys.toList.contains(dutyType))
+    val dutyCodesForNewlySelectedDutyTypes =
+      dutyTypesAnswer.dutyTypesSelected
+        .filterNot(dutyType =>
+          dutyCodesForCurrentlySelectedDutyTypes.keys.toList
+            .contains(dutyType)
+        )
 
     val updatedDutyCodesAnswer = DutyCodesAnswer(
-      filteredDutyCodes ++ dutyTypesNotInDutyTypeAnswer.map(e => (e, List.empty))
+      dutyCodesForCurrentlySelectedDutyTypes ++ dutyCodesForNewlySelectedDutyTypes.map(dutyType =>
+        (dutyType, List.empty)
+      )
     )
 
-    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${updatedDutyCodesAnswer.toString}")
+    val dutyTypeToDutyCodesSortedMap = SortedMap[DutyType, List[TaxCode]](
+      updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
+    )
 
-    val sortedList = updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(s => f(s))
-
-    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${sortedList.toString}")
-
-    implicit val s = DutyType.DutyTypeOrdering
-
-    val sortedMap = SortedMap[DutyType, List[TaxCode]](updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(s => f(s)): _*)
-
-    println(s"\n\n\n\n the state is : ${dutyCodesAnswer.toString} and ${sortedMap.toString}")
-
-    ReimbursementState(dutyTypesAnswer, DutyCodesAnswer(sortedMap))
+    ReimbursementState(dutyTypesAnswer, DutyCodesAnswer(dutyTypeToDutyCodesSortedMap))
 
   }
 
-  def f(ts: (DutyType, List[TaxCode])): Int =
-    DutyType.dutyTypeToInt(ts._1)
+  def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
+    DutyType.dutyTypeToRankMap(dutyTypeToRankMap._1)
 
-  def cmp(t1: (DutyType, List[TaxCode]), t2: (DutyType, List[TaxCode])): Boolean =
-    if (DutyType.dutyTypeToInt(t1._1) < DutyType.dutyTypeToInt(t2._1)) true else false
 }

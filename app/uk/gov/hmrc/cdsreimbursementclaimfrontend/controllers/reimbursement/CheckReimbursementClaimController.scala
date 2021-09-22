@@ -38,7 +38,7 @@ class CheckReimbursementClaimController @Inject() (
     with SessionUpdates {
 
   def showReimbursementClaim(): Action[AnyContent] = Action {
-    Ok("claim ....")
+    Ok("implementation todo ....")
   }
 
 }

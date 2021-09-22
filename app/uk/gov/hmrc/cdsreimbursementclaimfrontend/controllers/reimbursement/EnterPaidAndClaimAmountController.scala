@@ -42,7 +42,7 @@ class EnterPaidAndClaimAmountController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[DutyPaidAndClaimAmountAnswer] = _.dutyPaidAndClaimAmountAnswer
 
   def start(): Action[AnyContent] = Action {
-    Ok("started ....")
+    Ok("implementation todo ....")
   }
 
 }

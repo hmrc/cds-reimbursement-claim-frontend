@@ -41,6 +41,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class SelectDutyTypesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
@@ -63,7 +64,7 @@ class SelectDutyTypesController @Inject() (
       answer.fold(
         Ok(selectDutyTypesPage(selectDutyTypesForm))
       )(dutyType =>
-        if (isClaimComplete(fillingOutClaim))
+        if (hasCompleteReimbursementClaim(fillingOutClaim))
           Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
         else
           Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
@@ -83,7 +84,7 @@ class SelectDutyTypesController @Inject() (
                 updateDutyTypeAnswer(
                   selectedAnswer,
                   fillingOutClaim
-                ) //FIXME: check if this should be an error page instead? when can this be empty at this point?
+                )
               }(dutyTypesSelectedAnswer =>
                 if (selectedAnswer === dutyTypesSelectedAnswer) {
                   Redirect(reimbursementRoutes.SelectDutyCodesController.start())
@@ -107,22 +108,21 @@ class SelectDutyTypesController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          if (isClaimComplete(updatedJourney))
+          if (hasCompleteReimbursementClaim(updatedJourney))
             Redirect(routes.CheckReimbursementClaimController.showReimbursementClaim())
           else
             Redirect(reimbursementRoutes.SelectDutyCodesController.start())
       )
   }
 
-  private def isClaimComplete(fillingOutClaim: FillingOutClaim) = {
-    val dutyTypesAnswer              = fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer)
-    val dutyCodesAnswer              = fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer)
-    val dutyPaidAndClaimAmountAnswer = fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
-
-    //FIXME refactor to make it simpler
-    (dutyTypesAnswer, dutyCodesAnswer, dutyPaidAndClaimAmountAnswer) match {
+  private def hasCompleteReimbursementClaim(fillingOutClaim: FillingOutClaim) =
+    (
+      fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer),
+      fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer),
+      fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
+    ) match {
       case (Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(dutyPaidAndClaimAmountAnswer)) =>
-        if (dutyTypesAnswer.dutyTypesSelected.exists(dutyType => dutyCodesAnswer.dutyCodes(dutyType).size === 0)) false
+        if (dutyCodesAnswer.dutyCodes.values.exists(_.isEmpty)) false
         else if (
           dutyTypesAnswer.dutyTypesSelected
             .exists(dutyType => dutyPaidAndClaimAmountAnswer.dutyPaidAndClaimAmountsEntered(dutyType).isEmpty)
@@ -130,13 +130,11 @@ class SelectDutyTypesController @Inject() (
         else true
       case _                                                                                  => false
     }
-  }
 
 }
 
 object SelectDutyTypesController {
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutyTypesForm: Form[DutyTypesAnswer] = Form(
     mapping(
       "select-duty-types" -> list(
