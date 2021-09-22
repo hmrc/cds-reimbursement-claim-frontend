@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBind
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{EntryNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -142,19 +141,13 @@ trait JourneyTypeRoutes extends Product with Serializable {
     }
 
   def nextPageForWhoIsMakingTheClaim(
-    mrnOrEntryNumber: Option[Either[EntryNumber, MRN]],
     isAmend: Boolean,
     mandatoryDataAvailable: Boolean
   ): Call =
-    mrnOrEntryNumber match {
-      case Some(Right(_)) =>
-        if (isAmend)
-          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-        else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-        else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
-      case _              =>
-        claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
-    }
+    if (isAmend)
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+    else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
 
   def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
     if (!isAmend) {

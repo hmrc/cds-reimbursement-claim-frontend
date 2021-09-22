@@ -83,7 +83,6 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   _ =>
                     Redirect(
                       router.nextPageForWhoIsMakingTheClaim(
-                        fillingOutClaim.draftClaim.movementReferenceNumber,
                         isAmend,
                         fillingOutClaim.draftClaim.isMandatoryDataAvailable
                       )
