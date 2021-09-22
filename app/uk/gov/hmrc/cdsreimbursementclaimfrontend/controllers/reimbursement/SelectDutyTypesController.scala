@@ -41,6 +41,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class SelectDutyTypesController @Inject() (
   val authenticatedAction: AuthenticatedAction,
@@ -59,10 +60,15 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesAnswer] { (_, answer) =>
+    withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
       answer.fold(
         Ok(selectDutyTypesPage(selectDutyTypesForm))
-      )(dutyType => Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType))))
+      )(dutyType =>
+        if (hasCompleteReimbursementClaim(fillingOutClaim))
+          Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
+        else
+          Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
+      )
     }
   }
 
@@ -75,7 +81,10 @@ class SelectDutyTypesController @Inject() (
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedAnswer =>
               answer.fold {
-                updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
+                updateDutyTypeAnswer(
+                  selectedAnswer,
+                  fillingOutClaim
+                )
               }(dutyTypesSelectedAnswer =>
                 if (selectedAnswer === dutyTypesSelectedAnswer) {
                   Redirect(reimbursementRoutes.SelectDutyCodesController.start())
@@ -98,15 +107,34 @@ class SelectDutyTypesController @Inject() (
       .leftMap((_: Unit) => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
-        _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+        _ =>
+          if (hasCompleteReimbursementClaim(updatedJourney))
+            Redirect(routes.CheckReimbursementClaimController.showReimbursementClaim())
+          else
+            Redirect(reimbursementRoutes.SelectDutyCodesController.start())
       )
   }
+
+  private def hasCompleteReimbursementClaim(fillingOutClaim: FillingOutClaim) =
+    (
+      fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer),
+      fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer),
+      fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
+    ) match {
+      case (Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(dutyPaidAndClaimAmountAnswer)) =>
+        if (dutyCodesAnswer.dutyCodes.values.exists(_.isEmpty)) false
+        else if (
+          dutyTypesAnswer.dutyTypesSelected
+            .exists(dutyType => dutyPaidAndClaimAmountAnswer.dutyPaidAndClaimAmountsEntered(dutyType).isEmpty)
+        ) false
+        else true
+      case _                                                                                  => false
+    }
 
 }
 
 object SelectDutyTypesController {
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutyTypesForm: Form[DutyTypesAnswer] = Form(
     mapping(
       "select-duty-types" -> list(

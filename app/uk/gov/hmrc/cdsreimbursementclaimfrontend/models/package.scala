@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
 import cats.data.{NonEmptyList, ValidatedNel}
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 
 package object models {
 
@@ -37,4 +38,6 @@ package object models {
 
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
+
+  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type = DutyType.DutyTypeOrdering
 }

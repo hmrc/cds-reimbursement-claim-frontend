@@ -20,6 +20,7 @@ import cats.implicits.catsSyntaxEq
 import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
+import play.api.mvc.PathBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
@@ -27,19 +28,19 @@ sealed abstract class DutyType(val repr: String) extends Product with Serializab
 
 object DutyType {
 
-  case object UkDuty extends DutyType("ukduty")
-  case object EuDuty extends DutyType("euduty")
+  case object UkDuty extends DutyType("uk-duty")
+  case object EuDuty extends DutyType("eu-duty")
   case object Beer extends DutyType("beer")
   case object Wine extends DutyType("wine")
-  case object MadeWine extends DutyType("madewine")
-  case object LowAlcoholBeverages extends DutyType("lowalcoholbeverages")
+  case object MadeWine extends DutyType("made-wine")
+  case object LowAlcoholBeverages extends DutyType("low-alcohol-beverages")
   case object Spirits extends DutyType("spirits")
-  case object CiderPerry extends DutyType("cideperry")
-  case object HydrocarbonOils extends DutyType("hydrocarbonoils")
+  case object CiderPerry extends DutyType("cider-perry")
+  case object HydrocarbonOils extends DutyType("hydrocarbon-oils")
   case object Biofuels extends DutyType("biofuels")
-  case object MiscellaneousRoadFuels extends DutyType("miscellaneousroadfuels")
+  case object MiscellaneousRoadFuels extends DutyType("miscellaneous-road-fuels")
   case object Tobacco extends DutyType("tobacco")
-  case object ClimateChangeLevy extends DutyType("climatechangelevy")
+  case object ClimateChangeLevy extends DutyType("climate-change-levy")
 
   val dutyTypes: List[DutyType] = List(
     UkDuty,
@@ -56,6 +57,8 @@ object DutyType {
     Tobacco,
     ClimateChangeLevy
   )
+
+  val dutyTypeToRankMap: Map[DutyType, Int] = dutyTypes.zipWithIndex.toMap
 
   val customDutyTypes: List[DutyType] = List(
     UkDuty,
@@ -82,7 +85,7 @@ object DutyType {
     Beer                   -> List(NI407, NI440, NI441, NI442, NI443, NI444, NI445, NI446, NI447, NI473),
     Wine                   -> List(NI411, NI412, NI413, NI415, NI419), //TODO potential problem with 411 appearing twice!
     MadeWine               -> List(NI421, NI422, NI423, NI425, NI429),
-    LowAlcoholBeverages    -> List(NI431, NI433, NI435, NI473),
+    LowAlcoholBeverages    -> List(NI431, NI433, NI435, NI444, NI446, NI473),
     Spirits                -> List(NI438, NI451, NI461, NI462, NI463),
     CiderPerry             -> List(NI431, NI481, NI483, NI485, NI487),
     HydrocarbonOils        -> List(
@@ -118,6 +121,23 @@ object DutyType {
   def apply(value: String): DutyType =
     DutyType.toDutyType(value).getOrElse(sys.error(s"Could not map to a duty type : $value"))
 
+  implicit val binder: PathBindable[DutyType] =
+    new PathBindable[DutyType] {
+      val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
+
+      override def bind(
+        key: String,
+        value: String
+      ): Either[String, DutyType] =
+        stringBinder.bind(key, value).map(DutyType.apply)
+
+      override def unbind(key: String, dutyType: DutyType): String =
+        stringBinder.unbind(key, dutyType.repr)
+    }
+
   def unapply(dutyType: DutyType): Option[String] = Some(dutyType.repr)
 
+  object DutyTypeOrdering extends Ordering[DutyType] {
+    def compare(a: DutyType, b: DutyType) = DutyType.dutyTypeToRankMap(a) compare DutyType.dutyTypeToRankMap(b)
+  }
 }

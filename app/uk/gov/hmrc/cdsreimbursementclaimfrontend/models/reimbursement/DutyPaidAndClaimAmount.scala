@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import cats.implicits.catsSyntaxEq
-import play.api.{Configuration, Environment, Mode}
+import play.api.libs.json.{Json, OFormat}
 
-package object config {
+final case class DutyPaidAndClaimAmount(dutyPaidAmount: BigDecimal, dutyClaimAmount: BigDecimal)
 
-  implicit class EnvironmentOps(private val env: Environment) extends AnyVal {
-
-    def isLocal(implicit config: Configuration): Boolean = {
-      val runMode = config.getOptional[String]("run.mode")
-      if (env.mode.toString === Mode.Test.toString) true
-      else runMode.forall(_ === Mode.Dev.toString)
-    }
-  }
+object DutyPaidAndClaimAmount {
+  implicit val format: OFormat[DutyPaidAndClaimAmount] = Json.format[DutyPaidAndClaimAmount]
 }
