@@ -20,6 +20,8 @@ import cats.Eq
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
+import scala.collection.immutable.SortedMap
+
 final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
 object DutyCodesAnswer {
@@ -48,10 +50,19 @@ object DutyCodesAnswer {
 
   implicit class DutyCodesAnswerOps(private val dutyCodesAnswer: DutyCodesAnswer) {
     def existsDutyTypeWithNoDutyCodesAnswer: Option[DutyType] =
-      dutyCodesAnswer.dutyCodes.find(d => d._2.isEmpty).map { dutyTypeToDutyCodeMap =>
+      sortedDutyTypeToDutyCodesMap.find(d => d._2.isEmpty).map { dutyTypeToDutyCodeMap =>
         dutyTypeToDutyCodeMap._1
       }
+
+    def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] = {
+      def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
+        DutyType.dutyTypeToRankMap(dutyTypeToRankMap._1)
+      SortedMap[DutyType, List[TaxCode]](
+        dutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
+      )
+    }
   }
+
   implicit val eq: Eq[DutyCodesAnswer]          = Eq.fromUniversalEquals[DutyCodesAnswer]
   implicit val format: OFormat[DutyCodesAnswer] = Json.format[DutyCodesAnswer]
 }

@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-
-import scala.collection.immutable.SortedMap
-
 final case class ReimbursementState(
   dutyTypesAnswer: DutyTypesAnswer,
   dutyCodesAnswer: DutyCodesAnswer
@@ -52,15 +48,8 @@ object ReimbursementState {
       )
     )
 
-    val dutyTypeToDutyCodesSortedMap = SortedMap[DutyType, List[TaxCode]](
-      updatedDutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
-    )
-
-    ReimbursementState(dutyTypesAnswer, DutyCodesAnswer(dutyTypeToDutyCodesSortedMap))
+    ReimbursementState(dutyTypesAnswer, DutyCodesAnswer(updatedDutyCodesAnswer.sortedDutyTypeToDutyCodesMap))
 
   }
-
-  def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
-    DutyType.dutyTypeToRankMap(dutyTypeToRankMap._1)
 
 }
