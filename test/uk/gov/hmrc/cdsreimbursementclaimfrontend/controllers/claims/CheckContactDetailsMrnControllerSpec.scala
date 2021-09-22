@@ -191,7 +191,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           showPageAction(journey),
-          routes.CheckContactDetailsMrnController.addShow(journey)
+          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
 
       }
@@ -200,7 +200,7 @@ class CheckContactDetailsMrnControllerSpec
     "handle add submit requests" when {
 
       def submitAdd(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-        controller.addDetails(journeyBindable)(
+        controller.addDetailsSubmit(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
@@ -349,7 +349,7 @@ class CheckContactDetailsMrnControllerSpec
 
         checkIsRedirect(
           submitChange(Seq(languageKey -> "1"), journey),
-          routes.CheckContactDetailsMrnController.addShow(journey)
+          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>

@@ -64,7 +64,7 @@ trait SubmitRoutes extends Product with Serializable {
   def submitPageForClaimantDetails(isChange: Boolean): Call = {
     val controller = claimRoutes.CheckContactDetailsMrnController
     if (isChange) controller.submit(journeyBindable)
-    else controller.addDetails(journeyBindable)
+    else controller.addDetailsSubmit(journeyBindable)
   }
 
   def submitUrlForChangeMrnContactDetails(): Call =
@@ -151,7 +151,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
         if (isAmend)
           claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
         else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-        else claimRoutes.CheckContactDetailsMrnController.addShow(journeyBindable)
+        else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
       case _              =>
         claimRoutes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
     }
@@ -186,7 +186,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
           case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
         }
       case NoClaimantDetailsAnswer  =>
-        claimRoutes.CheckContactDetailsMrnController.addShow(journeyBindable)
+        claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
     }
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
