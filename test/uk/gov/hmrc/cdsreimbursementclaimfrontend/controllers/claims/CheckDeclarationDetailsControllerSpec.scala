@@ -40,13 +40,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 
 import scala.concurrent.Future
+import scala.collection.JavaConverters._
 
 class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with HtmlParseSupport
     with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
@@ -124,57 +128,7 @@ class CheckDeclarationDetailsControllerSpec
       "there is a declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val displayDeclaration = DisplayDeclaration(
-          displayResponseDetail = DisplayResponseDetail(
-            declarantReferenceNumber = Some("declarant ref"),
-            securityReason = Some("security reason"),
-            btaDueDate = None,
-            btaSource = None,
-            declarationId = "declaration-id",
-            acceptanceDate = "2020-10-20",
-            procedureCode = "p-1",
-            consigneeDetails = Some(
-              ConsigneeDetails(
-                consigneeEORI = "ConsigneeEori",
-                legalName = "Gorwand Ukram",
-                establishmentAddress = EstablishmentAddress(
-                  addressLine1 = "consigne-line-1",
-                  addressLine2 = None,
-                  addressLine3 = None,
-                  postalCode = None,
-                  countryCode = "GB"
-                ),
-                contactDetails = None
-              )
-            ),
-            accountDetails = None,
-            bankDetails = None,
-            maskedBankDetails = None,
-            ndrcDetails = Some(
-              List(
-                NdrcDetails(
-                  taxType = "A01",
-                  amount = "20.00",
-                  paymentMethod = "CC",
-                  paymentReference = "Some ref",
-                  cmaEligible = None
-                )
-              )
-            ),
-            declarantDetails = DeclarantDetails(
-              declarantEORI = "F-1",
-              legalName = "Fred Bread",
-              establishmentAddress = EstablishmentAddress(
-                addressLine1 = "declarant-line-1",
-                addressLine2 = None,
-                addressLine3 = None,
-                postalCode = None,
-                countryCode = "GB"
-              ),
-              contactDetails = None
-            )
-          )
-        )
+        val displayDeclaration = sample[DisplayDeclaration]
 
         val draftC285Claim                = sessionWithClaimState(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))._3
         val (session, fillingOutClaim, _) =
@@ -191,15 +145,30 @@ class CheckDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           action,
-          messageFromMessageKey("check-declaration-details.title")
+          messageFromMessageKey(s"check-declaration-details.title")
         )
 
-        val content     = Jsoup.parse(contentAsString(action))
-        val tableValues = content.getElementsByClass("govuk-summary-list__value")
-        tableValues.get(4).text() shouldBe "consigne-line-1, GB"
-        tableValues.get(5).text() shouldBe "declarant-line-1, GB"
-      }
+        val body        = Jsoup.parse(contentAsString(action))
+        val tableValues = body
+          .getElementsByClass("govuk-summary-list__value")
+          .asScala
+          .map(_.text())
 
+        tableValues should contain allElementsOf (
+          Seq(
+            displayDeclaration.displayResponseDetail.declarationId,
+            displayDeclaration.displayResponseDetail.acceptanceDate,
+            formatAmountOfMoneyWithPoundSign(displayDeclaration.totalPaidCharges),
+            displayDeclaration.declarantName
+          ) ++ Seq(
+            displayDeclaration.consigneeName,
+            displayDeclaration.consigneeEmail,
+            displayDeclaration.consigneeTelephone,
+            displayDeclaration.consigneeAddress.map(_.replace("<br />", " ")),
+            displayDeclaration.declarantContactAddress.map(_.replace("<br />", " "))
+          ).flatMap(_.toList)
+        )
+      }
     }
 
     "redirect user" when {

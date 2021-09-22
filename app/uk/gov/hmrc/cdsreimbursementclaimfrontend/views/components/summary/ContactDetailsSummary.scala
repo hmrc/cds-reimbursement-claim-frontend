@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import cats.implicits.toFunctorFilterOps
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
@@ -29,7 +30,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAddress)] {
 
   def render(key: String, answer: (MrnContactDetails, ContactAddress))(implicit
-    journey: JourneyBindable,
+    router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
 
@@ -48,7 +49,7 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             "govuk-link",
             List(
               ActionItem(
-                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url}",
+                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.contact.details"))
               )
@@ -76,7 +77,7 @@ class ContactDetailsSummary extends AnswerSummary[(MrnContactDetails, ContactAdd
             "govuk-link",
             List(
               ActionItem(
-                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey).url}",
+                href = s"${routes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.contact.address"))
               )

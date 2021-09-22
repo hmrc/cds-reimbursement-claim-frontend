@@ -23,8 +23,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -39,7 +38,7 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(completeClaim: CompleteClaim, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, journey: JourneyBindable)
+@(completeClaim: CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
 
     @key = @{"check-your-answers"}
     @title = @{messages(s"$key.title")}
@@ -55,15 +54,17 @@
         @pageHeading(title)
 
         @pageHeading(messages(s"$key.reference-number.h2"), "govuk-heading-m govuk-!-margin-top-7", "h2")
-        @summary(completeClaim.movementReferenceNumber.value.fold(_.review(s"$key.entry-reference-number"), _.review(s"$key.mrn")))
+        @summary(completeClaim.movementReferenceNumber.value.map(_.review(s"$key.entry-reference-number")).right.get)
 
         @completeClaim.scheduledDocumentAnswer.map { scheduledDocument =>
             @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(scheduledDocument.review(s"$key.scheduled-document"))
         }
 
-        @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeDeclarationDetailsSummary(completeClaim)))
+        @completeClaim.maybeDisplayDeclaration.map { displayDeclaration =>
+            @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(displayDeclaration.review(s"$key.declaration-details").drop(2))
+        }
 
         @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(completeClaim.declarantTypeAnswer.review(s"$key.claimant-type"))
@@ -82,16 +83,16 @@
         }
 
         @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
-        @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim))) else ""}
+        @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim)(messages, router.journeyBindable))) else ""}
 
         @pageHeading(messages(lang(s"$key.commodity-details", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(completeClaim.commodityDetailsAnswer.review(router.mergeWithSubKey(s"$key.commodities-details")))
+        @summary(completeClaim.commodityDetailsAnswer.review(s"$key.commodities-details"))
 
         @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
 
         @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)))
+        @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(completeClaim.supportingEvidencesAnswer.review(s"$key.attached-documents"))
@@ -99,7 +100,7 @@
         @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
-        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey), 'novalidate -> "novalidate") {
+        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
             @submitButton("button.accept-and-send")
         }
 
