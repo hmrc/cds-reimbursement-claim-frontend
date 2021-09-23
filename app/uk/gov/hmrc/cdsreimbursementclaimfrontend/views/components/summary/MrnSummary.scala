@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -29,7 +30,7 @@ class MrnSummary extends AnswerSummary[MRN] {
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.label"))),
+          key = Key(Text(messages(lang(key, router.subKey, "label")))),
           value = Value(Text(answer.value)),
           actions = Some(
             Actions(
@@ -38,7 +39,7 @@ class MrnSummary extends AnswerSummary[MRN] {
                   href =
                     s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.label"))
+                  visuallyHiddenText = Some(messages(lang(key, router.subKey, "label")))
                 )
               )
             )
