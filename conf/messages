@@ -898,7 +898,6 @@ schedule-document.review.assistive=the file named {0}
 #===================================================
 check-your-answers.title=Check your answers before sending your application
 check-your-answers.help-text=These are the details of your claim. Review them carefully and change those that are incorrect.
-check-your-answers.entry-reference-number.label=Entry reference number
 check-your-answers.mrn.label=MRN
 check-your-answers.declaration-details.label=Declaration details
 check-your-answers.declaration-details.mrn-label=MRN

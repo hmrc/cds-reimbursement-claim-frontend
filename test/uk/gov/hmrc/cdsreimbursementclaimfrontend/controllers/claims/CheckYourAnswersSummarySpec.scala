@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
-import org.scalatest.OptionValues
+import org.scalatest.{EitherValues, OptionValues}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -50,6 +50,7 @@ class CheckYourAnswersSummarySpec
     with OptionValues
     with HtmlParseSupport
     with SessionSupport
+    with EitherValues
     with AuthSupport {
 
   private val mockClaimService: ClaimService = mock[ClaimService]
@@ -109,7 +110,8 @@ class CheckYourAnswersSummarySpec
           ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
-            s"$checkYourAnswersKey.attached-documents.h2"
+            s"$checkYourAnswersKey.attached-documents.h2",
+            s"$checkYourAnswersKey.reference-number.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -122,6 +124,10 @@ class CheckYourAnswersSummarySpec
             (
               messages(s"$checkYourAnswersKey.commodities-details.label"),
               claim.commoditiesDetailsAnswer.map(_.value).value
+            ),
+            (
+              messages(s"$checkYourAnswersKey.mrn.label"),
+              claim.movementReferenceNumber.value.stringValue
             )
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
@@ -275,10 +281,15 @@ class CheckYourAnswersSummarySpec
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
-            s"$checkYourAnswersKey.scheduled-document.h2"
+            s"$checkYourAnswersKey.scheduled-document.h2",
+            s"$checkYourAnswersKey.reference-number.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
+            (
+              messages(s"$checkYourAnswersKey.mrn.label"),
+              claim.movementReferenceNumber.value.stringValue
+            ),
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
               messages(
