@@ -125,7 +125,7 @@ class CheckYourAnswersSummarySpec
               claim.commoditiesDetailsAnswer.map(_.value).value
             ),
             (
-              messages(s"$checkYourAnswersKey.mrn.label"),
+              messages(s"$checkYourAnswersKey.reference-number.label"),
               claim.movementReferenceNumber.value.stringValue
             )
           ) ++ claim.basisOfClaimAnswer.map { answer =>
@@ -281,12 +281,12 @@ class CheckYourAnswersSummarySpec
             s"$checkYourAnswersKey.commodity-details.scheduled.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.scheduled-document.h2",
-            s"$checkYourAnswersKey.reference-number.h2"
+            s"$checkYourAnswersKey.reference-number.scheduled.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
             (
-              messages(s"$checkYourAnswersKey.mrn.label"),
+              messages(s"$checkYourAnswersKey.reference-number.scheduled.label"),
               claim.movementReferenceNumber.value.stringValue
             ),
             (
