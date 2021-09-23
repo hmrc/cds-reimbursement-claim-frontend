@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
-import org.scalatest.{EitherValues, OptionValues}
+import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -50,7 +50,6 @@ class CheckYourAnswersSummarySpec
     with OptionValues
     with HtmlParseSupport
     with SessionSupport
-    with EitherValues
     with AuthSupport {
 
   private val mockClaimService: ClaimService = mock[ClaimService]
