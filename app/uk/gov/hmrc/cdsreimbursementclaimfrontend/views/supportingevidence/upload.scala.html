@@ -64,7 +64,9 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(lang(key, router.subKey, "p1"))), Some("govuk-body govuk-!-margin-bottom-6"))
+
+        @paragraph(Html(messages(lang(key, router.subKey, "p2"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
         @dropdownDetails(summary = s"$key.details.heading", content = dropdownHelper.render(typesOfEvidences, key))
 
