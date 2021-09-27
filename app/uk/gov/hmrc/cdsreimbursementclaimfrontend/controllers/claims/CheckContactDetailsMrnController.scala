@@ -73,7 +73,7 @@ class CheckContactDetailsMrnController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        if (fillingOutClaim.draftClaim.isMandatoryDataAvailable)
+        if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
           Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, true))
         else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
@@ -89,7 +89,7 @@ class CheckContactDetailsMrnController @Inject() (
   def addDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -105,7 +105,7 @@ class CheckContactDetailsMrnController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(

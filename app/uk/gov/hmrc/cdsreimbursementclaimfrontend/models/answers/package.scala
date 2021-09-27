@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
@@ -26,10 +27,13 @@ package object answers {
 
   type LeadMrn = MRN
 
-  type SupportingEvidencesAnswer = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer      = NonEmptyList[Duty]
-  type ClaimsAnswer              = NonEmptyList[Claim]
-  type AssociatedMRNsAnswer      = NonEmptyList[MRN]
+  type AssociatedMrn = MRN
+
+  type AssociatedMRNsAnswer            = NonEmptyList[AssociatedMrn]
+  type AssociatedMRNsDeclarationAnswer = NonEmptyList[DisplayDeclaration]
+  type SupportingEvidencesAnswer       = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer            = NonEmptyList[Duty]
+  type ClaimsAnswer                    = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {
     def apply(evidence: UploadDocument): NonEmptyList[UploadDocument] =
@@ -52,7 +56,7 @@ package object answers {
   }
 
   object AssociatedMRNsAnswer {
-    def apply(mrn: MRN): NonEmptyList[MRN] =
+    def apply(mrn: AssociatedMrn): AssociatedMRNsAnswer =
       NonEmptyList.one(mrn)
   }
 }

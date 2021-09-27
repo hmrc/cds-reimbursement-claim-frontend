@@ -17,10 +17,15 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
+import play.api.data.Form
+import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMRNController.associatedMovementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -36,10 +41,24 @@ class EnterAssociatedMRNController @Inject() (
     with Logging {
 
   def enterAssociatedMrn(index: Int): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterAssociatedMrnPage(index))
+    Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm))
   }
 
   def submitAssociatedMrn(): Action[AnyContent] = authenticatedActionWithSessionData {
     Redirect(claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
   }
+}
+
+object EnterAssociatedMRNController {
+
+  val enterAssociatedMrnKey = "enter-associated-mrn"
+
+  val associatedMovementReferenceNumberForm: Form[AssociatedMrn] =
+    Form(
+      mapping(
+        enterAssociatedMrnKey -> nonEmptyText
+          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
+          .transform[AssociatedMrn](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
 }

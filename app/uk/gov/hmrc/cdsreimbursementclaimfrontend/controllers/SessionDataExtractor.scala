@@ -64,15 +64,13 @@ trait SessionDataExtractor extends Results {
     }
 
   def getNumberOfClaims(draftClaim: DraftClaim): SelectNumberOfClaimsAnswer =
-    draftClaim
-      .fold(identity)
-      .selectNumberOfClaimsAnswer
+    draftClaim.selectNumberOfClaimsAnswer
       .getOrElse(
         SelectNumberOfClaimsAnswer.Individual
       ) //If the bulk claim is disabled, the user never sees the Select Number of Claims page
 
   def getMovementReferenceNumber(draftClaim: DraftClaim): Option[MovementReferenceNumber] =
-    draftClaim.fold(identity).movementReferenceNumber
+    draftClaim.movementReferenceNumber
 
   def getRoutes(
     numberOfClaims: SelectNumberOfClaimsAnswer,

@@ -117,7 +117,8 @@ class EnterDeclarantEoriNumberController @Inject() (
                   ),
                 complete => complete.copy(declarantEoriNumber = declarantEoriNumber)
               )
-              val newDraftClaim  =
+
+              val newDraftClaim =
                 fillingOutClaim.draftClaim.fold(_.copy(declarantEoriNumberAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)

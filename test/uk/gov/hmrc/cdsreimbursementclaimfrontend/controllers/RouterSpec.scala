@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -93,26 +93,26 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
   "The next page after check declaration details" must {
 
-    val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes)
-    val singleRoutes    = Table("Single routes", MRNSingleRoutes)
+//    val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes)
+//    val singleRoutes    = Table("Single routes", MRNSingleRoutes)
 
-    "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
-        fileUploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
-      )
-    }
-
-    "be select who is making claim for the single journey" in forAll(singleRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
-        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable)
-      )
-    }
-
-    "be enter journey MRN having incorrect declaration" in forAll(allRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect) should be(
-        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
-      )
-    }
+//    "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
+//      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
+//        fileUploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
+//      )
+//    }
+//
+//    "be select who is making claim for the single journey" in forAll(singleRoutes) { router =>
+//      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
+//        claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable)
+//      )
+//    }
+//
+//    "be enter journey MRN having incorrect declaration" in forAll(allRoutes) { router =>
+//      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect) should be(
+//        claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
+//      )
+//    }
   }
 
   "The next page after select who is making the claim" must {

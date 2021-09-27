@@ -24,7 +24,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclara
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -89,17 +88,12 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
-  def nextPageForCheckDeclarationDetails(checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer): Call =
+  def nextPageForCheckDeclarationDetails(
+    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer,
+    redirect: PartialFunction[JourneyBindable, Call]
+  ): Call =
     checkDeclarationDetailsAnswer match {
-      case DeclarationAnswersAreCorrect   =>
-        journeyBindable match {
-          case JourneyBindable.Scheduled =>
-            uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
-          case JourneyBindable.Multiple  =>
-            claimRoutes.EnterAssociatedMRNController.enterAssociatedMrn(2)
-          case _                         =>
-            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
-        }
+      case DeclarationAnswersAreCorrect   => redirect(journeyBindable)
       case DeclarationAnswersAreIncorrect =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
