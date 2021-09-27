@@ -22,8 +22,8 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,12 +43,12 @@ final case class RequestWithSessionData[A](
     case JourneyStatus.SubmitClaimFailed(_, signedInUserDetails, _)        => signedInUserDetails
   }
 
-  def unapply(
-    matchExpression: PartialFunction[(SessionData, JourneyStatus), Future[Result]],
+  def using(
+    matchExpression: PartialFunction[JourneyStatus, Future[Result]],
     applyIfNone: => Result = startNewJourney
   ): Future[Result] =
     sessionData
-      .flatMap(session => session.journeyStatus.map(session -> _))
+      .flatMap(session => session.journeyStatus)
       .collect(matchExpression)
       .getOrElse(Future.successful(applyIfNone))
 

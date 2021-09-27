@@ -50,27 +50,19 @@ class EnterImporterEoriNumberController @Inject() (
     with Logging {
 
   private def withImporterEoriNumberAnswer(
-    f: (
-      SessionData,
-      FillingOutClaim,
-      ImporterEoriNumberAnswer
-    ) => Future[Result]
+    f: (FillingOutClaim, ImporterEoriNumberAnswer) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-          ) =>
-        val maybeImporterEoriNumberAnswer = draftClaim.fold(
-          _.importerEoriNumberAnswer
-        )
-        maybeImporterEoriNumberAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteImporterEoriNumberAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
+    request.using({ case fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim) =>
+      val maybeImporterEoriNumberAnswer = draftClaim.fold(
+        _.importerEoriNumberAnswer
+      )
+      maybeImporterEoriNumberAnswer.fold[Future[Result]](
+        f(fillingOutClaim, IncompleteImporterEoriNumberAnswer.empty)
+      )(f(fillingOutClaim, _))
     })
 
   def enterImporterEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withImporterEoriNumberAnswer { (_, _, answers) =>
+    withImporterEoriNumberAnswer { (_, answers) =>
       answers.fold(
         ifIncomplete =>
           ifIncomplete.importerEoriNumber match {
@@ -91,7 +83,7 @@ class EnterImporterEoriNumberController @Inject() (
 
   def enterImporterEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
-      withImporterEoriNumberAnswer { (_, fillingOutClaim, answers) =>
+      withImporterEoriNumberAnswer { (fillingOutClaim, answers) =>
         EnterImporterEoriNumberController.eoriNumberForm
           .bindFromRequest()
           .fold(

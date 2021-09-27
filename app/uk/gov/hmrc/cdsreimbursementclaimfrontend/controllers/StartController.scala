@@ -70,12 +70,12 @@ class StartController @Inject() (
     }
 
   def startNewClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withJustSubmittedClaim { (sessionData, justSubmittedClaim) =>
+    withJustSubmittedClaim { justSubmittedClaim =>
       val result = for {
         _ <- EitherT(
                updateSession(sessionStore, request)(
                  _.copy(
-                   userType = sessionData.userType,
+                   userType = request.sessionData.flatMap(_.userType),
                    journeyStatus = Some(
                      FillingOutClaim(
                        justSubmittedClaim.ggCredId,
@@ -99,13 +99,10 @@ class StartController @Inject() (
   }
 
   private def withJustSubmittedClaim(
-    f: (
-      SessionData,
-      JustSubmittedClaim
-    ) => Future[Result]
+    f: JustSubmittedClaim => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, justSubmittedClaim: JustSubmittedClaim) =>
-      f(sessionData, justSubmittedClaim)
+    request.using({ case justSubmittedClaim: JustSubmittedClaim =>
+      f(justSubmittedClaim)
     })
 
   def weOnlySupportGG(): Action[AnyContent] =

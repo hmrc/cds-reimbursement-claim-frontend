@@ -89,7 +89,7 @@ class CheckEoriDetailsController @Inject() (
   }
 
   def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withSessionData { (_, fillingOutClaim) =>
+    withSessionData { fillingOutClaim =>
       request.signedInUserDetails
         .map { user =>
           checkEoriDetailsAnswerForm
@@ -135,10 +135,10 @@ class CheckEoriDetailsController @Inject() (
   }
 
   private def withSessionData(
-    f: (SessionData, FillingOutClaim) => Future[Result]
+    f: FillingOutClaim => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({ case (sessionData, fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim)) =>
-      f(sessionData, fillingOutClaim)
+    request.using({ case fillingOutClaim @ FillingOutClaim(_, _, _: DraftClaim) =>
+      f(fillingOutClaim)
     })
 }
 

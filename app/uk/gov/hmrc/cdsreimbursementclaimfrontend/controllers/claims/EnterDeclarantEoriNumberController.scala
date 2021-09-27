@@ -55,26 +55,21 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   private def withImporterEoriNumberAnswer(
     f: (
-      SessionData,
       FillingOutClaim,
       DeclarantEoriNumberAnswer
     ) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)
-          ) =>
-        val maybeDeclarantEoriNumberAnswer = draftClaim.fold(
-          _.declarantEoriNumberAnswer
-        )
-        maybeDeclarantEoriNumberAnswer.fold[Future[Result]](
-          f(sessionData, fillingOutClaim, IncompleteDeclarantEoriNumberAnswer.empty)
-        )(f(sessionData, fillingOutClaim, _))
+    request.using({ case fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim) =>
+      val maybeDeclarantEoriNumberAnswer = draftClaim.fold(
+        _.declarantEoriNumberAnswer
+      )
+      maybeDeclarantEoriNumberAnswer.fold[Future[Result]](
+        f(fillingOutClaim, IncompleteDeclarantEoriNumberAnswer.empty)
+      )(f(fillingOutClaim, _))
     })
 
   def enterDeclarantEoriNumber(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withImporterEoriNumberAnswer { (_, _, answers) =>
+    withImporterEoriNumberAnswer { (_, answers) =>
       answers.fold(
         ifIncomplete =>
           ifIncomplete.declarantEoriNumber match {
@@ -99,7 +94,7 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   def enterDeclarantEoriNumberSubmit(): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
-      withImporterEoriNumberAnswer { (_, fillingOutClaim, answers) =>
+      withImporterEoriNumberAnswer { (fillingOutClaim, answers) =>
         EnterDeclarantEoriNumberController.eoriNumberForm
           .bindFromRequest()
           .fold(
@@ -117,8 +112,7 @@ class EnterDeclarantEoriNumberController @Inject() (
                   ),
                 complete => complete.copy(declarantEoriNumber = declarantEoriNumber)
               )
-
-              val newDraftClaim =
+              val newDraftClaim  =
                 fillingOutClaim.draftClaim.fold(_.copy(declarantEoriNumberAnswer = Some(updatedAnswers)))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)

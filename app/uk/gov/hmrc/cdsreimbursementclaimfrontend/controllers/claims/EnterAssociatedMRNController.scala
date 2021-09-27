@@ -23,7 +23,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMRNController.associatedMovementReferenceNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -40,12 +39,12 @@ class EnterAssociatedMRNController @Inject() (
     with WithAuthAndSessionDataAction
     with Logging {
 
-  def enterAssociatedMrn(index: Int): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def enterMrn(index: Int): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm))
   }
 
-  def submitAssociatedMrn(): Action[AnyContent] = authenticatedActionWithSessionData {
-    Redirect(claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
+  def submitMrn(): Action[AnyContent] = authenticatedActionWithSessionData {
+    Redirect(routes.CheckMovementReferenceNumbersController.showReferences())
   }
 }
 

@@ -189,6 +189,14 @@ enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 
 #===================================================
+#  CHECK MOVEMENT REFERENCE NUMBERS
+#===================================================
+check-movement-reference-numbers.title=All your MRNs entered in this claim
+check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
+check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
+check-movement-reference-numbers.invalid-answer=Select yes if you want to add another MRN.
+
+#===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
 enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
