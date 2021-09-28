@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints
 
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.BasisOfClaimsHints.{bulletList, titleAndDescription}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints.{bulletList, titleAndDescription}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.{bullets, title_and_description}
 
-final case class BasisOfClaimsHints(items: Seq[Int]) extends AnyVal {
+final case class DropdownHints(items: Seq[Int]) extends Hints {
 
-  def toHtml(parentKey: String)(implicit messages: Messages): Html =
+  def renderHintsWithLabels(parentKey: String)(implicit messages: Messages): Html =
     html(
       bulletList(
         items.map(i =>
@@ -35,12 +35,21 @@ final case class BasisOfClaimsHints(items: Seq[Int]) extends AnyVal {
         )
       )
     )
+
+  def renderHints(parentKey: String)(implicit messages: Messages): Html = {
+    val listOfMessages: Seq[Html] = for (i <- items) yield Html(messages(s"$parentKey.details.l$i"))
+    html(
+      bulletList(
+        listOfMessages
+      )
+    )
+  }
 }
 
-object BasisOfClaimsHints {
+object DropdownHints {
 
-  def beginWith(elementIndex: Int): BasisOfClaimsHints =
-    BasisOfClaimsHints(elementIndex to 13)
+  def range(elementIndex: Int, maxHints: Int): DropdownHints =
+    DropdownHints(elementIndex to maxHints)
 
   val titleAndDescription: title_and_description = new title_and_description()
   val bulletList: bullets                        = new bullets()

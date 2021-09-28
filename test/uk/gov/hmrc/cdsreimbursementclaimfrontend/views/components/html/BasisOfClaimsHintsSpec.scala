@@ -20,13 +20,14 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 
 class BasisOfClaimsHintsSpec extends AnyWordSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   "The basis of claims examples" should {
     "drop N items" in {
       forAll(Gen.choose(0, 13)) { n =>
-        BasisOfClaimsHints.beginWith(n).items should be(n to 13)
+        DropdownHints.range(n, 13).items should be(n to 13)
       }
     }
   }
