@@ -349,5 +349,5 @@ object SupportingEvidenceController {
       )(identity)(Some(_))
     )
 
-  def getSupportingEvidenceHints: DropdownHints = DropdownHints.range(0, 9)
+  def getSupportingEvidenceHints: DropdownHints = DropdownHints.range(0, 8)
 }
