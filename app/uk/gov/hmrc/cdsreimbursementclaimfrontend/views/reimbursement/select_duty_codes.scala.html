@@ -46,7 +46,7 @@
         CheckboxItem(
                 name = Some(s"$key[]"),
                 value = dutyCode.value,
-                content = Text(messages(s"$key.duty-code.${dutyCode.value}")),
+                content = Text(messages(s"$key.${dutyType.repr}.duty-code.${dutyCode.value}")),
                 checked = form.data.exists(_._2 == dutyCode.value)
             )
         }
