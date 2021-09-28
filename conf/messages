@@ -789,7 +789,7 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid sort code
 #===================================================
 supporting-evidence.upload.details.heading=Examples of file types
 supporting-evidence.check-your-answers.title=You have added {0} document{1} to your claim
-supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. So we can process your claim efficiently, add the commercial invoice used in the import declaration.
+supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?
 supporting-evidence.check-your-answers.error.required=Select whether you would like to add a supporting document
 supporting-evidence.check-your-answers.invalid-answer=Select whether you would like to add a supporting document
