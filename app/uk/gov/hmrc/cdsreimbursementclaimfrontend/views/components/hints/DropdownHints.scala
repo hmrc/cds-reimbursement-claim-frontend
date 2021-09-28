@@ -48,7 +48,7 @@ final case class DropdownHints(items: Seq[Int]) extends Hints {
 
 object DropdownHints {
 
-  def beginAndEndWith(elementIndex: Int, maxHints: Int): DropdownHints =
+  def range(elementIndex: Int, maxHints: Int): DropdownHints =
     DropdownHints(elementIndex to maxHints)
 
   val titleAndDescription: title_and_description = new title_and_description()

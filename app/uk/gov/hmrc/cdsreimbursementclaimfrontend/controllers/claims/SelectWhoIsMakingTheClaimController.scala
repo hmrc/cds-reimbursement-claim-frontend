@@ -116,5 +116,5 @@ object SelectWhoIsMakingTheClaimController {
     )
 
   def getWhoIsMakingTheClaimHints: DropdownHints =
-    DropdownHints.beginAndEndWith(0, 2)
+    DropdownHints.range(0, 2)
 }

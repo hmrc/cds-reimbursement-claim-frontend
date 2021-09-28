@@ -136,7 +136,7 @@ object SelectBasisForClaimController {
       .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
   def getBasisOfClaimsHints(journeyBindable: JourneyBindable): DropdownHints =
-    DropdownHints.beginAndEndWith(
+    DropdownHints.range(
       if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 2 else 0,
       13
     )
