@@ -68,7 +68,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload")))
+        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
