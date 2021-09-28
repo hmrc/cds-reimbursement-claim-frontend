@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, UpscanService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -85,7 +86,10 @@ class SupportingEvidenceController @Inject() (
               reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
               config.readMaxFileSize(supportingEvidenceKey)
             )
-            .fold(_ => errorHandler.errorResult(), upscanUpload => Ok(uploadPage(upscanUpload, evidenceTypes, router)))
+            .fold(
+              _ => errorHandler.errorResult(),
+              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router))
+            )
       }
     }
 
@@ -181,6 +185,7 @@ class SupportingEvidenceController @Inject() (
         chooseDocumentTypePage(
           journey,
           chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
+          getSupportingEvidenceHints,
           uploadReference,
           evidenceTypes
         )
@@ -197,7 +202,15 @@ class SupportingEvidenceController @Inject() (
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
-              BadRequest(chooseDocumentTypePage(journey, requestFormWithErrors, uploadReference, evidenceTypes)),
+              BadRequest(
+                chooseDocumentTypePage(
+                  journey,
+                  requestFormWithErrors,
+                  getSupportingEvidenceHints,
+                  uploadReference,
+                  evidenceTypes
+                )
+              ),
             documentType => {
               val answers = for {
                 documents <- maybeEvidences.map(_.toList)
@@ -335,4 +348,6 @@ object SupportingEvidenceController {
           )
       )(identity)(Some(_))
     )
+
+  def getSupportingEvidenceHints: DropdownHints = DropdownHints.beginAndEndWith(0, 9)
 }

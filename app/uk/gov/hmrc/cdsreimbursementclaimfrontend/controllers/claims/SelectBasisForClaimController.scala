@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaims, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.BasisOfClaimsHints
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -135,8 +135,9 @@ object SelectBasisForClaimController {
       .withoutJourneyClaimsIfApplies(journey)
       .withoutNorthernIrelandClaimsIfApplies(draftClaim)
 
-  def getBasisOfClaimsHints(journeyBindable: JourneyBindable): BasisOfClaimsHints =
-    BasisOfClaimsHints.beginWith(
-      if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 2 else 0
+  def getBasisOfClaimsHints(journeyBindable: JourneyBindable): DropdownHints =
+    DropdownHints.beginAndEndWith(
+      if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 2 else 0,
+      13
     )
 }
