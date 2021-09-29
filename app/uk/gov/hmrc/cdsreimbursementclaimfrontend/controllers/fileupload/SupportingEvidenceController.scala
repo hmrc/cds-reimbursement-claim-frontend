@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentTyp
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{FeatureSwitchService, UpscanService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
@@ -53,7 +53,6 @@ class SupportingEvidenceController @Inject() (
   sessionStore: SessionCache,
   config: FileUploadConfig,
   uploadPage: pages.upload,
-  featureSwitch: FeatureSwitchService,
   chooseDocumentTypePage: pages.choose_document_type,
   checkYourAnswersPage: pages.check_your_answers,
   scanProgressPage: pages.scan_progress,
@@ -71,8 +70,7 @@ class SupportingEvidenceController @Inject() (
   implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
-  def evidenceTypes: Seq[UploadDocumentType] =
-    UploadDocumentType.getListOfEvidenceTypes(featureSwitch.EntryNumber.isEnabled())
+  def evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.getListOfEvidenceTypes
 
   def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -349,5 +347,6 @@ object SupportingEvidenceController {
       )(identity)(Some(_))
     )
 
-  def getSupportingEvidenceHints: DropdownHints = DropdownHints.range(0, 8)
+  def getSupportingEvidenceHints: DropdownHints =
+    DropdownHints.range(0, UploadDocumentType.getListOfEvidenceTypes.length - 1)
 }

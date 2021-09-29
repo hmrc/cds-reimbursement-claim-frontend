@@ -29,8 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocume
 
 object UpscanGen extends OptionValues {
 
-  def genEvidenceDocumentType(isEntryNumberJourneyEnabled: Boolean): Gen[UploadDocumentType] =
-    Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes(isEntryNumberJourneyEnabled))
+  def genEvidenceDocumentType: Gen[UploadDocumentType] =
+    Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes)
 
   implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
@@ -45,10 +45,7 @@ object UpscanGen extends OptionValues {
   implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
   implicit val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
-    for {
-      isEntryNumberJourneyEnabled <- Gen.oneOf(true, false)
-      evidenceType                <- genEvidenceDocumentType(isEntryNumberJourneyEnabled)
-    } yield evidenceType
+    genEvidenceDocumentType
   }
 
   implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {

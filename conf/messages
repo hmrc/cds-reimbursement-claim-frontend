@@ -850,6 +850,8 @@ supporting-evidence.choose-document-type.document-type.d8=Other documents
 supporting-evidence.upload.details.b8=Other documents:
 supporting-evidence.upload.details.l8=If you have alternative supporting documents
 supporting-evidence.choose-document-type.document-type.d9=Scheduled document
+supporting-evidence.upload.details.b9=Scheduled document
+supporting-evidence.upload.details.l9=Scheduled document
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES

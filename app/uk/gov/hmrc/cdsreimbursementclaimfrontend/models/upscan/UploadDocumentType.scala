@@ -25,20 +25,18 @@ object UploadDocumentType {
 
   case object CommercialInvoice extends UploadDocumentType(0)
   case object ImportAndExportDeclaration extends UploadDocumentType(1)
-  case object C88E2 extends UploadDocumentType(2)
-  case object PackingList extends UploadDocumentType(3)
-  case object AirWayBill extends UploadDocumentType(4)
-  case object BillOfLading extends UploadDocumentType(5)
-  case object SubstituteEntry extends UploadDocumentType(6)
-  case object ProofOfAuthority extends UploadDocumentType(7)
-  case object CorrespondenceTrader extends UploadDocumentType(8)
-  case object Other extends UploadDocumentType(9)
-  case object ScheduleOfMRNs extends UploadDocumentType(10)
+  case object PackingList extends UploadDocumentType(2)
+  case object AirWayBill extends UploadDocumentType(3)
+  case object BillOfLading extends UploadDocumentType(4)
+  case object SubstituteEntry extends UploadDocumentType(5)
+  case object ProofOfAuthority extends UploadDocumentType(6)
+  case object CorrespondenceTrader extends UploadDocumentType(7)
+  case object Other extends UploadDocumentType(8)
+  case object ScheduleOfMRNs extends UploadDocumentType(9)
 
   private lazy val completeListOfEvidencesTypes = Seq(
     CommercialInvoice,
     ImportAndExportDeclaration,
-    C88E2,
     PackingList,
     AirWayBill,
     BillOfLading,
@@ -48,11 +46,7 @@ object UploadDocumentType {
     Other
   )
 
-  private lazy val mrnJourneyEvidenceTypes: Seq[UploadDocumentType] =
-    completeListOfEvidencesTypes.diff(Seq(C88E2))
-
-  def getListOfEvidenceTypes(isEntryNumberJourneyEnabled: Boolean): Seq[UploadDocumentType] =
-    if (isEntryNumberJourneyEnabled) completeListOfEvidencesTypes else mrnJourneyEvidenceTypes
+  def getListOfEvidenceTypes: Seq[UploadDocumentType] = completeListOfEvidencesTypes
 
   val evidenceIndicesToTypes: Map[Int, UploadDocumentType] =
     completeListOfEvidencesTypes.map(doc => doc.index -> doc).toMap
