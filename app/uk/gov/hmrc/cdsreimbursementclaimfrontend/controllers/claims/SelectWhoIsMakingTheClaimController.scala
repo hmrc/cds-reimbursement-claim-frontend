@@ -24,12 +24,14 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.getWhoIsMakingTheClaimHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -59,7 +61,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
       withAnswersAndRoutes[DeclarantTypeAnswer] { (_, answers, router) =>
         val emptyForm  = SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-        Ok(selectWhoIsMakingTheClaimPage(filledForm, isAmend, router))
+        Ok(selectWhoIsMakingTheClaimPage(filledForm, getWhoIsMakingTheClaimHints, isAmend, router))
       }
     }
 
@@ -72,7 +74,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
         SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, isAmend, router)),
+            formWithErrors =>
+              BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, getWhoIsMakingTheClaimHints, isAmend, router)),
             formOk => {
               val updatedJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(declarantTypeAnswer = Option(formOk)))
 
@@ -111,4 +114,7 @@ object SelectWhoIsMakingTheClaimController {
           )
       )(identity)(Some(_))
     )
+
+  def getWhoIsMakingTheClaimHints: DropdownHints =
+    DropdownHints.range(0, 2)
 }
