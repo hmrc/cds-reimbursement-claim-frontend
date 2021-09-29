@@ -44,7 +44,7 @@
 
     @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-        @formWithCSRF(routes.CheckMovementReferenceNumbersController.submitMrns(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.CheckMovementReferenceNumbersController.submitMRNs(), 'novalidate -> "novalidate") {
 
             @errorSummary(form.errors)
 

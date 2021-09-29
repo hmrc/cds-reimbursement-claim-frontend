@@ -42,7 +42,7 @@
 
     @layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-        @formWithCSRF(routes.EnterAssociatedMRNController.submitMrn(), 'novalidate -> "novalidate") {
+        @formWithCSRF(routes.EnterAssociatedMrnController.submitMRN(index), 'novalidate -> "novalidate") {
 
             @errorSummary(form.errors)
 

@@ -74,7 +74,7 @@ class CheckContactDetailsMrnController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
-          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, true))
+          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router))
         else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
     }
@@ -82,7 +82,7 @@ class CheckContactDetailsMrnController @Inject() (
   def addDetailsShow(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, false))
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, mandatoryDataAvailable = false))
       }
     }
 

@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.{DoNotAddAnotherMrn, YesAddAnotherMrn, addAnotherMrnAnswerForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -43,26 +43,26 @@ class CheckMovementReferenceNumbersController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  def showReferences(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def showMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), addAnotherMrnAnswerForm))
     })
   }
 
-  def submitReferences(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    addAnotherMrnAnswerForm
-      .bindFromRequest()
-      .fold(
-        formWithErrors => BadRequest(checkMovementReferenceNumbersPage(formWithErrors)),
-        {
-          case YesAddAnotherMrn   =>
-            request.using({ case journey: FillingOutClaim =>
-              Redirect(routes.EnterAssociatedMRNController.enterMrn(journey.draftClaim.MRNs.total + 1))
-            })
-          case DoNotAddAnotherMrn =>
-            Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
-        }
-      )
+  def submitMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    request.using({ case journey: FillingOutClaim =>
+      addAnotherMrnAnswerForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
+          {
+            case YesAddAnotherMrn   =>
+              Redirect(routes.EnterAssociatedMrnController.enterMRN(journey.draftClaim.MRNs.total + 1))
+            case DoNotAddAnotherMrn =>
+              Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
+          }
+        )
+    })
   }
 }
 
