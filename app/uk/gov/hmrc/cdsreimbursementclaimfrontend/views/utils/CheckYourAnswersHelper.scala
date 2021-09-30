@@ -31,58 +31,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
 
   private val key = "check-your-answers"
 
-  def makeClaimantDetailsSummary(completeClaim: CompleteClaim)(implicit messages: Messages): List[SummaryListRow] =
-    List(
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l0"))),
-        value = Value(Text(completeClaim.detailsRegisteredWithCdsAnswer.fullName)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
-              )
-            )
-          )
-        )
-      ),
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l1"))),
-        value = Value(Text(completeClaim.detailsRegisteredWithCdsAnswer.emailAddress.value)),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
-              )
-            )
-          )
-        )
-      ),
-      SummaryListRow(
-        key = Key(Text(messages(s"$key.claimant-details.l3"))),
-        value = Value(
-          Text(
-            completeClaim.detailsRegisteredWithCdsAnswer.contactAddress
-              .getAddressLines(messages)
-              .mkString(", ")
-          )
-        ),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
-              )
-            )
-          )
-        )
-      )
-    )
-
   def makeNorthernIrelandClaimSummary(
     completeClaim: CompleteClaim
   )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
