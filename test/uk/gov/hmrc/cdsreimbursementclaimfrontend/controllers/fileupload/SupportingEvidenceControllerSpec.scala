@@ -192,7 +192,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           }
           checkIsRedirect(
             performAction(journey),
-            routes.SupportingEvidenceController.documentDidNotUpload(journey)
+            routes.SupportingEvidenceController.sizeFail(journey)
           )
         }
       }
@@ -494,7 +494,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
       "show the document did not upload error page" when {
         "an error redirect from upscan is handled" in {
           def performAction(journey: JourneyBindable): Future[Result] =
-            controller.documentDidNotUpload(journey)(
+            controller.sizeFail(journey)(
               FakeRequest()
             )
 

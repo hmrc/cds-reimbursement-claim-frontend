@@ -13,7 +13,7 @@ GET         /:journey/supporting-evidence/check-your-answers                    
 POST        /:journey/supporting-evidence/check-your-answers                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswersSubmit(journey: JourneyBindable)
 
 GET         /:journey/supporting-evidence/handle-upscan-error-redirect             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.handleUpscanErrorRedirect(journey: JourneyBindable)
-GET         /:journey/supporting-evidence/document-did-not-upload                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.documentDidNotUpload(journey: JourneyBindable)
+GET         /:journey/supporting-evidence/size-fail                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.sizeFail(journey: JourneyBindable)
 GET         /:journey/supporting-evidence/problem-with-document                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.handleUpscanCallBackFailures(journey: JourneyBindable)
 
 GET         /scheduled/scheduled-document-upload/upload                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.uploadScheduledDocument()
