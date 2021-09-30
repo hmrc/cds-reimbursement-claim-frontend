@@ -33,7 +33,7 @@
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
 @(userDetails : SignedInUserDetails, form:Form[CheckEoriDetailsAnswer], postAction : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
