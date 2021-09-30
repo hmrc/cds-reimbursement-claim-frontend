@@ -30,6 +30,7 @@ package object summary {
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary   = new ScheduledDocumentSummary
   implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary
   implicit val displayDeclarationSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
+  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary = new CdsClaimantDetailsSummary
 
   implicit class AnswerSummaryOps[A](private val answer: A) extends AnyVal {
     def review(
