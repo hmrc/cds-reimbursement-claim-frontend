@@ -22,6 +22,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 
 package object models {
 
+  type Index = Int
+  type Total = Int
+
   // validation
 
   type Validation[A] = ValidatedNel[String, A]

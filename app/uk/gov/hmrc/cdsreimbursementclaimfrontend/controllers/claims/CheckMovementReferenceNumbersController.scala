@@ -17,40 +17,82 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Eq
-import cats.implicits.catsSyntaxEq
+import cats.data.OptionT
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class CheckMovementReferenceNumbersController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
+  sessionStore: SessionCache,
   checkMovementReferenceNumbersPage: pages.check_movement_reference_numbers
-)(implicit viewConfig: ViewConfig, cc: MessagesControllerComponents)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
+    with SessionUpdates
     with Logging {
+
+  implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] =
+    _.associatedMRNsAnswer
 
   def showMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
+      implicit val router: ReimbursementRoutes =
+        extractRoutes(journey.draftClaim, JourneyBindable.Multiple)
+
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), addAnotherMrnAnswerForm))
     })
   }
 
+  def deleteMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, maybeAssociatedMRNs) =>
+      def redirectToShowMRNsPage() =
+        Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
+
+      val maybeUpdatedClaim = for {
+        mrns    <- maybeAssociatedMRNs.map(_.toList)
+        updated <- AssociatedMRNsAnswer(mrns.take(index) ++ mrns.drop(index + 1))
+        claim    = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = updated.some))
+      } yield claim
+
+      OptionT
+        .fromOption[Future](maybeUpdatedClaim)
+        .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
+        .fold(redirectToShowMRNsPage())(
+          _.fold(
+            logAndDisplayError(s"Error updating MRNs removing ${index.ordinalNaming} MRN: "),
+            _ => redirectToShowMRNsPage()
+          )
+        )
+    }
+  }
+
   def submitMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
+      implicit val router: ReimbursementRoutes =
+        extractRoutes(journey.draftClaim, JourneyBindable.Multiple)
+
       addAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(

@@ -101,7 +101,8 @@ GET         /:journey/enter-commodity-details                       uk.gov.hmrc.
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)
 
 GET         /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterMRN(index: Int)
-POST        /multiple/submit-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitMRN(index: Int)
+POST        /multiple/submit-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitMRN(index: Int)
 
 GET         /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.showMRNs()
+GET         /multiple/delete-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.deleteMRN(index: Int)
 POST        /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.submitMRNs()

@@ -58,6 +58,9 @@ package object answers {
   object AssociatedMRNsAnswer {
     def apply(mrn: AssociatedMrn): AssociatedMRNsAnswer =
       NonEmptyList.one(mrn)
+
+    def apply(associatedMRNs: List[AssociatedMrn]): Option[AssociatedMRNsAnswer] =
+      NonEmptyList.fromList(associatedMRNs)
   }
 
   object AssociatedMRNsDeclarationAnswer {

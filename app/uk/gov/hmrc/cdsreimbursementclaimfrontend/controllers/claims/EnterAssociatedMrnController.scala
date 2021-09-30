@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMovementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.IntegerOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -54,11 +54,11 @@ class EnterAssociatedMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
 
-  def enterMRN(index: Int): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def enterMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm))
   }
 
-  def submitMRN(index: Int): Action[AnyContent] =
+  def submitMRN(index: Index): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
         associatedMovementReferenceNumberForm

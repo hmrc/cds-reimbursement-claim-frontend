@@ -75,7 +75,7 @@ object DraftClaim {
 
     object MRNs {
 
-      def apply(index: Int): Option[MRN] =
+      def apply(index: Index): Option[MRN] =
         if (index === 0) leadMrn else associatedMRNsAnswer.flatMap(_.get(index.toLong))
 
       def leadMrn: Option[LeadMrn] =
@@ -84,7 +84,7 @@ object DraftClaim {
       def apply(): List[MRN] =
         leadMrn.toList ++ (associatedMRNsAnswer.map(_.toList) getOrElse Nil)
 
-      def total: Int =
+      def total: Total =
         (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0
 
       def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =

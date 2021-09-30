@@ -98,7 +98,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
           case JourneyBindable.Scheduled =>
             uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
           case JourneyBindable.Multiple  =>
-            claimRoutes.EnterAssociatedMRNController.enterMrn(nextMrnIndex)
+            claimRoutes.EnterAssociatedMrnController.enterMRN(nextMrnIndex)
           case _                         =>
             claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
         }
