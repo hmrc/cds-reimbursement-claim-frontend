@@ -28,6 +28,7 @@ package object summary {
   implicit val displayDeclarationSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
   implicit val mrnSummary: MovementReferenceNumberSummary           = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary         = new MovementReferenceNumbersSummary
+  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary = new CdsClaimantDetailsSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary   = new ScheduledDocumentSummary
   implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary

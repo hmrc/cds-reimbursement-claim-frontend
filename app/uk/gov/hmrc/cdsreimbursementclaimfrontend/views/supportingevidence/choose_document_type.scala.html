@@ -31,7 +31,7 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
     radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
@@ -68,7 +68,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload")))
+        @dropdownDetails(summary = s"supporting-evidence.upload.details.heading", content = supportingEvidenceHints.renderHintsWithLabels("supporting-evidence.upload"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
