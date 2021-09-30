@@ -98,10 +98,10 @@ class SupportingEvidenceController @Inject() (
 
   def handleUpscanErrorRedirect(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData {
-      Redirect(routes.SupportingEvidenceController.documentDidNotUpload(journey))
+      Redirect(routes.SupportingEvidenceController.sizeFail(journey))
     }
 
-  def documentDidNotUpload(journey: JourneyBindable): Action[AnyContent] =
+  def sizeFail(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
       Ok(uploadFailedPage(journey))
     }
