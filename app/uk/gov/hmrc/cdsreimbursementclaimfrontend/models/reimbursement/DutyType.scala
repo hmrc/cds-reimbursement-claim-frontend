@@ -90,7 +90,6 @@ object DutyType {
     CiderPerry             -> List(NI431, NI481, NI483, NI485, NI487),
     HydrocarbonOils        -> List(
       NI511,
-      NI511,
       NI520,
       NI521,
       NI522,

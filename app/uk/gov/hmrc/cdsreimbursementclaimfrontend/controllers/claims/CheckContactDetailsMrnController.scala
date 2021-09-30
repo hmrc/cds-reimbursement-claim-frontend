@@ -95,7 +95,7 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             formOk => Redirect(router.nextPageForAddClaimantDetails(formOk, featureSwitch))
           )
@@ -111,7 +111,7 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router))
+              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             formOk =>
               formOk match {
@@ -182,7 +182,7 @@ class CheckContactDetailsMrnController @Inject() (
     form: Form[CheckClaimantDetailsAnswer],
     fillingOutClaim: FillingOutClaim,
     router: ReimbursementRoutes,
-    mandatoryDataAvailable: Boolean = true
+    mandatoryDataAvailable: Boolean
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages,
