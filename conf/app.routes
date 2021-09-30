@@ -1,4 +1,3 @@
-->         /govuk-frontend                                  govuk.Routes
 ->         /hmrc-frontend                                   hmrcfrontend.Routes
 
 GET        /                                                uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LandingPageController.showLandingPage()
