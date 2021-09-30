@@ -41,7 +41,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
               )
             )
@@ -56,7 +55,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
               )
             )
@@ -77,7 +75,6 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
             items = Seq(
               ActionItem(
                 href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
               )
             )
