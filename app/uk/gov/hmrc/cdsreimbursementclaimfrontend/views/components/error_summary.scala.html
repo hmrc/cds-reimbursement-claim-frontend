@@ -18,11 +18,11 @@
 @import play.api.data.FormError
 @import play.twirl.api.TwirlFeatureImports._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.html.components.govukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary
 
-@this(govukErrorSummary: govukErrorSummary)
+@this(govukErrorSummary: GovukErrorSummary)
 
 @(errors: Seq[FormError])(implicit messages: Messages)
 

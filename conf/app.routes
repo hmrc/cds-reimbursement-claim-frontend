@@ -15,7 +15,6 @@ GET        /not-eligible-to-make-a-claim                    uk.gov.hmrc.cdsreimb
 
 GET        /language/:lang                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-->         /govuk-frontend                                  govuk.Routes
 ->         /hmrc-frontend                                   hmrcfrontend.Routes
 GET        /assets/*file                                    controllers.Assets.versioned(path = "/public", file: Asset)
 
