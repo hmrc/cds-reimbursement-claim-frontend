@@ -49,23 +49,21 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
         )
       )
 
-    def toAssociatedMrnSummary: (AssociatedMrn, Index) => SummaryListRow = (mrn, index) => {
-      val mrnIndex = index + 2
+    def toAssociatedMrnSummary: (AssociatedMrn, Index) => SummaryListRow = (mrn, index) =>
       SummaryListRow(
-        key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNaming.capitalize))),
+        key = Key(Text(messages(s"$key.associated-mrn-label", (index + 2).ordinalNaming.capitalize))),
         value = Value(Text(mrn.value)),
         actions = Some(
           Actions(items =
             Seq(
               ActionItem(
-                href = s"${routes.EnterAssociatedMrnController.enterMRN(mrnIndex).url}",
+                href = s"${routes.EnterAssociatedMrnController.changeMRN(index + 2).url}",
                 content = Text(messages("cya.change"))
               )
             )
           )
         )
       )
-    }
 
     SummaryList(
       answers.headOption.map(toLeadMrnSummary).toList ++

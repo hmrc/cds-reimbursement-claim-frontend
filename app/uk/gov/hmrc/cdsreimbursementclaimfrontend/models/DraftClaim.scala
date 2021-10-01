@@ -75,9 +75,6 @@ object DraftClaim {
 
     object MRNs {
 
-      def apply(index: Index): Option[MRN] =
-        if (index === 0) leadMrn else associatedMRNsAnswer.flatMap(_.get(index.toLong))
-
       def leadMrn: Option[LeadMrn] =
         movementReferenceNumber.flatMap(_.value.toOption)
 

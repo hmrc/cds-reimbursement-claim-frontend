@@ -56,6 +56,7 @@ package object answers {
   }
 
   object AssociatedMRNsAnswer {
+
     def apply(mrn: AssociatedMrn): AssociatedMRNsAnswer =
       NonEmptyList.one(mrn)
 

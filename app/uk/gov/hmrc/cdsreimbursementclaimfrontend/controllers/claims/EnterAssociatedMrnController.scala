@@ -16,28 +16,29 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.EitherT
-import cats.implicits.catsSyntaxOptionId
+import cats.data.{EitherT, NonEmptyList}
+import cats.implicits.{catsSyntaxOptionId, toFoldableOps}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EnterAssociatedMrnController @Inject() (
@@ -58,24 +59,43 @@ class EnterAssociatedMrnController @Inject() (
     Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm))
   }
 
+  def changeMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
+      associatedMRNs.flatMap(_.get(index.toLong - 2)).fold(BadRequest("To be implemented")) { mrn =>
+        Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm.fill(mrn)))
+      }
+    }
+  }
+
   def submitMRN(index: Index): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
+        def showError: Form[AssociatedMrn] => Future[Result] =
+          formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors))
+
+        def updateMrn(): AssociatedMrn => EitherT[Future, Error, Unit] = mrn =>
+          EitherT {
+            val maybeUpdated = for {
+              mrns   <- associatedMRNs.map(_.toList)
+              idx    <- Option(index - 2).filter(mrns.indices.contains)
+              (x, xs) = mrns.splitAt(idx)
+            } yield NonEmptyList.fromList(x ++ (mrn :: xs.drop(1)))
+
+            val references = maybeUpdated getOrElse (associatedMRNs.map(_ :+ mrn) orElse AssociatedMRNsAnswer(mrn).some)
+            val claimCopy  = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = references))
+
+            updateSession(sessionStore, request)(_.copy(journeyStatus = claimCopy.some))
+          }
+
+        def redirectToNextPage: EitherT[Future, Error, Unit] => Future[Result] = eitherFailOrSuccess =>
+          eitherFailOrSuccess.fold(
+            logAndDisplayError(s"Error persisting ${index.ordinalNaming} MRN: "),
+            _ => Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
+          )
+
         associatedMovementReferenceNumberForm
           .bindFromRequest()
-          .fold(
-            formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors)),
-            mrn => {
-              val mrns      = associatedMRNs.map(_ :+ mrn) orElse AssociatedMRNsAnswer(mrn).some
-              val claimCopy = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = mrns))
-
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = claimCopy.some)))
-                .fold(
-                  logAndDisplayError(s"Error persisting ${index.ordinalNaming} MRN: "),
-                  _ => Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
-                )
-            }
-          )
+          .fold(showError, updateMrn().andThen(redirectToNextPage))
       }
     }
 }
