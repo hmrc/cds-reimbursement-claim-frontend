@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
@@ -114,6 +115,15 @@ class SelectDutiesControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
+  def getHintText(document: Document, hintTextId: String) = {
+
+    //select-duties-item-hint
+    val hintTextElement = document.select(s"""//*[@id="$hintTextId"]""")
+    val hasElement      = hintTextElement.isEmpty
+
+    if (hasElement) Some(hintTextElement.text()) else None
+  }
+
   "Select Duties Controller" must {
 
     "redirect to the start of the journey" when {
@@ -151,9 +161,9 @@ class SelectDutiesControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc => {
+          result = performAction(),
+          expectedTitle = messageFromMessageKey("select-duties.title"),
+          contentChecks = doc => {
             isA00Checked(doc) shouldBe false
             isA30Checked(doc) shouldBe false
             isA90Checked(doc) shouldBe false
@@ -317,6 +327,26 @@ class SelectDutiesControllerSpec
         val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14), basisOfClaim)._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+      }
+
+      "Return a hint text for an Acc14 excise code for an MRN when the code is MRA eligible" in {
+        val taxCodes                              = List(A80, A85, A90, A95)
+        val ndrcs: List[NdrcDetails]              = List(
+          sample[NdrcDetails].copy(taxType = A80.value, cmaEligible = Some("0")),
+          sample[NdrcDetails].copy(taxType = A85.value, cmaEligible = Some("0")),
+          sample[NdrcDetails].copy(taxType = A90.value, cmaEligible = Some("1")),
+          sample[NdrcDetails].copy(taxType = A95.value, cmaEligible = None)
+        )
+        val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
+        )
+        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+
+        val isCmaEligibleList: List[Boolean] = ndrcs.map(_.cmaEligible.getOrElse("1") === "0")
+
+        dutiesAvailable.isCmaEligible shouldBe isCmaEligibleList
       }
 
     }

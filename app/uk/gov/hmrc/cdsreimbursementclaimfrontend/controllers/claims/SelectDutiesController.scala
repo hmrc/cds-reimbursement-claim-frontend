@@ -23,7 +23,6 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang.logger
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
@@ -128,20 +127,17 @@ object SelectDutiesController {
       .fold(_.basisOfClaimAnswer)
       .exists(_ === IncorrectExciseValue)
 
-    val acc14TaxCodes = fillingOutClaim.draftClaim
+    val ndrcDetails = fillingOutClaim.draftClaim
       .fold(_.displayDeclaration)
       .flatMap(_.displayResponseDetail.ndrcDetails)
+
+    val acc14TaxCodes = ndrcDetails
       .map(_.map(n => TaxCode.fromString(n.taxType)).flatten(Option.option2Iterable))
       .getOrElse(Nil)
 
-    val isCmaEligible = fillingOutClaim.draftClaim
-      .fold(_.displayDeclaration)
-      .flatMap(_.displayResponseDetail.ndrcDetails)
+    val isCmaEligible = ndrcDetails
       .getOrElse(Nil)
-      .map(ndrc => ndrc.cmaEligible.exists(_ === "0"))
-
-//    logger.info("Index: " + index)
-    logger.info("List Size: " + isCmaEligible.size)
+      .map(_.cmaEligible.getOrElse("1") === "0")
 
     wasIncorrectExciseCodeSelected match {
       case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
