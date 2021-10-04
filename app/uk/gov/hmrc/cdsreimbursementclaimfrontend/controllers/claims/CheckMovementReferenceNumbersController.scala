@@ -25,7 +25,6 @@ import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -58,9 +57,6 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   def showMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
-      implicit val router: ReimbursementRoutes =
-        extractRoutes(journey.draftClaim, JourneyBindable.Multiple)
-
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), addAnotherMrnAnswerForm))
     })
   }
@@ -90,9 +86,6 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   def submitMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
-      implicit val router: ReimbursementRoutes =
-        extractRoutes(journey.draftClaim, JourneyBindable.Multiple)
-
       addAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(
