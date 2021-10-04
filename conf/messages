@@ -613,6 +613,7 @@ select-duty-codes.climate-change-levy.duty-code.99D = 99D - Electricity
 #  MAKE CLAIM PAGES
 #===================================================
 select-duties.title=Select the duties you want to claim for
+select-duties.duty.hint=This duty is not eligible for CMA reimbursement
 select-duties.help-text=These are the duties that have been paid in the import declaration.<br />You can select any of the paid duties.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=Customs Duty

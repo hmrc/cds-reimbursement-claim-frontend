@@ -297,14 +297,14 @@ class SelectDutiesControllerSpec
     "Available Duties" should {
 
       "Return Acc14 duties for an MRN" in {
-        val taxCodes        = Random.shuffle(TaxCode.allTaxCodes).take(20)
-        val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
-        val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        val taxCodes                              = Random.shuffle(TaxCode.allTaxCodes).take(20)
+        val ndrcs                                 = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
+        val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
-        val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
 
       "Return Acc14 excise codes for an MRN when the Incorrect Excise code was selected previously" in {
@@ -316,7 +316,7 @@ class SelectDutiesControllerSpec
         )
         val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14), basisOfClaim)._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
 
     }

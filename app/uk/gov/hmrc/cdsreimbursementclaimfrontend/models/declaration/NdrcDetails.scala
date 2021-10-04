@@ -23,7 +23,7 @@ final case class NdrcDetails(
   amount: String,
   paymentMethod: String,
   paymentReference: String,
-  cmaEligible: Option[String]
+  cmaEligible: Option[String] //FIXME: cmaEligible misleading name. Investigate better ways to handle this field
 )
 
 object NdrcDetails {

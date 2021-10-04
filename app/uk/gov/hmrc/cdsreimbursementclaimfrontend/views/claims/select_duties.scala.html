@@ -24,7 +24,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import cats.data.NonEmptyList
+@import play.api.i18n.Lang.logger
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,18 +38,23 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: List[Boolean])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"$key.title")}
 
-  @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
+  @logger: Logger = Logger(this.getClass)
 
-    @options = @{dutiesToDisplay.map { duty =>
+  @postAction = @{routes.SelectDutiesController.selectDutiesSubmit}
+    @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
+
+
+        val isCmaEligible = cmaEligibleList(index)
                 CheckboxItem(
                     name = Some(s"${key}[]"),
                     value = duty.taxCode.value,
-                    content = Text(duty.taxCode.value + " - " + messages(s"${key}.duty.${duty.taxCode.value}")),
+                    content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
+                    hint = if(isCmaEligible) Some(Hint(content = Text(messages(s"$key.duty.hint")))) else None,
                     checked = form.data.exists(_._2 == duty.taxCode.value)
             )
         }
