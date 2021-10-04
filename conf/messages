@@ -196,7 +196,14 @@ enter-associated-mrn.invalid.number=Enter a movement reference number
 check-movement-reference-numbers.title=All your MRNs entered in this claim
 check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
-check-movement-reference-numbers.invalid-answer=Select yes if you want to add another MRN.
+check-movement-reference-numbers.invalid-answer=Select yes if you want to add another MRN
+
+#===================================================
+#  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
+#===================================================
+mrn-does-not-exist.title=This MRN does not exist
+mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been entered.
+mrn-does-not-exist.button=Go back
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE

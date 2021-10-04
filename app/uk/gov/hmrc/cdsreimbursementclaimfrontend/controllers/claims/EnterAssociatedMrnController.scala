@@ -45,7 +45,8 @@ class EnterAssociatedMrnController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
-  enterAssociatedMrnPage: pages.enter_associated_mrn
+  enterAssociatedMrnPage: pages.enter_associated_mrn,
+  mrnDoesNotExistPage: pages.mrn_does_not_exist
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -61,7 +62,7 @@ class EnterAssociatedMrnController @Inject() (
 
   def changeMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
-      associatedMRNs.flatMap(_.get(index.toLong - 2)).fold(BadRequest("To be implemented")) { mrn =>
+      associatedMRNs.flatMap(_.get(index.toLong - 2)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
         Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm.fill(mrn)))
       }
     }

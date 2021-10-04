@@ -18,7 +18,7 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.AddAnotherMrnAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.WhetherAddAnotherMrnAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
@@ -39,7 +39,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(references: Seq[MRN], form: Form[AddAnotherMrnAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
+@(references: Seq[MRN], form: Form[WhetherAddAnotherMrnAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
 
     @key = @{"check-movement-reference-numbers"}
     @title = @{messages(s"$key.title")}

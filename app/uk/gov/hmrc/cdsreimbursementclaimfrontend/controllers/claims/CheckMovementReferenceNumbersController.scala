@@ -112,19 +112,19 @@ object CheckMovementReferenceNumbersController {
 
   val checkMovementReferenceNumbersKey = "check-movement-reference-numbers"
 
-  sealed trait AddAnotherMrnAnswer extends Product with Serializable
-  case object YesAddAnotherMrn extends AddAnotherMrnAnswer
-  case object DoNotAddAnotherMrn extends AddAnotherMrnAnswer
+  sealed trait WhetherAddAnotherMrnAnswer extends Product with Serializable
+  case object YesAddAnotherMrn extends WhetherAddAnotherMrnAnswer
+  case object DoNotAddAnotherMrn extends WhetherAddAnotherMrnAnswer
 
-  implicit val addAnotherDocumentMrnEq: Eq[AddAnotherMrnAnswer] =
-    Eq.fromUniversalEquals[AddAnotherMrnAnswer]
+  implicit val addAnotherDocumentMrnEq: Eq[WhetherAddAnotherMrnAnswer] =
+    Eq.fromUniversalEquals[WhetherAddAnotherMrnAnswer]
 
-  val addAnotherMrnAnswerForm: Form[AddAnotherMrnAnswer] =
+  val addAnotherMrnAnswerForm: Form[WhetherAddAnotherMrnAnswer] =
     Form(
       mapping(
         checkMovementReferenceNumbersKey -> optional(boolean)
           .verifying("invalid-answer", _.isDefined)
-          .transform[AddAnotherMrnAnswer](
+          .transform[WhetherAddAnotherMrnAnswer](
             opt => if (opt.exists(_ === true)) YesAddAnotherMrn else DoNotAddAnotherMrn,
             answer => Some(answer === YesAddAnotherMrn)
           )
