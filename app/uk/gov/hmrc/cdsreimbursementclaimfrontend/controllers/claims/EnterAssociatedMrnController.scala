@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.{EitherT, NonEmptyList}
-import cats.implicits.{catsSyntaxOptionId, toFoldableOps}
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId, toFoldableOps}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
@@ -25,18 +25,17 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMovementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMrnForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Index, IntegerOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,13 +56,13 @@ class EnterAssociatedMrnController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
 
   def enterMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm))
+    Ok(enterAssociatedMrnPage(index, associatedMrnForm()))
   }
 
   def changeMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
       associatedMRNs.flatMap(_.get(index.toLong - 2)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-        Ok(enterAssociatedMrnPage(index, associatedMovementReferenceNumberForm.fill(mrn)))
+        Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn)))
       }
     }
   }
@@ -94,7 +93,7 @@ class EnterAssociatedMrnController @Inject() (
             _ => Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
           )
 
-        associatedMovementReferenceNumberForm
+        associatedMrnForm(fillingOutClaim.draftClaim.MRNs())
           .bindFromRequest()
           .fold(showError, updateMrn().andThen(redirectToNextPage))
       }
@@ -105,11 +104,12 @@ object EnterAssociatedMrnController {
 
   val enterAssociatedMrnKey = "enter-associated-mrn"
 
-  val associatedMovementReferenceNumberForm: Form[AssociatedMrn] =
+  def associatedMrnForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
     Form(
       mapping(
         enterAssociatedMrnKey -> nonEmptyText
           .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
+          .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
           .transform[AssociatedMrn](MRN(_), _.value)
       )(identity)(Some(_))
     )

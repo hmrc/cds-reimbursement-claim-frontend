@@ -189,6 +189,7 @@ enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number
 enter-associated-mrn.invalid.number=Enter a movement reference number
+enter-associated-mrn.error.exists=You have already entered this MRN. Enter a different MRN
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
