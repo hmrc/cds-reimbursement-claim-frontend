@@ -20,8 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMrn, LeadMrn}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -49,21 +48,23 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
         )
       )
 
-    def toAssociatedMrnSummary: (AssociatedMrn, Index) => SummaryListRow = (mrn, index) =>
+    def toAssociatedMrnSummary: (AssociatedMrn, Int) => SummaryListRow = (mrn, index) => {
+      val mrnIndex = AssociatedMrnIndex.fromRegular(index)
       SummaryListRow(
-        key = Key(Text(messages(s"$key.associated-mrn-label", (index + 2).ordinalNaming.capitalize))),
+        key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNaming.capitalize))),
         value = Value(Text(mrn.value)),
         actions = Some(
           Actions(items =
             Seq(
               ActionItem(
-                href = s"${routes.EnterAssociatedMrnController.changeMRN(index + 2).url}",
+                href = s"${routes.EnterAssociatedMrnController.changeMrn(mrnIndex).url}",
                 content = Text(messages("cya.change"))
               )
             )
           )
         )
       )
+    }
 
     SummaryList(
       answers.headOption.map(toLeadMrnSummary).toList ++

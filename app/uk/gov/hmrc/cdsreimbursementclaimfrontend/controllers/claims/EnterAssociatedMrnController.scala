@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Index, IntegerOps}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -55,19 +55,21 @@ class EnterAssociatedMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
 
-  def enterMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     Ok(enterAssociatedMrnPage(index, associatedMrnForm()))
   }
 
-  def changeMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
-      associatedMRNs.flatMap(_.get(index.toLong - 2)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-        Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn)))
+  def changeMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
+        val idx = index.toRegular
+        associatedMRNs.flatMap(_.get(idx.toLong)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
+          Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn)))
+        }
       }
-    }
   }
 
-  def submitMRN(index: Index): Action[AnyContent] =
+  def submitMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
         def showError: Form[AssociatedMrn] => Future[Result] =
@@ -77,7 +79,7 @@ class EnterAssociatedMrnController @Inject() (
           EitherT {
             val maybeUpdated = for {
               mrns   <- associatedMRNs.map(_.toList)
-              idx    <- Option(index - 2).filter(mrns.indices.contains)
+              idx    <- Option(index.toRegular).filter(mrns.indices.contains)
               (x, xs) = mrns.splitAt(idx)
             } yield NonEmptyList.fromList(x ++ (mrn :: xs.drop(1)))
 
@@ -90,7 +92,7 @@ class EnterAssociatedMrnController @Inject() (
         def redirectToNextPage: EitherT[Future, Error, Unit] => Future[Result] = eitherFailOrSuccess =>
           eitherFailOrSuccess.fold(
             logAndDisplayError(s"Error persisting ${index.ordinalNaming} MRN: "),
-            _ => Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
+            _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
           )
 
         associatedMrnForm(fillingOutClaim.draftClaim.MRNs())

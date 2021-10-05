@@ -96,7 +96,7 @@ class EnterMovementReferenceNumberController @Inject() (
               if (previousValue === currentValue && isAmend)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
               else if (previousValue === currentValue && journey === JourneyBindable.Multiple)
-                Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
+                Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
               else
                 mrnNumber.value
                   .map { mrn =>

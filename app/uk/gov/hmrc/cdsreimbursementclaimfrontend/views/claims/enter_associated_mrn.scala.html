@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,34 +33,34 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(index: Index, form: Form[AssociatedMrn])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(index: AssociatedMrnIndex, form: Form[AssociatedMrn])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-associated-mrn"}
-    @title = @{messages(s"$key.title", index.ordinalNaming)}
+@key = @{"enter-associated-mrn"}
+@title = @{messages(s"$key.title", index.ordinalNaming)}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(title), hasErrors = hasErrors) {
+@layout(pageTitle = Some(title), hasErrors = hasErrors) {
 
-        @formWithCSRF(routes.EnterAssociatedMrnController.submitMRN(index), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterAssociatedMrnController.submitMrn(index), 'novalidate -> "novalidate") {
 
-            @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-            @pageHeading(title)
+        @pageHeading(title)
 
-            @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(s"$key.help-text", viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
-            @inputText(
-                form = form,
-                id = key,
-                name = key,
-                label = s"$key.enter-mrn.label",
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.help"),
-                headingMessageArgs = index.ordinalNaming :: Nil
-            )
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = s"$key.enter-mrn.label",
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.help"),
+            headingMessageArgs = index.ordinalNaming :: Nil
+        )
 
-            @submitButton("button.continue")
-        }
+        @submitButton("button.continue")
     }
+}

@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Index, IntegerOps}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -55,36 +55,39 @@ class CheckMovementReferenceNumbersController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] =
     _.associatedMRNsAnswer
 
-  def showMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), addAnotherMrnAnswerForm))
     })
   }
 
-  def deleteMRN(index: Index): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, maybeAssociatedMRNs) =>
-      def redirectToShowMRNsPage() =
-        Redirect(routes.CheckMovementReferenceNumbersController.showMRNs())
+  def deleteMrn(mrnIndex: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, maybeAssociatedMRNs) =>
+        def redirectToShowMrnsPage() =
+          Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
 
-      val maybeUpdatedClaim = for {
-        mrns    <- maybeAssociatedMRNs.map(_.toList)
-        updated <- AssociatedMRNsAnswer(mrns.take(index) ++ mrns.drop(index + 1))
-        claim    = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = updated.some))
-      } yield claim
+        val idx = mrnIndex.toRegular
 
-      OptionT
-        .fromOption[Future](maybeUpdatedClaim)
-        .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
-        .fold(redirectToShowMRNsPage())(
-          _.fold(
-            logAndDisplayError(s"Error updating MRNs removing ${index.ordinalNaming} MRN: "),
-            _ => redirectToShowMRNsPage()
+        val maybeUpdatedClaim = for {
+          mrns    <- maybeAssociatedMRNs.map(_.toList)
+          updated <- AssociatedMRNsAnswer(mrns.take(idx) ++ mrns.drop(idx + 1))
+          claim    = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = updated.some))
+        } yield claim
+
+        OptionT
+          .fromOption[Future](maybeUpdatedClaim)
+          .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
+          .fold(redirectToShowMrnsPage())(
+            _.fold(
+              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNaming} MRN: "),
+              _ => redirectToShowMrnsPage()
+            )
           )
-        )
-    }
+      }
   }
 
-  def submitMRNs(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
       addAnotherMrnAnswerForm
         .bindFromRequest()
@@ -92,7 +95,7 @@ class CheckMovementReferenceNumbersController @Inject() (
           formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
           {
             case YesAddAnotherMrn   =>
-              Redirect(routes.EnterAssociatedMrnController.enterMRN(journey.draftClaim.MRNs.total + 1))
+              Redirect(routes.EnterAssociatedMrnController.enterMrn(journey.draftClaim.MRNs.total + 1))
             case DoNotAddAnotherMrn =>
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
           }

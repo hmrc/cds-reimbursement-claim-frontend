@@ -22,7 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 
 package object models {
 
-  type Index = Int
   type Total = Int
 
   // validation
@@ -42,39 +41,6 @@ package object models {
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
 
-  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type = DutyType.DutyTypeOrdering
-
-  implicit class IntegerOps(val integer: Int) extends AnyVal {
-    def ordinalNaming: String = Ordinal(integer)
-  }
-
-  object Ordinal {
-
-    private val wordings = Array(
-      "zero",
-      "first",
-      "second",
-      "third",
-      "forth",
-      "fifth",
-      "sixth",
-      "seventh",
-      "eighth",
-      "ninth"
-    )
-
-    def apply(integer: Int): String = integer.abs match {
-      case n if n < wordings.length =>
-        val sign = if (integer < 0) "minus " else ""
-        sign + wordings(n)
-      case n if n > 20              =>
-        n % 10 match {
-          case 1 => s"${integer}st"
-          case 2 => s"${integer}nd"
-          case 3 => s"${integer}rd"
-          case _ => s"${integer}th"
-        }
-      case _                        => s"${integer}th"
-    }
-  }
+  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type =
+    DutyType.DutyTypeOrdering
 }
