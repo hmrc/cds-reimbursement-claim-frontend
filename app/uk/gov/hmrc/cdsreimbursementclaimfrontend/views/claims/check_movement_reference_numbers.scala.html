@@ -68,7 +68,7 @@
                 @references.drop(1).zipWithIndex.map { mrnWithIndex =>
                     @defining(AssociatedMrnIndex.fromRegular(mrnWithIndex._2)) { index =>
                         <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">@messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNaming.capitalize)</dt>
+                            <dt class="govuk-summary-list__key">@messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize)</dt>
                             <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link" href=@routes.EnterAssociatedMrnController.changeMrn(index).url>@{messages(s"cya.change")}</a>

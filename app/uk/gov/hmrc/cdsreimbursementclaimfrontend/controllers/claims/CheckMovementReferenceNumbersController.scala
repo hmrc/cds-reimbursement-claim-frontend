@@ -57,7 +57,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
-      Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), addAnotherMrnAnswerForm))
+      Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
     })
   }
 
@@ -80,7 +80,7 @@ class CheckMovementReferenceNumbersController @Inject() (
           .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
           .fold(redirectToShowMrnsPage())(
             _.fold(
-              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNaming} MRN: "),
+              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
               _ => redirectToShowMrnsPage()
             )
           )
@@ -89,7 +89,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
   def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     request.using({ case journey: FillingOutClaim =>
-      addAnotherMrnAnswerForm
+      whetherAddAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(
           formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
@@ -115,7 +115,7 @@ object CheckMovementReferenceNumbersController {
   implicit val addAnotherDocumentMrnEq: Eq[WhetherAddAnotherMrnAnswer] =
     Eq.fromUniversalEquals[WhetherAddAnotherMrnAnswer]
 
-  val addAnotherMrnAnswerForm: Form[WhetherAddAnotherMrnAnswer] =
+  val whetherAddAnotherMrnAnswerForm: Form[WhetherAddAnotherMrnAnswer] =
     Form(
       mapping(
         checkMovementReferenceNumbersKey -> optional(boolean)

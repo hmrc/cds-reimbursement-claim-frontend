@@ -91,7 +91,7 @@ class EnterAssociatedMrnController @Inject() (
 
         def redirectToNextPage: EitherT[Future, Error, Unit] => Future[Result] = eitherFailOrSuccess =>
           eitherFailOrSuccess.fold(
-            logAndDisplayError(s"Error persisting ${index.ordinalNaming} MRN: "),
+            logAndDisplayError(s"Error persisting ${index.ordinalNumeral} MRN: "),
             _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
           )
 

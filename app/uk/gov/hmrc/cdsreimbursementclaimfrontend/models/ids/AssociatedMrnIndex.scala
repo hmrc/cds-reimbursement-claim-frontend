@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.Eq
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Ordinal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 
 final case class AssociatedMrnIndex(value: Int) extends AnyVal {
 
@@ -28,7 +28,7 @@ final case class AssociatedMrnIndex(value: Int) extends AnyVal {
   def -(integer: Int): AssociatedMrnIndex =
     AssociatedMrnIndex(value - integer)
 
-  def ordinalNaming: String = Ordinal(value)
+  def ordinalNumeral: String = OrdinalNumeral(value)
 
   def toRegular: Int = value - 2
 }

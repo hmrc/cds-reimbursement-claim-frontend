@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-object Ordinal {
+object OrdinalNumeral {
 
   private val wordings = Array(
     "zero",

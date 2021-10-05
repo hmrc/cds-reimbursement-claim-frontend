@@ -36,7 +36,7 @@
 @(index: AssociatedMrnIndex, form: Form[AssociatedMrn])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-associated-mrn"}
-@title = @{messages(s"$key.title", index.ordinalNaming)}
+@title = @{messages(s"$key.title", index.ordinalNumeral)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -58,7 +58,7 @@
             isPageHeading = false,
             classes = Some("govuk-input--width-20"),
             hint = Some(s"$key.help"),
-            headingMessageArgs = index.ordinalNaming :: Nil
+            headingMessageArgs = index.ordinalNumeral :: Nil
         )
 
         @submitButton("button.continue")
