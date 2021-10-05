@@ -101,9 +101,12 @@ GET         /:journey/enter-commodity-details                       uk.gov.hmrc.
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)
 
 GET         /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterMrn(index: AssociatedMrnIndex)
+POST        /multiple/enter-movement-reference-number/:index        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitEnteredMrn(index: AssociatedMrnIndex)
+
 GET         /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.changeMrn(index: AssociatedMrnIndex)
-POST        /multiple/submit-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitMrn(index: AssociatedMrnIndex)
+POST        /multiple/change-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.submitChangedMrn(index: AssociatedMrnIndex)
 
 GET         /multiple/delete-movement-reference-number/:index       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.deleteMrn(index: AssociatedMrnIndex)
+
 GET         /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.showMrns()
 POST        /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.submitMrns()

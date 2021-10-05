@@ -28,10 +28,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMrnForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -59,45 +59,72 @@ class EnterAssociatedMrnController @Inject() (
     Ok(enterAssociatedMrnPage(index, associatedMrnForm()))
   }
 
-  def changeMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
-    implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
-        val idx = index.toRegular
-        associatedMRNs.flatMap(_.get(idx.toLong)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-          Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn)))
-        }
-      }
-  }
-
-  def submitMrn(index: AssociatedMrnIndex): Action[AnyContent] =
+  def submitEnteredMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
         def showError: Form[AssociatedMrn] => Future[Result] =
           formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors))
 
-        def updateMrn(): AssociatedMrn => EitherT[Future, Error, Unit] = mrn =>
+        def addMrn(): AssociatedMrn => EitherT[Future, Error, Unit] = mrn =>
           EitherT {
-            val maybeUpdated = for {
-              mrns   <- associatedMRNs.map(_.toList)
-              idx    <- Option(index.toRegular).filter(mrns.indices.contains)
-              (x, xs) = mrns.splitAt(idx)
-            } yield NonEmptyList.fromList(x ++ (mrn :: xs.drop(1)))
-
-            val references = maybeUpdated getOrElse (associatedMRNs.map(_ :+ mrn) orElse AssociatedMRNsAnswer(mrn).some)
+            val references = associatedMRNs.map(_ :+ mrn) orElse AssociatedMRNsAnswer(mrn).some
             val claimCopy  = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = references))
-
             updateSession(sessionStore, request)(_.copy(journeyStatus = claimCopy.some))
           }
 
         def redirectToNextPage: EitherT[Future, Error, Unit] => Future[Result] = eitherFailOrSuccess =>
           eitherFailOrSuccess.fold(
-            logAndDisplayError(s"Error persisting ${index.ordinalNumeral} MRN: "),
+            logAndDisplayError(s"Error storing ${index.ordinalNumeral} MRN: "),
             _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
           )
 
         associatedMrnForm(fillingOutClaim.draftClaim.MRNs())
           .bindFromRequest()
-          .fold(showError, updateMrn().andThen(redirectToNextPage))
+          .fold(showError, addMrn().andThen(redirectToNextPage))
+      }
+    }
+
+  def changeMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
+    implicit request =>
+      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
+        val idx = index.toRegular
+        associatedMRNs.flatMap(_.get(idx.toLong)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
+          Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn), editing = true))
+        }
+      }
+  }
+
+  def submitChangedMrn(index: AssociatedMrnIndex): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
+        def showError: Form[AssociatedMrn] => Future[Result] =
+          formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors, editing = true))
+
+        def updateAnswer(mrn: AssociatedMrn) = for {
+          mrns    <- associatedMRNs.map(_.toList)
+          idx     <- Option(index.toRegular).filter(mrns.indices.contains)
+          (x, xs)  = mrns.splitAt(idx)
+          updated <- NonEmptyList.fromList(x ++ (mrn :: xs.drop(1)))
+        } yield updated
+
+        def updateSessionAndThenRedirectToNextPage(): AssociatedMRNsAnswer => Future[Result] = answer => {
+          val claim = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = answer.some))
+          updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)).map(
+            _.fold(
+              logAndDisplayError(s"Error updating ${index.ordinalNumeral} MRN: "),
+              _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+            )
+          )
+        }
+
+        associatedMrnForm(fillingOutClaim.draftClaim.MRNs())
+          .bindFromRequest()
+          .fold(
+            showError,
+            updateAnswer(_)
+              .map(updateSessionAndThenRedirectToNextPage())
+              .getOrElse(Future.successful(BadRequest(mrnDoesNotExistPage())))
+          )
       }
     }
 }

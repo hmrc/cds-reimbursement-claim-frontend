@@ -51,7 +51,7 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
     def toAssociatedMrnSummary: (AssociatedMrn, Int) => SummaryListRow = (mrn, index) => {
       val mrnIndex = AssociatedMrnIndex.fromRegular(index)
       SummaryListRow(
-        key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNaming.capitalize))),
+        key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNumeral.capitalize))),
         value = Value(Text(mrn.value)),
         actions = Some(
           Actions(items =
