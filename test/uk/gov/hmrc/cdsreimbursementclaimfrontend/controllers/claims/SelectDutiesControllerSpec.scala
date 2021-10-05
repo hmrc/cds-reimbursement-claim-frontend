@@ -115,13 +115,12 @@ class SelectDutiesControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
+  def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
+
   def getHintText(document: Document, hintTextId: String) = {
+    val hintTextElement = document.select(s"div#$hintTextId")
 
-    //select-duties-item-hint
-    val hintTextElement = document.select(s"""//*[@id="$hintTextId"]""")
-    val hasElement      = hintTextElement.isEmpty
-
-    if (hasElement) Some(hintTextElement.text()) else None
+    if (hintTextElement.hasText) Some(hintTextElement.text()) else None
   }
 
   "Select Duties Controller" must {
@@ -149,8 +148,6 @@ class SelectDutiesControllerSpec
     }
 
     "display the page" when {
-
-      def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
@@ -329,26 +326,55 @@ class SelectDutiesControllerSpec
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
 
-      "Return a hint text for an Acc14 excise code for an MRN when the code is MRA eligible" in {
-        val taxCodes                              = List(A80, A85, A90, A95)
-        val ndrcs: List[NdrcDetails]              = List(
-          sample[NdrcDetails].copy(taxType = A80.value, cmaEligible = Some("0")),
-          sample[NdrcDetails].copy(taxType = A85.value, cmaEligible = Some("0")),
-          sample[NdrcDetails].copy(taxType = A90.value, cmaEligible = Some("1")),
-          sample[NdrcDetails].copy(taxType = A95.value, cmaEligible = None)
+    }
+
+    "have CMA Eligible flag/Duties hint text" should {
+
+      val taxCodes       = List(A80, A85, A90, A95)
+      val testNdrcDetail = sample[NdrcDetails]
+
+      val ndrcs: List[NdrcDetails] = List(
+        testNdrcDetail.copy(taxType = A80.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A85.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A90.value, cmaEligible = Some("0")),
+        testNdrcDetail.copy(taxType = A95.value, cmaEligible = None)
+      )
+
+      val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
+      )
+
+      "Acc14 excise code where the MRA eligible flag is true" in {
+
+        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._1
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        val hintText = Some("This duty is not eligible for CMA reimbursement")
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-duties.title"),
+          doc => {
+            getHintText(doc, "select-duties-item-hint")   shouldBe hintText
+            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-3-item-hint") shouldBe None
+            getHintText(doc, "select-duties-4-item-hint") shouldBe None
+          }
         )
-        val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-          dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
-        )
+      }
+
+      "the CMA eligible flag indicates true" in {
         val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
         val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
 
-        val isCmaEligibleList: List[Boolean] = ndrcs.map(_.cmaEligible.getOrElse("1") === "0")
+        val isCmaEligibleList: List[Boolean] = ndrcs.map(_.cmaEligible.getOrElse("0") === "1")
 
         dutiesAvailable.isCmaEligible shouldBe isCmaEligibleList
       }
-
     }
 
   }

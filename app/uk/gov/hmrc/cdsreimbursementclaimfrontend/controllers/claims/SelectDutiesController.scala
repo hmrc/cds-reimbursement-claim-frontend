@@ -137,7 +137,7 @@ object SelectDutiesController {
 
     val isCmaEligible = ndrcDetails
       .getOrElse(Nil)
-      .map(_.cmaEligible.getOrElse("1") === "0")
+      .map(_.cmaEligible.getOrElse("0") === "1")
 
     wasIncorrectExciseCodeSelected match {
       case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
