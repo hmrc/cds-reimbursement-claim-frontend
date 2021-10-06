@@ -75,7 +75,7 @@ class SelectDutiesController @Inject() (
             logger.warn("No Available duties: ", error)
             Redirect(baseRoutes.IneligibleController.ineligible())
           },
-          (dutiesAvailable: DutiesSelectedAnswer) => {
+          dutiesAvailable => {
             val emptyForm  = selectDutiesForm(dutiesAvailable)
             val filledForm = previousAnswer.fold(emptyForm)(emptyForm.fill)
             Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible))
