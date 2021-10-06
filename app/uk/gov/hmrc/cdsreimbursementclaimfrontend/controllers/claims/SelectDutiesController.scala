@@ -94,7 +94,7 @@ class SelectDutiesController @Inject() (
             logger.warn("No Available duties: ", error)
             Redirect(baseRoutes.IneligibleController.ineligible())
           },
-          (dutiesAvailable: DutiesSelectedAnswer) =>
+          dutiesAvailable =>
             selectDutiesForm(dutiesAvailable)
               .bindFromRequest()
               .fold(
