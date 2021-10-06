@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
@@ -114,6 +115,14 @@ class SelectDutiesControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
+  def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
+
+  def getHintText(document: Document, hintTextId: String) = {
+    val hintTextElement = document.select(s"div#$hintTextId")
+
+    if (hintTextElement.hasText) Some(hintTextElement.text()) else None
+  }
+
   "Select Duties Controller" must {
 
     "redirect to the start of the journey" when {
@@ -140,8 +149,6 @@ class SelectDutiesControllerSpec
 
     "display the page" when {
 
-      def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
-
       "the user has not answered this question before" in {
         val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
 
@@ -151,9 +158,9 @@ class SelectDutiesControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc => {
+          result = performAction(),
+          expectedTitle = messageFromMessageKey("select-duties.title"),
+          contentChecks = doc => {
             isA00Checked(doc) shouldBe false
             isA30Checked(doc) shouldBe false
             isA90Checked(doc) shouldBe false
@@ -297,14 +304,14 @@ class SelectDutiesControllerSpec
     "Available Duties" should {
 
       "Return Acc14 duties for an MRN" in {
-        val taxCodes        = Random.shuffle(TaxCode.allTaxCodes).take(20)
-        val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
-        val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        val taxCodes                              = Random.shuffle(TaxCode.allTaxCodes).take(20)
+        val ndrcs                                 = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
+        val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
-        val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
 
       "Return Acc14 excise codes for an MRN when the Incorrect Excise code was selected previously" in {
@@ -316,9 +323,58 @@ class SelectDutiesControllerSpec
         )
         val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14), basisOfClaim)._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
-        dutiesAvailable.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
 
+    }
+
+    "have CMA Eligible flag/Duties hint text" should {
+
+      val taxCodes       = List(A80, A85, A90, A95)
+      val testNdrcDetail = sample[NdrcDetails]
+
+      val ndrcs: List[NdrcDetails] = List(
+        testNdrcDetail.copy(taxType = A80.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A85.value, cmaEligible = Some("1")),
+        testNdrcDetail.copy(taxType = A90.value, cmaEligible = Some("0")),
+        testNdrcDetail.copy(taxType = A95.value, cmaEligible = None)
+      )
+
+      val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+        dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
+      )
+
+      "Acc14 excise code where the MRA eligible flag is true" in {
+
+        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._1
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        val hintText = Some("This duty is not eligible for CMA reimbursement")
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey("select-duties.title"),
+          doc => {
+            getHintText(doc, "select-duties-item-hint")   shouldBe hintText
+            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-3-item-hint") shouldBe None
+            getHintText(doc, "select-duties-4-item-hint") shouldBe None
+          }
+        )
+      }
+
+      "the CMA eligible flag indicates true" in {
+        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
+        dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
+
+        val isCmaEligibleList: List[Boolean] = ndrcs.map(_.cmaEligible.getOrElse("0") === "1")
+
+        dutiesAvailable.isCmaEligible shouldBe isCmaEligibleList
+      }
     }
 
   }
