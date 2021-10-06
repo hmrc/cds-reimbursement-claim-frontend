@@ -44,7 +44,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 final case class CmaEligibleAndDuties(
-  isCmaEligible: List[Boolean],
+  isCmaEligible: Seq[Boolean],
   dutiesSelectedAnswer: Either[Error, DutiesSelectedAnswer]
 )
 
