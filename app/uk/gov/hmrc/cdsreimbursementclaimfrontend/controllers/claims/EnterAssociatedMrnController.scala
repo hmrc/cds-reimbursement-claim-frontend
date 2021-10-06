@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.associatedMrnForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -55,8 +55,18 @@ class EnterAssociatedMrnController @Inject() (
 
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
 
+  def mrnInputForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
+    Form(
+      mapping(
+        enterAssociatedMrnKey -> nonEmptyText
+          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
+          .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
+          .transform[AssociatedMrn](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
   def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterAssociatedMrnPage(index, associatedMrnForm()))
+    Ok(enterAssociatedMrnPage(index, mrnInputForm()))
   }
 
   def submitEnteredMrn(index: AssociatedMrnIndex): Action[AnyContent] =
@@ -78,7 +88,7 @@ class EnterAssociatedMrnController @Inject() (
             _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
           )
 
-        associatedMrnForm(fillingOutClaim.draftClaim.MRNs())
+        mrnInputForm(fillingOutClaim.draftClaim.MRNs())
           .bindFromRequest()
           .fold(showError, addMrn().andThen(redirectToNextPage))
       }
@@ -89,7 +99,7 @@ class EnterAssociatedMrnController @Inject() (
       withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
         val idx = index.toRegular
         associatedMRNs.flatMap(_.get(idx.toLong)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-          Ok(enterAssociatedMrnPage(index, associatedMrnForm().fill(mrn), editing = true))
+          Ok(enterAssociatedMrnPage(index, mrnInputForm().fill(mrn), editing = true))
         }
       }
   }
@@ -117,7 +127,7 @@ class EnterAssociatedMrnController @Inject() (
           )
         }
 
-        associatedMrnForm(fillingOutClaim.draftClaim.MRNs())
+        mrnInputForm(fillingOutClaim.draftClaim.MRNs())
           .bindFromRequest()
           .fold(
             showError,
@@ -132,14 +142,4 @@ class EnterAssociatedMrnController @Inject() (
 object EnterAssociatedMrnController {
 
   val enterAssociatedMrnKey = "enter-associated-mrn"
-
-  def associatedMrnForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
-    Form(
-      mapping(
-        enterAssociatedMrnKey -> nonEmptyText
-          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
-          .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
-          .transform[AssociatedMrn](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
 }

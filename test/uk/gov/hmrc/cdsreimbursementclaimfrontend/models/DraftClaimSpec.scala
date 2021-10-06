@@ -16,13 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.syntax.all._
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class DraftClaimSpec extends AnyFlatSpec with Matchers {
+class DraftClaimSpec extends AnyWordSpec with Matchers {
 
-  it should "succeed" in {
-    (Option(List("abc", "cv")), Option(List(1, 2))).mapN((x, y) => x zip y) should be(Some(List()))
-  }
 }
