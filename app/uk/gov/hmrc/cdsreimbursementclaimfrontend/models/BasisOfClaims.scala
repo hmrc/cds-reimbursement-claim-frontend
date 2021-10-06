@@ -37,7 +37,7 @@ object BasisOfClaims {
     def filterUsing(journey: JourneyBindable): Builder =
       copy(
         if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple)
-          claims.diff(List(DuplicateEntry, IncorrectEoriAndDefermentAccountNumber))
+          claims.diff(List(DuplicateEntry))
         else claims
       )
 

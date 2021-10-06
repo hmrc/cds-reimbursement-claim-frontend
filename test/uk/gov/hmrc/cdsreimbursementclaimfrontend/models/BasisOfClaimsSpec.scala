@@ -43,7 +43,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         BasisOfClaims(items =
           List(
             DuplicateEntry,
-            IncorrectEoriAndDefermentAccountNumber,
             DutySuspension,
             EndUseRelief,
             IncorrectCommodityCode,
@@ -75,7 +74,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       BasisOfClaims(items =
         List(
           DuplicateEntry,
-          IncorrectEoriAndDefermentAccountNumber,
           DutySuspension,
           EndUseRelief,
           IncorrectCommodityCode,
@@ -140,7 +138,6 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
     BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Single).claims should be(
       List(
         DuplicateEntry,
-        IncorrectEoriAndDefermentAccountNumber,
         DutySuspension,
         EndUseRelief,
         IncorrectCommodityCode,

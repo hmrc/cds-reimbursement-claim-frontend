@@ -238,7 +238,6 @@ class SelectBasisForClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
@@ -263,7 +262,6 @@ class SelectBasisForClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
