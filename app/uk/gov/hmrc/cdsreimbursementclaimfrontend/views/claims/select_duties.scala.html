@@ -47,7 +47,7 @@
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
         CheckboxItem(
-            name = Some(s"${key}[]"),
+            name = Some(s"$key[]"),
             value = duty.taxCode.value,
             content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
             hint = if(isCmaEligible) Some(Hint(content = Text(messages(s"$key.duty.hint")))) else None,
