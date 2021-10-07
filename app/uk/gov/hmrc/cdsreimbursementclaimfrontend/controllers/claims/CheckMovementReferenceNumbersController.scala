@@ -106,7 +106,7 @@ class CheckMovementReferenceNumbersController @Inject() (
 
 object CheckMovementReferenceNumbersController {
 
-  val checkMovementReferenceNumbersKey = "check-movement-reference-numbers"
+  val checkMovementReferenceNumbersKey: String = "check-movement-reference-numbers"
 
   sealed trait WhetherAddAnotherMrnAnswer extends Product with Serializable
   case object YesAddAnotherMrn extends WhetherAddAnotherMrnAnswer

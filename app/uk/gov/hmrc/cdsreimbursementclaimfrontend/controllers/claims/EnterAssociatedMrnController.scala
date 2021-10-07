@@ -141,5 +141,5 @@ class EnterAssociatedMrnController @Inject() (
 
 object EnterAssociatedMrnController {
 
-  val enterAssociatedMrnKey = "enter-associated-mrn"
+  val enterAssociatedMrnKey: String = "enter-associated-mrn"
 }
