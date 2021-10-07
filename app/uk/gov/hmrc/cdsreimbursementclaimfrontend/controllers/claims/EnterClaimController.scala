@@ -28,6 +28,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{ClaimAmount, ClaimAndPaidAmount, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -191,9 +192,14 @@ class EnterClaimController @Inject() (
                 _ =>
                   claims match {
                     case ClaimAnswersAreCorrect =>
-                      if (fillingOutClaim.draftClaim.fold(_.isMrnFlow))
-                        Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
-                      else Redirect(routes.BankAccountController.enterBankAccountDetails(extractJourney))
+                      fillingOutClaim.draftClaim match {
+                        case claim: DraftC285Claim if !claim.isMrnFlow     =>
+                          Redirect(routes.BankAccountController.enterBankAccountDetails(extractJourney))
+                        case claim: DraftC285Claim if isCmaEligible(claim) =>
+                          Redirect(reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod())
+                        case _                                             =>
+                          Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
+                      }
 
                     case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
                   }
@@ -246,6 +252,29 @@ object EnterClaimController {
     )(ClaimAndPaidAmount.apply)(ClaimAndPaidAmount.unapply)
       .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
+
+  def isCmaEligible(draftC285Claim: DraftC285Claim): Boolean = {
+    val duties = selectedDuties(draftC285Claim)
+    duties.nonEmpty && duties
+      .forall(_.isDefined) && duties.map(_.flatMap(_.cmaEligible).getOrElse("0")).forall(_ === "1")
+  }
+
+  private def selectedDuties(draftC285Claim: DraftC285Claim): List[Option[NdrcDetails]] = {
+    val nrdcDetailsMap = draftC285Claim
+      .fold(_.displayDeclaration)
+      .flatMap(_.displayResponseDetail.ndrcDetails)
+      .getOrElse(Nil)
+      .map(duty => duty.taxType -> duty)
+      .toMap
+    draftC285Claim.dutiesSelectedAnswer match {
+      case Some(dutiesSelectedAnswer) =>
+        dutiesSelectedAnswer.toList
+          .filter(duty => nrdcDetailsMap.contains(duty.taxCode.value))
+          .map(duty => nrdcDetailsMap.get(duty.taxCode.value))
+      case _                          =>
+        List()
+    }
+  }
 
   def mrnClaimAmountForm(paidAmount: BigDecimal): Form[ClaimAmount] =
     Form(
