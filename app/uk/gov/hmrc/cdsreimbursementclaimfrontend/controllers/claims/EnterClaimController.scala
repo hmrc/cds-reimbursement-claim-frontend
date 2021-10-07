@@ -192,8 +192,6 @@ class EnterClaimController @Inject() (
                   claims match {
                     case ClaimAnswersAreCorrect =>
                       fillingOutClaim.draftClaim match {
-                        case claim: DraftC285Claim if !claim.isMrnFlow     =>
-                          Redirect(routes.BankAccountController.enterBankAccountDetails(extractJourney))
                         case claim: DraftC285Claim if isCmaEligible(claim) =>
                           Redirect(reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod())
                         case _                                             =>
