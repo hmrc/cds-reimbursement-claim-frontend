@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.libs.json.{Json, OFormat}
+import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaim
 
-final case class DutyPaidAndClaimAmount(dutyPaidAmount: BigDecimal, dutyClaimAmount: BigDecimal)
-
-object DutyPaidAndClaimAmount {
-  implicit val format: OFormat[DutyPaidAndClaimAmount] = Json.format[DutyPaidAndClaimAmount]
+object ReimbursementClaimGen {
+  implicit val arbitraryReimbursementClaim: Typeclass[ReimbursementClaim] = gen[ReimbursementClaim]
 }

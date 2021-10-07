@@ -66,7 +66,7 @@ class SelectDutyCodesController @Inject() (
           Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
         ) { dutyTypesAnswer =>
           val updatedJourneyStatus: FillingOutClaim = answer.fold {
-            updateJourneyStatus(dutyTypesAnswer, DutyCodesAnswer.empty, fillingOutClaim)
+            updateJourneyStatus(dutyTypesAnswer, DutyCodesAnswer.none, fillingOutClaim)
           } { dutyCodesAnswer =>
             updateJourneyStatus(dutyTypesAnswer, dutyCodesAnswer, fillingOutClaim)
           }
@@ -85,7 +85,7 @@ class SelectDutyCodesController @Inject() (
                     dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                       case Some(dutyType) =>
                         Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                      case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                      case None           => Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
                     }
                   case _                                                 =>
                     logger.warn("could not find duty types or duty codes")
@@ -170,7 +170,7 @@ class SelectDutyCodesController @Inject() (
               dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                 case Some(dutyType) =>
                   Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                case None           => Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
               }
             case None                  =>
               logger.warn("could not find duty codes")
@@ -181,6 +181,7 @@ class SelectDutyCodesController @Inject() (
 }
 
 object SelectDutyCodesController {
+
   def selectDutyCodesForm(dutyType: DutyType): Form[DutyCodesAnswer] =
     Form(
       mapping(
@@ -197,5 +198,4 @@ object SelectDutyCodesController {
         dutyCodesAnswer.dutyCodes.values.headOption
       )
     )
-
 }

@@ -137,6 +137,7 @@ object DutyType {
   def unapply(dutyType: DutyType): Option[String] = Some(dutyType.repr)
 
   object DutyTypeOrdering extends Ordering[DutyType] {
-    def compare(a: DutyType, b: DutyType) = DutyType.dutyTypeToRankMap(a) compare DutyType.dutyTypeToRankMap(b)
+    def compare(a: DutyType, b: DutyType): Int =
+      DutyType.dutyTypeToRankMap(a) compare DutyType.dutyTypeToRankMap(b)
   }
 }

@@ -26,7 +26,7 @@ final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
 object DutyCodesAnswer {
 
-  val empty: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
+  val none: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
 
   implicit def dutyCodesAnswerFormat: Format[Map[DutyType, List[TaxCode]]] =
     new Format[Map[DutyType, List[TaxCode]]] {
@@ -61,6 +61,13 @@ object DutyCodesAnswer {
         dutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
       )
     }
+
+    def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      dutyCodesAnswer.dutyCodes.map { dutyTypeToDutyCodeMap =>
+        dutyTypeToDutyCodeMap._1 -> dutyTypeToDutyCodeMap._2
+          .map(taxCode => taxCode -> ReimbursementClaim.none)
+          .toMap
+      }
   }
 
   implicit val eq: Eq[DutyCodesAnswer]          = Eq.fromUniversalEquals[DutyCodesAnswer]

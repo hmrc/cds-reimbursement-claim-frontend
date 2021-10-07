@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import julienrf.json.derived
-import play.api.data.Forms.{nonEmptyText, number, of, optional, mapping => formMapping}
+import play.api.data.Forms.{mapping => formMapping, nonEmptyText, number, of, optional}
 import play.api.data.validation._
 import play.api.data.{Form, Mapping}
 import play.api.i18n.Messages

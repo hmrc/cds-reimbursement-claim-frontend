@@ -627,6 +627,14 @@ select-duty-codes.climate-change-levy.duty-code.99B = 99B - Any petroleum gas, o
 select-duty-codes.climate-change-levy.duty-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 select-duty-codes.climate-change-levy.duty-code.99D = 99D - Electricity
 
+check-reimbursement-claim.title=Check the reimbursement claim totals for all MRNs
+check-reimbursement-claim.help-text=These are the calculations based on the information you gave us.
+check-reimbursement-claim.are-these-duties-correct=Are these duties correct?
+check-reimbursement-claim.yes=Yes
+check-reimbursement-claim.no=No, select different duties
+check-reimbursement-claim.duty-code.row.key={0} total reimbursement
+check-reimbursement-claim.total-reimbursement.row.key=Total reimbursement
+
 #===================================================
 #  MAKE CLAIM PAGES
 #===================================================

@@ -119,13 +119,13 @@ class SelectDutyTypesController @Inject() (
     (
       fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer),
       fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer),
-      fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
+      fillingOutClaim.draftClaim.fold(_.reimbursementClaimAnswer)
     ) match {
       case (Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(dutyPaidAndClaimAmountAnswer)) =>
         if (dutyCodesAnswer.dutyCodes.values.exists(_.isEmpty)) false
         else if (
           dutyTypesAnswer.dutyTypesSelected
-            .exists(dutyType => dutyPaidAndClaimAmountAnswer.dutyPaidAndClaimAmountsEntered(dutyType).isEmpty)
+            .exists(dutyType => dutyPaidAndClaimAmountAnswer.reimbursementClaims(dutyType).isEmpty)
         ) false
         else true
       case _                                                                                  => false

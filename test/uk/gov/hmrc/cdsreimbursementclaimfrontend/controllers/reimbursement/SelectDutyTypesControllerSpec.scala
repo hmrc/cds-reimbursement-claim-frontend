@@ -58,13 +58,13 @@ class SelectDutyTypesControllerSpec
   private def sessionWithDutyTypesState(
     maybeDutyTypesSelectedAnswer: Option[DutyTypesAnswer],
     maybeDutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
-    maybeDutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer] = None
+    reimbursementClaimAnswer: Option[ReimbursementClaimAnswer] = None
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      =
       DraftC285Claim.newDraftC285Claim.copy(
         dutyTypesSelectedAnswer = maybeDutyTypesSelectedAnswer,
         dutyCodesSelectedAnswer = maybeDutyCodesSelectedAnswer,
-        dutyPaidAndClaimAmountAnswer = maybeDutyPaidAndClaimAmountAnswer
+        reimbursementClaimAnswer = reimbursementClaimAnswer
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -116,15 +116,15 @@ class SelectDutyTypesControllerSpec
         val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
         val dutyCodesAnswer          =
           DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
-        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
+        val reimbursementClaimAnswer = ReimbursementClaimAnswer(
           Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
+            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2")))),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2"))))
           )
         )
 
         val (session, fillingOutClaim, draftC285Claim) =
-          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
+          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(reimbursementClaimAnswer))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -249,15 +249,15 @@ class SelectDutyTypesControllerSpec
         val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
         val dutyCodesAnswer          =
           DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
-        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
+        val reimbursementClaimAnswer = ReimbursementClaimAnswer(
           Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
+            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2")))),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2"))))
           )
         )
 
         val (session, fillingOutClaim, draftC285Claim) =
-          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
+          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(reimbursementClaimAnswer))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 

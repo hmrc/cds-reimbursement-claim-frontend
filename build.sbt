@@ -38,7 +38,9 @@ lazy val wartremoverSettings =
 
 lazy val scoverageSettings =
   Seq(
-    ScoverageKeys.coverageExcludedFiles := (Compile / managedSourceDirectories).value.map(d => s"${d.getPath}/.*").mkString(";"),
+    ScoverageKeys.coverageExcludedFiles := (Compile / managedSourceDirectories).value
+      .map(d => s"${d.getPath}/.*")
+      .mkString(";"),
     ScoverageKeys.coverageExcludedPackages := "<empty>;.*(config|testonly|views|utils).*",
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageMinimumBranchTotal := 70,

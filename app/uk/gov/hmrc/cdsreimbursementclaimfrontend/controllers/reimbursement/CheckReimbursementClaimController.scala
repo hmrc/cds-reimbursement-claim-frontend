@@ -16,12 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import play.api.Configuration
+import play.api.data.Form
+import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -41,4 +46,21 @@ class CheckReimbursementClaimController @Inject() (
     Ok("implementation todo ....")
   }
 
+  def submitReimbursementClaim(): Action[AnyContent] = Action {
+    Ok("implementation todo....")
+  }
+}
+
+object CheckReimbursementClaimController {
+
+  def checkReimbursementClaimForm: Form[YesNo] = Form(
+    mapping(
+      "check-reimbursement-claim" -> optional(boolean)
+        .verifying("invalid", _.isDefined)
+        .transform[YesNo](
+          value => if (value.exists(_ === true)) Yes else No,
+          answer => Some(answer === Yes)
+        )
+    )(identity)(Some(_))
+  )
 }

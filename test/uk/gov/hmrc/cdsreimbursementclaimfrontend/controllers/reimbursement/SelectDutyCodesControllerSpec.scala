@@ -200,7 +200,7 @@ class SelectDutyCodesControllerSpec
 
         checkIsRedirect(
           performActionWithFormData(DutyType.UkDuty, Seq(s"$messageKey[]" -> "A00")),
-          routes.EnterPaidAndClaimAmountController.start()
+          routes.EnterReimbursementClaimController.start()
         )
 
       }
@@ -226,7 +226,7 @@ class SelectDutyCodesControllerSpec
 
           checkIsRedirect(
             performActionWithFormData(DutyType.UkDuty, Seq(s"$messageKey[]" -> "A00")),
-            routes.EnterPaidAndClaimAmountController.start()
+            routes.EnterReimbursementClaimController.start()
           )
         }
 
@@ -254,7 +254,7 @@ class SelectDutyCodesControllerSpec
 
         checkIsRedirect(
           performActionWithFormData(DutyType.EuDuty, Seq(s"$messageKey[]" -> "A50")),
-          routes.EnterPaidAndClaimAmountController.start()
+          routes.EnterReimbursementClaimController.start()
         )
 
       }
