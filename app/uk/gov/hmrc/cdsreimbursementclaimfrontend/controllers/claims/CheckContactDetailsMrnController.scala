@@ -73,8 +73,8 @@ class CheckContactDetailsMrnController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        if (fillingOutClaim.draftClaim.isMandatoryDataAvailable)
-          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, true))
+        if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
+          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, mandatoryDataAvailable = true))
         else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
     }
@@ -82,14 +82,14 @@ class CheckContactDetailsMrnController @Inject() (
   def addDetailsShow(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, false))
+        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, mandatoryDataAvailable = false))
       }
     }
 
   def addDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -105,7 +105,7 @@ class CheckContactDetailsMrnController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryDataAvailable
+        val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         checkClaimantDetailsAnswerForm
           .bindFromRequest()
           .fold(

@@ -92,9 +92,12 @@ class EnterMovementReferenceNumberController @Inject() (
             mrnNumber => {
               val previousValue = previousAnswer.map(_.stringValue).getOrElse("")
               val currentValue  = mrnNumber.stringValue
-              if (previousValue === currentValue && isAmend) {
+
+              if (previousValue === currentValue && isAmend)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
-              } else
+              else if (previousValue === currentValue && journey === JourneyBindable.Multiple)
+                Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+              else
                 mrnNumber.value
                   .map { mrn =>
                     val result = for {
@@ -155,7 +158,9 @@ class EnterMovementReferenceNumberController @Inject() (
         movementReferenceNumber = Option(mrn),
         displayDeclaration = Option(acc14),
         mrnContactDetailsAnswer = maybeContactDetails,
-        mrnContactAddressAnswer = maybeContactAddress
+        mrnContactAddressAnswer = maybeContactAddress,
+        associatedMRNsAnswer = None,
+        associatedMRNsDeclarationAnswer = None
       )
     )
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
@@ -220,7 +225,8 @@ object EnterMovementReferenceNumberController {
               consigneeDetails.consigneeEORI =!= signedInUserDetails.eori.value || declarantDetails =!= signedInUserDetails.eori.value
             )
               Right(ThirdPartyImporter(displayDeclaration))
-            else Right(ThirdPartyImporter(displayDeclaration))
+            else
+              Right(ThirdPartyImporter(displayDeclaration))
           case _                                                =>
             Left(Error("could not determine if signed in user's Eori matches any on the declaration"))
         }

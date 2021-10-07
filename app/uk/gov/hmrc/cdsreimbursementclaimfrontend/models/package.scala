@@ -22,6 +22,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 
 package object models {
 
+  type Total = Int
+
   // validation
 
   type Validation[A] = ValidatedNel[String, A]
@@ -39,5 +41,6 @@ package object models {
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
 
-  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type = DutyType.DutyTypeOrdering
+  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type =
+    DutyType.DutyTypeOrdering
 }

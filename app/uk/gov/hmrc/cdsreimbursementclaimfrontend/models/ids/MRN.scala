@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
+import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 
 import java.util.Locale
@@ -35,5 +36,6 @@ object MRN {
     mrnWithoutSpaces.matches(regex) && !mrnWithoutSpaces.matches(entryNumberRegex)
   }
 
+  implicit val eq: Eq[MRN]          = Eq.fromUniversalEquals
   implicit val format: OFormat[MRN] = Json.format[MRN]
 }

@@ -87,7 +87,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                     Redirect(
                       router.nextPageForWhoIsMakingTheClaim(
                         isAmend,
-                        fillingOutClaim.draftClaim.isMandatoryDataAvailable
+                        fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
                       )
                     )
                 )
