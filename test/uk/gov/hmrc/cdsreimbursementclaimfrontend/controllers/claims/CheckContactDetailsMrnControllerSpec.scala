@@ -525,7 +525,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe true
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe true
     }
 
     "return false if we have valid contact details but missing contact address" in {
@@ -537,7 +537,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
 
     }
     "return false if we have valid contact address but missing contact details" in {
@@ -549,7 +549,7 @@ class CheckContactDetailsMrnControllerSpec
         Some(sample[ContactAddress])
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
 
     }
 
@@ -563,7 +563,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
@@ -582,7 +582,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
     }
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
@@ -601,7 +601,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
 
     }
 
@@ -621,7 +621,7 @@ class CheckContactDetailsMrnControllerSpec
         None
       )._2
 
-      fillingOutClaim.draftClaim.isMandatoryDataAvailable shouldBe false
+      fillingOutClaim.draftClaim.isMandatoryContactDataAvailable shouldBe false
 
     }
   }

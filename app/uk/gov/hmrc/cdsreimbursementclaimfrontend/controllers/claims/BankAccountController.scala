@@ -72,7 +72,7 @@ class BankAccountController @Inject() (
       claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim) =>
                      draftClaim
                    }
-      evidences <- claim.fold(_.supportingEvidencesAnswer)
+      evidences <- claim.supportingEvidencesAnswer
     } yield evidences
 
     maybeEvidences.fold(uploadEvidence)(_ => checkYourAnswers)
@@ -81,10 +81,10 @@ class BankAccountController @Inject() (
   def checkBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, declaration, router) =>
-        val isChange = fillingOutClaim.draftClaim.fold(identity).bankAccountDetailsAnswer.nonEmpty
+        val isChange = fillingOutClaim.draftClaim.bankAccountDetailsAnswer.nonEmpty
         isChange match {
           case true  =>
-            fillingOutClaim.draftClaim.fold(identity).bankAccountDetailsAnswer match {
+            fillingOutClaim.draftClaim.bankAccountDetailsAnswer match {
               case Some(bankAccountDetails: BankAccountDetails) =>
                 Ok(
                   checkBankAccountDetailsPage(
@@ -160,7 +160,7 @@ class BankAccountController @Inject() (
     journeyBindable: JourneyBindable
   ): Future[Result] =
     withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim, _, router) =>
-      fillingOutClaim.draftClaim.fold(identity).bankAccountTypeAnswer match {
+      fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
         case None                               => Redirect(router.nextPageForEnterBankAccountDetails(false))
         case Some(bankAccount: BankAccountType) =>
           BankAccountController.enterBankDetailsForm
@@ -189,7 +189,7 @@ class BankAccountController @Inject() (
                     if (bankAccount === BankAccountType.BusinessBankAccount) {
                       claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                     } else {
-                      val claimant    = fillingOutClaim.draftClaim.detailsRegisteredWithCds
+                      val claimant    = fillingOutClaim.draftClaim.detailsRegisteredWithCdsAnswer
                       val address     = BarsAddress(Nil, None, claimant.map(_.contactAddress.postcode))
                       val accountName = Some(bankAccountDetails.accountName.value)
                       val subject     = BarsSubject(None, accountName, None, None, None, address)

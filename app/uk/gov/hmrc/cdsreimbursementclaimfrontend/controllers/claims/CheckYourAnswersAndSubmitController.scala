@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, Error, RetrievedUserType, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, Error, RetrievedUserType, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -62,7 +62,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
+      withCompleteDraftClaim { (fillingOutClaim, completeClaim) =>
         implicit val router: ReimbursementRoutes =
           extractRoutes(fillingOutClaim.draftClaim, journey)
         Ok(checkYourAnswersPage(completeClaim))
@@ -71,7 +71,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def checkAllAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim { (_, fillingOutClaim, completeClaim) =>
+      withCompleteDraftClaim { (fillingOutClaim, completeClaim) =>
         val result =
           for {
             response        <- EitherT.liftF(
@@ -179,23 +179,15 @@ class CheckYourAnswersAndSubmitController @Inject() (
     }
 
   private def withCompleteDraftClaim(
-    f: (SessionData, FillingOutClaim, CompleteClaim) => Future[Result]
+    f: (FillingOutClaim, CompleteClaim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.unapply({
-      case (
-            sessionData,
-            fillingOutClaim @ FillingOutClaim(
-              _,
-              signedInUserDetails,
-              draftClaim: DraftC285Claim
-            )
-          ) =>
-        CompleteClaim
-          .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
-          .fold[Future[Result]](
-            error => logAndDisplayError("could not make a complete claim") apply error,
-            completeClaim => f(sessionData, fillingOutClaim, completeClaim)
-          )
+    request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftC285Claim) =>
+      CompleteClaim
+        .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
+        .fold[Future[Result]](
+          error => logAndDisplayError("could not make a complete claim") apply error,
+          completeClaim => f(fillingOutClaim, completeClaim)
+        )
     })
 }
 

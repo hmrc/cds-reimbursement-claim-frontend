@@ -137,7 +137,7 @@ object SelectBasisForClaimController {
 
   def getBasisOfClaimsHints(journeyBindable: JourneyBindable): DropdownHints =
     DropdownHints.range(
-      if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 2 else 0,
-      13
+      if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 1 else 0,
+      12
     )
 }

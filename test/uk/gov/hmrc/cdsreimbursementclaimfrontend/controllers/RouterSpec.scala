@@ -95,21 +95,22 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes)
     val singleRoutes    = Table("Single routes", MRNSingleRoutes)
+    val nextMrnIndex    = sample[Int]
 
     "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect)(nextMrnIndex) should be(
         fileUploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
       )
     }
 
     "be select who is making claim for the single journey" in forAll(singleRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect)(nextMrnIndex) should be(
         claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable)
       )
     }
 
     "be enter journey MRN having incorrect declaration" in forAll(allRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect)(nextMrnIndex) should be(
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
       )
     }

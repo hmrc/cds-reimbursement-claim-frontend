@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class MrnSummary extends AnswerSummary[MRN] {
+class MovementReferenceNumberSummary extends AnswerSummary[MRN] {
 
   def render(key: String, answer: MRN)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
     SummaryList(

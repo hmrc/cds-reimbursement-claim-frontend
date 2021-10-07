@@ -86,6 +86,7 @@ object CompleteClaim {
             _,
             maybeScheduledDocument,
             _,
+            _,
             _
           ) =>
         (
