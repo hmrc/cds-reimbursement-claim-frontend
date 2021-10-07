@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import org.scalacheck.Gen
@@ -36,7 +52,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Displaying ordinal numeral for the number ending with 1" should {
     "contain `st` postfix" in {
       forAll { n: Int =>
-        val index   = n.truncateToEndWith(1)
+        val index = n.truncateToEndWith(1)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
       }
     }
@@ -45,7 +61,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Displaying ordinal numeral for the number ending with 2" should {
     "contain `nd` postfix" in {
       forAll { n: Int =>
-        val index   = n.truncateToEndWith(2)
+        val index = n.truncateToEndWith(2)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("nd")
       }
     }
@@ -54,7 +70,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Displaying ordinal numeral for the number ending with 3" should {
     "contain `rd` postfix" in {
       forAll { n: Int =>
-        val index   = n.truncateToEndWith(3)
+        val index = n.truncateToEndWith(3)
         AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("rd")
       }
     }
