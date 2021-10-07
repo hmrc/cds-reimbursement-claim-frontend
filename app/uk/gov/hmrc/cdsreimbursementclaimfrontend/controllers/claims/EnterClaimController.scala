@@ -71,8 +71,7 @@ class EnterClaimController @Inject() (
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-        generateClaimsFromDuties(draftC285Claim).map(ClaimsAnswer(_)) match {
+        generateClaimsFromDuties(fillingOutClaim.draftClaim).map(ClaimsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
             Redirect(routes.SelectDutiesController.selectDuties())
@@ -91,7 +90,7 @@ class EnterClaimController @Inject() (
       withAnswers[ClaimsAnswer] { (fillingOutClaim, answer) =>
         answer.flatMap(_.find(_.id === id)) match {
           case Some(claim) =>
-            fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
+            fillingOutClaim.draftClaim.isMrnFlow match {
               case true  =>
                 val emptyForm = mrnClaimAmountForm(claim.paidAmount)
                 val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
@@ -123,7 +122,7 @@ class EnterClaimController @Inject() (
               case None        =>
                 Redirect(routes.EnterClaimController.startClaim())
               case Some(claim) =>
-                fillingOutClaim.draftClaim.fold(_.isMrnFlow) match {
+                fillingOutClaim.draftClaim.isMrnFlow match {
                   case true  =>
                     mrnClaimAmountForm(claim.paidAmount)
                       .bindFromRequest()
