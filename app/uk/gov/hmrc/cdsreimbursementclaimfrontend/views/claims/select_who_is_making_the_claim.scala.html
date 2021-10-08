@@ -44,11 +44,11 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-        @test = {
-            @paragraph(Html(messages(s"$key.details.paragraph.0")))
-            @paragraph(Html(messages(s"$key.details.paragraph.1")))
-            @paragraph(Html(messages(s"$key.details.paragraph.2")))
-        }
+    @paragraphs = {
+        @paragraph(Html(messages(s"$key.details.paragraph.0")))
+        @paragraph(Html(messages(s"$key.details.paragraph.1")))
+        @paragraph(Html(messages(s"$key.details.paragraph.2")))
+    }
 
     @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -58,7 +58,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = test)
+        @dropdownDetails(summary = s"$key.details.heading", content = paragraphs)
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
