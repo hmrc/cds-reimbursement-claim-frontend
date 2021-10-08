@@ -110,3 +110,6 @@ GET         /multiple/delete-movement-reference-number/:index       uk.gov.hmrc.
 
 GET         /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.showMrns()
 POST        /multiple/check-movement-reference-numbers              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.submitMrns()
+
+GET         /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MultipleSelectDutiesController.selectDuties(index: AssociatedMrnIndex)
+POST        /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MultipleSelectDutiesController.selectDutiesSubmit(index: AssociatedMrnIndex)

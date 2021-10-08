@@ -34,6 +34,8 @@ package object answers {
   type AssociatedMRNsDeclarationAnswer = NonEmptyList[DisplayDeclaration]
   type SupportingEvidencesAnswer       = NonEmptyList[UploadDocument]
   type DutiesSelectedAnswer            = NonEmptyList[Duty]
+  type DutiesSelectedForMRNAnswer      = (AssociatedMrn, DutiesSelectedAnswer)
+  type MultipleDutiesSelectedAnswer    = NonEmptyList[DutiesSelectedForMRNAnswer]
   type ClaimsAnswer                    = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {
