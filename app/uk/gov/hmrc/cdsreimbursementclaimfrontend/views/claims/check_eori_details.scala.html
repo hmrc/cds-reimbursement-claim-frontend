@@ -56,10 +56,9 @@
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages(s"$key.eori-correct-label"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "govuk-visually-hidden",
             inline = true,
             items = Seq(
                 RadioItem(

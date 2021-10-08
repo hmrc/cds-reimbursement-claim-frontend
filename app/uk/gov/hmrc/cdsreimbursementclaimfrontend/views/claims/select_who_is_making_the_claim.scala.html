@@ -23,7 +23,6 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -36,7 +35,7 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[DeclarantTypeAnswer], whoIsMakingTheClaimHints: DropdownHints, isAmend : Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[DeclarantTypeAnswer], isAmend : Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"select-who-is-making-the-claim"}
     @title = @{messages(s"$key.title")}
@@ -44,6 +43,12 @@
     @postAction = @{ router.submitUrlForWhoIsMakingTheClaim(isAmend) }
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+
+        @test = {
+            @paragraph(Html(messages(s"$key.details.paragraph.0")))
+            @paragraph(Html(messages(s"$key.details.paragraph.1")))
+            @paragraph(Html(messages(s"$key.details.paragraph.2")))
+        }
 
     @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
@@ -53,7 +58,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = whoIsMakingTheClaimHints.renderHints(key))
+        @dropdownDetails(summary = s"$key.details.heading", content = test)
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
