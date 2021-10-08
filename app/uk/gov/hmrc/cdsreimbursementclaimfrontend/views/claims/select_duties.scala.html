@@ -50,7 +50,7 @@
             name = Some(s"$key[]"),
             value = duty.taxCode.value,
             content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
-            hint = if(isCmaEligible) Some(Hint(content = Text(messages(s"$key.duty.hint")))) else None,
+            hint = if(isCmaEligible) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == duty.taxCode.value)
         )
     }}
