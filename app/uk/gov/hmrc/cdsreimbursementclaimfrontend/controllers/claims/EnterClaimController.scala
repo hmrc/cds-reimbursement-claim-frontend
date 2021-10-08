@@ -253,12 +253,12 @@ object EnterClaimController {
   def isCmaEligible(draftC285Claim: DraftC285Claim): Boolean = {
     val duties = selectedDuties(draftC285Claim)
     duties.nonEmpty && duties
-      .forall(_.isDefined) && duties.map(_.flatMap(_.cmaEligible).getOrElse("0")).forall(_ === "1")
+      .map(_.flatMap(_.cmaEligible).getOrElse("0"))
+      .forall(_ === "1")
   }
 
   private def selectedDuties(draftC285Claim: DraftC285Claim): List[Option[NdrcDetails]] = {
-    val nrdcDetailsMap = draftC285Claim
-      .fold(_.displayDeclaration)
+    val nrdcDetailsMap = draftC285Claim.displayDeclaration
       .flatMap(_.displayResponseDetail.ndrcDetails)
       .getOrElse(Nil)
       .map(duty => duty.taxType -> duty)
@@ -269,7 +269,7 @@ object EnterClaimController {
           .filter(duty => nrdcDetailsMap.contains(duty.taxCode.value))
           .map(duty => nrdcDetailsMap.get(duty.taxCode.value))
       case _                          =>
-        List()
+        Nil
     }
   }
 
