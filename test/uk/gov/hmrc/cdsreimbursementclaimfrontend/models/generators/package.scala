@@ -36,11 +36,11 @@ package object generators {
       .chooseNum(0L, 10000L)
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
 
-  implicit val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
+  implicit lazy val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
 
-  implicit val arbitraryString: Typeclass[String] = Arbitrary(
+  implicit lazy val arbitraryString: Typeclass[String] = Arbitrary(
     Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
   )
 

@@ -25,5 +25,5 @@ object ContactDetailsGen {
   def genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
     Gen.option(arbitraryMrnContactDetails.arbitrary)
 
-  implicit val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
+  implicit lazy val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
 }

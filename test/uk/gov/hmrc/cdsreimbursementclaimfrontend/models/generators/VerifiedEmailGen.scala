@@ -20,5 +20,5 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.VerifiedEmail
 
 object VerifiedEmailGen {
-  implicit val arbitraryVerifiedEmail: Typeclass[VerifiedEmail] = gen[VerifiedEmail]
+  implicit lazy val arbitraryVerifiedEmail: Typeclass[VerifiedEmail] = gen[VerifiedEmail]
 }

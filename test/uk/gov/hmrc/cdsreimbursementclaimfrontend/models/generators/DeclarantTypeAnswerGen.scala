@@ -21,6 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer
 
 object DeclarantTypeAnswerGen {
 
-  implicit val arbitraryDeclarantTypeAnswer: Typeclass[DeclarantTypeAnswer] = gen[DeclarantTypeAnswer]
+  implicit lazy val arbitraryDeclarantTypeAnswer: Typeclass[DeclarantTypeAnswer] = gen[DeclarantTypeAnswer]
 
 }

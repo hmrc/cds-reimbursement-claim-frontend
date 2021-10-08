@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumb
 
 object PhoneNumberGen {
 
-  implicit val arbitraryPhoneNumber: Typeclass[PhoneNumber] = Arbitrary(genUkPhoneNumber)
+  implicit lazy val arbitraryPhoneNumber: Typeclass[PhoneNumber] = Arbitrary(genUkPhoneNumber)
 
   def genUkPhoneNumber: Gen[PhoneNumber] =
     Gen.listOfN(10, Gen.numChar).map(numbers => PhoneNumber(numbers.foldLeft("0")((s, ch) => s"$s$ch")))

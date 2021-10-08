@@ -22,6 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 object ClaimsAnswerGen {
 
-  implicit val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
-  implicit val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
+  implicit lazy val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
+  implicit lazy val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
 }

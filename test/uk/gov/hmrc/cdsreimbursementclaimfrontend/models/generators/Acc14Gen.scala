@@ -37,7 +37,7 @@ object Acc14Gen {
     cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) //0 = CMA Not Eligible, 1 = CMA Eligible
   } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
 
-  implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
+  implicit lazy val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
 
   def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
     n <- Gen.choose(min, max)
@@ -67,7 +67,7 @@ object Acc14Gen {
       emailAddress
     )
 
-  implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
+  implicit lazy val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
 
   def genEstablishmentAddress: Gen[EstablishmentAddress] =
     for {
@@ -85,7 +85,7 @@ object Acc14Gen {
       countryCode.code
     )
 
-  implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
+  implicit lazy val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
 
   def generateAcc14WithAddresses(): DisplayDeclaration = {
     val contactDetails       =

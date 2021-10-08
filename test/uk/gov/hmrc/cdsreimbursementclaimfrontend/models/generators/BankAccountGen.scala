@@ -28,7 +28,7 @@ object BankAccountGen {
       .map(_.take(40).mkString)
       .map(AccountName(_))
 
-  implicit val arbitraryAccountName: Typeclass[AccountName] =
+  implicit lazy val arbitraryAccountName: Typeclass[AccountName] =
     Arbitrary(genAccountName)
 
   def genSortCode: Gen[SortCode] =
@@ -37,7 +37,7 @@ object BankAccountGen {
       .map(_.mkString)
       .map(SortCode(_))
 
-  implicit val arbitrarySortCode: Typeclass[SortCode] =
+  implicit lazy val arbitrarySortCode: Typeclass[SortCode] =
     Arbitrary(genSortCode)
 
   def genAccountNumber: Gen[AccountNumber] =
@@ -46,7 +46,7 @@ object BankAccountGen {
       .map(_.mkString)
       .map(AccountNumber(_))
 
-  implicit val arbitraryAccountNumber: Typeclass[AccountNumber] =
+  implicit lazy val arbitraryAccountNumber: Typeclass[AccountNumber] =
     Arbitrary(genAccountNumber)
 
   def genBankAccountDetails: Gen[BankAccountDetails] =
@@ -56,6 +56,6 @@ object BankAccountGen {
       accountNumber <- genAccountNumber
     } yield BankAccountDetails(accountName, sortCode, accountNumber)
 
-  implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
+  implicit lazy val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     Arbitrary(genBankAccountDetails)
 }
