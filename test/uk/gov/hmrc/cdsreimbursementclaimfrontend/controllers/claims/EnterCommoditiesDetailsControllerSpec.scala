@@ -26,6 +26,8 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.{Multiple, Scheduled}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -214,6 +216,8 @@ class EnterCommoditiesDetailsControllerSpec
           performAction(Seq("enter-commodities-details" -> "some package")),
           if (journeyBindable === JourneyBindable.Scheduled) {
             reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+          } else if (journeyBindable === Multiple) {
+            routes.MultipleSelectDutiesController.selectDuties(2)
           } else {
             routes.SelectDutiesController.selectDuties()
           }
