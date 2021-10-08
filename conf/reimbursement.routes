@@ -9,5 +9,5 @@ GET         /scheduled/select-duties/enter-claim/start              uk.gov.hmrc.
 
 GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.showReimbursementClaim()
 
-GET         /single/select-reimbursement_method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.showReimbursementMethod()
-POST        /single/select-reimbursement_method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.submitReimbursementMethod()
+GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.showReimbursementMethod()
+POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.submitReimbursementMethod()
