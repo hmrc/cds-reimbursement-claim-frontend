@@ -44,7 +44,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @paragraphs = {
+    @detailsParagraphs = {
         @paragraph(Html(messages(s"$key.details.paragraph.0")))
         @paragraph(Html(messages(s"$key.details.paragraph.1")))
         @paragraph(Html(messages(s"$key.details.paragraph.2")))
@@ -58,7 +58,7 @@
 
         @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @dropdownDetails(summary = s"$key.details.heading", content = paragraphs)
+        @dropdownDetails(summary = s"$key.details.heading", content = detailsParagraphs)
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
