@@ -26,56 +26,53 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutyCodesAnswer], dutyType : DutyType)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[DutyCodesAnswer], dutyType: DutyType)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"select-duty-codes"}
-    @title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
+@key = @{"select-duty-codes"}
+@title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
 
-    @postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
+@postAction = @{reimbursementRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
 
-    @options = @{DutyType.dutyTypeToTaxCodes(dutyType).map { dutyCode =>
+@options = @{
+    dutyType.taxCodes.map { dutyCode =>
         CheckboxItem(
-                name = Some(s"$key[]"),
-                value = dutyCode.value,
-                content = Text(messages(s"$key.${dutyType.repr}.duty-code.${dutyCode.value}")),
-                checked = form.data.exists(_._2 == dutyCode.value)
-            )
-        }
+            name = Some(s"$key[]"),
+            value = dutyCode.value,
+            content = Text(messages(s"$key.${dutyType.repr}.duty-code.${dutyCode.value}")),
+            checked = form.data.exists(_._2 == dutyCode.value)
+        )
     }
+}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
-        @errorSummary(form.errors)
+    @errorSummary(form.errors)
 
-        @pageHeading(title)
+    @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
+    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @checkboxes(
-                field = form(s"$key"),
-                legendAsHeading = true,
-                legend = messages(s"$key.legend.${dutyType.repr}"),
-                items = options.toList,
-                hint = None
-            )
+        @checkboxes(
+            field = form(s"$key"),
+            legend = messages(s"$key.legend.${dutyType.repr}"),
+            items = options
+        )
 
-            @submitButton("button.continue")
-
-        }
-
+        @submitButton("button.continue")
     }
+}

@@ -54,17 +54,12 @@
 
     @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-
-    @reimbursementClaimsAnswer.reimbursementClaims.map{ dutyToReimbursementClaimTuple =>
+    @reimbursementClaimsAnswer.reimbursementClaims.map { dutyToReimbursementClaimTuple =>
         @dutyToReimbursementClaimTuple.toString
     }
 
-    @if(true) {
-        @pageHeading(messages(s"$key.uk-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(List.empty))
-    } else {
-        @paragraph(Html(""))
-    }
+    @pageHeading(messages(s"$key.uk-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(SummaryList(Nil))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

@@ -60,8 +60,7 @@ class SelectDutyCodesController @Inject() (
 
   def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[DutyCodesAnswer] { (fillingOutClaim, answer) =>
-      fillingOutClaim.draftClaim
-        .fold(_.dutyTypesSelectedAnswer)
+      fillingOutClaim.draftClaim.dutyTypesSelectedAnswer
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
         ) { dutyTypesAnswer =>
@@ -71,23 +70,23 @@ class SelectDutyCodesController @Inject() (
             updateJourneyStatus(dutyTypesAnswer, dutyCodesAnswer, fillingOutClaim)
           }
 
-          EitherT
-            .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
-            .leftMap((_: Unit) => Error("could not update session"))
+          EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
+            .leftMap(_ => Error("could not update session"))
             .fold(
               logAndDisplayError("could not update reimbursement state"),
               _ =>
                 (
-                  updatedJourneyStatus.draftClaim.fold(_.dutyTypesSelectedAnswer),
-                  updatedJourneyStatus.draftClaim.fold(_.dutyCodesSelectedAnswer)
+                  updatedJourneyStatus.draftClaim.dutyTypesSelectedAnswer,
+                  updatedJourneyStatus.draftClaim.dutyCodesSelectedAnswer
                 ) match {
-                  case (Some(_), Some(dutyCodesAnswer: DutyCodesAnswer)) =>
+                  case (Some(_), Some(dutyCodesAnswer)) =>
                     dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                       case Some(dutyType) =>
                         Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                      case None           => Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
+                      case None           =>
+                        Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
                     }
-                  case _                                                 =>
+                  case _                                =>
                     logger.warn("could not find duty types or duty codes")
                     errorHandler.errorResult()
                 }
@@ -165,7 +164,7 @@ class SelectDutyCodesController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          updatedJourney.draftClaim.fold(_.dutyCodesSelectedAnswer) match {
+          updatedJourney.draftClaim.dutyCodesSelectedAnswer match {
             case Some(dutyCodesAnswer) =>
               dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                 case Some(dutyType) =>

@@ -65,8 +65,7 @@ class EnterReimbursementClaimController @Inject() (
    */
   def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, answer) =>
-      fillingOutClaim.draftClaim
-        .fold(_.dutyCodesSelectedAnswer)
+      fillingOutClaim.draftClaim.dutyCodesSelectedAnswer
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
         ) { dutyCodesAnswer =>
@@ -83,8 +82,8 @@ class EnterReimbursementClaimController @Inject() (
               logAndDisplayError("could not update reimbursement claims"),
               _ =>
                 (
-                  updatedJourneyStatus.draftClaim.fold(_.dutyTypesSelectedAnswer),
-                  updatedJourneyStatus.draftClaim.fold(_.dutyCodesSelectedAnswer)
+                  updatedJourneyStatus.draftClaim.dutyTypesSelectedAnswer,
+                  updatedJourneyStatus.draftClaim.dutyCodesSelectedAnswer
                 ) match {
                   case (Some(_), Some(dutyCodesAnswer: DutyCodesAnswer)) =>
                     dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
