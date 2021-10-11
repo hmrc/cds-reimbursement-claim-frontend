@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId, toFoldableOps}
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMrn, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -44,6 +44,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.MultipleDutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
+import scala.concurrent.Future
+import cats.data.NonEmptyList
 
 @Singleton
 class MultipleSelectDutiesController @Inject() (
@@ -52,7 +55,8 @@ class MultipleSelectDutiesController @Inject() (
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
   val config: Configuration,
-  selectDutiesPage: pages.select_duties
+  selectDutiesPage: pages.multiple_select_duties,
+  mrnDoesNotExistPage: pages.mrn_does_not_exist
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -60,58 +64,92 @@ class MultipleSelectDutiesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[MultipleDutiesSelectedAnswer] = _.multipleDutiesSelectedAnswer
+  implicit val dataExtractor1: DraftC285Claim => Option[MultipleDutiesSelectedAnswer] = _.multipleDutiesSelectedAnswer
+  implicit val dataExtractor2: DraftC285Claim => Option[AssociatedMRNsAnswer]         = _.associatedMRNsAnswer
 
   def selectDuties(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MultipleDutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
-        val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
+        fillingOutClaim.draftClaim
+          .MRNs()
+          .get(index.value.toLong - 1)
+          .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
+            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
 
-        cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
-          error => {
-            logger.warn("No Available duties: ", error)
-            Redirect(baseRoutes.IneligibleController.ineligible())
-          },
-          dutiesAvailable => {
-            val emptyForm  = selectDutiesForm(dutiesAvailable)
-            val filledForm = previousAnswer.fold(emptyForm)(_ => emptyForm)
-            Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible))
+            cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
+              error => {
+                logger.warn("No Available duties: ", error)
+                Redirect(baseRoutes.IneligibleController.ineligible())
+              },
+              dutiesAvailable => {
+                val emptyForm  = selectDutiesForm(dutiesAvailable)
+                val filledForm = previousAnswer.fold(emptyForm)(_ => emptyForm)
+                Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible, index, mrn))
+              }
+            )
           }
-        )
       }
+
     }
 
   def selectDutiesSubmit(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MultipleDutiesSelectedAnswer] { (fillingOutClaim, _) =>
-        val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
+      withAnswers[MultipleDutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
+        fillingOutClaim.draftClaim
+          .MRNs()
+          .get(index.value.toLong - 1)
+          .fold(Future.successful(BadRequest(mrnDoesNotExistPage()))) { mrn =>
+            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
 
-        cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
-          error => {
-            logger.warn("No Available duties: ", error)
-            Redirect(baseRoutes.IneligibleController.ineligible())
-          },
-          dutiesAvailable =>
-            selectDutiesForm(dutiesAvailable)
-              .bindFromRequest()
-              .fold(
-                formWithErrors =>
-                  BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible)),
-                dutiesSelected => {
-                  val newDraftClaim  =
-                    fillingOutClaim.draftClaim.fold(_.copy(dutiesSelectedAnswer = Some(dutiesSelected)))
-                  val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+            cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
+              error => {
+                logger.warn("No Available duties: ", error)
+                Future.successful(Redirect(baseRoutes.IneligibleController.ineligible()))
+              },
+              dutiesAvailable =>
+                selectDutiesForm(dutiesAvailable)
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors =>
+                      Future.successful(
+                        BadRequest(
+                          selectDutiesPage(
+                            formWithErrors,
+                            dutiesAvailable,
+                            cmaEligibleDutiesMap.isCmaEligible,
+                            index,
+                            mrn
+                          )
+                        )
+                      ),
+                    dutiesSelected => {
+                      val newDraftClaim  =
+                        fillingOutClaim.draftClaim
+                          .fold(claim =>
+                            claim.copy(multipleDutiesSelectedAnswer =
+                              Some(
+                                NonEmptyList(
+                                  (mrn, dutiesSelected),
+                                  claim.multipleDutiesSelectedAnswer
+                                    .map(_.toList.filterNot(_._1 == mrn))
+                                    .getOrElse(Nil)
+                                )
+                              )
+                            )
+                          )
+                      val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
-                    .fold(
-                      logAndDisplayError("could not get duties selected "),
-                      _ => Redirect(routes.EnterClaimController.startClaim())
-                    )
-                }
-              )
-        )
+                      EitherT
+                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .leftMap((_: Unit) => Error("could not update session"))
+                        .fold(
+                          logAndDisplayError("could not get duties selected "),
+                          _ => Redirect(routes.EnterClaimController.startClaim())
+                        )
+                    }
+                  )
+            )
+          }
       }
     }
 

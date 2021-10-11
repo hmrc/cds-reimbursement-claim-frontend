@@ -733,6 +733,10 @@ select-duties.duty.99B=Any petroleum gas, or other gaseous hydrocarbon supplied 
 select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a gaseous state that is of a kind supplied by a gas utility Great Britain
 select-duties.duty.99D=Electricity
 
+multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
+multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: <span class="govuk-!-font-weight-bold">{0}</span>. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
+multiple-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
+
 #===================================================
 #  ENTER CLAIM PAGE
 #===================================================
@@ -1303,3 +1307,22 @@ country.YT=Mayotte
 country.ZA=South Africa
 country.ZM=Zambia
 country.ZW=Zimbabwe
+
+#===================================================
+#  ORDINALS
+#===================================================
+
+ordinal.lead=lead
+ordinal.first=first
+ordinal.second=second
+ordinal.third=third
+ordinal.fourth=fourth
+ordinal.fifth=fifth
+ordinal.sixth=sixth
+ordinal.seventh=seventh
+ordinal.eigth=eigth
+ordinal.ninth=ninth
+ordinal.st=st
+ordinal.nd=nd
+ordinal.rd=rd
+ordinal.th=th
