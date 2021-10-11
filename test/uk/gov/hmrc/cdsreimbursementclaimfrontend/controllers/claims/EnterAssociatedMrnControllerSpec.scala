@@ -178,6 +178,34 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
           expectedStatus = 400
         )
       }
+
+      "reject the same MRN as previously entered" in {
+
+        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
+        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
+        val mrnIndex: Int        = 4
+
+        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+
+        val (session, _, _) = sessionWithClaimState(
+          associatedMRNsAnswer,
+          sample[MovementReferenceNumber],
+          Some(SelectNumberOfClaimsAnswer.Multiple)
+        )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+        val result = performActionWithData(mrnIndex, enterAssociatedMrnKey -> invalidMRN.value)
+
+        checkPageIsDisplayed(
+          result,
+          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.invalid.number"),
+          expectedStatus = 400
+        )
+      }
     }
 
     //    "display the page" when {
