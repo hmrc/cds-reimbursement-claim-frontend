@@ -358,10 +358,10 @@ class SelectDutiesControllerSpec
           performAction(),
           messageFromMessageKey("select-duties.title"),
           doc => {
-            getHintText(doc, "select-duties-item-hint")   shouldBe hintText
-            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
-            getHintText(doc, "select-duties-3-item-hint") shouldBe None
-            getHintText(doc, "select-duties-4-item-hint") shouldBe None
+            getHintText(doc, "select-duties-item-hint")   shouldBe None
+            getHintText(doc, "select-duties-2-item-hint") shouldBe None
+            getHintText(doc, "select-duties-3-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-4-item-hint") shouldBe hintText
           }
         )
       }

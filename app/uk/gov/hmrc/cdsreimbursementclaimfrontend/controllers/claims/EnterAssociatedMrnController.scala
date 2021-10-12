@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.mrnInputForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -54,16 +54,6 @@ class EnterAssociatedMrnController @Inject() (
     with Logging {
 
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
-
-  def mrnInputForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
-    Form(
-      mapping(
-        enterAssociatedMrnKey -> nonEmptyText
-          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
-          .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
-          .transform[AssociatedMrn](MRN(_), _.value)
-      )(identity)(Some(_))
-    )
 
   def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     Ok(enterAssociatedMrnPage(index, mrnInputForm()))
@@ -142,4 +132,15 @@ class EnterAssociatedMrnController @Inject() (
 object EnterAssociatedMrnController {
 
   val enterAssociatedMrnKey: String = "enter-associated-mrn"
+
+  def mrnInputForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
+    Form(
+      mapping(
+        enterAssociatedMrnKey -> nonEmptyText
+          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
+          .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
+          .transform[AssociatedMrn](MRN(_), _.value)
+      )(identity)(Some(_))
+    )
+
 }

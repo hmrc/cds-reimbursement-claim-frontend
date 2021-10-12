@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.NonEmptyList
 import org.jsoup.nodes.Document
 import org.scalatest.OptionValues
+import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -57,7 +58,9 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val messageKey: String = "enter-associated-mrn"
+  val messageKey: String   = "enter-associated-mrn"
+  val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
+  val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
 
   private def sessionWithClaimState(
     maybeAssociatedMRNsAnswer: Option[AssociatedMRNsAnswer],
@@ -86,19 +89,11 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
 
   "EnterAssociatedMrnController" must {
 
-    // def performAction(): Future[Result] = controller.enterMrn()(FakeRequest())
-
-    //    def performActionWithData(data: Seq[(String, String)]): Future[Result] =
-    //      controller.submitMrns()(FakeRequest().withFormUrlEncodedBody(data: _*))
-    //
     featureSwitch.BulkClaim.enable()
+    val mrnIndex: Int                   = 4
+    def performAction(): Future[Result] = controller.enterMrn(mrnIndex)(FakeRequest())
 
     "display the page title" in {
-      val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-      val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-      val mrnIndex: Int        = 4
-
-      def performAction(): Future[Result] = controller.enterMrn(mrnIndex)(FakeRequest())
 
       val (session, _, _) =
         sessionWithClaimState(
@@ -122,11 +117,8 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
 
       "display the title" in {
 
-        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-        val mrnIndex: Int        = 2
-
-        def performAction(): Future[Result] = controller.changeMrn(mrnIndex)(FakeRequest())
+        val mrnIndexChange: Int             = 2
+        def performAction(): Future[Result] = controller.changeMrn(mrnIndexChange)(FakeRequest())
 
         val (session, _, _) =
           sessionWithClaimState(
@@ -142,7 +134,7 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex))
+          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndexChange))
         )
       }
     }
@@ -151,11 +143,10 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
       def performActionWithData(index: Int, data: (String, String)*): Future[Result] =
         controller.submitEnteredMrn(index)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-      "reject an invalid MRN" in {
+      def performActionWithDataSeq(index: Int, data: Seq[(String, String)]): Future[Result] =
+        controller.submitEnteredMrn(index)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-        val mrnIndex: Int        = 4
+      "reject an invalid MRN" in {
 
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
@@ -181,11 +172,9 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
 
       "reject the same MRN as previously entered" in {
 
-        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-        val mrnIndex: Int        = 4
-
-        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+        val mrn                  = sample(arbitraryMrn)
+        val mrnsList: List[MRN]  = List(sample(arbitraryMrn), mrn, sample(arbitraryMrn))
+        val associatedMRNsAnswer = NonEmptyList.fromList(mrnsList)
 
         val (session, _, _) = sessionWithClaimState(
           associatedMRNsAnswer,
@@ -197,139 +186,83 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
           mockAuthWithNoRetrievals()
           mockGetSession(session)
         }
-        val result = performActionWithData(mrnIndex, enterAssociatedMrnKey -> invalidMRN.value)
 
         checkPageIsDisplayed(
-          result,
+          performActionWithData(mrnIndex, enterAssociatedMrnKey -> mrn.value),
           messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.invalid.number"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.exists"),
           expectedStatus = 400
         )
       }
+
+      "the user does not select an option and submits the page" in {
+
+        val (session, _, _) =
+          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performActionWithDataSeq(mrnIndex, Seq.empty),
+          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
+          getErrorSummary(_) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
+          BAD_REQUEST
+        )
+      }
+
+      "redirect to the MRN summary page" in {
+
+        val mrnForwardIndex: Int = mrns.size + 1
+
+        val (session, _, _) =
+          sessionWithClaimState(
+            associatedMRNsAnswer,
+            sample[MovementReferenceNumber],
+            Some(SelectNumberOfClaimsAnswer.Multiple)
+          )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(Right(()))
+        }
+
+        checkIsRedirect(
+          performActionWithData(mrnForwardIndex, enterAssociatedMrnKey -> sample(arbitraryMrn).value),
+          routes.CheckMovementReferenceNumbersController.showMrns()
+        )
+
+      }
+
     }
 
-    //    "display the page" when {
-    //
-    //      "the user has not answered this question before" in {
-    //        val (session, _, _) =
-    //          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
-    //
-    //        inSequence {
-    //          mockAuthWithNoRetrievals()
-    //          mockGetSession(session)
-    //        }
-    //
-    //        checkPageIsDisplayed(
-    //          performAction(),
-    //          messageFromMessageKey(s"$messageKey.title"),
-    //          doc => {
-    //            isYesChecked(doc) shouldBe false
-    //            isNoChecked(doc)  shouldBe false
-    //          }
-    //        )
-    //      }
-    //
-    //    }
-    //
-    //    "show an error summary" when {
-    //
-    //      "the user does not select an option and submits the page" in {
-    //        val (session, _, _) =
-    //          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
-    //
-    //        inSequence {
-    //          mockAuthWithNoRetrievals()
-    //          mockGetSession(session)
-    //        }
-    //
-    //        checkPageIsDisplayed(
-    //          performActionWithData(Seq.empty),
-    //          messageFromMessageKey(s"$messageKey.title"),
-    //          getErrorSummary(_) shouldBe messageFromMessageKey(s"$messageKey.invalid-answer"),
-    //          BAD_REQUEST
-    //        )
-    //      }
-    //    }
-    //
-    //    "delete an MRN" when {
-    //      "the user selects the delete link next to an MRN" in {
-    //        pending
-    //
-    //        val mrns: List[MRN]     = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-    //        val mrnDeleteIndex: Int = mrns.size - 1
-    //
-    //        def performActionDelete(): Future[Result] = controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
-    //        val associatedMRNsAnswer                  = NonEmptyList.fromList(mrns)
-    //
-    //        val (session, _, _) =
-    //          sessionWithClaimState(
-    //            associatedMRNsAnswer,
-    //            sample[MovementReferenceNumber],
-    //            Some(SelectNumberOfClaimsAnswer.Multiple)
-    //          )
-    //
-    //        inSequence {
-    //          mockAuthWithNoRetrievals()
-    //          mockGetSession(session)
-    //        }
-    //
-    //        performActionDelete()
-    //
-    //      }
-    //    }
-    //
-    //    "redirect to the next MRN page" when {
-    //
-    //      "the user selects yes" in {
-    //
-    //        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-    //        val mrnForwardIndex: Int = mrns.size + 2
-    //        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-    //        val (session, _, _)      =
-    //          sessionWithClaimState(
-    //            associatedMRNsAnswer,
-    //            sample[MovementReferenceNumber],
-    //            Some(SelectNumberOfClaimsAnswer.Multiple)
-    //          )
-    //
-    //        inSequence {
-    //          mockAuthWithNoRetrievals()
-    //          mockGetSession(session)
-    //        }
-    //
-    //        checkIsRedirect(
-    //          performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
-    //          routes.EnterAssociatedMrnController.enterMrn(mrnForwardIndex)
-    //        )
-    //
-    //      }
-    //    }
-    //
-    //    "redirect to the who is making this claim page" when {
-    //
-    //      "the user selects no" in {
-    //        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-    //        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-    //        val (session, _, _)      =
-    //          sessionWithClaimState(
-    //            associatedMRNsAnswer,
-    //            sample[MovementReferenceNumber],
-    //            Some(SelectNumberOfClaimsAnswer.Multiple)
-    //          )
-    //
-    //        inSequence {
-    //          mockAuthWithNoRetrievals()
-    //          mockGetSession(session)
-    //        }
-    //
-    //        checkIsRedirect(
-    //          performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
-    //          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple)
-    //        )
-    //
-    //      }
-    //    }
-    //  }
+  }
+
+  "Form validation" must {
+
+    def form() = EnterAssociatedMrnController.mrnInputForm()
+
+    "accept valid MRN" in {
+      val errors =
+        form().bind(Map(enterAssociatedMrnKey -> sample(arbitraryMrn).value)).errors
+      errors shouldBe Nil
+    }
+
+    "reject 19 characters" in {
+      val errors =
+        form().bind(Map(enterAssociatedMrnKey -> "910ABCDEFGHIJKLMNO0")).errors
+      errors.headOption.value.messages shouldBe List("invalid.number")
+    }
+
+    "reject 17 characters" in {
+      val errors = form()
+        .bind(Map(enterAssociatedMrnKey -> "123456789A1234567"))
+        .errors
+      errors.headOption.value.messages shouldBe List("invalid.number")
+    }
   }
 
 }
