@@ -16,34 +16,51 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.data.{EitherT, NonEmptyList}
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId, toFoldableOps}
-import com.google.inject.{Inject, Singleton}
+import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
+import cats.implicits.catsSyntaxOptionId
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.data.FormError
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, AssociatedMrn}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class EnterAssociatedMrnController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   sessionStore: SessionCache,
+  claimService: ClaimService,
   enterAssociatedMrnPage: pages.enter_associated_mrn,
   mrnDoesNotExistPage: pages.mrn_does_not_exist
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
@@ -52,6 +69,8 @@ class EnterAssociatedMrnController @Inject() (
     with SessionDataExtractor
     with SessionUpdates
     with Logging {
+
+  import EnterAssociatedMrnController._
 
   implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
 
@@ -65,81 +84,122 @@ class EnterAssociatedMrnController @Inject() (
       )(identity)(Some(_))
     )
 
-  def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
-    Ok(enterAssociatedMrnPage(index, mrnInputForm()))
-  }
+  def changeMrn(index: AssociatedMrnIndex): Action[AnyContent] =
+    enterMrn(index)
+
+  def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNsAnswer) =>
+        associatedMRNsAnswer
+          .get(index)
+          .fold {
+            if (associatedMRNsAnswer.canAppendAt(index))
+              Ok(enterAssociatedMrnPage(index, mrnInputForm(), editing = false))
+            else
+              BadRequest(mrnDoesNotExistPage())
+          } { mrn =>
+            Ok(enterAssociatedMrnPage(index, mrnInputForm().fill(mrn), editing = true))
+          }
+      }
+    }
+
+  def submitChangedMrn(index: AssociatedMrnIndex): Action[AnyContent] =
+    submitEnteredMrn(index)
 
   def submitEnteredMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
-        def showError: Form[AssociatedMrn] => Future[Result] =
-          formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors))
+      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNsAnswer) =>
+        val form = mrnInputForm(associatedMRNsAnswer.listAllBut(index))
 
-        def addMrn(): AssociatedMrn => EitherT[Future, Error, Unit] = mrn =>
-          EitherT {
-            val references = associatedMRNs.map(_ :+ mrn) orElse AssociatedMRNsAnswer(mrn).some
-            val claimCopy  = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = references))
-            updateSession(sessionStore, request)(_.copy(journeyStatus = claimCopy.some))
-          }
-
-        def redirectToNextPage: EitherT[Future, Error, Unit] => Future[Result] = eitherFailOrSuccess =>
-          eitherFailOrSuccess.fold(
-            logAndDisplayError(s"Error storing ${index.ordinalNumeral} MRN: "),
-            _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
-          )
-
-        mrnInputForm(fillingOutClaim.draftClaim.MRNs())
-          .bindFromRequest()
-          .fold(showError, addMrn().andThen(redirectToNextPage))
-      }
-    }
-
-  def changeMrn(index: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
-    implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNs) =>
-        val idx = index.toRegular
-        associatedMRNs.flatMap(_.get(idx.toLong)).fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-          Ok(enterAssociatedMrnPage(index, mrnInputForm().fill(mrn), editing = true))
-        }
-      }
-  }
-
-  def submitChangedMrn(index: AssociatedMrnIndex): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNs) =>
-        def showError: Form[AssociatedMrn] => Future[Result] =
-          formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors, editing = true))
-
-        def updateAnswer(mrn: AssociatedMrn) = for {
-          mrns    <- associatedMRNs.map(_.toList)
-          idx     <- Option(index.toRegular).filter(mrns.indices.contains)
-          (x, xs)  = mrns.splitAt(idx)
-          updated <- NonEmptyList.fromList(x ++ (mrn :: xs.drop(1)))
-        } yield updated
-
-        def updateSessionAndThenRedirectToNextPage(): AssociatedMRNsAnswer => Future[Result] = answer => {
-          val claim = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = answer.some))
-          updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)).map(
-            _.fold(
-              logAndDisplayError(s"Error updating ${index.ordinalNumeral} MRN: "),
-              _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
-            )
+        def displayInputError(mrn: MRN, errorMessageKey: String) = {
+          val editing: Boolean = associatedMRNsAnswer.isDefinedAt(index)
+          BadRequest(
+            enterAssociatedMrnPage(index, form.fill(mrn).withError(FormError("", Seq(errorMessageKey))), editing)
           )
         }
 
-        mrnInputForm(fillingOutClaim.draftClaim.MRNs())
+        def replaceOrAddMrn(mrn: AssociatedMrn): EitherT[Future, Result, Unit] =
+          for {
+            declaration <-
+              claimService
+                .getDisplayDeclaration(mrn)
+                .leftMap(logAndDisplayError(s"Error getting declaration"))
+                .transform {
+                  case Right(None)    => Left(displayInputError(mrn, ""))
+                  case Right(Some(d)) =>
+                    println(d)
+                    Right(d)
+                  case Left(r)        => Left(r)
+                }
+
+            _ = EitherT.fromEither[Future] {
+                  canAcceptAssociatedDeclaration(fillingOutClaim, declaration) match {
+                    case false => Left(displayInputError(mrn, ""))
+                    case true  => Right(())
+                  }
+                }
+
+            updatedDraftClaim <-
+              EitherT.fromEither[Future](
+                updateAssociatedMrn(index, fillingOutClaim, mrn, declaration).left
+                  .map(_ => displayInputError(mrn, ""))
+              )
+
+            _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedDraftClaim.some)))
+                   .leftMap(logAndDisplayError(s"Error storing ${index.ordinalNumeral} MRN: "))
+
+          } yield ()
+
+        form
           .bindFromRequest()
           .fold(
-            showError,
-            updateAnswer(_)
-              .map(updateSessionAndThenRedirectToNextPage())
-              .getOrElse(Future.successful(BadRequest(mrnDoesNotExistPage())))
+            formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors)),
+            replaceOrAddMrn(_)
+              .fold(identity, _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns()))
           )
       }
     }
+
 }
 
 object EnterAssociatedMrnController {
 
   val enterAssociatedMrnKey: String = "enter-associated-mrn"
+
+  def canAcceptAssociatedDeclaration(
+    fillingOutClaim: FillingOutClaim,
+    displayDeclaration: DisplayDeclaration
+  ): Boolean = {
+    val userEori: String                     =
+      fillingOutClaim.signedInUserDetails.eori.value
+    val leadConsigneeEORIOpt: Option[String] = fillingOutClaim.consigneeEORI
+    val leadDeclarantEORIOpt: Option[String] = fillingOutClaim.declarantEORI
+    val consigneeEORIOpt: Option[String]     =
+      displayDeclaration.displayResponseDetail.consigneeDetails.map(_.consigneeEORI)
+    val declarantEORI: String                =
+      displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI
+
+    declarantEORI === userEori &&
+    consigneeEORIOpt.contains(userEori) &&
+    leadDeclarantEORIOpt.contains(
+      declarantEORI
+    ) && leadConsigneeEORIOpt.exists(consigneeEORIOpt.contains(_))
+  }
+
+  def updateAssociatedMrn(
+    index: AssociatedMrnIndex,
+    fillingOutClaim: FillingOutClaim,
+    mrn: AssociatedMrn,
+    declaration: DisplayDeclaration
+  ): Either[Unit, FillingOutClaim] =
+    FillingOutClaim.ofEither(fillingOutClaim) { draftClaim =>
+      for {
+        associatedMRNsAnswer            <- draftClaim.associatedMRNsAnswer.replaceOrAppend(index, mrn)
+        associatedMRNsDeclarationAnswer <-
+          draftClaim.associatedMRNsDeclarationAnswer.replaceOrAppend(index, declaration)
+      } yield draftClaim.copy(
+        associatedMRNsAnswer = associatedMRNsAnswer,
+        associatedMRNsDeclarationAnswer = associatedMRNsDeclarationAnswer
+      )
+    }
 }
