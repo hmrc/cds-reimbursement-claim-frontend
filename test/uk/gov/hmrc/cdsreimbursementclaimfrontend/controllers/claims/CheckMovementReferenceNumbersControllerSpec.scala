@@ -20,12 +20,14 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.implicits._
 import org.scalatest.OptionValues
 import org.jsoup.nodes.Document
+import org.scalacheck.{Arbitrary, Gen}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.BAD_REQUEST
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
@@ -33,23 +35,24 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.asScalaBufferConverter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with ScalaCheckPropertyChecks
     with OptionValues {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
@@ -73,15 +76,16 @@ class CheckMovementReferenceNumbersControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val messageKey: String = "check-movement-reference-numbers"
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 1)
 
   private def sessionWithClaimState(
-    maybeAssociatedMRNsAnswer: Option[AssociatedMRNsAnswer],
+    associatedMRNsAnswer: List[MRN],
     movementReferenceNumber: MovementReferenceNumber,
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
-      associatedMRNsAnswer = maybeAssociatedMRNsAnswer,
+      associatedMRNsAnswer = NonEmptyList.fromList(associatedMRNsAnswer),
       movementReferenceNumber = Some(movementReferenceNumber),
       selectNumberOfClaimsAnswer = numberOfClaims
     )
@@ -100,9 +104,9 @@ class CheckMovementReferenceNumbersControllerSpec
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").text()
 
-  def isYesChecked(document: Document): Boolean = isChecked(document, s"$messageKey")
+  def isYesChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey")
 
-  def isNoChecked(document: Document): Boolean = isChecked(document, s"$messageKey-2")
+  def isNoChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey-2")
 
   def isChecked(document: Document, fieldId: String): Boolean =
     document
@@ -123,8 +127,8 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in {
-        val (session, _, _) = sessionWithClaimState(None, sample[MovementReferenceNumber], None)
+      "there is no journey status in the session" in forAll { reference: MovementReferenceNumber =>
+        val (session, _, _) = sessionWithClaimState(Nil, reference, None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -138,9 +142,9 @@ class CheckMovementReferenceNumbersControllerSpec
       }
     }
 
-    "display the page title" in {
+    "display the page title" in forAll { reference: MovementReferenceNumber =>
       val (session, _, _) =
-        sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
+        sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -149,15 +153,15 @@ class CheckMovementReferenceNumbersControllerSpec
 
       checkPageIsDisplayed(
         performAction(),
-        messageFromMessageKey(s"$messageKey.title")
+        messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title")
       )
     }
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
+      "the user has not answered this question before" in forAll { reference: MovementReferenceNumber =>
         val (session, _, _) =
-          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
+          sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -166,7 +170,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey(s"$messageKey.title"),
+          messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
           doc => {
             isYesChecked(doc) shouldBe false
             isNoChecked(doc)  shouldBe false
@@ -178,9 +182,9 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option and submits the page" in {
+      "the user does not select an option and submits the page" in forAll { reference: MovementReferenceNumber =>
         val (session, _, _) =
-          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
+          sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -189,8 +193,8 @@ class CheckMovementReferenceNumbersControllerSpec
 
         checkPageIsDisplayed(
           performActionWithData(Seq.empty),
-          messageFromMessageKey(s"$messageKey.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"$messageKey.invalid-answer"),
+          messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
+          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.invalid-answer"),
           BAD_REQUEST
         )
       }
@@ -198,81 +202,100 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "delete an MRN" when {
       "the user selects the delete link next to an MRN" in {
-        pending
+        forAll { (reference: MovementReferenceNumber, indexWithMrns: (Int, List[MRN])) =>
 
-        val mrns: List[MRN]     = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val mrnDeleteIndex: Int = mrns.size - 1
+          def performActionDelete(mrnDeleteIndex: AssociatedMrnIndex): Future[Result] =
+            controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
 
-        def performActionDelete(): Future[Result] = controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
-        val associatedMRNsAnswer                  = NonEmptyList.fromList(mrns)
+          val index = indexWithMrns._1
+          val mrns  = indexWithMrns._2
 
-        val (session, _, _) =
-          sessionWithClaimState(
-            associatedMRNsAnswer,
-            sample[MovementReferenceNumber],
-            Some(SelectNumberOfClaimsAnswer.Multiple)
+          val (session, fillingOutClaim, draftClaim) =
+            sessionWithClaimState(
+              mrns,
+              reference,
+              Some(SelectNumberOfClaimsAnswer.Multiple)
+            )
+
+          val updatedDraftClaim = draftClaim.copy(
+            associatedMRNsAnswer = NonEmptyList.fromList(mrns.take(index) ++ mrns.drop(index + 1))
           )
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          val expectedSessionWithDeletedMrn =
+            session.copy(journeyStatus = Some(fillingOutClaim.copy(draftClaim = updatedDraftClaim)))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(expectedSessionWithDeletedMrn)(Right(()))
+          }
+
+          val result = performActionDelete(index)
+
+          status(result) should be(303)
         }
-
-        performActionDelete()
-
       }
     }
 
     "redirect to the next MRN page" when {
 
       "the user selects yes" in {
+        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+          val mrnForwardIndex: Int = mrns.size + 2
 
-        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val mrnForwardIndex: Int = mrns.size + 2
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-        val (session, _, _)      =
-          sessionWithClaimState(
-            associatedMRNsAnswer,
-            sample[MovementReferenceNumber],
-            Some(SelectNumberOfClaimsAnswer.Multiple)
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              reference,
+              Some(SelectNumberOfClaimsAnswer.Multiple)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
+            routes.EnterAssociatedMrnController.enterMrn(mrnForwardIndex)
           )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
         }
-
-        checkIsRedirect(
-          performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
-          routes.EnterAssociatedMrnController.enterMrn(mrnForwardIndex)
-        )
-
       }
     }
 
     "redirect to the who is making this claim page" when {
 
       "the user selects no" in {
-        val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
-        val (session, _, _)      =
-          sessionWithClaimState(
-            associatedMRNsAnswer,
-            sample[MovementReferenceNumber],
-            Some(SelectNumberOfClaimsAnswer.Multiple)
+        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              reference,
+              Some(SelectNumberOfClaimsAnswer.Multiple)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
+            routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple)
           )
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
         }
-
-        checkIsRedirect(
-          performActionWithData(Seq(checkMovementReferenceNumbersKey -> false.toString)),
-          routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple)
-        )
-
       }
     }
+  }
+}
+
+object CheckMovementReferenceNumbersControllerSpec {
+
+  implicit val genMrnsWithRandomIndex: Arbitrary[(Int, List[MRN])] = Arbitrary {
+    for {
+      index <- Gen.choose(3, 10)
+      mrns  <- Gen.listOfN(index + 1, genMRN)
+    } yield (index, mrns)
   }
 }

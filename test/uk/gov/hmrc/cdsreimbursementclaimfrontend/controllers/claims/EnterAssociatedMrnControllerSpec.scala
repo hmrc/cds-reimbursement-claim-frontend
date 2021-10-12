@@ -212,7 +212,7 @@ class EnterAssociatedMrnControllerSpec
       "the user does not select an option and submits the page" in {
         forAll(Gen.choose(0, 9), arbitraryMovementReferenceNumber.arbitrary) { (mrnIndex, reference) =>
           val (session, _, _) =
-            sessionWithClaimState(List(), reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+            sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -282,7 +282,7 @@ class EnterAssociatedMrnControllerSpec
 
 object EnterAssociatedMrnControllerSpec {
 
-  implicit val genMrnsWithRandomIndex: Arbitrary[(Total, List[MRN])] = Arbitrary {
+  implicit val genMrnsWithRandomIndex: Arbitrary[(Int, List[MRN])] = Arbitrary {
     for {
       index <- Gen.choose(2, 10)
       mrns  <- Gen.listOfN(index + 1, genMRN)
