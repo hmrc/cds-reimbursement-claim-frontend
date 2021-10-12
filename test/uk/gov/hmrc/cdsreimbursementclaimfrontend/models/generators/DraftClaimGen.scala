@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
@@ -71,6 +72,7 @@ trait LowerPriorityDraftClaimGen {
       checkClaimAnswer               <- gen[CheckClaimAnswer].arbitrary
       checkDeclarationDetailsAnswer  <- gen[CheckDeclarationDetailsAnswer].arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
+      associatedMRNsAnswer           <- arbitraryAssociatedMRNsAnswer.arbitrary
     } yield DraftC285Claim(
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
@@ -92,7 +94,8 @@ trait LowerPriorityDraftClaimGen {
       claimsAnswer = claimsAnswer.some,
       checkClaimAnswer = checkClaimAnswer.some,
       checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,
-      scheduledDocumentAnswer = scheduledDocumentAnswer
+      scheduledDocumentAnswer = scheduledDocumentAnswer,
+      associatedMRNsAnswer = associatedMRNsAnswer.some
     )
 
   implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = Arbitrary {

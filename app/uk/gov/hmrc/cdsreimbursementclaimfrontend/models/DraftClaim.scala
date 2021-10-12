@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
 
 import java.util.UUID
 
@@ -64,7 +64,8 @@ object DraftClaim {
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
     scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
     associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
-    associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None
+    associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
+    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None
   ) extends DraftClaim {
 
     def isMrnFlow: Boolean =

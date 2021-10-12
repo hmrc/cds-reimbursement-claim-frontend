@@ -11,3 +11,6 @@ POST        /scheduled/select-duties/:dutyType/:dutyCode            uk.gov.hmrc.
 
 GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.showReimbursementClaim()
 POST        /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.submitReimbursementClaim()
+
+GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.showReimbursementMethod()
+POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.submitReimbursementMethod()

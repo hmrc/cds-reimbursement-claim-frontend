@@ -39,6 +39,11 @@ object Acc14Gen {
 
   implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
 
+  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
+    n <- Gen.choose(min, max)
+    m <- Gen.listOfN(n, genNdrcDetails)
+  } yield m
+
   def genContactDetails: Gen[ContactDetails] =
     for {
       contactName  <- Gen.option(genStringWithMaxSizeOfN(7))

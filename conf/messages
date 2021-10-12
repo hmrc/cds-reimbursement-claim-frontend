@@ -139,10 +139,11 @@ ineligible.help=You are not eligible to make a claim. If you need help, you can 
 #===================================================
 #  CHECK EORI DETAILS PAGE
 #===================================================
-check-eori-details.title=Check if this is the correct EORI
+check-eori-details.title=Check the EORI associated with the user ID is correct
 check-eori-details.eori-number.label=EORI
 check-eori-details.name.label=Name
 check-eori-details.gateway-id.label=Government Gateway user ID
+check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
 check-eori-details.error.required=Select yes if details are correct
@@ -399,12 +400,12 @@ select-who-is-making-the-claim.help-text=This person is responsible for the clai
 select-who-is-making-the-claim.importer0=I am a private individual importer
 select-who-is-making-the-claim.importer1=I work for an importer company
 select-who-is-making-the-claim.importer2=I work for a representative company on behalf of the importer
-select-who-is-making-the-claim.error.required=Select a declaration type
-select-who-is-making-the-claim.invalid=Select a declaration type
+select-who-is-making-the-claim.error.required=Select who is making this claim
+select-who-is-making-the-claim.invalid=Select who is making this claim
 select-who-is-making-the-claim.details.heading=What is an importer and a representative?
-select-who-is-making-the-claim.details.l0=A private individual importer can be a private individual or company bringing goods into the country.
-select-who-is-making-the-claim.details.l1=An importer company is one that solely imports (not agents, private individuals or sole traders).
-select-who-is-making-the-claim.details.l2=A representative company can be a person or a company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
+select-who-is-making-the-claim.details.paragraph.0=A private individual importer can be a private individual or company bringing goods into the country.
+select-who-is-making-the-claim.details.paragraph.1=An importer company is one that solely imports (not agents, private individuals or sole traders).
+select-who-is-making-the-claim.details.paragraph.2=A representative company can be a person or a company acting on behalf of an importer. This could be an agent or a broker or a freight forwarder.
 
 #===================================================
 #  CHECK DECLARANT DETAILS PAGE
@@ -414,9 +415,9 @@ check-declaration-details.help-text=These are the declarant details we have from
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select yes if these details are correct or no if they are incorrect
-check-declaration-details.error.number=Select yes if these details are correct or no if they are incorrect
-check-declaration-details.error.required=Select yes if these details are correct or no if they are incorrect
+check-declaration-details.error.invalid=Select yes if you wish to continue with this MRN.
+check-declaration-details.error.number=Select yes if you wish to continue with this MRN.
+check-declaration-details.error.required=Select yes if you wish to continue with this MRN.
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
@@ -443,45 +444,59 @@ select-basis-for-claim.details.heading=Examples of basis of claim
 
 select-basis-for-claim.details.b0=Duplicate MRN:
 select-basis-for-claim.details.l0=A claim if a duplicate MRN has been made and a trader overpaid duties
+
 select-basis-for-claim.details.b1=Duty suspension:
 select-basis-for-claim.details.l1=Goods liable to import charges but not collected until they leave the point of deferring payment of customs duties
+
 select-basis-for-claim.details.b2=End use relief:
 select-basis-for-claim.details.l2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
+
 select-basis-for-claim.details.b3=Incorrect commodity code:
 select-basis-for-claim.details.l3=A claim made if a trader originally entered an incorrect commodity code and overpaid duties
+
 select-basis-for-claim.details.b4=Incorrect customs procedure code:
 select-basis-for-claim.details.l4=A claim made if a trader entered an incorrect CPC and overpaid duties
+
 select-basis-for-claim.details.b5=Incorrect value:
 select-basis-for-claim.details.l5=A claim made if a trader originally entered an incorrect total customs value and overpaid duties
+
 select-basis-for-claim.details.b6=Inward processing relief from Customs Duty:
 select-basis-for-claim.details.l6=IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU
+
 select-basis-for-claim.details.b7=Outward processing relief:
 select-basis-for-claim.details.l7=Allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+
 select-basis-for-claim.details.b8=Preference:
 select-basis-for-claim.details.l8=Post-clearance scrutiny and verification of documents to support customers' claim to preferential duty rates
+
 select-basis-for-claim.details.b9=Proof of return/refund given:
 select-basis-for-claim.details.l9=A claim made by a trader if they have provided a proof of return/refund and overpaid duties
+
 select-basis-for-claim.details.b10=Incorrect excise value - Northern Ireland claims only:
 select-basis-for-claim.details.l10=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
+
 select-basis-for-claim.details.b11=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only:
 select-basis-for-claim.details.l11=The trader has declared goods as 'at risk' in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance
+
 select-basis-for-claim.details.b12=Miscellaneous:
 select-basis-for-claim.details.l12=For any other reason not detailed in this list
-select-basis-for-claim.reason.d0=Duplicate MRN
-select-basis-for-claim.reason.d1=Duty Suspension
-select-basis-for-claim.reason.d2=End Use
-select-basis-for-claim.reason.d3=Incorrect Commodity Code
-select-basis-for-claim.reason.d4=Incorrect CPC
-select-basis-for-claim.reason.d5=Incorrect Value
-select-basis-for-claim.reason.d6=IP
-select-basis-for-claim.reason.d7=OPR
-select-basis-for-claim.reason.d8=Personal Effects
+
+select-basis-for-claim.reason.d0=Duplicate Movement Reference Number (MRN)
+select-basis-for-claim.reason.d1=Duty suspension
+select-basis-for-claim.reason.d2=End use relief
+select-basis-for-claim.reason.d3=Incorrect commodity code
+select-basis-for-claim.reason.d4=Incorrect customs procedure code
+select-basis-for-claim.reason.d5=Incorrect value
+select-basis-for-claim.reason.d6=Inward processing relief from Customs Duty
+select-basis-for-claim.reason.d7=Outward processing relief
+select-basis-for-claim.reason.d8=Personal effects
 select-basis-for-claim.reason.d9=Preference
 select-basis-for-claim.reason.d10=RGR
-select-basis-for-claim.reason.d11=Proof of Return/Refund Given
+select-basis-for-claim.reason.d11=Proof of return/refund given
 select-basis-for-claim.reason.d12=Incorrect excise value - Northern Ireland claims only
 select-basis-for-claim.reason.d13=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only
 select-basis-for-claim.reason.d14=Miscellaneous
+
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
@@ -617,11 +632,23 @@ select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.climate-change-levy=Climate Change Levy
 
 #===================================================
+#  SELECT REIMBURSEMENT METHOD PAGE
+#===================================================
+reimbursement-method.title=Select reimbursement method
+reimbursement-method.help-text=You can be reimbursed via either Current Month Adjustment (CMA) or bank account transfer.
+reimbursement-method.cma=Current Month Adjustment (CMA)
+reimbursement-method.cma.hint=Your deferment account will be adjusted.
+reimbursement-method.bank-transfer=Bank account transfer
+reimbursement-method.bank-transfer.hint=You will be reimbursed via your bank account.
+reimbursement-method.error.required=Select if you would like to be reimbursed via Current Month Adjustment (CMA) or via Bank Account Transfer.
+
+#===================================================
 #  MAKE CLAIM PAGES
 #===================================================
 select-duties.title=Select the duties you want to claim for
 select-duties.duty.hint=This duty is not eligible for CMA reimbursement
-select-duties.help-text=These are the duties that have been paid in the import declaration.<br />You can select any of the paid duties.
+select-duties.help-text.1=These are the duties that have been paid in the import declaration. The duties shown below are based upon your basis for claim. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
+select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=Customs Duty
 select-duties.duty.A20=Additional Duty
@@ -717,8 +744,8 @@ enter-claim.invalid.claim=Enter a claim amount which is less than or equal to th
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim totals for all MRNs
-check-claim-summary.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.title=Check the reimbursement claim totals for your MRN
+check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
@@ -728,8 +755,8 @@ check-claim-summary.total=Total reimbursement
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
-check-claim-summary.error.required=Select yes if details are correct
-check-claim-summary.error.invalid=Select yes if details are correct
+check-claim-summary.error.required=Select yes if duties are correct
+check-claim-summary.error.invalid=Select yes if duties are correct
 check-claim-summary.duty-code.row.key={0} reimbursement
 
 #===================================================
@@ -795,12 +822,12 @@ enter-bank-details.error.INVALID_SORTCODE=Invalid sort code
 #===================================================
 #  SUPPORTING EVIDENCE PAGES
 #===================================================
-supporting-evidence.upload.details.heading=Examples of file types
+supporting-evidence.upload.details.heading=Examples of supporting documents
 supporting-evidence.check-your-answers.title=You have added {0} document{1} to your claim
 supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?
-supporting-evidence.check-your-answers.error.required=Select whether you would like to add a supporting document
-supporting-evidence.check-your-answers.invalid-answer=Select whether you would like to add a supporting document
+supporting-evidence.check-your-answers.error.required=Select yes if you would like to add a supporting document
+supporting-evidence.check-your-answers.invalid-answer=Select yes if you would like to add a supporting document
 supporting-evidence.upload.title=Add documents to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.p1=Upload supporting evidence you have received for the commodities you have imported. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
@@ -937,7 +964,7 @@ check-your-answers.contact-details.l1=Contact address
 check-your-answers.basis.h2=Basis for claim
 check-your-answers.basis.l0=This is the basis behind the claim
 check-your-answers.northern-ireland-claim.label=Were your goods imported into Northern Ireland?
-check-your-answers.commodities-details.label=Details of the commodities
+check-your-answers.commodities-details.label=This is the reason for the claim
 check-your-answers.commodities-details.scheduled.label=This is the reason for the claim
 check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
@@ -950,7 +977,7 @@ check-your-answers.bank-details.l2=Sort code
 check-your-answers.bank-details.l3=Account number
 check-your-answers.declaration-statement.h2=<h2>Declaration Statement</h2>
 check-your-answers.declaration-statement=I, {0}, declare that the details contained in this claim are true and complete.
-check-your-answers.bank-details.account-name.label=Account name
+check-your-answers.bank-details.account-name.label=Name on the account
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
 check-your-answers.claim-uk-duty.label=All UK duties to reimburse claimed by you
@@ -962,15 +989,15 @@ check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs
 check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (MRN)
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
-check-your-answers.commodity-details.h2=Commodity details
+check-your-answers.commodity-details.h2=Reason for claim
 check-your-answers.commodity-details.scheduled.h2=Reason for claim
-check-your-answers.claim-calculation.h2=Claim calculation
+check-your-answers.claim-calculation.h2=Total reimbursement claim
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
-check-your-answers.claimant-details.h2=Claimant’s CDS details
+check-your-answers.claimant-details.h2=Details as registered with CDS
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.

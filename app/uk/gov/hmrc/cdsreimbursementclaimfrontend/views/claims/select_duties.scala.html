@@ -50,7 +50,7 @@
             name = Some(s"$key[]"),
             value = duty.taxCode.value,
             content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
-            hint = if(isCmaEligible) Some(Hint(content = Text(messages(s"$key.duty.hint")))) else None,
+            hint = if(isCmaEligible) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == duty.taxCode.value)
         )
     }}
@@ -63,7 +63,8 @@
 
         @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+        @paragraph(Html(messages(s"$key.help-text.1")), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.help-text.2", viewConfig.contactCdsTeamUrl)), Some("govuk-body govuk-!-margin-bottom-8"))
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
