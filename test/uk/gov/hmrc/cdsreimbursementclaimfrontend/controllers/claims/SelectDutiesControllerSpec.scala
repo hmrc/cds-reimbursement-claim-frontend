@@ -344,7 +344,7 @@ class SelectDutiesControllerSpec
         dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
       )
 
-      "Acc14 excise code where the MRA eligible flag is true" in {
+      "Acc14 excise code where the CMA eligible flag is true" in {
 
         val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._1
         inSequence {
@@ -358,10 +358,10 @@ class SelectDutiesControllerSpec
           performAction(),
           messageFromMessageKey("select-duties.title"),
           doc => {
-            getHintText(doc, "select-duties-item-hint")   shouldBe hintText
-            getHintText(doc, "select-duties-2-item-hint") shouldBe hintText
-            getHintText(doc, "select-duties-3-item-hint") shouldBe None
-            getHintText(doc, "select-duties-4-item-hint") shouldBe None
+            getHintText(doc, "select-duties-item-hint")   shouldBe None
+            getHintText(doc, "select-duties-2-item-hint") shouldBe None
+            getHintText(doc, "select-duties-3-item-hint") shouldBe hintText
+            getHintText(doc, "select-duties-4-item-hint") shouldBe hintText
           }
         )
       }
