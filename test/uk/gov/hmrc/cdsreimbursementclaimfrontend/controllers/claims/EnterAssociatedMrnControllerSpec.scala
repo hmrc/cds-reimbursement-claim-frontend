@@ -18,7 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.NonEmptyList
 import org.jsoup.nodes.Document
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.OptionValues
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -28,20 +30,25 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnControllerSpec.genMrnsWithRandomIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 
 import scala.concurrent.Future
 
-class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with OptionValues {
+class EnterAssociatedMrnControllerSpec
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with ScalaCheckPropertyChecks
+    with OptionValues {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
 
@@ -58,17 +65,16 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  val messageKey: String   = "enter-associated-mrn"
-  val mrns: List[MRN]      = List(sample(arbitraryMrn), sample(arbitraryMrn), sample(arbitraryMrn))
-  val associatedMRNsAnswer = NonEmptyList.fromList(mrns)
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 2)
 
   private def sessionWithClaimState(
-    maybeAssociatedMRNsAnswer: Option[AssociatedMRNsAnswer],
+    associatedMrns: List[MRN],
     movementReferenceNumber: MovementReferenceNumber,
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftC285Claim) = {
     val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
-      associatedMRNsAnswer = maybeAssociatedMRNsAnswer,
+      associatedMRNsAnswer = NonEmptyList.fromList(associatedMrns),
       movementReferenceNumber = Some(movementReferenceNumber),
       selectNumberOfClaimsAnswer = numberOfClaims
     )
@@ -90,40 +96,17 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
   "EnterAssociatedMrnController" must {
 
     featureSwitch.BulkClaim.enable()
-    val mrnIndex: Int                   = 4
-    def performAction(): Future[Result] = controller.enterMrn(mrnIndex)(FakeRequest())
 
     "display the page title" in {
 
-      val (session, _, _) =
-        sessionWithClaimState(
-          associatedMRNsAnswer,
-          sample[MovementReferenceNumber],
-          Some(SelectNumberOfClaimsAnswer.Multiple)
-        )
+      def performAction(mrnIndex: AssociatedMrnIndex): Future[Result] =
+        controller.enterMrn(mrnIndex)(FakeRequest())
 
-      inSequence {
-        mockAuthWithNoRetrievals()
-        mockGetSession(session)
-      }
-
-      checkPageIsDisplayed(
-        performAction(),
-        messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex))
-      )
-    }
-
-    "the change page" must {
-
-      "display the title" in {
-
-        val mrnIndexChange: Int             = 2
-        def performAction(): Future[Result] = controller.changeMrn(mrnIndexChange)(FakeRequest())
-
+      forAll(genMovementReferenceNumber, Gen.nonEmptyListOf(genMRN)) { (reference, mrns) =>
         val (session, _, _) =
           sessionWithClaimState(
-            associatedMRNsAnswer,
-            sample[MovementReferenceNumber],
+            mrns,
+            reference,
             Some(SelectNumberOfClaimsAnswer.Multiple)
           )
 
@@ -133,13 +116,42 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
         }
 
         checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndexChange))
+          performAction(mrns.size + 1),
+          messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(mrns.size + 1))
         )
       }
     }
 
+    "the change page" must {
+
+      "display the title" in {
+        forAll { (mrn: MovementReferenceNumber, indexWithMrns: (Int, List[MRN])) =>
+          val mrnIndexChange: AssociatedMrnIndex = indexWithMrns._1
+
+          def performAction(): Future[Result] = controller.changeMrn(mrnIndexChange)(FakeRequest())
+
+          val (session, _, _) =
+            sessionWithClaimState(
+              indexWithMrns._2,
+              mrn,
+              Some(SelectNumberOfClaimsAnswer.Multiple)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performAction(),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(mrnIndexChange))
+          )
+        }
+      }
+    }
+
     "We enter an MRN for the first time or update it with the back button (enterMrnSubmit)" must {
+
       def performActionWithData(index: Int, data: (String, String)*): Future[Result] =
         controller.submitEnteredMrn(index)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
@@ -147,103 +159,104 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
         controller.submitEnteredMrn(index)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
       "reject an invalid MRN" in {
+        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+          val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
-        val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
+          val mrnIndex = mrns.size + 1
 
-        val (session, _, _) = sessionWithClaimState(
-          associatedMRNsAnswer,
-          sample[MovementReferenceNumber],
-          Some(SelectNumberOfClaimsAnswer.Multiple)
-        )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-        val result = performActionWithData(mrnIndex, enterAssociatedMrnKey -> invalidMRN.value)
-
-        checkPageIsDisplayed(
-          result,
-          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.invalid.number"),
-          expectedStatus = 400
-        )
-      }
-
-      "reject the same MRN as previously entered" in {
-
-        val mrn                  = sample(arbitraryMrn)
-        val mrnsList: List[MRN]  = List(sample(arbitraryMrn), mrn, sample(arbitraryMrn))
-        val associatedMRNsAnswer = NonEmptyList.fromList(mrnsList)
-
-        val (session, _, _) = sessionWithClaimState(
-          associatedMRNsAnswer,
-          sample[MovementReferenceNumber],
-          Some(SelectNumberOfClaimsAnswer.Multiple)
-        )
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performActionWithData(mrnIndex, enterAssociatedMrnKey -> mrn.value),
-          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$messageKey.error.exists"),
-          expectedStatus = 400
-        )
-      }
-
-      "the user does not select an option and submits the page" in {
-
-        val (session, _, _) =
-          sessionWithClaimState(None, sample[MovementReferenceNumber], Some(SelectNumberOfClaimsAnswer.Multiple))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performActionWithDataSeq(mrnIndex, Seq.empty),
-          messageFromMessageKey(s"$messageKey.title", OrdinalNumeral(mrnIndex)),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"$messageKey.error.required"),
-          BAD_REQUEST
-        )
-      }
-
-      "redirect to the MRN summary page" in {
-
-        val mrnForwardIndex: Int = mrns.size + 1
-
-        val (session, _, _) =
-          sessionWithClaimState(
-            associatedMRNsAnswer,
-            sample[MovementReferenceNumber],
+          val (session, _, _) = sessionWithClaimState(
+            mrns,
+            reference,
             Some(SelectNumberOfClaimsAnswer.Multiple)
           )
 
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(Right(()))
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+          val result = performActionWithData(mrnIndex, enterAssociatedMrnKey -> invalidMRN.value)
+
+          checkPageIsDisplayed(
+            result,
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(mrnIndex)),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.invalid.number"),
+            expectedStatus = 400
+          )
         }
-
-        checkIsRedirect(
-          performActionWithData(mrnForwardIndex, enterAssociatedMrnKey -> sample(arbitraryMrn).value),
-          routes.CheckMovementReferenceNumbersController.showMrns()
-        )
-
       }
 
-    }
+      "reject the same MRN as previously entered" in {
+        forAll { (movementReferenceNumber: MovementReferenceNumber, mrn: MRN, mrns: List[MRN]) =>
+          val associatedMRNsAnswer = mrn +: mrns
 
+          val (session, _, _) = sessionWithClaimState(
+            associatedMRNsAnswer,
+            movementReferenceNumber,
+            Some(SelectNumberOfClaimsAnswer.Multiple)
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performActionWithData(0, enterAssociatedMrnKey -> mrn.value),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(0)),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.error.exists"),
+            expectedStatus = 400
+          )
+        }
+      }
+
+      "the user does not select an option and submits the page" in {
+        forAll(Gen.choose(0, 9), arbitraryMovementReferenceNumber.arbitrary) { (mrnIndex, reference) =>
+          val (session, _, _) =
+            sessionWithClaimState(List(), reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performActionWithDataSeq(mrnIndex, Seq.empty),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(mrnIndex)),
+            getErrorSummary(_) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.error.required"),
+            BAD_REQUEST
+          )
+        }
+      }
+
+      "redirect to the MRN summary page" in {
+        forAll(genMovementReferenceNumber, Gen.nonEmptyListOf(genMRN), genMRN) { (reference, mrns, mrn) =>
+          val mrnForwardIndex: Int = mrns.size + 1
+
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              reference,
+              Some(SelectNumberOfClaimsAnswer.Multiple)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(Right(()))
+          }
+
+          checkIsRedirect(
+            performActionWithData(mrnForwardIndex, enterAssociatedMrnKey -> mrn.value),
+            routes.CheckMovementReferenceNumbersController.showMrns()
+          )
+        }
+      }
+    }
   }
 
   "Form validation" must {
 
-    def form() = EnterAssociatedMrnController.mrnInputForm()
+    def form() = controller.mrnInputForm()
 
     "accept valid MRN" in {
       val errors =
@@ -265,4 +278,14 @@ class EnterAssociatedMrnControllerSpec extends ControllerSpec with AuthSupport w
     }
   }
 
+}
+
+object EnterAssociatedMrnControllerSpec {
+
+  implicit val genMrnsWithRandomIndex: Arbitrary[(Total, List[MRN])] = Arbitrary {
+    for {
+      index <- Gen.choose(2, 10)
+      mrns  <- Gen.listOfN(index + 1, genMRN)
+    } yield (index, mrns)
+  }
 }

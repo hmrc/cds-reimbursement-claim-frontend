@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, MovementReferenceNumber}
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, EntryNumber, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, MovementReferenceNumber}
 
 object IdGen {
 
@@ -54,6 +54,9 @@ object IdGen {
 
   implicit val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 
+  def genMovementReferenceNumber: Gen[MovementReferenceNumber] =
+    genMRN.map(MovementReferenceNumber(_))
+
   implicit val arbitraryMovementReferenceNumber: Typeclass[MovementReferenceNumber] =
-    Arbitrary(genMRN.map(MovementReferenceNumber(_)))
+    Arbitrary(genMovementReferenceNumber)
 }
