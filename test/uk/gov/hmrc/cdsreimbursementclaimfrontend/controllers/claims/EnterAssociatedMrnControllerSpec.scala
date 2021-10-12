@@ -125,7 +125,7 @@ class EnterAssociatedMrnControllerSpec
     "the change page" must {
 
       "display the title" in {
-        forAll { (mrn: MovementReferenceNumber, indexWithMrns: (Int, List[MRN])) =>
+        forAll { (mrn: MovementReferenceNumber, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
           val mrnIndexChange: AssociatedMrnIndex = indexWithMrns._1
 
           def performAction(): Future[Result] = controller.changeMrn(mrnIndexChange)(FakeRequest())
@@ -282,10 +282,10 @@ class EnterAssociatedMrnControllerSpec
 
 object EnterAssociatedMrnControllerSpec {
 
-  implicit val genMrnsWithRandomIndex: Arbitrary[(Int, List[MRN])] = Arbitrary {
+  implicit val genMrnsWithRandomIndex: Arbitrary[(AssociatedMrnIndex, List[MRN])] = Arbitrary {
     for {
-      index <- Gen.choose(2, 10)
+      index <- Gen.choose(1, 10)
       mrns  <- Gen.listOfN(index + 1, genMRN)
-    } yield (index, mrns)
+    } yield (AssociatedMrnIndex.fromRegular(index), mrns)
   }
 }

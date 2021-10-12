@@ -77,7 +77,7 @@ class CheckMovementReferenceNumbersControllerSpec
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 1)
+    PropertyCheckConfiguration(minSuccessful = 2)
 
   private def sessionWithClaimState(
     associatedMRNsAnswer: List[MRN],
@@ -202,12 +202,11 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "delete an MRN" when {
       "the user selects the delete link next to an MRN" in {
-        forAll { (reference: MovementReferenceNumber, indexWithMrns: (Int, List[MRN])) =>
-
+        forAll { (reference: MovementReferenceNumber, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
           def performActionDelete(mrnDeleteIndex: AssociatedMrnIndex): Future[Result] =
             controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
 
-          val index = indexWithMrns._1
+          val index = indexWithMrns._1.toRegular
           val mrns  = indexWithMrns._2
 
           val (session, fillingOutClaim, draftClaim) =
@@ -230,7 +229,7 @@ class CheckMovementReferenceNumbersControllerSpec
             mockStoreSession(expectedSessionWithDeletedMrn)(Right(()))
           }
 
-          val result = performActionDelete(index)
+          val result = performActionDelete(indexWithMrns._1)
 
           status(result) should be(303)
         }
@@ -292,10 +291,10 @@ class CheckMovementReferenceNumbersControllerSpec
 
 object CheckMovementReferenceNumbersControllerSpec {
 
-  implicit val genMrnsWithRandomIndex: Arbitrary[(Int, List[MRN])] = Arbitrary {
+  implicit val genMrnsWithRandomIndex: Arbitrary[(AssociatedMrnIndex, List[MRN])] = Arbitrary {
     for {
       index <- Gen.choose(3, 10)
       mrns  <- Gen.listOfN(index + 1, genMRN)
-    } yield (index, mrns)
+    } yield (AssociatedMrnIndex.fromRegular(index), mrns)
   }
 }
