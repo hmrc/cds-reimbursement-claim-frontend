@@ -15,12 +15,13 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+
 import cats.syntax.eq.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim])
+final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]])
 
 object ReimbursementClaimAnswer {
 
@@ -171,7 +172,7 @@ object ReimbursementClaimAnswer {
 
           val completeTaxCodes: Map[TaxCode, ReimbursementClaim] = {
             val taxCodeToReimbursementClaimMap: Map[TaxCode, ReimbursementClaim] =
-              taxCodesToAdd.map(taxCode => (taxCode -> ReimbursementClaim.none)).toMap
+              taxCodesToAdd.map(taxCode => taxCode -> ReimbursementClaim.none).toMap
             taxCodeToReimbursementClaimMap ++ unchangedTaxCodes
           }
 

@@ -47,7 +47,7 @@
         CheckboxItem(
             name = Some(s"$key[]"),
             value = dutyType.repr,
-            content = Text(messages(s"$key.custom.type.${dutyType.repr}")),
+            content = Text(messages(s"duty-type.${dutyType.repr}")),
             checked = form.data.exists(_._2 == dutyType.repr)
         )
     }
@@ -58,7 +58,7 @@
         CheckboxItem(
             name = Some(s"$key[]"),
             value = dutyType.repr,
-            content = Text(messages(s"$key.excise.type.${dutyType.repr}")),
+            content = Text(messages(s"duty-type.${dutyType.repr}")),
             checked = form.data.exists(_._2 == dutyType.repr)
         )
     }

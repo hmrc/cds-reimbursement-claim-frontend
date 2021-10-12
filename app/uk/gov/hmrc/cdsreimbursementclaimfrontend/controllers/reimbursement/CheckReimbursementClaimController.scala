@@ -23,11 +23,20 @@ import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.checkReimbursementClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 class CheckReimbursementClaimController @Inject() (
@@ -35,15 +44,24 @@ class CheckReimbursementClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  val config: Configuration
-) extends FrontendController(cc)
+  val config: Configuration,
+  checkReimbursementClaim: pages.check_reimbursement_claim
+)(implicit viewConfig: ViewConfig)
+    extends FrontendController(cc)
     with WithAuthAndSessionDataAction
-    with Logging
     with SessionDataExtractor
-    with SessionUpdates {
+    with SessionUpdates
+    with Logging {
 
-  def showReimbursementClaim(): Action[AnyContent] = Action {
-    Ok("implementation todo ....")
+  implicit val dataExtractor: DraftC285Claim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
+
+  def showReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
+      implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
+      maybeReimbursementClaimAnswer.fold(
+        Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+      )(answer => Ok(checkReimbursementClaim(checkReimbursementClaimForm, answer)))
+    }
   }
 
   def submitReimbursementClaim(): Action[AnyContent] = Action {
@@ -53,7 +71,7 @@ class CheckReimbursementClaimController @Inject() (
 
 object CheckReimbursementClaimController {
 
-  def checkReimbursementClaimForm: Form[YesNo] = Form(
+  val checkReimbursementClaimForm: Form[YesNo] = Form(
     mapping(
       "check-reimbursement-claim" -> optional(boolean)
         .verifying("invalid", _.isDefined)

@@ -15,16 +15,17 @@
  *@
 
 @import play.api.data.Form
-@import play.twirl.api.Html
 @import play.api.i18n.Messages
+@import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -37,9 +38,9 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(form : Form[YesNo], reimbursementClaimsAnswer : ReimbursementClaimAnswer)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], answer: ReimbursementClaimAnswer)(implicit  request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, routes: ReimbursementRoutes)
 
-@key = @{"check-reimbursement-claim"}
+@key = @{"check-claim-summary"}
 @title = @{messages(s"$key.title")}
 
 @postAction = @{reimbursementRoutes.CheckReimbursementClaimController.submitReimbursementClaim()}
@@ -52,35 +53,32 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-top-6"))
 
-    @reimbursementClaimsAnswer.reimbursementClaims.map { dutyToReimbursementClaimTuple =>
-        @dutyToReimbursementClaimTuple.toString
+    @answer.reimbursementClaims.map { claims =>
+        @pageHeading(messages(s"select-duty-types.${claims._1.repr}.label"), "govuk-heading-m govuk-!-margin-top-5", "h2")
+        @claims._2.map { reimbursement =>
+            @summary(reimbursement.summary(key))
+        }
     }
-
-    @pageHeading(messages(s"$key.uk-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(SummaryList(Nil))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
-            legend = messages(s"$key.are-these-duties-correct"),
-            legendAsHeading = false,
+            legend = messages(s"$key.are-duties-correct"),
             hintKey = None,
-            classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
+            classes = "govuk-fieldset__legend--s govuk-!-margin-top-6",
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key"),
-                    value = Some("0"),
+                    value = Some("true"),
                     content = Text(messages(s"$key.yes")),
                     checked = false
                 ),
                 RadioItem(
-                    id = Some(s"$key-eori-incorrect"),
-                    value = Some("1"),
+                    value = Some("false"),
                     content = Text(messages(s"$key.no")),
                     checked = false
                 )

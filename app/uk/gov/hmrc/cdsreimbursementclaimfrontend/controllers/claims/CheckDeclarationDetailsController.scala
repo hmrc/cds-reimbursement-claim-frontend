@@ -26,7 +26,6 @@ import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
@@ -61,12 +60,11 @@ class CheckDeclarationDetailsController @Inject() (
     implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        implicit val reimbursementRoutes: ReimbursementRoutes = router
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
         )(declaration =>
           Ok(
-            checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate)
+            checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate, router)
           )
         )
       }
@@ -76,7 +74,6 @@ class CheckDeclarationDetailsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
-        implicit val reimbursementRoutes: ReimbursementRoutes = router
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -84,7 +81,7 @@ class CheckDeclarationDetailsController @Inject() (
               answer
                 .map(declaration =>
                   Future.successful(
-                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate))
+                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate, router))
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),

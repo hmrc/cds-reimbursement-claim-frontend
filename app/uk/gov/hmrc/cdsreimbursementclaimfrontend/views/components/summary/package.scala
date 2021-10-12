@@ -22,19 +22,27 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
 
-  implicit val claimTypeSummary: ClaimTypeSummary                   = new ClaimTypeSummary
-  implicit val basisOfClaimSummary: BasisOfClaimSummary             = new BasisOfClaimSummary
-  implicit val commodityDetailsSummary: CommodityDetailsSummary     = new CommodityDetailsSummary
-  implicit val displayDeclarationSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
-  implicit val mrnSummary: MovementReferenceNumberSummary           = new MovementReferenceNumberSummary
-  implicit val mrnsSummary: MovementReferenceNumbersSummary         = new MovementReferenceNumbersSummary
-  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary = new CdsClaimantDetailsSummary
-  implicit val supportingEvidenceSummary: SupportingEvidenceSummary = new SupportingEvidenceSummary
-  implicit val scheduledDocumentSummary: ScheduledDocumentSummary   = new ScheduledDocumentSummary
-  implicit val contactDetailsSummary: ContactDetailsSummary         = new ContactDetailsSummary
+  implicit val claimTypeSummary: ClaimTypeSummary                               = new ClaimTypeSummary
+  implicit val basisOfClaimSummary: BasisOfClaimSummary                         = new BasisOfClaimSummary
+  implicit val commodityDetailsSummary: CommodityDetailsSummary                 = new CommodityDetailsSummary
+  implicit val displayDeclarationSummary: DisplayDeclarationSummary             = new DisplayDeclarationSummary
+  implicit val mrnSummary: MovementReferenceNumberSummary                       = new MovementReferenceNumberSummary
+  implicit val mrnsSummary: MovementReferenceNumbersSummary                     = new MovementReferenceNumbersSummary
+  implicit val checkReimbursementClaimsSummary: CheckReimbursementClaimsSummary = new CheckReimbursementClaimsSummary
+  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary             = new CdsClaimantDetailsSummary
+  implicit val supportingEvidenceSummary: SupportingEvidenceSummary             = new SupportingEvidenceSummary
+  implicit val scheduledDocumentSummary: ScheduledDocumentSummary               = new ScheduledDocumentSummary
+  implicit val contactDetailsSummary: ContactDetailsSummary                     = new ContactDetailsSummary
 
   implicit class AnswerSummaryOps[A](private val answer: A) extends AnyVal {
-    def review(
+
+    def summary(key: String, router: ReimbursementRoutes)(implicit
+      answerSummary: AnswerSummary[A],
+      messages: Messages
+    ): SummaryList =
+      answerSummary.render(key, answer)(router, messages)
+
+    def summary(
       key: String
     )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
       answerSummary.render(key, answer)

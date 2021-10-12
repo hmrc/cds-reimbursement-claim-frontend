@@ -69,11 +69,13 @@ class EnterReimbursementClaimController @Inject() (
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
         ) { dutyCodesAnswer =>
-          val updatedJourneyStatus: FillingOutClaim = answer.fold {
-            updateJourneyStatus(dutyCodesAnswer, ReimbursementClaimAnswer.initialise(dutyCodesAnswer), fillingOutClaim)
-          } { reimbursementClaimAnswer =>
-            updateJourneyStatus(dutyCodesAnswer, reimbursementClaimAnswer, fillingOutClaim)
-          }
+          val reimbursementClaimAnswer = answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))
+
+          val updatedJourneyStatus = FillingOutClaim.of(fillingOutClaim)(
+            _.copy(
+              reimbursementClaimAnswer = Some(reimbursementClaimAnswer.updateAnswer(dutyCodesAnswer))
+            )
+          )
 
           EitherT
             .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
@@ -99,17 +101,6 @@ class EnterReimbursementClaimController @Inject() (
         }
     }
   }
-
-  private def updateJourneyStatus(
-    dutyCodesAnswer: DutyCodesAnswer,
-    reimbursementClaimAnswer: ReimbursementClaimAnswer,
-    fillingOutClaim: FillingOutClaim
-  ): FillingOutClaim =
-    FillingOutClaim.of(fillingOutClaim)(
-      _.copy(
-        reimbursementClaimAnswer = Some(reimbursementClaimAnswer.updateAnswer(dutyCodesAnswer))
-      )
-    )
 
   def showReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
