@@ -28,6 +28,7 @@ import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -42,11 +43,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-
 import java.util.UUID
+import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{genListNdrcDetails, genNdrcDetails}
 import scala.concurrent.Future
 import scala.util.Random
 
+@SuppressWarnings(Array("org.wartremover.warts.TraversableOps", "org.wartremover.warts.OptionPartial"))
 class EnterClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -422,8 +425,37 @@ class EnterClaimControllerSpec
     def performAction(data: Seq[(String, String)]): Future[Result] =
       controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
+    "Redirect to ReimbursementMethod if user says details are correct, they are on the MRN journey and all the selected duties are cma eligible" in {
+      val taxCode = TaxCode.A00
+      val claim   = sample[Claim]
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
 
+      val selectedDuties = DutiesSelectedAnswer(Duty(taxCode))
+      val ndrcDetails    = genNdrcDetails.sample.map(_.copy(taxType = taxCode.value, cmaEligible = Some("1"))).toList
+
+      val answers = ClaimsAnswer(claim)
+
+      val session =
+        createSessionWithPreviousAnswers(
+          Some(answers),
+          Some(selectedDuties),
+          Some(ndrcDetails),
+          sample[MovementReferenceNumber],
+          Some(ClaimAnswersAreCorrect)
+        )._1
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
+      checkIsRedirect(
+        result,
+        reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod()
+      )
+    }
+
+    "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
@@ -632,6 +664,71 @@ class EnterClaimControllerSpec
         val errors   = testForm.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
       }
+    }
+  }
+
+  "isCmaEligible" must {
+    "Return true for a single selected duty with cma eligible" in {
+      val ndrcDetail = genNdrcDetails.sample.map(_.copy(cmaEligible = Some("1"))).toList
+      val claim      = generateDraftC285Claim(
+        None,
+        ndrcDetails = Some(ndrcDetail),
+        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+      )
+      EnterClaimController.isCmaEligible(claim) shouldBe true
+    }
+
+    "Return false for a single selected duty with cma not eligible" in {
+      val ndrcDetail = genNdrcDetails.sample.map(_.copy(cmaEligible = Some("0"))).toList
+      val claim      = generateDraftC285Claim(
+        None,
+        ndrcDetails = Some(ndrcDetail),
+        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+      )
+      EnterClaimController.isCmaEligible(claim) shouldBe false
+    }
+
+    "Return false for a single selected duty with cma not present" in {
+      val ndrcDetail = genNdrcDetails.sample.map(_.copy(cmaEligible = None)).toList
+      val claim      = generateDraftC285Claim(
+        None,
+        ndrcDetails = Some(ndrcDetail),
+        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+      )
+      println(ndrcDetail)
+      EnterClaimController.isCmaEligible(claim) shouldBe false
+    }
+
+    "Return true for a multiple duties selected claim ith cma eligible on all" in {
+      val ndrcDetails: List[NdrcDetails] =
+        genListNdrcDetails().sample.map(_.map(_.copy(cmaEligible = Some("1")))).getOrElse(Nil)
+      val selectedDuties                 = ndrcDetails.map(detail => Duty(TaxCode(detail.taxType)))
+      val claim                          = generateDraftC285Claim(
+        None,
+        ndrcDetails = Some(ndrcDetails),
+        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
+      )
+      EnterClaimController.isCmaEligible(claim) shouldBe true
+    }
+
+    "Return false for a multiple duties selected claim ith cma eligible on all except one" in {
+      val initialNdrcDetails: List[NdrcDetails] = genListNdrcDetails().sample
+        .map(
+          _.map(_.copy(cmaEligible = Some("1")))
+        )
+        .getOrElse(Nil)
+      val ineligible                            = Gen.pick(1, initialNdrcDetails.map(_.taxType)).sample.get.head
+      val ndrcDetails                           = initialNdrcDetails.map {
+        case detail if detail.taxType == ineligible => detail.copy(cmaEligible = Some("0"))
+        case detail                                 => detail
+      }
+      val selectedDuties                        = ndrcDetails.map(detail => Duty(TaxCode(detail.taxType)))
+      val claim                                 = generateDraftC285Claim(
+        None,
+        ndrcDetails = Some(ndrcDetails),
+        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
+      )
+      EnterClaimController.isCmaEligible(claim) shouldBe false
     }
   }
 }
