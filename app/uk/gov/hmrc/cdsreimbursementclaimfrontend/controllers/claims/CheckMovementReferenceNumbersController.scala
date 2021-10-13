@@ -101,7 +101,7 @@ class CheckMovementReferenceNumbersController @Inject() (
             case YesAddAnotherMrn   =>
               Redirect(
                 routes.EnterAssociatedMrnController
-                  .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.nextIndex))
+                  .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
               )
             case DoNotAddAnotherMrn =>
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))

@@ -111,7 +111,7 @@ class EnterAssociatedMrnController @Inject() (
         val editing: Boolean     = associatedMRNsAnswer.isDefinedAt(index)
 
         val form = mrnInputForm(
-          if (editing) associatedMRNsAnswer.listAllBut(index)
+          if (editing) associatedMRNsAnswer.listAllElementsExceptAt(index)
           else associatedMRNsAnswer.list
         )
 
