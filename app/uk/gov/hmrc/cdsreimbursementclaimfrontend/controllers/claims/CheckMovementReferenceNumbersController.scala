@@ -38,7 +38,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
@@ -62,45 +61,38 @@ class CheckMovementReferenceNumbersController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor1: DraftC285Claim => Option[AssociatedMRNsAnswer]            =
-    _.associatedMRNsAnswer
-  implicit val dataExtractor2: DraftC285Claim => Option[AssociatedMRNsDeclarationAnswer] =
-    _.associatedMRNsDeclarationAnswer
-
   def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
-    })
+    }
   }
 
   def deleteMrn(mrnIndex: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNsAnswer) =>
-        withAnswers[AssociatedMRNsDeclarationAnswer] { (_, associatedMRNsDeclarationAnswer) =>
-          def redirectToShowMrnsPage() =
-            Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+      request.using { case journey: FillingOutClaim =>
+        def redirectToShowMrnsPage() =
+          Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
 
-          val updatedAssociatedMRNsAnswer            = associatedMRNsAnswer.remove(mrnIndex)
-          val updatedAssociatedMRNsDeclarationAnswer = associatedMRNsDeclarationAnswer.remove(mrnIndex)
-          val updatedClaim                           =
-            FillingOutClaim.of(fillingOutClaim)(
-              _.copy(
-                associatedMRNsAnswer = updatedAssociatedMRNsAnswer,
-                associatedMRNsDeclarationAnswer = updatedAssociatedMRNsDeclarationAnswer
-              )
+        val updatedAssociatedMRNsAnswer            = journey.draftClaim.associatedMRNsAnswer.remove(mrnIndex)
+        val updatedAssociatedMRNsDeclarationAnswer = journey.draftClaim.associatedMRNsDeclarationAnswer.remove(mrnIndex)
+        val updatedClaim                           =
+          FillingOutClaim.of(journey)(
+            _.copy(
+              associatedMRNsAnswer = updatedAssociatedMRNsAnswer,
+              associatedMRNsDeclarationAnswer = updatedAssociatedMRNsDeclarationAnswer
             )
+          )
 
-          EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedClaim.some)))
-            .fold(
-              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
-              _ => redirectToShowMrnsPage()
-            )
-        }
+        EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedClaim.some)))
+          .fold(
+            logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
+            _ => redirectToShowMrnsPage()
+          )
       }
   }
 
   def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       whetherAddAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(
@@ -115,7 +107,7 @@ class CheckMovementReferenceNumbersController @Inject() (
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
           }
         )
-    })
+    }
   }
 }
 
