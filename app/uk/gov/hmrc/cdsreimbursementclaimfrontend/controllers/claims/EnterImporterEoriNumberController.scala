@@ -123,7 +123,6 @@ class EnterImporterEoriNumberController @Inject() (
 
 object EnterImporterEoriNumberController {
 
-
   val eoriNumberMapping: Mapping[Eori] =
     text
       .verifying("invalid.number", str => Eori.isValid(str))

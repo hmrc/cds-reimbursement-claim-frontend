@@ -56,7 +56,7 @@ object DraftClaim {
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
     duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
-    importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
+    importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
     declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
     claimsAnswer: Option[ClaimsAnswer] = None,
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
