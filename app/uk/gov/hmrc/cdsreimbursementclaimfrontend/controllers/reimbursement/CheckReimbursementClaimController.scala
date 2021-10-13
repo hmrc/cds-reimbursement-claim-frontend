@@ -26,9 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.checkReimbursementClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.whetherDutiesCorrectForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
@@ -57,24 +57,45 @@ class CheckReimbursementClaimController @Inject() (
 
   def showReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
-      implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, Scheduled)
+      implicit val routes: ReimbursementRoutes =
+        extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
+
       maybeReimbursementClaimAnswer.fold(
         Redirect(reimbursementRoutes.SelectDutyCodesController.start())
-      )(answer => Ok(checkReimbursementClaim(checkReimbursementClaimForm, answer)))
+      )(answer => Ok(checkReimbursementClaim(whetherDutiesCorrectForm, answer)))
     }
   }
 
-  def submitReimbursementClaim(): Action[AnyContent] = Action {
-    Ok("implementation todo....")
+  def submitReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
+      implicit val routes: ReimbursementRoutes =
+        extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
+
+      maybeReimbursementClaimAnswer.fold(
+        Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+      )(answer =>
+        whetherDutiesCorrectForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors => BadRequest(checkReimbursementClaim(formWithErrors, answer)),
+            {
+              case Yes =>
+                Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled))
+              case No  =>
+                Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes())
+            }
+          )
+      )
+    }
   }
 }
 
 object CheckReimbursementClaimController {
 
-  val checkReimbursementClaimForm: Form[YesNo] = Form(
+  val whetherDutiesCorrectForm: Form[YesNo] = Form(
     mapping(
-      "check-reimbursement-claim" -> optional(boolean)
-        .verifying("invalid", _.isDefined)
+      "check-claim-summary" -> optional(boolean)
+        .verifying("error.invalid", _.isDefined)
         .transform[YesNo](
           value => if (value.exists(_ === true)) Yes else No,
           answer => Some(answer === Yes)

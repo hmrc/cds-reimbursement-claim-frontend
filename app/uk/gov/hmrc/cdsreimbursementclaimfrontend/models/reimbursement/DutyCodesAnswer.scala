@@ -44,7 +44,7 @@ object DutyCodesAnswer {
 
       override def writes(o: Map[DutyType, List[TaxCode]]): JsValue =
         Json.toJson(o.map { dutyCodes =>
-          (DutyType.typeToString(dutyCodes._1), dutyCodes._2)
+          (dutyCodes._1.repr, dutyCodes._2)
         })
     }
 
@@ -56,7 +56,7 @@ object DutyCodesAnswer {
 
     def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] = {
       def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
-        DutyType.dutyTypeToRankMap(dutyTypeToRankMap._1)
+        DutyTypes.dutyTypeToRankMap(dutyTypeToRankMap._1)
       SortedMap[DutyType, List[TaxCode]](
         dutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
       )

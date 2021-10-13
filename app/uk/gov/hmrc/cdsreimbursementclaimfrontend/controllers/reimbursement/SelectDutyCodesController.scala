@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{EuDuty, UkDuty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, reimbursement}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -151,13 +151,16 @@ class SelectDutyCodesController @Inject() (
           reimbursementClaimAnswer = Some(
             ReimbursementClaimAnswer(
               Map(
-                UkDuty -> Map(
-                  TaxCode.A20 -> ReimbursementClaim(paidAmount = Some(300.00), shouldOfPaid = Some(600.00)),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(400.00), shouldOfPaid = Some(1000.00))
+                UkDuty     -> Map(
+                  TaxCode.A20 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00)),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(1000.00), shouldOfPaid = Some(400.00))
                 ),
-                EuDuty -> Map(
-                  TaxCode.A70 -> ReimbursementClaim(paidAmount = Some(300.00), shouldOfPaid = Some(600.00)),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(400.00), shouldOfPaid = Some(1000.00))
+                EuDuty     -> Map(
+                  TaxCode.A70 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00)),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(1000.00), shouldOfPaid = Some(400.00))
+                ),
+                CiderPerry -> Map(
+                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00))
                 )
               )
             )

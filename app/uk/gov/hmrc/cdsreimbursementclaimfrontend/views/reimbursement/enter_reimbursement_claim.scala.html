@@ -39,7 +39,7 @@
 @(form : Form[ReimbursementClaim], dutyType : DutyType, dutyCode: TaxCode)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-reimbursement-claim"}
-@title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
+@title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
 
 @postAction = @{reimbursementRoutes.EnterReimbursementClaimController.submitReimbursementClaim(dutyType, dutyCode)}
 
@@ -51,9 +51,9 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.p1", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body govuk-!-margin-bottom-6"))
 
-    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
+    @paragraph(Html(messages(s"$key.p2", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body govuk-!-margin-bottom-4"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -62,9 +62,9 @@
             id = key,
             name = key,
             label = s"$key.amount-paid",
+            labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
-            classes = Some("govuk-input govuk-input--width-5"),
-            hint = Some(s"$key.amount-paid.hint"),
+            classes = Some("govuk-input govuk-!-width-one-quarter"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
@@ -74,8 +74,9 @@
             id = key,
             name = key,
             label = s"$key.amount-should-of-paid",
+            labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
-            classes = Some("govuk-input govuk-input--width-5"),
+            classes = Some("govuk-input govuk-!-width-one-quarter"),
             hint = Some(s"$key.amount-paid.hint"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )

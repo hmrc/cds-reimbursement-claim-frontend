@@ -73,11 +73,7 @@ object DutyType {
         )
       )
 
-  val dutyTypeToRankMap: Map[DutyType, Int] = DutyTypes.all.zipWithIndex.toMap
-
   def toDutyType(repr: String): Option[DutyType] = DutyTypes.all.find(_.repr === repr)
-
-  def typeToString(dutyType: DutyType): String = dutyType.repr
 
   implicit val taxCategoryEq: Eq[DutyType] = Eq.fromUniversalEquals[DutyType]
 
@@ -101,6 +97,6 @@ object DutyType {
 
   object DutyTypeOrdering extends Ordering[DutyType] {
     def compare(a: DutyType, b: DutyType): Int =
-      DutyType.dutyTypeToRankMap(a) compare DutyType.dutyTypeToRankMap(b)
+      DutyTypes.dutyTypeToRankMap(a) compare DutyTypes.dutyTypeToRankMap(b)
   }
 }

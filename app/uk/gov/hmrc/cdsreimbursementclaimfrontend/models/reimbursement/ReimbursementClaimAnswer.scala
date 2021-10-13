@@ -20,8 +20,15 @@ import cats.syntax.eq.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer.ReimbursementClaimOps
 
-final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]])
+final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
+
+  def total: BigDecimal =
+    reimbursementClaims.values.foldLeft(BigDecimal(0)) { (amount, reimbursement) =>
+      amount + reimbursement.subtotal
+    }
+}
 
 object ReimbursementClaimAnswer {
 
@@ -34,6 +41,7 @@ object ReimbursementClaimAnswer {
           .map(taxCodeToReimbursementClaimTuple => taxCodeToReimbursementClaimTuple -> ReimbursementClaim.none)
           .toMap
     }
+
     ReimbursementClaimAnswer(claimsToAnswer)
   }
 
@@ -48,7 +56,7 @@ object ReimbursementClaimAnswer {
                 case Some(dutyType) =>
                   val taxCodeToPaidAndClaimAmounts = dutyTypeTuple._2.map { taxCodeTuple =>
                     TaxCode.fromString(taxCodeTuple._1) match {
-                      case Some(taxCode) => (taxCode -> taxCodeTuple._2)
+                      case Some(taxCode) => taxCode -> taxCodeTuple._2
                       case None          => sys.error("Could not convert string to tax code type")
                     }
                   }
@@ -59,23 +67,20 @@ object ReimbursementClaimAnswer {
           }
 
       override def writes(o: Map[DutyType, Map[TaxCode, ReimbursementClaim]]): JsValue =
-        Json.toJson(o.map { dutyTypesTuple =>
-          (
-            DutyType.typeToString(dutyTypesTuple._1),
-            dutyTypesTuple._2.map { taxCodeTuple =>
-              (TaxCode.classToNameString(taxCodeTuple._1), taxCodeTuple._2)
-            }
-          )
-        })
+        Json.toJson(
+          o.map { dutyTypesTuple =>
+            (
+              dutyTypesTuple._1.repr,
+              dutyTypesTuple._2.map { taxCodeTuple =>
+                (taxCodeTuple._1.value, taxCodeTuple._2)
+              }
+            )
+          }
+        )
     }
 
   implicit class ReimbursementClaimAnswerOps(private val reimbursementClaimAnswer: ReimbursementClaimAnswer)
       extends AnyVal {
-
-    def subtotal(dutyType: DutyType): BigDecimal = {
-      val _ = dutyType
-      BigDecimal(0)
-    }
 
     def isIncompleteReimbursementClaim: Option[(DutyType, Map[TaxCode, ReimbursementClaim])] =
       reimbursementClaimAnswer.reimbursementClaims.find(dutyTypeToReimbursementClaimTuple =>
@@ -184,8 +189,14 @@ object ReimbursementClaimAnswer {
           unchangedDutyTypesWithDeselectedTaxCodes ++
           unchangedDutyTypesWithNewlyAddedTaxCodes
       )
-
     }
+  }
+
+  implicit class ReimbursementClaimOps(val reimbursement: Map[TaxCode, ReimbursementClaim]) extends AnyVal {
+    def subtotal: BigDecimal =
+      reimbursement.foldLeft(BigDecimal(0)) { (total, reimbursement) =>
+        total + reimbursement._2.claim
+      }
   }
 
   implicit val format: OFormat[ReimbursementClaimAnswer] = derived.oformat[ReimbursementClaimAnswer]()

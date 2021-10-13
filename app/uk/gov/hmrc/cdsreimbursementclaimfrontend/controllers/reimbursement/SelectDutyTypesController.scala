@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, catsSyntaxTuple3Semigroupal}
+import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -59,14 +59,9 @@ class SelectDutyTypesController @Inject() (
   implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
-      answer.fold(
-        Ok(selectDutyTypesPage(selectDutyTypesForm))
-      )(dutyType =>
-        if (hasCompleteReimbursementClaim(fillingOutClaim))
-          Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-        else
-          Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
+    withAnswers[DutyTypesAnswer] { (_, answer) =>
+      answer.fold(Ok(selectDutyTypesPage(selectDutyTypesForm)))(dutyType =>
+        Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
       )
     }
   }
@@ -89,26 +84,12 @@ class SelectDutyTypesController @Inject() (
                   .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not get duty types selected"),
-                    _ =>
-                      if (hasCompleteReimbursementClaim(updatedJourney))
-                        Redirect(routes.CheckReimbursementClaimController.showReimbursementClaim())
-                      else
-                        Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+                    _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
                   )
               }
           )
       }
     }
-
-  private def hasCompleteReimbursementClaim(fillingOutClaim: FillingOutClaim) =
-    (
-      fillingOutClaim.draftClaim.dutyTypesSelectedAnswer,
-      fillingOutClaim.draftClaim.dutyCodesSelectedAnswer,
-      fillingOutClaim.draftClaim.reimbursementClaimAnswer
-    ).mapN { (dutyTypesAnswer, dutyCodesAnswer, dutyPaidAndClaimAmountAnswer) =>
-      dutyCodesAnswer.dutyCodes.values.exists(_.nonEmpty) && dutyTypesAnswer.dutyTypesSelected
-        .exists(dutyType => dutyPaidAndClaimAmountAnswer.reimbursementClaims(dutyType).nonEmpty)
-    } getOrElse false
 }
 
 object SelectDutyTypesController {

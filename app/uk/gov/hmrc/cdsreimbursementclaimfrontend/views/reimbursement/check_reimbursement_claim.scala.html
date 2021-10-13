@@ -53,14 +53,17 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-top-6"))
+    @paragraph(Html(messages(s"$key.scheduled.help-text")), Some("govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-3"))
 
     @answer.reimbursementClaims.map { claims =>
-        @pageHeading(messages(s"select-duty-types.${claims._1.repr}.label"), "govuk-heading-m govuk-!-margin-top-5", "h2")
-        @claims._2.map { reimbursement =>
-            @summary(reimbursement.summary(key))
-        }
+        @pageHeading(messages(s"duty-type.${claims._1.repr}"), "govuk-heading-m", "h2")
+        @summary((claims._1, claims._2).summary(key))
+        <br/>
     }
+
+    @pageHeading(messages(s"$key.total.header"), "govuk-heading-m", "h2")
+    @summary(answer.summary(key))
+    <br/>
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
@@ -68,7 +71,6 @@
             form = form,
             name = key,
             legend = messages(s"$key.are-duties-correct"),
-            hintKey = None,
             classes = "govuk-fieldset__legend--s govuk-!-margin-top-6",
             inline = true,
             items = Seq(

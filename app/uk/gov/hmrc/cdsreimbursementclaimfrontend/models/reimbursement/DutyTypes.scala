@@ -39,6 +39,8 @@ object DutyTypes {
 
   val all: Seq[DutyType] = custom ++ excise
 
+  val dutyTypeToRankMap: Map[DutyType, Int] = all.zipWithIndex.toMap
+
   def contains(representation: String): Boolean =
     all.exists(_.repr === representation)
 }
