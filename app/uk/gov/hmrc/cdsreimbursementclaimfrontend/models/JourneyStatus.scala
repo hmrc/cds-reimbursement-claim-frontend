@@ -65,9 +65,9 @@ object JourneyStatus {
     def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
       fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
 
-    def ofEither(fillingOutClaim: FillingOutClaim)(
-      f: DraftC285Claim => Either[Unit, DraftC285Claim]
-    ): Either[Unit, FillingOutClaim] =
+    def ofEither[E](fillingOutClaim: FillingOutClaim)(
+      f: DraftC285Claim => Either[E, DraftC285Claim]
+    ): Either[E, FillingOutClaim] =
       fillingOutClaim.draftClaim match {
         case draftC285Claim: DraftC285Claim =>
           f(draftC285Claim)

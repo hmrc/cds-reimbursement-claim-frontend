@@ -15,24 +15,28 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 
 object JourneyStatusGen extends JourneyStatusLowerPriorityGen {
-  implicit val arbitraryJourneyStatus: Typeclass[JourneyStatus] = gen[JourneyStatus]
+  implicit lazy val arbitraryJourneyStatus: Typeclass[JourneyStatus] = gen[JourneyStatus]
 }
 
 trait JourneyStatusLowerPriorityGen {
 
-  implicit val arbitraryFillingOutClaim: Typeclass[FillingOutClaim] = gen[FillingOutClaim]
+  import IdGen._
+  import SignedInUserDetailsGen._
+  import JourneyBindableGen._
+  import DraftClaimGen._
+  import CompleteClaimGen._
+  import SubmissionResponseGen._
 
-  implicit val arbitraryJustSubmittedClaim: Typeclass[JustSubmittedClaim] = gen[JustSubmittedClaim]
+  implicit lazy val arbitraryFillingOutClaim: Typeclass[FillingOutClaim] = gen[FillingOutClaim]
 
-  implicit val arbitrarySubmitClaimFailed: Typeclass[SubmitClaimFailed] = gen[SubmitClaimFailed]
+  implicit lazy val arbitraryJustSubmittedClaim: Typeclass[JustSubmittedClaim] = gen[JustSubmittedClaim]
+
+  implicit lazy val arbitrarySubmitClaimFailed: Typeclass[SubmitClaimFailed] = gen[SubmitClaimFailed]
 
 }

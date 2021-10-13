@@ -206,7 +206,7 @@ class CheckMovementReferenceNumbersControllerSpec
           def performActionDelete(mrnDeleteIndex: AssociatedMrnIndex): Future[Result] =
             controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
 
-          val index = indexWithMrns._1.toRegular
+          val index = indexWithMrns._1.toListIndex
           val mrns  = indexWithMrns._2
 
           val (session, fillingOutClaim, draftClaim) =
@@ -256,7 +256,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
           checkIsRedirect(
             performActionWithData(Seq(checkMovementReferenceNumbersKey -> true.toString)),
-            routes.EnterAssociatedMrnController.enterMrn(mrnForwardIndex)
+            routes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(mrnForwardIndex))
           )
         }
       }
@@ -295,6 +295,6 @@ object CheckMovementReferenceNumbersControllerSpec {
     for {
       index <- Gen.choose(3, 10)
       mrns  <- Gen.listOfN(index + 1, genMRN)
-    } yield (AssociatedMrnIndex.fromRegular(index), mrns)
+    } yield (AssociatedMrnIndex.fromListIndex(index), mrns)
   }
 }

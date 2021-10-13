@@ -46,6 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -109,40 +110,57 @@ class EnterAssociatedMrnController @Inject() (
   def submitEnteredMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNsAnswer) =>
-        val form = mrnInputForm(associatedMRNsAnswer.listAllBut(index))
+        val editing: Boolean = associatedMRNsAnswer.isDefinedAt(index)
 
-        def displayInputError(mrn: MRN, errorMessageKey: String) = {
-          val editing: Boolean = associatedMRNsAnswer.isDefinedAt(index)
+        val form = mrnInputForm(
+          if (editing) associatedMRNsAnswer.listAllBut(index)
+          else associatedMRNsAnswer.list
+        )
+
+        def displayInputError(mrn: MRN, errorMessageKey: String) =
           BadRequest(
-            enterAssociatedMrnPage(index, form.fill(mrn).withError(FormError("", Seq(errorMessageKey))), editing)
+            enterAssociatedMrnPage(
+              index,
+              form.fill(mrn).withError(FormError(enterAssociatedMrnKey, Seq(errorMessageKey))),
+              editing
+            )
           )
-        }
 
-        def replaceOrAddMrn(mrn: AssociatedMrn): EitherT[Future, Result, Unit] =
+        def getDeclaration(mrn: AssociatedMrn) =
+          claimService
+            .getDisplayDeclaration(mrn)
+            .leftMap(logAndDisplayError(s"Error getting declaration"))
+            .transform {
+              case Right(None)    => Left(displayInputError(mrn, "error.missing-declaration"))
+              case Right(Some(d)) => Right(d)
+              case Left(r)        => Left(r)
+            }
+
+        def replaceOrAppendMrn(mrn: AssociatedMrn): EitherT[Future, Result, Unit] =
           for {
-            declaration <-
-              claimService
-                .getDisplayDeclaration(mrn)
-                .leftMap(logAndDisplayError(s"Error getting declaration"))
-                .transform {
-                  case Right(None)    => Left(displayInputError(mrn, ""))
-                  case Right(Some(d)) =>
-                    println(d)
-                    Right(d)
-                  case Left(r)        => Left(r)
-                }
+            declaration <- associatedMRNsAnswer.get(index) match {
+                             case Some(existingMrn) if existingMrn === mrn =>
+                               EitherT
+                                 .fromOption[Future](
+                                   fillingOutClaim.draftClaim.associatedMRNsDeclarationAnswer.get(index),
+                                   mrn
+                                 )
+                                 .leftFlatMap(getDeclaration)
+
+                             case _ => getDeclaration(mrn)
+                           }
 
             _ = EitherT.fromEither[Future] {
                   canAcceptAssociatedDeclaration(fillingOutClaim, declaration) match {
-                    case false => Left(displayInputError(mrn, ""))
+                    case false => Left(displayInputError(mrn, "error.eori-not-matching"))
                     case true  => Right(())
                   }
                 }
 
             updatedDraftClaim <-
               EitherT.fromEither[Future](
-                updateAssociatedMrn(index, fillingOutClaim, mrn, declaration).left
-                  .map(_ => displayInputError(mrn, ""))
+                updateAssociatedMrns(index, fillingOutClaim, mrn, declaration).left
+                  .map(e => logAndDisplayError("Error updating claim answers: ").apply(Error(e)))
               )
 
             _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedDraftClaim.some)))
@@ -154,7 +172,7 @@ class EnterAssociatedMrnController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors)),
-            replaceOrAddMrn(_)
+            replaceOrAppendMrn(_)
               .fold(identity, _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns()))
           )
       }
@@ -186,12 +204,12 @@ object EnterAssociatedMrnController {
     ) && leadConsigneeEORIOpt.exists(consigneeEORIOpt.contains(_))
   }
 
-  def updateAssociatedMrn(
+  def updateAssociatedMrns(
     index: AssociatedMrnIndex,
     fillingOutClaim: FillingOutClaim,
     mrn: AssociatedMrn,
     declaration: DisplayDeclaration
-  ): Either[Unit, FillingOutClaim] =
+  ): Either[String, FillingOutClaim] =
     FillingOutClaim.ofEither(fillingOutClaim) { draftClaim =>
       for {
         associatedMRNsAnswer            <- draftClaim.associatedMRNsAnswer.replaceOrAppend(index, mrn)

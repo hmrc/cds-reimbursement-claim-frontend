@@ -107,7 +107,10 @@ class CheckMovementReferenceNumbersController @Inject() (
           formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
           {
             case YesAddAnotherMrn   =>
-              Redirect(routes.EnterAssociatedMrnController.enterMrn(journey.draftClaim.MRNs.total + 1))
+              Redirect(
+                routes.EnterAssociatedMrnController
+                  .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.nextIndex))
+              )
             case DoNotAddAnotherMrn =>
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
           }

@@ -28,9 +28,14 @@ object IdGen {
 
   implicit val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
 
-  implicit val arbitraryAssociatedMrnIndex: Typeclass[AssociatedMrnIndex] = gen[AssociatedMrnIndex]
+  val genAssociatedMrnIndex = Gen
+    .chooseNum(0, 100)
+    .map(AssociatedMrnIndex.fromListIndex)
 
-  def genEori: Gen[Eori] =
+  implicit val arbitraryAssociatedMrnIndex: Typeclass[AssociatedMrnIndex] =
+    Arbitrary(genAssociatedMrnIndex)
+
+  val genEori: Gen[Eori] =
     for {
       c <- Gen.listOfN(2, Gen.alphaUpperChar)
       n <- Gen.listOfN(12, Gen.numChar)
@@ -39,13 +44,13 @@ object IdGen {
 
   implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
 
-  def genEntryNumber: Gen[EntryNumber] = for {
+  val genEntryNumber: Gen[EntryNumber] = for {
     prefix <- Gen.listOfN(9, Gen.numChar)
     letter <- Gen.listOfN(1, Gen.alphaUpperChar)
     suffix <- Gen.listOfN(8, Gen.numChar)
   } yield EntryNumber((prefix ++ letter ++ suffix).mkString)
 
-  def genMRN: Gen[MRN] = for {
+  val genMRN: Gen[MRN] = for {
     d1      <- Gen.listOfN(2, Gen.numChar)
     letter2 <- Gen.listOfN(2, Gen.alphaUpperChar)
     word    <- Gen.listOfN(13, Gen.numChar)
@@ -54,7 +59,7 @@ object IdGen {
 
   implicit val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 
-  def genMovementReferenceNumber: Gen[MovementReferenceNumber] =
+  val genMovementReferenceNumber: Gen[MovementReferenceNumber] =
     genMRN.map(MovementReferenceNumber(_))
 
   implicit val arbitraryMovementReferenceNumber: Typeclass[MovementReferenceNumber] =

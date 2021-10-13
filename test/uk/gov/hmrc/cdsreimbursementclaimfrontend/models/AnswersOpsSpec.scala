@@ -104,32 +104,43 @@ class AnswersOpsSpec extends AnyWordSpec with Matchers {
       multiple.canAppendAt(AssociatedMrnIndex(6))  shouldBe false
     }
 
-    "replace or append element at index" in {
+    "return next element index" in {
       val empty = None
-      empty.replaceOrAppend(AssociatedMrnIndex(-1), "z") shouldBe Left(())
-      empty.replaceOrAppend(AssociatedMrnIndex(0), "z")  shouldBe Left(())
-      empty.replaceOrAppend(AssociatedMrnIndex(1), "z")  shouldBe Left(())
-      empty.replaceOrAppend(AssociatedMrnIndex(2), "z")  shouldBe Right(Some(NonEmptyList("z", Nil)))
-      empty.replaceOrAppend(AssociatedMrnIndex(3), "z")  shouldBe Left(())
+      empty.nextIndex shouldBe 0
 
       val single = Some(NonEmptyList("a", Nil))
-      single.replaceOrAppend(AssociatedMrnIndex(-1), "z") shouldBe Left(())
-      single.replaceOrAppend(AssociatedMrnIndex(0), "z")  shouldBe Left(())
-      single.replaceOrAppend(AssociatedMrnIndex(1), "z")  shouldBe Left(())
-      single.replaceOrAppend(AssociatedMrnIndex(2), "z")  shouldBe Right(Some(NonEmptyList("z", Nil)))
-      single.replaceOrAppend(AssociatedMrnIndex(3), "z")  shouldBe Right(Some(NonEmptyList("a", List("z"))))
-      single.replaceOrAppend(AssociatedMrnIndex(4), "z")  shouldBe Left(())
-      single.replaceOrAppend(AssociatedMrnIndex(5), "z")  shouldBe Left(())
+      single.nextIndex shouldBe 1
 
       val multiple = Some(NonEmptyList("a", List("b", "c")))
-      multiple.replaceOrAppend(AssociatedMrnIndex(-1), "z") shouldBe Left(())
-      multiple.replaceOrAppend(AssociatedMrnIndex(0), "z")  shouldBe Left(())
-      multiple.replaceOrAppend(AssociatedMrnIndex(1), "z")  shouldBe Left(())
-      multiple.replaceOrAppend(AssociatedMrnIndex(2), "z")  shouldBe Right(Some(NonEmptyList("z", List("b", "c"))))
-      multiple.replaceOrAppend(AssociatedMrnIndex(3), "z")  shouldBe Right(Some(NonEmptyList("a", List("z", "c"))))
-      multiple.replaceOrAppend(AssociatedMrnIndex(4), "z")  shouldBe Right(Some(NonEmptyList("a", List("b", "z"))))
-      multiple.replaceOrAppend(AssociatedMrnIndex(5), "z")  shouldBe Right(Some(NonEmptyList("a", List("b", "c", "z"))))
-      multiple.replaceOrAppend(AssociatedMrnIndex(6), "z")  shouldBe Left(())
+      multiple.nextIndex shouldBe 3
+    }
+
+    "replace or append element at index" in {
+      val empty = None
+      empty.replaceOrAppend(AssociatedMrnIndex(-1), "z").isLeft shouldBe true
+      empty.replaceOrAppend(AssociatedMrnIndex(0), "z").isLeft  shouldBe true
+      empty.replaceOrAppend(AssociatedMrnIndex(1), "z").isLeft  shouldBe true
+      empty.replaceOrAppend(AssociatedMrnIndex(2), "z")         shouldBe Right(Some(NonEmptyList("z", Nil)))
+      empty.replaceOrAppend(AssociatedMrnIndex(3), "z").isLeft  shouldBe true
+
+      val single = Some(NonEmptyList("a", Nil))
+      single.replaceOrAppend(AssociatedMrnIndex(-1), "z").isLeft shouldBe true
+      single.replaceOrAppend(AssociatedMrnIndex(0), "z").isLeft  shouldBe true
+      single.replaceOrAppend(AssociatedMrnIndex(1), "z").isLeft  shouldBe true
+      single.replaceOrAppend(AssociatedMrnIndex(2), "z")         shouldBe Right(Some(NonEmptyList("z", Nil)))
+      single.replaceOrAppend(AssociatedMrnIndex(3), "z")         shouldBe Right(Some(NonEmptyList("a", List("z"))))
+      single.replaceOrAppend(AssociatedMrnIndex(4), "z").isLeft  shouldBe true
+      single.replaceOrAppend(AssociatedMrnIndex(5), "z").isLeft  shouldBe true
+
+      val multiple = Some(NonEmptyList("a", List("b", "c")))
+      multiple.replaceOrAppend(AssociatedMrnIndex(-1), "z").isLeft shouldBe true
+      multiple.replaceOrAppend(AssociatedMrnIndex(0), "z").isLeft  shouldBe true
+      multiple.replaceOrAppend(AssociatedMrnIndex(1), "z").isLeft  shouldBe true
+      multiple.replaceOrAppend(AssociatedMrnIndex(2), "z")         shouldBe Right(Some(NonEmptyList("z", List("b", "c"))))
+      multiple.replaceOrAppend(AssociatedMrnIndex(3), "z")         shouldBe Right(Some(NonEmptyList("a", List("z", "c"))))
+      multiple.replaceOrAppend(AssociatedMrnIndex(4), "z")         shouldBe Right(Some(NonEmptyList("a", List("b", "z"))))
+      multiple.replaceOrAppend(AssociatedMrnIndex(5), "z")         shouldBe Right(Some(NonEmptyList("a", List("b", "c", "z"))))
+      multiple.replaceOrAppend(AssociatedMrnIndex(6), "z").isLeft  shouldBe true
     }
 
     "list all elements" in {

@@ -73,41 +73,44 @@ package object answers {
 
   implicit class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 
-    def get(i: AssociatedMrnIndex): Option[A] =
+    def get(i: AssociatedMrnIndex): Option[A] = {
+      val index = i.toListIndex
       answer.flatMap { list =>
-        val index = i.toRegular
         if (index < 0 || index >= list.length) None
         else list.toList.drop(index).headOption
       }
+    }
 
     def canAppendAt(i: AssociatedMrnIndex): Boolean = {
-      val index = i.toRegular
+      val index = i.toListIndex
       index >= 0 && (answer match {
         case None       => index === 0
         case Some(list) => index === list.length
       })
     }
 
+    def nextIndex: Int = answer.map(_.length).getOrElse(0)
+
     def isDefinedAt(i: AssociatedMrnIndex): Boolean = {
-      val index = i.toRegular
+      val index = i.toListIndex
       index >= 0 && answer.map(_.length > index).getOrElse(false)
     }
 
-    def replaceOrAppend(i: AssociatedMrnIndex, item: A): Either[Unit, Option[NonEmptyList[A]]] = {
-      val index = i.toRegular
-      if (index < 0) Left(())
+    def replaceOrAppend(i: AssociatedMrnIndex, item: A): Either[String, Option[NonEmptyList[A]]] = {
+      val index = i.toListIndex
+      if (index < 0) Left("Index must be greater or equal to zero")
       else
         answer match {
           case None if index === 0                => Right(Some(NonEmptyList(item, Nil)))
-          case None                               => Left(())
+          case None                               => Left(s"Expected zero but was $index")
           case Some(list) if index <= list.length =>
             Right(NonEmptyList.fromList(list.toList.take(index) ::: item :: list.toList.drop(index + 1)))
-          case Some(_)                            => Left(())
+          case Some(list)                         => Left(s"Expected index lower or equal to ${list.length} but was $index")
         }
     }
 
     def remove(i: AssociatedMrnIndex): Option[NonEmptyList[A]] = {
-      val index = i.toRegular
+      val index = i.toListIndex
       if (index < 0) answer
       else
         answer.flatMap { list =>
@@ -118,7 +121,7 @@ package object answers {
     def list: List[A] = answer.map(_.toList).getOrElse(Nil)
 
     def listAllBut(i: AssociatedMrnIndex): List[A] = {
-      val index = i.toRegular
+      val index = i.toListIndex
       answer
         .map { list =>
           list.toList.take(index) ::: list.toList.drop(index + 1)
