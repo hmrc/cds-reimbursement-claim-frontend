@@ -240,7 +240,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "the user selects yes" in {
         forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
-          val mrnForwardIndex: Int = mrns.size + 2
+          val mrnForwardIndex: Int = mrns.size
 
           val (session, _, _) =
             sessionWithClaimState(
