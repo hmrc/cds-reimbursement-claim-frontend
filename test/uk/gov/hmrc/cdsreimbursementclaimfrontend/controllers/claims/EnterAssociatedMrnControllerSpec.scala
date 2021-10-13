@@ -310,18 +310,20 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "redirect to the MRN summary page" in {
+
+        val eori: Eori         = sample[Eori]
+        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = eori.value)
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(consigneeDetails = Some(consigneeDetails), declarantDetails = declarantDetails)
+          )
+        )
+
         forAll(genMovementReferenceNumber, Gen.nonEmptyListOf(genMRN), genMRN) { (reference, mrns, mrn) =>
           val mrnForwardIndex: Int = mrns.size
           val associatedMrnIndex   = AssociatedMrnIndex.fromListIndex(mrnForwardIndex)
-          val eori: Eori           = sample[Eori]
-          val declarantDetails     = sample[DeclarantDetails].copy(declarantEORI = eori.value)
-          val consigneeDetails     = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
-          val displayDeclaration   = Functor[Id].map(sample[DisplayDeclaration])(dd =>
-            dd.copy(displayResponseDetail =
-              dd.displayResponseDetail
-                .copy(consigneeDetails = Some(consigneeDetails), declarantDetails = declarantDetails)
-            )
-          )
 
           val (session, _, _) =
             sessionWithClaimState(
