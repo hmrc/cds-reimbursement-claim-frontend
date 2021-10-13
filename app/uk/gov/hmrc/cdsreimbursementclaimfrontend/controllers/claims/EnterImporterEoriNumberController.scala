@@ -123,11 +123,6 @@ class EnterImporterEoriNumberController @Inject() (
 
 object EnterImporterEoriNumberController {
 
-  final case class ImporterEoriNumber(value: Eori)
-
-  object ImporterEoriNumber {
-    implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
-  }
 
   val eoriNumberMapping: Mapping[Eori] =
     text
