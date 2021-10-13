@@ -38,15 +38,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -73,8 +71,6 @@ class EnterAssociatedMrnController @Inject() (
 
   import EnterAssociatedMrnController._
 
-  implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] = _.associatedMRNsAnswer
-
   def mrnInputForm(existing: List[MRN] = Nil): Form[AssociatedMrn] =
     Form(
       mapping(
@@ -90,7 +86,8 @@ class EnterAssociatedMrnController @Inject() (
 
   def enterMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (_, associatedMRNsAnswer) =>
+      request.using { case journey: FillingOutClaim =>
+        val associatedMRNsAnswer = journey.draftClaim.associatedMRNsAnswer
         associatedMRNsAnswer
           .get(index)
           .fold {
@@ -109,8 +106,9 @@ class EnterAssociatedMrnController @Inject() (
 
   def submitEnteredMrn(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, associatedMRNsAnswer) =>
-        val editing: Boolean = associatedMRNsAnswer.isDefinedAt(index)
+      request.using { case journey: FillingOutClaim =>
+        val associatedMRNsAnswer = journey.draftClaim.associatedMRNsAnswer
+        val editing: Boolean     = associatedMRNsAnswer.isDefinedAt(index)
 
         val form = mrnInputForm(
           if (editing) associatedMRNsAnswer.listAllBut(index)
@@ -142,7 +140,7 @@ class EnterAssociatedMrnController @Inject() (
                              case Some(existingMrn) if existingMrn === mrn =>
                                EitherT
                                  .fromOption[Future](
-                                   fillingOutClaim.draftClaim.associatedMRNsDeclarationAnswer.get(index),
+                                   journey.draftClaim.associatedMRNsDeclarationAnswer.get(index),
                                    mrn
                                  )
                                  .leftFlatMap(getDeclaration)
@@ -151,7 +149,7 @@ class EnterAssociatedMrnController @Inject() (
                            }
 
             _ = EitherT.fromEither[Future] {
-                  canAcceptAssociatedDeclaration(fillingOutClaim, declaration) match {
+                  canAcceptAssociatedDeclaration(journey, declaration) match {
                     case false => Left(displayInputError(mrn, "error.eori-not-matching"))
                     case true  => Right(())
                   }
@@ -159,7 +157,7 @@ class EnterAssociatedMrnController @Inject() (
 
             updatedDraftClaim <-
               EitherT.fromEither[Future](
-                updateAssociatedMrns(index, fillingOutClaim, mrn, declaration).left
+                updateAssociatedMrns(index, journey, mrn, declaration).left
                   .map(e => logAndDisplayError("Error updating claim answers: ").apply(Error(e)))
               )
 
@@ -185,13 +183,13 @@ object EnterAssociatedMrnController {
   val enterAssociatedMrnKey: String = "enter-associated-mrn"
 
   def canAcceptAssociatedDeclaration(
-    fillingOutClaim: FillingOutClaim,
+    journey: FillingOutClaim,
     displayDeclaration: DisplayDeclaration
   ): Boolean = {
     val userEori: String                     =
-      fillingOutClaim.signedInUserDetails.eori.value
-    val leadConsigneeEORIOpt: Option[String] = fillingOutClaim.consigneeEORI
-    val leadDeclarantEORIOpt: Option[String] = fillingOutClaim.declarantEORI
+      journey.signedInUserDetails.eori.value
+    val leadConsigneeEORIOpt: Option[String] = journey.consigneeEORI
+    val leadDeclarantEORIOpt: Option[String] = journey.declarantEORI
     val consigneeEORIOpt: Option[String]     =
       displayDeclaration.displayResponseDetail.consigneeDetails.map(_.consigneeEORI)
     val declarantEORI: String                =
@@ -206,11 +204,11 @@ object EnterAssociatedMrnController {
 
   def updateAssociatedMrns(
     index: AssociatedMrnIndex,
-    fillingOutClaim: FillingOutClaim,
+    journey: FillingOutClaim,
     mrn: AssociatedMrn,
     declaration: DisplayDeclaration
   ): Either[String, FillingOutClaim] =
-    FillingOutClaim.ofEither(fillingOutClaim) { draftClaim =>
+    FillingOutClaim.ofEither(journey) { draftClaim =>
       for {
         associatedMRNsAnswer            <- draftClaim.associatedMRNsAnswer.replaceOrAppend(index, mrn)
         associatedMRNsDeclarationAnswer <-
