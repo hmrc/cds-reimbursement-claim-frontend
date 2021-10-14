@@ -55,7 +55,7 @@ class EnterImporterEoriNumberControllerSpec
     JourneyBindable.Multiple,
     JourneyBindable.Scheduled
   )
-  
+
   lazy val controller: EnterImporterEoriNumberController = instanceOf[EnterImporterEoriNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi

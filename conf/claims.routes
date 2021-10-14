@@ -16,8 +16,8 @@ POST        /:journey/change-movement-reference-number              uk.gov.hmrc.
 GET         /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journey: JourneyBindable)
 POST        /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(journey: JourneyBindable)
 
-GET         /:journey/importer-eori-entry                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber(journey: JourneyBindable)
-POST        /:journey/importer-eori-entry                             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journey: JourneyBindable)
+GET         /:journey/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumber(journey: JourneyBindable)
+POST        /:journey/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journey: JourneyBindable)
 
 GET         /single/declarant-eori-entry                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
 POST        /single/declarant-eori-entry                            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit()
