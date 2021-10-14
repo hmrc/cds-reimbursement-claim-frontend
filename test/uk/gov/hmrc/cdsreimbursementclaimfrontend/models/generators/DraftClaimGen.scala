@@ -21,8 +21,6 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
@@ -38,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, ImporterEoriNumber, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DeclarantEoriNumber, DraftClaim, ImporterEoriNumber, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
 
 import java.util.UUID
 
@@ -88,7 +86,7 @@ trait LowerPriorityDraftClaimGen {
       claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
-      declarantEoriNumberAnswer = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(eori)).some,
+      declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
       checkClaimAnswer = checkClaimAnswer.some,
       checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,

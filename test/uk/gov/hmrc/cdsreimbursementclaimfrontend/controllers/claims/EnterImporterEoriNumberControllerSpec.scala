@@ -178,7 +178,7 @@ class EnterImporterEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-importer-eori-number" -> "GB03152858027018")),
-          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journeyBindable)
         )
       }
 

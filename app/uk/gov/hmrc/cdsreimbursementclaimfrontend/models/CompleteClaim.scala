@@ -22,7 +22,6 @@ import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
@@ -48,7 +47,7 @@ final case class CompleteClaim(
   maybeDisplayDeclaration: Option[DisplayDeclaration],
   maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumber],
-  declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
+  declarantEoriNumber: Option[DeclarantEoriNumber],
   claimsAnswer: ClaimsAnswer,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
 )
@@ -142,17 +141,13 @@ object CompleteClaim {
   implicit val format: OFormat[CompleteClaim] = Json.format[CompleteClaim]
 
   def validateDeclarantEoriNumberAnswer(
-    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
-  ): Validation[Option[CompleteDeclarantEoriNumberAnswer]] =
+    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
+  ): Validation[Option[DeclarantEoriNumber]] =
     maybeDeclarantEoriNumberAnswer match {
       case Some(value) =>
         value match {
-          case DeclarantEoriNumberAnswer.IncompleteDeclarantEoriNumberAnswer(
-                _
-              ) =>
-            invalidNel("incomplete declarant eori number answer")
-          case completeDeclarantEoriNumberAnswer: CompleteDeclarantEoriNumberAnswer =>
-            Valid(Some(completeDeclarantEoriNumberAnswer))
+          case DeclarantEoriNumber(_) => Valid(Some(value))
+          case _                      => invalidNel("incomplete declarant eori number answer")
         }
       case None        => Valid(None)
     }
