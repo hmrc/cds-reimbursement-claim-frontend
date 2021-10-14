@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -42,8 +41,7 @@ class EnterImporterEoriNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with TableDrivenPropertyChecks
-    with ScalaCheckPropertyChecks {
+    with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -57,10 +55,7 @@ class EnterImporterEoriNumberControllerSpec
     JourneyBindable.Multiple,
     JourneyBindable.Scheduled
   )
-
-  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 2)
-
+  
   lazy val controller: EnterImporterEoriNumberController = instanceOf[EnterImporterEoriNumberController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
