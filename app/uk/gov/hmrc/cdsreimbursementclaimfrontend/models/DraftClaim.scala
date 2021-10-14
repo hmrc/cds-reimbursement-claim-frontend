@@ -57,7 +57,7 @@ object DraftClaim {
     displayDeclaration: Option[DisplayDeclaration] = None,
     duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
     importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
     claimsAnswer: Option[ClaimsAnswer] = None,
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,

@@ -20,15 +20,12 @@ import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import play.api.data.Forms.{mapping, text}
 import play.api.data._
-import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.{CompleteDeclarantEoriNumberAnswer, IncompleteDeclarantEoriNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -172,13 +169,6 @@ class EnterDeclarantEoriNumberController @Inject() (
 
 object EnterDeclarantEoriNumberController {
 
-  final case class DeclarantEoriNumber(value: Eori)
-
-  object DeclarantEoriNumber {
-    implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
-  }
-
-  //TODO: find out what is a valid EORI number
   val eoriNumberMapping: Mapping[Eori] =
     text(maxLength = 18)
       .verifying("invalid.number", str => Eori.isValid(str))
