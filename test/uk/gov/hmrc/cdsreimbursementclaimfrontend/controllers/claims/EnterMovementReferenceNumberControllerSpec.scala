@@ -399,7 +399,7 @@ class EnterMovementReferenceNumberControllerSpec
           status(result) shouldBe 303
           checkIsRedirect(
             result,
-            routes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+            routes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
           )
       }
     }
@@ -446,7 +446,9 @@ class EnterMovementReferenceNumberControllerSpec
         val result = performAction(journeyBindable, enterMovementReferenceNumberKey -> genOtherThan(mrn).value)
 
         status(result)                 shouldBe 303
-        redirectLocation(result).value shouldBe routes.EnterImporterEoriNumberController.enterImporterEoriNumber().url
+        redirectLocation(result).value shouldBe routes.EnterImporterEoriNumberController
+          .enterImporterEoriNumber(journeyBindable)
+          .url
     }
   }
 

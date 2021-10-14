@@ -49,7 +49,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     "enter importer Eori number when there is a 3rd party importer" in {
       forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(ThirdPartyImporter(sample[DisplayDeclaration])) shouldBe
-          claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+          claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(router.journeyBindable)
       }
     }
   }
