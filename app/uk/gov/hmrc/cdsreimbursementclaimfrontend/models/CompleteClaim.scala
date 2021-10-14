@@ -158,11 +158,15 @@ object CompleteClaim {
     }
 
   def validateImporterEoriNumberAnswer(
-    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
-  ): Validation[Option[ImporterEoriNumber]] =
+                                        maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
+                                      ): Validation[Option[ImporterEoriNumber]] =
     maybeImporterEoriNumberAnswer match {
-      case Some(value) => Valid(Some(value))
-      case None        => invalidNel("Missing eori number")
+      case Some(value) =>
+        value match {
+          case ImporterEoriNumber(_) => Valid(Some(value))
+          case _                     => invalidNel("incomplete importer eori number answer")
+        }
+      case None        => Valid(None)
     }
 
   def validateCommodityDetailsAnswer(
