@@ -162,7 +162,6 @@ object CompleteClaim {
           case _                     => invalidNel("incomplete importer eori number answer")
         }
       case None        => Valid(None)
-      //case None        => invalidNel("Missing importer eori number")
     }
 
   def validateCommodityDetailsAnswer(
