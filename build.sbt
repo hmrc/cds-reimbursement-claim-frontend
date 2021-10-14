@@ -38,11 +38,13 @@ lazy val wartremoverSettings =
 
 lazy val scoverageSettings =
   Seq(
-    ScoverageKeys.coverageExcludedFiles := (Compile / managedSourceDirectories).value.map(d => s"${d.getPath}/.*").mkString(";"),
+    ScoverageKeys.coverageExcludedFiles := (Compile / managedSourceDirectories).value
+      .map(d => s"${d.getPath}/.*")
+      .mkString(";"),
     ScoverageKeys.coverageExcludedPackages := "<empty>;.*(config|testonly|views|utils).*",
-    ScoverageKeys.coverageMinimumStmtTotal := 80,
-    ScoverageKeys.coverageMinimumBranchTotal := 70,
-    ScoverageKeys.coverageFailOnMinimum := true,
+    ScoverageKeys.coverageMinimumStmtTotal := 100,
+    ScoverageKeys.coverageMinimumBranchTotal := 100,
+    ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true
   )
 
@@ -62,6 +64,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     routesImport := Seq(
       "_root_.controllers.Assets.Asset",
+      "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.PathBinders._",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex",
       "uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference",
@@ -74,6 +77,7 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test
   )
   .settings(
+    Compile / scalacOptions --= Seq("-Xfatal-warnings"),
     Test / scalacOptions --= Seq("-Ywarn-dead-code", "-Ywarn-value-discard")
   )
   .settings(Test / resourceDirectories += baseDirectory.value / "conf" / "resources")

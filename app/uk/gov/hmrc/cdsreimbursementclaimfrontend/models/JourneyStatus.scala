@@ -32,7 +32,18 @@ object JourneyStatus {
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
     draftClaim: DraftClaim
-  ) extends JourneyStatus
+  ) extends JourneyStatus {
+
+    def consigneeEORI: Option[String] = for {
+      declaration <- draftClaim.displayDeclaration
+      consignee   <- declaration.displayResponseDetail.consigneeDetails
+    } yield consignee.consigneeEORI
+
+    def declarantEORI: Option[String] = for {
+      declaration <- draftClaim.displayDeclaration
+    } yield declaration.displayResponseDetail.declarantDetails.declarantEORI
+
+  }
 
   final case class JustSubmittedClaim(
     ggCredId: GGCredId,
@@ -53,6 +64,15 @@ object JourneyStatus {
   object FillingOutClaim {
     def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
       fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
+
+    def ofEither[E](fillingOutClaim: FillingOutClaim)(
+      f: DraftC285Claim => Either[E, DraftC285Claim]
+    ): Either[E, FillingOutClaim] =
+      fillingOutClaim.draftClaim match {
+        case draftC285Claim: DraftC285Claim =>
+          f(draftC285Claim)
+            .map(updatedDraftClaim => fillingOutClaim.copy(draftClaim = updatedDraftClaim))
+      }
   }
 
   implicit val format: OFormat[JourneyStatus]                  = derived.oformat()

@@ -94,15 +94,19 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def nextPageForCheckDeclarationDetails(
-    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer
-  )(nextMrnIndex: => AssociatedMrnIndex): Call =
+    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer,
+    hasAssociatedMrns: Boolean
+  ): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
             uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
           case JourneyBindable.Multiple  =>
-            claimRoutes.EnterAssociatedMrnController.enterMrn(nextMrnIndex)
+            if (hasAssociatedMrns)
+              claimRoutes.CheckMovementReferenceNumbersController.showMrns()
+            else
+              claimRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
             claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
         }

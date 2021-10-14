@@ -79,7 +79,7 @@ object DraftClaim {
         movementReferenceNumber.flatMap(_.value.toOption)
 
       def apply(): List[MRN] =
-        leadMrn.toList ++ (associatedMRNsAnswer.map(_.toList) getOrElse Nil)
+        leadMrn.toList ++ associatedMRNsAnswer.list
 
       def total: Total =
         (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0

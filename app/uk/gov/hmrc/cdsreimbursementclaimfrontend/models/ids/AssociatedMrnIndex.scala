@@ -20,29 +20,34 @@ import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 
-final case class AssociatedMrnIndex(value: Int) extends AnyVal {
+final case class AssociatedMrnIndex private (urlIndex: Int) {
 
   def +(integer: Int): AssociatedMrnIndex =
-    AssociatedMrnIndex(value + integer)
+    AssociatedMrnIndex(urlIndex + integer)
 
   def -(integer: Int): AssociatedMrnIndex =
-    AssociatedMrnIndex(value - integer)
+    AssociatedMrnIndex(urlIndex - integer)
 
-  def ordinalNumeral: String = OrdinalNumeral(value)
+  def ordinalNumeral: String = OrdinalNumeral(urlIndex)
 
-  def toRegular: Int = value - 2
+  def toListIndex: Int = urlIndex - 2
+
+  def toUrlIndex: Int = urlIndex
 }
 
 object AssociatedMrnIndex {
 
-  def fromRegular(regularIndex: Int): AssociatedMrnIndex =
-    AssociatedMrnIndex(regularIndex + 2)
+  def toListIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
+    associatedMrnIndex.toListIndex
 
-  implicit def mrnIndexToInt(associatedMrnIndex: AssociatedMrnIndex): Int =
-    associatedMrnIndex.value
+  def fromListIndex(index: Int): AssociatedMrnIndex =
+    AssociatedMrnIndex(index + 2)
 
-  implicit def intToMrnIndex(integer: Int): AssociatedMrnIndex =
-    AssociatedMrnIndex(integer)
+  def toUrlIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
+    associatedMrnIndex.toUrlIndex
+
+  def fromUrlIndex(index: Int): AssociatedMrnIndex =
+    AssociatedMrnIndex(index)
 
   implicit val eq: Eq[AssociatedMrnIndex] =
     Eq.fromUniversalEquals
