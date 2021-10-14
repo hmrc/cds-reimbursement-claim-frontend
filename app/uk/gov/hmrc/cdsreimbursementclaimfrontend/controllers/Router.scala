@@ -42,6 +42,9 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForEnterImporterEoriNumber(): Call =
     claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journeyBindable)
 
+  def submitUrlForEnterDeclarantEoriNumber(): Call =
+    claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
+
   def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
     if (isAmend)
       claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)

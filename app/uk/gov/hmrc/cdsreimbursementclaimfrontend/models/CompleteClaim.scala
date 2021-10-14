@@ -144,16 +144,25 @@ object CompleteClaim {
     maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
   ): Validation[Option[DeclarantEoriNumber]] =
     maybeDeclarantEoriNumberAnswer match {
-      case Some(value) => Valid(Some(value))
-      case None        => invalidNel("Missing declarant eori number")
+      case Some(value) =>
+        value match {
+          case DeclarantEoriNumber(_) => Valid(Some(value))
+          case _                      => invalidNel("incomplete declarant eori number answer")
+        }
+      case None        => Valid(None)
     }
 
   def validateImporterEoriNumberAnswer(
     maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
   ): Validation[Option[ImporterEoriNumber]] =
     maybeImporterEoriNumberAnswer match {
-      case Some(value) => Valid(Some(value))
-      case None        => invalidNel("Missing importer eori number")
+      case Some(value) =>
+        value match {
+          case ImporterEoriNumber(_) => Valid(Some(value))
+          case _                     => invalidNel("incomplete importer eori number answer")
+        }
+      case None        => Valid(None)
+      //case None        => invalidNel("Missing importer eori number")
     }
 
   def validateCommodityDetailsAnswer(

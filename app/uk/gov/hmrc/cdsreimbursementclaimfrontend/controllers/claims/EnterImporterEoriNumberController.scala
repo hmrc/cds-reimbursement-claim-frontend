@@ -87,7 +87,7 @@ class EnterImporterEoriNumberController @Inject() (
 
               result.fold(
                 logAndDisplayError("could not get importer eori number"),
-                _ => Redirect(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber())
+                _ => Redirect(routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journey))
               )
 
             }
