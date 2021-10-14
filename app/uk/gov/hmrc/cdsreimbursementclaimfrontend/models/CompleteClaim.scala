@@ -158,8 +158,8 @@ object CompleteClaim {
     }
 
   def validateImporterEoriNumberAnswer(
-                                        maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
-                                      ): Validation[Option[ImporterEoriNumber]] =
+    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
+  ): Validation[Option[ImporterEoriNumber]] =
     maybeImporterEoriNumberAnswer match {
       case Some(value) =>
         value match {
