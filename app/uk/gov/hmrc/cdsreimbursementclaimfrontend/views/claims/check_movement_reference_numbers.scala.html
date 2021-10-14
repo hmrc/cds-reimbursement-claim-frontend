@@ -78,7 +78,7 @@
                             }</a>
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                        @if(references.size >= 2) {
+                        @if(references.size > 2) {
                             <a class="govuk-link" href=@routes.CheckMovementReferenceNumbersController.deleteMrn(index).url>@{
                                 messages(s"cya.remove")
                             }</a>
