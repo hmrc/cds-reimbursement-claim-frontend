@@ -23,7 +23,6 @@ import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
@@ -48,7 +47,7 @@ final case class CompleteClaim(
   northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
   maybeDisplayDeclaration: Option[DisplayDeclaration],
   maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
-  importerEoriNumber: Option[CompleteImporterEoriNumberAnswer],
+  importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[CompleteDeclarantEoriNumberAnswer],
   claimsAnswer: ClaimsAnswer,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
@@ -159,19 +158,11 @@ object CompleteClaim {
     }
 
   def validateImporterEoriNumberAnswer(
-    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumberAnswer]
-  ): Validation[Option[CompleteImporterEoriNumberAnswer]] =
+    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
+  ): Validation[Option[ImporterEoriNumber]] =
     maybeImporterEoriNumberAnswer match {
-      case Some(value) =>
-        value match {
-          case ImporterEoriNumberAnswer.IncompleteImporterEoriNumberAnswer(
-                _
-              ) =>
-            invalidNel("incomplete eori number answer")
-          case completeImporterEoriNumberAnswer: CompleteImporterEoriNumberAnswer =>
-            Valid(Some(completeImporterEoriNumberAnswer))
-        }
-      case None        => Valid(None)
+      case Some(value) => Valid(Some(value))
+      case None        => invalidNel("Missing eori number")
     }
 
   def validateCommodityDetailsAnswer(

@@ -115,7 +115,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       checkIsRedirect(
         performAction(journey, keyForenterDuplicateMovementReferenceNumber -> updatedMrn.value),
-        routes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+        routes.EnterImporterEoriNumberController.enterImporterEoriNumber(journey)
       )
     }
   }

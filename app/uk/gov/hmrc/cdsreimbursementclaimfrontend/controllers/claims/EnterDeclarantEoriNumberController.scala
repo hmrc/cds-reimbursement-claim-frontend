@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, ro
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.{CompleteDeclarantEoriNumberAnswer, IncompleteDeclarantEoriNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -146,18 +147,12 @@ class EnterDeclarantEoriNumberController @Inject() (
     fillingOutClaim: FillingOutClaim,
     declarantEoriNumber: DeclarantEoriNumber
   ): Either[Error, Boolean] = {
-    val importDeclarantEoriNumber = fillingOutClaim.draftClaim.fold(_.importerEoriNumberAnswer) match {
-      case Some(value) =>
-        value match {
-          case ImporterEoriNumberAnswer.IncompleteImporterEoriNumberAnswer(importerEoriNumber) => importerEoriNumber
-          case ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer(importerEoriNumber)   => Some(importerEoriNumber)
-        }
-      case None        => None
-    }
+    val maybeImporterEoriNumber: Option[ImporterEoriNumber] =
+      fillingOutClaim.draftClaim.fold(_.importerEoriNumberAnswer)
 
-    val maybeDisplayDeclaration = fillingOutClaim.draftClaim.fold(_.displayDeclaration)
+    val maybeDisplayDeclaration: Option[DisplayDeclaration] = fillingOutClaim.draftClaim.fold(_.displayDeclaration)
 
-    (maybeDisplayDeclaration, importDeclarantEoriNumber, Some(declarantEoriNumber)) match {
+    (maybeDisplayDeclaration, maybeImporterEoriNumber, Some(declarantEoriNumber)) match {
       case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>
         displayDeclaration.displayResponseDetail.consigneeDetails match {
           case Some(consigneeDetails) =>
