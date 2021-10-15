@@ -152,15 +152,15 @@ class SelectDutyCodesController @Inject() (
             ReimbursementClaimAnswer(
               Map(
                 UkDuty     -> Map(
-                  TaxCode.A20 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00)),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(1000.00), shouldOfPaid = Some(400.00))
+                  TaxCode.A20 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
                 ),
                 EuDuty     -> Map(
-                  TaxCode.A70 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00)),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(1000.00), shouldOfPaid = Some(400.00))
+                  TaxCode.A70 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
                 ),
                 CiderPerry -> Map(
-                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = Some(600.00), shouldOfPaid = Some(300.00))
+                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00)
                 )
               )
             )

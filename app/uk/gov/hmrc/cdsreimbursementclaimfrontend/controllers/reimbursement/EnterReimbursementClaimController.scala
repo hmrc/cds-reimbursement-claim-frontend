@@ -195,22 +195,8 @@ object EnterReimbursementClaimController {
 
   def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
     mapping(
-      "enter-reimbursement-claim.amount-paid"           -> moneyMapping(13, 2, "amount-paid.error.invalid")
-        .transform[Option[BigDecimal]](
-          amount => Some(amount),
-          {
-            case Some(paidAmount) => paidAmount
-            case None             => sys.error("could not get paid amount")
-          }
-        ),
+      "enter-reimbursement-claim.amount-paid"           -> moneyMapping(13, 2, "amount-paid.error.invalid"),
       "enter-reimbursement-claim.amount-should-of-paid" -> moneyMapping(13, 2, "amount-should-of-paid.error.invalid")
-        .transform[Option[BigDecimal]](
-          amount => Some(amount),
-          {
-            case Some(shouldOfPaid) => shouldOfPaid
-            case None               => sys.error("could not get amount should of paid")
-          }
-        )
     )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
       .verifying(
         "invalid.reimbursement-claim",

@@ -65,7 +65,7 @@ object DutyCodesAnswer {
     def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
       dutyCodesAnswer.dutyCodes.map { dutyTypeToDutyCodeMap =>
         dutyTypeToDutyCodeMap._1 -> dutyTypeToDutyCodeMap._2
-          .map(taxCode => taxCode -> ReimbursementClaim.none)
+          .map(taxCode => taxCode -> ReimbursementClaim.blank)
           .toMap
       }
   }

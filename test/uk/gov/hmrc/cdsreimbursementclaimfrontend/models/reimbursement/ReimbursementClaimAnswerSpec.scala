@@ -221,24 +221,4 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
       }
     }
   }
-
-//
-//  "Converting answer to Json" should {
-//    "succeed" in {
-//      val json = ReimbursementClaimAnswer.dutyPaidAndClaimAmountAnswerFormat.writes(
-//        Map(
-//          UkDuty -> Map(
-//            TaxCode.A20 -> ReimbursementClaim(paidAmount = Some(300.00), shouldOfPaid = Some(600.00)),
-//            TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(400.00), shouldOfPaid = Some(1000.00))
-//          ),
-//          EuDuty -> Map(
-//            TaxCode.A70 -> ReimbursementClaim(paidAmount = Some(300.00), shouldOfPaid = Some(600.00)),
-//            TaxCode.A00 -> ReimbursementClaim(paidAmount = Some(400.00), shouldOfPaid = Some(1000.00))
-//          )
-//        )
-//      )
-//
-//      json should be(Json.obj("{\"uk-duty\":{\"A00\":{\"paidAmount\":400,\"shouldOfPaid\":1000}},\"eu-duty\":{\"A00\":{\"paidAmount\":400,\"shouldOfPaid\":1000}}}"))
-//    }
-//  }
 }

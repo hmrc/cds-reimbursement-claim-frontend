@@ -34,7 +34,7 @@ class ReimbursementClaimSummary {
         .map { taxCodeToReimburseClaim =>
           SummaryListRow(
             key = Key(Text(messages(s"select-duties.duty.${taxCodeToReimburseClaim._1.value}.row.key"))),
-            value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(taxCodeToReimburseClaim._2.claim))),
+            value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(taxCodeToReimburseClaim._2.refundTotal))),
             actions = Some(
               Actions(
                 items = Seq(

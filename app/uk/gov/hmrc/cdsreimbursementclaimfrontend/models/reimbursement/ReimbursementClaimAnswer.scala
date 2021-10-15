@@ -16,18 +16,40 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
+import cats.data.NonEmptyList
+import cats.implicits.catsSyntaxSemigroup
 import cats.syntax.eq.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, PaymentMethod, PaymentReference, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer.ReimbursementClaimOps
+
+import java.util.UUID
 
 final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
 
   def total: BigDecimal =
-    reimbursementClaims.values.foldLeft(BigDecimal(0)) { (amount, reimbursement) =>
-      amount + reimbursement.subtotal
-    }
+    reimbursementClaims.values.foldLeft(BigDecimal(0))((amount, reimbursement) => amount + reimbursement.subtotal)
+
+  def toClaimsAnswer: Option[ClaimsAnswer] = {
+
+    def toClaim(taxCodeWithClaim: (TaxCode, ReimbursementClaim)) =
+      Claim(
+        id = UUID.randomUUID(),
+        paymentMethod = PaymentMethod.`001`,
+        paymentReference = PaymentReference.none,
+        taxCode = taxCodeWithClaim._1.value,
+        paidAmount = taxCodeWithClaim._2.paidAmount,
+        claimAmount = taxCodeWithClaim._2.shouldOfPaid,
+        isFilled = false
+      )
+
+    for {
+      combinedTaxCodeClaims <- reimbursementClaims.values.reduceOption((x, y) => x |+| y)
+      answer                <- NonEmptyList.fromList(combinedTaxCodeClaims.map(toClaim).toList)
+    } yield answer
+  }
 }
 
 object ReimbursementClaimAnswer {
@@ -38,7 +60,7 @@ object ReimbursementClaimAnswer {
     val claimsToAnswer: Map[DutyType, Map[TaxCode, ReimbursementClaim]] = dutyCodesAnswer.dutyCodes.map {
       dutyTypeToTaxCodeTuple =>
         dutyTypeToTaxCodeTuple._1 -> dutyTypeToTaxCodeTuple._2
-          .map(taxCodeToReimbursementClaimTuple => taxCodeToReimbursementClaimTuple -> ReimbursementClaim.none)
+          .map(taxCodeToReimbursementClaimTuple => taxCodeToReimbursementClaimTuple -> ReimbursementClaim.blank)
           .toMap
     }
 
@@ -84,9 +106,7 @@ object ReimbursementClaimAnswer {
 
     def isIncompleteReimbursementClaim: Option[(DutyType, Map[TaxCode, ReimbursementClaim])] =
       reimbursementClaimAnswer.reimbursementClaims.find(dutyTypeToReimbursementClaimTuple =>
-        dutyTypeToReimbursementClaimTuple._2.exists(reimbursementClaim =>
-          reimbursementClaim._2.paidAmount.isEmpty && reimbursementClaim._2.shouldOfPaid.isEmpty
-        )
+        dutyTypeToReimbursementClaimTuple._2.exists(reimbursementClaim => reimbursementClaim._2.isBlank)
       )
 
     def updateReimbursementClaim(
@@ -116,7 +136,7 @@ object ReimbursementClaimAnswer {
 
       val newlySelectedDutyTypesWithSelectedTaxCodes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
         answerWithDeselectedDutyTypes ++ dutyTypesToAddToAnswer.map(dutyType =>
-          dutyType -> dutyCodesAnswer.dutyCodes(dutyType).map(taxCode => taxCode -> ReimbursementClaim.none).toMap
+          dutyType -> dutyCodesAnswer.dutyCodes(dutyType).map(taxCode => taxCode -> ReimbursementClaim.blank).toMap
         )
 
       val unchangedDutyTypes: Set[DutyType] =
@@ -177,7 +197,7 @@ object ReimbursementClaimAnswer {
 
           val completeTaxCodes: Map[TaxCode, ReimbursementClaim] = {
             val taxCodeToReimbursementClaimMap: Map[TaxCode, ReimbursementClaim] =
-              taxCodesToAdd.map(taxCode => taxCode -> ReimbursementClaim.none).toMap
+              taxCodesToAdd.map(taxCode => taxCode -> ReimbursementClaim.blank).toMap
             taxCodeToReimbursementClaimMap ++ unchangedTaxCodes
           }
 
@@ -193,10 +213,9 @@ object ReimbursementClaimAnswer {
   }
 
   implicit class ReimbursementClaimOps(val reimbursement: Map[TaxCode, ReimbursementClaim]) extends AnyVal {
+
     def subtotal: BigDecimal =
-      reimbursement.foldLeft(BigDecimal(0)) { (total, reimbursement) =>
-        total + reimbursement._2.claim
-      }
+      reimbursement.values.foldLeft(BigDecimal(0))((total, claim) => total + claim.refundTotal)
   }
 
   implicit val format: OFormat[ReimbursementClaimAnswer] = derived.oformat[ReimbursementClaimAnswer]()

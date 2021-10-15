@@ -16,27 +16,26 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
+import cats.implicits.catsSyntaxEq
+import cats.kernel.Semigroup
 import play.api.libs.json.{Json, OFormat}
 
-final case class ReimbursementClaim(
-  paidAmount: Option[BigDecimal],
-  shouldOfPaid: Option[BigDecimal]
-)
+final case class ReimbursementClaim(paidAmount: BigDecimal, shouldOfPaid: BigDecimal) {
+
+  val refundTotal: BigDecimal = paidAmount - shouldOfPaid
+
+  def isBlank: Boolean = paidAmount === 0 && shouldOfPaid === 0
+}
 
 object ReimbursementClaim {
 
-  val none: ReimbursementClaim = ReimbursementClaim(None, None)
+  val blank: ReimbursementClaim = ReimbursementClaim(paidAmount = 0, shouldOfPaid = 0)
 
-  implicit class ReimbursementClaimOps(private val reimbursementClaim: ReimbursementClaim) extends AnyVal {
-    def notAnswered: Boolean = if (reimbursementClaim.paidAmount.isEmpty && reimbursementClaim.shouldOfPaid.isEmpty)
-      false
-    else true
-
-    def claim: BigDecimal = (reimbursementClaim.paidAmount, reimbursementClaim.shouldOfPaid) match {
-      case (Some(paidAmount), Some(shouldOfPaid)) => paidAmount - shouldOfPaid
-      case _                                      => sys.error("invalid access to reimbursement claim")
-    }
-  }
+  implicit val reimbursementSemigroup: Semigroup[ReimbursementClaim] = (x: ReimbursementClaim, y: ReimbursementClaim) =>
+    ReimbursementClaim(
+      paidAmount = x.paidAmount + y.paidAmount,
+      shouldOfPaid = x.shouldOfPaid + y.shouldOfPaid
+    )
 
   implicit val format: OFormat[ReimbursementClaim] = Json.format[ReimbursementClaim]
 }

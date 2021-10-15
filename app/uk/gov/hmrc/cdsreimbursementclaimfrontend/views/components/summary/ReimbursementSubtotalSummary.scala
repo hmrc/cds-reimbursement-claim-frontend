@@ -43,7 +43,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
 
         SummaryListRow(
           key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
-          value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(reimbursement.claim))),
+          value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(reimbursement.refundTotal))),
           actions = Some(
             Actions(
               items = Seq(

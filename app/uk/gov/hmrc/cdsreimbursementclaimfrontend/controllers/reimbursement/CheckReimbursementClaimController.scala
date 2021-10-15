@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
+import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import play.api.Configuration
@@ -23,7 +24,7 @@ import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.whetherDutiesCorrectForm
@@ -31,13 +32,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckReimbursementClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
@@ -46,7 +50,7 @@ class CheckReimbursementClaimController @Inject() (
   cc: MessagesControllerComponents,
   val config: Configuration,
   checkReimbursementClaim: pages.check_reimbursement_claim
-)(implicit viewConfig: ViewConfig)
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with SessionDataExtractor
@@ -72,7 +76,7 @@ class CheckReimbursementClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
 
       maybeReimbursementClaimAnswer.fold(
-        Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+        Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
       )(answer =>
         whetherDutiesCorrectForm
           .bindFromRequest()
@@ -80,9 +84,16 @@ class CheckReimbursementClaimController @Inject() (
             formWithErrors => BadRequest(checkReimbursementClaim(formWithErrors, answer)),
             {
               case Yes =>
-                Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled))
+                val updatedClaim = FillingOutClaim.of(fillingOutClaim)(_.copy(claimsAnswer = answer.toClaimsAnswer))
+
+                EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                  .leftMap(_ => Error("could not update session"))
+                  .fold(
+                    logAndDisplayError("could not update reimbursement claims"),
+                    _ => Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled))
+                  )
               case No  =>
-                Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes())
+                Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
             }
           )
       )
