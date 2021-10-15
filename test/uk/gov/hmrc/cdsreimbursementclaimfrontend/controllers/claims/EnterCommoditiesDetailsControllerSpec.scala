@@ -35,6 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 import scala.concurrent.Future
 
@@ -217,7 +220,7 @@ class EnterCommoditiesDetailsControllerSpec
           if (journeyBindable === JourneyBindable.Scheduled) {
             reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
           } else if (journeyBindable === Multiple) {
-            routes.MultipleSelectDutiesController.selectDuties(2)
+            routes.MultipleSelectDutiesController.selectDuties(AssociatedMrnIndex.fromListIndex(0))
           } else {
             routes.SelectDutiesController.selectDuties()
           }
