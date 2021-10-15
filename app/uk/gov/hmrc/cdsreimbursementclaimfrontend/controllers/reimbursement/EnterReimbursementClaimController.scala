@@ -28,10 +28,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, ReimbursementClaim, ReimbursementClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -55,7 +54,7 @@ class EnterReimbursementClaimController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
 
   /*
     This should read the current value for duty codes answer and build a reimbursementClaim map first
@@ -175,7 +174,7 @@ class EnterReimbursementClaimController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          updatedJourney.draftClaim.fold(_.reimbursementClaimAnswer) match {
+          updatedJourney.draftClaim.reimbursementClaimAnswer match {
             case Some(reimbursementClaimAnswer) =>
               reimbursementClaimAnswer.isIncompleteReimbursementClaim match {
                 case Some(dutyType) =>

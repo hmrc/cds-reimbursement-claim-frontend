@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -80,7 +79,7 @@ class StartController @Inject() (
                      FillingOutClaim(
                        justSubmittedClaim.ggCredId,
                        justSubmittedClaim.signedInUserDetails,
-                       DraftC285Claim.newDraftC285Claim
+                       DraftClaim.blank
                      )
                    )
                  )
@@ -225,7 +224,7 @@ class StartController @Inject() (
                        Email(""),
                        ContactName(name.flatMap(_.name).getOrElse("No name"))
                      ),
-                     DraftC285Claim.newDraftC285Claim
+                     DraftClaim.blank
                    )
                  )
                )

@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.evaluateMrnJourneyFlow
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ErnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -59,14 +58,14 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] =
+  implicit val dataExtractor: DraftClaim => Option[MovementReferenceNumber] =
     _.duplicateMovementReferenceNumberAnswer
 
   def enterDuplicateMrn(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MovementReferenceNumber] { (_, previousAnswer, router) =>
         val emptyForm = getForm()
-        val form      = previousAnswer.fold(emptyForm)(emptyForm.fill(_))
+        val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
         Ok(enterDuplicateMovementReferenceNumberPage(form, router))
       }
     }
@@ -74,7 +73,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
   def enterDuplicateMrnSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MovementReferenceNumber] { (fillingOutClaim, _, router) =>
-        getForm(fillingOutClaim.draftClaim.fold(identity).movementReferenceNumber)
+        getForm(fillingOutClaim.draftClaim.movementReferenceNumber)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -127,7 +126,7 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     mrnOrEntryNumber: MovementReferenceNumber
   ): SessionDataTransform = {
     val updatedDraftClaim =
-      fillingOutClaim.draftClaim.fold(_.copy(duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber)))
+      fillingOutClaim.draftClaim.copy(duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber))
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
@@ -136,16 +135,14 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     mrnOrEntryNumber: MovementReferenceNumber,
     acc14: DisplayDeclaration
   ): SessionDataTransform = {
-    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(
-        duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber),
-        duplicateDisplayDeclaration = Option(acc14)
-      )
+    val updatedDraftClaim = fillingOutClaim.draftClaim.copy(
+      duplicateMovementReferenceNumberAnswer = Option(mrnOrEntryNumber),
+      duplicateDisplayDeclaration = Option(acc14)
     )
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
-  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftC285Claim): SessionDataTransform = {
+  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
     val updatedJourney               = fillingOutClaim.copy(draftClaim = newDraftClaim)
     val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
     update

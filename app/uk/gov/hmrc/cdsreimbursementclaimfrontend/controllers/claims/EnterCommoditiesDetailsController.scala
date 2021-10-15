@@ -26,8 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -50,7 +49,7 @@ class EnterCommoditiesDetailsController @Inject() (
     with Logging
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[CommodityDetails] = _.commoditiesDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[CommodityDetails] = _.commoditiesDetailsAnswer
 
   def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
   def changeCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
@@ -87,7 +86,7 @@ class EnterCommoditiesDetailsController @Inject() (
               ),
             commodityDetails => {
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(commoditiesDetailsAnswer = Some(commodityDetails)))
+                fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT

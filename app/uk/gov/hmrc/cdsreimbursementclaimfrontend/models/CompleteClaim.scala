@@ -56,7 +56,7 @@ object CompleteClaim {
 
   def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, CompleteClaim] =
     draftClaim match {
-      case DraftClaim.DraftC285Claim(
+      case DraftClaim(
             id,
             typeOfClaim,
             Some(MovementReferenceNumber(Right(mrn))),

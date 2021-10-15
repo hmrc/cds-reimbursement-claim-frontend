@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{MRNMultipleRoutes, MRNScheduledRoutes, MRNSingleRoutes, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
@@ -61,7 +60,7 @@ class EnterMovementReferenceNumberController @Inject() (
     with Logging {
 
   import cats.data.EitherT._
-  implicit val dataExtractor: DraftC285Claim => Option[MovementReferenceNumber] = _.movementReferenceNumber
+  implicit val dataExtractor: DraftClaim => Option[MovementReferenceNumber] = _.movementReferenceNumber
 
   def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
   def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(isAmend = true, journey)
@@ -142,7 +141,7 @@ class EnterMovementReferenceNumberController @Inject() (
     }
 
   def updateMRN(fillingOutClaim: FillingOutClaim, mrn: MovementReferenceNumber): SessionDataTransform = {
-    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(_.copy(movementReferenceNumber = Option(mrn)))
+    val updatedDraftClaim = fillingOutClaim.draftClaim.copy(movementReferenceNumber = Option(mrn))
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
@@ -153,20 +152,18 @@ class EnterMovementReferenceNumberController @Inject() (
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress]
   ): SessionDataTransform = {
-    val updatedDraftClaim = fillingOutClaim.draftClaim.fold(
-      _.copy(
-        movementReferenceNumber = Option(mrn),
-        displayDeclaration = Option(acc14),
-        mrnContactDetailsAnswer = maybeContactDetails,
-        mrnContactAddressAnswer = maybeContactAddress,
-        associatedMRNsAnswer = None,
-        associatedMRNsDeclarationAnswer = None
-      )
+    val updatedDraftClaim = fillingOutClaim.draftClaim.copy(
+      movementReferenceNumber = Option(mrn),
+      displayDeclaration = Option(acc14),
+      mrnContactDetailsAnswer = maybeContactDetails,
+      mrnContactAddressAnswer = maybeContactAddress,
+      associatedMRNsAnswer = None,
+      associatedMRNsDeclarationAnswer = None
     )
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
-  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftC285Claim): SessionDataTransform = {
+  def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
     val updatedJourney               = fillingOutClaim.copy(draftClaim = newDraftClaim)
     val update: SessionDataTransform = _.copy(journeyStatus = Some(updatedJourney))
     update

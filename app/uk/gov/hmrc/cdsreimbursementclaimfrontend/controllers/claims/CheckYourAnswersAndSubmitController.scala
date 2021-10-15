@@ -29,10 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.{SubmitClaimError, SubmitClaimSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, Error, RetrievedUserType, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, DraftClaim, Error, RetrievedUserType, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -181,7 +180,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
   private def withCompleteDraftClaim(
     f: (FillingOutClaim, CompleteClaim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
-    request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftC285Claim) =>
+    request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftClaim) =>
       CompleteClaim
         .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
         .fold[Future[Result]](

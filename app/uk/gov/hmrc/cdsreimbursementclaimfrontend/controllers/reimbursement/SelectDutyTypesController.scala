@@ -30,10 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyTypesController.selectDutyTypesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypes, DutyTypesAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
@@ -56,7 +55,7 @@ class SelectDutyTypesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
+  implicit val dataExtractor: DraftClaim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[DutyTypesAnswer] { (_, answer) =>

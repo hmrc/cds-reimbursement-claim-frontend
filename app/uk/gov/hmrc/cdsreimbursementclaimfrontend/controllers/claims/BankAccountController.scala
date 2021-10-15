@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
@@ -61,7 +60,7 @@ class BankAccountController @Inject() (
     with Logging
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
 
   private def continuePage(implicit request: RequestWithSessionData[AnyContent], journey: JourneyBindable): Call = {
     lazy val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
@@ -129,8 +128,8 @@ class BankAccountController @Inject() (
       }(_.displayDeclaration, request, journey)
     }
 
-  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(false)
-  def changeBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(true)
+  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
+  def changeBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
 
   protected def show(
     isChange: Boolean
