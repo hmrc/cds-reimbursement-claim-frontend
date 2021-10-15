@@ -26,8 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SelectNumberOfClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -55,7 +54,7 @@ class SelectNumberOfClaimsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[SelectNumberOfClaimsAnswer] = _.selectNumberOfClaimsAnswer
+  implicit val dataExtractor: DraftClaim => Option[SelectNumberOfClaimsAnswer] = _.selectNumberOfClaimsAnswer
 
   def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
@@ -75,7 +74,7 @@ class SelectNumberOfClaimsController @Inject() (
             formWithErros => BadRequest(selectNumberOfClaimsPage(formWithErros)),
             updatedAnswers => {
               val newDraftClaim  =
-                fillingOutClaim.draftClaim.fold(_.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers)))
+                fillingOutClaim.draftClaim.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT

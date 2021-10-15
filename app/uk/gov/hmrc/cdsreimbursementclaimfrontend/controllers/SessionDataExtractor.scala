@@ -20,7 +20,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
 
@@ -36,12 +35,10 @@ trait SessionDataExtractor extends Results {
 
   def withAnswers[T](
     f: (FillingOutClaim, Option[T]) => Future[Result]
-  )(implicit extractor: DraftC285Claim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
+  )(implicit extractor: DraftClaim => Option[T], request: RequestWithSessionData[_]): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
-        draftClaim
-          .fold(extractor(_))
-          .fold[Future[Result]](f(fillingOutClaim, None))(data => f(fillingOutClaim, Option(data)))
+        extractor(draftClaim).fold[Future[Result]](f(fillingOutClaim, None))(data => f(fillingOutClaim, Option(data)))
       case _                                                                     =>
         Future.successful(Redirect(routes.StartController.start()))
     }
@@ -49,16 +46,16 @@ trait SessionDataExtractor extends Results {
   def withAnswersAndRoutes[T](
     f: (FillingOutClaim, Option[T], ReimbursementRoutes) => Future[Result]
   )(implicit
-    extractor: DraftC285Claim => Option[T],
+    extractor: DraftClaim => Option[T],
     request: RequestWithSessionData[_],
     journeyBindable: JourneyBindable
   ): Future[Result] =
     request.sessionData.flatMap(_.journeyStatus) match {
       case Some(fillingOutClaim @ FillingOutClaim(_, _, draftClaim: DraftClaim)) =>
         val router = extractRoutes(draftClaim, journeyBindable)
-        draftClaim
-          .fold(extractor(_))
-          .fold[Future[Result]](f(fillingOutClaim, None, router))(data => f(fillingOutClaim, Option(data), router))
+        extractor(draftClaim).fold[Future[Result]](f(fillingOutClaim, None, router))(data =>
+          f(fillingOutClaim, Option(data), router)
+        )
       case _                                                                     =>
         Future.successful(Redirect(baseRoutes.StartController.start()))
     }

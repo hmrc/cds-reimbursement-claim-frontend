@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -54,7 +53,7 @@ class EnterContactDetailsMrnController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
   def enterMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
   def changeMrnContactDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
@@ -62,11 +61,11 @@ class EnterContactDetailsMrnController @Inject() (
   def show(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        val draftC285Claim        = fillingOutClaim.draftClaim.fold(identity)
-        val answers               = (draftC285Claim.mrnContactDetailsAnswer, draftC285Claim.mrnContactAddressAnswer).mapN {
-          (contactDetails, _) =>
-            contactDetails
-        }
+        val answers               =
+          (fillingOutClaim.draftClaim.mrnContactDetailsAnswer, fillingOutClaim.draftClaim.mrnContactAddressAnswer)
+            .mapN { (contactDetails, _) =>
+              contactDetails
+            }
         val mrnContactDetailsForm =
           answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
         Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, isChange))

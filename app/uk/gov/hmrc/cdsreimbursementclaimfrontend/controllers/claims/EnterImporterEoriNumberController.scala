@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -50,7 +49,7 @@ class EnterImporterEoriNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[ImporterEoriNumber] = _.importerEoriNumberAnswer
+  implicit val dataExtractor: DraftClaim => Option[ImporterEoriNumber] = _.importerEoriNumberAnswer
 
   def enterImporterEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -77,7 +76,7 @@ class EnterImporterEoriNumberController @Inject() (
             importerEoriNumber => {
 
               val newDraftClaim =
-                fillingOutClaim.draftClaim.fold(_.copy(importerEoriNumberAnswer = Some(importerEoriNumber)))
+                fillingOutClaim.draftClaim.copy(importerEoriNumberAnswer = Some(importerEoriNumber))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 

@@ -26,7 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
@@ -54,7 +53,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DetailsRegisteredWithCdsAnswer] =
+  implicit val dataExtractor: DraftClaim => Option[DetailsRegisteredWithCdsAnswer] =
     _.detailsRegisteredWithCdsAnswer
 
   implicit protected val journeyBindable = JourneyBindable.Single
@@ -66,7 +65,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (_, answers, router) =>
         val emptyForm  = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
-        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+        val filledForm = answers.fold(emptyForm)(emptyForm.fill)
         Ok(detailsRegisteredWithCdsPage(filledForm, isAmend, router))
       }
     }

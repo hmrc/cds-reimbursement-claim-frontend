@@ -23,7 +23,6 @@ import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim.newDraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -41,7 +40,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
     "not contain mandatory contact details" when {
       "MRN contact address is not provided" in {
         forAll(genContactAddressOpt) { maybeContactAddress: Option[ContactAddress] =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(mrnContactAddressAnswer = maybeContactAddress)
             .isMandatoryContactDataAvailable should be(false)
         }
@@ -51,7 +50,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
     "not contain mandatory contact details" when {
       "MRN contact details are not provided" in {
         forAll(genMrnContactDetailsOpt) { maybeContactDetails: Option[MrnContactDetails] =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(mrnContactDetailsAnswer = maybeContactDetails)
             .isMandatoryContactDataAvailable should be(false)
         }
@@ -61,7 +60,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
     "contain mandatory contact details" when {
       "required data is provided" in {
         forAll { (contactDetails: MrnContactDetails, contactAddress: ContactAddress) =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(
               mrnContactAddressAnswer = contactAddress.some,
               mrnContactDetailsAnswer = contactDetails.some
@@ -75,14 +74,14 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
   "The total of MRNs" should {
     "be zero" when {
       "no MRNs added" in {
-        newDraftC285Claim.MRNs.total should be(0)
+        DraftClaim.blank.MRNs.total should be(0)
       }
     }
 
     "be one" when {
       "only lead MRN is added and no other MRNs present" in {
         forAll { mrn: MovementReferenceNumber =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
             .MRNs
             .total should be(1)
@@ -92,7 +91,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
     "equal to size of added MRNs combined with lead MRN" in {
       forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (mrn: MRN, mrns: List[MRN]) =>
-        newDraftC285Claim
+        DraftClaim.blank
           .copy(
             movementReferenceNumber = MovementReferenceNumber(mrn).some,
             associatedMRNsAnswer = NonEmptyList.fromList(mrns)
@@ -105,13 +104,13 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
   "The list of MRNs" should {
     "be empty" in {
-      newDraftC285Claim.MRNs() should be(Nil)
+      DraftClaim.blank.MRNs() should be(Nil)
     }
 
     "contain only lead MRN" when {
       "no other MRNs added" in {
         forAll { mrn: MovementReferenceNumber =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
             .MRNs() should be(List(mrn.value.value))
         }
@@ -120,7 +119,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
     "contain all added MRNs" in {
       forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (mrn: MRN, mrns: List[MRN]) =>
-        newDraftC285Claim
+        DraftClaim.blank
           .copy(
             movementReferenceNumber = MovementReferenceNumber(mrn).some,
             associatedMRNsAnswer = NonEmptyList.fromList(mrns)
@@ -133,7 +132,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
   "The list of MRNs and declarations" should {
     "contain only associated MRNs and declarations" in {
       forAll { (mrn: Option[MovementReferenceNumber], mrns: List[MRN], declarations: List[DisplayDeclaration]) =>
-        newDraftC285Claim
+        DraftClaim.blank
           .copy(
             movementReferenceNumber = mrn,
             associatedMRNsAnswer = NonEmptyList.fromList(mrns),
@@ -146,7 +145,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
     "be empty" in {
       forAll { maybeDeclaration: Option[DisplayDeclaration] =>
-        newDraftC285Claim
+        DraftClaim.blank
           .copy(displayDeclaration = maybeDeclaration)
           .MRNs
           .combineWithDeclarations should be(Nil)
@@ -161,7 +160,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
           mrns: List[MRN],
           declarations: List[DisplayDeclaration]
         ) =>
-          newDraftC285Claim
+          DraftClaim.blank
             .copy(
               movementReferenceNumber = mrn.some,
               displayDeclaration = declaration.some,

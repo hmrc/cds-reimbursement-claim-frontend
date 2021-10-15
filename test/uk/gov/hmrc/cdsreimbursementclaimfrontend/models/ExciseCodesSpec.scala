@@ -20,7 +20,6 @@ import cats.{Functor, Id}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -35,7 +34,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
   "ExciseCodes" should {
     "Return only excise codes not related to Northern Ireland" in {
       val draftC285Claim =
-        sample[DraftC285Claim].copy(
+        sample[DraftClaim].copy(
           movementReferenceNumber = Some(sample[MovementReferenceNumber]),
           claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
         )
@@ -57,7 +56,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       )
 
       val draftC285Claim =
-        sample[DraftC285Claim]
+        sample[DraftClaim]
           .copy(
             movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
@@ -78,7 +77,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       )
 
       val draftC285Claim =
-        sample[DraftC285Claim]
+        sample[DraftClaim]
           .copy(
             movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),

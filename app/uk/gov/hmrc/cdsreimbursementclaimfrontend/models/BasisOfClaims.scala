@@ -43,14 +43,13 @@ object BasisOfClaims {
 
     def withoutNorthernIrelandClaimsIfApplies(claim: DraftClaim): BasisOfClaims = {
 
-      val isNorthernIrelandJourney = claim
-        .fold(_.claimNorthernIrelandAnswer)
-        .getOrElse(ClaimNorthernIrelandAnswer.No)
+      val isNorthernIrelandJourney =
+        claim.claimNorthernIrelandAnswer.getOrElse(ClaimNorthernIrelandAnswer.No)
 
-      val receivedExciseCodes = claim
-        .fold(_.displayDeclaration)
-        .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
-        .getOrElse(Nil)
+      val receivedExciseCodes =
+        claim.displayDeclaration
+          .flatMap(_.displayResponseDetail.ndrcDetails.map(_.map(_.taxType)))
+          .getOrElse(Nil)
 
       val hasNorthernIrelandExciseCodes =
         receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).nonEmpty

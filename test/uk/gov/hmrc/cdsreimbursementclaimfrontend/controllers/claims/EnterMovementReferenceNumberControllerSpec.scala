@@ -33,7 +33,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyExtractor, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
@@ -85,9 +84,9 @@ class EnterMovementReferenceNumberControllerSpec
   private def sessionWithClaimState(
     maybeMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         movementReferenceNumber = maybeMovementReferenceNumberAnswer,
         selectNumberOfClaimsAnswer = numberOfClaims
       )

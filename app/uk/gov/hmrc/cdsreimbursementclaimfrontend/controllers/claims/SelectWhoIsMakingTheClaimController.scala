@@ -25,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -49,7 +48,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DeclarantTypeAnswer] = _.declarantTypeAnswer
+  implicit val dataExtractor: DraftClaim => Option[DeclarantTypeAnswer] = _.declarantTypeAnswer
 
   def selectDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
   def changeDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)

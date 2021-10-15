@@ -29,7 +29,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
@@ -72,7 +71,7 @@ class SelectDutiesControllerSpec
     displayDeclaration: Option[DisplayDeclaration] = None,
     basisOfClaim: BasisOfClaim = PersonalEffects
   ): (SessionData, FillingOutClaim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    val draftC285Claim      = DraftClaim.blank.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
       movementReferenceNumber = Some(movementReferenceNumber),
       displayDeclaration = displayDeclaration,
@@ -89,12 +88,12 @@ class SelectDutiesControllerSpec
 
   private def updateSession(sessionData: SessionData, dutiesSelectedAnswer: DutiesSelectedAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
           draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelectedAnswer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                   => fail()
     }
 
   def isA00Checked(document: Document): Boolean =

@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.{evidenceIndicesToTypes, evidenceTypesToIndices}
@@ -67,7 +66,7 @@ class SupportingEvidenceController @Inject() (
 
   lazy val maxUploads: Int = config.readMaxUploadsValue(supportingEvidenceKey)
 
-  implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
+  implicit val supportingEvidenceExtractor: DraftClaim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
   def evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.getListOfEvidenceTypes

@@ -20,7 +20,6 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
@@ -62,14 +61,14 @@ object JourneyStatus {
   final case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
-    def of(fillingOutClaim: FillingOutClaim)(f: DraftC285Claim => DraftC285Claim): FillingOutClaim =
-      fillingOutClaim.copy(draftClaim = fillingOutClaim.draftClaim.fold(f))
+    def of(fillingOutClaim: FillingOutClaim)(f: DraftClaim => DraftClaim): FillingOutClaim =
+      fillingOutClaim.copy(draftClaim = f(fillingOutClaim.draftClaim))
 
     def ofEither[E](fillingOutClaim: FillingOutClaim)(
-      f: DraftC285Claim => Either[E, DraftC285Claim]
+      f: DraftClaim => Either[E, DraftClaim]
     ): Either[E, FillingOutClaim] =
       fillingOutClaim.draftClaim match {
-        case draftC285Claim: DraftC285Claim =>
+        case draftC285Claim: DraftClaim =>
           f(draftC285Claim)
             .map(updatedDraftClaim => fillingOutClaim.copy(draftClaim = updatedDraftClaim))
       }

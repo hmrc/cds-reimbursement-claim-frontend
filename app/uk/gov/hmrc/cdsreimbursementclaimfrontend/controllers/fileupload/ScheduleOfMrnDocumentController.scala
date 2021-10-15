@@ -27,8 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBind
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.configKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
@@ -66,7 +65,7 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   lazy val maxUploads: Int = config.readMaxUploadsValue(configKey)
 
-  implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
+  implicit val scheduledDocumentExtractor: DraftClaim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
 
   def uploadScheduledDocument(): Action[AnyContent] =

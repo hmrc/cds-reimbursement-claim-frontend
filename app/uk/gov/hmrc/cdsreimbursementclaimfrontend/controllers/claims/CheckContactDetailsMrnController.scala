@@ -34,13 +34,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MrnContactDetails, NamePhoneEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MrnContactDetails, NamePhoneEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -68,7 +67,7 @@ class CheckContactDetailsMrnController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -187,18 +186,16 @@ class CheckContactDetailsMrnController @Inject() (
     request: RequestWithSessionData[_],
     messages: Messages,
     viewConfig: ViewConfig
-  ): HtmlFormat.Appendable = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+  ): HtmlFormat.Appendable =
     claimantDetailsPage(
       form,
       mandatoryDataAvailable,
       extractDetailsRegisteredWithCDS(fillingOutClaim),
       extractEstablishmentAddress(fillingOutClaim),
-      draftC285Claim.mrnContactDetailsAnswer,
-      draftC285Claim.mrnContactAddressAnswer,
+      fillingOutClaim.draftClaim.mrnContactDetailsAnswer,
+      fillingOutClaim.draftClaim.mrnContactAddressAnswer,
       router
     )
-  }
 
   def updatedFormErrors[T](formWithErrors: Form[T], mandatoryDataAvailable: Boolean): Form[T] =
     if (mandatoryDataAvailable)
@@ -241,37 +238,36 @@ object CheckContactDetailsMrnController {
   implicit val format: OFormat[CheckClaimantDetailsAnswer] = derived.oformat[CheckClaimantDetailsAnswer]()
 
   def extractDetailsRegisteredWithCDS(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
-    val email          = fillingOutClaim.signedInUserDetails.verifiedEmail
+    val email = fillingOutClaim.signedInUserDetails.verifiedEmail
     Applicative[Option]
-      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
-        declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            val consignee = declaration.displayResponseDetail.consigneeDetails
-            val name      = consignee.map(_.legalName)
-            val phone     = consignee.flatMap(_.contactDetails.flatMap(_.telephone))
-            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            val declarant = declaration.displayResponseDetail.declarantDetails
-            val name      = declarant.legalName
-            val phone     = declarant.contactDetails.flatMap(_.telephone)
-            NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(email))
-        }
+      .map2(fillingOutClaim.draftClaim.displayDeclaration, fillingOutClaim.draftClaim.declarantTypeAnswer) {
+        (declaration, declarantType) =>
+          declarantType match {
+            case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+              val consignee = declaration.displayResponseDetail.consigneeDetails
+              val name      = consignee.map(_.legalName)
+              val phone     = consignee.flatMap(_.contactDetails.flatMap(_.telephone))
+              NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
+            case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+              val declarant = declaration.displayResponseDetail.declarantDetails
+              val name      = declarant.legalName
+              val phone     = declarant.contactDetails.flatMap(_.telephone)
+              NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(email))
+          }
       }
       .getOrElse(NamePhoneEmail(None, None, None))
   }
 
-  def extractEstablishmentAddress(fillingOutClaim: FillingOutClaim): Option[EstablishmentAddress] = {
-    val draftC285Claim = fillingOutClaim.draftClaim.fold(identity)
+  def extractEstablishmentAddress(fillingOutClaim: FillingOutClaim): Option[EstablishmentAddress] =
     Applicative[Option]
-      .map2(draftC285Claim.displayDeclaration, draftC285Claim.declarantTypeAnswer) { (declaration, declarantType) =>
-        declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
-        }
+      .map2(fillingOutClaim.draftClaim.displayDeclaration, fillingOutClaim.draftClaim.declarantTypeAnswer) {
+        (declaration, declarantType) =>
+          declarantType match {
+            case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+              declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
+            case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+              Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
+          }
       }
       .flatten
-  }
 }

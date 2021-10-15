@@ -31,9 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.Check
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -57,7 +56,7 @@ class CheckReimbursementClaimController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
 
   def showReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>

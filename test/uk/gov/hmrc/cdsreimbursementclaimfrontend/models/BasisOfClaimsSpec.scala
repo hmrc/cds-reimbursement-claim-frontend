@@ -21,7 +21,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -32,7 +31,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   "The basis of claims" should {
 
     "filter Northern Ireland claims" in {
-      val draftC285Claim = sample[DraftC285Claim].copy(
+      val draftC285Claim = sample[DraftClaim].copy(
         movementReferenceNumber = Some(sample[MovementReferenceNumber]),
         claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.No.some
       )
@@ -62,7 +61,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "contain Northern Ireland claims" in {
-    val draftC285Claim = sample[DraftC285Claim].copy(
+    val draftC285Claim = sample[DraftClaim].copy(
       movementReferenceNumber = sample[MovementReferenceNumber].some,
       claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some,
       displayDeclaration = None

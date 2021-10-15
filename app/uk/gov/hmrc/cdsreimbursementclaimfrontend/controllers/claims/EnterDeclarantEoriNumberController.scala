@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -54,7 +53,7 @@ class EnterDeclarantEoriNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DeclarantEoriNumber] = _.declarantEoriNumberAnswer
+  implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumber] = _.declarantEoriNumberAnswer
 
   def enterDeclarantEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -80,7 +79,7 @@ class EnterDeclarantEoriNumberController @Inject() (
               ),
             declarantEoriNumber => {
               val newDraftClaim =
-                fillingOutClaim.draftClaim.fold(_.copy(declarantEoriNumberAnswer = Some(declarantEoriNumber)))
+                fillingOutClaim.draftClaim.copy(declarantEoriNumberAnswer = Some(declarantEoriNumber))
 
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
@@ -114,9 +113,9 @@ class EnterDeclarantEoriNumberController @Inject() (
     declarantEoriNumber: DeclarantEoriNumber
   ): Either[Error, Boolean] = {
     val maybeImporterEoriNumber: Option[ImporterEoriNumber] =
-      fillingOutClaim.draftClaim.fold(_.importerEoriNumberAnswer)
+      fillingOutClaim.draftClaim.importerEoriNumberAnswer
 
-    val maybeDisplayDeclaration: Option[DisplayDeclaration] = fillingOutClaim.draftClaim.fold(_.displayDeclaration)
+    val maybeDisplayDeclaration: Option[DisplayDeclaration] = fillingOutClaim.draftClaim.displayDeclaration
 
     (maybeDisplayDeclaration, maybeImporterEoriNumber, Some(declarantEoriNumber)) match {
       case (Some(displayDeclaration), Some(importerEoriNumber), Some(declarationEori)) =>

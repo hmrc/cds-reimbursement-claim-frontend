@@ -32,11 +32,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{ClaimAmount, ClaimAndPaidAmount, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -66,7 +65,7 @@ class EnterClaimController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[ClaimsAnswer] = _.claimsAnswer
+  implicit val dataExtractor: DraftClaim => Option[ClaimsAnswer] = _.claimsAnswer
 
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -175,12 +174,11 @@ class EnterClaimController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              fillingOutClaim.draftClaim
-                .fold(_.claimsAnswer)
+              fillingOutClaim.draftClaim.claimsAnswer
                 .map(claims => Future.successful(BadRequest(checkClaimSummaryPage(claims, formWithErrors))))
                 .getOrElse(Future.successful(errorHandler.errorResult())),
             { claims =>
-              val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(checkClaimAnswer = Some(claims)))
+              val newDraftClaim  = fillingOutClaim.draftClaim.copy(checkClaimAnswer = Some(claims))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -192,9 +190,9 @@ class EnterClaimController @Inject() (
                   claims match {
                     case ClaimAnswersAreCorrect =>
                       fillingOutClaim.draftClaim match {
-                        case claim: DraftC285Claim if isCmaEligible(claim) =>
+                        case claim: DraftClaim if isCmaEligible(claim) =>
                           Redirect(reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod())
-                        case _                                             =>
+                        case _                                         =>
                           Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
                       }
 
@@ -217,7 +215,7 @@ class EnterClaimController @Inject() (
   protected def updateClaimAnswer(claimAnswer: ClaimsAnswer, fillingOutClaim: FillingOutClaim, nextPage: Result)(
     implicit request: RequestWithSessionData[AnyContent]
   ): Future[Result] = {
-    val newDraftClaim  = fillingOutClaim.draftClaim.fold(_.copy(claimsAnswer = Some(claimAnswer)))
+    val newDraftClaim  = fillingOutClaim.draftClaim.copy(claimsAnswer = Some(claimAnswer))
     val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
     EitherT
       .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -250,14 +248,14 @@ object EnterClaimController {
       .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
   )
 
-  def isCmaEligible(draftC285Claim: DraftC285Claim): Boolean = {
+  def isCmaEligible(draftC285Claim: DraftClaim): Boolean = {
     val duties = selectedDuties(draftC285Claim)
     duties.nonEmpty && duties
       .map(_.flatMap(_.cmaEligible).getOrElse("0"))
       .forall(_ === "1")
   }
 
-  private def selectedDuties(draftC285Claim: DraftC285Claim): List[Option[NdrcDetails]] = {
+  private def selectedDuties(draftC285Claim: DraftClaim): List[Option[NdrcDetails]] = {
     val nrdcDetailsMap = draftC285Claim.displayDeclaration
       .flatMap(_.displayResponseDetail.ndrcDetails)
       .getOrElse(Nil)
@@ -281,7 +279,7 @@ object EnterClaimController {
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
-  def generateClaimsFromDuties(draftC285Claim: DraftC285Claim): Either[Error, List[Claim]] = {
+  def generateClaimsFromDuties(draftC285Claim: DraftClaim): Either[Error, List[Claim]] = {
     val claims      = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
     val ndrcDetails = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
     draftC285Claim.dutiesSelectedAnswer
