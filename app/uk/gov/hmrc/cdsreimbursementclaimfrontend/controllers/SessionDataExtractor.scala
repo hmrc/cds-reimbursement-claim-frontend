@@ -74,10 +74,10 @@ trait SessionDataExtractor extends Results {
 
   def getRoutes(
     numberOfClaims: SelectNumberOfClaimsAnswer,
-    maybeMrnOrEntryNmber: Option[MovementReferenceNumber],
+    maybeMrnOrEntryNumber: Option[MovementReferenceNumber],
     journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
-    (journeyBindable, numberOfClaims, maybeMrnOrEntryNmber) match {
+    (journeyBindable, numberOfClaims, maybeMrnOrEntryNumber) match {
       case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual, Some(MovementReferenceNumber(Right(_))))   =>
         MRNSingleRoutes
       case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Right(_))))   =>

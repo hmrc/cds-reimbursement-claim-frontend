@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 
 import scala.collection.immutable.HashSet
 
 sealed abstract class TaxCode(val value: String) extends Product with Serializable {
-  override def toString() = value
+  override def toString: String = value
 }
 
 object TaxCode {
@@ -191,6 +193,22 @@ object TaxCode {
 
   def apply(string: String): TaxCode            = TaxCode.allTaxCodesMap(string)
   def unapply(taxCode: TaxCode): Option[String] = Some(taxCode.value)
+
+  implicit val binder: PathBindable[TaxCode] =
+    new PathBindable[TaxCode] {
+      val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
+
+      override def bind(
+        key: String,
+        value: String
+      ): Either[String, TaxCode] =
+        stringBinder.bind(key, value).map(TaxCode.apply)
+
+      override def unbind(key: String, dutyType: TaxCode): String =
+        stringBinder.unbind(key, dutyType.value)
+    }
+
+  implicit val eq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
 
   implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
 

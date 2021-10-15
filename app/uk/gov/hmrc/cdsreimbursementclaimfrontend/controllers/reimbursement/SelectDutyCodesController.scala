@@ -29,9 +29,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.selectDutyCodesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, reimbursement}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -60,34 +60,42 @@ class SelectDutyCodesController @Inject() (
 
   def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[DutyCodesAnswer] { (fillingOutClaim, answer) =>
-      fillingOutClaim.draftClaim
-        .fold(_.dutyTypesSelectedAnswer)
+      fillingOutClaim.draftClaim.dutyTypesSelectedAnswer
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
         ) { dutyTypesAnswer =>
-          val updatedJourneyStatus: FillingOutClaim = answer.fold {
-            updateJourneyStatus(dutyTypesAnswer, DutyCodesAnswer.empty, fillingOutClaim)
-          } { dutyCodesAnswer =>
-            updateJourneyStatus(dutyTypesAnswer, dutyCodesAnswer, fillingOutClaim)
-          }
+          val dutyCodesAnswer = answer.getOrElse(DutyCodesAnswer.none)
 
-          EitherT
-            .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
-            .leftMap((_: Unit) => Error("could not update session"))
+          val updatedReimbursementState = ReimbursementState.computeReimbursementState(
+            dutyTypesAnswer,
+            dutyCodesAnswer
+          )
+
+          val updatedJourneyStatus = FillingOutClaim.of(fillingOutClaim)(
+            _.copy(
+              dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
+              dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
+            )
+          )
+
+          EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
+            .leftMap(_ => Error("could not update session"))
             .fold(
               logAndDisplayError("could not update reimbursement state"),
               _ =>
                 (
-                  updatedJourneyStatus.draftClaim.fold(_.dutyTypesSelectedAnswer),
-                  updatedJourneyStatus.draftClaim.fold(_.dutyCodesSelectedAnswer)
+                  updatedJourneyStatus.draftClaim.dutyTypesSelectedAnswer,
+                  updatedJourneyStatus.draftClaim.dutyCodesSelectedAnswer
                 ) match {
-                  case (Some(_), Some(dutyCodesAnswer: DutyCodesAnswer)) =>
+                  case (Some(_), Some(dutyCodesAnswer)) =>
                     dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                       case Some(dutyType) =>
                         Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                      case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                      case None           =>
+                        Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
+                      //Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
                     }
-                  case _                                                 =>
+                  case _                                =>
                     logger.warn("could not find duty types or duty codes")
                     errorHandler.errorResult()
                 }
@@ -124,24 +132,6 @@ class SelectDutyCodesController @Inject() (
       }
     }
 
-  private def updateJourneyStatus(
-    dutyTypesAnswer: DutyTypesAnswer,
-    dutyCodesAnswer: DutyCodesAnswer,
-    fillingOutClaim: FillingOutClaim
-  ): FillingOutClaim = {
-    val updatedReimbursementState = ReimbursementState.computeReimbursementState(
-      dutyTypesAnswer,
-      dutyCodesAnswer
-    )
-
-    FillingOutClaim.of(fillingOutClaim)(
-      _.copy(
-        dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
-        dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
-      )
-    )
-  }
-
   private def updateSessionCache(
     dutyType: DutyType,
     dutyTypesSelectedAnswer: DutyCodesAnswer,
@@ -150,13 +140,32 @@ class SelectDutyCodesController @Inject() (
   )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
 
     val updatedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
-      currentAnswer.fold(Map[reimbursement.DutyType, List[models.TaxCode]]()) { dutyCodesAnswer =>
+      currentAnswer.fold(Map[reimbursement.DutyType, List[TaxCode]]()) { dutyCodesAnswer =>
         dutyCodesAnswer.dutyCodes ++ List(dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType))
       }
 
     val updatedJourney =
       FillingOutClaim.of(fillingOutClaim)(
-        _.copy(dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap)))
+        _.copy(
+          dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap)),
+          reimbursementClaimAnswer = Some(
+            ReimbursementClaimAnswer(
+              Map(
+                UkDuty     -> Map(
+                  TaxCode.A20 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
+                ),
+                EuDuty     -> Map(
+                  TaxCode.A70 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
+                ),
+                CiderPerry -> Map(
+                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00)
+                )
+              )
+            )
+          )
+        )
       )
 
     EitherT
@@ -165,12 +174,14 @@ class SelectDutyCodesController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          updatedJourney.draftClaim.fold(_.dutyCodesSelectedAnswer) match {
+          updatedJourney.draftClaim.dutyCodesSelectedAnswer match {
             case Some(dutyCodesAnswer) =>
               dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
                 case Some(dutyType) =>
                   Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                case None           => Redirect(reimbursementRoutes.EnterPaidAndClaimAmountController.start())
+                case None           =>
+                  Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
+//                  Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
               }
             case None                  =>
               logger.warn("could not find duty codes")
@@ -181,6 +192,7 @@ class SelectDutyCodesController @Inject() (
 }
 
 object SelectDutyCodesController {
+
   def selectDutyCodesForm(dutyType: DutyType): Form[DutyCodesAnswer] =
     Form(
       mapping(
@@ -197,5 +209,4 @@ object SelectDutyCodesController {
         dutyCodesAnswer.dutyCodes.values.headOption
       )
     )
-
 }

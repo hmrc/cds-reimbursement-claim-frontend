@@ -28,14 +28,10 @@ import play.api.data.Forms.number
 import play.api.libs.json.OFormat
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -70,12 +66,11 @@ class CheckDeclarationDetailsController @Inject() (
     implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        implicit val reimbursementRoutes: ReimbursementRoutes = router
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
         )(declaration =>
           Ok(
-            checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate)
+            checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate, router)
           )
         )
       }
@@ -85,7 +80,6 @@ class CheckDeclarationDetailsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       val isDuplicate: Boolean = false
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
-        implicit val reimbursementRoutes: ReimbursementRoutes = router
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -93,7 +87,7 @@ class CheckDeclarationDetailsController @Inject() (
               answer
                 .map(declaration =>
                   Future.successful(
-                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate))
+                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate, router))
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),

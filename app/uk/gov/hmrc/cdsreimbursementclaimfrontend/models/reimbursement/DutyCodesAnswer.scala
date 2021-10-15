@@ -26,7 +26,7 @@ final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
 object DutyCodesAnswer {
 
-  val empty: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
+  val none: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
 
   implicit def dutyCodesAnswerFormat: Format[Map[DutyType, List[TaxCode]]] =
     new Format[Map[DutyType, List[TaxCode]]] {
@@ -44,7 +44,7 @@ object DutyCodesAnswer {
 
       override def writes(o: Map[DutyType, List[TaxCode]]): JsValue =
         Json.toJson(o.map { dutyCodes =>
-          (DutyType.typeToString(dutyCodes._1), dutyCodes._2)
+          (dutyCodes._1.repr, dutyCodes._2)
         })
     }
 
@@ -56,11 +56,18 @@ object DutyCodesAnswer {
 
     def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] = {
       def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
-        DutyType.dutyTypeToRankMap(dutyTypeToRankMap._1)
+        DutyTypes.dutyTypeToRankMap(dutyTypeToRankMap._1)
       SortedMap[DutyType, List[TaxCode]](
         dutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
       )
     }
+
+    def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      dutyCodesAnswer.dutyCodes.map { dutyTypeToDutyCodeMap =>
+        dutyTypeToDutyCodeMap._1 -> dutyTypeToDutyCodeMap._2
+          .map(taxCode => taxCode -> ReimbursementClaim.blank)
+          .toMap
+      }
   }
 
   implicit val eq: Eq[DutyCodesAnswer]          = Eq.fromUniversalEquals[DutyCodesAnswer]

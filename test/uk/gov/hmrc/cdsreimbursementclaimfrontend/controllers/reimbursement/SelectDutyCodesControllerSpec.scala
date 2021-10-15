@@ -32,7 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, DutyTypesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
@@ -78,11 +79,30 @@ class SelectDutyCodesControllerSpec
 
   private def updateSession(sessionData: SessionData, dutyCodesAnswer: DutyCodesAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
-        val newClaim      = draftClaim.copy(dutyCodesSelectedAnswer = Some(dutyCodesAnswer))
+      case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
+        val newClaim      = draftClaim.copy(
+          dutyCodesSelectedAnswer = Some(dutyCodesAnswer),
+          reimbursementClaimAnswer = Some(
+            ReimbursementClaimAnswer(
+              Map(
+                UkDuty     -> Map(
+                  TaxCode.A20 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
+                ),
+                EuDuty     -> Map(
+                  TaxCode.A70 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
+                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
+                ),
+                CiderPerry -> Map(
+                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00)
+                )
+              )
+            )
+          )
+        )
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                       => fail()
     }
 
   val messageKey = "select-duty-codes"
@@ -200,7 +220,8 @@ class SelectDutyCodesControllerSpec
 
         checkIsRedirect(
           performActionWithFormData(DutyType.UkDuty, Seq(s"$messageKey[]" -> "A00")),
-          routes.EnterPaidAndClaimAmountController.start()
+          routes.CheckReimbursementClaimController.showReimbursementClaim()
+//          routes.EnterReimbursementClaimController.start()
         )
 
       }
@@ -226,7 +247,8 @@ class SelectDutyCodesControllerSpec
 
           checkIsRedirect(
             performActionWithFormData(DutyType.UkDuty, Seq(s"$messageKey[]" -> "A00")),
-            routes.EnterPaidAndClaimAmountController.start()
+            routes.CheckReimbursementClaimController.showReimbursementClaim()
+//            routes.EnterReimbursementClaimController.start()
           )
         }
 
@@ -254,7 +276,8 @@ class SelectDutyCodesControllerSpec
 
         checkIsRedirect(
           performActionWithFormData(DutyType.EuDuty, Seq(s"$messageKey[]" -> "A50")),
-          routes.EnterPaidAndClaimAmountController.start()
+          routes.CheckReimbursementClaimController.showReimbursementClaim()
+//          routes.EnterReimbursementClaimController.start()
         )
 
       }

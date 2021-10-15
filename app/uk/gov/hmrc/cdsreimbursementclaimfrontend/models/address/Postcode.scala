@@ -74,7 +74,7 @@ final case class PostCodeMapping(
   override val mappings: Seq[Mapping[_]] = Seq(this)
 
   override def bind(data: Map[String, String]): Either[Seq[FormError], Postcode] = {
-    val condition = data.get(conditionFieldName).map(_ === conditionFieldValue).getOrElse(false)
+    val condition = data.get(conditionFieldName).exists(_ === conditionFieldValue)
     val mapping   = if (condition) mappingUk else mappingNonUk
     Forms.single(key -> mapping).bind(data)
   }

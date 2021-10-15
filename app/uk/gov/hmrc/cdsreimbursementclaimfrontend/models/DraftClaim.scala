@@ -26,7 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyPaidAndClaimAmountAnswer, DutyTypesAnswer, ReimbursementMethodAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
+
 import java.util.UUID
 
 sealed trait DraftClaim extends Product with Serializable {
@@ -51,7 +52,7 @@ object DraftClaim {
     dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
     dutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
-    dutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer] = None,
+    reimbursementClaimAnswer: Option[ReimbursementClaimAnswer] = None,
     commoditiesDetailsAnswer: Option[CommodityDetails] = None,
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,

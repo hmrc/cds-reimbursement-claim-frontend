@@ -93,9 +93,9 @@ object FormUtils {
 
   def bigDecimalFormat(precision: Int, scale: Int, errorMsg: String): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
-      override val format = Some(("format.real", Nil))
+      override val format: Option[(String, Nil.type)] = Some(("format.real", Nil))
 
-      def bind(key: String, data: Map[String, String]) =
+      def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         Formats.stringFormat.bind(key, data).right.flatMap { userInput =>
           Exception
             .allCatch[BigDecimal]

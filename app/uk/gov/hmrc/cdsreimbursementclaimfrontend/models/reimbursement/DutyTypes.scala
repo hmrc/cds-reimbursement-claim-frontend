@@ -16,10 +16,31 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
-import play.api.libs.json.{Json, OFormat}
+import cats.implicits.catsSyntaxEq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType._
 
-final case class DutyPaidAndClaimAmount(dutyPaidAmount: BigDecimal, dutyClaimAmount: BigDecimal)
+object DutyTypes {
 
-object DutyPaidAndClaimAmount {
-  implicit val format: OFormat[DutyPaidAndClaimAmount] = Json.format[DutyPaidAndClaimAmount]
+  val custom: Seq[DutyType] = Seq(UkDuty, EuDuty)
+
+  val excise: Seq[DutyType] = Seq(
+    Beer,
+    Wine,
+    MadeWine,
+    LowAlcoholBeverages,
+    Spirits,
+    CiderPerry,
+    HydrocarbonOils,
+    Biofuels,
+    MiscellaneousRoadFuels,
+    Tobacco,
+    ClimateChangeLevy
+  )
+
+  val all: Seq[DutyType] = custom ++ excise
+
+  val dutyTypeToRankMap: Map[DutyType, Int] = all.zipWithIndex.toMap
+
+  def contains(representation: String): Boolean =
+    all.exists(_.repr === representation)
 }
