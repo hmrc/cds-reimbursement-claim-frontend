@@ -98,7 +98,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
               TaxCode.A50 -> reimbursementClaim
             ),
             DutyType.Beer   -> Map[TaxCode, ReimbursementClaim](
-              TaxCode.NI440 -> ReimbursementClaim.none
+              TaxCode.NI440 -> ReimbursementClaim.blank
             )
           )
         )
@@ -171,7 +171,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
             ),
             DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
               TaxCode.A50 -> reimbursementClaim,
-              TaxCode.A90 -> ReimbursementClaim.none
+              TaxCode.A90 -> ReimbursementClaim.blank
             )
           )
         )

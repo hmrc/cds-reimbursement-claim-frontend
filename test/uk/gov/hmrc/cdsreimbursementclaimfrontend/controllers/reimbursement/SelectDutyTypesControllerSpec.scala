@@ -107,41 +107,6 @@ class SelectDutyTypesControllerSpec
 
     }
 
-    "redirect to the summary reimbursement claim page" when {
-
-      "claims have been made against all duty codes" in {
-
-        def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
-
-        val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
-        val dutyCodesAnswer          =
-          DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
-        val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2")))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2"))))
-          )
-        )
-
-        val (session, fillingOutClaim, draftC285Claim) =
-          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(reimbursementClaimAnswer))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkIsRedirect(
-          performAction(),
-          routes.CheckReimbursementClaimController.showReimbursementClaim()
-        )
-
-      }
-
-    }
-
     "display the page" when {
 
       def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
@@ -251,8 +216,8 @@ class SelectDutyTypesControllerSpec
           DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
           Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2")))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(Some(BigDecimal("10")), Some(BigDecimal("2"))))
+            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(10, 2)),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(10, 2))
           )
         )
 
@@ -271,7 +236,7 @@ class SelectDutyTypesControllerSpec
           performAction(
             Seq("select-duty-types[0]" -> "eu-duty")
           ),
-          routes.CheckReimbursementClaimController.showReimbursementClaim()
+          routes.SelectDutyCodesController.start()
         )
       }
 
