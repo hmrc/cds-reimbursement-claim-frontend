@@ -17,24 +17,34 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId, toFoldableOps}
+import cats.data.NonEmptyList
+import cats.implicits.catsSyntaxEq
+import cats.implicits.toFoldableOps
 import cats.instances.future.catsStdInstancesForFuture
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.MultipleSelectDutiesController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMrn, DutiesSelectedAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -42,11 +52,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.MultipleDutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 import scala.concurrent.Future
-import cats.data.NonEmptyList
 
 @Singleton
 class MultipleSelectDutiesController @Inject() (
@@ -64,17 +70,13 @@ class MultipleSelectDutiesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor1: DraftC285Claim => Option[MultipleDutiesSelectedAnswer] = _.multipleDutiesSelectedAnswer
-  implicit val dataExtractor2: DraftC285Claim => Option[AssociatedMRNsAnswer]         = _.associatedMRNsAnswer
-
   def selectDuties(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MultipleDutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
-        fillingOutClaim.draftClaim
-          .MRNs()
-          .get(index.value.toLong - 1)
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.associatedMRNsAnswer
+          .get(index)
           .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
+            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey)
 
             cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
               error => {
@@ -83,7 +85,7 @@ class MultipleSelectDutiesController @Inject() (
               },
               dutiesAvailable => {
                 val emptyForm  = selectDutiesForm(dutiesAvailable)
-                val filledForm = previousAnswer.fold(emptyForm)(_ => emptyForm)
+                val filledForm = journey.draftClaim.associatedMRNsAnswer.fold(emptyForm)(_ => emptyForm)
                 Ok(selectDutiesPage(filledForm, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible, index, mrn))
               }
             )
@@ -94,12 +96,11 @@ class MultipleSelectDutiesController @Inject() (
 
   def selectDutiesSubmit(index: AssociatedMrnIndex): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MultipleDutiesSelectedAnswer] { (fillingOutClaim, previousAnswer) =>
-        fillingOutClaim.draftClaim
-          .MRNs()
-          .get(index.value.toLong - 1)
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.associatedMRNsAnswer
+          .get(index)
           .fold(Future.successful(BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(fillingOutClaim)
+            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey)
 
             cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
               error => {
@@ -124,7 +125,7 @@ class MultipleSelectDutiesController @Inject() (
                       ),
                     dutiesSelected => {
                       val newDraftClaim  =
-                        fillingOutClaim.draftClaim
+                        journey.draftClaim
                           .fold(claim =>
                             claim.copy(multipleDutiesSelectedAnswer =
                               Some(
@@ -137,7 +138,7 @@ class MultipleSelectDutiesController @Inject() (
                               )
                             )
                           )
-                      val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+                      val updatedJourney = journey.copy(draftClaim = newDraftClaim)
 
                       EitherT
                         .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))

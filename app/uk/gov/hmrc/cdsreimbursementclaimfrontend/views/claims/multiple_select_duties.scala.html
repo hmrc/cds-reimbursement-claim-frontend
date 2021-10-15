@@ -43,7 +43,7 @@
 @(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean], mrnIndex: AssociatedMrnIndex, mrn: AssociatedMrn)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"multiple-$key.title", OrdinalNumeralsHelper.toMrnOrdinal(mrnIndex.value))}
+  @title = @{messages(s"multiple-$key.title", OrdinalNumeralsHelper.toMrnOrdinal(mrnIndex))}
 
   @postAction = @{routes.MultipleSelectDutiesController.selectDutiesSubmit(mrnIndex)}
     @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>

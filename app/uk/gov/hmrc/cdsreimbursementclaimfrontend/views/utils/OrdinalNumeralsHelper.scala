@@ -17,19 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 object OrdinalNumeralsHelper {
 
   val key = "ordinal."
 
-  final def toMrnOrdinal(value: Int)(implicit messages: Messages): String =
-    value match {
-      case 1 => messages(key + "lead")
-      case _ => toOrdinal(value)
+  final def toMrnOrdinal(index: AssociatedMrnIndex)(implicit messages: Messages): String =
+    index.toListIndex match {
+      case 0 => messages(key + "lead")
+      case i => toOrdinal(i + 1)
     }
 
-  final def toOrdinal(value: Int)(implicit messages: Messages): String =
-    value match {
+  final def toOrdinal(integer: Int)(implicit messages: Messages): String =
+    integer match {
       case 1           => messages(key + "first")
       case 2           => messages(key + "second")
       case 3           => messages(key + "third")
@@ -39,8 +40,8 @@ object OrdinalNumeralsHelper {
       case 7           => messages(key + "seventh")
       case 8           => messages(key + "eighth")
       case 9           => messages(key + "ninth")
-      case n if n < 20 => value.toString() + messages(key + "th")
-      case _           => value.toString() + messages(key + suffix(value % 10))
+      case n if n < 20 => integer.toString() + messages(key + "th")
+      case _           => integer.toString() + messages(key + suffix(integer % 10))
     }
 
   final def suffix(value: Int): String =
