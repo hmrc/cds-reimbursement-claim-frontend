@@ -21,7 +21,6 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -40,15 +39,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, Declar
 
 import java.util.UUID
 
-object DraftClaimGen extends HigherPriorityDraftClaimGen
+object DraftClaimGen {
 
-trait HigherPriorityDraftClaimGen extends LowerPriorityDraftClaimGen {
-  implicit val arbitraryDraftClaimGen: Typeclass[DraftClaim] = gen[DraftClaim]
-}
-
-trait LowerPriorityDraftClaimGen {
-
-  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftC285Claim] =
+  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftClaim] =
     for {
       mrn                            <- genMRN
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
@@ -69,7 +62,7 @@ trait LowerPriorityDraftClaimGen {
       checkDeclarationDetailsAnswer  <- gen[CheckDeclarationDetailsAnswer].arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
       associatedMRNsAnswer           <- arbitraryAssociatedMRNsAnswer.arbitrary
-    } yield DraftC285Claim(
+    } yield DraftClaim(
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
       movementReferenceNumber = MovementReferenceNumber(mrn).some,
@@ -94,7 +87,7 @@ trait LowerPriorityDraftClaimGen {
       associatedMRNsAnswer = associatedMRNsAnswer.some
     )
 
-  implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = Arbitrary {
+  implicit val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
     for {
       numberOfClaims <- gen[SelectNumberOfClaimsAnswer].arbitrary
       claim          <- genValidDraftClaim(numberOfClaims)

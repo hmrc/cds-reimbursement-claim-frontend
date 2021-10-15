@@ -26,7 +26,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -34,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
 
@@ -59,9 +58,9 @@ class SelectDutyCodesControllerSpec
   private def sessionWithDutyCodesState(
     maybeDutyTypesSelectedAnswer: Option[DutyTypesAnswer],
     maybeDutyCodesSelectedAnswer: Option[DutyCodesAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         dutyTypesSelectedAnswer = maybeDutyTypesSelectedAnswer,
         dutyCodesSelectedAnswer = maybeDutyCodesSelectedAnswer
       )
@@ -79,7 +78,7 @@ class SelectDutyCodesControllerSpec
 
   private def updateSession(sessionData: SessionData, dutyCodesAnswer: DutyCodesAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      = draftClaim.copy(
           dutyCodesSelectedAnswer = Some(dutyCodesAnswer),
           reimbursementClaimAnswer = Some(
@@ -102,7 +101,7 @@ class SelectDutyCodesControllerSpec
         )
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                       => fail()
+      case _                                                   => fail()
     }
 
   val messageKey = "select-duty-codes"

@@ -28,7 +28,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.keyForenterDuplicateMovementReferenceNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.{DraftC285Claim, claimToC285Claim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -100,7 +99,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
       val displayDeclaration = sample[DisplayDeclaration]
       val updatedClaim       =
-        claimToC285Claim(claim.draftClaim).copy(
+        claim.draftClaim.copy(
           duplicateMovementReferenceNumberAnswer = Some(MovementReferenceNumber(updatedMrn)),
           duplicateDisplayDeclaration = Some(displayDeclaration)
         )
@@ -122,7 +121,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
   private def getSession(numberOfClaims: Option[SelectNumberOfClaimsAnswer]): (SessionData, FillingOutClaim) = {
     val mrn                 = sample[MovementReferenceNumber]
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    val draftC285Claim      = DraftClaim.blank.copy(
       movementReferenceNumber = Some(mrn),
       duplicateMovementReferenceNumberAnswer = Some(mrn),
       selectNumberOfClaimsAnswer = numberOfClaims

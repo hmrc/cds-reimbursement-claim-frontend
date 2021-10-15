@@ -25,14 +25,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData}
 
 import scala.concurrent.Future
 
@@ -43,7 +42,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
 
   class SessionTester() extends SessionDataExtractor {
     def method(implicit
-      extractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer],
+      extractor: DraftClaim => Option[ClaimNorthernIrelandAnswer],
       request: RequestWithSessionData[_]
     ) =
       withAnswers[ClaimNorthernIrelandAnswer] { (_, data) =>
@@ -53,7 +52,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
 
   class SessionAndRouterTester() extends SessionDataExtractor {
     def method(expectedData: Option[ClaimNorthernIrelandAnswer], expecterRouter: ReimbursementRoutes)(implicit
-      extractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer],
+      extractor: DraftClaim => Option[ClaimNorthernIrelandAnswer],
       request: RequestWithSessionData[_],
       journeyBindable: JourneyBindable
     ) =
@@ -66,13 +65,13 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
 
   "withAnswers" should {
     "extract the data successfully" in {
-      val sessionTester                                                       = new SessionTester()
-      val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+      val sessionTester                                                   = new SessionTester()
+      val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
       val msgReq               = fakeRequest2MessageRequest(FakeRequest())
       val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
       val draftC285Claim       =
-        sample[DraftC285Claim].copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes))
+        sample[DraftClaim].copy(claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes))
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
       val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
@@ -85,8 +84,8 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
     }
 
     "redirect to the start page if the session is empty" in {
-      val sessionTester                                                       = new SessionTester()
-      val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+      val sessionTester                                                   = new SessionTester()
+      val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
       val msgReq               = fakeRequest2MessageRequest(FakeRequest())
       val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
@@ -100,14 +99,14 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
   "withAnswersAndRoutes" should {
     "extract the data and the router" when {
       "NumberOfClaims and MRN answers were provided" in {
-        val sessionTester                                                       = new SessionAndRouterTester()
-        val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+        val sessionTester                                                   = new SessionAndRouterTester()
+        val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
         val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
-          sample[DraftC285Claim].copy(
+          sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
             movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
@@ -122,14 +121,14 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       }
 
       "NumberOfClaims and MRN answers were provided, but the JourneyBindable/URL was tampered with" in {
-        val sessionTester                                                       = new SessionAndRouterTester()
-        val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+        val sessionTester                                                   = new SessionAndRouterTester()
+        val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
         val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
-          sample[DraftC285Claim].copy(
+          sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
             movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
@@ -144,14 +143,14 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       }
 
       "Only the MRN answer was provided" in {
-        val sessionTester                                                       = new SessionAndRouterTester()
-        val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+        val sessionTester                                                   = new SessionAndRouterTester()
+        val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
         val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
-          sample[DraftC285Claim].copy(
+          sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = None,
             movementReferenceNumber = Some(sample[MovementReferenceNumber]),
             claimNorthernIrelandAnswer = expectedData
@@ -166,14 +165,14 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       }
 
       "No previous answers were prodvided" in {
-        val sessionTester                                                       = new SessionAndRouterTester()
-        val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+        val sessionTester                                                   = new SessionAndRouterTester()
+        val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
         val expectedData         = Some(ClaimNorthernIrelandAnswer.Yes)
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
-          sample[DraftC285Claim].copy(
+          sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = None,
             movementReferenceNumber = None,
             claimNorthernIrelandAnswer = expectedData

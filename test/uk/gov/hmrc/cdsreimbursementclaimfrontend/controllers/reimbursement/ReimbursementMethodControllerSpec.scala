@@ -30,15 +30,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBinda
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer._
+
 import scala.concurrent.Future
 
 class ReimbursementMethodControllerSpec
@@ -215,7 +215,7 @@ class ReimbursementMethodControllerSpec
   private def session: SessionData = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, DraftC285Claim.newDraftC285Claim)
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, DraftClaim.blank)
 
     SessionData.empty.copy(
       journeyStatus = Some(journey)
@@ -223,8 +223,7 @@ class ReimbursementMethodControllerSpec
   }
 
   private def getSessionWithPreviousAnswer(reimbursementMethodAnswer: ReimbursementMethodAnswer): SessionData = {
-    val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
+    val draftC285Claim      = DraftClaim.blank.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
@@ -242,12 +241,12 @@ class ReimbursementMethodControllerSpec
 
   private def updateSession(sessionData: SessionData, reimbusementMethod: ReimbursementMethodAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
           draftClaim.copy(reimbursementMethodAnswer = Some(reimbusementMethod))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                       => fail()
+      case _                                                   => fail()
     }
 
   private def getErrorSummary(document: Document): String =

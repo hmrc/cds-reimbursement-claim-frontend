@@ -23,7 +23,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, status, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.checkYourAnswersDataKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
@@ -52,8 +51,8 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
   private def sessionWithClaimState(
     supportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(supportingEvidencesAnswer = supportingEvidencesAnswer)
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftC285Claim      = DraftClaim.blank.copy(supportingEvidencesAnswer = supportingEvidencesAnswer)
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
@@ -472,9 +471,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val updatedAnswer = answer.map(_ :+ newSupportingEvidence) orElse List(newSupportingEvidence).toNel
 
-          val newDraftClaim = draftClaim.fold(
-            _.copy(supportingEvidencesAnswer = updatedAnswer)
-          )
+          val newDraftClaim = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
 
           val newJourney = journey.copy(draftClaim = newDraftClaim)
 

@@ -29,7 +29,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -69,7 +68,7 @@ class SelectNumberOfClaimsControllerSpec
 
   private def getSessionWithPreviousAnswer(numberOfClaimsType: Option[SelectNumberOfClaimsAnswer]): SessionData = {
     val selectNumberOfClaimsAnswer = numberOfClaimsType
-    val draftC285Claim             = DraftC285Claim.newDraftC285Claim.copy(selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer)
+    val draftC285Claim             = DraftClaim.blank.copy(selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer)
     val ggCredId                   = sample[GGCredId]
     val email                      = sample[Email]
     val eori                       = sample[Eori]
@@ -80,12 +79,12 @@ class SelectNumberOfClaimsControllerSpec
 
   private def updateSession(sessionData: SessionData, numberOfClaimsType: SelectNumberOfClaimsAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
           draftClaim.copy(selectNumberOfClaimsAnswer = Some(numberOfClaimsType))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                   => fail()
     }
 
   def isIndividualChecked(document: Document): Boolean =

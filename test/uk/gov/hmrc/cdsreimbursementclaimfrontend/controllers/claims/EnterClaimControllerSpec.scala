@@ -30,7 +30,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
@@ -101,12 +100,12 @@ class EnterClaimControllerSpec
     ndrcDetails: Option[List[NdrcDetails]] = None,
     movementReferenceNumber: MovementReferenceNumber = sample[MovementReferenceNumber],
     checkClaimAnswer: Option[CheckClaimAnswer] = None
-  ): DraftC285Claim = {
+  ): DraftClaim = {
     val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = ndrcDetails))
     )
 
-    DraftC285Claim.newDraftC285Claim.copy(
+    DraftClaim.blank.copy(
       movementReferenceNumber = Some(movementReferenceNumber),
       claimsAnswer = maybeClaimsAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
@@ -117,11 +116,11 @@ class EnterClaimControllerSpec
 
   private def updateSession(sessionData: SessionData, claimsAnswer: ClaimsAnswer): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+      case Some(FillingOutClaim(g, s, (draftClaim: DraftClaim))) =>
         val newClaim      = draftClaim.copy(claimsAnswer = Some(claimsAnswer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                     => fail()
     }
 
   private def compareUrlsWithouthId(url1: String, url2: String): Any = {

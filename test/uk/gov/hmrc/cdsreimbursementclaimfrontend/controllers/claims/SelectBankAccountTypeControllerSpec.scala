@@ -29,7 +29,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
@@ -80,7 +79,7 @@ class SelectBankAccountTypeControllerSpec
     bankAccountType: Option[BankAccountType],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
   ): SessionData = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    val draftC285Claim      = DraftClaim.blank.copy(
       bankAccountTypeAnswer = bankAccountType,
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
       movementReferenceNumber = Some(sample[MovementReferenceNumber])
@@ -95,11 +94,11 @@ class SelectBankAccountTypeControllerSpec
 
   private def updateSession(sessionData: SessionData, bankAccountType: BankAccountType): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      = draftClaim.copy(bankAccountTypeAnswer = Some(bankAccountType))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                       => fail()
+      case _                                                   => fail()
     }
 
   def isBusinessChecked(document: Document): Boolean =

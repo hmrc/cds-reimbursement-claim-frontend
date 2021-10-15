@@ -27,7 +27,6 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -86,7 +85,7 @@ class EnterContactDetailsMrnControllerSpec
     mrnContactAddressAnswer: Option[ContactAddress],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim
+    val draftC285Claim      = DraftClaim.blank
       .copy(
         mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer,
         mrnContactAddressAnswer = mrnContactAddressAnswer,
@@ -101,12 +100,12 @@ class EnterContactDetailsMrnControllerSpec
 
   private def updateSession(sessionData: SessionData, mrnContactDetailsAnswer: MrnContactDetails): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
           draftClaim.copy(mrnContactDetailsAnswer = Some(mrnContactDetailsAnswer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                   => fail()
     }
 
   "Enter Or Change Contact Details controller" must {
