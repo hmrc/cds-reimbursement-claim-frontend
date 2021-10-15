@@ -57,8 +57,8 @@ object DraftClaim {
     claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
     duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
-    importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
-    declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
+    importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
+    declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
     claimsAnswer: Option[ClaimsAnswer] = None,
     checkClaimAnswer: Option[CheckClaimAnswer] = None,
     checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
@@ -80,7 +80,7 @@ object DraftClaim {
         movementReferenceNumber.flatMap(_.value.toOption)
 
       def apply(): List[MRN] =
-        leadMrn.toList ++ (associatedMRNsAnswer.map(_.toList) getOrElse Nil)
+        leadMrn.toList ++ associatedMRNsAnswer.list
 
       def total: Total =
         (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0

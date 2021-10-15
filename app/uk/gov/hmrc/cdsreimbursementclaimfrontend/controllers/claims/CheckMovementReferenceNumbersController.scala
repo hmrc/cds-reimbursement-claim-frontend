@@ -17,27 +17,36 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.Eq
-import cats.data.OptionT
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
-import com.google.inject.{Inject, Singleton}
+import cats.data.EitherT
+import cats.implicits.catsSyntaxEq
+import cats.implicits.catsSyntaxOptionId
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.data.Forms.boolean
+import play.api.data.Forms.mapping
+import play.api.data.Forms.optional
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckMovementReferenceNumbersController @Inject() (
@@ -52,55 +61,53 @@ class CheckMovementReferenceNumbersController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] =
-    _.associatedMRNsAnswer
-
   def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
-    })
+    }
   }
 
   def deleteMrn(mrnIndex: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, maybeAssociatedMRNs) =>
+      request.using { case journey: FillingOutClaim =>
         def redirectToShowMrnsPage() =
           Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
 
-        val idx = mrnIndex.toRegular
-
-        val maybeUpdatedClaim = for {
-          mrns    <- maybeAssociatedMRNs.map(_.toList)
-          updated <- AssociatedMRNsAnswer(mrns.take(idx) ++ mrns.drop(idx + 1))
-          claim    = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = updated.some))
-        } yield claim
-
-        OptionT
-          .fromOption[Future](maybeUpdatedClaim)
-          .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
-          .fold(redirectToShowMrnsPage())(
-            _.fold(
-              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
-              _ => redirectToShowMrnsPage()
+        val updatedAssociatedMRNsAnswer            = journey.draftClaim.associatedMRNsAnswer.remove(mrnIndex)
+        val updatedAssociatedMRNsDeclarationAnswer = journey.draftClaim.associatedMRNsDeclarationAnswer.remove(mrnIndex)
+        val updatedClaim                           =
+          FillingOutClaim.of(journey)(
+            _.copy(
+              associatedMRNsAnswer = updatedAssociatedMRNsAnswer,
+              associatedMRNsDeclarationAnswer = updatedAssociatedMRNsDeclarationAnswer
             )
+          )
+
+        EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedClaim.some)))
+          .fold(
+            logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
+            _ => redirectToShowMrnsPage()
           )
       }
   }
 
   def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       whetherAddAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(
           formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
           {
             case YesAddAnotherMrn   =>
-              Redirect(routes.EnterAssociatedMrnController.enterMrn(journey.draftClaim.MRNs.total + 1))
+              Redirect(
+                routes.EnterAssociatedMrnController
+                  .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
+              )
             case DoNotAddAnotherMrn =>
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
           }
         )
-    })
+    }
   }
 }
 

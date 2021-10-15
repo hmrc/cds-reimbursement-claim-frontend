@@ -191,6 +191,8 @@ enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number
 enter-associated-mrn.invalid.number=Enter a movement reference number
 enter-associated-mrn.error.exists=You have already entered this MRN. Enter a different MRN
+enter-associated-mrn.error.eori-not-matching=The MRN number you entered is not linked to your EORI number
+enter-associated-mrn.error.missing-declaration=This MRN does not exist
 
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS

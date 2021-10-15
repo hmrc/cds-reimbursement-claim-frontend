@@ -19,11 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.DeclarationAnswersAreCorrect
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.DeclarationAnswersAreIncorrect
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ThirdPartyImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -49,7 +51,7 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     "enter importer Eori number when there is a 3rd party importer" in {
       forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(ThirdPartyImporter(sample[DisplayDeclaration])) shouldBe
-          claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+          claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(router.journeyBindable)
       }
     }
   }
@@ -95,22 +97,21 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     val scheduledRoutes = Table("Scheduled routes", MRNScheduledRoutes)
     val singleRoutes    = Table("Single routes", MRNSingleRoutes)
-    val nextMrnIndex    = sample[Int]
 
     "be upload schedule for the schedule journey" in forAll(scheduledRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect)(nextMrnIndex) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect, false) should be(
         fileUploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
       )
     }
 
     "be select who is making claim for the single journey" in forAll(singleRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect)(nextMrnIndex) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreCorrect, false) should be(
         claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable)
       )
     }
 
     "be enter journey MRN having incorrect declaration" in forAll(allRoutes) { router =>
-      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect)(nextMrnIndex) should be(
+      router.nextPageForCheckDeclarationDetails(DeclarationAnswersAreIncorrect, false) should be(
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable)
       )
     }

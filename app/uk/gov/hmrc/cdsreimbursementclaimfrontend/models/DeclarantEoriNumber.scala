@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import play.api.libs.json.{Json, OFormat}
 
-object SessionDataGen {
+final case class DeclarantEoriNumber(value: Eori)
 
-  import JourneyStatusGen._
-  import UserTypeGen._
-
-  implicit lazy val arbitrarySessionData: Typeclass[SessionData] = gen[SessionData]
-
+object DeclarantEoriNumber {
+  implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
 }

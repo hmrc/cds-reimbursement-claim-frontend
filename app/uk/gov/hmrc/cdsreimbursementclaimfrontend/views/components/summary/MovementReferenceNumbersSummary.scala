@@ -48,8 +48,7 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
         )
       )
 
-    def toAssociatedMrnSummary: (AssociatedMrn, Int) => SummaryListRow = (mrn, index) => {
-      val mrnIndex = AssociatedMrnIndex.fromRegular(index)
+    def toAssociatedMrnSummary: (AssociatedMrn, AssociatedMrnIndex) => SummaryListRow = (mrn, mrnIndex) => {
       SummaryListRow(
         key = Key(Text(messages(s"$key.associated-mrn-label", mrnIndex.ordinalNumeral.capitalize))),
         value = Value(Text(mrn.value)),
@@ -68,7 +67,9 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
 
     SummaryList(
       answers.headOption.map(toLeadMrnSummary).toList ++
-        answers.drop(1).zipWithIndex.map(toAssociatedMrnSummary.tupled)
+        answers.drop(1).zipWithIndex.map { case (mrn, index) =>
+          toAssociatedMrnSummary(mrn, AssociatedMrnIndex.fromListIndex(index))
+        }
     )
   }
 }

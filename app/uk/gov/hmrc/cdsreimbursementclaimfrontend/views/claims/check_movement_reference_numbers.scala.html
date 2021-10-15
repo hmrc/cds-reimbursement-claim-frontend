@@ -68,7 +68,7 @@
                 <dd class="govuk-summary-list__actions"></dd>
             </div>
             @references.drop(1).zipWithIndex.map { mrnWithIndex =>
-                @defining(AssociatedMrnIndex.fromRegular(mrnWithIndex._2)) { index =>
+                @defining(AssociatedMrnIndex.fromListIndex(mrnWithIndex._2)) { index =>
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">@messages(s"$checkYourAnswersKey.reference-number.associated-mrn-label", index.ordinalNumeral.capitalize)</dt>
                         <dd class="govuk-summary-list__value">@mrnWithIndex._1.value</dd>

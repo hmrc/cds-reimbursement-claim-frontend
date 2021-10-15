@@ -39,6 +39,12 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.CheckDuplicateDeclarationDetailsController.submit(journeyBindable)
 
+  def submitUrlForEnterImporterEoriNumber(): Call =
+    claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumberSubmit(journeyBindable)
+
+  def submitUrlForEnterDeclarantEoriNumber(): Call =
+    claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
+
   def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
     if (isAmend)
       claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)
@@ -91,15 +97,19 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def nextPageForCheckDeclarationDetails(
-    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer
-  )(nextMrnIndex: => AssociatedMrnIndex): Call =
+    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer,
+    hasAssociatedMrns: Boolean
+  ): Call =
     checkDeclarationDetailsAnswer match {
       case DeclarationAnswersAreCorrect   =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
             uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
           case JourneyBindable.Multiple  =>
-            claimRoutes.EnterAssociatedMrnController.enterMrn(nextMrnIndex)
+            if (hasAssociatedMrns)
+              claimRoutes.CheckMovementReferenceNumbersController.showMrns()
+            else
+              claimRoutes.EnterAssociatedMrnController.enterMrn(AssociatedMrnIndex.fromListIndex(0))
           case _                         =>
             claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
         }
@@ -247,11 +257,11 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
   val journeyBindable: JourneyBindable
   def nextPageForEnterMRN(importer: MrnJourney): Call     = importer match {
     case _: MrnImporter => claimRoutes.CheckDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = importer match {
     case _: MrnImporter => claimRoutes.CheckDuplicateDeclarationDetailsController.show(journeyBindable)
-    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber()
+    case _              => claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(journeyBindable)
   }
 }
 

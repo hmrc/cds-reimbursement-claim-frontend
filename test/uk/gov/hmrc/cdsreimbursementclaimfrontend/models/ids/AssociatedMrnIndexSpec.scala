@@ -28,7 +28,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Converting MRN and original index back and forth" should {
     "match" in {
       forAll { original: Int =>
-        AssociatedMrnIndex.fromRegular(original).toRegular should be(original)
+        AssociatedMrnIndex.fromListIndex(original).toListIndex should be(original)
       }
     }
   }
@@ -36,7 +36,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Adding number to MRN index" should {
     "increase its value" in {
       forAll { mrnIndex: AssociatedMrnIndex =>
-        mrnIndex + mrnIndex should be(AssociatedMrnIndex(mrnIndex.value * 2))
+        mrnIndex + 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex + 2))
       }
     }
   }
@@ -44,7 +44,7 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
   "Subtracting number from MRN index" should {
     "decrease its value" in {
       forAll { mrnIndex: AssociatedMrnIndex =>
-        mrnIndex - mrnIndex should be(AssociatedMrnIndex(0))
+        mrnIndex - 2 should be(AssociatedMrnIndex(mrnIndex.urlIndex - 2))
       }
     }
   }
