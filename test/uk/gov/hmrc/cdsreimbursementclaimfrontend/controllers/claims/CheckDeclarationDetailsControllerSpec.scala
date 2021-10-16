@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Functor
-import cats.Id
+import cats.{Functor, Id}
 import org.jsoup.Jsoup
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -25,25 +24,25 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
-import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 
-import scala.concurrent.Future
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
