@@ -33,7 +33,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DeclarantEoriNumber, DraftClaim, ImporterEoriNumber, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, SelectNumberOfClaimsAnswer}
 
 import java.util.UUID
 

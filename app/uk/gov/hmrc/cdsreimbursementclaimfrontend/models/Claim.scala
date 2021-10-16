@@ -20,7 +20,6 @@ import cats.data.NonEmptyList
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim.{PaymentMethod, PaymentReference}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
 import java.util.UUID
 

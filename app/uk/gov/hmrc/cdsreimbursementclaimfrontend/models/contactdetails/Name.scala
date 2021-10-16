@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 
-final case class VerifiedEmail(address: String, timestamp: String) {
-  def toEmail: Email = Email(address)
-}
+final case class Name(name: Option[String], lastName: Option[String])
 
-object VerifiedEmail {
-  implicit val verifiedEmailFormat: OFormat[VerifiedEmail] = Json.format[VerifiedEmail]
+object Name {
 
+  def fromGGName(maybeName: Option[uk.gov.hmrc.auth.core.retrieve.Name]): Option[Name] =
+    maybeName.map { name =>
+      Name(name.name, name.lastName)
+    }
+
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

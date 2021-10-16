@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-import play.api.data.Form
-import play.api.data.Forms.{bigDecimal, mapping}
 import play.api.libs.json.{Json, OFormat}
 
-final case class ClaimAmount(amount: BigDecimal)
+final case class ImporterEoriNumber(value: Eori)
 
-object ClaimAmount {
-  val claimAmountForm: Form[ClaimAmount]    = Form(
-    mapping(
-      "claim" -> bigDecimal
-    )(ClaimAmount.apply)(ClaimAmount.unapply)
-  )
-  implicit val format: OFormat[ClaimAmount] = Json.format[ClaimAmount]
+object ImporterEoriNumber {
+
+  implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
 }

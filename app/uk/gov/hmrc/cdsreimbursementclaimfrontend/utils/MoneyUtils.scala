@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-sealed trait DisplayFormat extends Product with Serializable
+import java.util.Locale
 
-object DisplayFormat {
-  case object Block extends DisplayFormat
-  case object Line extends DisplayFormat
+object MoneyUtils {
+
+  private val currencyFormatter =
+    java.text.NumberFormat.getCurrencyInstance(Locale.UK)
+
+  def formatAmountOfMoneyWithPoundSign(d: BigDecimal): String =
+    currencyFormatter.format(d)
 }

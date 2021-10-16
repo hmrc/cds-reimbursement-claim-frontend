@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{RetrievedUserType, UserType}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -157,7 +157,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
             ggCredId,
             maybeEmail.map(Email(_)),
             eori,
-            models.Name.fromGGName(name)
+            models.contactdetails.Name.fromGGName(name)
           ),
           Some(userType),
           request
@@ -165,7 +165,7 @@ class AuthenticatedActionWithRetrievedData @Inject() (
 
       } else {
         AuthenticatedRequestWithRetrievedData(
-          RetrievedUserType.Organisation(ggCredId, eori, models.Name.fromGGName(name)),
+          RetrievedUserType.Organisation(ggCredId, eori, models.contactdetails.Name.fromGGName(name)),
           Some(userType),
           request
         )

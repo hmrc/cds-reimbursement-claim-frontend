@@ -16,27 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
-sealed trait ReasonForClaim extends Product with Serializable {
-  def repr: String
-}
+final case class Duty(taxCode: TaxCode)
 
-object ReasonForClaim {
-
-  case object MailForOrderGoods extends ReasonForClaim {
-    override def repr = "Mail order goods - duties not due"
-  }
-
-  case object Overpayment extends ReasonForClaim {
-    override def repr = "Overpayment"
-  }
-
-  case object SpecialGoods extends ReasonForClaim {
-    override def repr = "Special circumstances"
-  }
-
-  implicit val format: OFormat[ReasonForClaim] = derived.oformat[ReasonForClaim]()
-
+object Duty {
+  implicit val format: OFormat[Duty] = Json.format[Duty]
 }

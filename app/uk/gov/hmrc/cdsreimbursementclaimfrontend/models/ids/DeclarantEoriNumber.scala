@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
-final case class Duty(taxCode: TaxCode)
+final case class DeclarantEoriNumber(value: Eori)
 
-object Duty {
-  implicit val format: OFormat[Duty] = Json.format[Duty]
+object DeclarantEoriNumber {
+
+  implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
 }

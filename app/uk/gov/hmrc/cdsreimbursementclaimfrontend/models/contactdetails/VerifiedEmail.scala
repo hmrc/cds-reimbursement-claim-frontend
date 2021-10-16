@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
+import play.api.libs.json.{Json, OFormat}
 
-final case class NamePhoneEmail(
-  name: Option[String],
-  phoneNumber: Option[PhoneNumber],
-  email: Option[Email]
-) {
-  def nonEmpty(): Boolean = name.isDefined || phoneNumber.isDefined || email.isDefined
+final case class VerifiedEmail(address: String, timestamp: String) {
+  def toEmail: Email = Email(address)
+}
+
+object VerifiedEmail {
+  implicit val verifiedEmailFormat: OFormat[VerifiedEmail] = Json.format[VerifiedEmail]
+
 }

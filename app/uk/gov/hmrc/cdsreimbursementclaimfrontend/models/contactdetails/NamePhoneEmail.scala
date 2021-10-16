@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Format
-
-final case class ContactName(value: String) extends AnyVal
-
-object ContactName {
-
-  implicit val format: Format[ContactName] =
-    implicitly[Format[String]].inmap(ContactName(_), _.value)
-
+final case class NamePhoneEmail(
+  name: Option[String],
+  phoneNumber: Option[PhoneNumber],
+  email: Option[Email]
+) {
+  def nonEmpty(): Boolean = name.isDefined || phoneNumber.isDefined || email.isDefined
 }

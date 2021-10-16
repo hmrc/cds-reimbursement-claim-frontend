@@ -31,11 +31,11 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrieval, ~}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ControllerSpec, RetrievalOps, SessionSupport, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{RetrievedUserType, contactdetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -157,7 +157,7 @@ class AuthenticatedActionWithRetrievedDataSpec
               GGCredId("id"),
               Some(Email("email")),
               eori,
-              Some(models.Name(Some("John Smith"), Some("Smith")))
+              Some(contactdetails.Name(Some("John Smith"), Some("Smith")))
             )
         )
       }
