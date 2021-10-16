@@ -255,7 +255,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(checkContactDetailsKey -> "0"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "true"), journey),
           routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey)
         )
       }
@@ -276,10 +276,11 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(checkContactDetailsKey -> "1"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "false"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
+
       "the user does not select an option" in forAll(journeys) { journey =>
         val acc14           = generateAcc14WithAddresses()
         val (session, foc)  = getSessionWithPreviousAnswer(
@@ -301,41 +302,38 @@ class CheckContactDetailsMrnControllerSpec
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.required.add"
+              s"$checkContactDetailsKey.error.invalid"
             ),
           BAD_REQUEST
         )
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        forAll(Table("Invalid Answers", "2", "3")) { invalidAnswer =>
-          val acc14           = generateAcc14WithAddresses()
-          val (session, foc)  = getSessionWithPreviousAnswer(
-            Some(acc14),
-            Some(DeclarantTypeAnswer.Importer),
-            Some(toSelectNumberOfClaims(journey))
-          )
-          val fillingOutClaim = foc
+        val acc14           = generateAcc14WithAddresses()
+        val (session, foc)  = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey))
+        )
+        val fillingOutClaim = foc
 
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-          }
-
-          checkPageIsDisplayed(
-            submitAdd(Seq(checkContactDetailsKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$checkContactDetailsKey.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$checkContactDetailsKey.error.invalid"
-              ),
-            BAD_REQUEST
-          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
-      }
 
+        checkPageIsDisplayed(
+          submitAdd(Seq(), journey),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkContactDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
+        )
+      }
     }
 
     "handle change submit requests" when {
@@ -362,7 +360,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(checkContactDetailsKey -> "0"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "true"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
@@ -384,7 +382,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(checkContactDetailsKey -> "1"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "false"), journey),
           routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
@@ -410,44 +408,40 @@ class CheckContactDetailsMrnControllerSpec
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$checkContactDetailsKey.error.required.change"
+              s"$checkContactDetailsKey.error.invalid"
             ),
           BAD_REQUEST
         )
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        forAll(Table("Invalid Answers", "2", "3")) { invalidAnswer =>
-          val acc14   = generateAcc14WithAddresses()
-          val session = getSessionWithPreviousAnswer(
-            Some(acc14),
-            Some(DeclarantTypeAnswer.Importer),
-            Some(toSelectNumberOfClaims(journey)),
-            Some(sample[MrnContactDetails]),
-            Some(sample[ContactAddress].copy(country = Country.uk))
-          )._1
+        val acc14   = generateAcc14WithAddresses()
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
+        )._1
 
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkPageIsDisplayed(
-            submitChange(Seq(checkContactDetailsKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$checkContactDetailsKey.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$checkContactDetailsKey.error.invalid"
-              ),
-            BAD_REQUEST
-          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
         }
+
+        checkPageIsDisplayed(
+          submitChange(Seq.empty, journey),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkContactDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
+        )
       }
-
     }
-
   }
 
   "CheckContactDetailsMrnController Companion object" should {

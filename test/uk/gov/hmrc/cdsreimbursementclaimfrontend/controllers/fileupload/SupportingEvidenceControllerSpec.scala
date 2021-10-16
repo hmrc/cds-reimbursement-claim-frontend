@@ -36,16 +36,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
 class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
-  private val controller    = instanceOf[SupportingEvidenceController]
-  private val featureSwitch = instanceOf[FeatureSwitchService]
-
-  featureSwitch.EntryNumber.enable()
+  private val controller = instanceOf[SupportingEvidenceController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

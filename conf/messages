@@ -362,8 +362,7 @@ claimant-details.want-to-continue.hint=If you select No we will contact you usin
 claimant-details.yes=Yes
 claimant-details.no=No
 claimant-details.error.required.change=Select whether you wish to continue using these contact details.
-claimant-details.error.required.add=Select whether you wish to add different contact details
-claimant-details.error.invalid=Select whether you wish to remove contact details.
+claimant-details.error.invalid=Select whether you wish to add different contact details
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 
 #===================================================

@@ -193,7 +193,7 @@ class CheckMovementReferenceNumbersControllerSpec
         checkPageIsDisplayed(
           performActionWithData(Seq.empty),
           messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.invalid-answer"),
+          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.error.invalid"),
           BAD_REQUEST
         )
       }

@@ -77,5 +77,4 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
   case object BulkMultiple extends { val name = "bulk-multiple" } with FeatureName
   case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
-  case object EntryNumber extends { val name = "entry-number" } with FeatureName
 }

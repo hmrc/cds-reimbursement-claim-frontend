@@ -143,7 +143,7 @@ class CheckEoriDetailsControllerSpec
           mockGetEmail(Left(Error(new Exception("Boom"))))
         }
 
-        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "0")))
+        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
       "Redirect to Customs Email Frontend when no email associated for the given EORI" in {
@@ -156,7 +156,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(checkEoriDetailsKey -> "0")),
+          performAction(Seq(checkEoriDetailsKey -> "true")),
           "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"
         )
       }
@@ -171,7 +171,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Left(Error(new Exception("Wham"))))
         }
 
-        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "0")))
+        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
@@ -185,7 +185,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Right(()))
         }
 
-        val result = performAction(Seq(checkEoriDetailsKey -> "0"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "true"))
         checkIsRedirect(result, routes.SelectNumberOfClaimsController.show())
       }
 
@@ -200,7 +200,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Right(()))
         }
 
-        val result = performAction(Seq(checkEoriDetailsKey -> "0"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "true"))
         checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
       }
 
@@ -212,7 +212,7 @@ class CheckEoriDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        val result = performAction(Seq(checkEoriDetailsKey -> "1"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "false"))
         checkIsRedirect(result, viewConfig.ggSignOut)
       }
 
@@ -224,7 +224,7 @@ class CheckEoriDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        val result = performAction(Seq(CheckEoriDetailsController.checkEoriDetailsKey -> "2"))
+        val result = performAction(Seq())
 
         checkPageIsDisplayed(
           result,

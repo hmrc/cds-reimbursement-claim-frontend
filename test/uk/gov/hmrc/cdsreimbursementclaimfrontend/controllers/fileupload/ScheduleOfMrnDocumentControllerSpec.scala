@@ -32,14 +32,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ContactName, DraftClaim, SessionData, SignedInUserDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
-  private lazy val controller             = instanceOf[ScheduleOfMrnDocumentController]
-  val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
-
-  featureSwitch.EntryNumber.enable()
+  private lazy val controller = instanceOf[ScheduleOfMrnDocumentController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 

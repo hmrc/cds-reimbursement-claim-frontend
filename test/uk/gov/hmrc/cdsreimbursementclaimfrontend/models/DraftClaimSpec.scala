@@ -112,7 +112,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
         forAll { mrn: MRN =>
           DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
-            .MRNs() should be(List(mrn.value))
+            .MRNs() should be(List(mrn))
         }
       }
     }

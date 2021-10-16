@@ -107,7 +107,6 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.enable()
-        featureSwitch.EntryNumber.disable()
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -129,7 +128,6 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.disable()
-        featureSwitch.EntryNumber.enable()
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)

@@ -205,11 +205,10 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
-          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "0")),
+          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "true")),
           routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
@@ -220,11 +219,10 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "1")),
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
@@ -251,46 +249,25 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "the user submits an incorrect answer" in forAll(journeys) { journey =>
-        forAll(Table("incorrect answers", "2", "")) { incorrectAnswer =>
-          val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session._1)
-          }
-
-          checkPageIsDisplayed(
-            performAction(journey, Seq(checkDeclarationDetailsKey -> incorrectAnswer)),
-            messageFromMessageKey("check-declaration-details.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$checkDeclarationDetailsKey.error.invalid"
-              ),
-            BAD_REQUEST
-          )
-        }
-      }
-
-      "the user submits a valid answer, but mongodb is down" in forAll(journeys) { journey =>
         val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Left(Error("Mongo is Down")))
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
-          "Sorry, we’re experiencing technical difficulties",
-          _ => (),
-          INTERNAL_SERVER_ERROR
+          performAction(journey, Seq.empty),
+          messageFromMessageKey("check-declaration-details.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkDeclarationDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
         )
       }
-
     }
-
   }
 }

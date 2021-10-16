@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.{Functor, Id}
-import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -40,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.util.UUID
 import org.scalacheck.Gen
@@ -54,18 +52,14 @@ class EnterClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with BeforeAndAfterEach
     with ScalaCheckDrivenPropertyChecks {
+
   lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
-
-  val featureSwitch: FeatureSwitchService = instanceOf[FeatureSwitchService]
-
-  override def beforeEach(): Unit = featureSwitch.EntryNumber.enable()
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
 
@@ -238,8 +232,7 @@ class EnterClaimControllerSpec
       )
     }
 
-    //TODO finish error page
-    "render an error when the claim id doesn't exist anymore" in {
+    "redirect to ineligible page when the claim id doesn't exist anymore" in {
       val session = createSessionWithPreviousAnswers(None)._1
 
       inSequence {
@@ -247,9 +240,10 @@ class EnterClaimControllerSpec
         mockGetSession(session)
       }
 
-      val result = performAction(UUID.randomUUID())
-      status(result)          shouldBe OK
-      contentAsString(result) shouldBe "This claim no longer exists"
+      checkIsRedirect(
+        performAction(UUID.randomUUID()),
+        baseRoutes.IneligibleController.ineligible()
+      )
     }
 
     "render when the user has not answered this question before" in {
