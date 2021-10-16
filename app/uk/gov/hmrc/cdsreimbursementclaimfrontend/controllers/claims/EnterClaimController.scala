@@ -19,24 +19,23 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.implicits.{catsSyntaxEq, _}
 import com.google.inject.{Inject, Singleton}
-import julienrf.json.derived
 import play.api.Configuration
 import play.api.data.Form
-import play.api.data.Forms.{mapping, number}
-import play.api.libs.json.OFormat
+import play.api.data.Forms.mapping
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{ClaimAmount, ClaimAndPaidAmount, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, Error, upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
@@ -56,7 +55,6 @@ class EnterClaimController @Inject() (
   val featureSwitch: FeatureSwitchService,
   val config: Configuration,
   enterClaimPage: pages.enter_claim,
-  enterEntryClaimPage: pages.enter_entry_claim,
   checkClaimSummaryPage: pages.check_claim_summary
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -86,27 +84,15 @@ class EnterClaimController @Inject() (
 
   def enterClaim(id: UUID): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, answer) =>
-        answer.flatMap(_.find(_.id === id)) match {
-          case Some(claim) =>
-            fillingOutClaim.draftClaim.isMrnFlow match {
-              case true  =>
-                val emptyForm = mrnClaimAmountForm(claim.paidAmount)
-                val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
-                Ok(enterClaimPage(id, form, claim))
-              case false =>
-                val form = Either
-                  .cond(
-                    claim.isFilled,
-                    entryClaimAmountForm.fill(ClaimAndPaidAmount(claim.paidAmount, claim.claimAmount)),
-                    entryClaimAmountForm
-                  )
-                  .merge
-                Ok(enterEntryClaimPage(id, form, claim))
-            }
-          case None        =>
-            Ok("This claim no longer exists") //TODO replace this with the a proper error page
-        }
+      withAnswers[ClaimsAnswer] { (_, answer) =>
+        answer
+          .flatMap(_.find(_.id === id))
+          .map { claim =>
+            val emptyForm = mrnClaimAmountForm(claim.paidAmount)
+            val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
+            Future.successful(Ok(enterClaimPage(id, form, claim)))
+          }
+          .getOrElse(Future.successful(Redirect(baseRoutes.IneligibleController.ineligible())))
       }
     }
 
@@ -121,39 +107,20 @@ class EnterClaimController @Inject() (
               case None        =>
                 Redirect(routes.EnterClaimController.startClaim())
               case Some(claim) =>
-                fillingOutClaim.draftClaim.isMrnFlow match {
-                  case true  =>
-                    mrnClaimAmountForm(claim.paidAmount)
-                      .bindFromRequest()
-                      .fold(
-                        formWithErrors => {
-                          val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                          BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
-                        },
-                        formOk => {
-                          val newClaim = claim.copy(claimAmount = formOk.amount, isFilled = true)
-                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
-                        }
-                      )
-                  case false =>
-                    entryClaimAmountForm
-                      .bindFromRequest()
-                      .fold(
-                        formWithErrors => {
-                          val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                          BadRequest(enterEntryClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
-                        },
-                        formOk => {
-                          val newClaim =
-                            claim
-                              .copy(paidAmount = formOk.paidAmount, claimAmount = formOk.claimAmount, isFilled = true)
-                          replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
-                        }
-                      )
-                }
+                mrnClaimAmountForm(claim.paidAmount)
+                  .bindFromRequest()
+                  .fold(
+                    formWithErrors => {
+                      val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
+                      BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
+                    },
+                    formOk => {
+                      val newClaim = claim.copy(claimAmount = formOk.amount, isFilled = true)
+                      replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
+                    }
+                  )
             }
         }
-
       }
     }
 
@@ -161,7 +128,7 @@ class EnterClaimController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (_, answers) =>
         answers match {
-          case Some(claims) => Ok(checkClaimSummaryPage(claims, checkClaimAnswerForm))
+          case Some(claims) => Ok(checkClaimSummaryPage(claims, whetherClaimCorrect))
           case None         => Redirect(routes.EnterClaimController.startClaim())
         }
       }
@@ -170,35 +137,23 @@ class EnterClaimController @Inject() (
   def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ClaimsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
-        EnterClaimController.checkClaimAnswerForm
+        whetherClaimCorrect
           .bindFromRequest()
           .fold(
             formWithErrors =>
               fillingOutClaim.draftClaim.claimsAnswer
                 .map(claims => Future.successful(BadRequest(checkClaimSummaryPage(claims, formWithErrors))))
                 .getOrElse(Future.successful(errorHandler.errorResult())),
-            { claims =>
-              val newDraftClaim  = fillingOutClaim.draftClaim.copy(checkClaimAnswer = Some(claims))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+            {
+              case Yes =>
+                fillingOutClaim.draftClaim match {
+                  case claim: DraftClaim if isCmaEligible(claim) =>
+                    Redirect(reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod())
+                  case _                                         =>
+                    Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
+                }
 
-              val result = EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap(_ => Error("could not update session"))
-
-              result.fold(
-                logAndDisplayError("could not get radio button details"),
-                _ =>
-                  claims match {
-                    case ClaimAnswersAreCorrect =>
-                      fillingOutClaim.draftClaim match {
-                        case claim: DraftClaim if isCmaEligible(claim) =>
-                          Redirect(reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod())
-                        case _                                         =>
-                          Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
-                      }
-
-                    case ClaimAnswersAreIncorrect => Redirect(routes.SelectDutiesController.selectDuties())
-                  }
-              )
+              case No => Redirect(routes.SelectDutiesController.selectDuties())
             }
           )
       }
@@ -217,9 +172,8 @@ class EnterClaimController @Inject() (
   ): Future[Result] = {
     val newDraftClaim  = fillingOutClaim.draftClaim.copy(claimsAnswer = Some(claimAnswer))
     val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
-    EitherT
-      .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-      .leftMap((_: Unit) => Error("could not update session"))
+    EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+      .leftMap(_ => Error("could not update session"))
       .fold(logAndDisplayError("could not save claims"), _ => nextPage)
   }
 
@@ -237,16 +191,6 @@ class EnterClaimController @Inject() (
 object EnterClaimController {
 
   final case class ClaimAmount(amount: BigDecimal)
-
-  final case class ClaimAndPaidAmount(paidAmount: BigDecimal, claimAmount: BigDecimal)
-
-  val entryClaimAmountForm: Form[ClaimAndPaidAmount] = Form(
-    mapping(
-      "enter-claim.paid-amount"  -> moneyMapping(13, 2, "paid-amount.error.invalid"),
-      "enter-claim.claim-amount" -> moneyMapping(13, 2, "claim-amount.error.invalid")
-    )(ClaimAndPaidAmount.apply)(ClaimAndPaidAmount.unapply)
-      .verifying("invalid.claim", a => a.claimAmount <= a.paidAmount)
-  )
 
   def isCmaEligible(draftC285Claim: DraftClaim): Boolean = {
     val duties = selectedDuties(draftC285Claim)
@@ -290,58 +234,16 @@ object EnterClaimController {
           case Some(claim) => Some(claim)
           case None        => //No Claim for the given Duty, we have to create one
             ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode.value) match {
-              case Some(ndrc) => Some(claimFromNdrc(ndrc))
-              case None       => Some(claimFromDuty(duty))
+              case Some(ndrc) => Some(Claim.fromNdrc(ndrc))
+              case None       => Some(Claim.fromDuty(duty))
             }
         }
       })
       .map(_.flatten(Option.option2Iterable).toList)
   }
 
-  private def claimFromDuty(duty: Duty): Claim = Claim(
-    UUID.randomUUID(),
-    "001",
-    "Unknown",
-    duty.taxCode.value,
-    BigDecimal(0.0),
-    BigDecimal(0.0),
-    isFilled = false
-  )
+  val checkClaimSummaryKey: String = "check-claim-summary"
 
-  private def claimFromNdrc(ndrc: NdrcDetails): Claim = Claim(
-    UUID.randomUUID(),
-    ndrc.paymentMethod,
-    ndrc.paymentReference,
-    ndrc.taxType,
-    BigDecimal(ndrc.amount),
-    BigDecimal(0.0),
-    isFilled = false
-  )
-
-  sealed trait CheckClaimAnswer extends Product with Serializable
-
-  case object ClaimAnswersAreCorrect extends CheckClaimAnswer
-  case object ClaimAnswersAreIncorrect extends CheckClaimAnswer
-
-  implicit val checkClaimAnswerFormat: OFormat[CheckClaimAnswer] = derived.oformat[CheckClaimAnswer]()
-
-  val messageKey: String = "check-claim-summary"
-
-  val checkClaimAnswerForm: Form[CheckClaimAnswer] =
-    Form(
-      mapping(
-        messageKey -> number
-          .verifying("invalid", a => a === 0 || a === 1)
-          .transform[CheckClaimAnswer](
-            value =>
-              if (value === 0) ClaimAnswersAreCorrect
-              else ClaimAnswersAreIncorrect,
-            {
-              case ClaimAnswersAreCorrect   => 0
-              case ClaimAnswersAreIncorrect => 1
-            }
-          )
-      )(identity)(Some(_))
-    )
-
+  val whetherClaimCorrect: Form[YesNo] =
+    YesOrNoQuestionForm(checkClaimSummaryKey)
 }

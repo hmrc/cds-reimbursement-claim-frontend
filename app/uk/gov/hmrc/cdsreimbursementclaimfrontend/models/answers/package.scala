@@ -73,34 +73,34 @@ package object answers {
 
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 
-    final def get(i: AssociatedMrnIndex): Option[A] =
+    def get(i: AssociatedMrnIndex): Option[A] =
       get(i.toListIndex)
 
-    final def get(index: Int): Option[A] =
+    def get(index: Int): Option[A] =
       answer.flatMap { list =>
         if (index < 0 || index >= list.length) None
         else list.toList.drop(index).headOption
       }
 
-    final def canAppendAt(i: AssociatedMrnIndex): Boolean =
+    def canAppendAt(i: AssociatedMrnIndex): Boolean =
       canAppendAt(i.toListIndex)
 
-    final def canAppendAt(index: Int): Boolean =
+    def canAppendAt(index: Int): Boolean =
       index >= 0 && (answer match {
         case None       => index === 0
         case Some(list) => index === list.length
       })
 
-    final def isDefinedAt(i: AssociatedMrnIndex): Boolean =
+    def isDefinedAt(i: AssociatedMrnIndex): Boolean =
       isDefinedAt(i.toListIndex)
 
-    final def isDefinedAt(index: Int): Boolean =
-      index >= 0 && answer.map(_.length > index).getOrElse(false)
+    def isDefinedAt(index: Int): Boolean =
+      index >= 0 && answer.exists(_.length > index)
 
-    final def replaceOrAppend(i: AssociatedMrnIndex, item: A): Either[String, Option[NonEmptyList[A]]] =
+    def replaceOrAppend(i: AssociatedMrnIndex, item: A): Either[String, Option[NonEmptyList[A]]] =
       replaceOrAppend(i.toListIndex, item)
 
-    final def replaceOrAppend(index: Int, item: A): Either[String, Option[NonEmptyList[A]]] =
+    def replaceOrAppend(index: Int, item: A): Either[String, Option[NonEmptyList[A]]] =
       if (index < 0) Left("Index must be greater or equal to zero")
       else
         answer match {
@@ -111,29 +111,29 @@ package object answers {
           case Some(list)                         => Left(s"Expected index lower or equal to ${list.length} but was $index")
         }
 
-    final def remove(i: AssociatedMrnIndex): Option[NonEmptyList[A]] =
+    def remove(i: AssociatedMrnIndex): Option[NonEmptyList[A]] =
       remove(i.toListIndex)
 
-    final def remove(index: Int): Option[NonEmptyList[A]] =
+    def remove(index: Int): Option[NonEmptyList[A]] =
       if (index < 0) answer
       else
         answer.flatMap { list =>
           NonEmptyList.fromList(list.toList.take(index) ::: list.toList.drop(index + 1))
         }
 
-    final def list: List[A] = answer.map(_.toList).getOrElse(Nil)
+    def list: List[A] = answer.map(_.toList).getOrElse(Nil)
 
-    final def listAllElementsExceptAt(i: AssociatedMrnIndex): List[A] =
+    def listAllElementsExceptAt(i: AssociatedMrnIndex): List[A] =
       listAllElementsExceptAt(i.toListIndex)
 
-    final def listAllElementsExceptAt(index: Int): List[A] =
+    def listAllElementsExceptAt(index: Int): List[A] =
       answer
         .map { list =>
           list.toList.take(index) ::: list.toList.drop(index + 1)
         }
         .getOrElse(Nil)
 
-    final def length: Int = answer.map(_.length).getOrElse(0)
+    def length: Int = answer.map(_.length).getOrElse(0)
   }
 
 }

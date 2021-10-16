@@ -25,7 +25,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -89,9 +89,8 @@ class EnterCommoditiesDetailsController @Inject() (
                 fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not get commodity details"),
                   _ => Redirect(router.nextPageForCommoditiesDetails(isAmend))

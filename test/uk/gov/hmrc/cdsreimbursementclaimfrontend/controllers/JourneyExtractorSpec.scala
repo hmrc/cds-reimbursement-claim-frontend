@@ -22,7 +22,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._

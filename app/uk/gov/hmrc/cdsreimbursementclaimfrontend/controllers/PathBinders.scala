@@ -26,8 +26,7 @@ object PathBinders {
       override def bind(key: String, value: String): Either[String, AssociatedMrnIndex] =
         for {
           index <- intBinder.bind(key, value)
-          user  <- if (index >= 2) Right(AssociatedMrnIndex.fromUrlIndex(index))
-                   else Left("Invalid MRN index")
+          user  <- Either.cond(index >= 2, AssociatedMrnIndex.fromUrlIndex(index), "Invalid MRN index")
         } yield user
 
       override def unbind(key: String, associatedMrnIndex: AssociatedMrnIndex): String =

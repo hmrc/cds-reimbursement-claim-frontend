@@ -19,8 +19,8 @@
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.CheckEoriDetailsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -36,7 +36,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(userDetails : SignedInUserDetails, form:Form[CheckEoriDetailsAnswer], postAction : Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(userDetails: SignedInUserDetails, form: Form[YesNo], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-eori-details"}
 @title = @{messages(s"$key.title")}
@@ -62,14 +62,12 @@
             inline = true,
             items = Seq(
                 RadioItem(
-                    id = Some(s"$key"),
-                    value = Some("0"),
+                    value = Some("true"),
                     content = Text(messages(s"$key.eori-correct")),
                     checked = false
                 ),
                 RadioItem(
-                    id = Some(s"$key-eori-incorrect"),
-                    value = Some("1"),
+                    value = Some("false"),
                     content = Text(messages(s"$key.eori-incorrect")),
                     checked = false
                 )
@@ -78,7 +76,4 @@
 
         @submitButton("button.continue")
     }
-
-
 }
-

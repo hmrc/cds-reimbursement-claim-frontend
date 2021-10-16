@@ -24,12 +24,15 @@ sealed trait ReasonForClaim extends Product with Serializable {
 }
 
 object ReasonForClaim {
+
   case object MailForOrderGoods extends ReasonForClaim {
     override def repr = "Mail order goods - duties not due"
   }
+
   case object Overpayment extends ReasonForClaim {
     override def repr = "Overpayment"
   }
+
   case object SpecialGoods extends ReasonForClaim {
     override def repr = "Special circumstances"
   }

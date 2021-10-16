@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
 import com.google.inject.{ImplementedBy, Inject}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, Error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}

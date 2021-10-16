@@ -32,7 +32,8 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ClaimantDetailsHelper @Inject() () {
-  protected val key = CheckContactDetailsMrnController.languageKey
+
+  protected val key = CheckContactDetailsMrnController.checkContactDetailsKey
 
   def renderDetailsRegisteredWithCDS(
     namePhoneEmail: NamePhoneEmail,

@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, RetrievedUserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

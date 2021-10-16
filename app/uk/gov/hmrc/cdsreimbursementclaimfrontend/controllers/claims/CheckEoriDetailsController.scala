@@ -17,21 +17,22 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.syntax.eq._
 import com.google.inject.Inject
-import shapeless._
-import play.api.{Configuration, Environment}
 import play.api.data.Form
-import play.api.data.Forms.{mapping, number}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.{Configuration, Environment}
 import play.twirl.api.HtmlFormat.Appendable
+import shapeless._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{EnvironmentOps, ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SessionData, SignedInUserDetails, VerifiedEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{CustomsDataStoreService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -62,7 +63,7 @@ class CheckEoriDetailsController @Inject() (
 
   protected def getPage(
     signedInUserDetails: SignedInUserDetails,
-    form: Form[CheckEoriDetailsAnswer]
+    form: Form[YesNo]
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages
@@ -85,19 +86,19 @@ class CheckEoriDetailsController @Inject() (
 
   def show(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
     request.signedInUserDetails
-      .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, checkEoriDetailsAnswerForm)))
+      .fold(Redirect(baseRoutes.StartController.start()))(user => Ok(getPage(user, whetherEoriDetailsCorrect)))
   }
 
   def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withSessionData { fillingOutClaim =>
       request.signedInUserDetails
         .map { user =>
-          checkEoriDetailsAnswerForm
+          whetherEoriDetailsCorrect
             .bindFromRequest()
             .fold(
               formWithErrors => Future.successful(BadRequest(getPage(user, formWithErrors))),
               {
-                case EoriDetailsAreCorrect =>
+                case Yes =>
                   import Logging._
 
                   val logError: Error => Unit = error => logger.warn(s"Error submitting Eori check", error)
@@ -126,7 +127,7 @@ class CheckEoriDetailsController @Inject() (
 
                   eitherErrorOrNextPage.merge
 
-                case EoriDetailsAreIncorrect => Future.successful(Redirect(viewConfig.ggSignOut))
+                case No => Future.successful(Redirect(viewConfig.ggSignOut))
               }
             )
         }
@@ -144,28 +145,7 @@ class CheckEoriDetailsController @Inject() (
 
 object CheckEoriDetailsController {
 
-  sealed trait CheckEoriDetailsAnswer extends Product with Serializable
+  val checkEoriDetailsKey: String = "check-eori-details"
 
-  case object EoriDetailsAreCorrect extends CheckEoriDetailsAnswer
-  case object EoriDetailsAreIncorrect extends CheckEoriDetailsAnswer
-
-  val dataKey: String = "check-eori-details"
-
-  val checkEoriDetailsAnswerForm: Form[CheckEoriDetailsAnswer] =
-    Form(
-      mapping(
-        dataKey -> number
-          .verifying("invalid", a => a === 0 || a === 1)
-          .transform[CheckEoriDetailsAnswer](
-            value =>
-              if (value === 0) EoriDetailsAreCorrect
-              else EoriDetailsAreIncorrect,
-            {
-              case EoriDetailsAreCorrect   => 0
-              case EoriDetailsAreIncorrect => 1
-            }
-          )
-      )(identity)(Some(_))
-    )
-
+  val whetherEoriDetailsCorrect: Form[YesNo] = YesOrNoQuestionForm(checkEoriDetailsKey)
 }

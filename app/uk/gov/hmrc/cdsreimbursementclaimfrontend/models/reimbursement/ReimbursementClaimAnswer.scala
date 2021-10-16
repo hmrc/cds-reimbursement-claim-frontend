@@ -21,11 +21,9 @@ import cats.implicits.catsSyntaxSemigroup
 import cats.syntax.eq.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, PaymentMethod, PaymentReference, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer.ReimbursementClaimOps
-
-import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, TaxCode}
 
 final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
 
@@ -36,13 +34,9 @@ final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map
 
     def toClaim(taxCodeWithClaim: (TaxCode, ReimbursementClaim)) =
       Claim(
-        id = UUID.randomUUID(),
-        paymentMethod = PaymentMethod.`001`,
-        paymentReference = PaymentReference.none,
         taxCode = taxCodeWithClaim._1.value,
         paidAmount = taxCodeWithClaim._2.paidAmount,
-        claimAmount = taxCodeWithClaim._2.shouldOfPaid,
-        isFilled = false
+        claimAmount = taxCodeWithClaim._2.shouldOfPaid
       )
 
     for {

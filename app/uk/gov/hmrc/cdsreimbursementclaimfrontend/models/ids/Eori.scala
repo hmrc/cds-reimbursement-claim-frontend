@@ -16,23 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.toInvariantFunctorOps
+import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori.validityRegex
 
-import java.util.Locale
+final case class Eori(value: String) extends AnyVal {
 
-final case class EntryNumber(value: String) extends AnyVal
+  def isValid: Boolean = value matches validityRegex
+}
 
-object EntryNumber {
+object Eori {
 
-  def changeToUpperCaseWithoutSpaces(maybeEntryNumber: String): EntryNumber =
-    EntryNumber(maybeEntryNumber.toUpperCase(Locale.UK).replaceAll("\\s", ""))
+  private val validityRegex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
 
-  def isValid(maybeEntryNumber: String): Boolean = {
-
-    val entryNumberWithoutSpaces: String = maybeEntryNumber.toUpperCase(Locale.UK).replaceAll("\\s", "")
-    val entryNumberFormat                = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
-    entryNumberWithoutSpaces.matches(entryNumberFormat)
-  }
-
-  implicit val format: OFormat[EntryNumber] = Json.format[EntryNumber]
+  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
 }

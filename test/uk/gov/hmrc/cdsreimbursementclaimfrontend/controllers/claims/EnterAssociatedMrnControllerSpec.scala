@@ -48,9 +48,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, Eori, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -87,7 +85,7 @@ class EnterAssociatedMrnControllerSpec
 
   private def sessionWithClaimState(
     associatedMrns: List[MRN],
-    movementReferenceNumber: MovementReferenceNumber,
+    movementReferenceNumber: MRN,
     numberOfClaims: Option[SelectNumberOfClaimsAnswer],
     associatedDeclarations: List[DisplayDeclaration] = Nil,
     eori: Option[Eori] = None
@@ -140,11 +138,11 @@ class EnterAssociatedMrnControllerSpec
       controller.enterMrn(mrnIndex)(FakeRequest())
 
     "display the enter page" in {
-      forAll(genMovementReferenceNumber, Gen.nonEmptyListOf(genMRN)) { (reference, mrns) =>
+      forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (leadMrn, mrns) =>
         val (session, _, _) =
           sessionWithClaimState(
             mrns,
-            reference,
+            leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple)
           )
 
@@ -162,29 +160,28 @@ class EnterAssociatedMrnControllerSpec
     }
 
     "display the change page" in {
-      forAll(genMovementReferenceNumber, indexWithMrnGenerator) {
-        (mrn: MovementReferenceNumber, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
-          val associatedMrnIndex = indexWithMrns._1
+      forAll(genMRN, indexWithMrnGenerator) { (mrn: MRN, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
+        val associatedMrnIndex = indexWithMrns._1
 
-          def performAction(): Future[Result] =
-            controller.changeMrn(associatedMrnIndex)(FakeRequest())
+        def performAction(): Future[Result] =
+          controller.changeMrn(associatedMrnIndex)(FakeRequest())
 
-          val (session, _, _) =
-            sessionWithClaimState(
-              indexWithMrns._2,
-              mrn,
-              Some(SelectNumberOfClaimsAnswer.Multiple)
-            )
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkPageIsDisplayed(
-            performAction(),
-            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(associatedMrnIndex.toUrlIndex))
+        val (session, _, _) =
+          sessionWithClaimState(
+            indexWithMrns._2,
+            mrn,
+            Some(SelectNumberOfClaimsAnswer.Multiple)
           )
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(),
+          messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(associatedMrnIndex.toUrlIndex))
+        )
       }
 
     }
@@ -202,7 +199,7 @@ class EnterAssociatedMrnControllerSpec
         )
 
       "reject an invalid MRN" in {
-        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+        forAll(Gen.nonEmptyListOf(genMRN), genMRN) { (mrns, leadMrn) =>
           val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")
 
           val mrnIndex           = mrns.size + 1
@@ -210,7 +207,7 @@ class EnterAssociatedMrnControllerSpec
 
           val (session, _, _) = sessionWithClaimState(
             mrns,
-            reference,
+            leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple)
           )
 
@@ -230,7 +227,7 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "accept the same MRN when changing an existing" in {
-        forAll { (movementReferenceNumber: MovementReferenceNumber, mrn: MRN, mrns: List[MRN]) =>
+        forAll { (leadMrn: MRN, mrn: MRN, mrns: List[MRN]) =>
           val associatedMRNsAnswer = mrn +: mrns
 
           val displayDeclaration = sample[DisplayDeclaration]
@@ -240,7 +237,7 @@ class EnterAssociatedMrnControllerSpec
 
           val (session, _, _) = sessionWithClaimState(
             associatedMRNsAnswer,
-            movementReferenceNumber,
+            leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple),
             associatedDeclarations
           )
@@ -261,12 +258,12 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "reject the same MRN when entering new one" in {
-        forAll { (movementReferenceNumber: MovementReferenceNumber, mrn: MRN, mrns: List[MRN]) =>
+        forAll { (leadMrn: MRN, mrn: MRN, mrns: List[MRN]) =>
           val associatedMRNsAnswer = mrn +: mrns
 
           val (session, _, _) = sessionWithClaimState(
             associatedMRNsAnswer,
-            movementReferenceNumber,
+            leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple)
           )
 
@@ -288,11 +285,11 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "the user does not select an option and submits the page" in {
-        forAll(Gen.choose(0, 9), arbitraryMovementReferenceNumber.arbitrary) { (mrnIndex, reference) =>
+        forAll(Gen.choose(0, 9), arbitraryMrn.arbitrary) { (mrnIndex, leadMrn) =>
           val associatedMrnIndex = AssociatedMrnIndex.fromListIndex(mrnIndex)
 
           val (session, _, _) =
-            sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+            sessionWithClaimState(Nil, leadMrn, Some(SelectNumberOfClaimsAnswer.Multiple))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -320,14 +317,14 @@ class EnterAssociatedMrnControllerSpec
           )
         )
 
-        forAll(genMovementReferenceNumber, Gen.nonEmptyListOf(genMRN), genMRN) { (reference, mrns, mrn) =>
+        forAll(genMRN, Gen.nonEmptyListOf(genMRN), genMRN) { (leadMrn, mrns, mrn) =>
           val mrnForwardIndex: Int = mrns.size
           val associatedMrnIndex   = AssociatedMrnIndex.fromListIndex(mrnForwardIndex)
 
           val (session, _, _) =
             sessionWithClaimState(
               mrns,
-              reference,
+              leadMrn,
               Some(SelectNumberOfClaimsAnswer.Multiple),
               associatedDeclarations = mrns.map(_ => displayDeclaration),
               eori = Some(eori)

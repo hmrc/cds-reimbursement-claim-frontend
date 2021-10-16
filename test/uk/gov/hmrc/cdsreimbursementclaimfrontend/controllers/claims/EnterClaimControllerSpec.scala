@@ -27,9 +27,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.{CheckClaimAnswer, ClaimAnswersAreCorrect, ClaimAnswersAreIncorrect}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
@@ -39,12 +38,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+
 import java.util.UUID
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{genListNdrcDetails, genNdrcDetails}
+
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -74,8 +75,7 @@ class EnterClaimControllerSpec
     maybeClaimsAnswer: Option[ClaimsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
-    movementReferenceNumber: MovementReferenceNumber = sample[MovementReferenceNumber],
-    checkClaimAnswer: Option[CheckClaimAnswer] = None
+    movementReferenceNumber: MRN = sample[MRN]
   ): (SessionData, FillingOutClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -84,8 +84,7 @@ class EnterClaimControllerSpec
         maybeClaimsAnswer,
         maybeDutiesSelectedAnswer,
         ndrcDetails,
-        movementReferenceNumber,
-        checkClaimAnswer
+        movementReferenceNumber
       )
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
@@ -98,8 +97,7 @@ class EnterClaimControllerSpec
     maybeClaimsAnswer: Option[ClaimsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
-    movementReferenceNumber: MovementReferenceNumber = sample[MovementReferenceNumber],
-    checkClaimAnswer: Option[CheckClaimAnswer] = None
+    movementReferenceNumber: MRN = sample[MRN]
   ): DraftClaim = {
     val acc14 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = ndrcDetails))
@@ -109,8 +107,7 @@ class EnterClaimControllerSpec
       movementReferenceNumber = Some(movementReferenceNumber),
       claimsAnswer = maybeClaimsAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
-      displayDeclaration = Some(acc14),
-      checkClaimAnswer = checkClaimAnswer
+      displayDeclaration = Some(acc14)
     )
   }
 
@@ -326,7 +323,7 @@ class EnterClaimControllerSpec
       val answers = ClaimsAnswer(claim)
 
       val session        =
-        createSessionWithPreviousAnswers(Some(answers), None, None, sample[MovementReferenceNumber], None)._1
+        createSessionWithPreviousAnswers(Some(answers), None, None, sample[MRN])._1
       val updatedAnswer  = claim.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
       val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
 
@@ -355,7 +352,7 @@ class EnterClaimControllerSpec
       val answers = ClaimsAnswer(claim)
 
       val session =
-        createSessionWithPreviousAnswers(Some(answers), None, None, sample[MovementReferenceNumber], None)._1
+        createSessionWithPreviousAnswers(Some(answers), None, None, sample[MRN])._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -439,15 +436,14 @@ class EnterClaimControllerSpec
           Some(answers),
           Some(selectedDuties),
           Some(ndrcDetails),
-          sample[MovementReferenceNumber],
-          Some(ClaimAnswersAreCorrect)
+          sample[MRN]
         )._1
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
+      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
         reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod()
@@ -466,15 +462,14 @@ class EnterClaimControllerSpec
           Some(answers),
           None,
           None,
-          sample[MovementReferenceNumber],
-          Some(ClaimAnswersAreCorrect)
+          sample[MRN]
         )._1
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "0"))
+      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
@@ -494,15 +489,14 @@ class EnterClaimControllerSpec
           Some(answers),
           None,
           None,
-          sample[MovementReferenceNumber],
-          Some(ClaimAnswersAreIncorrect)
+          sample[MRN]
         )._1
 
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.messageKey -> "1"))
+      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "false"))
       checkIsRedirect(
         result,
         routes.SelectDutiesController.selectDuties()
@@ -538,84 +532,6 @@ class EnterClaimControllerSpec
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
       EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
-    }
-  }
-
-  "Entry Number Claim Amount Validation" must {
-    val form        = EnterClaimController.entryClaimAmountForm
-    val paidAmount  = "enter-claim.paid-amount"
-    val claimAmount = "enter-claim.claim-amount"
-
-    val goodData = Map(
-      paidAmount  -> "99999999999.99",
-      claimAmount -> "0.01"
-    )
-
-    "accept good declaration details" in {
-      val errors = form.bind(goodData).errors
-      errors shouldBe Nil
-    }
-
-    "paidAmount" should {
-      "Accept shortest possible paidAmount" in {
-        val errors = form.bind(goodData.updated(paidAmount, moneyGen(0, 2))).errors
-        errors shouldBe Nil
-      }
-      "Accept longest possible paidAmount" in {
-        val errors = form.bind(goodData.updated(paidAmount, moneyGen(11, 2))).errors
-        errors shouldBe Nil
-      }
-      "Reject paidAmount decimals only too many" in {
-        val errors = form.bind(goodData.updated(paidAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
-      }
-      "Reject paidAmount too many decimals" in {
-        val errors = form.bind(goodData.updated(paidAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
-      }
-      "Reject paidAmount too long" in {
-        val errors = form.bind(goodData.updated(paidAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
-      }
-      "Reject negative numbers" in {
-        val errors = form.bind(goodData.updated(paidAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("paid-amount.error.invalid")
-      }
-    }
-
-    "claimAmount" should {
-      "Accept shortest possible claimAmount" in {
-        val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 2))).errors
-        errors shouldBe Nil
-      }
-      "Accept longest possible claimAmount" in {
-        val errors = form.bind(goodData.updated(claimAmount, moneyGen(11, 2))).errors
-        errors shouldBe Nil
-      }
-      "Reject claimAmount decimals only too many" in {
-        val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
-      }
-      "Reject claimAmount too many decimals" in {
-        val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
-      }
-      "Reject claimAmount too long" in {
-        val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
-      }
-      "Reject negative numbers" in {
-        val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
-      }
-      "Reject when claimAmount > paidAmount" in {
-        val data   = Map(
-          paidAmount  -> "100",
-          claimAmount -> "101.00"
-        )
-        val errors = form.bind(data).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
-      }
     }
   }
 

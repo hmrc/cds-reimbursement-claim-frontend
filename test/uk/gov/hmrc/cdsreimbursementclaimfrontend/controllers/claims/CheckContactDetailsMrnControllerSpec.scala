@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
@@ -40,9 +40,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 
 import java.net.URL
@@ -91,7 +91,7 @@ class CheckContactDetailsMrnControllerSpec
       displayDeclaration = displayDeclaration,
       declarantTypeAnswer = declarantTypeAnswer,
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
-      movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+      movementReferenceNumber = Some(sample[MRN]),
       mrnContactDetailsAnswer = mrnContactDetailsAnswer,
       mrnContactAddressAnswer = mrnContactAddressAnswer
     )
@@ -255,7 +255,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(languageKey -> "0"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "0"), journey),
           routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey)
         )
       }
@@ -276,7 +276,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(languageKey -> "1"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "1"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
@@ -296,12 +296,12 @@ class CheckContactDetailsMrnControllerSpec
 
         checkPageIsDisplayed(
           submitAdd(Seq.empty, journey),
-          messageFromMessageKey(s"$languageKey.title"),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$languageKey.error.required.add"
+              s"$checkContactDetailsKey.error.required.add"
             ),
           BAD_REQUEST
         )
@@ -323,13 +323,13 @@ class CheckContactDetailsMrnControllerSpec
           }
 
           checkPageIsDisplayed(
-            submitAdd(Seq(languageKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$languageKey.title"),
+            submitAdd(Seq(checkContactDetailsKey -> invalidAnswer), journey),
+            messageFromMessageKey(s"$checkContactDetailsKey.title"),
             doc =>
               doc
                 .select(".govuk-error-summary__list > li > a")
                 .text() shouldBe messageFromMessageKey(
-                s"$languageKey.invalid"
+                s"$checkContactDetailsKey.error.invalid"
               ),
             BAD_REQUEST
           )
@@ -362,7 +362,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(languageKey -> "0"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "0"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
@@ -384,7 +384,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(languageKey -> "1"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "1"), journey),
           routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
@@ -405,12 +405,12 @@ class CheckContactDetailsMrnControllerSpec
 
         checkPageIsDisplayed(
           submitChange(Seq.empty, journey),
-          messageFromMessageKey(s"$languageKey.title"),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$languageKey.error.required.change"
+              s"$checkContactDetailsKey.error.required.change"
             ),
           BAD_REQUEST
         )
@@ -433,13 +433,13 @@ class CheckContactDetailsMrnControllerSpec
           }
 
           checkPageIsDisplayed(
-            submitChange(Seq(languageKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$languageKey.title"),
+            submitChange(Seq(checkContactDetailsKey -> invalidAnswer), journey),
+            messageFromMessageKey(s"$checkContactDetailsKey.title"),
             doc =>
               doc
                 .select(".govuk-error-summary__list > li > a")
                 .text() shouldBe messageFromMessageKey(
-                s"$languageKey.invalid"
+                s"$checkContactDetailsKey.error.invalid"
               ),
             BAD_REQUEST
           )

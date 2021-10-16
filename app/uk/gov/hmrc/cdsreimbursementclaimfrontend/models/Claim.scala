@@ -18,21 +18,50 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim.{PaymentMethod, PaymentReference}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 
 import java.util.UUID
 
 final case class Claim(
-  id: UUID,
-  paymentMethod: String,
-  paymentReference: String,
   taxCode: String,
   paidAmount: BigDecimal,
   claimAmount: BigDecimal,
-  isFilled: Boolean
+  id: UUID = UUID.randomUUID(),
+  paymentMethod: String = PaymentMethod.`001`,
+  paymentReference: String = PaymentReference.notApplicable,
+  isFilled: Boolean = false
 )
 
 object Claim {
-  implicit class ListClaimOps(val claims: NonEmptyList[Claim]) {
+
+  def fromNdrc(ndrc: NdrcDetails): Claim = Claim(
+    paymentMethod = ndrc.paymentMethod,
+    paymentReference = ndrc.paymentReference,
+    taxCode = ndrc.taxType,
+    paidAmount = BigDecimal(ndrc.amount),
+    claimAmount = 0
+  )
+
+  def fromDuty(duty: Duty): Claim = Claim(
+    taxCode = duty.taxCode.value,
+    paidAmount = 0,
+    claimAmount = 0,
+    paymentReference = PaymentReference.unknown
+  )
+
+  object PaymentMethod {
+    lazy val `001`: String = "001"
+  }
+
+  object PaymentReference {
+    lazy val notApplicable: String = "n/a"
+    lazy val unknown: String       = "unknown"
+  }
+
+  implicit class ListClaimOps(val claims: NonEmptyList[Claim]) extends AnyVal {
+
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
 
     def isUkClaim(claim: Claim): Boolean     = TaxCode.listOfUKTaxCodes.map(code => code.value).contains(claim.taxCode)

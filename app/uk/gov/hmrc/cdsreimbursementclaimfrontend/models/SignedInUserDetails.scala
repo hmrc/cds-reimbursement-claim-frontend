@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class SignedInUserDetails(
   email: Option[Email],

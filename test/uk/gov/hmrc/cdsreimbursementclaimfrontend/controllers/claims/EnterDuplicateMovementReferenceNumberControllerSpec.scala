@@ -26,8 +26,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.keyForenterDuplicateMovementReferenceNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.duplicateMovementReferenceNumberKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -38,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -100,7 +101,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       val displayDeclaration = sample[DisplayDeclaration]
       val updatedClaim       =
         claim.draftClaim.copy(
-          duplicateMovementReferenceNumberAnswer = Some(MovementReferenceNumber(updatedMrn)),
+          duplicateMovementReferenceNumberAnswer = Some(updatedMrn),
           duplicateDisplayDeclaration = Some(displayDeclaration)
         )
       val updatedSession     = session.copy(journeyStatus = Some(claim.copy(draftClaim = updatedClaim)))
@@ -113,14 +114,14 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
       }
 
       checkIsRedirect(
-        performAction(journey, keyForenterDuplicateMovementReferenceNumber -> updatedMrn.value),
+        performAction(journey, duplicateMovementReferenceNumberKey -> updatedMrn.value),
         routes.EnterImporterEoriNumberController.enterImporterEoriNumber(journey)
       )
     }
   }
 
   private def getSession(numberOfClaims: Option[SelectNumberOfClaimsAnswer]): (SessionData, FillingOutClaim) = {
-    val mrn                 = sample[MovementReferenceNumber]
+    val mrn                 = sample[MRN]
     val draftC285Claim      = DraftClaim.blank.copy(
       movementReferenceNumber = Some(mrn),
       duplicateMovementReferenceNumberAnswer = Some(mrn),

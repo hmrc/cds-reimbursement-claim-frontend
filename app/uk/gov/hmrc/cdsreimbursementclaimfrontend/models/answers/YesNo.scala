@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.functional.syntax.toInvariantFunctorOps
-import play.api.libs.json.Format
+import cats.Eq
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 
-final case class Eori(value: String) extends AnyVal
+sealed trait YesNo extends Product with Serializable
 
-object Eori {
+object YesNo {
 
-  def isValid(maybeEori: String): Boolean = {
-    val regex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
-    maybeEori.matches(regex)
-  }
+  final case object No extends YesNo
+  final case object Yes extends YesNo
 
-  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+  implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
+
+  implicit val format: OFormat[YesNo] = derived.oformat[YesNo]()
 }

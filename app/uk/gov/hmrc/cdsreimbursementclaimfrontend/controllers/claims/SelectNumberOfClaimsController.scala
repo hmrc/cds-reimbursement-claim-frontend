@@ -25,7 +25,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SelectNumberOfClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -71,15 +72,14 @@ class SelectNumberOfClaimsController @Inject() (
         SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
           .bindFromRequest()
           .fold(
-            formWithErros => BadRequest(selectNumberOfClaimsPage(formWithErros)),
+            formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
             updatedAnswers => {
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers))
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
+              val updatedJourney =
+                FillingOutClaim.from(fillingOutClaim)(_.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers)))
+
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("Could not capture select number of claims"),
                   _ => {

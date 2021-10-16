@@ -19,12 +19,13 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
@@ -32,7 +33,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
     "filter Northern Ireland claims" in {
       val draftC285Claim = sample[DraftClaim].copy(
-        movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+        movementReferenceNumber = Some(sample[MRN]),
         claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.No.some
       )
 
@@ -62,7 +63,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
 
   "contain Northern Ireland claims" in {
     val draftC285Claim = sample[DraftClaim].copy(
-      movementReferenceNumber = sample[MovementReferenceNumber].some,
+      movementReferenceNumber = sample[MRN].some,
       claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.Yes.some,
       displayDeclaration = None
     )

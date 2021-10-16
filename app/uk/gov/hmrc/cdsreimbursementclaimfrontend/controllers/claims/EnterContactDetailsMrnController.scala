@@ -24,7 +24,7 @@ import play.api.data.Forms.{mapping, nonEmptyText, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -72,8 +72,9 @@ class EnterContactDetailsMrnController @Inject() (
       }
     }
 
-  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
+  def enterMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     submit(isChange = false)
+
   def changeMrnContactDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     submit(isChange = true)
 
@@ -87,7 +88,7 @@ class EnterContactDetailsMrnController @Inject() (
             formOk => {
 
               val updatedClaim =
-                FillingOutClaim.of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = Some(formOk)))
+                FillingOutClaim.from(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = Some(formOk)))
 
               val result = EitherT
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))

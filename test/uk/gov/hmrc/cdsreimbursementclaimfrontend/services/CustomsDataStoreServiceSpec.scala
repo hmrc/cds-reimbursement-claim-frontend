@@ -29,7 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CustomsDataStoreConn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.VerifiedEmailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, Error, VerifiedEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, VerifiedEmail}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global

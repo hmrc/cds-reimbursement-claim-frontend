@@ -28,7 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{items => declarantTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.{Individual, Scheduled}
@@ -125,7 +125,7 @@ class CheckYourAnswersSummarySpec
             ),
             (
               messages(s"$checkYourAnswersKey.reference-number.label"),
-              claim.movementReferenceNumber.value.stringValue
+              claim.movementReferenceNumber.value.value
             )
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
@@ -286,7 +286,7 @@ class CheckYourAnswersSummarySpec
           summaries should contain allElementsOf Seq(
             (
               messages(s"$checkYourAnswersKey.reference-number.scheduled.label"),
-              claim.movementReferenceNumber.value.stringValue
+              claim.movementReferenceNumber.value.value
             ),
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),

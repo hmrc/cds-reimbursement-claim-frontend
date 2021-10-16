@@ -19,8 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -35,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DeclarantEoriNumber, DraftClaim, ImporterEoriNumber, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DeclarantEoriNumber, DraftClaim, ImporterEoriNumber, SelectNumberOfClaimsAnswer}
 
 import java.util.UUID
 
@@ -58,14 +56,12 @@ object DraftClaimGen {
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
-      checkClaimAnswer               <- gen[CheckClaimAnswer].arbitrary
-      checkDeclarationDetailsAnswer  <- gen[CheckDeclarationDetailsAnswer].arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
       associatedMRNsAnswer           <- arbitraryAssociatedMRNsAnswer.arbitrary
     } yield DraftClaim(
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
-      movementReferenceNumber = MovementReferenceNumber(mrn).some,
+      movementReferenceNumber = mrn.some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
       mrnContactDetailsAnswer = maybeContactDetails,
@@ -81,8 +77,6 @@ object DraftClaimGen {
       importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
-      checkClaimAnswer = checkClaimAnswer.some,
-      checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
       associatedMRNsAnswer = associatedMRNsAnswer.some
     )

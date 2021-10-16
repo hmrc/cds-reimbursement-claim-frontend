@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-sealed trait YesNo extends Product with Serializable
+class JourneyBindableSpec extends AnyWordSpec with Matchers {
 
-object YesNo {
-  final case object No extends YesNo
-  final case object Yes extends YesNo
-
-  implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
-
-  implicit val format: OFormat[YesNo] = derived.oformat[YesNo]()
+  "JourneyBindable" must {
+    "Parse paths correctly" in {
+      JourneyBindable.parse("single")    shouldBe JourneyBindable.Single
+      JourneyBindable.parse("scheduled") shouldBe JourneyBindable.Scheduled
+      JourneyBindable.parse("multiple")  shouldBe JourneyBindable.Multiple
+    }
+  }
 }

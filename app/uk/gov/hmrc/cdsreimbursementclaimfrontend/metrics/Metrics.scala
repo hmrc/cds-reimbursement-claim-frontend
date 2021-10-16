@@ -27,7 +27,4 @@ class Metrics @Inject() (metrics: com.kenshoo.play.metrics.Metrics) {
 
   protected def counter(name: String): Counter =
     metrics.defaultRegistry.counter(s"frontend.$name")
-
-  //TODO: define service metrics with performance analyst
-
 }

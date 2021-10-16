@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.NonGovernmentGatewayUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, RetrievedUserType, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{RetrievedUserType, UserType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 

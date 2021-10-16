@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import org.scalacheck.magnolia._
+import cats.implicits.catsSyntaxEq
+import play.api.data.Form
+import play.api.data.Forms.{boolean, mapping, optional}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
-object YesNoGen {
+object YesOrNoQuestionForm {
 
-  implicit val arbitraryYesNo: Typeclass[YesNo] = gen[YesNo]
+  def apply(key: String): Form[YesNo] =
+    Form(
+      mapping(
+        key -> optional(boolean)
+          .verifying("error.invalid", _.isDefined)
+          .transform[YesNo](
+            value => if (value.exists(_ === true)) Yes else No,
+            answer => Some(answer === Yes)
+          )
+      )(identity)(Some(_))
+    )
 }

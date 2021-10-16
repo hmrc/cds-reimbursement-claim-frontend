@@ -18,22 +18,22 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.Eq
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
 
 import java.util.Locale
 
-final case class MRN(value: String)
+final case class MRN private (value: String) extends AnyVal {
+
+  def isValid: Boolean = value matches validityRegex
+}
 
 object MRN {
 
-  def changeToUpperCaseWithoutSpaces(maybeMrn: String): MRN =
-    MRN(maybeMrn.toUpperCase(Locale.UK).replaceAll("\\s", ""))
+  private val validityRegex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
 
-  def isValid(maybeMrn: String): Boolean = {
-
-    val mrnWithoutSpaces: String = maybeMrn.toUpperCase(Locale.UK).replaceAll("\\s", "")
-    val regex                    = """\d{2}[a-zA-Z]{2}\w{13}\d"""
-    val entryNumberRegex         = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
-    mrnWithoutSpaces.matches(regex) && !mrnWithoutSpaces.matches(entryNumberRegex)
+  def apply(value: String): MRN = {
+    val valueInUppercaseWithNoSpaces = value.toUpperCase(Locale.UK).replaceAll("\\s", "")
+    new MRN(valueInUppercaseWithNoSpaces)
   }
 
   implicit val eq: Eq[MRN]          = Eq.fromUniversalEquals

@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 class MRNSpec extends AnyWordSpec with Matchers {
 
@@ -34,27 +34,27 @@ class MRNSpec extends AnyWordSpec with Matchers {
         "57EmptyResponse111",
         "57MinimumResponse1"
       )
-      mrns.foreach(isValid(_) shouldBe true)
+      mrns.foreach(MRN(_).isValid shouldBe true)
     }
 
     "fail if first 2 is not a number" in {
-      isValid("aaWAFResponse11111") shouldBe false
+      MRN("aaWAFResponse11111").isValid shouldBe false
     }
 
     "fail if chars 3-4 are numbers" in {
-      isValid("1122FResponse11111") shouldBe false
+      MRN("1122FResponse11111").isValid shouldBe false
     }
 
     "fail if the last char is a letter" in {
-      isValid("11GBFResponse1111a") shouldBe false
+      MRN("11GBFResponse1111a").isValid shouldBe false
     }
 
     "fail if not 18 characters" in {
-      isValid("11GBResponse11111") shouldBe false
+      MRN("11GBResponse11111").isValid shouldBe false
     }
 
     "Succeed with lower case letters" in {
-      isValid("10ABCDEFGHIJKLMnO0") shouldBe true
+      MRN("10ABCDEFGHIJKLMnO0").isValid shouldBe true
     }
 
   }

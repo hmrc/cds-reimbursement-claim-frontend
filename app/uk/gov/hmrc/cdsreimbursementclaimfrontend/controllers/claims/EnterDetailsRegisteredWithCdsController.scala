@@ -23,7 +23,7 @@ import play.api.data.Forms.{mapping, nonEmptyText, of}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -82,7 +82,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
             formWithErrors => BadRequest(detailsRegisteredWithCdsPage(formWithErrors, isAmend, router)),
             formOk => {
               val updatedJourney =
-                FillingOutClaim.of(fillingOutClaim)(_.copy(detailsRegisteredWithCdsAnswer = Option(formOk)))
+                FillingOutClaim.from(fillingOutClaim)(_.copy(detailsRegisteredWithCdsAnswer = Option(formOk)))
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("Could not save Details Registered with CDS Type"))
                 .fold(

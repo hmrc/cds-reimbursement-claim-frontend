@@ -21,7 +21,8 @@ import cats.implicits.toBifunctorOps
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.mvc.Http.Status.{NOT_FOUND, OK}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CustomsDataStoreConnector
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, Error, VerifiedEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, VerifiedEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier

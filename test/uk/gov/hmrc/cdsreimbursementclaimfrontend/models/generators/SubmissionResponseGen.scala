@@ -21,6 +21,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
 
 object SubmissionResponseGen {
+  import IdGen._
+
   implicit val arbitrarySubmissionResponse: Typeclass[SubmitClaimResponse] = gen[SubmitClaimResponse]
   implicit val arbitrarySubmitClaimRequest: Typeclass[SubmitClaimRequest]  = gen[SubmitClaimRequest]
   implicit val arbitrarySubmitClaimError: Typeclass[SubmitClaimError]      = gen[SubmitClaimError]

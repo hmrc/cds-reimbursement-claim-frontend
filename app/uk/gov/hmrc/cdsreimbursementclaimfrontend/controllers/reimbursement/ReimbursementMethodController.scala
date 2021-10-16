@@ -26,10 +26,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.reimbursementMethodForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer._
@@ -70,10 +70,9 @@ class ReimbursementMethodController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(selectReimbursementMethod(formWithErrors))),
           answer => {
-            val updatedJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(reimbursementMethodAnswer = Some(answer)))
-            EitherT
-              .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-              .leftMap((_: Unit) => Error("could not update session"))
+            val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(reimbursementMethodAnswer = Some(answer)))
+            EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              .leftMap(_ => Error("could not update session"))
               .fold(
                 logAndDisplayError("could not get reimbursement method selected "),
                 _ =>
