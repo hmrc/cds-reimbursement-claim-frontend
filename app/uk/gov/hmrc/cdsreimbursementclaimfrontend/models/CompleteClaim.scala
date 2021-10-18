@@ -24,7 +24,7 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
@@ -50,7 +50,8 @@ final case class CompleteClaim(
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
   claimsAnswer: ClaimsAnswer,
-  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
+  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
+  associatedMRNsAnswer: Option[AssociatedMRNsAnswer]
 )
 
 object CompleteClaim {
@@ -82,7 +83,7 @@ object CompleteClaim {
             draftDeclarantEoriNumberAnswer,
             Some(claimsAnswer),
             maybeScheduledDocument,
-            _,
+            maybeAssociatedMRNs,
             _,
             _
           ) =>
@@ -123,7 +124,8 @@ object CompleteClaim {
                 importerEoriNumberAnswer,
                 declarantEoriNumberAnswer,
                 claimsAnswer,
-                maybeScheduledDocumentAnswer
+                maybeScheduledDocumentAnswer,
+                maybeAssociatedMRNs
               )
           }
           .toEither

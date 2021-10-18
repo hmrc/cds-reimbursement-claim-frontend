@@ -43,6 +43,12 @@
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
 
+@mrnSummary = @{
+    completeClaim.associatedMRNsAnswer.fold(completeClaim.movementReferenceNumber.summary(s"$key.reference-number")) { mrns =>
+        (completeClaim.movementReferenceNumber +: mrns.toList).summary(s"$key.reference-number")
+    }
+}
+
 @contactSummary = @{
     (completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
         (contactDetails, contactAddress).summary("claimant-details")
@@ -54,7 +60,7 @@
     @pageHeading(title)
 
     @pageHeading(messages(lang(s"$key.reference-number", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-    @summary(completeClaim.movementReferenceNumber.summary(s"$key.reference-number"))
+    @summary(mrnSummary)
 
     @completeClaim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
@@ -70,7 +76,7 @@
     @summary(completeClaim.declarantTypeAnswer.summary(s"$key.claimant-type"))
 
     @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.detailsRegisteredWithCdsAnswer.summary(s"$key"))
+    @summary(completeClaim.detailsRegisteredWithCdsAnswer.summary(key))
 
     @contactSummary.map { details =>
         @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
@@ -85,7 +91,7 @@
     @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
     @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim)(messages, router.journeyBindable))) else ""}
 
-    @pageHeading(messages(lang(s"$key.commodity-details", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
 
     @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
