@@ -111,8 +111,9 @@ class EnterAssociatedMrnController @Inject() (
         val editing: Boolean     = associatedMRNsAnswer.isDefinedAt(index)
 
         val form = mrnInputForm(
-          if (editing) associatedMRNsAnswer.listAllElementsExceptAt(index)
-          else associatedMRNsAnswer.list
+          journey.draftClaim.movementReferenceNumber.toList ++
+            (if (editing) associatedMRNsAnswer.listAllElementsExceptAt(index)
+             else associatedMRNsAnswer.list)
         )
 
         def displayInputError(mrn: MRN, errorMessageKey: String) =

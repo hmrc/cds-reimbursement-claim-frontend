@@ -284,6 +284,33 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
+      "reject an MRN when entering the same as lead MRN" in {
+        forAll { (leadMrn: MRN, mrns: List[MRN]) =>
+          val associatedMRNsAnswer = mrns
+
+          val (session, _, _) = sessionWithClaimState(
+            associatedMRNsAnswer,
+            leadMrn,
+            Some(SelectNumberOfClaimsAnswer.Multiple)
+          )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performActionWithData(
+              AssociatedMrnIndex.fromListIndex(associatedMRNsAnswer.length),
+              enterAssociatedMrnKey -> leadMrn.value
+            ),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(associatedMRNsAnswer.length + 2)),
+            doc => getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.error.exists"),
+            expectedStatus = 400
+          )
+        }
+      }
+
       "the user does not select an option and submits the page" in {
         forAll(Gen.choose(0, 9), arbitraryMrn.arbitrary) { (mrnIndex, leadMrn) =>
           val associatedMrnIndex = AssociatedMrnIndex.fromListIndex(mrnIndex)
