@@ -147,7 +147,7 @@ check-eori-details.eori-correct-label=Are these details correct?
 check-eori-details.eori-correct=Yes
 check-eori-details.eori-incorrect=No, sign in again
 check-eori-details.error.required=Select yes if details are correct
-check-eori-details.invalid=Select yes if details are correct
+check-eori-details.error.invalid=Select yes if details are correct
 
 
 #===================================================
@@ -200,7 +200,7 @@ enter-associated-mrn.error.missing-declaration=This MRN does not exist
 check-movement-reference-numbers.title=All your MRNs entered in this claim
 check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
-check-movement-reference-numbers.invalid-answer=Select yes if you want to add another MRN
+check-movement-reference-numbers.error.invalid=Select yes if you want to add another MRN
 
 #===================================================
 #  MOVEMENT REFERENCE NUMBER DOES NOT EXISTS
@@ -219,7 +219,6 @@ enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for ex
 enter-duplicate-movement-reference-number.mrn.invalid.number=Enter a valid MRN
 enter-duplicate-movement-reference-number.mrn.invalid=Enter a valid MRN
 enter-duplicate-movement-reference-number.mrn.error.required=Enter a valid MRN
-enter-duplicate-movement-reference-number.mrn.invalid.mrn-not-entry-number=Enter a valid MRN, not a legacy number
 enter-duplicate-movement-reference-number.mrn.invalid.enter-different-mrn=Enter a different MRN, you have already entered this one
 
 #===================================================
@@ -232,8 +231,6 @@ enter-duplicate-movement-reference-number.entry.help=Must be 18 characters, for 
 enter-duplicate-movement-reference-number.entry.invalid.number=Enter a valid entry number
 enter-duplicate-movement-reference-number.entry.invalid=Enter a valid entry number
 enter-duplicate-movement-reference-number.entry.error.required=Enter a valid entry number
-enter-duplicate-movement-reference-number.entry.invalid.enter-different-entry-number=Enter a different legacy number, you have already entered this one
-enter-duplicate-movement-reference-number.entry.invalid.entry-number-not-mrn=Enter a valid legacy number, not an MRN
 
 #===================================================
 #  MRN DOES NOT MATCH EORI PAGE
@@ -365,8 +362,7 @@ claimant-details.want-to-continue.hint=If you select No we will contact you usin
 claimant-details.yes=Yes
 claimant-details.no=No
 claimant-details.error.required.change=Select whether you wish to continue using these contact details.
-claimant-details.error.required.add=Select whether you wish to add different contact details
-claimant-details.invalid=Select whether you wish to remove contact details.
+claimant-details.error.invalid=Select whether you wish to add different contact details
 claimant-details.add-different.title=Do you wish to add different contact details which we will use to contact you about this claim?
 
 #===================================================
@@ -746,8 +742,6 @@ enter-claim.paid-amount-label=<strong>Paid amount: {0}</strong>
 enter-claim.claim-amount=Claim amount
 enter-claim.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.claim-amount.hint=This is the Customs Duty amount you wish to claim for.
-enter-claim.paid-amount=Paid Amount
-enter-claim.paid-amount.error.invalid=You have entered an invalid paid amount. Enter a valid paid amount you wish to claim for
 enter-claim.error.required=Enter an amount to claim
 enter-claim.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 enter-claim.invalid.claim=Enter a claim amount which is less than or equal to the paid amount
@@ -841,7 +835,7 @@ supporting-evidence.check-your-answers.title=You have added {0} document{1} to y
 supporting-evidence.check-your-answers.help-text=These are the documents you have added so far to support this claim. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.
 supporting-evidence.check-your-answers.add-another-document-question=Do you want to add another document?
 supporting-evidence.check-your-answers.error.required=Select yes if you would like to add a supporting document
-supporting-evidence.check-your-answers.invalid-answer=Select yes if you would like to add a supporting document
+supporting-evidence.check-your-answers.error.invalid=Select yes if you would like to add a supporting document
 supporting-evidence.upload.title=Add documents to support your claim
 supporting-evidence.upload.error.required=Upload a file containing your supporting evidence
 supporting-evidence.upload.p1=Upload supporting evidence you have received for the commodities you have imported. Add the commercial invoice used in the import declaration, so we can process your claim efficiently.

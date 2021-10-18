@@ -18,10 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer}
 
 import scala.concurrent.Future
 
@@ -29,8 +28,7 @@ trait SessionDataExtractor extends Results {
 
   def extractRoutes(claim: DraftClaim, journeyBindable: JourneyBindable): ReimbursementRoutes = {
     val numOfClaims = getNumberOfClaims(claim)
-    val refType     = getMovementReferenceNumber(claim)
-    getRoutes(numOfClaims, refType, journeyBindable)
+    getRoutes(numOfClaims, journeyBindable)
   }
 
   def withAnswers[T](
@@ -66,22 +64,18 @@ trait SessionDataExtractor extends Results {
         SelectNumberOfClaimsAnswer.Individual
       ) //If the bulk claim is disabled, the user never sees the Select Number of Claims page
 
-  def getMovementReferenceNumber(draftClaim: DraftClaim): Option[MovementReferenceNumber] =
-    draftClaim.movementReferenceNumber
-
   def getRoutes(
     numberOfClaims: SelectNumberOfClaimsAnswer,
-    maybeMrnOrEntryNumber: Option[MovementReferenceNumber],
     journeyBindable: JourneyBindable
   ): ReimbursementRoutes =
-    (journeyBindable, numberOfClaims, maybeMrnOrEntryNumber) match {
-      case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual, Some(MovementReferenceNumber(Right(_))))   =>
+    (journeyBindable, numberOfClaims) match {
+      case (JourneyBindable.Single, SelectNumberOfClaimsAnswer.Individual)   =>
         MRNSingleRoutes
-      case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple, Some(MovementReferenceNumber(Right(_))))   =>
+      case (JourneyBindable.Multiple, SelectNumberOfClaimsAnswer.Multiple)   =>
         MRNMultipleRoutes
-      case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled, Some(MovementReferenceNumber(Right(_)))) =>
+      case (JourneyBindable.Scheduled, SelectNumberOfClaimsAnswer.Scheduled) =>
         MRNScheduledRoutes
-      case _                                                                                                          => JourneyNotDetectedRoutes
+      case _                                                                 => JourneyNotDetectedRoutes
     }
 }
 

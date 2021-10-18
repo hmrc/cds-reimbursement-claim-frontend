@@ -20,12 +20,10 @@ import cats.Eq
 import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
 
 import java.util.UUID
@@ -33,8 +31,8 @@ import java.util.UUID
 final case class DraftClaim(
   id: UUID,
   selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer] = None,
-  movementReferenceNumber: Option[MovementReferenceNumber] = None,
-  duplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber] = None,
+  movementReferenceNumber: Option[MRN] = None,
+  duplicateMovementReferenceNumberAnswer: Option[MRN] = None,
   declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
   detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
   mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
@@ -54,24 +52,18 @@ final case class DraftClaim(
   importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
   declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
   claimsAnswer: Option[ClaimsAnswer] = None,
-  checkClaimAnswer: Option[CheckClaimAnswer] = None,
-  checkDeclarationDetailsAnswer: Option[CheckDeclarationDetailsAnswer] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None
 ) {
 
-  def isMrnFlow: Boolean =
-    movementReferenceNumber.exists(_.value.isRight)
-
   def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
   object MRNs {
 
-    def leadMrn: Option[LeadMrn] =
-      movementReferenceNumber.flatMap(_.value.toOption)
+    def leadMrn: Option[LeadMrn] = movementReferenceNumber
 
     def apply(): List[MRN] =
       leadMrn.toList ++ associatedMRNsAnswer.list

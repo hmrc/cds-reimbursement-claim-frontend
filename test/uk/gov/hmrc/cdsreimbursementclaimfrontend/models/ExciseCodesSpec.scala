@@ -26,6 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclar
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.util.Random
 
@@ -35,7 +36,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
     "Return only excise codes not related to Northern Ireland" in {
       val draftC285Claim =
         sample[DraftClaim].copy(
-          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+          movementReferenceNumber = Some(sample[MRN]),
           claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
         )
 
@@ -58,7 +59,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val draftC285Claim =
         sample[DraftClaim]
           .copy(
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
             displayDeclaration = Some(acc14)
           )
@@ -79,7 +80,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val draftC285Claim =
         sample[DraftClaim]
           .copy(
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
             displayDeclaration = Some(acc14)
           )

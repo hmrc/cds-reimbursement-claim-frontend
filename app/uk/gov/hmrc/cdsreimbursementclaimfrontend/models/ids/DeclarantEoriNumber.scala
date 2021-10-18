@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-sealed trait DisplayFormat extends Product with Serializable
+import play.api.libs.json.{Json, OFormat}
 
-object DisplayFormat {
-  case object Block extends DisplayFormat
-  case object Line extends DisplayFormat
+final case class DeclarantEoriNumber(value: Eori)
+
+object DeclarantEoriNumber {
+
+  implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
 }

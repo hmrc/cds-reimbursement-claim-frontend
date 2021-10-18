@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import play.api.libs.json.{Json, OFormat}
+import java.util.Locale
 
-final case class ImporterEoriNumber(value: Eori)
+object MoneyUtils {
 
-object ImporterEoriNumber {
-  implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
+  private val currencyFormatter =
+    java.text.NumberFormat.getCurrencyInstance(Locale.UK)
+
+  def formatAmountOfMoneyWithPoundSign(d: BigDecimal): String =
+    currencyFormatter.format(d)
 }

@@ -20,11 +20,12 @@ import cats.implicits._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckContactDetailsMrnController, routes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{MrnContactDetails, NamePhoneEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow, Value}
 
@@ -32,7 +33,8 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ClaimantDetailsHelper @Inject() () {
-  protected val key = CheckContactDetailsMrnController.languageKey
+
+  protected val key = CheckContactDetailsMrnController.checkContactDetailsKey
 
   def renderDetailsRegisteredWithCDS(
     namePhoneEmail: NamePhoneEmail,

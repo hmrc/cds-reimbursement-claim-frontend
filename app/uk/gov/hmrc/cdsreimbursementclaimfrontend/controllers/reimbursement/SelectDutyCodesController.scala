@@ -70,7 +70,7 @@ class SelectDutyCodesController @Inject() (
             dutyCodesAnswer
           )
 
-          val updatedJourneyStatus = FillingOutClaim.of(fillingOutClaim)(
+          val updatedJourneyStatus = FillingOutClaim.from(fillingOutClaim)(
             _.copy(
               dutyTypesSelectedAnswer = Some(updatedReimbursementState.dutyTypesAnswer),
               dutyCodesSelectedAnswer = Some(updatedReimbursementState.dutyCodesAnswer)
@@ -144,7 +144,7 @@ class SelectDutyCodesController @Inject() (
       }
 
     val updatedJourney =
-      FillingOutClaim.of(fillingOutClaim)(
+      FillingOutClaim.from(fillingOutClaim)(
         _.copy(
           dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap)),
           reimbursementClaimAnswer = Some(
@@ -167,9 +167,8 @@ class SelectDutyCodesController @Inject() (
         )
       )
 
-    EitherT
-      .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-      .leftMap((_: Unit) => Error("could not update session"))
+    EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+      .leftMap(_ => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>

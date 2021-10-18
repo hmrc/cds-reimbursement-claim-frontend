@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, Name}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids._
 
 sealed trait RetrievedUserType extends Product with Serializable

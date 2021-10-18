@@ -19,13 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DeclarantTypeAnswer, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -97,11 +96,11 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   def nextPageForCheckDeclarationDetails(
-    checkDeclarationDetailsAnswer: CheckDeclarationDetailsAnswer,
+    whetherDeclarationDetailsCorrect: YesNo,
     hasAssociatedMrns: Boolean
   ): Call =
-    checkDeclarationDetailsAnswer match {
-      case DeclarationAnswersAreCorrect   =>
+    whetherDeclarationDetailsCorrect match {
+      case Yes =>
         journeyBindable match {
           case JourneyBindable.Scheduled =>
             uploadRoutes.ScheduleOfMrnDocumentController.uploadScheduledDocument()
@@ -113,7 +112,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
           case _                         =>
             claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journeyBindable)
         }
-      case DeclarationAnswersAreIncorrect =>
+      case No  =>
         claimRoutes.EnterMovementReferenceNumberController.enterJourneyMrn(journeyBindable)
     }
 
@@ -148,7 +147,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     isAmend match {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
       case false =>
-        if (journeyBindable === Scheduled) {
+        if (journeyBindable === JourneyBindable.Scheduled) {
           reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
         } else {
           claimRoutes.SelectDutiesController.selectDuties()
@@ -172,28 +171,27 @@ trait JourneyTypeRoutes extends Product with Serializable {
       else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     }
 
-  def nextPageForAddClaimantDetails(answer: CheckClaimantDetailsAnswer, featureSwitch: FeatureSwitchService): Call =
+  def nextPageForAddClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService): Call =
     answer match {
-      case YesClaimantDetailsAnswer =>
+      case Yes =>
         claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetails(journeyBindable)
-      case NoClaimantDetailsAnswer  =>
-        featureSwitch.NorthernIreland.isEnabled() match {
-          case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
-          case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-        }
+      case No  =>
+        if (featureSwitch.NorthernIreland.isEnabled())
+          claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+        else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     }
 
   def nextPageForChangeClaimantDetails(
-    answer: CheckClaimantDetailsAnswer,
+    answer: YesNo,
     featureSwitch: FeatureSwitchService
   ): Call =
     answer match {
-      case YesClaimantDetailsAnswer =>
-        featureSwitch.NorthernIreland.isEnabled() match {
-          case true  => claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
-          case false => claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-        }
-      case NoClaimantDetailsAnswer  =>
+      case Yes =>
+        if (featureSwitch.NorthernIreland.isEnabled())
+          claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+        else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+
+      case No =>
         claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
     }
 
@@ -266,7 +264,15 @@ trait MRNRoutes extends ReferenceNumberTypeRoutes {
 }
 
 object ReimbursementRoutes {
+
   type ReimbursementRoutes = JourneyTypeRoutes with ReferenceNumberTypeRoutes with SubmitRoutes
+
+  def apply(journey: JourneyBindable): ReimbursementRoutes =
+    journey match {
+      case JourneyBindable.Single    => MRNSingleRoutes
+      case JourneyBindable.Multiple  => MRNMultipleRoutes
+      case JourneyBindable.Scheduled => MRNScheduledRoutes
+    }
 }
 
 case object MRNSingleRoutes extends MRNRoutes with SingleRoutes with SubmitRoutes

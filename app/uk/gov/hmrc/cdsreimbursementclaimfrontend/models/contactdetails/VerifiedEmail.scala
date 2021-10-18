@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 
-sealed trait YesNo extends Product with Serializable
+final case class VerifiedEmail(address: String, timestamp: String) {
+  def toEmail: Email = Email(address)
+}
 
-object YesNo {
-  final case object No extends YesNo
-  final case object Yes extends YesNo
+object VerifiedEmail {
+  implicit val verifiedEmailFormat: OFormat[VerifiedEmail] = Json.format[VerifiedEmail]
 
-  implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
-
-  implicit val format: OFormat[YesNo] = derived.oformat[YesNo]()
 }

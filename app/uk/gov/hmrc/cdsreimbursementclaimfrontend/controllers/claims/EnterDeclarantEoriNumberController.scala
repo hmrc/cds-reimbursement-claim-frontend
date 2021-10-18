@@ -27,10 +27,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, Eori, ImporterEoriNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -78,10 +79,9 @@ class EnterDeclarantEoriNumberController @Inject() (
                 )
               ),
             declarantEoriNumber => {
-              val newDraftClaim =
-                fillingOutClaim.draftClaim.copy(declarantEoriNumberAnswer = Some(declarantEoriNumber))
 
-              val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
+              val updatedJourney =
+                FillingOutClaim.from(fillingOutClaim)(_.copy(declarantEoriNumberAnswer = Some(declarantEoriNumber)))
 
               val result = EitherT
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -139,8 +139,8 @@ object EnterDeclarantEoriNumberController {
 
   val eoriNumberMapping: Mapping[Eori] =
     text(maxLength = 18)
-      .verifying("invalid.number", str => Eori.isValid(str))
-      .transform[Eori](str => Eori(str), eori => eori.value)
+      .verifying("invalid.number", str => Eori(str).isValid)
+      .transform[Eori](Eori(_), _.value)
 
   val eoriNumberForm: Form[DeclarantEoriNumber] = Form(
     mapping(

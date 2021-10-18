@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import play.api.data.Form
-import play.api.data.Forms.{bigDecimal, mapping}
-import play.api.libs.json.{Json, OFormat}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-final case class ClaimAmount(amount: BigDecimal)
+class JourneyBindableSpec extends AnyWordSpec with Matchers {
 
-object ClaimAmount {
-  val claimAmountForm: Form[ClaimAmount]    = Form(
-    mapping(
-      "claim" -> bigDecimal
-    )(ClaimAmount.apply)(ClaimAmount.unapply)
-  )
-  implicit val format: OFormat[ClaimAmount] = Json.format[ClaimAmount]
+  "JourneyBindable" must {
+    "Parse paths correctly" in {
+      JourneyBindable.parse("single")    shouldBe JourneyBindable.Single
+      JourneyBindable.parse("scheduled") shouldBe JourneyBindable.Scheduled
+      JourneyBindable.parse("multiple")  shouldBe JourneyBindable.Multiple
+    }
+  }
 }

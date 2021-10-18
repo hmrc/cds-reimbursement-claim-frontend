@@ -26,7 +26,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -94,11 +94,10 @@ class ClaimNorthernIrelandController @Inject() (
                 val newNiAnswer    = fillingOutClaim.draftClaim.claimNorthernIrelandAnswer
                 val answerChanged  = newNiAnswer.forall(n => n.value =!= formOk.value)
                 val updatedJourney =
-                  FillingOutClaim.of(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
+                  FillingOutClaim.from(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
 
-                EitherT
-                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                  .leftMap((_: Unit) => Error("could not update session"))
+                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not capture select number of claims"),
                     _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))

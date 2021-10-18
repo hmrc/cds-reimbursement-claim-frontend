@@ -33,7 +33,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val bankAccount       = sample[BankAccountDetails]
       val completeC285Claim = sample[CompleteClaim]
         .copy(
-          movementReferenceNumber = MovementReferenceNumber(Right(sample[MRN])),
+          movementReferenceNumber = sample[MRN],
           maybeBankAccountDetailsAnswer = Some(bankAccount)
         )
 
@@ -49,7 +49,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = Some(bankAccount))
       val completeC285Claim     = sample[CompleteClaim]
         .copy(
-          movementReferenceNumber = MovementReferenceNumber(Right(sample[MRN])),
+          movementReferenceNumber = sample[MRN],
           maybeDisplayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
           maybeBankAccountDetailsAnswer = None
         )

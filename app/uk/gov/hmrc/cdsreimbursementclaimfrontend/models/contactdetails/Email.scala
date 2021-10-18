@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email
-
-import java.util.function.Predicate
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
 import cats.Eq
 import cats.instances.string._
@@ -25,6 +23,8 @@ import play.api.data.Forms.nonEmptyText
 import play.api.data.Mapping
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Format
+
+import java.util.function.Predicate
 
 final case class Email(value: String) extends AnyVal
 

@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyExtractor, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, JourneyExtractor, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
@@ -269,7 +269,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData(FillingOutClaim.of(fillingOutClaim)(_.copy(commoditiesDetailsAnswer = None))))
+          mockGetSession(SessionData(FillingOutClaim.from(fillingOutClaim)(_.copy(commoditiesDetailsAnswer = None))))
         }
 
         checkIsTechnicalErrorPage(controller.checkAllAnswers(journeyBindable)(FakeRequest()))

@@ -24,23 +24,22 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.CmaEligibleAndDuties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, SessionData, SignedInUserDetails, _}
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -62,12 +61,9 @@ class SelectDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private def genEntryNumberAnswer(): MovementReferenceNumber =
-    sample(genEntryNumber.map(MovementReferenceNumber(_)))
-
   private def getSessionWithPreviousAnswer(
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
-    movementReferenceNumber: MovementReferenceNumber,
+    movementReferenceNumber: MRN,
     displayDeclaration: Option[DisplayDeclaration] = None,
     basisOfClaim: BasisOfClaim = PersonalEffects
   ): (SessionData, FillingOutClaim) = {
@@ -85,16 +81,6 @@ class SelectDutiesControllerSpec
       journey
     )
   }
-
-  private def updateSession(sessionData: SessionData, dutiesSelectedAnswer: DutiesSelectedAnswer): SessionData =
-    sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
-        val newClaim      =
-          draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelectedAnswer))
-        val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                   => fail()
-    }
 
   def isA00Checked(document: Document): Boolean =
     isChecked(document, TaxCode.A00.value)
@@ -130,7 +116,7 @@ class SelectDutiesControllerSpec
 
         def performAction(): Future[Result] = controller.selectDuties()(FakeRequest())
 
-        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber])._1
+        val session = getSessionWithPreviousAnswer(None, sample[MRN])._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -148,68 +134,6 @@ class SelectDutiesControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
-        val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          result = performAction(),
-          expectedTitle = messageFromMessageKey("select-duties.title"),
-          contentChecks = doc => {
-            isA00Checked(doc) shouldBe false
-            isA30Checked(doc) shouldBe false
-            isA90Checked(doc) shouldBe false
-            isB00Checked(doc) shouldBe false
-          }
-        )
-      }
-
-      "the user has answered this question before with a single choice" in {
-        val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), genEntryNumberAnswer())._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc => {
-            isA00Checked(doc) shouldBe true
-            isA30Checked(doc) shouldBe false
-            isA90Checked(doc) shouldBe false
-            isB00Checked(doc) shouldBe false
-          }
-        )
-      }
-
-      "the user has answered this question before with a multiple choices" in {
-        val previousAnswer = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A90), Duty(TaxCode.B00))
-        val session        = getSessionWithPreviousAnswer(Some(previousAnswer), genEntryNumberAnswer())._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(),
-          messageFromMessageKey("select-duties.title"),
-          doc => {
-            isA00Checked(doc) shouldBe true
-            isA30Checked(doc) shouldBe false
-            isA90Checked(doc) shouldBe true
-            isB00Checked(doc) shouldBe true
-          }
-        )
-      }
-
       "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
         val previousTaxCodes = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
         val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail)
@@ -223,7 +147,7 @@ class SelectDutiesControllerSpec
         val session =
           getSessionWithPreviousAnswer(
             Some(previousAnswer),
-            sample[MovementReferenceNumber],
+            sample[MRN],
             Some(acc14),
             basisOfClaim
           )._1
@@ -244,60 +168,6 @@ class SelectDutiesControllerSpec
           }
         )
       }
-
-    }
-
-    "handle submit requests" when {
-
-      def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-      "user chooses a valid option" in {
-        val answers        = DutiesSelectedAnswer(Duty(TaxCode.A00), Duty(TaxCode.A20))
-        val session        = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
-        val updatedSession = updateSession(session, answers)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-          mockStoreSession(updatedSession)(Right(()))
-        }
-
-        checkIsRedirect(
-          performAction(
-            Seq("select-duties[]" -> "A00", "select-duties[]" -> "A20")
-          ),
-          routes.EnterClaimController.startClaim()
-        )
-      }
-
-    }
-
-    "show an error summary" when {
-      def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.selectDutiesSubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-      "an invalid option value is submitted" in {
-        val session = getSessionWithPreviousAnswer(None, genEntryNumberAnswer())._1
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(
-            Seq("select-duties" -> "XXX")
-          ),
-          messageFromMessageKey("select-duties.title"),
-          doc =>
-            doc
-              .select(".govuk-error-summary__list > li:nth-child(1) > a")
-              .text() shouldBe messageFromMessageKey(s"select-duties.error.required"),
-          BAD_REQUEST
-        )
-      }
-
     }
 
     "Available Duties" should {
@@ -308,7 +178,7 @@ class SelectDutiesControllerSpec
         val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val session                               = getSessionWithPreviousAnswer(None, sample[MRN], Some(acc14))._2
         val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
@@ -320,7 +190,7 @@ class SelectDutiesControllerSpec
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
-        val session         = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14), basisOfClaim)._2
+        val session         = getSessionWithPreviousAnswer(None, sample[MRN], Some(acc14), basisOfClaim)._2
         val dutiesAvailable = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
       }
@@ -345,7 +215,7 @@ class SelectDutiesControllerSpec
 
       "Acc14 excise code where the CMA eligible flag is true" in {
 
-        val session = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._1
+        val session = getSessionWithPreviousAnswer(None, sample[MRN], Some(acc14))._1
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -366,7 +236,7 @@ class SelectDutiesControllerSpec
       }
 
       "the CMA eligible flag indicates true" in {
-        val session                               = getSessionWithPreviousAnswer(None, sample[MovementReferenceNumber], Some(acc14))._2
+        val session                               = getSessionWithPreviousAnswer(None, sample[MRN], Some(acc14))._2
         val dutiesAvailable: CmaEligibleAndDuties = SelectDutiesController.getAvailableDuties(session)
         dutiesAvailable.dutiesSelectedAnswer.map(_.toList) shouldBe Right(taxCodes.map(Duty(_)))
 

@@ -80,7 +80,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
     "be one" when {
       "only lead MRN is added and no other MRNs present" in {
-        forAll { mrn: MovementReferenceNumber =>
+        forAll { mrn: MRN =>
           DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
             .MRNs
@@ -93,7 +93,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
       forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (mrn: MRN, mrns: List[MRN]) =>
         DraftClaim.blank
           .copy(
-            movementReferenceNumber = MovementReferenceNumber(mrn).some,
+            movementReferenceNumber = mrn.some,
             associatedMRNsAnswer = NonEmptyList.fromList(mrns)
           )
           .MRNs
@@ -109,10 +109,10 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
     "contain only lead MRN" when {
       "no other MRNs added" in {
-        forAll { mrn: MovementReferenceNumber =>
+        forAll { mrn: MRN =>
           DraftClaim.blank
             .copy(movementReferenceNumber = mrn.some)
-            .MRNs() should be(List(mrn.value.value))
+            .MRNs() should be(List(mrn))
         }
       }
     }
@@ -121,7 +121,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
       forAll(genMRN, Gen.nonEmptyListOf(genMRN)) { (mrn: MRN, mrns: List[MRN]) =>
         DraftClaim.blank
           .copy(
-            movementReferenceNumber = MovementReferenceNumber(mrn).some,
+            movementReferenceNumber = mrn.some,
             associatedMRNsAnswer = NonEmptyList.fromList(mrns)
           )
           .MRNs() should be(mrn +: mrns)
@@ -131,7 +131,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
 
   "The list of MRNs and declarations" should {
     "contain only associated MRNs and declarations" in {
-      forAll { (mrn: Option[MovementReferenceNumber], mrns: List[MRN], declarations: List[DisplayDeclaration]) =>
+      forAll { (mrn: Option[MRN], mrns: List[MRN], declarations: List[DisplayDeclaration]) =>
         DraftClaim.blank
           .copy(
             movementReferenceNumber = mrn,
@@ -155,7 +155,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
     "contain lead MRN and declaration combined with associated MRNs and declarations" in {
       forAll {
         (
-          mrn: MovementReferenceNumber,
+          mrn: MRN,
           declaration: DisplayDeclaration,
           mrns: List[MRN],
           declarations: List[DisplayDeclaration]
@@ -168,7 +168,7 @@ class DraftClaimSpec extends AnyWordSpec with ScalaCheckPropertyChecks with Eith
               associatedMRNsDeclarationAnswer = NonEmptyList.fromList(declarations)
             )
             .MRNs
-            .combineWithDeclarations should be((mrn.value.value, declaration) +: (mrns zip declarations))
+            .combineWithDeclarations should be((mrn, declaration) +: (mrns zip declarations))
       }
     }
   }

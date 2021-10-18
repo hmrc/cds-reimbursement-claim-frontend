@@ -75,7 +75,7 @@ class EnterAssociatedMrnController @Inject() (
     Form(
       mapping(
         enterAssociatedMrnKey -> nonEmptyText
-          .verifying("invalid.number", str => str.isEmpty || MRN.isValid(str))
+          .verifying("invalid.number", str => str.isEmpty || MRN(str).isValid)
           .verifying("error.exists", mrn => existing.forall(_.value =!= mrn))
           .transform[AssociatedMrn](MRN(_), _.value)
       )(identity)(Some(_))
@@ -148,12 +148,11 @@ class EnterAssociatedMrnController @Inject() (
                              case _ => getDeclaration(mrn)
                            }
 
-            _ = EitherT.fromEither[Future] {
-                  canAcceptAssociatedDeclaration(journey, declaration) match {
-                    case false => Left(displayInputError(mrn, "error.eori-not-matching"))
-                    case true  => Right(())
-                  }
-                }
+            _ = EitherT.cond[Future](
+                  canAcceptAssociatedDeclaration(journey, declaration),
+                  displayInputError(mrn, "error.eori-not-matching"),
+                  ()
+                )
 
             updatedDraftClaim <-
               EitherT.fromEither[Future](

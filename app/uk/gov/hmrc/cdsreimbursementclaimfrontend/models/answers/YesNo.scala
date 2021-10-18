@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import cats.Eq
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 
-final case class Duty(taxCode: TaxCode)
+sealed trait YesNo extends Product with Serializable
 
-object Duty {
-  implicit val format: OFormat[Duty] = Json.format[Duty]
+object YesNo {
+
+  final case object No extends YesNo
+  final case object Yes extends YesNo
+
+  implicit val eq: Eq[YesNo] = Eq.fromUniversalEquals[YesNo]
+
+  implicit val format: OFormat[YesNo] = derived.oformat[YesNo]()
 }

@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 
@@ -61,7 +61,7 @@ object JourneyStatus {
   final case object NonGovernmentGatewayJourney extends JourneyStatus
 
   object FillingOutClaim {
-    def of(fillingOutClaim: FillingOutClaim)(f: DraftClaim => DraftClaim): FillingOutClaim =
+    def from(fillingOutClaim: FillingOutClaim)(f: DraftClaim => DraftClaim): FillingOutClaim =
       fillingOutClaim.copy(draftClaim = f(fillingOutClaim.draftClaim))
 
     def ofEither[E](fillingOutClaim: FillingOutClaim)(

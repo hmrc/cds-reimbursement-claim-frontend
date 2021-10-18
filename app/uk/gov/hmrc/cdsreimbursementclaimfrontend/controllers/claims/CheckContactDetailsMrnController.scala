@@ -21,11 +21,8 @@ import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
 import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
-import julienrf.json.derived
-import play.api.data.Forms.{mapping, number}
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
-import play.api.libs.json.OFormat
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -33,19 +30,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, Er
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{NamePhoneEmail, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MrnContactDetails, NamePhoneEmail}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MrnContactDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,7 +71,7 @@ class CheckContactDetailsMrnController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
-          Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, mandatoryDataAvailable = true))
+          Ok(renderTemplate(whetherContinue, fillingOutClaim, router, mandatoryDataAvailable = true))
         else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
     }
@@ -81,7 +79,7 @@ class CheckContactDetailsMrnController @Inject() (
   def addDetailsShow(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(checkClaimantDetailsAnswerForm, fillingOutClaim, router, mandatoryDataAvailable = false))
+        Ok(renderTemplate(whetherContinue, fillingOutClaim, router, mandatoryDataAvailable = false))
       }
     }
 
@@ -89,14 +87,14 @@ class CheckContactDetailsMrnController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
-        checkClaimantDetailsAnswerForm
+        whetherContinue
           .bindFromRequest()
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
-            formOk => Redirect(router.nextPageForAddClaimantDetails(formOk, featureSwitch))
+            answer => Redirect(router.nextPageForAddClaimantDetails(answer, featureSwitch))
           )
       }
     }
@@ -105,25 +103,30 @@ class CheckContactDetailsMrnController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
-        checkClaimantDetailsAnswerForm
+        whetherContinue
           .bindFromRequest()
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
-            formOk =>
-              formOk match {
-                case YesClaimantDetailsAnswer =>
-                  Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
-                case NoClaimantDetailsAnswer  =>
-                  val updatedClaim = FillingOutClaim
-                    .of(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None))
+            answer =>
+              answer match {
+                case Yes =>
+                  Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
+                case No  =>
+                  val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
+                    _.copy(
+                      mrnContactDetailsAnswer = None,
+                      mrnContactAddressAnswer = None
+                    )
+                  )
+
                   EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
                     .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                     .fold(
                       e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                      _ => Redirect(router.nextPageForChangeClaimantDetails(formOk, featureSwitch))
+                      _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
                     )
               }
           )
@@ -163,7 +166,7 @@ class CheckContactDetailsMrnController @Inject() (
         def updateLookupAddress(id: UUID) =
           for {
             newAddress <- addressLookupService.retrieveUserAddress(id)
-            copyClaim   = FillingOutClaim.of(claim)(_.copy(mrnContactAddressAnswer = newAddress.some))
+            copyClaim   = FillingOutClaim.from(claim)(_.copy(mrnContactAddressAnswer = newAddress.some))
             result     <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = copyClaim.some)))
           } yield result
 
@@ -178,7 +181,7 @@ class CheckContactDetailsMrnController @Inject() (
     }
 
   def renderTemplate(
-    form: Form[CheckClaimantDetailsAnswer],
+    form: Form[YesNo],
     fillingOutClaim: FillingOutClaim,
     router: ReimbursementRoutes,
     mandatoryDataAvailable: Boolean
@@ -211,31 +214,10 @@ class CheckContactDetailsMrnController @Inject() (
 }
 
 object CheckContactDetailsMrnController {
-  val languageKey: String = "claimant-details"
 
-  sealed trait CheckClaimantDetailsAnswer extends Product with Serializable
+  val checkContactDetailsKey: String = "claimant-details"
 
-  case object YesClaimantDetailsAnswer extends CheckClaimantDetailsAnswer
-  case object NoClaimantDetailsAnswer extends CheckClaimantDetailsAnswer
-
-  val checkClaimantDetailsAnswerForm: Form[CheckClaimantDetailsAnswer] =
-    Form(
-      mapping(
-        languageKey -> number
-          .verifying("invalid", a => a === 0 || a === 1)
-          .transform[CheckClaimantDetailsAnswer](
-            value =>
-              if (value === 0) YesClaimantDetailsAnswer
-              else NoClaimantDetailsAnswer,
-            {
-              case YesClaimantDetailsAnswer => 0
-              case NoClaimantDetailsAnswer  => 1
-            }
-          )
-      )(identity)(Some(_))
-    )
-
-  implicit val format: OFormat[CheckClaimantDetailsAnswer] = derived.oformat[CheckClaimantDetailsAnswer]()
+  val whetherContinue: Form[YesNo] = YesOrNoQuestionForm(checkContactDetailsKey)
 
   def extractDetailsRegisteredWithCDS(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
     val email = fillingOutClaim.signedInUserDetails.verifiedEmail

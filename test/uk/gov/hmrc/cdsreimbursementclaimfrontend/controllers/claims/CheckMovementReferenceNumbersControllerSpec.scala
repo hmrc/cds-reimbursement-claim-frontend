@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController.checkMovementReferenceNumbersKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -80,7 +80,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
   private def sessionWithClaimState(
     associatedMRNsAnswer: List[MRN],
-    movementReferenceNumber: MovementReferenceNumber,
+    movementReferenceNumber: MRN,
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
@@ -126,7 +126,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll { reference: MovementReferenceNumber =>
+      "there is no journey status in the session" in forAll { reference: MRN =>
         val (session, _, _) = sessionWithClaimState(Nil, reference, None)
 
         inSequence {
@@ -141,7 +141,7 @@ class CheckMovementReferenceNumbersControllerSpec
       }
     }
 
-    "display the page title" in forAll { reference: MovementReferenceNumber =>
+    "display the page title" in forAll { reference: MRN =>
       val (session, _, _) =
         sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
@@ -158,7 +158,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in forAll { reference: MovementReferenceNumber =>
+      "the user has not answered this question before" in forAll { reference: MRN =>
         val (session, _, _) =
           sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
@@ -181,7 +181,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option and submits the page" in forAll { reference: MovementReferenceNumber =>
+      "the user does not select an option and submits the page" in forAll { reference: MRN =>
         val (session, _, _) =
           sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
 
@@ -193,7 +193,7 @@ class CheckMovementReferenceNumbersControllerSpec
         checkPageIsDisplayed(
           performActionWithData(Seq.empty),
           messageFromMessageKey(s"$checkMovementReferenceNumbersKey.title"),
-          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.invalid-answer"),
+          getErrorSummary(_) shouldBe messageFromMessageKey(s"$checkMovementReferenceNumbersKey.error.invalid"),
           BAD_REQUEST
         )
       }
@@ -201,7 +201,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "delete an MRN" when {
       "the user selects the delete link next to an MRN" in {
-        forAll { (reference: MovementReferenceNumber, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
+        forAll { (leadMrn: MRN, indexWithMrns: (AssociatedMrnIndex, List[MRN])) =>
           def performActionDelete(mrnDeleteIndex: AssociatedMrnIndex): Future[Result] =
             controller.deleteMrn(mrnDeleteIndex)(FakeRequest())
 
@@ -211,7 +211,7 @@ class CheckMovementReferenceNumbersControllerSpec
           val (session, fillingOutClaim, draftClaim) =
             sessionWithClaimState(
               mrns,
-              reference,
+              leadMrn,
               Some(SelectNumberOfClaimsAnswer.Multiple)
             )
 
@@ -238,13 +238,13 @@ class CheckMovementReferenceNumbersControllerSpec
     "redirect to the next MRN page" when {
 
       "the user selects yes" in {
-        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+        forAll(Gen.nonEmptyListOf(genMRN), genMRN) { (mrns, leadMrn) =>
           val mrnForwardIndex: Int = mrns.size
 
           val (session, _, _) =
             sessionWithClaimState(
               mrns,
-              reference,
+              leadMrn,
               Some(SelectNumberOfClaimsAnswer.Multiple)
             )
 
@@ -264,11 +264,11 @@ class CheckMovementReferenceNumbersControllerSpec
     "redirect to the who is making this claim page" when {
 
       "the user selects no" in {
-        forAll(Gen.nonEmptyListOf(genMRN), genMovementReferenceNumber) { (mrns, reference) =>
+        forAll(Gen.nonEmptyListOf(genMRN), genMRN) { (mrns, leadMrn) =>
           val (session, _, _) =
             sessionWithClaimState(
               mrns,
-              reference,
+              leadMrn,
               Some(SelectNumberOfClaimsAnswer.Multiple)
             )
 

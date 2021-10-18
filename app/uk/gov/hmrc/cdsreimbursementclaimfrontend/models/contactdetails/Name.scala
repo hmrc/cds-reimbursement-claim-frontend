@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import play.api.libs.functional.syntax.toInvariantFunctorOps
-import play.api.libs.json.Format
+import play.api.libs.json.{Json, OFormat}
 
-final case class Eori(value: String) extends AnyVal
+final case class Name(name: Option[String], lastName: Option[String])
 
-object Eori {
+object Name {
 
-  def isValid(maybeEori: String): Boolean = {
-    val regex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
-    maybeEori.matches(regex)
-  }
+  def fromGGName(maybeName: Option[uk.gov.hmrc.auth.core.retrieve.Name]): Option[Name] =
+    maybeName.map { name =>
+      Name(name.name, name.lastName)
+    }
 
-  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
+  implicit val format: OFormat[Name] = Json.format[Name]
 }

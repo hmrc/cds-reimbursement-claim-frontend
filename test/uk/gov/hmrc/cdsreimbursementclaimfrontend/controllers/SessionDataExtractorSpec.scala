@@ -24,14 +24,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, DraftClaim, SelectNumberOfClaimsAnswer, SessionData}
 
 import scala.concurrent.Future
 
@@ -108,7 +108,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
@@ -130,7 +130,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Multiple),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
@@ -152,7 +152,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val draftC285Claim       =
           sample[DraftClaim].copy(
             selectNumberOfClaimsAnswer = None,
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)

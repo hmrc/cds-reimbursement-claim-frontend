@@ -77,7 +77,7 @@ class SelectDutyTypesController @Inject() (
                 Redirect(reimbursementRoutes.SelectDutyCodesController.start())
               else {
                 val updatedJourney =
-                  FillingOutClaim.of(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(selectedAnswer)))
+                  FillingOutClaim.from(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(selectedAnswer)))
 
                 EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
                   .leftMap(_ => Error("could not update session"))

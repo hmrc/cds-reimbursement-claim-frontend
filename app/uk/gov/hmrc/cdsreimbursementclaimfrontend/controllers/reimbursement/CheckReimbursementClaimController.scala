@@ -17,24 +17,23 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import play.api.Configuration
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.whetherDutiesCorrectForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, YesNo}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.YesNo._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
@@ -83,7 +82,7 @@ class CheckReimbursementClaimController @Inject() (
             formWithErrors => BadRequest(checkReimbursementClaim(formWithErrors, answer)),
             {
               case Yes =>
-                val updatedClaim = FillingOutClaim.of(fillingOutClaim)(_.copy(claimsAnswer = answer.toClaimsAnswer))
+                val updatedClaim = FillingOutClaim.from(fillingOutClaim)(_.copy(claimsAnswer = answer.toClaimsAnswer))
 
                 EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedClaim))))
                   .leftMap(_ => Error("could not update session"))
@@ -102,14 +101,6 @@ class CheckReimbursementClaimController @Inject() (
 
 object CheckReimbursementClaimController {
 
-  val whetherDutiesCorrectForm: Form[YesNo] = Form(
-    mapping(
-      "check-claim-summary" -> optional(boolean)
-        .verifying("error.invalid", _.isDefined)
-        .transform[YesNo](
-          value => if (value.exists(_ === true)) Yes else No,
-          answer => Some(answer === Yes)
-        )
-    )(identity)(Some(_))
-  )
+  val whetherDutiesCorrectForm: Form[YesNo] =
+    YesOrNoQuestionForm("check-claim-summary")
 }

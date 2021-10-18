@@ -70,15 +70,14 @@ class EnterReimbursementClaimController @Inject() (
         ) { dutyCodesAnswer =>
           val reimbursementClaimAnswer = answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))
 
-          val updatedJourneyStatus = FillingOutClaim.of(fillingOutClaim)(
+          val updatedJourneyStatus = FillingOutClaim.from(fillingOutClaim)(
             _.copy(
               reimbursementClaimAnswer = Some(reimbursementClaimAnswer.updateAnswer(dutyCodesAnswer))
             )
           )
 
-          EitherT
-            .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
-            .leftMap((_: Unit) => Error("could not update session"))
+          EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
+            .leftMap(_ => Error("could not update session"))
             .fold(
               logAndDisplayError("could not update reimbursement claims"),
               _ =>
@@ -164,13 +163,12 @@ class EnterReimbursementClaimController @Inject() (
       reimbursementClaimAnswer.updateReimbursementClaim(dutyType, dutyCode, reimbursementClaim)
 
     val updatedJourney =
-      FillingOutClaim.of(fillingOutClaim)(
+      FillingOutClaim.from(fillingOutClaim)(
         _.copy(reimbursementClaimAnswer = Some(updatedReimbursementClaimAnswer))
       )
 
-    EitherT
-      .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-      .leftMap((_: Unit) => Error("could not update session"))
+    EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+      .leftMap(_ => Error("could not update session"))
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>

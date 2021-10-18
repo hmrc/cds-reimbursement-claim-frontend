@@ -20,6 +20,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 
 object CompleteClaimGen {
+  import IdGen._
 
   implicit val arbitraryCompleteClaim: Typeclass[CompleteClaim] = gen[CompleteClaim]
 }

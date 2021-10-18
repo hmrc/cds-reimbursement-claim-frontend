@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Format
 
-final case class Name(name: Option[String], lastName: Option[String])
+final case class ContactName(value: String) extends AnyVal
 
-object Name {
+object ContactName {
 
-  def fromGGName(maybeName: Option[uk.gov.hmrc.auth.core.retrieve.Name]): Option[Name] =
-    maybeName.map { name =>
-      Name(name.name, name.lastName)
-    }
+  implicit val format: Format[ContactName] =
+    implicitly[Format[String]].inmap(ContactName(_), _.value)
 
-  implicit val format: OFormat[Name] = Json.format[Name]
 }

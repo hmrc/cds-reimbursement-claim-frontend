@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
-import java.util.function.Predicate
 import cats.Eq
 import cats.instances.string._
 import cats.syntax.eq._
@@ -24,6 +23,8 @@ import play.api.data.Forms.nonEmptyText
 import play.api.data.Mapping
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Format
+
+import java.util.function.Predicate
 
 final case class PhoneNumber(value: String) extends AnyVal
 

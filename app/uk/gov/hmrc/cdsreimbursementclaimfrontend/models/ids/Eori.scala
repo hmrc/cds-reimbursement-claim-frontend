@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.toInvariantFunctorOps
+import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori.validityRegex
 
-final case class DeclarantEoriNumber(value: Eori)
+final case class Eori(value: String) extends AnyVal {
 
-object DeclarantEoriNumber {
-  implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
+  def isValid: Boolean = value matches validityRegex
+}
+
+object Eori {
+
+  private val validityRegex = """^[a-zA-Z]{2}[0-9]{12,15}$"""
+
+  implicit val format: Format[Eori] = implicitly[Format[String]].inmap(Eori(_), _.value)
 }

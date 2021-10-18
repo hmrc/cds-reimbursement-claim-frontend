@@ -30,7 +30,7 @@
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
     pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    cyaHelper : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourAnswersHelper,
+    cyaHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourAnswersHelper,
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
     submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
@@ -38,70 +38,69 @@
     featureSwitch: FeatureSwitchService,
 )
 
-@(completeClaim: CompleteClaim)(implicit request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
+@(completeClaim: CompleteClaim)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
 
-    @key = @{"check-your-answers"}
-    @title = @{messages(s"$key.title")}
+@key = @{"check-your-answers"}
+@title = @{messages(s"$key.title")}
 
-    @contactSummary = @{
-        (completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
-            (contactDetails, contactAddress).summary("claimant-details")
-        }
+@contactSummary = @{
+    (completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
+        (contactDetails, contactAddress).summary("claimant-details")
+    }
+}
+
+@layout(pageTitle = Some(s"$title")) {
+
+    @pageHeading(title)
+
+    @pageHeading(messages(lang(s"$key.reference-number", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @summary(completeClaim.movementReferenceNumber.summary(s"$key.reference-number"))
+
+    @completeClaim.scheduledDocumentAnswer.map { scheduledDocument =>
+        @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(scheduledDocument.summary(s"$key.scheduled-document"))
     }
 
-    @layout(pageTitle = Some(s"$title")) {
-
-        @pageHeading(title)
-
-        @pageHeading(messages(lang(s"$key.reference-number", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
-        @summary(completeClaim.movementReferenceNumber.value.map(_.summary(s"$key.reference-number")).right.get)
-
-        @completeClaim.scheduledDocumentAnswer.map { scheduledDocument =>
-            @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(scheduledDocument.summary(s"$key.scheduled-document"))
-        }
-
-        @completeClaim.maybeDisplayDeclaration.map { displayDeclaration =>
-            @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(displayDeclaration.summary(s"$key.declaration-details").drop(2))
-        }
-
-        @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(completeClaim.declarantTypeAnswer.summary(s"$key.claimant-type"))
-
-        @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(completeClaim.detailsRegisteredWithCdsAnswer.summary(s"$key"))
-
-        @contactSummary.map { details =>
-            @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
-            @summary(details)
-        }
-
-        @completeClaim.maybeBasisOfClaimAnswer.map { basisOfClaim =>
-            @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-            @summary(basisOfClaim.summary(s"$key.basis"))
-        }
-
-        @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
-        @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim)(messages, router.journeyBindable))) else ""}
-
-        @pageHeading(messages(lang(s"$key.commodity-details", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
-
-        @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
-
-        @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
-
-        @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(completeClaim.supportingEvidencesAnswer.summary(s"$key.attached-documents"))
-
-        @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
-
-        @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
-            @submitButton("button.accept-and-send")
-        }
-
+    @completeClaim.maybeDisplayDeclaration.map { displayDeclaration =>
+        @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(displayDeclaration.summary(s"$key.declaration-details").drop(2))
     }
+
+    @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(completeClaim.declarantTypeAnswer.summary(s"$key.claimant-type"))
+
+    @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(completeClaim.detailsRegisteredWithCdsAnswer.summary(s"$key"))
+
+    @contactSummary.map { details =>
+        @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
+        @summary(details)
+    }
+
+    @completeClaim.maybeBasisOfClaimAnswer.map { basisOfClaim =>
+        @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(basisOfClaim.summary(s"$key.basis"))
+    }
+
+    @{if(featureSwitch.NorthernIreland.isEnabled()) pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2") else ""}
+    @{if(featureSwitch.NorthernIreland.isEnabled()) summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim)(messages, router.journeyBindable))) else ""}
+
+    @pageHeading(messages(lang(s"$key.commodity-details", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
+
+    @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
+
+    @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
+
+    @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(completeClaim.supportingEvidencesAnswer.summary(s"$key.attached-documents"))
+
+    @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
+
+    @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
+        @submitButton("button.accept-and-send")
+    }
+}

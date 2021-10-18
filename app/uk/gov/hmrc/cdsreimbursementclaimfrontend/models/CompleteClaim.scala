@@ -25,16 +25,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 
 import java.util.UUID
 
 final case class CompleteClaim(
   id: UUID,
-  movementReferenceNumber: MovementReferenceNumber,
-  maybeDuplicateMovementReferenceNumberAnswer: Option[MovementReferenceNumber],
+  movementReferenceNumber: MRN,
+  maybeDuplicateMovementReferenceNumberAnswer: Option[MRN],
   declarantTypeAnswer: DeclarantTypeAnswer,
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
   mrnContactDetailsAnswer: Option[MrnContactDetails],
@@ -59,7 +60,7 @@ object CompleteClaim {
       case DraftClaim(
             id,
             typeOfClaim,
-            Some(MovementReferenceNumber(Right(mrn))),
+            Some(mrn),
             maybeDuplicateMovementReferenceNumber,
             draftDeclarantTypeAnswer,
             _,
@@ -80,8 +81,6 @@ object CompleteClaim {
             draftImporterEoriNumberAnswer,
             draftDeclarantEoriNumberAnswer,
             Some(claimsAnswer),
-            _,
-            _,
             maybeScheduledDocument,
             _,
             _,
@@ -108,7 +107,7 @@ object CompleteClaim {
                 ) =>
               CompleteClaim(
                 id = id,
-                movementReferenceNumber = MovementReferenceNumber(Right(mrn)),
+                movementReferenceNumber = mrn,
                 maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
                 declarantTypeAnswer,
                 detailsRegisteredWithCdsAnswer,
@@ -140,6 +139,37 @@ object CompleteClaim {
   implicit val eq: Eq[CompleteClaim]          = Eq.fromUniversalEquals[CompleteClaim]
   implicit val format: OFormat[CompleteClaim] = Json.format[CompleteClaim]
 
+  def validateDeclarantTypeAnswer(
+    maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
+  ): Validation[DeclarantTypeAnswer] =
+    maybeDeclarantTypeAnswer toValidNel "missing declarant type answer"
+
+  def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
+    maybeClaimsAnswer toValidNel "missing claims answer"
+
+  def validateDetailsRegisteredWithCdsEntryNumber(
+    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
+  ): Validation[DetailsRegisteredWithCdsAnswer] =
+    maybeDetailsRegisteredWithCdsAnswer toValidNel "missing claimant details type answer"
+
+  def validateCommodityDetailsAnswer(
+    maybeClaimsAnswer: Option[CommodityDetails]
+  ): Validation[CommodityDetails] =
+    maybeClaimsAnswer toValidNel "missing commodity details answer"
+
+  def validateSupportingEvidencesAnswer(
+    maybeSupportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
+  ): Validation[SupportingEvidencesAnswer] =
+    maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
+
+  def validateClaimantContactDetailsEntryNumber(
+    maybeMrnContactDetails: Option[MrnContactDetails]
+  ): Validation[Option[MrnContactDetails]] =
+    maybeMrnContactDetails match {
+      case None => invalidNel("incomplete contact details")
+      case a    => Valid(a)
+    }
+
   def validateDeclarantEoriNumberAnswer(
     maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
   ): Validation[Option[DeclarantEoriNumber]] =
@@ -164,38 +194,6 @@ object CompleteClaim {
       case None        => Valid(None)
     }
 
-  def validateCommodityDetailsAnswer(
-    maybeClaimsAnswer: Option[CommodityDetails]
-  ): Validation[CommodityDetails] =
-    maybeClaimsAnswer toValidNel "Missing commodity details answer"
-
-  def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
-    maybeClaimsAnswer match {
-      case Some(value) => Valid(value)
-      case None        => invalidNel("missing supporting evidence answer")
-    }
-
-  def validateSupportingEvidencesAnswer(
-    maybeSupportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
-  ): Validation[SupportingEvidencesAnswer] =
-    maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
-
-  def validateClaimantContactDetailsEntryNumber(
-    maybeMrnContactDetails: Option[MrnContactDetails]
-  ): Validation[Option[MrnContactDetails]] =
-    maybeMrnContactDetails match {
-      case None => invalidNel("incomplete contact details")
-      case a    => Valid(a)
-    }
-
-  def validateDetailsRegisteredWithCdsEntryNumber(
-    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
-  ): Validation[DetailsRegisteredWithCdsAnswer] =
-    maybeDetailsRegisteredWithCdsAnswer match {
-      case Some(value) => Valid(value)
-      case None        => invalidNel("missing claimant details type answer")
-    }
-
   def validateDetailsRegisteredWithCdsMrn(
     maybeDeclarantType: Option[DeclarantTypeAnswer],
     maybeDisplayDeclaration: Option[DisplayDeclaration],
@@ -213,14 +211,6 @@ object CompleteClaim {
       }
       .getOrElse(invalidNel("Missing declarant type or display declaration"))
 
-  def validateDeclarantTypeAnswer(
-    maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
-  ): Validation[DeclarantTypeAnswer] =
-    maybeDeclarantTypeAnswer match {
-      case Some(value) => Valid(value)
-      case None        => invalidNel("missing declarant type answer")
-    }
-
   def validateScheduledDocumentAnswer(
     maybeScheduledDocument: Option[ScheduledDocumentAnswer],
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
@@ -237,22 +227,18 @@ object CompleteClaim {
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) extends AnyVal {
 
     def bankDetails: Option[BankAccountDetails] =
-      completeClaim.movementReferenceNumber.value match {
-        case Left(_)  => completeClaim.maybeBankAccountDetailsAnswer
-        case Right(_) =>
-          completeClaim.maybeBankAccountDetailsAnswer match {
-            case None =>
-              for {
-                displayDeclaration   <- completeClaim.maybeDisplayDeclaration
-                bankDetails          <- displayDeclaration.displayResponseDetail.maskedBankDetails
-                consigneeBankDetails <- bankDetails.consigneeBankDetails
-              } yield BankAccountDetails(
-                AccountName(consigneeBankDetails.accountHolderName),
-                SortCode(consigneeBankDetails.sortCode),
-                AccountNumber(consigneeBankDetails.accountNumber)
-              )
-            case _    => completeClaim.maybeBankAccountDetailsAnswer
-          }
+      completeClaim.maybeBankAccountDetailsAnswer match {
+        case None =>
+          for {
+            displayDeclaration   <- completeClaim.maybeDisplayDeclaration
+            bankDetails          <- displayDeclaration.displayResponseDetail.maskedBankDetails
+            consigneeBankDetails <- bankDetails.consigneeBankDetails
+          } yield BankAccountDetails(
+            AccountName(consigneeBankDetails.accountHolderName),
+            SortCode(consigneeBankDetails.sortCode),
+            AccountNumber(consigneeBankDetails.accountNumber)
+          )
+        case _    => completeClaim.maybeBankAccountDetailsAnswer
       }
 
     def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()

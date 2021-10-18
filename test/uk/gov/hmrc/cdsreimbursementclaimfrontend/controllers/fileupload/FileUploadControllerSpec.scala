@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.UUIDGenerator
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
@@ -40,15 +39,13 @@ import scala.concurrent.Future
 
 abstract class FileUploadControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
-  val mockUUIDGenerator: UUIDGenerator = mock[UUIDGenerator]
   val mockUpscanService: UpscanService = mock[UpscanService]
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache),
-      bind[UpscanService].toInstance(mockUpscanService),
-      bind[UUIDGenerator].toInstance(mockUUIDGenerator)
+      bind[UpscanService].toInstance(mockUpscanService)
     )
 
   protected def mockUpscanInitiate[A](errorRedirectCall: Call, successRedirectCall: UploadReference => Call)(

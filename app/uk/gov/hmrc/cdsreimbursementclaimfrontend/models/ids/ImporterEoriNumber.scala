@@ -18,21 +18,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.util.Locale
+final case class ImporterEoriNumber(value: Eori)
 
-final case class EntryNumber(value: String) extends AnyVal
+object ImporterEoriNumber {
 
-object EntryNumber {
-
-  def changeToUpperCaseWithoutSpaces(maybeEntryNumber: String): EntryNumber =
-    EntryNumber(maybeEntryNumber.toUpperCase(Locale.UK).replaceAll("\\s", ""))
-
-  def isValid(maybeEntryNumber: String): Boolean = {
-
-    val entryNumberWithoutSpaces: String = maybeEntryNumber.toUpperCase(Locale.UK).replaceAll("\\s", "")
-    val entryNumberFormat                = """\d{3}\d{6}[a-zA-Z]{1}\d{8}"""
-    entryNumberWithoutSpaces.matches(entryNumberFormat)
-  }
-
-  implicit val format: OFormat[EntryNumber] = Json.format[EntryNumber]
+  implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
 }

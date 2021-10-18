@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 
 object DutiesSelectedAnswerGen {
 
