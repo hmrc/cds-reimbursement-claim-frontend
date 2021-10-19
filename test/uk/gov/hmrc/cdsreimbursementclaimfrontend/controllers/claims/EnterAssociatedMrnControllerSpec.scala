@@ -87,11 +87,12 @@ class EnterAssociatedMrnControllerSpec
     associatedMrns: List[MRN],
     movementReferenceNumber: MRN,
     numberOfClaims: Option[SelectNumberOfClaimsAnswer],
+    displayDeclaration: Option[DisplayDeclaration] = None,
     associatedDeclarations: List[DisplayDeclaration] = Nil,
     eori: Option[Eori] = None
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
-      displayDeclaration = associatedDeclarations.headOption,
+      displayDeclaration = displayDeclaration,
       associatedMRNsAnswer = NonEmptyList.fromList(associatedMrns),
       movementReferenceNumber = Some(movementReferenceNumber),
       selectNumberOfClaimsAnswer = numberOfClaims,
@@ -227,10 +228,10 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "accept the same MRN when changing an existing" in {
+        val displayDeclaration = sample[DisplayDeclaration]
+
         forAll { (leadMrn: MRN, mrn: MRN, mrns: List[MRN]) =>
           val associatedMRNsAnswer = mrn +: mrns
-
-          val displayDeclaration = sample[DisplayDeclaration]
 
           val associatedDeclarations = associatedMRNsAnswer
             .map(_ => displayDeclaration)
@@ -239,6 +240,7 @@ class EnterAssociatedMrnControllerSpec
             associatedMRNsAnswer,
             leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple),
+            Some(displayDeclaration),
             associatedDeclarations
           )
 
@@ -332,7 +334,7 @@ class EnterAssociatedMrnControllerSpec
         }
       }
 
-      "redirect to the MRN summary page" in {
+      "redirect to the MRN summary page if lead MRN is associated and second MRN's EORI matches user EORI" in {
 
         val eori: Eori         = sample[Eori]
         val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = eori.value)
@@ -353,6 +355,7 @@ class EnterAssociatedMrnControllerSpec
               mrns,
               leadMrn,
               Some(SelectNumberOfClaimsAnswer.Multiple),
+              displayDeclaration = Some(displayDeclaration),
               associatedDeclarations = mrns.map(_ => displayDeclaration),
               eori = Some(eori)
             )
@@ -367,6 +370,160 @@ class EnterAssociatedMrnControllerSpec
           checkIsRedirect(
             performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
             routes.CheckMovementReferenceNumbersController.showMrns()
+          )
+        }
+      }
+
+      "redirect to the MRN summary page if lead MRN not associated and second MRN's EORI matches consignee and declarant EORI" in {
+        val userEori: Eori   = sample[Eori]
+        val mrnEori: Eori    = sample[Eori]
+        val declarantDetails = sample[DeclarantDetails].copy(declarantEORI = mrnEori.value)
+        val consigneeDetails = sample[ConsigneeDetails].copy(consigneeEORI = mrnEori.value)
+
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(consigneeDetails = Some(consigneeDetails), declarantDetails = declarantDetails)
+          )
+        )
+
+        forAll(genMRN, Gen.nonEmptyListOf(genMRN), genMRN) { (leadMrn, mrns, mrn) =>
+          val mrnForwardIndex: Int = mrns.size
+          val associatedMrnIndex   = AssociatedMrnIndex.fromListIndex(mrnForwardIndex)
+
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              leadMrn,
+              Some(SelectNumberOfClaimsAnswer.Multiple),
+              displayDeclaration = Some(displayDeclaration),
+              associatedDeclarations = mrns.map(_ => displayDeclaration),
+              eori = Some(userEori)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockGetDisplayDeclaration(Right(Some(displayDeclaration)))
+            mockStoreSession(Right(()))
+          }
+
+          checkIsRedirect(
+            performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
+            routes.CheckMovementReferenceNumbersController.showMrns()
+          )
+        }
+      }
+
+      "display error if lead MRN is associated and second MRN's EORI does not match user EORI" in {
+        val userEori: Eori   = sample[Eori]
+        val mrnEori: Eori    = sample[Eori]
+        val declarantDetails = sample[DeclarantDetails]
+        val consigneeDetails = sample[ConsigneeDetails]
+
+        val leadDisplayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(
+                consigneeDetails = Some(consigneeDetails.copy(consigneeEORI = userEori.value)),
+                declarantDetails = declarantDetails.copy(declarantEORI = userEori.value)
+              )
+          )
+        )
+
+        val secondDisplayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(
+                consigneeDetails = Some(consigneeDetails.copy(consigneeEORI = mrnEori.value)),
+                declarantDetails = declarantDetails.copy(declarantEORI = mrnEori.value)
+              )
+          )
+        )
+
+        forAll(genMRN, Gen.nonEmptyListOf(genMRN), genMRN) { (leadMrn, mrns, mrn) =>
+          val mrnForwardIndex: Int = mrns.size
+          val associatedMrnIndex   = AssociatedMrnIndex.fromListIndex(mrnForwardIndex)
+
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              leadMrn,
+              Some(SelectNumberOfClaimsAnswer.Multiple),
+              displayDeclaration = Some(leadDisplayDeclaration),
+              associatedDeclarations = mrns.map(_ => secondDisplayDeclaration),
+              eori = Some(userEori)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockGetDisplayDeclaration(Right(Some(secondDisplayDeclaration)))
+          }
+
+          checkPageIsDisplayed(
+            performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(associatedMrnIndex.toUrlIndex)),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.error.eori-not-matching"),
+            expectedStatus = 400
+          )
+        }
+      }
+
+      "display error if lead MRN not associated and second MRN's EORI does not match consignee and declarant EORI" in {
+        val userEori: Eori   = sample[Eori]
+        val leadEori: Eori   = sample[Eori]
+        val mrnEori: Eori    = sample[Eori]
+        val declarantDetails = sample[DeclarantDetails]
+        val consigneeDetails = sample[ConsigneeDetails]
+
+        val leadDisplayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(
+                consigneeDetails = Some(consigneeDetails.copy(consigneeEORI = leadEori.value)),
+                declarantDetails = declarantDetails.copy(declarantEORI = leadEori.value)
+              )
+          )
+        )
+
+        val secondDisplayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(
+                consigneeDetails = Some(consigneeDetails.copy(consigneeEORI = mrnEori.value)),
+                declarantDetails = declarantDetails.copy(declarantEORI = mrnEori.value)
+              )
+          )
+        )
+
+        forAll(genMRN, Gen.nonEmptyListOf(genMRN), genMRN) { (leadMrn, mrns, mrn) =>
+          val mrnForwardIndex: Int = mrns.size
+          val associatedMrnIndex   = AssociatedMrnIndex.fromListIndex(mrnForwardIndex)
+
+          val (session, _, _) =
+            sessionWithClaimState(
+              mrns,
+              leadMrn,
+              Some(SelectNumberOfClaimsAnswer.Multiple),
+              displayDeclaration = Some(leadDisplayDeclaration),
+              associatedDeclarations = mrns.map(_ => secondDisplayDeclaration),
+              eori = Some(userEori)
+            )
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockGetDisplayDeclaration(Right(Some(secondDisplayDeclaration)))
+          }
+
+          checkPageIsDisplayed(
+            performActionWithData(associatedMrnIndex, enterAssociatedMrnKey -> mrn.value),
+            messageFromMessageKey(s"$enterAssociatedMrnKey.title", OrdinalNumeral(associatedMrnIndex.toUrlIndex)),
+            doc =>
+              getErrorSummary(doc) shouldBe messageFromMessageKey(s"$enterAssociatedMrnKey.error.eori-not-matching"),
+            expectedStatus = 400
           )
         }
       }
