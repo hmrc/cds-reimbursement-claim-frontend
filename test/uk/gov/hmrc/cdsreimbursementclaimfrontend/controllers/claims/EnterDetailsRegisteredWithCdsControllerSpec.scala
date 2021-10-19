@@ -27,17 +27,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{sample, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
@@ -88,9 +87,9 @@ class EnterDetailsRegisteredWithCdsControllerSpec
   private def sessionWithClaimState(
     maybeClaimantDetailsAsIndividualAnswer: Option[DetailsRegisteredWithCdsAnswer],
     declarantType: Option[DeclarantTypeAnswer] = None
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         detailsRegisteredWithCdsAnswer = maybeClaimantDetailsAsIndividualAnswer,
         declarantTypeAnswer = declarantType
       )
@@ -112,11 +111,11 @@ class EnterDetailsRegisteredWithCdsControllerSpec
   implicit class UpdateSessionWithDeclarantType(sessionData: SessionData) {
     def withDeclarantType(declarantType: DeclarantTypeAnswer): SessionData =
       sessionData.journeyStatus match {
-        case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+        case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
           val answer   = Some(declarantType)
           val newClaim = draftClaim.copy(declarantTypeAnswer = answer)
           sessionData.copy(journeyStatus = Some(FillingOutClaim(g, s, newClaim)))
-        case _                                                         => fail("Failed to update DeclarantType")
+        case _                                                   => fail("Failed to update DeclarantType")
       }
   }
 
@@ -265,7 +264,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
 
       val updatedJourney = fillingOutClaim.copy(draftClaim =
         draftC285Claim.copy(
-          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+          movementReferenceNumber = Some(sample[MRN]),
           selectNumberOfClaimsAnswer = Some(SelectNumberOfClaimsAnswer.Individual),
           declarantTypeAnswer = Some(DeclarantTypeAnswer.AssociatedWithImporterCompany)
         )

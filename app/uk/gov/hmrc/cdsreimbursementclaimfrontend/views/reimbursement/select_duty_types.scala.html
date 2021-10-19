@@ -20,80 +20,76 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @this(
- layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
- submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
- pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
- formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
- errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
- paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
- checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
+    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+    errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary,
+    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+    checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutyTypesAnswer])(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[DutyTypesAnswer])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"select-duty-types"}
-    @title = @{messages(s"$key.title")}
+@key = @{"select-duty-types"}
+@title = @{messages(s"$key.title")}
 
-    @postAction = @{reimbursementRoutes.SelectDutyTypesController.submitDutyTypes()}
+@postAction = @{reimbursementRoutes.SelectDutyTypesController.submitDutyTypes()}
 
-    @customs_options = @{DutyType.customDutyTypes.map { dutyType =>
+@customsOptions = @{
+    DutyTypes.custom.map { dutyType =>
         CheckboxItem(
-            name = Some(s"${key}[]"),
+            name = Some(s"$key[]"),
             value = dutyType.repr,
-            content = Text(messages(s"${key}.custom.type.${dutyType.repr}")),
+            content = Text(messages(s"duty-type.${dutyType.repr}")),
             checked = form.data.exists(_._2 == dutyType.repr)
-            )
-        }
+        )
     }
+}
 
-    @excise_options = @{DutyType.exciseDutyTypes.map { dutyType =>
+@exciseOptions = @{
+    DutyTypes.excise.map { dutyType =>
         CheckboxItem(
-            name = Some(s"${key}[]"),
+            name = Some(s"$key[]"),
             value = dutyType.repr,
-            content = Text(messages(s"${key}.excise.type.${dutyType.repr}")),
+            content = Text(messages(s"duty-type.${dutyType.repr}")),
             checked = form.data.exists(_._2 == dutyType.repr)
-            )
-        }
+        )
     }
+}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
-        @errorSummary(form.errors)
+    @errorSummary(form.errors)
 
-        @pageHeading(title)
+    @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
 
-        @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
+    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @checkboxes(
-                field = form(s"${key}-custom"),
-                legendAsHeading = true,
-                legend = messages(s"$key.checkbox-legend.1"),
-                items = customs_options.toList,
-                hint = None
-            )
+        @checkboxes(
+            field = form(s"$key-custom"),
+            legend = messages(s"$key.checkbox-legend.1"),
+            items = customsOptions
+        )
 
-            @checkboxes(
-                field = form(s"${key}-excise"),
-                legendAsHeading = true,
-                legend = messages(s"$key.checkbox-legend.2"),
-                items = excise_options.toList,
-                hint = None
-            )
+        @checkboxes(
+            field = form(s"$key-excise"),
+            legend = messages(s"$key.checkbox-legend.2"),
+            items = exciseOptions
+        )
 
-            @submitButton("button.continue")
-
-        }
-
+        @submitButton("button.continue")
     }
+}

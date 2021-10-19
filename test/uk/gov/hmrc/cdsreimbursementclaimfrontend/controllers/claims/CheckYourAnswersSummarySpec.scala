@@ -28,18 +28,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{items => declarantTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.{Individual, Scheduled}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 
@@ -126,7 +125,7 @@ class CheckYourAnswersSummarySpec
             ),
             (
               messages(s"$checkYourAnswersKey.reference-number.label"),
-              claim.movementReferenceNumber.value.stringValue
+              claim.movementReferenceNumber.value.value
             )
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
@@ -287,7 +286,7 @@ class CheckYourAnswersSummarySpec
           summaries should contain allElementsOf Seq(
             (
               messages(s"$checkYourAnswersKey.reference-number.scheduled.label"),
-              claim.movementReferenceNumber.value.stringValue
+              claim.movementReferenceNumber.value.value
             ),
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
@@ -414,7 +413,7 @@ class CheckYourAnswersSummarySpec
     }
   }
 
-  private def genData(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): (SessionData, DraftC285Claim) = {
+  private def genData(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): (SessionData, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val claim               = sample(genValidDraftClaim(selectNumberOfClaimsAnswer))

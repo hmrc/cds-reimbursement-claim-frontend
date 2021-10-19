@@ -28,7 +28,6 @@
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         radios : uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_radio,
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
@@ -48,17 +47,15 @@
 
     @errorSummary(form.errors)
 
-    @pageHeading(title)
-
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,
             name = key,
             legend = title,
-            legendAsHeading = false,
+            legendAsHeading = true,
             hintKey = None,
-            classes = "govuk-visually-hidden",
+            classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8",
             inline = false,
             items = Seq(
                 RadioItem(

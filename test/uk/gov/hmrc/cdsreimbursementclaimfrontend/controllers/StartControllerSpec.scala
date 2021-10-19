@@ -25,15 +25,14 @@ import play.api.test.Helpers.{contentAsString, status, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedRequestWithRetrievedData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, NonGovernmentGatewayJourney, SubmitClaimFailed}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email, Name}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
 
 import scala.concurrent.Future
 
@@ -153,7 +152,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
                       Email(""),
                       ContactName("John Smith")
                     ),
-                    DraftC285Claim.newDraftC285Claim
+                    DraftClaim.blank
                   )
                 )
               )
@@ -199,7 +198,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
                       Email(""),
                       ContactName("John Smith")
                     ),
-                    DraftC285Claim.newDraftC285Claim
+                    DraftClaim.blank
                   )
                 )
               )
@@ -248,7 +247,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
                       Email(""),
                       ContactName("John Smith")
                     ),
-                    DraftC285Claim.newDraftC285Claim
+                    DraftClaim.blank
                   )
                 )
               )
@@ -362,7 +361,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
                   FillingOutClaim(
                     justSubmittedClaim.ggCredId,
                     justSubmittedClaim.signedInUserDetails,
-                    DraftC285Claim.newDraftC285Claim
+                    DraftClaim.blank
                   )
                 )
               )
@@ -389,7 +388,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
                   FillingOutClaim(
                     justSubmittedClaim.ggCredId,
                     justSubmittedClaim.signedInUserDetails,
-                    DraftC285Claim.newDraftC285Claim
+                    DraftClaim.blank
                   )
                 )
               )

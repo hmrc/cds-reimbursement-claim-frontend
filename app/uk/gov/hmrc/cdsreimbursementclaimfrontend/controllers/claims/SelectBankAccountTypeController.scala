@@ -24,9 +24,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType.{allAccountTypes, allAccountsIntToType, allAccountsTypeToInt}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -52,7 +51,7 @@ class SelectBankAccountTypeController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[BankAccountType] = _.bankAccountTypeAnswer
+  implicit val dataExtractor: DraftClaim => Option[BankAccountType] = _.bankAccountTypeAnswer
 
   def selectBankAccountType(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -78,11 +77,10 @@ class SelectBankAccountTypeController @Inject() (
               ),
             formOk => {
 
-              val updatedJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(bankAccountTypeAnswer = Some(formOk)))
+              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountTypeAnswer = Some(formOk)))
 
-              EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap((_: Unit) => Error("could not update session"))
+              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not capture bank account type answer"),
                   _ => Redirect(router.nextPageForSelectBankAccountType())

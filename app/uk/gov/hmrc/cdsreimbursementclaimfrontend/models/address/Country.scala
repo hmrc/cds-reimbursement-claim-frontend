@@ -18,8 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import cats.syntax.eq._
-import play.api.data.FormError
-import play.api.data.format.Formatter
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
 
@@ -35,10 +33,6 @@ object Country {
 
   val uk: Country = Country("GB")
 
-  implicit val countryFormat: OFormat[Country] = Json.format[Country]
-
-  implicit val eq: Eq[Country] = Eq.fromUniversalEquals
-
   type CountryCode = String
 
   val countryCodes: List[CountryCode] = {
@@ -48,22 +42,10 @@ object Country {
   }
 
   implicit class CountryOps(private val c: Country) extends AnyVal {
-    def isUk(): Boolean = c === Country.uk
+    def isUk: Boolean = c === Country.uk
   }
 
-  val formatter: Formatter[Country] = new Formatter[Country] {
-    override def bind(
-      key: String,
-      data: Map[String, String]
-    ): Either[Seq[FormError], Country] =
-      data.get(key).filter(_.nonEmpty) match {
-        case Some(c) =>
-          if (countryCodes.contains(c)) Right(Country(c))
-          else Left(Seq(FormError(key, "error.notFound")))
-        case None    => Left(Seq(FormError(key, "error.required")))
-      }
+  implicit val countryFormat: OFormat[Country] = Json.format[Country]
 
-    override def unbind(key: String, value: Country): Map[String, String] = Map(key -> value.code)
-  }
-
+  implicit val eq: Eq[Country] = Eq.fromUniversalEquals
 }

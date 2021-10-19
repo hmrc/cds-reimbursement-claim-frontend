@@ -23,12 +23,11 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.configKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
@@ -66,7 +65,7 @@ class ScheduleOfMrnDocumentController @Inject() (
 
   lazy val maxUploads: Int = config.readMaxUploadsValue(configKey)
 
-  implicit val scheduledDocumentExtractor: DraftC285Claim => Option[ScheduledDocumentAnswer] =
+  implicit val scheduledDocumentExtractor: DraftClaim => Option[ScheduledDocumentAnswer] =
     _.scheduledDocumentAnswer
 
   def uploadScheduledDocument(): Action[AnyContent] =
@@ -115,7 +114,7 @@ class ScheduleOfMrnDocumentController @Inject() (
         UploadDocumentType.ScheduleOfMRNs.some
       )
     )
-    FillingOutClaim.of(claim)(_.copy(scheduledDocumentAnswer = answer.some))
+    FillingOutClaim.from(claim)(_.copy(scheduledDocumentAnswer = answer.some))
   }
 
   def scanProgress(uploadReference: UploadReference): Action[AnyContent] =
@@ -162,7 +161,7 @@ class ScheduleOfMrnDocumentController @Inject() (
   def deleteScheduledDocument(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ScheduledDocumentAnswer] { (fillingOutClaim, _) =>
-        val newJourney = FillingOutClaim.of(fillingOutClaim)(_.copy(scheduledDocumentAnswer = None))
+        val newJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(scheduledDocumentAnswer = None))
 
         val result = for {
           _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))

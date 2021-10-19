@@ -16,22 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
-import cats.Eq
 import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, number, optional}
+import play.api.data.Forms.{mapping, number}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{JourneyBindable, routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SupportingEvidencesAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.{evidenceIndicesToTypes, evidenceTypesToIndices}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -67,7 +66,7 @@ class SupportingEvidenceController @Inject() (
 
   lazy val maxUploads: Int = config.readMaxUploadsValue(supportingEvidenceKey)
 
-  implicit val supportingEvidenceExtractor: DraftC285Claim => Option[SupportingEvidencesAnswer] =
+  implicit val supportingEvidenceExtractor: DraftClaim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
   def evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.getListOfEvidenceTypes
@@ -123,7 +122,7 @@ class SupportingEvidenceController @Inject() (
 
     val evidences = answer.map(_ :+ newEvidence) orElse Some(SupportingEvidencesAnswer(newEvidence))
 
-    FillingOutClaim.of(claim)(_.copy(supportingEvidencesAnswer = evidences))
+    FillingOutClaim.from(claim)(_.copy(supportingEvidencesAnswer = evidences))
   }
 
   def scanProgress(journey: JourneyBindable, uploadReference: UploadReference): Action[AnyContent] =
@@ -227,7 +226,7 @@ class SupportingEvidenceController @Inject() (
                     updateSession(sessionStore, request)(
                       _.copy(
                         journeyStatus =
-                          FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
+                          FillingOutClaim.from(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
                       )
                     )
                   )
@@ -253,7 +252,9 @@ class SupportingEvidenceController @Inject() (
           NonEmptyList.fromList(evidences.filterNot(_.uploadReference === uploadReference))
 
         val newJourney =
-          FillingOutClaim.of(fillingOutClaim)(_.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence))
+          FillingOutClaim.from(fillingOutClaim)(
+            _.copy(supportingEvidencesAnswer = maybeEvidences flatMap removeEvidence)
+          )
 
         val result = for {
           _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
@@ -277,7 +278,7 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(journey, evidences, maxUploads, addAnotherDocumentAnswerForm))
+          Ok(checkYourAnswersPage(journey, evidences, maxUploads, whetherAddAnotherDocument))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
@@ -285,7 +286,7 @@ class SupportingEvidenceController @Inject() (
 
   def checkYourAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      addAnotherDocumentAnswerForm
+      whetherAddAnotherDocument
         .bindFromRequest()
         .fold(
           formWithErrors =>
@@ -295,9 +296,9 @@ class SupportingEvidenceController @Inject() (
               )(evidences => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)))
             },
           {
-            case YesAddAnotherDocument   =>
+            case Yes =>
               Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-            case DoNotAddAnotherDocument =>
+            case No  =>
               Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
           }
         )
@@ -328,24 +329,8 @@ object SupportingEvidenceController {
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )
 
-  sealed trait AddAnotherDocumentAnswer extends Product with Serializable
-  case object YesAddAnotherDocument extends AddAnotherDocumentAnswer
-  case object DoNotAddAnotherDocument extends AddAnotherDocumentAnswer
-
-  implicit val addAnotherDocumentAnswerEq: Eq[AddAnotherDocumentAnswer] =
-    Eq.fromUniversalEquals[AddAnotherDocumentAnswer]
-
-  val addAnotherDocumentAnswerForm: Form[AddAnotherDocumentAnswer] =
-    Form(
-      mapping(
-        checkYourAnswersDataKey -> optional(boolean)
-          .verifying("invalid-answer", _.isDefined)
-          .transform[AddAnotherDocumentAnswer](
-            opt => if (opt.exists(_ === true)) YesAddAnotherDocument else DoNotAddAnotherDocument,
-            answer => Some(answer === YesAddAnotherDocument)
-          )
-      )(identity)(Some(_))
-    )
+  val whetherAddAnotherDocument: Form[YesNo] =
+    YesOrNoQuestionForm(checkYourAnswersDataKey)
 
   def getSupportingEvidenceHints: DropdownHints =
     DropdownHints.range(0, UploadDocumentType.getListOfEvidenceTypes.length - 1)

@@ -27,13 +27,12 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
@@ -63,11 +62,11 @@ class SelectBasisForClaimControllerSpec
 
   private def sessionWithClaimState(
     maybeReasonForClaim: Option[BasisOfClaim]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         basisOfClaimAnswer = maybeReasonForClaim,
-        movementReferenceNumber = Some(sample[MovementReferenceNumber])
+        movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -108,7 +107,6 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.enable()
-        featureSwitch.EntryNumber.disable()
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -130,7 +128,6 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.disable()
-        featureSwitch.EntryNumber.enable()
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)

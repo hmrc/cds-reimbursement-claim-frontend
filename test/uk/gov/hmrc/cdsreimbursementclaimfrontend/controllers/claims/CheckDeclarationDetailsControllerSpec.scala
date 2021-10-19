@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Functor
-import cats.Id
+import cats.{Functor, Id}
 import org.jsoup.Jsoup
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -25,26 +24,25 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
-import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.finance.MoneyUtils.formatAmountOfMoneyWithPoundSign
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.HtmlParseSupport
 
-import scala.concurrent.Future
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
@@ -75,11 +73,11 @@ class CheckDeclarationDetailsControllerSpec
   private def sessionWithClaimState(
     maybeDisplayDeclaration: Option[DisplayDeclaration],
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         displayDeclaration = maybeDisplayDeclaration,
-        movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+        movementReferenceNumber = Some(sample[MRN]),
         selectNumberOfClaimsAnswer = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]
@@ -206,11 +204,10 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
-          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "0")),
+          performAction(JourneyBindable.Single, Seq(checkDeclarationDetailsKey -> "true")),
           routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Single)
         )
       }
@@ -221,11 +218,10 @@ class CheckDeclarationDetailsControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Right(()))
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "1")),
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey)
         )
       }
@@ -252,46 +248,25 @@ class CheckDeclarationDetailsControllerSpec
       }
 
       "the user submits an incorrect answer" in forAll(journeys) { journey =>
-        forAll(Table("incorrect answers", "2", "")) { incorrectAnswer =>
-          val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
-
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session._1)
-          }
-
-          checkPageIsDisplayed(
-            performAction(journey, Seq(checkDeclarationDetailsKey -> incorrectAnswer)),
-            messageFromMessageKey("check-declaration-details.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$checkDeclarationDetailsKey.error.invalid"
-              ),
-            BAD_REQUEST
-          )
-        }
-      }
-
-      "the user submits a valid answer, but mongodb is down" in forAll(journeys) { journey =>
         val session = sessionWithClaimState(Some(getAcc14Response()), Some(toSelectNumberOfClaims(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session._1)
-          mockStoreSession(Left(Error("Mongo is Down")))
         }
 
         checkPageIsDisplayed(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
-          "Sorry, we’re experiencing technical difficulties",
-          _ => (),
-          INTERNAL_SERVER_ERROR
+          performAction(journey, Seq.empty),
+          messageFromMessageKey("check-declaration-details.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkDeclarationDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
         )
       }
-
     }
-
   }
 }

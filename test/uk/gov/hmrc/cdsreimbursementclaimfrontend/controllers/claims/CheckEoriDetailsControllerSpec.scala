@@ -27,15 +27,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.checkEoriDetailsKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email, VerifiedEmail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{CustomsDataStoreService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -65,8 +65,8 @@ class CheckEoriDetailsControllerSpec
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def sessionWithClaimState(): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim
+  private def sessionWithClaimState(): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftC285Claim      = DraftClaim.blank
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
@@ -143,7 +143,7 @@ class CheckEoriDetailsControllerSpec
           mockGetEmail(Left(Error(new Exception("Boom"))))
         }
 
-        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
       "Redirect to Customs Email Frontend when no email associated for the given EORI" in {
@@ -156,7 +156,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(CheckEoriDetailsController.dataKey -> "0")),
+          performAction(Seq(checkEoriDetailsKey -> "true")),
           "http://localhost:9898/manage-email-cds/service/cds-reimbursement-claim"
         )
       }
@@ -171,7 +171,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Left(Error(new Exception("Wham"))))
         }
 
-        checkIsTechnicalErrorPage(performAction(Seq(CheckEoriDetailsController.dataKey -> "0")))
+        checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
@@ -185,7 +185,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Right(()))
         }
 
-        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "true"))
         checkIsRedirect(result, routes.SelectNumberOfClaimsController.show())
       }
 
@@ -200,7 +200,7 @@ class CheckEoriDetailsControllerSpec
           mockStoreSession(Right(()))
         }
 
-        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "0"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "true"))
         checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
       }
 
@@ -212,7 +212,7 @@ class CheckEoriDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "1"))
+        val result = performAction(Seq(checkEoriDetailsKey -> "false"))
         checkIsRedirect(result, viewConfig.ggSignOut)
       }
 
@@ -224,13 +224,13 @@ class CheckEoriDetailsControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
 
-        val result = performAction(Seq(CheckEoriDetailsController.dataKey -> "2"))
+        val result = performAction(Seq())
 
         checkPageIsDisplayed(
           result,
           messageFromMessageKey("check-eori-details.title"),
           _.select("#check-eori-details-error").text() shouldBe "Error: " + messageFromMessageKey(
-            s"check-eori-details.invalid"
+            s"check-eori-details.error.invalid"
           ),
           BAD_REQUEST
         )
@@ -248,9 +248,9 @@ class CheckEoriDetailsControllerSpec
 
         checkPageIsDisplayed(
           result,
-          messageFromMessageKey("check-eori-details.title"),
+          messageFromMessageKey(s"$checkEoriDetailsKey.title"),
           _.select("#check-eori-details-error").text() shouldBe "Error: " + messageFromMessageKey(
-            s"check-eori-details.invalid"
+            s"check-eori-details.error.invalid"
           ),
           BAD_REQUEST
         )

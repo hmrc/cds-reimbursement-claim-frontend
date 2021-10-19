@@ -28,10 +28,10 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
@@ -41,9 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.phonenumber.PhoneNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, Error, MovementReferenceNumber, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DeclarantTypeAnswer, DraftClaim, Error, MrnContactDetails, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 
 import java.net.URL
@@ -88,11 +87,11 @@ class CheckContactDetailsMrnControllerSpec
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None
   ): (SessionData, FillingOutClaim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    val draftC285Claim      = DraftClaim.blank.copy(
       displayDeclaration = displayDeclaration,
       declarantTypeAnswer = declarantTypeAnswer,
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
-      movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+      movementReferenceNumber = Some(sample[MRN]),
       mrnContactDetailsAnswer = mrnContactDetailsAnswer,
       mrnContactAddressAnswer = mrnContactAddressAnswer
     )
@@ -256,7 +255,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(languageKey -> "0"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "true"), journey),
           routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey)
         )
       }
@@ -277,10 +276,11 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitAdd(Seq(languageKey -> "1"), journey),
+          submitAdd(Seq(checkContactDetailsKey -> "false"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
+
       "the user does not select an option" in forAll(journeys) { journey =>
         val acc14           = generateAcc14WithAddresses()
         val (session, foc)  = getSessionWithPreviousAnswer(
@@ -297,46 +297,43 @@ class CheckContactDetailsMrnControllerSpec
 
         checkPageIsDisplayed(
           submitAdd(Seq.empty, journey),
-          messageFromMessageKey(s"$languageKey.title"),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$languageKey.error.required.add"
+              s"$checkContactDetailsKey.error.invalid"
             ),
           BAD_REQUEST
         )
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        forAll(Table("Invalid Answers", "2", "3")) { invalidAnswer =>
-          val acc14           = generateAcc14WithAddresses()
-          val (session, foc)  = getSessionWithPreviousAnswer(
-            Some(acc14),
-            Some(DeclarantTypeAnswer.Importer),
-            Some(toSelectNumberOfClaims(journey))
-          )
-          val fillingOutClaim = foc
+        val acc14           = generateAcc14WithAddresses()
+        val (session, foc)  = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey))
+        )
+        val fillingOutClaim = foc
 
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
-          }
-
-          checkPageIsDisplayed(
-            submitAdd(Seq(languageKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$languageKey.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$languageKey.invalid"
-              ),
-            BAD_REQUEST
-          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
         }
-      }
 
+        checkPageIsDisplayed(
+          submitAdd(Seq(), journey),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkContactDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
+        )
+      }
     }
 
     "handle change submit requests" when {
@@ -363,7 +360,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(languageKey -> "0"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "true"), journey),
           routes.SelectBasisForClaimController.selectBasisForClaim(journey)
         )
       }
@@ -385,7 +382,7 @@ class CheckContactDetailsMrnControllerSpec
         }
 
         checkIsRedirect(
-          submitChange(Seq(languageKey -> "1"), journey),
+          submitChange(Seq(checkContactDetailsKey -> "false"), journey),
           routes.CheckContactDetailsMrnController.addDetailsShow(journey)
         )
       }
@@ -406,49 +403,45 @@ class CheckContactDetailsMrnControllerSpec
 
         checkPageIsDisplayed(
           submitChange(Seq.empty, journey),
-          messageFromMessageKey(s"$languageKey.title"),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
           doc =>
             doc
               .select(".govuk-error-summary__list > li > a")
               .text() shouldBe messageFromMessageKey(
-              s"$languageKey.error.required.change"
+              s"$checkContactDetailsKey.error.invalid"
             ),
           BAD_REQUEST
         )
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        forAll(Table("Invalid Answers", "2", "3")) { invalidAnswer =>
-          val acc14   = generateAcc14WithAddresses()
-          val session = getSessionWithPreviousAnswer(
-            Some(acc14),
-            Some(DeclarantTypeAnswer.Importer),
-            Some(toSelectNumberOfClaims(journey)),
-            Some(sample[MrnContactDetails]),
-            Some(sample[ContactAddress].copy(country = Country.uk))
-          )._1
+        val acc14   = generateAcc14WithAddresses()
+        val session = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey)),
+          Some(sample[MrnContactDetails]),
+          Some(sample[ContactAddress].copy(country = Country.uk))
+        )._1
 
-          inSequence {
-            mockAuthWithNoRetrievals()
-            mockGetSession(session)
-          }
-
-          checkPageIsDisplayed(
-            submitChange(Seq(languageKey -> invalidAnswer), journey),
-            messageFromMessageKey(s"$languageKey.title"),
-            doc =>
-              doc
-                .select(".govuk-error-summary__list > li > a")
-                .text() shouldBe messageFromMessageKey(
-                s"$languageKey.invalid"
-              ),
-            BAD_REQUEST
-          )
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
         }
+
+        checkPageIsDisplayed(
+          submitChange(Seq.empty, journey),
+          messageFromMessageKey(s"$checkContactDetailsKey.title"),
+          doc =>
+            doc
+              .select(".govuk-error-summary__list > li > a")
+              .text() shouldBe messageFromMessageKey(
+              s"$checkContactDetailsKey.error.invalid"
+            ),
+          BAD_REQUEST
+        )
       }
-
     }
-
   }
 
   "CheckContactDetailsMrnController Companion object" should {

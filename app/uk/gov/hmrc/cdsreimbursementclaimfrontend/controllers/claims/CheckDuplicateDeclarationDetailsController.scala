@@ -20,13 +20,11 @@ import com.google.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -47,17 +45,18 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val duplicateDeclarationExtractor: DraftC285Claim => Option[DisplayDeclaration] =
+  implicit val duplicateDeclarationExtractor: DraftClaim => Option[DisplayDeclaration] =
     _.duplicateDisplayDeclaration
 
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       val isDuplicate: Boolean = true
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
-        implicit val reimbursementRoutes: ReimbursementRoutes = router
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
-        )(declaration => Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate)))
+        )(declaration =>
+          Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate, router))
+        )
       }
     }
 

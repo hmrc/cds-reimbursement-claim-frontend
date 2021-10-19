@@ -16,28 +16,27 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Eq
-import cats.data.OptionT
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
+import cats.data.EitherT
+import cats.implicits.catsSyntaxOptionId
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{YesNo, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class CheckMovementReferenceNumbersController @Inject() (
@@ -52,55 +51,53 @@ class CheckMovementReferenceNumbersController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[AssociatedMRNsAnswer] =
-    _.associatedMRNsAnswer
-
   def showMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       Ok(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), whetherAddAnotherMrnAnswerForm))
-    })
+    }
   }
 
   def deleteMrn(mrnIndex: AssociatedMrnIndex): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
-      withAnswers[AssociatedMRNsAnswer] { (fillingOutClaim, maybeAssociatedMRNs) =>
+      request.using { case journey: FillingOutClaim =>
         def redirectToShowMrnsPage() =
           Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
 
-        val idx = mrnIndex.toRegular
-
-        val maybeUpdatedClaim = for {
-          mrns    <- maybeAssociatedMRNs.map(_.toList)
-          updated <- AssociatedMRNsAnswer(mrns.take(idx) ++ mrns.drop(idx + 1))
-          claim    = FillingOutClaim.of(fillingOutClaim)(_.copy(associatedMRNsAnswer = updated.some))
-        } yield claim
-
-        OptionT
-          .fromOption[Future](maybeUpdatedClaim)
-          .semiflatMap(claim => updateSession(sessionStore, request)(_.copy(journeyStatus = claim.some)))
-          .fold(redirectToShowMrnsPage())(
-            _.fold(
-              logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
-              _ => redirectToShowMrnsPage()
+        val updatedAssociatedMRNsAnswer            = journey.draftClaim.associatedMRNsAnswer.remove(mrnIndex)
+        val updatedAssociatedMRNsDeclarationAnswer = journey.draftClaim.associatedMRNsDeclarationAnswer.remove(mrnIndex)
+        val updatedClaim                           =
+          FillingOutClaim.from(journey)(
+            _.copy(
+              associatedMRNsAnswer = updatedAssociatedMRNsAnswer,
+              associatedMRNsDeclarationAnswer = updatedAssociatedMRNsDeclarationAnswer
             )
+          )
+
+        EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedClaim.some)))
+          .fold(
+            logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
+            _ => redirectToShowMrnsPage()
           )
       }
   }
 
   def submitMrns(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    request.using({ case journey: FillingOutClaim =>
+    request.using { case journey: FillingOutClaim =>
       whetherAddAnotherMrnAnswerForm
         .bindFromRequest()
         .fold(
           formWithErrors => BadRequest(checkMovementReferenceNumbersPage(journey.draftClaim.MRNs(), formWithErrors)),
           {
-            case YesAddAnotherMrn   =>
-              Redirect(routes.EnterAssociatedMrnController.enterMrn(journey.draftClaim.MRNs.total + 1))
-            case DoNotAddAnotherMrn =>
+            case Yes =>
+              Redirect(
+                routes.EnterAssociatedMrnController
+                  .enterMrn(AssociatedMrnIndex.fromListIndex(journey.draftClaim.associatedMRNsAnswer.length))
+              )
+            case No  =>
               Redirect(routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Multiple))
           }
         )
-    })
+    }
   }
 }
 
@@ -108,22 +105,5 @@ object CheckMovementReferenceNumbersController {
 
   val checkMovementReferenceNumbersKey: String = "check-movement-reference-numbers"
 
-  sealed trait WhetherAddAnotherMrnAnswer extends Product with Serializable
-  case object YesAddAnotherMrn extends WhetherAddAnotherMrnAnswer
-  case object DoNotAddAnotherMrn extends WhetherAddAnotherMrnAnswer
-
-  implicit val addAnotherDocumentMrnEq: Eq[WhetherAddAnotherMrnAnswer] =
-    Eq.fromUniversalEquals[WhetherAddAnotherMrnAnswer]
-
-  val whetherAddAnotherMrnAnswerForm: Form[WhetherAddAnotherMrnAnswer] =
-    Form(
-      mapping(
-        checkMovementReferenceNumbersKey -> optional(boolean)
-          .verifying("invalid-answer", _.isDefined)
-          .transform[WhetherAddAnotherMrnAnswer](
-            opt => if (opt.exists(_ === true)) YesAddAnotherMrn else DoNotAddAnotherMrn,
-            answer => Some(answer === YesAddAnotherMrn)
-          )
-      )(identity)(Some(_))
-    )
+  val whetherAddAnotherMrnAnswerForm: Form[YesNo] = YesOrNoQuestionForm(checkMovementReferenceNumbersKey)
 }

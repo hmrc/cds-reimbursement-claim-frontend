@@ -25,16 +25,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
 
 import scala.concurrent.Future
 
@@ -66,9 +64,9 @@ class EnterCommoditiesDetailsControllerSpec
   private def sessionWithClaimState(
     maybeCommoditiesDetailsAnswer: Option[CommodityDetails],
     numberOfClaims: Option[SelectNumberOfClaimsAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim
+      DraftClaim.blank
         .copy(
           commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
           selectNumberOfClaimsAnswer = numberOfClaims
@@ -116,7 +114,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber])
+            movementReferenceNumber = Some(sample[MRN])
           )
         val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
 
@@ -141,7 +139,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber])
+            movementReferenceNumber = Some(sample[MRN])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -168,7 +166,7 @@ class EnterCommoditiesDetailsControllerSpec
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
               basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-              movementReferenceNumber = Some(sample[MovementReferenceNumber])
+              movementReferenceNumber = Some(sample[MRN])
             )
 
           val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -200,7 +198,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber])
+            movementReferenceNumber = Some(sample[MRN])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -214,7 +212,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
-          if (journeyBindable === Scheduled) {
+          if (journeyBindable === JourneyBindable.Scheduled) {
             reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
           } else {
             routes.SelectDutiesController.selectDuties()
@@ -233,7 +231,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber])
+            movementReferenceNumber = Some(sample[MRN])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
@@ -266,7 +264,7 @@ class EnterCommoditiesDetailsControllerSpec
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
             basisOfClaimAnswer = Some(BasisOfClaim.DutySuspension),
-            movementReferenceNumber = Some(sample[MovementReferenceNumber])
+            movementReferenceNumber = Some(sample[MRN])
           )
 
         val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))

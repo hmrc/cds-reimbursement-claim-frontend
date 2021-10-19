@@ -20,9 +20,9 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MovementReferenceNumber
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -34,36 +34,38 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MovementReferenceNumber], isAmend: Boolean, router:ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], isAmend: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"enter-movement-reference-number"}
-    @title = @{messages(lang(key, router.subKey, "title"))}
+@key = @{"enter-movement-reference-number"}
+@title = @{messages(lang(key, router.subKey, "title"))}
 
-    @postAction = @{if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit(router.journeyBindable)
-                    else routes.EnterMovementReferenceNumberController.enterMrnSubmit(router.journeyBindable) }
+@postAction = @{
+    if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit(router.journeyBindable)
+    else routes.EnterMovementReferenceNumberController.enterMrnSubmit(router.journeyBindable)
+}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), hasErrors = hasErrors) {
 
-        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @errorSummary(form.errors)
+        @errorSummary(form.errors)
 
-            @pageHeading(title)
+        @pageHeading(title)
 
-            @paragraph(Html(messages(lang(key,router.subKey,"help-text"), viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
+        @paragraph(Html(messages(lang(key, router.subKey, "help-text"), viewConfig.mrnGuideUrl)), Some("govuk-body govuk-!-margin-bottom-6"))
 
-            @inputText(
-                form = form,
-                id = key,
-                name = key,
-                label = lang(key, router.subKey, "enter-mrn.label").head,
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                hint = Some(s"$key.help")
-            )
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = lang(key, router.subKey, "enter-mrn.label").head,
+            isPageHeading = false,
+            classes = Some("govuk-input--width-20"),
+            hint = Some(s"$key.help")
+        )
 
-            @submitButton("button.continue")
-        }
+        @submitButton("button.continue")
     }
+}

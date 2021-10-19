@@ -30,11 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Duty, Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -42,11 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
-
-final case class CmaEligibleAndDuties(
-  isCmaEligible: Seq[Boolean],
-  dutiesSelectedAnswer: Either[Error, DutiesSelectedAnswer]
-)
 
 @Singleton
 class SelectDutiesController @Inject() (
@@ -63,7 +56,7 @@ class SelectDutiesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DutiesSelectedAnswer] = _.dutiesSelectedAnswer
+  implicit val dataExtractor: DraftClaim => Option[DutiesSelectedAnswer] = _.dutiesSelectedAnswer
 
   def selectDuties(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -102,12 +95,11 @@ class SelectDutiesController @Inject() (
                   BadRequest(selectDutiesPage(formWithErrors, dutiesAvailable, cmaEligibleDutiesMap.isCmaEligible)),
                 dutiesSelected => {
                   val newDraftClaim  =
-                    fillingOutClaim.draftClaim.fold(_.copy(dutiesSelectedAnswer = Some(dutiesSelected)))
+                    fillingOutClaim.draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelected))
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  EitherT
-                    .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap((_: Unit) => Error("could not update session"))
+                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                    .leftMap(_ => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not get duties selected "),
                       _ => Redirect(routes.EnterClaimController.startClaim())
@@ -122,14 +114,17 @@ class SelectDutiesController @Inject() (
 
 object SelectDutiesController {
 
-  def getAvailableDuties(fillingOutClaim: FillingOutClaim): CmaEligibleAndDuties = {
-    val wasIncorrectExciseCodeSelected: Boolean = fillingOutClaim.draftClaim
-      .fold(_.basisOfClaimAnswer)
-      .exists(_ === IncorrectExciseValue)
+  final case class CmaEligibleAndDuties(
+    isCmaEligible: Seq[Boolean],
+    dutiesSelectedAnswer: Either[Error, DutiesSelectedAnswer]
+  )
 
-    val ndrcDetails = fillingOutClaim.draftClaim
-      .fold(_.displayDeclaration)
-      .flatMap(_.displayResponseDetail.ndrcDetails)
+  def getAvailableDuties(fillingOutClaim: FillingOutClaim): CmaEligibleAndDuties = {
+    val wasIncorrectExciseCodeSelected: Boolean =
+      fillingOutClaim.draftClaim.basisOfClaimAnswer.exists(_ === IncorrectExciseValue)
+
+    val ndrcDetails =
+      fillingOutClaim.draftClaim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails)
 
     val acc14TaxCodes = ndrcDetails
       .map(_.map(n => TaxCode.fromString(n.taxType)).flatten(Option.option2Iterable))
@@ -139,28 +134,18 @@ object SelectDutiesController {
       .getOrElse(Nil)
       .map(_.cmaEligible.getOrElse("0") === "1")
 
-    wasIncorrectExciseCodeSelected match {
-      case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
-        val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
-        CmaEligibleAndDuties(
-          isCmaEligible,
-          DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
-        )
-      case false =>
-        fillingOutClaim.draftClaim.isMrnFlow match {
-          case true  =>
-            CmaEligibleAndDuties(
-              isCmaEligible,
-              DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
-                .toRight(Error("No UK or EU tax codes were received from Acc14"))
-            )
-          case false =>
-            CmaEligibleAndDuties(
-              isCmaEligible,
-              DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_)))
-                .toRight(Error("Eu and Uk tax codes were empty"))
-            )
-        }
+    if (wasIncorrectExciseCodeSelected) {
+      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
+      CmaEligibleAndDuties(
+        isCmaEligible,
+        DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
+      )
+    } else {
+      CmaEligibleAndDuties(
+        isCmaEligible,
+        DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
+          .toRight(Error("No UK or EU tax codes were received from Acc14"))
+      )
     }
   }
 

@@ -21,7 +21,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 sealed trait MrnJourney extends Product with Serializable
 
 object MrnJourney {
+
   final case class MrnImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
+
   final case class ThirdPartyImporter(displayDeclaration: DisplayDeclaration) extends MrnJourney
-  final case object ErnImporter extends MrnJourney
 }

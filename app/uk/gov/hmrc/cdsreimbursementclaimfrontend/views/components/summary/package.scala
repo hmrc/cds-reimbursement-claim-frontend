@@ -28,6 +28,8 @@ package object summary {
   implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
   implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
+  implicit val reimbursementSubtotalSummary: ReimbursementSubtotalSummary         = new ReimbursementSubtotalSummary
+  implicit val reimbursementTotalSummary: ReimbursementTotalSummary               = new ReimbursementTotalSummary
   implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
@@ -35,7 +37,14 @@ package object summary {
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
 
   implicit class AnswerSummaryOps[A](private val answer: A) extends AnyVal {
-    def review(
+
+    def summary(key: String, router: ReimbursementRoutes)(implicit
+      answerSummary: AnswerSummary[A],
+      messages: Messages
+    ): SummaryList =
+      answerSummary.render(key, answer)(router, messages)
+
+    def summary(
       key: String
     )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
       answerSummary.render(key, answer)

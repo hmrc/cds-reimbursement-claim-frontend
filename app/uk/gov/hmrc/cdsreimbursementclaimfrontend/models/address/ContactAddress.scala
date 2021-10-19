@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import julienrf.json.derived
-import play.api.data.Forms.{nonEmptyText, number, of, optional, mapping => formMapping}
+import play.api.data.Forms.{nonEmptyText, number, optional, mapping => formMapping}
 import play.api.data.validation._
-import play.api.data.{Form, Mapping}
+import play.api.data.{Form, Forms, Mapping}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BooleanFormatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.formatters.{BooleanFormatter, CountryFormatter}
 
 final case class ContactAddress(
   line1: String,
@@ -41,10 +41,6 @@ object ContactAddress {
       List(' ', '-', ',', '.', '&', '\'')
 
   val addressLineMaxLength: Int = 35
-
-  implicit val addressFormat: OFormat[ContactAddress] = derived.oformat[ContactAddress]()
-
-  implicit val eq: Eq[ContactAddress] = Eq.fromUniversalEquals
 
   // address is selected by the index of the address in the given list
   def addressSelectForm(addresses: List[ContactAddress]): Form[ContactAddress] =
@@ -75,17 +71,18 @@ object ContactAddress {
       "address-line3" -> optional(addressLineMapping),
       "address-line4" -> addressLineMapping,
       "postcode"      -> Postcode.mapping,
-      "countryCode"   -> of(Country.formatter)
+      "countryCode"   -> Forms.of(CountryFormatter)
     )(ContactAddress.apply)(ContactAddress.unapply)
 
   val isUkForm: Form[Boolean] =
     Form(
       formMapping(
-        "isUk" -> of(BooleanFormatter.formatter)
+        "isUk" -> Forms.of(BooleanFormatter)
       )(identity)(Some(_))
     )
 
   implicit class AddressOps(private val a: ContactAddress) extends AnyVal {
+
     def getAddressLines(implicit messages: Messages): List[String] = {
       val lines =
         List(
@@ -101,4 +98,7 @@ object ContactAddress {
     }
   }
 
+  implicit val addressFormat: OFormat[ContactAddress] = derived.oformat[ContactAddress]()
+
+  implicit val eq: Eq[ContactAddress] = Eq.fromUniversalEquals
 }

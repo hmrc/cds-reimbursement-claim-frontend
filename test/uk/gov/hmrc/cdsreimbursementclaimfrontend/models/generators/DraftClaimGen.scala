@@ -19,13 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.CheckDeclarationDetailsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.CheckClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.CompleteDeclarantEoriNumberAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.CompleteImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -40,19 +33,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, MovementReferenceNumber, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, SelectNumberOfClaimsAnswer}
 
 import java.util.UUID
 
-object DraftClaimGen extends HigherPriorityDraftClaimGen
+object DraftClaimGen {
 
-trait HigherPriorityDraftClaimGen extends LowerPriorityDraftClaimGen {
-  implicit val arbitraryDraftClaimGen: Typeclass[DraftClaim] = gen[DraftClaim]
-}
-
-trait LowerPriorityDraftClaimGen {
-
-  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftC285Claim] =
+  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftClaim] =
     for {
       mrn                            <- genMRN
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
@@ -69,14 +57,12 @@ trait LowerPriorityDraftClaimGen {
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
-      checkClaimAnswer               <- gen[CheckClaimAnswer].arbitrary
-      checkDeclarationDetailsAnswer  <- gen[CheckDeclarationDetailsAnswer].arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
       associatedMRNsAnswer           <- arbitraryAssociatedMRNsAnswer.arbitrary
-    } yield DraftC285Claim(
+    } yield DraftClaim(
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
-      movementReferenceNumber = MovementReferenceNumber(mrn).some,
+      movementReferenceNumber = mrn.some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
       mrnContactDetailsAnswer = maybeContactDetails,
@@ -89,16 +75,14 @@ trait LowerPriorityDraftClaimGen {
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
       claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
       displayDeclaration = displayDeclaration.some,
-      importerEoriNumberAnswer = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(eori)).some,
-      declarantEoriNumberAnswer = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(eori)).some,
+      importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
+      declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
-      checkClaimAnswer = checkClaimAnswer.some,
-      checkDeclarationDetailsAnswer = checkDeclarationDetailsAnswer.some,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
       associatedMRNsAnswer = associatedMRNsAnswer.some
     )
 
-  implicit val arbitraryDraftC285Claim: Typeclass[DraftC285Claim] = Arbitrary {
+  implicit val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
     for {
       numberOfClaims <- gen[SelectNumberOfClaimsAnswer].arbitrary
       claim          <- genValidDraftClaim(numberOfClaims)

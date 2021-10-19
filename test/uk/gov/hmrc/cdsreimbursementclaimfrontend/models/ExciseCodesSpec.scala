@@ -20,13 +20,13 @@ import cats.{Functor, Id}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import scala.util.Random
 
@@ -35,8 +35,8 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
   "ExciseCodes" should {
     "Return only excise codes not related to Northern Ireland" in {
       val draftC285Claim =
-        sample[DraftC285Claim].copy(
-          movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+        sample[DraftClaim].copy(
+          movementReferenceNumber = Some(sample[MRN]),
           claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
         )
 
@@ -57,9 +57,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       )
 
       val draftC285Claim =
-        sample[DraftC285Claim]
+        sample[DraftClaim]
           .copy(
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
             displayDeclaration = Some(acc14)
           )
@@ -78,9 +78,9 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       )
 
       val draftC285Claim =
-        sample[DraftC285Claim]
+        sample[DraftClaim]
           .copy(
-            movementReferenceNumber = Some(sample[MovementReferenceNumber]),
+            movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
             displayDeclaration = Some(acc14)
           )

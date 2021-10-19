@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -25,18 +25,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDeclarantEoriNumberController.DeclarantEoriNumber
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantEoriNumberAnswer.{CompleteDeclarantEoriNumberAnswer, IncompleteDeclarantEoriNumberAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{numStringGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Eori, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, Eori, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 
 import scala.concurrent.Future
 
@@ -44,13 +40,20 @@ class EnterDeclarantEoriNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+    with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  val testCases = Table(
+    "JourneyBindable",
+    JourneyBindable.Single,
+    JourneyBindable.Multiple,
+    JourneyBindable.Scheduled
+  )
 
   lazy val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
 
@@ -59,11 +62,11 @@ class EnterDeclarantEoriNumberControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftC285Claim      = DraftClaim.blank.copy(
       declarantEoriNumberAnswer = maybeDeclarantEoriNumberAnswer,
-      movementReferenceNumber = Some(sample[MovementReferenceNumber])
+      movementReferenceNumber = Some(sample[MRN])
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
@@ -84,13 +87,10 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in {
+      "there is no journey status in the session" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
 
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber()(FakeRequest())
-
-        val answers = IncompleteDeclarantEoriNumberAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -108,14 +108,12 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber()(FakeRequest())
+      "the user has not answered this question before" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = IncompleteDeclarantEoriNumberAnswer.empty
+        val draftC285Claim = sessionWithClaimState(None)._3
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
-
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -130,10 +128,10 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber()(FakeRequest())
+      "the user has answered this question before" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(Eori("GB03152858027018")))
+        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -156,14 +154,13 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "handle submit requests" when {
 
-      "user chooses enters a valid eori but there is no match" in {
-
+      "user chooses enters a valid eori but there is no match" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit()(
+          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(Eori("GB03152858027018")))
+        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -188,13 +185,13 @@ class EnterDeclarantEoriNumberControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option" in {
+      "the user does not select an option" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit()(
+          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(Eori("GB03152858027018")))
+        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -224,14 +221,13 @@ class EnterDeclarantEoriNumberControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in {
-
+      "an invalid option value is submitted" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterDeclarantEoriNumberSubmit()(
+          controller.enterDeclarantEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteDeclarantEoriNumberAnswer(DeclarantEoriNumber(Eori("GB03152858027018")))
+        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(

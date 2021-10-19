@@ -26,14 +26,13 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
 
@@ -58,13 +57,13 @@ class SelectDutyTypesControllerSpec
   private def sessionWithDutyTypesState(
     maybeDutyTypesSelectedAnswer: Option[DutyTypesAnswer],
     maybeDutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
-    maybeDutyPaidAndClaimAmountAnswer: Option[DutyPaidAndClaimAmountAnswer] = None
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+    reimbursementClaimAnswer: Option[ReimbursementClaimAnswer] = None
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         dutyTypesSelectedAnswer = maybeDutyTypesSelectedAnswer,
         dutyCodesSelectedAnswer = maybeDutyCodesSelectedAnswer,
-        dutyPaidAndClaimAmountAnswer = maybeDutyPaidAndClaimAmountAnswer
+        reimbursementClaimAnswer = reimbursementClaimAnswer
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -101,41 +100,6 @@ class SelectDutyTypesControllerSpec
         checkIsRedirect(
           performAction(),
           baseRoutes.StartController.start()
-        )
-
-      }
-
-    }
-
-    "redirect to the summary reimbursement claim page" when {
-
-      "claims have been made against all duty codes" in {
-
-        def performAction(): Future[Result] = controller.showDutyTypes()(FakeRequest())
-
-        val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
-        val dutyCodesAnswer          =
-          DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
-        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
-          Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
-          )
-        )
-
-        val (session, fillingOutClaim, draftC285Claim) =
-          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-        }
-
-        checkIsRedirect(
-          performAction(),
-          routes.CheckReimbursementClaimController.showReimbursementClaim()
         )
 
       }
@@ -249,15 +213,15 @@ class SelectDutyTypesControllerSpec
         val dutyTypesAnswer          = DutyTypesAnswer(List(DutyType.UkDuty, DutyType.EuDuty))
         val dutyCodesAnswer          =
           DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
-        val paidAndClaimAmountAnswer = DutyPaidAndClaimAmountAnswer(
+        val reimbursementClaimAnswer = ReimbursementClaimAnswer(
           Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2"))),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> DutyPaidAndClaimAmount(BigDecimal("10"), BigDecimal("2")))
+            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(10, 2)),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(10, 2))
           )
         )
 
         val (session, fillingOutClaim, draftC285Claim) =
-          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(paidAndClaimAmountAnswer))
+          sessionWithDutyTypesState(Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(reimbursementClaimAnswer))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -271,7 +235,7 @@ class SelectDutyTypesControllerSpec
           performAction(
             Seq("select-duty-types[0]" -> "eu-duty")
           ),
-          routes.CheckReimbursementClaimController.showReimbursementClaim()
+          routes.SelectDutyCodesController.start()
         )
       }
 

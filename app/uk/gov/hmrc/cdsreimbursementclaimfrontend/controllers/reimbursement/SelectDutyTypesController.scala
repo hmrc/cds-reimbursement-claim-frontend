@@ -30,17 +30,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyTypesController.selectDutyTypesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypesAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, DutyTypes, DutyTypesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SelectDutyTypesController @Inject() (
@@ -57,17 +55,12 @@ class SelectDutyTypesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
+  implicit val dataExtractor: DraftClaim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
-      answer.fold(
-        Ok(selectDutyTypesPage(selectDutyTypesForm))
-      )(dutyType =>
-        if (hasCompleteReimbursementClaim(fillingOutClaim))
-          Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-        else
-          Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
+    withAnswers[DutyTypesAnswer] { (_, answer) =>
+      answer.fold(Ok(selectDutyTypesPage(selectDutyTypesForm)))(dutyType =>
+        Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
       )
     }
   }
@@ -80,57 +73,22 @@ class SelectDutyTypesController @Inject() (
           .fold(
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedAnswer =>
-              answer.fold {
-                updateDutyTypeAnswer(
-                  selectedAnswer,
-                  fillingOutClaim
-                )
-              }(dutyTypesSelectedAnswer =>
-                if (selectedAnswer === dutyTypesSelectedAnswer) {
-                  Redirect(reimbursementRoutes.SelectDutyCodesController.start())
-                } else {
-                  updateDutyTypeAnswer(selectedAnswer, fillingOutClaim)
-                }
-              )
+              if (answer.fold(false)(selectedAnswer === _))
+                Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+              else {
+                val updatedJourney =
+                  FillingOutClaim.from(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(selectedAnswer)))
+
+                EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap(_ => Error("could not update session"))
+                  .fold(
+                    logAndDisplayError("could not get duty types selected"),
+                    _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+                  )
+              }
           )
       }
     }
-
-  private def updateDutyTypeAnswer(
-    dutyTypesSelectedAnswer: DutyTypesAnswer,
-    fillingOutClaim: FillingOutClaim
-  )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
-    val updatedJourney =
-      FillingOutClaim.of(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(dutyTypesSelectedAnswer)))
-    EitherT
-      .liftF(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-      .leftMap((_: Unit) => Error("could not update session"))
-      .fold(
-        logAndDisplayError("could not get duty types selected"),
-        _ =>
-          if (hasCompleteReimbursementClaim(updatedJourney))
-            Redirect(routes.CheckReimbursementClaimController.showReimbursementClaim())
-          else
-            Redirect(reimbursementRoutes.SelectDutyCodesController.start())
-      )
-  }
-
-  private def hasCompleteReimbursementClaim(fillingOutClaim: FillingOutClaim) =
-    (
-      fillingOutClaim.draftClaim.fold(_.dutyTypesSelectedAnswer),
-      fillingOutClaim.draftClaim.fold(_.dutyCodesSelectedAnswer),
-      fillingOutClaim.draftClaim.fold(_.dutyPaidAndClaimAmountAnswer)
-    ) match {
-      case (Some(dutyTypesAnswer), Some(dutyCodesAnswer), Some(dutyPaidAndClaimAmountAnswer)) =>
-        if (dutyCodesAnswer.dutyCodes.values.exists(_.isEmpty)) false
-        else if (
-          dutyTypesAnswer.dutyTypesSelected
-            .exists(dutyType => dutyPaidAndClaimAmountAnswer.dutyPaidAndClaimAmountsEntered(dutyType).isEmpty)
-        ) false
-        else true
-      case _                                                                                  => false
-    }
-
 }
 
 object SelectDutyTypesController {
@@ -142,13 +100,10 @@ object SelectDutyTypesController {
           "" -> nonEmptyText
             .verifying(
               "invalid duty type code",
-              code => DutyType.dutyTypes.map(_.repr).exists(_ === code)
+              code => DutyTypes contains code
             )
         )(DutyType.apply)(DutyType.unapply)
       ).verifying("error.required", _.nonEmpty)
-    )(selectedDutyTypes => DutyTypesAnswer(selectedDutyTypes))(dutyTypesAnswer =>
-      Some(dutyTypesAnswer.dutyTypesSelected)
-    )
+    )(DutyTypesAnswer(_))(dutyTypesAnswer => Some(dutyTypesAnswer.dutyTypesSelected))
   )
-
 }

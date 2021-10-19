@@ -22,10 +22,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SelectNumberOfClaimsAnswer, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SelectNumberOfClaimsAnswer, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
@@ -41,7 +39,7 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
     "Return the default JourneyBindable" in {
       val msgReq               = fakeRequest2MessageRequest(FakeRequest())
       val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
-      val draftC285Claim       = sample[DraftC285Claim].copy(selectNumberOfClaimsAnswer = None)
+      val draftC285Claim       = sample[DraftClaim].copy(selectNumberOfClaimsAnswer = None)
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
       val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
@@ -61,8 +59,7 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
       forAll(testCases) { (numberOfClaims, journeyBindable) =>
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
-        val draftC285Claim       =
-          sample[DraftC285Claim].copy(selectNumberOfClaimsAnswer = Some(numberOfClaims))
+        val draftC285Claim       = sample[DraftClaim].copy(selectNumberOfClaimsAnswer = Some(numberOfClaims))
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)

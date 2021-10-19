@@ -18,20 +18,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, of}
+import play.api.data.{Form, Forms}
+import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.formatters.BooleanFormatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -54,7 +54,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[DetailsRegisteredWithCdsAnswer] =
+  implicit val dataExtractor: DraftClaim => Option[DetailsRegisteredWithCdsAnswer] =
     _.detailsRegisteredWithCdsAnswer
 
   implicit protected val journeyBindable = JourneyBindable.Single
@@ -66,7 +66,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DetailsRegisteredWithCdsAnswer] { (_, answers, router) =>
         val emptyForm  = EnterDetailsRegisteredWithCdsController.detailsRegisteredWithCdsForm
-        val filledForm = answers.fold(emptyForm)(emptyForm.fill(_))
+        val filledForm = answers.fold(emptyForm)(emptyForm.fill)
         Ok(detailsRegisteredWithCdsPage(filledForm, isAmend, router))
       }
     }
@@ -83,7 +83,7 @@ class EnterDetailsRegisteredWithCdsController @Inject() (
             formWithErrors => BadRequest(detailsRegisteredWithCdsPage(formWithErrors, isAmend, router)),
             formOk => {
               val updatedJourney =
-                FillingOutClaim.of(fillingOutClaim)(_.copy(detailsRegisteredWithCdsAnswer = Option(formOk)))
+                FillingOutClaim.from(fillingOutClaim)(_.copy(detailsRegisteredWithCdsAnswer = Option(formOk)))
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("Could not save Details Registered with CDS Type"))
                 .fold(
@@ -110,7 +110,7 @@ object EnterDetailsRegisteredWithCdsController {
       "enter-claimant-details-as-registered-with-cds.individual-full-name" -> nonEmptyText(maxLength = 512),
       "enter-claimant-details-as-registered-with-cds.individual-email"     -> Email.mappingMaxLength,
       ""                                                                   -> ContactAddress.addressFormMapping,
-      "enter-claimant-details-as-registered-with-cds.add-company-details"  -> of(BooleanFormatter.formatter)
+      "enter-claimant-details-as-registered-with-cds.add-company-details"  -> Forms.of(BooleanFormatter)
     )(DetailsRegisteredWithCdsAnswer.apply)(DetailsRegisteredWithCdsAnswer.unapply)
   )
 

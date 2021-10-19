@@ -26,9 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaims, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -55,7 +54,7 @@ class SelectBasisForClaimController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[BasisOfClaim] = _.basisOfClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[BasisOfClaim] = _.basisOfClaimAnswer
 
   def selectBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)(journey)
   def changeBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)(journey)
@@ -97,7 +96,7 @@ class SelectBasisForClaimController @Inject() (
                 )
               ),
             formOk => {
-              val updatedJourney = FillingOutClaim.of(fillingOutClaim)(
+              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(
                 _.copy(
                   basisOfClaimAnswer = formOk.reasonForClaim.some
                 )

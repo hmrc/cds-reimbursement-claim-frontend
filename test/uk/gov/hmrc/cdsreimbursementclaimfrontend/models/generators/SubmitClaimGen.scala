@@ -20,7 +20,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 
 object SubmitClaimGen {
+  import IdGen._
 
   implicit val arbitrarySubClaimRequest: Typeclass[SubmitClaimRequest] = gen[SubmitClaimRequest]
-
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -25,18 +25,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterImporterEoriNumberController.ImporterEoriNumber
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ImporterEoriNumberAnswer.{CompleteImporterEoriNumberAnswer, IncompleteImporterEoriNumberAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.email.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, ImporterEoriNumber, MRN}
 
 import scala.concurrent.Future
 
@@ -44,13 +40,20 @@ class EnterImporterEoriNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+    with TableDrivenPropertyChecks {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
       bind[SessionCache].toInstance(mockSessionCache)
     )
+
+  val testCases = Table(
+    "JourneyBindable",
+    JourneyBindable.Single,
+    JourneyBindable.Multiple,
+    JourneyBindable.Scheduled
+  )
 
   lazy val controller: EnterImporterEoriNumberController = instanceOf[EnterImporterEoriNumberController]
 
@@ -59,11 +62,11 @@ class EnterImporterEoriNumberControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumberAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
-    val draftC285Claim      = DraftC285Claim.newDraftC285Claim.copy(
+    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
+    val draftC285Claim      = DraftClaim.blank.copy(
       importerEoriNumberAnswer = maybeImporterEoriNumberAnswer,
-      movementReferenceNumber = Some(sample[MovementReferenceNumber])
+      movementReferenceNumber = Some(sample[MRN])
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
@@ -84,13 +87,10 @@ class EnterImporterEoriNumberControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in {
+      "there is no journey status in the session" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterImporterEoriNumber(journeyBindable)(FakeRequest())
 
-        def performAction(): Future[Result] = controller.enterImporterEoriNumber()(FakeRequest())
-
-        val answers = IncompleteImporterEoriNumberAnswer.empty
-
-        val (session, _, _) = sessionWithClaimState(Some(answers))
+        val (session, _, _) = sessionWithClaimState(None)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -108,14 +108,12 @@ class EnterImporterEoriNumberControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before" in {
-        def performAction(): Future[Result] = controller.enterImporterEoriNumber()(FakeRequest())
+      "the user has not answered this question before" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterImporterEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = IncompleteImporterEoriNumberAnswer.empty
+        val draftC285Claim = sessionWithClaimState(None)._3
 
-        val draftC285Claim = sessionWithClaimState(Some(answers))._3
-
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None)
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -130,10 +128,10 @@ class EnterImporterEoriNumberControllerSpec
         )
       }
 
-      "the user has answered this question before" in {
-        def performAction(): Future[Result] = controller.enterImporterEoriNumber()(FakeRequest())
+      "the user has answered this question before" in forAll(testCases) { journeyBindable =>
+        def performAction(): Future[Result] = controller.enterImporterEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(Eori("GB03152858027018")))
+        val answers = ImporterEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -156,14 +154,13 @@ class EnterImporterEoriNumberControllerSpec
 
     "handle submit requests" when {
 
-      "user chooses a valid option" in {
-
+      "user chooses a valid option" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterImporterEoriNumberSubmit()(
+          controller.enterImporterEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(Eori("GB03152858027018")))
+        val answers = ImporterEoriNumber(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -180,7 +177,7 @@ class EnterImporterEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(Seq("enter-importer-eori-number" -> "GB03152858027018")),
-          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber()
+          routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journeyBindable)
         )
       }
 
@@ -188,13 +185,13 @@ class EnterImporterEoriNumberControllerSpec
 
     "show an error summary" when {
 
-      "the user does not select an option" in {
+      "the user does not select an option" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterImporterEoriNumberSubmit()(
+          controller.enterImporterEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(Eori("df")))
+        val answers = ImporterEoriNumber(Eori("df"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -224,14 +221,13 @@ class EnterImporterEoriNumberControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in {
-
+      "an invalid option value is submitted" in forAll(testCases) { journeyBindable =>
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterImporterEoriNumberSubmit()(
+          controller.enterImporterEoriNumberSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CompleteImporterEoriNumberAnswer(ImporterEoriNumber(Eori("df")))
+        val answers = ImporterEoriNumber(Eori("df"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(

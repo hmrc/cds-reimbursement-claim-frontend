@@ -29,8 +29,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
@@ -42,8 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayRespon
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountNumber, BankAccountDetails, BankAccountType, Error, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountNumber, BankAccountDetails, BankAccountType, DraftClaim, Error, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -94,15 +93,15 @@ class BankAccountControllerSpec
     bankAccountType: Option[BankAccountType],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
     supportingEvidences: Option[SupportingEvidencesAnswer] = None
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
 
     val draftC285Claim =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         bankAccountDetailsAnswer = maybeBankAccountDetails,
         bankAccountTypeAnswer = bankAccountType,
         supportingEvidencesAnswer = supportingEvidences,
         selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
-        movementReferenceNumber = Some(sample[MovementReferenceNumber])
+        movementReferenceNumber = Some(sample[MRN])
       )
 
     val ggCredId            = sample[GGCredId]
@@ -121,13 +120,13 @@ class BankAccountControllerSpec
   private def sessionWithMaskedBankDetails(
     maybeMaskedBankDetails: Option[MaskedBankDetails],
     selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
-  ): (SessionData, FillingOutClaim, DraftC285Claim) = {
+  ): (SessionData, FillingOutClaim, DraftClaim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
     val draftC285Claim        =
-      DraftC285Claim.newDraftC285Claim.copy(
+      DraftClaim.blank.copy(
         displayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
         selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
-        movementReferenceNumber = Some(sample[MovementReferenceNumber])
+        movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId              = sample[GGCredId]
     val signedInUserDetails   = sample[SignedInUserDetails]
@@ -143,12 +142,12 @@ class BankAccountControllerSpec
 
   private def updateSession(sessionData: SessionData, bankAccountDetails: BankAccountDetails): SessionData =
     sessionData.journeyStatus match {
-      case Some(FillingOutClaim(g, s, (draftClaim: DraftC285Claim))) =>
+      case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
           draftClaim.copy(bankAccountDetailsAnswer = Some(bankAccountDetails))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
-      case _                                                         => fail()
+      case _                                                   => fail()
     }
 
   def getGlobalErrors(doc: Document): Elements = doc.getElementsByClass("govuk-error-summary__list").select("li")

@@ -26,10 +26,9 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, Error}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimNorthernIrelandAnswer, DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -57,7 +56,7 @@ class ClaimNorthernIrelandController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftC285Claim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+  implicit val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
 
   def selectNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
   def changeNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
@@ -92,14 +91,13 @@ class ClaimNorthernIrelandController @Inject() (
                 ),
               formOk => {
 
-                val newNiAnswer    = fillingOutClaim.draftClaim.fold(_.claimNorthernIrelandAnswer)
+                val newNiAnswer    = fillingOutClaim.draftClaim.claimNorthernIrelandAnswer
                 val answerChanged  = newNiAnswer.forall(n => n.value =!= formOk.value)
                 val updatedJourney =
-                  FillingOutClaim.of(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
+                  FillingOutClaim.from(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
 
-                EitherT
-                  .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                  .leftMap((_: Unit) => Error("could not update session"))
+                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not capture select number of claims"),
                     _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))
