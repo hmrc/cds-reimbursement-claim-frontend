@@ -28,6 +28,7 @@ package object summary {
   implicit val displayDeclarationSummary: DisplayDeclarationSummary       = new DisplayDeclarationSummary
   implicit val mrnSummary: MovementReferenceNumberSummary                 = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary               = new MovementReferenceNumbersSummary
+  implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
   implicit val reimbursementClaimSummary: ReimbursementClaimSummary       = new ReimbursementClaimSummary
   implicit val reimbursementSubtotalSummary: ReimbursementSubtotalSummary = new ReimbursementSubtotalSummary
   implicit val reimbursementTotalSummary: ReimbursementTotalSummary       = new ReimbursementTotalSummary

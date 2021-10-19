@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
 
@@ -50,6 +51,7 @@ final case class CompleteClaim(
   declarantEoriNumber: Option[DeclarantEoriNumber],
   claimsAnswer: ClaimsAnswer,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer]
 )
 
@@ -84,7 +86,7 @@ object CompleteClaim {
             maybeScheduledDocument,
             maybeAssociatedMRNs,
             _,
-            _
+            maybeReimbursementMethodAnswer
           ) =>
         (
           validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
@@ -124,6 +126,7 @@ object CompleteClaim {
                 declarantEoriNumberAnswer,
                 claimsAnswer,
                 maybeScheduledDocumentAnswer,
+                maybeReimbursementMethodAnswer,
                 maybeAssociatedMRNs
               )
           }
