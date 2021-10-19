@@ -1307,22 +1307,3 @@ country.YT=Mayotte
 country.ZA=South Africa
 country.ZM=Zambia
 country.ZW=Zimbabwe
-
-#===================================================
-#  ORDINALS
-#===================================================
-
-ordinal.lead=lead
-ordinal.first=first
-ordinal.second=second
-ordinal.third=third
-ordinal.fourth=fourth
-ordinal.fifth=fifth
-ordinal.sixth=sixth
-ordinal.seventh=seventh
-ordinal.eigth=eigth
-ordinal.ninth=ninth
-ordinal.st=st
-ordinal.nd=nd
-ordinal.rd=rd
-ordinal.th=th
