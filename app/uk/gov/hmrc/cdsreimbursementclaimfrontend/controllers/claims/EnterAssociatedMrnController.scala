@@ -148,11 +148,11 @@ class EnterAssociatedMrnController @Inject() (
                              case _ => getDeclaration(mrn)
                            }
 
-            _ = EitherT.cond[Future](
-                  canAcceptAssociatedDeclaration(journey, declaration),
-                  displayInputError(mrn, "error.eori-not-matching"),
-                  ()
-                )
+            _ <- EitherT.cond[Future](
+                   canAcceptAssociatedDeclaration(journey, declaration),
+                   (),
+                   displayInputError(mrn, "error.eori-not-matching")
+                 )
 
             updatedDraftClaim <-
               EitherT.fromEither[Future](
@@ -170,7 +170,10 @@ class EnterAssociatedMrnController @Inject() (
           .fold(
             formWithErrors => BadRequest(enterAssociatedMrnPage(index, formWithErrors)),
             replaceOrAppendMrn(_)
-              .fold(identity, _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns()))
+              .fold(
+                identity,
+                _ => Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
+              )
           )
       }
     }
@@ -194,11 +197,16 @@ object EnterAssociatedMrnController {
     val declarantEORI: String                =
       displayDeclaration.displayResponseDetail.declarantDetails.declarantEORI
 
-    declarantEORI === userEori &&
-    consigneeEORIOpt.contains(userEori) &&
-    leadDeclarantEORIOpt.contains(
-      declarantEORI
-    ) && leadConsigneeEORIOpt.exists(consigneeEORIOpt.contains(_))
+    // given the Lead MRN is associated to the EORI,
+    if (leadConsigneeEORIOpt.contains(userEori)) {
+      // the second MRN must match the same EORI
+      consigneeEORIOpt.contains(userEori)
+    } else {
+      // otherwise the second MRN must match the same consignee and declarant EORIs
+      leadDeclarantEORIOpt.contains(
+        declarantEORI
+      ) && leadConsigneeEORIOpt.exists(consigneeEORIOpt.contains(_))
+    }
   }
 
   def updateAssociatedMrns(
