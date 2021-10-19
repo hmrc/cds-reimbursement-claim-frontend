@@ -98,6 +98,4 @@ object TaxCodes {
 
   def findUnsafe(taxCode: String): TaxCode =
     taxCodesStringMap(taxCode)
-
-  //val listOfUKExciseCodeStrings: HashSet[String] = HashSet(listOfUKExciseCodes.map(_.value): _*)
 }

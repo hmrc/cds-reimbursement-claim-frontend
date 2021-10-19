@@ -20,12 +20,17 @@ import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 
+import scala.collection.immutable.HashSet
+
 final case class BasisOfClaims(items: List[BasisOfClaim]) extends AnyVal {
   def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
     s"$parentKey.reason.d${basisOfClaim.value}"
 }
 
 object BasisOfClaims {
+
+  private val ukExciseCodeStrings: HashSet[String] =
+    HashSet(TaxCodes.excise.map(_.value): _*)
 
   def apply(): Builder = Builder(allClaimsTypes)
 
@@ -52,7 +57,7 @@ object BasisOfClaims {
           .getOrElse(Nil)
 
       val hasNorthernIrelandExciseCodes =
-        receivedExciseCodes.toSet.intersect(TaxCode.listOfUKExciseCodeStrings).nonEmpty
+        receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
 
       val items = isNorthernIrelandJourney match {
         case ClaimNorthernIrelandAnswer.No  =>

@@ -16,79 +16,66 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.implicits.{catsSyntaxNestedBitraverse, catsSyntaxOptionId}
+import cats.implicits.catsSyntaxEq
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class ReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
 
-  def render(key: String, claims: ClaimsAnswer)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
-    SummaryList(rows =
-      ???
-//      claims
-//        .map { claim =>
-//          (claim.some, DutyTypes.findBy(claim.taxCode)).bisequence
-//        }
-//        .collect { case Some((claim, dutyType)) =>
-//          SummaryListRow(
-//            key = Key(Text(messages(s"duty-type.${dutyType.repr}"))),
-//            value = Value(),
-//            actions = ???
-//          )
-//        }
-//        .toList
-    )
-
-  def renderPreCyaSummary(key: String, dutyType: DutyType, r: ReimbursementClaimAnswer)(implicit
+  def render(key: String, claims: ClaimsAnswer)(implicit
+    router: ReimbursementRoutes,
     messages: Messages
-  ): SummaryList =
+  ): SummaryList = {
+    val amendCall =
+      if (router.journeyBindable === JourneyBindable.Scheduled)
+        reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim()
+      else claimsRoutes.EnterClaimController.checkClaimSummary()
+
+    val individualClaimSummaries = ClaimSummary.forMultiple(claims)
+
     SummaryList(rows =
-      r.reimbursementClaims(dutyType)
-        .map { taxCodeToReimburseClaim =>
+      individualClaimSummaries
+        .map { summary =>
           SummaryListRow(
-            key = Key(Text(messages(s"select-duties.duty.${taxCodeToReimburseClaim._1.value}.row.key"))),
-            value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(taxCodeToReimburseClaim._2.refundTotal))),
+            key = Key(Text(messages(s"$key.${summary.messageKey}"))),
+            value = Value(Text(summary.total.toPoundSterlingString)),
             actions = Some(
               Actions(
                 items = Seq(
                   ActionItem(
-                    href = reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType).url,
+                    href = amendCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(s"$key.$taxCodeToReimburseClaim.row.key"))
+                    visuallyHiddenText = Some(messages(summary.messageKey))
                   )
                 )
               )
             )
           )
-        }
-        .toList ::: SummaryListRow(
-        key = Key(Text(messages(s"$key.$dutyType.row.key"))),
-        value = Value(
-          Text(
-            MoneyUtils.formatAmountOfMoneyWithPoundSign(
-              r.reimbursementClaims(dutyType).subtotal
-            )
-          )
-        ),
-        actions = Some(
-          Actions(
-            items = Seq(
-              ActionItem(
-                href = reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType).url,
-                content = Text(messages("cya.change")),
-                visuallyHiddenText = Some(messages(s"$key.$dutyType.row.key"))
+        } ++
+        Seq(
+          SummaryListRow(
+            key = Key(Text(messages(s"$key.total"))),
+            value = Value(Text(individualClaimSummaries.map(_.total).sum.toPoundSterlingString)),
+            actions = Some(
+              Actions(
+                items = Seq(
+                  ActionItem(
+                    href = amendCall.url,
+                    content = Text(messages("cya.change")),
+                    visuallyHiddenText = Some(messages(s"$key.total"))
+                  )
+                )
               )
             )
           )
         )
-      ) :: Nil
     )
+  }
 }

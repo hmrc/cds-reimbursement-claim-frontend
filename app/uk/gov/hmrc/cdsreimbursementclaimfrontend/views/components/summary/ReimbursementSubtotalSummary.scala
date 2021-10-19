@@ -19,10 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, SummaryList, SummaryListRow}
@@ -43,7 +42,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
 
         SummaryListRow(
           key = Key(Text(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))),
-          value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(reimbursement.refundTotal))),
+          value = Value(Text(reimbursement.refundTotal.toPoundSterlingString)),
           actions = Some(
             Actions(
               items = Seq(
@@ -61,7 +60,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
           Seq(
             SummaryListRow(
               key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${dutyType.repr}")))),
-              value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(reimbursements.subtotal)))
+              value = Value(Text(reimbursements.subtotal.toPoundSterlingString))
             )
           )
         } else Nil

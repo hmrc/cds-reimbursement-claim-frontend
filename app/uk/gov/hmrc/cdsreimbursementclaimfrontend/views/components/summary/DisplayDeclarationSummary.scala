@@ -19,8 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils.formatAmountOfMoneyWithPoundSign
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -47,7 +47,7 @@ class DisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
       ).some,
       SummaryListRow(
         key = Key(Text(messages(s"$key.paid-charges-label"))),
-        value = Value(Text(formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)))
+        value = Value(Text(declaration.totalPaidCharges.toPoundSterlingString))
       ).some,
       declaration.consigneeName.map { name =>
         SummaryListRow(

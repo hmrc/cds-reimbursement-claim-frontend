@@ -988,7 +988,6 @@ check-your-answers.bank-details.account-name.label=Name on the account
 check-your-answers.bank-details.sort-code.label=Sort code
 check-your-answers.bank-details.account-number.label=Account number
 
-
 check-your-answers.reference-number.h2=Movement Reference Number (MRN)
 check-your-answers.reference-number.multiple.h2=Movement Reference Numbers (MRNs)
 check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number (MRN)
@@ -996,6 +995,12 @@ check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.commodity-details.h2=Reason for claim
 check-your-answers.claim-calculation.h2=Total reimbursement claim
+check-your-answers.claim-calculation.scheduled.h2=Total reimbursement claim for all MRNs
+check-your-answers.claim-calculation.uk-duty.label=UK Duty
+check-your-answers.claim-calculation.eu-duty.label=EU Duty
+check-your-answers.claim-calculation.excise-duty.label=Excise Duty
+check-your-answers.claim-calculation.total=Total reimbursement
+
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded

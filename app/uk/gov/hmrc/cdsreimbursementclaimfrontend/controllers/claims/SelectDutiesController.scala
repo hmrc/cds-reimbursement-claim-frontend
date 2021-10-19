@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtract
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Duty, Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Duty, Error, TaxCode, TaxCodes, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -127,7 +127,7 @@ object SelectDutiesController {
       fillingOutClaim.draftClaim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails)
 
     val acc14TaxCodes = ndrcDetails
-      .map(_.map(n => TaxCode.fromString(n.taxType)).flatten(Option.option2Iterable))
+      .map(_.map(n => TaxCodes.find(n.taxType)).flatten(Option.option2Iterable))
       .getOrElse(Nil)
 
     val isCmaEligible = ndrcDetails
@@ -135,7 +135,7 @@ object SelectDutiesController {
       .map(_.cmaEligible.getOrElse("0") === "1")
 
     if (wasIncorrectExciseCodeSelected) {
-      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
+      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCodes.excise).map(Duty(_))
       CmaEligibleAndDuties(
         isCmaEligible,
         DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
@@ -160,7 +160,7 @@ object SelectDutiesController {
               code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
             )
             .transform[TaxCode](
-              (x: String) => TaxCode.allTaxCodesMap(x),
+              (x: String) => TaxCodes.findUnsafe(x),
               (t: TaxCode) => t.value
             )
         )(Duty.apply)(Duty.unapply)

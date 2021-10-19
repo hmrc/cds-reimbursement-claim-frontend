@@ -28,7 +28,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 
 import java.util.UUID
 
@@ -244,37 +243,5 @@ object CompleteClaim {
       }
 
     def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()
-
-    def totalUKDutyClaim: String = {
-      def isUKTax(taxCode: String): Boolean =
-        TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isUKTax(p.taxCode.value)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalEuDutyClaim: String = {
-      def isEuTax(taxCode: String): Boolean =
-        TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isEuTax(p.taxCode.value)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalExciseDutyClaim: String = {
-      def isExciseTax(taxCode: String): Boolean =
-        TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isExciseTax(p.taxCode.value)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalClaim: String = {
-      val sum = completeClaim.claimsAnswer.toList.map(_.claimAmount).sum
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(sum)
-    }
   }
 }
