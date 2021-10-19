@@ -16,15 +16,36 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
+import cats.implicits.{catsSyntaxNestedBitraverse, catsSyntaxOptionId}
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, ReimbursementClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ReimbursementClaimSummary {
+class ReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
+
+  def render(key: String, claims: ClaimsAnswer)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
+    SummaryList(rows =
+      ???
+//      claims
+//        .map { claim =>
+//          (claim.some, DutyTypes.findBy(claim.taxCode)).bisequence
+//        }
+//        .collect { case Some((claim, dutyType)) =>
+//          SummaryListRow(
+//            key = Key(Text(messages(s"duty-type.${dutyType.repr}"))),
+//            value = Value(),
+//            actions = ???
+//          )
+//        }
+//        .toList
+    )
 
   def renderPreCyaSummary(key: String, dutyType: DutyType, r: ReimbursementClaimAnswer)(implicit
     messages: Messages

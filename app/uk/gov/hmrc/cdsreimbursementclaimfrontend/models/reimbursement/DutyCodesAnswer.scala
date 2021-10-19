@@ -18,15 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.Eq
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-
-import scala.collection.immutable.SortedMap
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, TaxCode}
 
 final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
 object DutyCodesAnswer {
 
+  private val dutyTypesToRankMap = DutyTypes.all.zipWithIndex.toMap
+
   val none: DutyCodesAnswer = DutyCodesAnswer(Map.empty)
+
+  implicit def dutyTypesOrdering[A <: (DutyType, List[TaxCode])]: Ordering[A] = (a: A, b: A) =>
+    dutyTypesToRankMap(a._1) compare dutyTypesToRankMap(b._1)
 
   implicit def dutyCodesAnswerFormat: Format[Map[DutyType, List[TaxCode]]] =
     new Format[Map[DutyType, List[TaxCode]]] {
@@ -35,7 +38,7 @@ object DutyCodesAnswer {
           .validate[Map[String, List[TaxCode]]]
           .map { dutyCodesMap =>
             dutyCodesMap.map { codes =>
-              DutyType.toDutyType(codes._1) match {
+              DutyTypes.find(codes._1) match {
                 case Some(dutyType) => (dutyType, codes._2)
                 case None           => sys.error("Could not convert string to a duty type")
               }
@@ -54,13 +57,8 @@ object DutyCodesAnswer {
         dutyTypeToDutyCodeMap._1
       }
 
-    def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] = {
-      def cmp(dutyTypeToRankMap: (DutyType, List[TaxCode])): Int =
-        DutyTypes.dutyTypeToRankMap(dutyTypeToRankMap._1)
-      SortedMap[DutyType, List[TaxCode]](
-        dutyCodesAnswer.dutyCodes.toSeq.sortBy(dutyTypeToDutyCodeMap => cmp(dutyTypeToDutyCodeMap)): _*
-      )
-    }
+    def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
+      dutyCodesAnswer.dutyCodes.toSeq.sorted.toMap
 
     def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
       dutyCodesAnswer.dutyCodes.map { dutyTypeToDutyCodeMap =>

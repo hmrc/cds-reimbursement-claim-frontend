@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType._
 
 object DutyTypes {
 
-  val custom: Seq[DutyType] = Seq(UkDuty, EuDuty)
+  val custom: Seq[DutyType] = List(UkDuty, EuDuty)
 
-  val excise: Seq[DutyType] = Seq(
+  val excise: Seq[DutyType] = List(
     Beer,
     Wine,
     MadeWine,
@@ -39,8 +39,15 @@ object DutyTypes {
 
   val all: Seq[DutyType] = custom ++ excise
 
-  val dutyTypeToRankMap: Map[DutyType, Int] = all.zipWithIndex.toMap
+  private[models] val dutyTypesStringMap   =
+    all.map(dutyType => dutyType.repr -> dutyType).toMap
 
-  def contains(representation: String): Boolean =
+  def has(representation: String): Boolean =
     all.exists(_.repr === representation)
+
+  def find(representation: String): Option[DutyType] =
+    dutyTypesStringMap.get(representation)
+
+  def findUnsafe(representation: String): DutyType =
+    dutyTypesStringMap(representation)
 }

@@ -32,8 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
 

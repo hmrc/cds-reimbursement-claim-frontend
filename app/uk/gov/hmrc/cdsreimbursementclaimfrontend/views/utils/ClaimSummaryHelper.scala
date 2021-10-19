@@ -34,15 +34,15 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
   private val key = "check-claim-summary"
 
   def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.ukClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
 
   def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.euClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
 
   def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(
+    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) ++ makeTotalRow(
       claimsAnswer.exciseClaims(claimsAnswer)
-    ) :: makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer))
+    )
 
   def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
     claims.map { claim =>
@@ -63,11 +63,11 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
       )
     }
 
-  def makeTotalRow(claims: List[Claim]): SummaryListRow =
+  def makeTotalRow(claims: List[Claim]): List[SummaryListRow] =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
       value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claims.map(_.claimAmount).sum)))
-    )
+    ) :: Nil
 
   def makeClaimTotalRow(claims: ClaimsAnswer): SummaryListRow =
     SummaryListRow(

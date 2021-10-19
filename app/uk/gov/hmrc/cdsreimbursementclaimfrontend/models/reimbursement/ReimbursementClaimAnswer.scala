@@ -23,7 +23,7 @@ import julienrf.json.derived
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer.ReimbursementClaimOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType, DutyTypes, TaxCode, TaxCodes}
 
 final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
 
@@ -34,7 +34,7 @@ final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map
 
     def toClaim(taxCodeWithClaim: (TaxCode, ReimbursementClaim)) =
       Claim(
-        taxCode = taxCodeWithClaim._1.value,
+        taxCode = taxCodeWithClaim._1,
         paidAmount = taxCodeWithClaim._2.paidAmount,
         claimAmount = taxCodeWithClaim._2.shouldOfPaid
       )
@@ -68,10 +68,10 @@ object ReimbursementClaimAnswer {
           .validate[Map[String, Map[String, ReimbursementClaim]]]
           .map { stringToStringToDutyPaidAndClaimAmounts =>
             stringToStringToDutyPaidAndClaimAmounts.map { dutyTypeTuple =>
-              DutyType.toDutyType(dutyTypeTuple._1) match {
+              DutyTypes.find(dutyTypeTuple._1) match {
                 case Some(dutyType) =>
                   val taxCodeToPaidAndClaimAmounts = dutyTypeTuple._2.map { taxCodeTuple =>
-                    TaxCode.fromString(taxCodeTuple._1) match {
+                    TaxCodes.find(taxCodeTuple._1) match {
                       case Some(taxCode) => taxCode -> taxCodeTuple._2
                       case None          => sys.error("Could not convert string to tax code type")
                     }

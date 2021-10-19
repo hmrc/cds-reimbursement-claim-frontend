@@ -154,7 +154,7 @@ class EnterClaimControllerSpec
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claim                = selectedTaxCodes.map(taxCode =>
         sample[Claim]
-          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       )
       val answers              = ClaimsAnswer(claim).getOrElse(fail())
       val session              = createSessionWithPreviousAnswers(Some(answers), dutiesSelectedAnswer)._1
@@ -195,7 +195,7 @@ class EnterClaimControllerSpec
       val taxCode              = TaxCode.A20
       val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(taxCode))
       val claim                = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val session = createSessionWithPreviousAnswers(Some(ClaimsAnswer(claim)), Some(dutiesSelectedAnswer))._1
 
@@ -248,7 +248,7 @@ class EnterClaimControllerSpec
     "render when the user has not answered this question before" in {
       val taxCode = TaxCode.B05
       val claim   = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
-        .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
       val answers = ClaimsAnswer(claim)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
@@ -267,7 +267,7 @@ class EnterClaimControllerSpec
     "render the previous answer when the user has answered this question before" in {
       val taxCode = TaxCode.B05
       val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       val answers = ClaimsAnswer(claim)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
@@ -310,7 +310,7 @@ class EnterClaimControllerSpec
           claimAmount = BigDecimal(1.00).setScale(2),
           paidAmount = BigDecimal(10.00).setScale(2),
           isFilled = false,
-          taxCode = "A00"
+          taxCode = TaxCode.A00
         )
 
       val answers = ClaimsAnswer(claim)
@@ -340,7 +340,7 @@ class EnterClaimControllerSpec
     "an invalid option value is submitted" in {
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val answers = ClaimsAnswer(claim)
 
@@ -417,7 +417,7 @@ class EnterClaimControllerSpec
     "Redirect to ReimbursementMethod if user says details are correct, they are on the MRN journey and all the selected duties are cma eligible" in {
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val selectedDuties = DutiesSelectedAnswer(Duty(taxCode))
       val ndrcDetails    = genNdrcDetails.sample.map(_.copy(taxType = taxCode.value, cmaEligible = Some("1"))).toList
@@ -446,7 +446,7 @@ class EnterClaimControllerSpec
     "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val answers = ClaimsAnswer(claim)
 
@@ -473,7 +473,7 @@ class EnterClaimControllerSpec
 
       val taxCode = TaxCode.A00
       val claim   = sample[Claim]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode.value)
+        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val answers = ClaimsAnswer(claim)
 
@@ -511,7 +511,7 @@ class EnterClaimControllerSpec
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claims               = selectedTaxCodes.map(taxCode =>
         sample[Claim]
-          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode.value)
+          .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       )
       val claimAnswers         = ClaimsAnswer(claims)
 

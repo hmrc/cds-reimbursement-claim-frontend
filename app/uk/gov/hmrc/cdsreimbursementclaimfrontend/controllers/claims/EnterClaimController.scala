@@ -230,16 +230,15 @@ object EnterClaimController {
       .map(_.toList)
       .toRight(Error("No duties in session when arriving on ClaimController"))
       .map(_.map { duty =>
-        claims.find(claim => claim.taxCode === duty.taxCode.value) match {
-          case Some(claim) => Some(claim)
+        claims.find(claim => claim.taxCode === duty.taxCode) match {
+          case Some(claim) => claim
           case None        => //No Claim for the given Duty, we have to create one
-            ndrcDetails.find(ndrc => ndrc.taxType === duty.taxCode.value) match {
-              case Some(ndrc) => Some(Claim.fromNdrc(ndrc))
-              case None       => Some(Claim.fromDuty(duty))
-            }
+            ndrcDetails
+              .find(ndrc => ndrc.taxType === duty.taxCode.value)
+              .flatMap(ndrc => Claim.fromNdrc(ndrc))
+              .getOrElse(Claim.fromDuty(duty))
         }
-      })
-      .map(_.flatten(Option.option2Iterable).toList)
+      }.toList)
   }
 
   val checkClaimSummaryKey: String = "check-claim-summary"

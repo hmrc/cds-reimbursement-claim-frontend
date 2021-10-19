@@ -250,7 +250,7 @@ object CompleteClaim {
         TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
 
       MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
+        completeClaim.claimsAnswer.filter(p => isUKTax(p.taxCode.value)).map(s => s.claimAmount).sum
       )
     }
 
@@ -259,7 +259,7 @@ object CompleteClaim {
         TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
 
       MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isEuTax(p.taxCode)).map(s => s.claimAmount).sum
+        completeClaim.claimsAnswer.filter(p => isEuTax(p.taxCode.value)).map(s => s.claimAmount).sum
       )
     }
 
@@ -268,7 +268,7 @@ object CompleteClaim {
         TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
 
       MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isExciseTax(p.taxCode)).map(s => s.claimAmount).sum
+        completeClaim.claimsAnswer.filter(p => isExciseTax(p.taxCode.value)).map(s => s.claimAmount).sum
       )
     }
 

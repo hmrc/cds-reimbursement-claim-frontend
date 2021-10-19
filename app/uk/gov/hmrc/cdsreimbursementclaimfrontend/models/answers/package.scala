@@ -20,7 +20,6 @@ import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 

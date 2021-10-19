@@ -19,8 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyType, ReimbursementClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}

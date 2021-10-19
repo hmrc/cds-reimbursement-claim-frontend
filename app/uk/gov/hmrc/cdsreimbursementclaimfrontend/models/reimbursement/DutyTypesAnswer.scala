@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.Eq
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
 
 final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
 
