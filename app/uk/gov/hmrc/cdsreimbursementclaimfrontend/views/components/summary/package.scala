@@ -22,20 +22,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
 
-  implicit val claimTypeSummary: ClaimTypeSummary                         = new ClaimTypeSummary
-  implicit val basisOfClaimSummary: BasisOfClaimSummary                   = new BasisOfClaimSummary
-  implicit val commodityDetailsSummary: CommodityDetailsSummary           = new CommodityDetailsSummary
-  implicit val displayDeclarationSummary: DisplayDeclarationSummary       = new DisplayDeclarationSummary
-  implicit val mrnSummary: MovementReferenceNumberSummary                 = new MovementReferenceNumberSummary
-  implicit val mrnsSummary: MovementReferenceNumbersSummary               = new MovementReferenceNumbersSummary
+  implicit val claimTypeSummary: ClaimTypeSummary                                 = new ClaimTypeSummary
+  implicit val basisOfClaimSummary: BasisOfClaimSummary                           = new BasisOfClaimSummary
+  implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
+  implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
+  implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
+  implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
+  implicit val totalReimbursementClaimSummary: TotalReimbursementClaimSummary     = new TotalReimbursementClaimSummary
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
-  implicit val reimbursementClaimSummary: ReimbursementClaimSummary       = new ReimbursementClaimSummary
-  implicit val reimbursementSubtotalSummary: ReimbursementSubtotalSummary = new ReimbursementSubtotalSummary
-  implicit val reimbursementTotalSummary: ReimbursementTotalSummary       = new ReimbursementTotalSummary
-  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary       = new CdsClaimantDetailsSummary
-  implicit val supportingEvidenceSummary: SupportingEvidenceSummary       = new SupportingEvidenceSummary
-  implicit val scheduledDocumentSummary: ScheduledDocumentSummary         = new ScheduledDocumentSummary
-  implicit val contactDetailsSummary: ContactDetailsSummary               = new ContactDetailsSummary
+  implicit val reimbursementSubtotalSummary: ReimbursementSubtotalSummary         = new ReimbursementSubtotalSummary
+  implicit val reimbursementTotalSummary: ReimbursementTotalSummary               = new ReimbursementTotalSummary
+  implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
+  implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
+  implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
+  implicit val contactDetailsSummary: ContactDetailsSummary                       = new ContactDetailsSummary
 
   implicit class AnswerSummaryOps[A](private val answer: A) extends AnyVal {
 

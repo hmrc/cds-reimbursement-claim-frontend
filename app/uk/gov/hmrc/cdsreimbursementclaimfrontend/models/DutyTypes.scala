@@ -39,7 +39,7 @@ object DutyTypes {
 
   val all: Seq[DutyType] = custom ++ excise
 
-  private[models] val dutyTypesStringMap   =
+  private val dutyTypesStringMap           =
     all.map(dutyType => dutyType.repr -> dutyType).toMap
 
   def has(representation: String): Boolean =

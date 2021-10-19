@@ -58,7 +58,7 @@ object PathBinders {
         AssociatedMrnIndex.toUrlIndex(associatedMrnIndex).toString
     }
 
-  implicit val pathBindable: PathBindable[JourneyBindable] = new PathBindable[JourneyBindable] {
+  implicit val journeyPathBindable: PathBindable[JourneyBindable] = new PathBindable[JourneyBindable] {
 
     def bind(key: String, value: String): Either[String, JourneyBindable] =
       Try(JourneyBindable.parse(value)).toEither.left.map(_.getMessage)

@@ -19,20 +19,20 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
-sealed abstract class ClaimSummary(val total: BigDecimal, val messageKey: String)
+sealed abstract class DutyClaimSummary(val total: BigDecimal, val messageKey: String)
 
-object ClaimSummary {
+object DutyClaimSummary {
 
-  final case class UKClaimSummary(override val total: BigDecimal)
-      extends ClaimSummary(total, messageKey = "uk-duty.label")
+  final case class UKDutyClaimSummary(override val total: BigDecimal)
+      extends DutyClaimSummary(total, messageKey = "uk-duty.label")
 
-  final case class EUClaimSummary(override val total: BigDecimal)
-      extends ClaimSummary(total, messageKey = "eu-duty.label")
+  final case class EUDutyClaimSummary(override val total: BigDecimal)
+      extends DutyClaimSummary(total, messageKey = "eu-duty.label")
 
-  final case class ExciseClaimSummary(override val total: BigDecimal)
-      extends ClaimSummary(total, messageKey = "excise-duty.label")
+  final case class ExciseDutyClaimSummary(override val total: BigDecimal)
+      extends DutyClaimSummary(total, messageKey = "excise-duty.label")
 
-  def forMultiple(claims: ClaimsAnswer): Seq[ClaimSummary] = {
+  def forMultiple(claims: ClaimsAnswer): Seq[DutyClaimSummary] = {
     val totals = claims.foldLeft(Array[BigDecimal](xs = 0, 0, 0))((buff, claim) =>
       if (TaxCodes.UK.contains(claim.taxCode)) {
         buff(0) += claim.claimAmount
@@ -46,10 +46,10 @@ object ClaimSummary {
       } else buff
     )
 
-    Seq[ClaimSummary](
-      UKClaimSummary(totals(0)),
-      EUClaimSummary(totals(1)),
-      ExciseClaimSummary(totals(2))
+    Seq[DutyClaimSummary](
+      UKDutyClaimSummary(totals(0)),
+      EUDutyClaimSummary(totals(1)),
+      ExciseDutyClaimSummary(totals(2))
     ).filter(_.total > 0)
   }
 }

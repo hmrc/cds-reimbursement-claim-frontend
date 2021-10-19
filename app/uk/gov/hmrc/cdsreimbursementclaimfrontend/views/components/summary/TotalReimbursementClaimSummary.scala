@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
+class TotalReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
 
   def render(key: String, claims: ClaimsAnswer)(implicit
     router: ReimbursementRoutes,
@@ -38,7 +38,7 @@ class ReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
         reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim()
       else claimsRoutes.EnterClaimController.checkClaimSummary()
 
-    val individualClaimSummaries = ClaimSummary.forMultiple(claims)
+    val individualClaimSummaries = DutyClaimSummary.forMultiple(claims)
 
     SummaryList(rows =
       individualClaimSummaries
