@@ -76,19 +76,22 @@ class ReimbursementMethodController @Inject() (
               .fold(
                 logAndDisplayError("could not get reimbursement method selected "),
                 _ =>
-                  answer match {
-                    case ReimbursementMethodAnswer.CurrentMonthAdjustment =>
-                      Redirect(
-                        fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(JourneyBindable.Single)
-                      )
-                    case ReimbursementMethodAnswer.BankAccountTransfer    =>
-                      Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single))
-                  }
+                  Redirect((answer, isAmend(fillingOutClaim)) match {
+                    case (_, true)                                             =>
+                      claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+                    case (ReimbursementMethodAnswer.CurrentMonthAdjustment, _) =>
+                      fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(JourneyBindable.Single)
+                    case (ReimbursementMethodAnswer.BankAccountTransfer, _)    =>
+                      claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
+                  })
               )
           }
         )
     }
   }
+
+  private def isAmend(fillingOutClaim: FillingOutClaim): Boolean =
+    fillingOutClaim.draftClaim.supportingEvidencesAnswer.isDefined
 }
 
 object ReimbursementMethodController {

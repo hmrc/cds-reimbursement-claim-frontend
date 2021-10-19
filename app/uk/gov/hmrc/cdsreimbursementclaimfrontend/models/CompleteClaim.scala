@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 
 import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 final case class CompleteClaim(
   id: UUID,
@@ -50,7 +51,8 @@ final case class CompleteClaim(
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
   claimsAnswer: ClaimsAnswer,
-  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer]
+  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer]
 )
 
 object CompleteClaim {
@@ -84,7 +86,7 @@ object CompleteClaim {
             maybeScheduledDocument,
             _,
             _,
-            _
+            maybeReimbursementMethodAnswer
           ) =>
         (
           validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
@@ -123,7 +125,8 @@ object CompleteClaim {
                 importerEoriNumberAnswer,
                 declarantEoriNumberAnswer,
                 claimsAnswer,
-                maybeScheduledDocumentAnswer
+                maybeScheduledDocumentAnswer,
+                maybeReimbursementMethodAnswer
               )
           }
           .toEither
