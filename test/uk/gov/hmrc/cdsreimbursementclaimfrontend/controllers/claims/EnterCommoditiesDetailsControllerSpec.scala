@@ -26,8 +26,6 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable.{Multiple, Scheduled}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -36,7 +34,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, DraftClaim, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, MovementReferenceNumber, SelectNumberOfClaimsAnswer, SessionData, SignedInUserDetails, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 import scala.concurrent.Future
@@ -219,7 +216,7 @@ class EnterCommoditiesDetailsControllerSpec
           performAction(Seq("enter-commodities-details" -> "some package")),
           if (journeyBindable === JourneyBindable.Scheduled) {
             reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
-          } else if (journeyBindable === Multiple) {
+          } else if (journeyBindable === JourneyBindable.Multiple) {
             routes.MultipleSelectDutiesController.selectDuties(AssociatedMrnIndex.fromListIndex(0))
           } else {
             routes.SelectDutiesController.selectDuties()

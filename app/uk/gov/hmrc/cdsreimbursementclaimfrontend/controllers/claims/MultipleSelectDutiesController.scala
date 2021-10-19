@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxEq
-import cats.implicits.toFoldableOps
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -42,7 +41,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.form.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -53,6 +51,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 
 @Singleton
 class MultipleSelectDutiesController @Inject() (
@@ -124,20 +123,18 @@ class MultipleSelectDutiesController @Inject() (
                         )
                       ),
                     dutiesSelected => {
-                      val newDraftClaim  =
-                        journey.draftClaim
-                          .fold(claim =>
-                            claim.copy(multipleDutiesSelectedAnswer =
-                              Some(
-                                NonEmptyList(
-                                  (mrn, dutiesSelected),
-                                  claim.multipleDutiesSelectedAnswer
-                                    .map(_.toList.filterNot(_._1 == mrn))
-                                    .getOrElse(Nil)
-                                )
-                              )
+                      val newDraftClaim =
+                        journey.draftClaim.copy(multipleDutiesSelectedAnswer =
+                          Some(
+                            NonEmptyList(
+                              (mrn, dutiesSelected),
+                              journey.draftClaim.multipleDutiesSelectedAnswer
+                                .map(_.toList.filterNot(_._1 == mrn))
+                                .getOrElse(Nil)
                             )
                           )
+                        )
+
                       val updatedJourney = journey.copy(draftClaim = newDraftClaim)
 
                       EitherT
@@ -164,12 +161,10 @@ object MultipleSelectDutiesController {
   )
 
   def getAvailableDuties(fillingOutClaim: FillingOutClaim): CmaEligibleAndDuties = {
-    val wasIncorrectExciseCodeSelected: Boolean = fillingOutClaim.draftClaim
-      .fold(_.basisOfClaimAnswer)
+    val wasIncorrectExciseCodeSelected: Boolean = fillingOutClaim.draftClaim.basisOfClaimAnswer
       .exists(_ === IncorrectExciseValue)
 
-    val ndrcDetails = fillingOutClaim.draftClaim
-      .fold(_.displayDeclaration)
+    val ndrcDetails = fillingOutClaim.draftClaim.displayDeclaration
       .flatMap(_.displayResponseDetail.ndrcDetails)
 
     val acc14TaxCodes = ndrcDetails
@@ -180,28 +175,18 @@ object MultipleSelectDutiesController {
       .getOrElse(Nil)
       .map(_.cmaEligible.getOrElse("0") === "1")
 
-    wasIncorrectExciseCodeSelected match {
-      case true  => //IncorrectExciseCode can only be selected for an MRN number on the Northern Ireland journey
-        val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
-        CmaEligibleAndDuties(
-          isCmaEligible,
-          DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
-        )
-      case false =>
-        fillingOutClaim.draftClaim.isMrnFlow match {
-          case true  =>
-            CmaEligibleAndDuties(
-              isCmaEligible,
-              DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
-                .toRight(Error("No UK or EU tax codes were received from Acc14"))
-            )
-          case false =>
-            CmaEligibleAndDuties(
-              isCmaEligible,
-              DutiesSelectedAnswer(TaxCode.ukAndEuTaxCodes.map(Duty(_)))
-                .toRight(Error("Eu and Uk tax codes were empty"))
-            )
-        }
+    if (wasIncorrectExciseCodeSelected) {
+      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
+      CmaEligibleAndDuties(
+        isCmaEligible,
+        DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
+      )
+    } else {
+      CmaEligibleAndDuties(
+        isCmaEligible,
+        DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
+          .toRight(Error("No UK or EU tax codes were received from Acc14"))
+      )
     }
   }
 

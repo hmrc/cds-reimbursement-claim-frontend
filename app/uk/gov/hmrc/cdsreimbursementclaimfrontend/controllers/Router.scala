@@ -20,10 +20,6 @@ import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController.{CheckClaimantDetailsAnswer, NoClaimantDetailsAnswer, YesClaimantDetailsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.{CheckDeclarationDetailsAnswer, DeclarationAnswersAreCorrect, DeclarationAnswersAreIncorrect}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
@@ -153,7 +149,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case false =>
         if (journeyBindable === JourneyBindable.Scheduled) {
           reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
-        } else if (journeyBindable === Multiple) {
+        } else if (journeyBindable === JourneyBindable.Multiple) {
           claimRoutes.MultipleSelectDutiesController.selectDuties(AssociatedMrnIndex.fromListIndex(0))
         } else {
           claimRoutes.SelectDutiesController.selectDuties()

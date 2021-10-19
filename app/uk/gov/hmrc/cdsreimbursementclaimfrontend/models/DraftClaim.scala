@@ -55,7 +55,8 @@ final case class DraftClaim(
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
+  multipleDutiesSelectedAnswer: Option[MultipleDutiesSelectedAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =
