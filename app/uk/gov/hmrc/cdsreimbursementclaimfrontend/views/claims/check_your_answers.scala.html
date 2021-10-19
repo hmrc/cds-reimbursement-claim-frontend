@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer.CurrentMonthAdjustment
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -91,8 +92,15 @@
         @pageHeading(messages(s"$key.claim-calculation.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(SummaryList(cyaHelper.makeClaimCalculationSummary(completeClaim)))
 
-        @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
+        @completeClaim.reimbursementMethodAnswer.map { rma =>
+            @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(rma.review(s"$key.reimbursement-method"))
+        }
+
+        @if(!completeClaim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
+            @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
+        }
 
         @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(completeClaim.supportingEvidencesAnswer.review(s"$key.attached-documents"))

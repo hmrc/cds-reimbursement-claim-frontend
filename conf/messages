@@ -1012,6 +1012,10 @@ check-your-answers.claimant-details.h2=Details as registered with CDS
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
+check-your-answers.reimbursement-method.h2=Reimbursement method
+check-your-answers.reimbursement-method.label=Method
+check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
+check-your-answers.reimbursement-method.bt=Bank account transfer
 
 #===================================================
 # SUBMISSION ERROR PAGE

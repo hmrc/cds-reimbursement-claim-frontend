@@ -32,6 +32,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim.DraftC285Claim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -170,8 +172,8 @@ class ReimbursementMethodControllerSpec
         )
       }
 
-      "the user amends their previous answer" in {
-        val session        = getSessionWithPreviousAnswer(BankAccountTransfer)
+      "the user amends their previous answer from BTA to CMA via the cya page" in {
+        val session        = includeSupportingEvidenceInSession(getSessionWithPreviousAnswer(BankAccountTransfer))
         val updatedSession = updateSession(session, CurrentMonthAdjustment)
 
         inSequence {
@@ -182,7 +184,23 @@ class ReimbursementMethodControllerSpec
 
         checkIsRedirect(
           performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "0")),
-          fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(JourneyBindable.Single)
+          claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+        )
+      }
+
+      "the user amends their previous answer from CMA to BTA via the cya page" in {
+        val session        = includeSupportingEvidenceInSession(getSessionWithPreviousAnswer(CurrentMonthAdjustment))
+        val updatedSession = updateSession(session, BankAccountTransfer)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          performAction(Seq(ReimbursementMethodController.reimbursementMethodKey -> "1")),
+          claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
     }
@@ -245,6 +263,16 @@ class ReimbursementMethodControllerSpec
       case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
         val newClaim      =
           draftClaim.copy(reimbursementMethodAnswer = Some(reimbusementMethod))
+        val journeyStatus = FillingOutClaim(g, s, newClaim)
+        sessionData.copy(journeyStatus = Some(journeyStatus))
+      case _                                                       => fail()
+    }
+
+  private def includeSupportingEvidenceInSession(sessionData: SessionData): SessionData =
+    sessionData.journeyStatus match {
+      case Some(FillingOutClaim(g, s, draftClaim: DraftC285Claim)) =>
+        val newClaim      =
+          draftClaim.copy(supportingEvidencesAnswer = Some(sample[SupportingEvidencesAnswer]))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                       => fail()
