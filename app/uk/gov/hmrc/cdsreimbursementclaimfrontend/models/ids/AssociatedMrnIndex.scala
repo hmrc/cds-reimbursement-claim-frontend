@@ -37,16 +37,16 @@ final case class AssociatedMrnIndex private (urlIndex: Int) {
 
 object AssociatedMrnIndex {
 
-  def toListIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
+  final def toListIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
     associatedMrnIndex.toListIndex
 
-  def fromListIndex(index: Int): AssociatedMrnIndex =
+  final def fromListIndex(index: Int): AssociatedMrnIndex =
     AssociatedMrnIndex(index + 2)
 
-  def toUrlIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
+  final def toUrlIndex(associatedMrnIndex: AssociatedMrnIndex): Int =
     associatedMrnIndex.toUrlIndex
 
-  def fromUrlIndex(index: Int): AssociatedMrnIndex =
+  final def fromUrlIndex(index: Int): AssociatedMrnIndex =
     AssociatedMrnIndex(index)
 
   implicit val eq: Eq[AssociatedMrnIndex] =

@@ -30,13 +30,12 @@ package object answers {
 
   type AssociatedMrn = MRN
 
-  type AssociatedMRNsAnswer            = NonEmptyList[AssociatedMrn]
-  type AssociatedMRNsDeclarationAnswer = NonEmptyList[DisplayDeclaration]
-  type SupportingEvidencesAnswer       = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer            = NonEmptyList[Duty]
-  type DutiesSelectedForMRNAnswer      = (AssociatedMrn, DutiesSelectedAnswer)
-  type MultipleDutiesSelectedAnswer    = NonEmptyList[DutiesSelectedForMRNAnswer]
-  type ClaimsAnswer                    = NonEmptyList[Claim]
+  type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
+  type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]
+  type SupportingEvidencesAnswer          = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer               = NonEmptyList[Duty]
+  type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
+  type ClaimsAnswer                       = NonEmptyList[Claim]
 
   object SupportingEvidencesAnswer {
     def apply(evidence: UploadDocument): NonEmptyList[UploadDocument] =

@@ -26,9 +26,8 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import cats.data.NonEmptyList
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.OrdinalNumeralsHelper
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -40,12 +39,12 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean], mrnIndex: AssociatedMrnIndex, mrn: AssociatedMrn)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean], mrnIndex: Int, mrn: MRN)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
-  @title = @{messages(s"multiple-$key.title", OrdinalNumeralsHelper.toMrnOrdinal(mrnIndex))}
+  @title = @{messages(s"multiple-$key.title", OrdinalNumeral(mrnIndex))}
 
-  @postAction = @{routes.MultipleSelectDutiesController.selectDutiesSubmit(mrnIndex)}
+  @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
     @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
 
         val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
@@ -60,7 +59,7 @@
 
     @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+    @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
         @errorSummary(form.errors)
 

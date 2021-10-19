@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
 
 import java.util.UUID
+import cats.data.NonEmptyList
 
 final case class DraftClaim(
   id: UUID,
@@ -56,28 +57,49 @@ final case class DraftClaim(
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
-  multipleDutiesSelectedAnswer: Option[MultipleDutiesSelectedAnswer] = None
+  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
 ) {
 
-  def isMandatoryContactDataAvailable: Boolean =
+  final def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
-  object MRNs {
+  final object MRNs {
 
-    def leadMrn: Option[LeadMrn] = movementReferenceNumber
-
-    def apply(): List[MRN] =
+    final lazy val list: List[MRN] =
       leadMrn.toList ++ associatedMRNsAnswer.list
 
-    def total: Total =
+    final def apply(): List[MRN] = list
+
+    final def leadMrn: Option[LeadMrn] = movementReferenceNumber
+
+    final def total: Total =
       (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0
 
-    def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =
+    final def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =
       (leadMrn, displayDeclaration).bisequence.toList ++
         (associatedMRNsAnswer.map(_.toList), associatedMRNsDeclarationAnswer.map(_.toList))
           .mapN((mrns, declarations) => mrns zip declarations)
           .getOrElse(Nil)
+
+    final def get(index: Int): Option[MRN] =
+      list.get(index.toLong)
   }
+
+  final object DutiesSelections {
+
+    final lazy val list: List[List[Duty]] = {
+      val x  = dutiesSelectedAnswer.map(_.toList).getOrElse(Nil)
+      val xs = associatedMRNsDutiesSelectedAnswer
+        .map(_.map(_.toList).toList)
+        .getOrElse(Nil)
+      x :: xs
+    }
+
+    final def get(index: Int): Option[List[Duty]] =
+      list.get(index.toLong)
+
+  }
+
 }
 
 object DraftClaim {
