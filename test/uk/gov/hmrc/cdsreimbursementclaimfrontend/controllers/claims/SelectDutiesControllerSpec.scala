@@ -137,7 +137,7 @@ class SelectDutiesControllerSpec
       "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
         val previousTaxCodes = Random.shuffle(TaxCodes.UK).take(3).toList
         val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail)
-        val newTaxCodes      = Random.shuffle(TaxCodes.UK).take(3)
+        val newTaxCodes      = Random.shuffle(TaxCodes.excise).take(3)
         val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value)).toList
         val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))

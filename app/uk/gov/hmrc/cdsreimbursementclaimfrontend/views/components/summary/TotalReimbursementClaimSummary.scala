@@ -52,7 +52,7 @@ class TotalReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
                   ActionItem(
                     href = amendCall.url,
                     content = Text(messages("cya.change")),
-                    visuallyHiddenText = Some(messages(summary.messageKey))
+                    visuallyHiddenText = Some(messages(s"$key.${summary.messageKey}"))
                   )
                 )
               )
