@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 
 object ClaimsAnswerGen {
 
-  implicit val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
-  implicit val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
+  implicit lazy val arbitraryTaxCodeGen: Arbitrary[TaxCode] =
+    Arbitrary(Gen.oneOf(TaxCodes.all))
+
+  implicit lazy val arbitraryClaim: Typeclass[Claim]               = gen[Claim]
+  implicit lazy val arbitraryClaimsAnswer: Typeclass[ClaimsAnswer] = gen[ClaimsAnswer]
 }

@@ -36,14 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAnd
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, Error, TaxCode, TaxCodes, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -176,7 +173,7 @@ class SelectMultipleDutiesController @Inject() (
 
 object SelectMultipleDutiesController {
 
-  final def selectNextPage(journey: FillingOutClaim, mrnIndex: Int): Call =
+  def selectNextPage(journey: FillingOutClaim, mrnIndex: Int): Call =
     (for {
       duties <- journey.draftClaim.DutiesSelections.get(mrnIndex - 1)
       duty   <- duties.toList.headOption
@@ -206,7 +203,7 @@ object SelectMultipleDutiesController {
       displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails)
 
     val acc14TaxCodes = ndrcDetails
-      .map(_.map(n => TaxCode.fromString(n.taxType)).flatten(Option.option2Iterable))
+      .map(_.map(n => TaxCodes.find(n.taxType)).flatten(Option.option2Iterable))
       .getOrElse(Nil)
 
     val isCmaEligible = ndrcDetails
@@ -214,7 +211,7 @@ object SelectMultipleDutiesController {
       .map(_.cmaEligible.getOrElse("0") === "1")
 
     if (wasIncorrectExciseCodeSelected) {
-      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCode.listOfUKExciseCodes).map(Duty(_))
+      val receivedExciseCodes = acc14TaxCodes.intersect(TaxCodes.excise).map(Duty(_))
       CmaEligibleAndDuties(
         isCmaEligible,
         DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
@@ -239,7 +236,7 @@ object SelectMultipleDutiesController {
               code => allAvailableDuties.map(_.taxCode.value).exists(_ === code)
             )
             .transform[TaxCode](
-              (x: String) => TaxCode.allTaxCodesMap(x),
+              (x: String) => TaxCodes.findUnsafe(x),
               (t: TaxCode) => t.value
             )
         )(Duty.apply)(Duty.unapply)

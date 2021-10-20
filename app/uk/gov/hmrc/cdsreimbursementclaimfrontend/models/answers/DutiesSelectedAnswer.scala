@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.Eq
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 
-final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
-
-object DutyTypesAnswer {
-  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
-  implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
+object DutiesSelectedAnswer {
+  def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
+  def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
 }

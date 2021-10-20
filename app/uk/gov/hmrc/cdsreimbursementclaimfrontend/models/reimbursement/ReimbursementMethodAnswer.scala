@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-abstract sealed trait ReimbursementMethodAnswer extends Product with Serializable
+sealed trait ReimbursementMethodAnswer extends Product with Serializable
 
 object ReimbursementMethodAnswer {
   final case object CurrentMonthAdjustment extends ReimbursementMethodAnswer

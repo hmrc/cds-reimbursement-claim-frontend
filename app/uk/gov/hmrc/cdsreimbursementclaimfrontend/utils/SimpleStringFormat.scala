@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import cats.Eq
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
 
-final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
+object SimpleStringFormat {
 
-object DutyTypesAnswer {
-  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
-  implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
+  def apply[A](fromString: String => A, toString: A => String): Format[A] =
+    Format(
+      Reads {
+        case JsString(value) => JsSuccess(fromString(value))
+        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
+      },
+      Writes.apply(entity => JsString(toString(entity)))
+    )
+
 }

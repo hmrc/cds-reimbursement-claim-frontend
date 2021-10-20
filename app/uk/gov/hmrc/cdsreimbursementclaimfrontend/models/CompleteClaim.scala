@@ -20,18 +20,17 @@ import cats.Eq
 import cats.data.Validated
 import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 final case class CompleteClaim(
   id: UUID,
@@ -51,8 +50,9 @@ final case class CompleteClaim(
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
   claimsAnswer: ClaimsAnswer,
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer]
+  associatedMRNsAnswer: Option[AssociatedMRNsAnswer]
 )
 
 object CompleteClaim {
@@ -84,7 +84,7 @@ object CompleteClaim {
             draftDeclarantEoriNumberAnswer,
             Some(claimsAnswer),
             maybeScheduledDocument,
-            _,
+            maybeAssociatedMRNs,
             _,
             maybeReimbursementMethodAnswer,
             _
@@ -126,8 +126,9 @@ object CompleteClaim {
                 importerEoriNumberAnswer,
                 declarantEoriNumberAnswer,
                 claimsAnswer,
+                maybeReimbursementMethodAnswer,
                 maybeScheduledDocumentAnswer,
-                maybeReimbursementMethodAnswer
+                maybeAssociatedMRNs
               )
           }
           .toEither
@@ -140,8 +141,8 @@ object CompleteClaim {
       case _ => Left(Error("unknown claim type"))
     }
 
-  implicit val eq: Eq[CompleteClaim]          = Eq.fromUniversalEquals[CompleteClaim]
-  implicit val format: OFormat[CompleteClaim] = Json.format[CompleteClaim]
+  implicit val eq: Eq[CompleteClaim]         = Eq.fromUniversalEquals[CompleteClaim]
+  implicit val format: Format[CompleteClaim] = Json.format[CompleteClaim]
 
   def validateDeclarantTypeAnswer(
     maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
@@ -246,37 +247,5 @@ object CompleteClaim {
       }
 
     def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()
-
-    def totalUKDutyClaim: String = {
-      def isUKTax(taxCode: String): Boolean =
-        TaxCode.listOfUKTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isUKTax(p.taxCode)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalEuDutyClaim: String = {
-      def isEuTax(taxCode: String): Boolean =
-        TaxCode.listOfEUTaxCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isEuTax(p.taxCode)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalExciseDutyClaim: String = {
-      def isExciseTax(taxCode: String): Boolean =
-        TaxCode.listOfUKExciseCodes.map(t => t.toString()).exists(p => p.contains(taxCode))
-
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(
-        completeClaim.claimsAnswer.filter(p => isExciseTax(p.taxCode)).map(s => s.claimAmount).sum
-      )
-    }
-
-    def totalClaim: String = {
-      val sum = completeClaim.claimsAnswer.toList.map(_.claimAmount).sum
-      MoneyUtils.formatAmountOfMoneyWithPoundSign(sum)
-    }
   }
 }

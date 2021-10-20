@@ -24,7 +24,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import java.util.UUID
 
 final case class Claim(
-  taxCode: String,
+  taxCode: TaxCode,
   paidAmount: BigDecimal,
   claimAmount: BigDecimal,
   id: UUID = UUID.randomUUID(),
@@ -35,16 +35,21 @@ final case class Claim(
 
 object Claim {
 
-  def fromNdrc(ndrc: NdrcDetails): Claim = Claim(
-    paymentMethod = ndrc.paymentMethod,
-    paymentReference = ndrc.paymentReference,
-    taxCode = ndrc.taxType,
-    paidAmount = BigDecimal(ndrc.amount),
-    claimAmount = 0
-  )
+  def fromNdrc(ndrc: NdrcDetails): Option[Claim] =
+    TaxCodes
+      .find(ndrc.taxType)
+      .map(taxType =>
+        Claim(
+          paymentMethod = ndrc.paymentMethod,
+          paymentReference = ndrc.paymentReference,
+          taxCode = taxType,
+          paidAmount = BigDecimal(ndrc.amount),
+          claimAmount = 0
+        )
+      )
 
   def fromDuty(duty: Duty): Claim = Claim(
-    taxCode = duty.taxCode.value,
+    taxCode = duty.taxCode,
     paidAmount = 0,
     claimAmount = 0,
     paymentReference = PaymentReference.unknown
@@ -59,14 +64,15 @@ object Claim {
     lazy val unknown: String       = "unknown"
   }
 
+  // TODO: Remove - the only usage is ClaimSummaryHelper which is obsolete.
+  // The check claim page for the single journey has a new design and please use DutyClaimSummary which has 100% better optimised lookup
   implicit class ListClaimOps(val claims: NonEmptyList[Claim]) extends AnyVal {
 
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
 
-    def isUkClaim(claim: Claim): Boolean     = TaxCode.listOfUKTaxCodes.map(code => code.value).contains(claim.taxCode)
-    def isEuClaim(claim: Claim): Boolean     = TaxCode.listOfEUTaxCodes.map(code => code.value).contains(claim.taxCode)
-    def isExciseClaim(claim: Claim): Boolean =
-      TaxCode.listOfUKExciseCodes.map(code => code.value).contains(claim.taxCode)
+    def isUkClaim(claim: Claim): Boolean     = TaxCodes.UK.contains(claim.taxCode)
+    def isEuClaim(claim: Claim): Boolean     = TaxCodes.EU.contains(claim.taxCode)
+    def isExciseClaim(claim: Claim): Boolean = TaxCodes.excise.contains(claim.taxCode)
 
     def ukClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isUkClaim(claim))
     def euClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isEuClaim(claim))

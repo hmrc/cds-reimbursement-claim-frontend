@@ -18,13 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
 import cats.data.{NonEmptyList, ValidatedNel}
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
+
+import java.text.NumberFormat
+import java.util.Locale
 
 package object models {
 
   type Total = Int
 
-  // validation
+  // Validation
 
   type Validation[A] = ValidatedNel[String, A]
 
@@ -41,6 +43,12 @@ package object models {
   implicit def nelFormat[A : Format]: Format[NonEmptyList[A]] =
     Format(nelReads, nelWrites)
 
-  implicit val dutyTypeOrdering: DutyType.DutyTypeOrdering.type =
-    DutyType.DutyTypeOrdering
+  // Utils
+
+  private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
+
+  implicit class BigDecimalOps(val amount: BigDecimal) extends AnyVal {
+    def toPoundSterlingString: String =
+      currencyFormatter.format(amount)
+  }
 }

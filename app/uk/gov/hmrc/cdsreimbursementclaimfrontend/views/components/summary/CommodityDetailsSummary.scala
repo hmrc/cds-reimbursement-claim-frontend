@@ -20,7 +20,6 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -30,7 +29,7 @@ class CommodityDetailsSummary extends AnswerSummary[CommodityDetails] {
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
-    val label = messages(lang(key, router.subKey, "label"))
+    val label = messages(s"$key.label")
 
     SummaryList(
       List(

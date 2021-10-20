@@ -64,7 +64,7 @@ final case class DraftClaim(
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
 ) {
 
-  final def isMandatoryContactDataAvailable: Boolean =
+  def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
   object MRNs {
