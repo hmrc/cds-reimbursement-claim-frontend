@@ -77,10 +77,10 @@ class SelectMultipleDutiesControllerSpec
   lazy val nonEmptyListOfMRN  = sample[List[MRN]](Gen.listOfN(20, genMRN))
   lazy val ndrc               = sample[NdrcDetails]
 
-  def randomListOfTaxCodes = Random.shuffle(TaxCode.listOfUKExciseCodes).toList
+  def randomListOfTaxCodes = Random.shuffle(TaxCodes.excise).toList
 
   val nonEmptyListOfTaxCodesGen                                  =
-    Gen.chooseNum(1, TaxCode.listOfUKExciseCodes.length).map(n => randomListOfTaxCodes.take(n))
+    Gen.chooseNum(1, TaxCodes.excise.length).map(n => randomListOfTaxCodes.take(n))
 
   private def getSessionWithMRNs(
     selectedMrnIndex: Int,
