@@ -23,11 +23,15 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
-import cats.data.NonEmptyList
 
 final case class DraftClaim(
   id: UUID,
@@ -63,16 +67,16 @@ final case class DraftClaim(
   final def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
-  final object MRNs {
+  object MRNs {
 
-    final lazy val list: List[MRN] =
+    lazy val list: List[MRN] =
       leadMrn.toList ++ associatedMRNsAnswer.list
 
-    final def apply(): List[MRN] = list
+    def apply(): List[MRN] = list
 
-    final def leadMrn: Option[LeadMrn] = movementReferenceNumber
+    def leadMrn: Option[LeadMrn] = movementReferenceNumber
 
-    final def total: Total =
+    def total: Total =
       (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0
 
     def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =
@@ -81,13 +85,13 @@ final case class DraftClaim(
           .mapN((mrns, declarations) => mrns zip declarations)
           .getOrElse(Nil)
 
-    final def get(index: Int): Option[MRN] =
+    def get(index: Int): Option[MRN] =
       list.get(index.toLong)
   }
 
-  final object DutiesSelections {
+  object DutiesSelections {
 
-    final lazy val list: List[List[Duty]] = {
+    lazy val list: List[List[Duty]] = {
       val x  = dutiesSelectedAnswer.map(_.toList).getOrElse(Nil)
       val xs = associatedMRNsDutiesSelectedAnswer
         .map(_.map(_.toList).toList)
@@ -95,7 +99,7 @@ final case class DraftClaim(
       x :: xs
     }
 
-    final def get(index: Int): Option[List[Duty]] =
+    def get(index: Int): Option[List[Duty]] =
       list.get(index.toLong)
 
   }
