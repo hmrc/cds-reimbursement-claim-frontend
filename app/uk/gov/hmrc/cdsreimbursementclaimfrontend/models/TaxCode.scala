@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class TaxCode(val value: String) extends Product with Serializable {
   override def toString: String = value
@@ -111,5 +112,5 @@ object TaxCode {
 
   implicit val taxCodeEq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
 
-  implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
+  implicit val taxCodeFormat: Format[TaxCode] = SimpleStringFormat(TaxCode(_), _.value)
 }

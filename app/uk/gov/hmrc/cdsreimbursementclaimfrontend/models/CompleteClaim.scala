@@ -20,7 +20,7 @@ import cats.Eq
 import cats.data.Validated
 import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -140,8 +140,8 @@ object CompleteClaim {
       case _ => Left(Error("unknown claim type"))
     }
 
-  implicit val eq: Eq[CompleteClaim]          = Eq.fromUniversalEquals[CompleteClaim]
-  implicit val format: OFormat[CompleteClaim] = Json.format[CompleteClaim]
+  implicit val eq: Eq[CompleteClaim]         = Eq.fromUniversalEquals[CompleteClaim]
+  implicit val format: Format[CompleteClaim] = Json.format[CompleteClaim]
 
   def validateDeclarantTypeAnswer(
     maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
