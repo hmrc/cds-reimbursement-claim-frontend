@@ -176,7 +176,7 @@ object SelectMultipleDutiesController {
   def selectNextPage(journey: FillingOutClaim, mrnIndex: Int): Call =
     (for {
       duties <- journey.draftClaim.DutiesSelections.get(mrnIndex - 1)
-      duty   <- duties.toList.headOption
+      duty   <- duties.headOption
     } yield routes.EnterMultipleClaimController.enterClaim(mrnIndex, duty.taxCode))
       .getOrElse(
         routes.SelectMultipleDutiesController.selectDuties(mrnIndex)

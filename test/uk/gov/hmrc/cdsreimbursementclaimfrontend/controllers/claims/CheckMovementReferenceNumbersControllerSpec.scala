@@ -46,6 +46,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.asScalaBufferConverter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec

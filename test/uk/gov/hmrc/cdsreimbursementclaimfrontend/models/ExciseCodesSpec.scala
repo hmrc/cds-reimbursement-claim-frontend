@@ -20,6 +20,7 @@ import cats.{Functor, Id}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._

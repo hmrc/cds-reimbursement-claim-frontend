@@ -27,7 +27,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging

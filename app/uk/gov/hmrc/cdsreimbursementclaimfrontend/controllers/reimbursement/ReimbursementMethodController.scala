@@ -31,8 +31,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.reimbursementMethodForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.reimbursement.select_reimbursement_method
