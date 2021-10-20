@@ -60,7 +60,8 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.scheduled-document.h2",
-            s"$checkYourAnswersKey.reference-number.scheduled.h2"
+            s"$checkYourAnswersKey.reference-number.scheduled.h2",
+            s"$checkYourAnswersKey.claim-calculation.scheduled.h2"
           )).map(messages(_))
 
           summaries should contain allElementsOf Seq(
@@ -144,44 +145,44 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             .flatMap(_.toList) ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
             .mapN { (details, address) =>
               Seq(
-                Some((messages(s"claimant-details.contact.details"), details.fullName)),
+                Some((messages("claimant-details.contact.details"), details.fullName)),
                 details.phoneNumber.map { phoneNumber =>
-                  (messages(s"claimant-details.contact.details"), phoneNumber.value)
+                  (messages("claimant-details.contact.details"), phoneNumber.value)
                 },
-                Some((messages(s"claimant-details.contact.details"), details.emailAddress.value)),
+                Some((messages("claimant-details.contact.details"), details.emailAddress.value)),
                 Some(
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     address.line1
                   )
                 ),
                 address.line2.map { line2 =>
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     line2
                   )
                 },
                 address.line3.map { line3 =>
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     line3
                   )
                 },
                 Some(
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     address.line4
                   )
                 ),
                 Some(
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     address.postcode
                   )
                 ),
                 Some(
                   (
-                    messages(s"claimant-details.contact.address"),
+                    messages("claimant-details.contact.address"),
                     messages(address.country.messageKey)
                   )
                 )

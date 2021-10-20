@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import cats.implicits.catsSyntaxOptionId
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -32,8 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelecte
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocumentAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, SelectNumberOfClaimsAnswer}
 
 import java.util.UUID
@@ -58,7 +60,7 @@ object DraftClaimGen {
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
-      associatedMRNsAnswer           <- arbitraryAssociatedMRNsAnswer.arbitrary
+      associatedMRNsAnswer           <- genAssociatedMrnsAnswer(selectNumberOfClaimsAnswer)
     } yield DraftClaim(
       id = UUID.randomUUID(),
       selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
@@ -79,7 +81,7 @@ object DraftClaimGen {
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
-      associatedMRNsAnswer = associatedMRNsAnswer.some
+      associatedMRNsAnswer = associatedMRNsAnswer
     )
 
   implicit val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
@@ -88,4 +90,16 @@ object DraftClaimGen {
       claim          <- genValidDraftClaim(numberOfClaims)
     } yield claim
   }
+
+  def genScheduledDocumentAnswer(answer: SelectNumberOfClaimsAnswer): Gen[Option[ScheduledDocumentAnswer]] =
+    if (answer === SelectNumberOfClaimsAnswer.Scheduled)
+      gen[UploadDocument].arbitrary.map { doc =>
+        Some(ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs))))
+      }
+    else None
+
+  def genAssociatedMrnsAnswer(answer: SelectNumberOfClaimsAnswer): Gen[Option[AssociatedMRNsAnswer]] =
+    if (answer === SelectNumberOfClaimsAnswer.Multiple) {
+      arbitraryAssociatedMRNsAnswer.arbitrary.map(_.some)
+    } else None
 }
