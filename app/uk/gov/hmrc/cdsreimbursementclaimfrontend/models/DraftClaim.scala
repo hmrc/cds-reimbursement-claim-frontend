@@ -75,7 +75,7 @@ final case class DraftClaim(
     final def total: Total =
       (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0
 
-    final def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =
+    def combineWithDeclarations: Seq[(MRN, DisplayDeclaration)] =
       (leadMrn, displayDeclaration).bisequence.toList ++
         (associatedMRNsAnswer.map(_.toList), associatedMRNsDeclarationAnswer.map(_.toList))
           .mapN((mrns, declarations) => mrns zip declarations)
