@@ -64,6 +64,8 @@ object Claim {
     lazy val unknown: String       = "unknown"
   }
 
+  // TODO: Remove - the only usage is ClaimSummaryHelper which is obsolete.
+  // The check claim page for the single journey has a new design and please use DutyClaimSummary which has 100% better optimised lookup
   implicit class ListClaimOps(val claims: NonEmptyList[Claim]) extends AnyVal {
 
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum

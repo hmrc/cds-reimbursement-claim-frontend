@@ -150,7 +150,7 @@ class EnterClaimControllerSpec
     }
 
     "redirect to the checkClaim page if we have finished claims for all duties" in {
-      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(10)
+      val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(10).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claim                = selectedTaxCodes.map(taxCode =>
         sample[Claim]
@@ -507,7 +507,7 @@ class EnterClaimControllerSpec
     }
 
     "Return previous claims from the session" in {
-      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(1)
+      val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(1).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val claims               = selectedTaxCodes.map(taxCode =>
         sample[Claim]
@@ -521,7 +521,7 @@ class EnterClaimControllerSpec
 
     "Generate new claims from duties" in {
       val numberOfDuties       = 10
-      val selectedTaxCodes     = Random.shuffle(TaxCode.allTaxCodes).take(numberOfDuties)
+      val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(numberOfDuties).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
       EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties

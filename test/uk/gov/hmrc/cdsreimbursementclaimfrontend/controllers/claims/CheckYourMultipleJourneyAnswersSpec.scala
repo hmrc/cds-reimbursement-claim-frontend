@@ -25,10 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisF
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{items => declarantTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, SelectNumberOfClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AnswersOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils.formatAmountOfMoneyWithPoundSign
 
 class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
@@ -112,7 +111,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
                 Some(
                   (
                     messages(s"$checkYourAnswersKey.declaration-details.paid-charges-label"),
-                    formatAmountOfMoneyWithPoundSign(declaration.totalPaidCharges)
+                    declaration.totalPaidCharges.toPoundSterlingString
                   )
                 ),
                 declaration.consigneeName.map { name =>

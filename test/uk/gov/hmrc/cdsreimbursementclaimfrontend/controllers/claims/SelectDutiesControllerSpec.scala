@@ -135,10 +135,10 @@ class SelectDutiesControllerSpec
     "display the page" when {
 
       "the user has answered this question before with a choice, but that choice is no longer available (e.g. Northern Ireland answer change)" in {
-        val previousTaxCodes = Random.shuffle(TaxCode.listOfUKTaxCodes).take(3)
+        val previousTaxCodes = Random.shuffle(TaxCodes.UK).take(3).toList
         val previousAnswer   = DutiesSelectedAnswer(previousTaxCodes.map(Duty(_))).getOrElse(fail)
-        val newTaxCodes      = Random.shuffle(TaxCode.listOfUKExciseCodes).take(3)
-        val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
+        val newTaxCodes      = Random.shuffle(TaxCodes.UK).take(3)
+        val ndrcs            = newTaxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value)).toList
         val acc14            = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
         )
@@ -173,7 +173,7 @@ class SelectDutiesControllerSpec
     "Available Duties" should {
 
       "Return Acc14 duties for an MRN" in {
-        val taxCodes                              = Random.shuffle(TaxCode.allTaxCodes).take(20)
+        val taxCodes                              = Random.shuffle(TaxCodes.all).take(20).toList
         val ndrcs                                 = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14                                 = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
@@ -185,7 +185,7 @@ class SelectDutiesControllerSpec
 
       "Return Acc14 excise codes for an MRN when the Incorrect Excise code was selected previously" in {
         val basisOfClaim    = IncorrectExciseValue
-        val taxCodes        = Random.shuffle(TaxCode.listOfUKExciseCodes).take(3)
+        val taxCodes        = Random.shuffle(TaxCodes.excise).take(3).toList
         val ndrcs           = taxCodes.map(code => sample[NdrcDetails].copy(taxType = code.value))
         val acc14           = Functor[Id].map(sample[DisplayDeclaration])(dd =>
           dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcs)))
