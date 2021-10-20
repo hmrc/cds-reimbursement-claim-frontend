@@ -22,6 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 
 object DutiesSelectedAnswerGen {
 
-  implicit lazy val arbitraryDutiesSelectedAnswerGen: Typeclass[NonEmptyList[Duty]] = gen[NonEmptyList[Duty]]
+  implicit val arbitraryDutiesSelectedAnswerGen: Typeclass[NonEmptyList[Duty]] = gen[NonEmptyList[Duty]]
 
 }

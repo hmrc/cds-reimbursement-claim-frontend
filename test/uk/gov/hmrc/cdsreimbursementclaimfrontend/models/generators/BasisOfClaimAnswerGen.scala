@@ -25,6 +25,6 @@ object BasisOfClaimAnswerGen {
   def genBasisOfClaimAnswerOpt: Gen[Option[BasisOfClaim]] =
     Gen.option(arbitraryBasisOfClaimAnswer.arbitrary)
 
-  implicit lazy val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
+  implicit val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
     gen[BasisOfClaim]
 }

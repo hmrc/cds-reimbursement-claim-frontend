@@ -23,9 +23,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
 
-  implicit lazy val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
+  implicit val arbitraryGGCredIdGen: Typeclass[GGCredId] = gen[GGCredId]
 
-  implicit lazy val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
+  implicit val arbitraryUploadReference: Typeclass[UploadReference] = gen[UploadReference]
 
   val genAssociatedMrnIndex: Gen[AssociatedMrnIndex] = Gen
     .chooseNum(0, 100)
@@ -41,7 +41,7 @@ object IdGen {
       s <- Gen.const((c ++ n).mkString(""))
     } yield Eori(s)
 
-  implicit lazy val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
+  implicit val arbitraryEori: Typeclass[Eori] = Arbitrary(genEori)
 
   val genMRN: Gen[MRN] = for {
     d1      <- Gen.listOfN(2, Gen.numChar)

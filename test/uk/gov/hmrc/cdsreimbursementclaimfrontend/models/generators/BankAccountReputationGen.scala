@@ -22,16 +22,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.re
 
 object BankAccountReputationGen {
 
-  implicit lazy val arbitraryAddress: Typeclass[BarsAddress]                                 = gen[BarsAddress]
-  implicit lazy val arbitraryBarsSubject: Typeclass[BarsSubject]                             = gen[BarsSubject]
-  implicit lazy val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest]     =
+  implicit val arbitraryAddress: Typeclass[BarsAddress]                                 = gen[BarsAddress]
+  implicit val arbitraryBarsSubject: Typeclass[BarsSubject]                             = gen[BarsSubject]
+  implicit val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest]     =
     gen[BarsBusinessAssessRequest]
-  implicit lazy val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] =
+  implicit val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] =
     gen[BarsPersonalAssessRequest]
-  implicit lazy val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse]   =
+  implicit val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse]   =
     gen[BusinessCompleteResponse]
-  implicit lazy val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse]   =
+  implicit val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse]   =
     gen[PersonalCompleteResponse]
-  implicit lazy val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse]     = gen[ReputationErrorResponse]
-  implicit lazy val arbitraryCommonBarsResponse: Typeclass[CommonBarsResponse]               = gen[CommonBarsResponse]
+  implicit val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse]     = gen[ReputationErrorResponse]
+  implicit val arbitraryCommonBarsResponse: Typeclass[CommonBarsResponse]               = gen[CommonBarsResponse]
 }

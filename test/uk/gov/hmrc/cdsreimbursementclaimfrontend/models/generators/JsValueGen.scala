@@ -22,7 +22,7 @@ import play.api.libs.json._
 
 object JsValueGen {
 
-  implicit lazy val arbitraryJsValue: Typeclass[JsValue] = Arbitrary(
+  implicit val arbitraryJsValue: Typeclass[JsValue] = Arbitrary(
     Gen.lzy(Arbitrary.arbitrary[String].map(JsString))
   )
 }

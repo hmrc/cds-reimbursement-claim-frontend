@@ -21,6 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DetailsRegisteredWithCds
 
 object DetailsRegisteredWithCdsAnswerGen {
 
-  implicit lazy val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
+  implicit val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
     gen[DetailsRegisteredWithCdsAnswer]
 }

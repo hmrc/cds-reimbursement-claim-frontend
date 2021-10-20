@@ -32,6 +32,6 @@ object EmailGen {
       dotCom  = ".com"
     } yield Email(Seq(name, at, domain, dotCom).mkString)
 
-  implicit lazy val arbitraryEmail: Typeclass[Email] =
+  implicit val arbitraryEmail: Typeclass[Email] =
     Arbitrary(genEmail)
 }

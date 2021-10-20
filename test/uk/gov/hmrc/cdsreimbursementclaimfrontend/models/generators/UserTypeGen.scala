@@ -21,6 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType
 
 object UserTypeGen {
 
-  implicit lazy val arbitraryUserTypeGen: Typeclass[UserType] = gen[UserType]
+  implicit val arbitraryUserTypeGen: Typeclass[UserType] = gen[UserType]
 
 }

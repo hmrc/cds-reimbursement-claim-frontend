@@ -22,5 +22,5 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
 object CompleteClaimGen {
   import IdGen._
 
-  implicit lazy val arbitraryCompleteClaim: Typeclass[CompleteClaim] = gen[CompleteClaim]
+  implicit val arbitraryCompleteClaim: Typeclass[CompleteClaim] = gen[CompleteClaim]
 }

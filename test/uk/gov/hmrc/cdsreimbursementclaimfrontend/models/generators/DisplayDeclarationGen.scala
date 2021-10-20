@@ -22,6 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 object DisplayDeclarationGen {
   import DisplayResponseDetailGen.arbitraryDisplayResponseDetail
 
-  implicit lazy val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] =
+  implicit val arbitraryDisplayDeclaration: Typeclass[DisplayDeclaration] =
     gen[DisplayDeclaration]
 }

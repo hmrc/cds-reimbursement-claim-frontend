@@ -32,23 +32,23 @@ object UpscanGen extends OptionValues {
   def genEvidenceDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes)
 
-  implicit lazy val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
+  implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
-  implicit lazy val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
+  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
 
-  implicit lazy val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
+  implicit val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
 
-  implicit lazy val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
+  implicit val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
 
-  implicit lazy val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
+  implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
-  implicit lazy val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
+  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit lazy val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
+  implicit val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
     genEvidenceDocumentType
   }
 
-  implicit lazy val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
+  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
     for {
       uploadReference  <- gen[UploadReference].arbitrary
       upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
@@ -67,7 +67,7 @@ object UpscanGen extends OptionValues {
     )
   }
 
-  implicit lazy val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
+  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
     for {
       n         <- Gen.chooseNum(1, 9)
       evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
