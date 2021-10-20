@@ -29,11 +29,12 @@ package object answers {
 
   type AssociatedMrn = MRN
 
-  type AssociatedMRNsAnswer            = NonEmptyList[AssociatedMrn]
-  type AssociatedMRNsDeclarationAnswer = NonEmptyList[DisplayDeclaration]
-  type SupportingEvidencesAnswer       = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer            = NonEmptyList[Duty]
-  type ClaimsAnswer                    = NonEmptyList[Claim]
+  type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
+  type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]
+  type SupportingEvidencesAnswer          = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer               = NonEmptyList[Duty]
+  type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
+  type ClaimsAnswer                       = NonEmptyList[Claim]
 
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 
