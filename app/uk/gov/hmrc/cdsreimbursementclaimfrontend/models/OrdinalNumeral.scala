@@ -20,7 +20,7 @@ object OrdinalNumeral {
 
   private val wordings = Array(
     "zero",
-    "first",
+    "lead",
     "second",
     "third",
     "fourth",

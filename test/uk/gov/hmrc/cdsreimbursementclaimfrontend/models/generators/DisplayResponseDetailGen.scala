@@ -115,7 +115,9 @@ object DisplayResponseDetailGen {
   implicit val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails]           = Arbitrary(genConsigneeDetails)
   implicit val arbitraryConsigneeBankDetails: Typeclass[ConsigneeBankDetails]   = Arbitrary(genConsigneeBankDetails)
   implicit val arbitraryDeclarantBankDetails: Typeclass[DeclarantBankDetails]   = Arbitrary(genDeclarantBankDetails)
-  implicit val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] = Arbitrary(genDisplayResponseDetail)
+  implicit val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] = Arbitrary(
+    genDisplayResponseDetail
+  )
   implicit val arbitraryBankDetails: Typeclass[BankDetails]                     = Arbitrary(genBankDetails)
   implicit val arbitraryMaskedBankDetails: Typeclass[MaskedBankDetails]         = Arbitrary(genMaskedBankDetails)
 }

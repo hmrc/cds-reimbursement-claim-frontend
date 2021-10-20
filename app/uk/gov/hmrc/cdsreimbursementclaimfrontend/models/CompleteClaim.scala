@@ -86,7 +86,8 @@ object CompleteClaim {
             maybeScheduledDocument,
             _,
             _,
-            maybeReimbursementMethodAnswer
+            maybeReimbursementMethodAnswer,
+            _
           ) =>
         (
           validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),

@@ -149,6 +149,8 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case false =>
         if (journeyBindable === JourneyBindable.Scheduled) {
           reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+        } else if (journeyBindable === JourneyBindable.Multiple) {
+          claimRoutes.SelectMultipleDutiesController.selectDuties(1)
         } else {
           claimRoutes.SelectDutiesController.selectDuties()
         }
