@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
+import cats.implicits.catsStdInstancesForFuture
+import org.scalacheck.magnolia.gen
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.libs.iteratee.Execution.Implicits.defaultExecutionContext
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
@@ -29,10 +33,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration, DisplayResponseDetail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -42,10 +49,14 @@ class EnterImporterEoriNumberControllerSpec
     with SessionSupport
     with TableDrivenPropertyChecks {
 
+
+  val mockClaimService = mock[ClaimService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimService)
     )
 
   val testCases = Table(
@@ -170,9 +181,21 @@ class EnterImporterEoriNumberControllerSpec
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
+
+        val dd: DisplayDeclaration = sample[DisplayDeclaration]
+          .copy(displayResponseDetail =
+            sample[DisplayResponseDetail]
+              .copy(consigneeDetails = Some(
+                sample[ConsigneeDetails]
+                  .copy(consigneeEORI = "GB03152858027018"))
+              ))
+
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+            .expects(*, *)
+            .returning(EitherT.fromEither[Future](Right(Some(dd))))
         }
 
         checkIsRedirect(
