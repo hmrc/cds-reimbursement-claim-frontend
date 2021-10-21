@@ -52,13 +52,13 @@ class EnterMultipleClaimController @Inject() (
     with SessionUpdates {
 
   def enterClaim(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    authenticatedActionWithSessionData.async {
+    authenticatedActionWithSessionData.async { implicit request =>
       NotImplemented
 
     }
 
   def enterClaimSubmit(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    authenticatedActionWithSessionData.async {
+    authenticatedActionWithSessionData.async { implicit request =>
       NotImplemented
 
     }
