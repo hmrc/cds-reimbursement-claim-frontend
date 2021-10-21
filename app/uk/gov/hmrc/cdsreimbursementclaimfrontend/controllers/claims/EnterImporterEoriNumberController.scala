@@ -96,7 +96,7 @@ class EnterImporterEoriNumberController @Inject() (
                 .flatMap(_.displayResponseDetail.consigneeDetails)
                 .exists(_.consigneeEORI === importerEoriNumber.value.value)
 
-              (for {
+              val updateAndRedirect = for {
                 eorisMatch <- checkWeatherConsigneeEORIsMatch
                                 .leftMap(_ => Redirect(controllers.routes.IneligibleController.ineligible()))
                 status     <-
@@ -106,7 +106,9 @@ class EnterImporterEoriNumberController @Inject() (
                       .leftMap(logAndDisplayError("could not get importer eori number"))
                   else
                     EitherT.rightT[Future, Result](Redirect(controllers.routes.IneligibleController.ineligible()))
-              } yield status).merge
+              } yield status
+
+              updateAndRedirect.merge
             }
           )
       }
