@@ -182,7 +182,7 @@ class EnterImporterEoriNumberControllerSpec
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
 
-        val dd: DisplayDeclaration = sample[DisplayDeclaration]
+        val displayDeclaration: DisplayDeclaration = sample[DisplayDeclaration]
           .copy(displayResponseDetail =
             sample[DisplayResponseDetail]
               .copy(consigneeDetails = Some(
@@ -195,7 +195,7 @@ class EnterImporterEoriNumberControllerSpec
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
           (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
             .expects(*, *)
-            .returning(EitherT.fromEither[Future](Right(Some(dd))))
+            .returning(EitherT.fromEither[Future](Right(Some(displayDeclaration))))
         }
 
         checkIsRedirect(
