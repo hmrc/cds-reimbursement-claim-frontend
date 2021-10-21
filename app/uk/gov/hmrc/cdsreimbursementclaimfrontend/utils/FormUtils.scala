@@ -86,29 +86,19 @@ object FormUtils {
           }
     }
 
-  def moneyMapping(
-    precision: Int,
-    scale: Int,
-    errorMsg: String,
-    requiredMsg: Option[String] = None
-  ): Mapping[BigDecimal] =
+  def moneyMapping(precision: Int, scale: Int, errorMsg: String): Mapping[BigDecimal] =
     Forms
-      .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg, requiredMsg))
+      .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
       .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid(errorMsg)))
 
-  def bigDecimalFormat(
-    precision: Int,
-    scale: Int,
-    errorMsg: String,
-    requiredMsg: Option[String]
-  ): Formatter[BigDecimal] =
+  def bigDecimalFormat(precision: Int, scale: Int, errorMsg: String): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
       override val format: Option[(String, Nil.type)] = Some(("format.real", Nil))
 
       def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         Formats.stringFormat.bind(key, data).right.flatMap { userInput =>
           if (userInput.isEmpty)
-            Left(Seq(FormError(key, requiredMsg.getOrElse(errorMsg))))
+            Left(Seq(FormError(key, "error.required")))
           else
             Exception
               .allCatch[BigDecimal]

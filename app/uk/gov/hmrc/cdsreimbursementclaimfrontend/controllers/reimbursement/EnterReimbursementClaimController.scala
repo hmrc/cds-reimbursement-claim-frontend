@@ -178,8 +178,8 @@ object EnterReimbursementClaimController {
   def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
     enterReimbursementClaimKey ->
       mapping(
-        s"amount-paid"           -> moneyMapping(13, 2, "error.invalid", "error.required".some),
-        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid", "error.required".some)
+        s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
+        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid")
       )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
         .verifying(
           "invalid.reimbursement-claim",
