@@ -81,10 +81,10 @@ object CompleteClaim {
             draftImporterEoriNumberAnswer,
             draftDeclarantEoriNumberAnswer,
             Some(claimsAnswer),
+            maybeReimbursementMethodAnswer,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
             _,
-            maybeReimbursementMethodAnswer,
             _
           ) =>
         (

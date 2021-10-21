@@ -56,10 +56,10 @@ final case class DraftClaim(
   importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
   declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
   claimsAnswer: Option[ClaimsAnswer] = None,
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
 ) {
 

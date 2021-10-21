@@ -25,6 +25,8 @@ final case class ReimbursementClaim(paidAmount: BigDecimal, shouldOfPaid: BigDec
   val refundTotal: BigDecimal = paidAmount - shouldOfPaid
 
   def isBlank: Boolean = paidAmount === 0 && shouldOfPaid === 0
+
+  def isValid: Boolean = paidAmount > shouldOfPaid
 }
 
 object ReimbursementClaim {
