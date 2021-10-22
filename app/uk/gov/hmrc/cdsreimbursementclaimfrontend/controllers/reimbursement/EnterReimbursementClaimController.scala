@@ -173,7 +173,7 @@ class EnterReimbursementClaimController @Inject() (
 
 object EnterReimbursementClaimController {
 
-  val enterReimbursementClaimKey = "enter-reimbursement-claim"
+  val enterReimbursementClaimKey: String = "enter-reimbursement-claim"
 
   def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
     enterReimbursementClaimKey ->
