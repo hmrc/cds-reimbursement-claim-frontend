@@ -14,11 +14,12 @@
  * limitations under the License.
  *@
 
-@import cats.implicits.catsSyntaxOptionId
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Request
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -27,16 +28,13 @@
         button: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button
 )
 
-@()(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
-@key = @{"mrn-does-not-exist"}
+@key = @{"bank-service-unavailable"}
 @title = @{messages(s"$key.title")}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = true) {
-
+@layout(pageTitle = Some(s"$title")) {
     @pageHeading(title)
-
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-top-8"))
-
-    @button("button.go-back", href = "javascript:history.back()".some)
+    @paragraph(Html(messages(s"$key.help", viewConfig.contactCdsTeamUrl)), Some("govuk-body"))
+    @button(s"button.go-back", href = Some(routes.BankAccountController.checkBankAccountDetails(journey).url))
 }

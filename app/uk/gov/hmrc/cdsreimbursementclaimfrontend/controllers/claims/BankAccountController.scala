@@ -40,8 +40,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import java.util.function.Predicate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
+import uk.gov.hmrc.http.BadGatewayException
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -196,7 +197,13 @@ class BankAccountController @Inject() (
                     }
                   }
                 } yield reputationResponse).fold(
-                  logAndDisplayError("could not process bank account details: "),
+                  {
+                    case e @ Error(_, Some(_: BadGatewayException), _) =>
+                      logger warn ("could not contact bank account service: ", e)
+                      Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
+                    case e                                             =>
+                      logAndDisplayError("could not process bank account details: ")(errorHandler, request)(e)
+                  },
                   reputationResponse =>
                     if (reputationResponse.otherError.isDefined) {
                       val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")
@@ -206,7 +213,6 @@ class BankAccountController @Inject() (
                       BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
                     } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
                       val form = BankAccountController.enterBankDetailsForm
-                        .fill(bankAccountDetails)
                         .withError("enter-bank-details", "error.moc-check-failed")
                       BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
                     } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
