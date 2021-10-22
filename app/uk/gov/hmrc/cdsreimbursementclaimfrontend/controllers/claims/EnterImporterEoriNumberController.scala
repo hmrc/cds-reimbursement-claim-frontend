@@ -81,13 +81,13 @@ class EnterImporterEoriNumberController @Inject() (
               ),
             importerEoriNumber => {
 
-              def updateJourney(): EitherT[Future, Error, Unit] = EitherT {
+              def updateJourney() = EitherT {
                 val updatedJourney =
                   FillingOutClaim.from(fillingOutClaim)(_.copy(importerEoriNumberAnswer = Some(importerEoriNumber)))
                 updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
               }
 
-              def checkWeatherConsigneeEORIsMatch: EitherT[Future, Error, Boolean] = for {
+              def checkWeatherConsigneeEORIsMatch = for {
                 mrn         <-
                   EitherT
                     .fromOption[Future](fillingOutClaim.draftClaim.movementReferenceNumber, Error("could not get MRN"))
