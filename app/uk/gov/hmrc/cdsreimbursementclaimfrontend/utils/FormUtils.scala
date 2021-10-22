@@ -20,10 +20,9 @@ import cats.Eq
 import cats.instances.int._
 import cats.syntax.either._
 import cats.syntax.eq._
-import play.api.data.Forms.of
 import play.api.data.format.{Formats, Formatter}
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import play.api.data.{FormError, Mapping}
+import play.api.data.{FormError, Forms, Mapping}
 
 import scala.math.BigDecimal.RoundingMode
 import scala.util.control.Exception
@@ -88,7 +87,8 @@ object FormUtils {
     }
 
   def moneyMapping(precision: Int, scale: Int, errorMsg: String): Mapping[BigDecimal] =
-    of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
+    Forms
+      .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
       .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid(errorMsg)))
 
   def bigDecimalFormat(precision: Int, scale: Int, errorMsg: String): Formatter[BigDecimal] =
@@ -97,15 +97,18 @@ object FormUtils {
 
       def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         Formats.stringFormat.bind(key, data).right.flatMap { userInput =>
-          Exception
-            .allCatch[BigDecimal]
-            .either(BigDecimal(userInput))
-            .flatMap { bd =>
-              if (bd.scale > scale) Left(new Throwable("Wrong precision"))
-              else if (bd.precision - bd.scale > precision - scale) Left(new Throwable("Wrong precision"))
-              else Right(bd.setScale(scale, RoundingMode.HALF_UP))
-            }
-            .leftMap(_ => Seq(FormError(key, errorMsg)))
+          if (userInput.isEmpty)
+            Left(Seq(FormError(key, "error.required")))
+          else
+            Exception
+              .allCatch[BigDecimal]
+              .either(BigDecimal(userInput))
+              .flatMap { bd =>
+                if (bd.scale > scale) Left(new Throwable("Wrong precision"))
+                else if (bd.precision - bd.scale > precision - scale) Left(new Throwable("Wrong precision"))
+                else Right(bd.setScale(scale, RoundingMode.HALF_UP))
+              }
+              .leftMap(_ => Seq(FormError(key, errorMsg)))
         }
 
       def unbind(key: String, value: BigDecimal) =

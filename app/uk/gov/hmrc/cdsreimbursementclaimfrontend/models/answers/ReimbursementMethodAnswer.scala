@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait DeclarantTypeAnswer extends Product with Serializable
+sealed trait ReimbursementMethodAnswer extends Product with Serializable
 
-object DeclarantTypeAnswer {
+object ReimbursementMethodAnswer {
+  final case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
+  final case object BankAccountTransfer extends ReimbursementMethodAnswer
 
-  case object Importer extends DeclarantTypeAnswer
-  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
-  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
-
-  val items: IndexedSeq[DeclarantTypeAnswer] = IndexedSeq(
-    Importer,
-    AssociatedWithImporterCompany,
-    AssociatedWithRepresentativeCompany
-  )
-
-  implicit val format: OFormat[DeclarantTypeAnswer] = derived.oformat[DeclarantTypeAnswer]()
+  implicit val reimbursementMethodFormat: OFormat[ReimbursementMethodAnswer] =
+    derived.oformat[ReimbursementMethodAnswer]()
 }

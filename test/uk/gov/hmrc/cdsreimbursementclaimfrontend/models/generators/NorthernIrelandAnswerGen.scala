@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer
 
 object NorthernIrelandAnswerGen {
 

@@ -27,9 +27,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{ReimbursementClaim, ReimbursementClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Error, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
@@ -56,19 +57,14 @@ class EnterReimbursementClaimController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
 
-  /*
-    This should read the current value for duty codes answer and build a reimbursementClaim map first
-    only if one does not currently exist in the session otherwise the previous data will trashed
-    if one does exist then we need to do some surgenry and work out which claims need to be removed from
-    the map and which ones need to added and initalised to None ready to be picked up again
-   */
   def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, answer) =>
       fillingOutClaim.draftClaim.dutyCodesSelectedAnswer
         .fold(
           Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
         ) { dutyCodesAnswer =>
-          val reimbursementClaimAnswer = answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))
+          val reimbursementClaimAnswer: ReimbursementClaimAnswer =
+            answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))
 
           val updatedJourneyStatus = FillingOutClaim.from(fillingOutClaim)(
             _.copy(
@@ -81,19 +77,14 @@ class EnterReimbursementClaimController @Inject() (
             .fold(
               logAndDisplayError("could not update reimbursement claims"),
               _ =>
-                (
-                  updatedJourneyStatus.draftClaim.dutyTypesSelectedAnswer,
-                  updatedJourneyStatus.draftClaim.dutyCodesSelectedAnswer
-                ) match {
-                  case (Some(_), Some(dutyCodesAnswer: DutyCodesAnswer)) =>
-                    dutyCodesAnswer.existsDutyTypeWithNoDutyCodesAnswer match {
-                      case Some(dutyType) =>
-                        Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
-                      case None           => Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
-                    }
-                  case _                                                 =>
-                    logger.warn("could not find duty types or duty codes")
-                    errorHandler.errorResult()
+                reimbursementClaimAnswer.isIncompleteReimbursementClaim match {
+                  case Some(dutyTypeAndTaxCode) =>
+                    Redirect(
+                      reimbursementRoutes.EnterReimbursementClaimController
+                        .showReimbursementClaim(dutyTypeAndTaxCode._1, dutyTypeAndTaxCode._2)
+                    )
+                  case None                     =>
+                    Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
                 }
             )
         }
@@ -103,23 +94,18 @@ class EnterReimbursementClaimController @Inject() (
   def showReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[ReimbursementClaimAnswer] { (_, answer) =>
-        answer.fold(
-          Ok(
-            enterReimbursementClaimPage(
-              EnterReimbursementClaimController.enterReimbursementClaimForm,
-              dutyType,
-              dutyCode
+        val reimbursementInputForm =
+          answer
+            .map(_.reimbursementClaims(dutyType)(dutyCode))
+            .filter(!_.isBlank)
+            .foldLeft(EnterReimbursementClaimController.enterReimbursementClaimForm)((form, answer) =>
+              form.fill(answer)
             )
-          )
-        )(reimbursementClaimAnswer =>
-          Ok(
-            enterReimbursementClaimPage(
-              EnterReimbursementClaimController.enterReimbursementClaimForm.fill(
-                reimbursementClaimAnswer.reimbursementClaims(dutyType)(dutyCode)
-              ),
-              dutyType,
-              dutyCode
-            )
+        Ok(
+          enterReimbursementClaimPage(
+            reimbursementInputForm,
+            dutyType,
+            dutyCode
           )
         )
       }
@@ -136,7 +122,7 @@ class EnterReimbursementClaimController @Inject() (
               maybeReimbursementClaimAnswer
                 .fold(
                   Future.successful(
-                    Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
+                    Redirect(baseRoutes.IneligibleController.ineligible())
                   )
                 )(reimbursementClaimAnswer =>
                   updateSessionCache(
@@ -172,34 +158,32 @@ class EnterReimbursementClaimController @Inject() (
       .fold(
         logAndDisplayError("could not get duty types selected"),
         _ =>
-          updatedJourney.draftClaim.reimbursementClaimAnswer match {
-            case Some(reimbursementClaimAnswer) =>
-              reimbursementClaimAnswer.isIncompleteReimbursementClaim match {
-                case Some(dutyType) =>
-                  Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType._1))
-                case None           => Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
-              }
-            case None                           =>
-              logger.warn("could not find duty codes")
-              errorHandler.errorResult()
+          updatedReimbursementClaimAnswer.isIncompleteReimbursementClaim match {
+            case Some(dutyTypeAndTaxCode) =>
+              Redirect(
+                reimbursementRoutes.EnterReimbursementClaimController
+                  .showReimbursementClaim(dutyTypeAndTaxCode._1, dutyTypeAndTaxCode._2)
+              )
+            case None                     =>
+              Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
           }
       )
   }
-
 }
 
 object EnterReimbursementClaimController {
 
-  def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
-    mapping(
-      "enter-reimbursement-claim.amount-paid"           -> moneyMapping(13, 2, "amount-paid.error.invalid"),
-      "enter-reimbursement-claim.amount-should-of-paid" -> moneyMapping(13, 2, "amount-should-of-paid.error.invalid")
-    )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
-      .verifying(
-        "invalid.reimbursement-claim",
-        reimbursementClaim => reimbursementClaim.paidAmount <= reimbursementClaim.shouldOfPaid
-      )
-    //TODO: add other validation
-  )
+  val enterReimbursementClaimKey = "enter-reimbursement-claim"
 
+  def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
+    enterReimbursementClaimKey ->
+      mapping(
+        s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
+        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid")
+      )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
+        .verifying(
+          "invalid.reimbursement-claim",
+          _.isValid
+        )
+  )
 }

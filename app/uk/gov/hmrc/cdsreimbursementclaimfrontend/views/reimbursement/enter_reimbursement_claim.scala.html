@@ -59,7 +59,7 @@
         @inputText(
             form = form,
             id = key,
-            name = key,
+            name = s"$key.amount-paid",
             label = s"$key.amount-paid",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
@@ -71,7 +71,7 @@
         @inputText(
             form = form,
             id = key,
-            name = key,
+            name = s"$key.amount-should-of-paid",
             label = s"$key.amount-should-of-paid",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,

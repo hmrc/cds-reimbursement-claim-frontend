@@ -21,7 +21,7 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
@@ -29,7 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
 
@@ -57,10 +56,10 @@ final case class DraftClaim(
   importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
   declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
   claimsAnswer: Option[ClaimsAnswer] = None,
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
 ) {
 

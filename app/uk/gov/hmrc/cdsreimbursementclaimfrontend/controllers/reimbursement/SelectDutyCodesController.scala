@@ -30,8 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.Selec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{CiderPerry, EuDuty, UkDuty}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Error, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -91,8 +90,7 @@ class SelectDutyCodesController @Inject() (
                       case Some(dutyType) =>
                         Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
                       case None           =>
-                        Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-                      //Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
+                        Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
                     }
                   case _                                =>
                     logger.warn("could not find duty types or duty codes")
@@ -146,24 +144,7 @@ class SelectDutyCodesController @Inject() (
     val updatedJourney =
       FillingOutClaim.from(fillingOutClaim)(
         _.copy(
-          dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap)),
-          reimbursementClaimAnswer = Some(
-            ReimbursementClaimAnswer(
-              Map(
-                UkDuty     -> Map(
-                  TaxCode.A20 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
-                ),
-                EuDuty     -> Map(
-                  TaxCode.A70 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00),
-                  TaxCode.A00 -> ReimbursementClaim(paidAmount = 1000.00, shouldOfPaid = 400.00)
-                ),
-                CiderPerry -> Map(
-                  TaxCode.NI431 -> ReimbursementClaim(paidAmount = 600.00, shouldOfPaid = 300.00)
-                )
-              )
-            )
-          )
+          dutyCodesSelectedAnswer = Some(DutyCodesAnswer(updatedDutyTypeToDutyCodesMap))
         )
       )
 
@@ -178,8 +159,7 @@ class SelectDutyCodesController @Inject() (
                 case Some(dutyType) =>
                   Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType))
                 case None           =>
-                  Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-//                  Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
+                  Redirect(reimbursementRoutes.EnterReimbursementClaimController.start())
               }
             case None                  =>
               logger.warn("could not find duty codes")

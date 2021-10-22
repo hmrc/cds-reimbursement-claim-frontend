@@ -98,10 +98,11 @@ object ReimbursementClaimAnswer {
   implicit class ReimbursementClaimAnswerOps(private val reimbursementClaimAnswer: ReimbursementClaimAnswer)
       extends AnyVal {
 
-    def isIncompleteReimbursementClaim: Option[(DutyType, Map[TaxCode, ReimbursementClaim])] =
-      reimbursementClaimAnswer.reimbursementClaims.find(dutyTypeToReimbursementClaimTuple =>
-        dutyTypeToReimbursementClaimTuple._2.exists(reimbursementClaim => reimbursementClaim._2.isBlank)
-      )
+    def isIncompleteReimbursementClaim: Option[(DutyType, TaxCode)] =
+      for {
+        blankClaimsPerDutyType <- reimbursementClaimAnswer.reimbursementClaims.find(_._2.exists(_._2.isBlank))
+        firstClaimPerTaxCode   <- blankClaimsPerDutyType._2.find(_._2.isBlank)
+      } yield (blankClaimsPerDutyType._1, firstClaimPerTaxCode._1)
 
     def updateReimbursementClaim(
       dutyType: DutyType,
@@ -117,7 +118,8 @@ object ReimbursementClaimAnswer {
 
     def updateAnswer(dutyCodesAnswer: DutyCodesAnswer): ReimbursementClaimAnswer = {
 
-      val selectedDutyTypes: Set[DutyType]           = dutyCodesAnswer.dutyCodes.keys.toSet
+      val selectedDutyTypes: Set[DutyType] = dutyCodesAnswer.dutyCodes.keys.toSet
+
       val dutyTypesToDeleteFromAnswer: Set[DutyType] =
         reimbursementClaimAnswer.reimbursementClaims.keys.toSet.diff(selectedDutyTypes)
 

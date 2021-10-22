@@ -22,13 +22,11 @@ import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ClaimsAnswer, ScheduledDocumentAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ClaimNorthernIrelandAnswer, ClaimsAnswer, DeclarantTypeAnswer, DetailsRegisteredWithCdsAnswer, ReimbursementMethodAnswer, ScheduledDocumentAnswer, SelectNumberOfClaimsAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
 
@@ -83,10 +81,10 @@ object CompleteClaim {
             draftImporterEoriNumberAnswer,
             draftDeclarantEoriNumberAnswer,
             Some(claimsAnswer),
+            maybeReimbursementMethodAnswer,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
             _,
-            maybeReimbursementMethodAnswer,
             _
           ) =>
         (
@@ -222,8 +220,8 @@ object CompleteClaim {
   ): Validation[Option[ScheduledDocumentAnswer]] =
     Validated.condNel(
       numberOfClaims.forall(answer =>
-        (answer === Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= Scheduled && maybeScheduledDocument.isEmpty)
+        (answer === SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isDefined) ||
+          (answer =!= SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isEmpty)
       ),
       maybeScheduledDocument,
       "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"

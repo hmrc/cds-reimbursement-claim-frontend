@@ -34,12 +34,12 @@ import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.{Metrics, MockMetrics}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnswer
 
 import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 import org.scalactic.source.Position
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
 
 @Singleton
 class TestMessagesApi(

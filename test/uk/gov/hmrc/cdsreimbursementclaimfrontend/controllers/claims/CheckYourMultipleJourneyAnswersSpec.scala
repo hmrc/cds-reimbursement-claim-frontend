@@ -24,9 +24,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DeclarantTypeAnswer.{items => declarantTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, SelectNumberOfClaimsAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AnswersOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AnswersOps, SelectNumberOfClaimsAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
