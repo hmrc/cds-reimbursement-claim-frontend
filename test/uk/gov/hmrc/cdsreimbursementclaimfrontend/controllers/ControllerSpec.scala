@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SelectNumberOfClaimsAnsw
 import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+import org.scalactic.source.Position
 
 @Singleton
 class TestMessagesApi(
@@ -142,7 +143,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def checkIsTechnicalErrorPage(
     result: Future[Result]
-  ): Any = {
+  )(implicit pos: Position): Any = {
     import cats.instances.int._
     import cats.syntax.eq._
     if (status(result) =!= INTERNAL_SERVER_ERROR) println(contentAsString(result))
@@ -156,7 +157,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkIsRedirect(
     result: Future[Result],
     expectedRedirectUrl: String
-  ): Any = {
+  )(implicit pos: Position): Any = {
     import cats.instances.int._
     import cats.syntax.eq._
     if (status(result) =!= SEE_OTHER)
@@ -167,7 +168,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   def checkIsRedirect(
     result: Future[Result],
     expectedRedirectCall: Call
-  ): Any =
+  )(implicit pos: Position): Any =
     checkIsRedirect(result, expectedRedirectCall.url)
 
   def checkPageIsDisplayed(
@@ -175,7 +176,7 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     expectedTitle: String,
     contentChecks: Document => Any = _ => (),
     expectedStatus: Int = OK
-  ): Any = {
+  )(implicit pos: Position): Any = {
     (status(result), redirectLocation(result)) shouldBe (expectedStatus -> None)
     status(result)                             shouldBe expectedStatus
 

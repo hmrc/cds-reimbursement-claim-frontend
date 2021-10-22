@@ -20,7 +20,6 @@ import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
@@ -30,45 +29,12 @@ package object answers {
 
   type AssociatedMrn = MRN
 
-  type AssociatedMRNsAnswer            = NonEmptyList[AssociatedMrn]
-  type AssociatedMRNsDeclarationAnswer = NonEmptyList[DisplayDeclaration]
-  type SupportingEvidencesAnswer       = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer            = NonEmptyList[Duty]
-  type ClaimsAnswer                    = NonEmptyList[Claim]
-
-  object SupportingEvidencesAnswer {
-    def apply(evidence: UploadDocument): NonEmptyList[UploadDocument] =
-      NonEmptyList.one(evidence)
-  }
-
-  object DutiesSelectedAnswer {
-    def apply(head: Duty, tail: Duty*): NonEmptyList[Duty] = NonEmptyList.of(head, tail: _*)
-    def apply(l: List[Duty]): Option[NonEmptyList[Duty]]   = NonEmptyList.fromList(l)
-  }
-
-  object DutyTypesSelectedAnswer {
-    def apply(head: DutyType, tail: DutyType*): NonEmptyList[DutyType] = NonEmptyList.of(head, tail: _*)
-    def apply(l: List[DutyType]): Option[NonEmptyList[DutyType]]       = NonEmptyList.fromList(l)
-  }
-
-  object ClaimsAnswer {
-    def apply(head: Claim, tail: Claim*): NonEmptyList[Claim] = NonEmptyList.of(head, tail: _*)
-    def apply(l: List[Claim]): Option[NonEmptyList[Claim]]    = NonEmptyList.fromList(l)
-  }
-
-  object AssociatedMRNsAnswer {
-
-    def apply(mrn: AssociatedMrn): AssociatedMRNsAnswer =
-      NonEmptyList.one(mrn)
-
-    def apply(associatedMRNs: List[AssociatedMrn]): Option[AssociatedMRNsAnswer] =
-      NonEmptyList.fromList(associatedMRNs)
-  }
-
-  object AssociatedMRNsDeclarationAnswer {
-    def apply(declaration: DisplayDeclaration): AssociatedMRNsDeclarationAnswer =
-      NonEmptyList.one(declaration)
-  }
+  type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
+  type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]
+  type SupportingEvidencesAnswer          = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer               = NonEmptyList[Duty]
+  type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
+  type ClaimsAnswer                       = NonEmptyList[Claim]
 
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 

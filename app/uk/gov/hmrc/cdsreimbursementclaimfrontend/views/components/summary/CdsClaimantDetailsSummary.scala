@@ -32,35 +32,35 @@ class CdsClaimantDetailsSummary extends AnswerSummary[DetailsRegisteredWithCdsAn
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l0"))),
+          key = Key(Text(messages(s"$key.l0"))),
           value = Value(Text(answer.fullName)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l0"))
+                  visuallyHiddenText = Some(messages(s"$key.l0"))
                 )
               )
             )
           )
         ),
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l1"))),
+          key = Key(Text(messages(s"$key.l1"))),
           value = Value(Text(answer.emailAddress.value)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l1"))
+                  visuallyHiddenText = Some(messages(s"$key.l1"))
                 )
               )
             )
           )
         ),
         SummaryListRow(
-          key = Key(Text(messages(s"$key.claimant-details.l3"))),
+          key = Key(Text(messages(s"$key.l3"))),
           value = Value(
             Text(
               answer.contactAddress
@@ -73,7 +73,7 @@ class CdsClaimantDetailsSummary extends AnswerSummary[DetailsRegisteredWithCdsAn
               items = Seq(
                 ActionItem(
                   href = s"${routes.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds().url}",
-                  visuallyHiddenText = Some(messages(s"$key.claimant-details.l3"))
+                  visuallyHiddenText = Some(messages(s"$key.l3"))
                 )
               )
             )

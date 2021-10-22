@@ -23,8 +23,13 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaimAnswer, ReimbursementMethodAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementMethodAnswer
 
 import java.util.UUID
 
@@ -55,7 +60,8 @@ final case class DraftClaim(
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None
+  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
+  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =
@@ -63,10 +69,12 @@ final case class DraftClaim(
 
   object MRNs {
 
-    def leadMrn: Option[LeadMrn] = movementReferenceNumber
-
-    def apply(): List[MRN] =
+    lazy val list: List[MRN] =
       leadMrn.toList ++ associatedMRNsAnswer.list
+
+    def apply(): List[MRN] = list
+
+    def leadMrn: Option[LeadMrn] = movementReferenceNumber
 
     def total: Total =
       (movementReferenceNumber *> Some(1)) |+| associatedMRNsAnswer.map(_.size) getOrElse 0
@@ -76,7 +84,26 @@ final case class DraftClaim(
         (associatedMRNsAnswer.map(_.toList), associatedMRNsDeclarationAnswer.map(_.toList))
           .mapN((mrns, declarations) => mrns zip declarations)
           .getOrElse(Nil)
+
+    def get(index: Int): Option[MRN] =
+      list.get(index.toLong)
   }
+
+  object DutiesSelections {
+
+    lazy val list: List[List[Duty]] = {
+      val x  = dutiesSelectedAnswer.map(_.toList).getOrElse(Nil)
+      val xs = associatedMRNsDutiesSelectedAnswer
+        .map(_.map(_.toList).toList)
+        .getOrElse(Nil)
+      x :: xs
+    }
+
+    def get(index: Int): Option[List[Duty]] =
+      list.get(index.toLong)
+
+  }
+
 }
 
 object DraftClaim {

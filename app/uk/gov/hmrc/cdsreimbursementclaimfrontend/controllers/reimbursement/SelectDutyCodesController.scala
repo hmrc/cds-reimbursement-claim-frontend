@@ -30,9 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.Selec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, TaxCode, reimbursement}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{CiderPerry, EuDuty, UkDuty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Error, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
@@ -139,7 +139,7 @@ class SelectDutyCodesController @Inject() (
   )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
 
     val updatedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
-      currentAnswer.fold(Map[reimbursement.DutyType, List[TaxCode]]()) { dutyCodesAnswer =>
+      currentAnswer.fold(Map[DutyType, List[TaxCode]]()) { dutyCodesAnswer =>
         dutyCodesAnswer.dutyCodes ++ List(dutyType -> dutyTypesSelectedAnswer.dutyCodes(dutyType))
       }
 
@@ -199,7 +199,7 @@ object SelectDutyCodesController {
             "" -> nonEmptyText
               .verifying(
                 "invalid duty code",
-                code => TaxCode.allTaxCodes.map(_.value).exists(_ === code)
+                code => TaxCodes.all.exists(_.value === code)
               )
           )(TaxCode.apply)(TaxCode.unapply)
         ).verifying("error.required", _.nonEmpty)

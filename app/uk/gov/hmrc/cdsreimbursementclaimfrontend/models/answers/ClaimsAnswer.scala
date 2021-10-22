@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import java.util.Locale
+import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 
-object MoneyUtils {
+object ClaimsAnswer {
 
-  private val currencyFormatter =
-    java.text.NumberFormat.getCurrencyInstance(Locale.UK)
+  def apply(head: Claim, tail: Claim*): ClaimsAnswer =
+    NonEmptyList.of(head, tail: _*)
 
-  def formatAmountOfMoneyWithPoundSign(d: BigDecimal): String =
-    currencyFormatter.format(d)
+  def apply(l: List[Claim]): Option[ClaimsAnswer] =
+    NonEmptyList.fromList(l)
 }

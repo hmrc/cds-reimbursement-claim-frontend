@@ -17,17 +17,20 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import julienrf.json.derived
 import play.api.libs.json._
-import play.api.mvc.PathBindable
-
-import scala.collection.immutable.HashSet
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 sealed abstract class TaxCode(val value: String) extends Product with Serializable {
   override def toString: String = value
 }
 
 object TaxCode {
+
+  def apply(value: String): TaxCode =
+    TaxCodes.findUnsafe(value)
+
+  def unapply(taxCode: TaxCode): Option[String] =
+    Some(taxCode.value)
 
   case object A00 extends TaxCode("A00")
   case object A20 extends TaxCode("A20")
@@ -106,110 +109,7 @@ object TaxCode {
   case object NI99C extends TaxCode("99C")
   case object NI99D extends TaxCode("99D")
 
-  def fromString(taxCode: String): Option[TaxCode] = allTaxCodesMap.get(taxCode)
+  implicit val taxCodeEq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
 
-  val listOfUKTaxCodes: List[TaxCode] = List(A00, A20, A30, A35, A40, A45, B00)
-  val listOfEUTaxCodes: List[TaxCode] = List(A50, A70, A80, A85, A90, A95, B05)
-
-  val listOfUKExciseCodes: List[TaxCode]         = List(
-    NI407,
-    NI411,
-    NI412,
-    NI413,
-    NI415,
-    NI419,
-    NI421,
-    NI422,
-    NI423,
-    NI425,
-    NI429,
-    NI431,
-    NI433,
-    NI435,
-    NI438,
-    NI440,
-    NI441,
-    NI442,
-    NI443,
-    NI444,
-    NI445,
-    NI446,
-    NI447,
-    NI451,
-    NI461,
-    NI462,
-    NI463,
-    NI473,
-    NI481,
-    NI483,
-    NI485,
-    NI487,
-    NI511,
-    NI520,
-    NI521,
-    NI522,
-    NI540,
-    NI541,
-    NI542,
-    NI546,
-    NI551,
-    NI556,
-    NI561,
-    NI570,
-    NI571,
-    NI572,
-    NI589,
-    NI591,
-    NI592,
-    NI595,
-    NI597,
-    NI611,
-    NI615,
-    NI619,
-    NI623,
-    NI627,
-    NI633,
-    NI99A,
-    NI99B,
-    NI99C,
-    NI99D
-  )
-  val listOfUKExciseCodeStrings: HashSet[String] = HashSet(listOfUKExciseCodes.map(_.value): _*)
-
-  val ukAndEuTaxCodes: List[TaxCode] = listOfUKTaxCodes ++ listOfEUTaxCodes
-  val allTaxCodes: List[TaxCode]     = listOfUKTaxCodes ++ listOfEUTaxCodes ++ listOfUKExciseCodes
-
-  val allTaxCodesMap: Map[String, TaxCode] = allTaxCodes.map(a => a.value -> a).toMap
-
-  val allTaxCodesPartialFunctions: List[PartialFunction[TaxCode, String]] = allTaxCodes.map(a =>
-    new PartialFunction[TaxCode, String]() {
-      def apply(v1: TaxCode): String       = a.value
-      def isDefinedAt(x: TaxCode): Boolean = true
-    }
-  )
-
-  implicit def classToNameString(in: TaxCode): String =
-    allTaxCodesPartialFunctions.drop(1).foldLeft(allTaxCodesPartialFunctions(0))(_ orElse _)(in)
-
-  def apply(string: String): TaxCode            = TaxCode.allTaxCodesMap(string)
-  def unapply(taxCode: TaxCode): Option[String] = Some(taxCode.value)
-
-  implicit val binder: PathBindable[TaxCode] =
-    new PathBindable[TaxCode] {
-      val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
-
-      override def bind(
-        key: String,
-        value: String
-      ): Either[String, TaxCode] =
-        stringBinder.bind(key, value).map(TaxCode.apply)
-
-      override def unbind(key: String, dutyType: TaxCode): String =
-        stringBinder.unbind(key, dutyType.value)
-    }
-
-  implicit val eq: Eq[TaxCode] = Eq.fromUniversalEquals[TaxCode]
-
-  implicit val taxCodeFormat: OFormat[TaxCode] = derived.oformat[TaxCode]()
-
+  implicit val taxCodeFormat: Format[TaxCode] = SimpleStringFormat(TaxCode(_), _.value)
 }

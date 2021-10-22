@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.{Functor, Id}
 import org.scalacheck.magnolia._
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.{genCountry, genPostcode}
@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGe
 object Acc14Gen {
 
   def genNdrcDetails: Gen[NdrcDetails] = for {
-    taxType          <- Gen.oneOf(TaxCode.allTaxCodes).map(_.value)
+    taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
     amount           <- Gen.choose(0L, 10000.toLong).map(_.toString)
     paymentMethod    <- Gen.oneOf("001", "002", "003") //001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
     paymentReference <- arbitraryString.arbitrary.map(_.take(18))

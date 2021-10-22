@@ -18,9 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, Claim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MoneyUtils
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, _}
 
@@ -34,21 +33,21 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
   private val key = "check-claim-summary"
 
   def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.ukClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
 
   def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(claimsAnswer.euClaims(claimsAnswer)) :: makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer))
+    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
 
   def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeTotalRow(
+    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) ++ makeTotalRow(
       claimsAnswer.exciseClaims(claimsAnswer)
-    ) :: makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer))
+    )
 
   def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
         key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
-        value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claim.claimAmount))),
+        value = Value(Text(claim.claimAmount.toPoundSterlingString)),
         actions = Some(
           Actions(
             items = Seq(
@@ -63,16 +62,16 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
       )
     }
 
-  def makeTotalRow(claims: List[Claim]): SummaryListRow =
+  def makeTotalRow(claims: List[Claim]): List[SummaryListRow] =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
-      value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claims.map(_.claimAmount).sum)))
-    )
+      value = Value(Text(claims.map(_.claimAmount).sum.toPoundSterlingString))
+    ) :: Nil
 
   def makeClaimTotalRow(claims: ClaimsAnswer): SummaryListRow =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
-      value = Value(Text(MoneyUtils.formatAmountOfMoneyWithPoundSign(claims.total)))
+      value = Value(Text(claims.total.toPoundSterlingString))
     )
 
 }

@@ -24,10 +24,14 @@ object BankAccountReputationGen {
 
   implicit val arbitraryAddress: Typeclass[BarsAddress]                                 = gen[BarsAddress]
   implicit val arbitraryBarsSubject: Typeclass[BarsSubject]                             = gen[BarsSubject]
-  implicit val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest]     = gen[BarsBusinessAssessRequest]
-  implicit val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] = gen[BarsPersonalAssessRequest]
-  implicit val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse]   = gen[BusinessCompleteResponse]
-  implicit val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse]   = gen[PersonalCompleteResponse]
+  implicit val arbitraryBusinessAssessRequest: Typeclass[BarsBusinessAssessRequest]     =
+    gen[BarsBusinessAssessRequest]
+  implicit val arbitraryBarsPersonalAssessRequest: Typeclass[BarsPersonalAssessRequest] =
+    gen[BarsPersonalAssessRequest]
+  implicit val arbitraryBusinessCompleteResponse: Typeclass[BusinessCompleteResponse]   =
+    gen[BusinessCompleteResponse]
+  implicit val arbitraryPersonalCompleteResponse: Typeclass[PersonalCompleteResponse]   =
+    gen[PersonalCompleteResponse]
   implicit val arbitraryReputationErrorResponse: Typeclass[ReputationErrorResponse]     = gen[ReputationErrorResponse]
   implicit val arbitraryCommonBarsResponse: Typeclass[CommonBarsResponse]               = gen[CommonBarsResponse]
 }

@@ -16,23 +16,31 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
+import cats.implicits.catsStdInstancesForFuture
+import org.scalacheck.magnolia.gen
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
+import play.api.libs.iteratee.Execution.Implicits.defaultExecutionContext
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration, DisplayResponseDetail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -42,10 +50,14 @@ class EnterImporterEoriNumberControllerSpec
     with SessionSupport
     with TableDrivenPropertyChecks {
 
+
+  val mockClaimService = mock[ClaimService]
+
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
-      bind[SessionCache].toInstance(mockSessionCache)
+      bind[SessionCache].toInstance(mockSessionCache),
+      bind[ClaimService].toInstance(mockClaimService)
     )
 
   val testCases = Table(
@@ -154,33 +166,58 @@ class EnterImporterEoriNumberControllerSpec
 
     "handle submit requests" when {
 
+
+      def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
+        controller.enterImporterEoriNumberSubmit(journeyBindable)(
+          FakeRequest().withFormUrlEncodedBody(data: _*)
+        )
+
+      val eori: Eori = sample[Eori]
+      val answers = ImporterEoriNumber(eori)
+      val draftC285Claim                = sessionWithClaimState(Some(answers))._3
+        .copy(importerEoriNumberAnswer = Some(answers))
+      val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
+
+      val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+
       "user chooses a valid option" in forAll(testCases) { journeyBindable =>
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.enterImporterEoriNumberSubmit(journeyBindable)(
-            FakeRequest().withFormUrlEncodedBody(data: _*)
-          )
-
-        val answers = ImporterEoriNumber(Eori("GB03152858027018"))
-
-        val draftC285Claim                = sessionWithClaimState(Some(answers))._3
-          .copy(
-            importerEoriNumberAnswer = Some(answers)
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
-
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val displayDeclaration = sample[DisplayDeclaration]
+          .copy(displayResponseDetail =
+            sample[DisplayResponseDetail]
+              .copy(consigneeDetails = Some(
+                sample[ConsigneeDetails]
+                  .copy(consigneeEORI = eori.value))
+              ))
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+            .expects(*, *)
+            .returning(EitherT.fromEither[Future](Right(Some(displayDeclaration))))
         }
 
         checkIsRedirect(
-          performAction(Seq("enter-importer-eori-number" -> "GB03152858027018")),
+          performAction(Seq("enter-importer-eori-number" -> eori.value), journeyBindable),
           routes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumber(journeyBindable)
         )
       }
 
+      "user chooses an un-matching importer EORI" in forAll(testCases) { journeyBindable =>
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+            .expects(*, *)
+            .returning(EitherT.fromEither[Future](Left(Error("could not get MRN"))))
+        }
+
+        checkIsRedirect(
+          performAction(Seq("enter-importer-eori-number" -> eori.value), journeyBindable),
+          controllers.routes.IneligibleController.ineligible()
+        )
+      }
     }
 
     "show an error summary" when {

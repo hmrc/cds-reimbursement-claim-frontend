@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.implicits.catsSyntaxEq
 import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import play.api.mvc.PathBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
-sealed abstract class DutyType(val repr: String, val taxCodes: List[TaxCode]) extends Product with Serializable
+sealed abstract class DutyType(val repr: String, val taxCodes: Seq[TaxCode]) extends Product with Serializable
 
 object DutyType {
 
-  case object UkDuty extends DutyType("uk-duty", TaxCode.listOfUKTaxCodes)
+  def apply(value: String): DutyType =
+    DutyTypes.findUnsafe(value)
 
-  case object EuDuty extends DutyType("eu-duty", TaxCode.listOfEUTaxCodes)
+  def unapply(dutyType: DutyType): Option[String] =
+    Some(dutyType.repr)
+
+  case object UkDuty extends DutyType("uk-duty", TaxCodes.UK)
+
+  case object EuDuty extends DutyType("eu-duty", TaxCodes.EU)
 
   case object Beer extends DutyType("beer", List(NI407, NI440, NI441, NI442, NI443, NI444, NI445, NI446, NI447, NI473))
 
@@ -73,30 +76,6 @@ object DutyType {
         )
       )
 
-  def toDutyType(repr: String): Option[DutyType] = DutyTypes.all.find(_.repr === repr)
-
-  implicit val taxCategoryEq: Eq[DutyType] = Eq.fromUniversalEquals[DutyType]
-
-  implicit val format: OFormat[DutyType] = derived.oformat[DutyType]()
-
-  def apply(value: String): DutyType =
-    DutyType.toDutyType(value).getOrElse(sys.error(s"Could not map to a duty type : $value"))
-
-  implicit val binder: PathBindable[DutyType] =
-    new PathBindable[DutyType] {
-      val stringBinder: PathBindable[String] = implicitly[PathBindable[String]]
-
-      override def bind(key: String, value: String): Either[String, DutyType] =
-        stringBinder.bind(key, value).map(DutyType.apply)
-
-      override def unbind(key: String, dutyType: DutyType): String =
-        stringBinder.unbind(key, dutyType.repr)
-    }
-
-  def unapply(dutyType: DutyType): Option[String] = Some(dutyType.repr)
-
-  object DutyTypeOrdering extends Ordering[DutyType] {
-    def compare(a: DutyType, b: DutyType): Int =
-      DutyTypes.dutyTypeToRankMap(a) compare DutyTypes.dutyTypeToRankMap(b)
-  }
+  implicit val dutyTypFormat: OFormat[DutyType] = derived.oformat[DutyType]()
+  implicit val dutyTypeEq: Eq[DutyType]         = Eq.fromUniversalEquals[DutyType]
 }

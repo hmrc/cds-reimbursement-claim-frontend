@@ -31,9 +31,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyType.{CiderPerry, EuDuty, UkDuty}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyType, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{CiderPerry, EuDuty, UkDuty}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{DutyCodesAnswer, DutyTypesAnswer, ReimbursementClaim, ReimbursementClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, SessionData, SignedInUserDetails, TaxCode, TaxCodes}
 
 import scala.concurrent.Future
 
@@ -170,7 +170,7 @@ class SelectDutyCodesControllerSpec
           performAction(DutyType.UkDuty),
           messageFromMessageKey("select-duty-codes.title", messageFromMessageKey("select-duty-codes.h1.uk-duty")),
           doc =>
-            TaxCode.listOfUKTaxCodes.map { taxCode =>
+            TaxCodes.UK.map { taxCode =>
               isCheckboxChecked(doc, taxCode.value) shouldBe false
             }
         )

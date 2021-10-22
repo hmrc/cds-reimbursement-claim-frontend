@@ -25,9 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
+class MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
-  def render(key: String, answers: Seq[MRN])(implicit
+  def render(key: String, mrns: List[MRN])(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
@@ -66,8 +66,8 @@ class MovementReferenceNumbersSummary extends AnswerSummary[Seq[MRN]] {
     }
 
     SummaryList(
-      answers.headOption.map(toLeadMrnSummary).toList ++
-        answers.drop(1).zipWithIndex.map { case (mrn, index) =>
+      mrns.headOption.map(toLeadMrnSummary).toList ++
+        mrns.drop(1).zipWithIndex.map { case (mrn, index) =>
           toAssociatedMrnSummary(mrn, AssociatedMrnIndex.fromListIndex(index))
         }
     )

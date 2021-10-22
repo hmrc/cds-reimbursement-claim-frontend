@@ -49,11 +49,19 @@ class AssociatedMrnIndexSpec extends AnyWordSpec with ScalaCheckPropertyChecks w
     }
   }
 
+  "Displaying ordinal numeral for the number 1" should {
+    "contain `lead`" in {
+      AssociatedMrnIndex(1).ordinalNumeral should be("lead")
+    }
+  }
+
   "Displaying ordinal numeral for the number ending with 1" should {
     "contain `st` postfix" in {
       forAll { n: Int =>
-        val index = n.truncateToEndWith(1)
-        AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
+        whenever(n > 1) {
+          val index = n.truncateToEndWith(1)
+          AssociatedMrnIndex(index).ordinalNumeral.lastTwo should be("st")
+        }
       }
     }
   }
