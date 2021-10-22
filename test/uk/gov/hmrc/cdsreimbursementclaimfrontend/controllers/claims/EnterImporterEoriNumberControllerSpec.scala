@@ -50,7 +50,6 @@ class EnterImporterEoriNumberControllerSpec
     with SessionSupport
     with TableDrivenPropertyChecks {
 
-
   val mockClaimService = mock[ClaimService]
 
   override val overrideBindings: List[GuiceableModule] =
@@ -166,14 +165,13 @@ class EnterImporterEoriNumberControllerSpec
 
     "handle submit requests" when {
 
-
       def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
         controller.enterImporterEoriNumberSubmit(journeyBindable)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      val eori: Eori = sample[Eori]
-      val answers = ImporterEoriNumber(eori)
+      val eori: Eori                    = sample[Eori]
+      val answers                       = ImporterEoriNumber(eori)
       val draftC285Claim                = sessionWithClaimState(Some(answers))._3
         .copy(importerEoriNumberAnswer = Some(answers))
       val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -181,19 +179,23 @@ class EnterImporterEoriNumberControllerSpec
       val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
       "user chooses a valid option" in forAll(testCases) { journeyBindable =>
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val updatedJourney     = fillingOutClaim.copy(draftClaim = draftC285Claim)
         val displayDeclaration = sample[DisplayDeclaration]
           .copy(displayResponseDetail =
             sample[DisplayResponseDetail]
-              .copy(consigneeDetails = Some(
-                sample[ConsigneeDetails]
-                  .copy(consigneeEORI = eori.value))
-              ))
+              .copy(consigneeDetails =
+                Some(
+                  sample[ConsigneeDetails]
+                    .copy(consigneeEORI = eori.value)
+                )
+              )
+          )
 
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-          (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+          (mockClaimService
+            .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
             .expects(*, *)
             .returning(EitherT.fromEither[Future](Right(Some(displayDeclaration))))
         }
@@ -208,7 +210,8 @@ class EnterImporterEoriNumberControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
-          (mockClaimService.getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
+          (mockClaimService
+            .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
             .expects(*, *)
             .returning(EitherT.fromEither[Future](Left(Error("could not get MRN"))))
         }

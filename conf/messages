@@ -26,6 +26,7 @@ button.accept-and-send=Accept and send
 button.saveAndContinue=Save and continue
 button.confirm-and-continue=Confirm and continue
 button.confirm-and-submit-claim=Confirm and submit claim
+button.go-back=Go back
 
 generic.back=Back
 generic.errorPrefix=Error:
@@ -207,7 +208,6 @@ check-movement-reference-numbers.error.invalid=Select yes if you want to add ano
 #===================================================
 mrn-does-not-exist.title=This MRN does not exist
 mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been entered.
-mrn-does-not-exist.button=Go back
 
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
@@ -833,6 +833,12 @@ enter-bank-details.error.moc-check-failed=Account number must be valid for the g
 enter-bank-details.error.account-does-not-exist=Account number must belong to an active bank account
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid account number
 enter-bank-details.error.INVALID_SORTCODE=Invalid sort code
+
+#===================================================
+#  BANK ACCOUNT UNAVAILABLE PAGE
+#===================================================
+bank-service-unavailable.title=Sorry, the service is unavailable
+bank-service-unavailable.help=Contact the <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">the CDS team (opens in new tab)</a> if you need to make a change to your bank account information to complete this claim.
 
 #===================================================
 #  SUPPORTING EVIDENCE PAGES

@@ -44,8 +44,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountNumber, BankAccountDetails, BankAccountType, DraftClaim, Error, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.http.HeaderCarrier
-
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -332,6 +331,28 @@ class BankAccountControllerSpec
         status(result) shouldBe BAD_REQUEST
       }
 
+      "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
+        val errorResponse   = Error(
+          new BadGatewayException(
+            "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
+          )
+        )
+        val answers         = businessBankAccount
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockBusinessReputation(Left(errorResponse))
+        }
+
+        val form    = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
+        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+
+        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
+      }
     }
 
     "Personal Bank Account" should {
@@ -448,8 +469,30 @@ class BankAccountControllerSpec
         status(result) shouldBe BAD_REQUEST
       }
 
-    }
+      "Redirect to error page if the bank reputation service is down" in forAll(journeys) { journey =>
+        val errorResponse   = Error(
+          new BadGatewayException(
+            "POST of 'http://localhost:7502/personal/v3/assess' failed. Caused by: 'Connection refused: localhost/0:0:0:0:0:0:0:1:7502'"
+          )
+        )
+        val answers         = personalBankAccount
+        val (session, _, _) =
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
 
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockPersonalReputation(Left(errorResponse))
+        }
+
+        val form    = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
+        val request = FakeRequest().withFormUrlEncodedBody(form: _*)
+        val result  = controller.enterBankAccountDetailsSubmit(journey)(request)
+
+        checkIsRedirect(result, routes.ServiceUnavailableController.unavailable(journey))
+      }
+
+    }
   }
 
   "Form Validation" must {
