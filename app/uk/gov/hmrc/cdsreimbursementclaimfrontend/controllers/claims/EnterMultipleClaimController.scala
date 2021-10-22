@@ -21,8 +21,8 @@ import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+//import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
+//import scala.concurrent.ExecutionContext
 
 @Singleton
 class EnterMultipleClaimController @Inject() (
@@ -44,21 +44,37 @@ class EnterMultipleClaimController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   val config: Configuration
-)(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
+)(implicit
+  cc: MessagesControllerComponents
+) // ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
     with Logging
     with SessionDataExtractor
     with SessionUpdates {
 
+//  def enterClaim(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
+//    authenticatedActionWithSessionData.async { implicit request =>
+//      NotImplemented
+//
+//    }
+//
+//  def enterClaimSubmit(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
+//    authenticatedActionWithSessionData.async { implicit request =>
+//      NotImplemented
+//
+//    }
+
   def enterClaim(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    authenticatedActionWithSessionData.async { //implicit request =>
+      println(mrnIndex.toString + taxCode.value)
       NotImplemented
 
     }
 
   def enterClaimSubmit(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
+    authenticatedActionWithSessionData.async { //implicit request =>
+      println(mrnIndex.toString + taxCode.value)
       NotImplemented
 
     }

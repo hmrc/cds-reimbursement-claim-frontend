@@ -21,7 +21,7 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
@@ -61,6 +61,7 @@ final case class DraftClaim(
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
+  //selectedDutiesAndTaxCodesReimbursementAnswer: Option[SelectedDutiesAndTaxCodesReimbursementAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =
@@ -100,9 +101,7 @@ final case class DraftClaim(
 
     def get(index: Int): Option[List[Duty]] =
       list.get(index.toLong)
-
   }
-
 }
 
 object DraftClaim {
