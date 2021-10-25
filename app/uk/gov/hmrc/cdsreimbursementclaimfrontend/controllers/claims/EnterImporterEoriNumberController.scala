@@ -75,7 +75,7 @@ class EnterImporterEoriNumberController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterImporterEoriNumberPage(
-                  requestFormWithErrors,
+                  requestFormWithErrors.fill(ImporterEoriNumber(Eori(""))),
                   router
                 )
               ),
