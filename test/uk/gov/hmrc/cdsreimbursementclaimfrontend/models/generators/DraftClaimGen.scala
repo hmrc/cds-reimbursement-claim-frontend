@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelecte
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType}
@@ -59,6 +60,7 @@ object DraftClaimGen {
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
+      reimbursementMethodAnswer      <- arbitraryReimbursementMethodAnswer.arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
       associatedMRNsAnswer           <- genAssociatedMrnsAnswer(selectNumberOfClaimsAnswer)
     } yield DraftClaim(
@@ -80,6 +82,7 @@ object DraftClaimGen {
       importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
+      reimbursementMethodAnswer = reimbursementMethodAnswer,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
       associatedMRNsAnswer = associatedMRNsAnswer
     )
