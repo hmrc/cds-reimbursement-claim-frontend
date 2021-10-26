@@ -177,7 +177,7 @@ object SelectMultipleDutiesController {
     (for {
       duties <- journey.draftClaim.DutiesSelections.get(mrnIndex - 1)
       duty   <- duties.headOption
-    } yield routes.EnterMultipleClaimController.enterClaim(mrnIndex, duty.taxCode))
+    } yield routes.EnterMultipleClaimsController.enterClaim(mrnIndex, duty.taxCode))
       .getOrElse(
         routes.SelectMultipleDutiesController.selectDuties(mrnIndex)
       )

@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesA
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 
 import java.util.UUID
+import cats.data.NonEmptyList
 
 final case class DraftClaim(
   id: UUID,
@@ -60,7 +61,8 @@ final case class DraftClaim(
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
+  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None,
+  associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =
@@ -88,20 +90,13 @@ final case class DraftClaim(
       list.get(index.toLong)
   }
 
-  object DutiesSelections {
+  object Declarations
+      extends DraftClaim.LeadAndAssociatedItems[DisplayDeclaration](displayDeclaration, associatedMRNsDeclarationAnswer)
 
-    lazy val list: List[List[Duty]] = {
-      val x  = dutiesSelectedAnswer.map(_.toList).getOrElse(Nil)
-      val xs = associatedMRNsDutiesSelectedAnswer
-        .map(_.map(_.toList).toList)
-        .getOrElse(Nil)
-      x :: xs
-    }
+  object DutiesSelections
+      extends DraftClaim.LeadAndAssociatedItemList[Duty](dutiesSelectedAnswer, associatedMRNsDutiesSelectedAnswer)
 
-    def get(index: Int): Option[List[Duty]] =
-      list.get(index.toLong)
-
-  }
+  object Claims extends DraftClaim.LeadAndAssociatedItemList[Claim](claimsAnswer, associatedMRNsClaimsAnswer)
 
 }
 
@@ -111,4 +106,32 @@ object DraftClaim {
 
   implicit val eq: Eq[DraftClaim]          = Eq.fromUniversalEquals
   implicit val format: OFormat[DraftClaim] = derived.oformat()
+
+  class LeadAndAssociatedItems[A](leadItem: => Option[A], associatedItems: => Option[NonEmptyList[A]]) {
+
+    lazy val list: List[A] = {
+      leadItem.toList ++ associatedItems.toList.flatMap(_.toList)
+
+    }
+
+    def get(index: Int): Option[A] =
+      list.get(index.toLong)
+  }
+
+  class LeadAndAssociatedItemList[A](
+    leadItem: => Option[NonEmptyList[A]],
+    associatedItems: => Option[NonEmptyList[NonEmptyList[A]]]
+  ) {
+
+    lazy val list: List[List[A]] = {
+      val x  = leadItem.map(_.toList).getOrElse(Nil)
+      val xs = associatedItems
+        .map(_.map(_.toList).toList)
+        .getOrElse(Nil)
+      x :: xs
+    }
+
+    def get(index: Int): Option[List[A]] =
+      list.get(index.toLong)
+  }
 }
