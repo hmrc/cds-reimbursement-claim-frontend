@@ -121,33 +121,24 @@ class EnterMultipleClaimsController @Inject() (
   private def whenAuthenticatedAndValidRequest(mrnIndex: Int, taxCode: TaxCode)(
     body: RequestWithSessionData[_] => FillingOutClaim => MRN => List[Claim] => Claim => Future[Result]
   ): Action[AnyContent] = {
-    val index    = mrnIndex - 1
-    val fallback = toFuture(Redirect(routes.SelectMultipleDutiesController.selectDuties(mrnIndex)))
+    val index = mrnIndex - 1
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case journey: FillingOutClaim =>
         journey.draftClaim.MRNs
           .get(index)
           .fold(toFuture(BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            journey.draftClaim.DutiesSelections
-              .get(index)
-              .fold(fallback) { selectedDuties =>
-                val dutyIndex = selectedDuties.indexOf(Duty(taxCode))
-                if (dutyIndex =!= -1) {
-                  journey.draftClaim.Claims
-                    .get(index)
-                    .orElse(Some(Nil))
-                    .map(existingClaims =>
-                      EnterMultipleClaimsController
-                        .prepareClaims(index, selectedDuties, existingClaims, journey)
-                    )
-                    .fold(fallback) { claims =>
-                      claims.drop(dutyIndex).headOption.fold(fallback) { claim =>
-                        body(request)(journey)(mrn)(claims)(claim)
-                      }
-
-                    }
-                } else fallback
-              }
+            (for {
+              selectedDuties <- journey.draftClaim.DutiesSelections.get(index)
+              dutyIndex       = selectedDuties.indexOf(Duty(taxCode))
+              existingClaims <- if (dutyIndex =!= -1) journey.draftClaim.Claims.get(index).orElse(Some(Nil))
+                                else None
+              claims          = EnterMultipleClaimsController
+                                  .prepareClaims(index, selectedDuties, existingClaims, journey)
+              claim          <- claims.drop(dutyIndex).headOption
+            } yield body(request)(journey)(mrn)(claims)(claim))
+              .getOrElse(
+                toFuture(Redirect(routes.SelectMultipleDutiesController.selectDuties(mrnIndex)))
+              )
           }
       }
     }
