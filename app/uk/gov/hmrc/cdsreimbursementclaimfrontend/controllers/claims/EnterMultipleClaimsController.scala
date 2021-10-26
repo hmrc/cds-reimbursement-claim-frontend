@@ -228,7 +228,7 @@ object EnterMultipleClaimsController {
       mapping(
         "multiple-enter-claim" -> moneyMapping(13, 2, "claim-amount.error.invalid")
       )(CorrectedAmount.apply)(CorrectedAmount.unapply)
-        .verifying("invalid.claim", a => a.amount > 0 && a.amount < paidAmount)
+        .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
 
 }
