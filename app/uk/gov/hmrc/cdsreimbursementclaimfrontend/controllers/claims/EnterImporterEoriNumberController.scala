@@ -81,13 +81,13 @@ class EnterImporterEoriNumberController @Inject() (
               ),
             importerEoriNumber => {
 
-              def updateJourney(): EitherT[Future, Error, Unit] = EitherT {
+              def updateJourney() = EitherT {
                 val updatedJourney =
                   FillingOutClaim.from(fillingOutClaim)(_.copy(importerEoriNumberAnswer = Some(importerEoriNumber)))
                 updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
               }
 
-              def checkWeatherConsigneeEORIsMatch: EitherT[Future, Error, Boolean] = for {
+              def checkWhetherConsigneeEORIsMatch = for {
                 mrn         <-
                   EitherT
                     .fromOption[Future](fillingOutClaim.draftClaim.movementReferenceNumber, Error("could not get MRN"))
@@ -97,7 +97,7 @@ class EnterImporterEoriNumberController @Inject() (
                 .exists(_.consigneeEORI === importerEoriNumber.value.value)
 
               val updateAndRedirect = for {
-                eorisMatch <- checkWeatherConsigneeEORIsMatch
+                eorisMatch <- checkWhetherConsigneeEORIsMatch
                                 .leftMap(_ => Redirect(controllers.routes.IneligibleController.ineligible()))
                 status     <-
                   if (eorisMatch)
