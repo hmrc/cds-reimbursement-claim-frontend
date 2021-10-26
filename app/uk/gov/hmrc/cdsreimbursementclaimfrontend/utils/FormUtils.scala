@@ -24,7 +24,7 @@ import play.api.data.format.{Formats, Formatter}
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{FormError, Forms, Mapping}
 
-import scala.math.BigDecimal.RoundingMode
+import scala.math.BigDecimal.{RoundingMode, valueOf}
 import scala.util.control.Exception
 import scala.util.Try
 
@@ -86,10 +86,18 @@ object FormUtils {
           }
     }
 
-  def moneyMapping(precision: Int, scale: Int, errorMsg: String): Mapping[BigDecimal] =
+  def moneyMapping(precision: Int, scale: Int, errorMsg: String, allowZero: Boolean = false): Mapping[BigDecimal] =
     Forms
       .of[BigDecimal](bigDecimalFormat(precision, scale, errorMsg))
-      .verifying(Constraint[BigDecimal]((num: BigDecimal) => if (num > 0) Valid else Invalid(errorMsg)))
+      .verifying(
+        Constraint[BigDecimal]((num: BigDecimal) =>
+          num match {
+            case n if n < 0   => Invalid(errorMsg)
+            case n if n === 0 => if (allowZero) Valid else Invalid(errorMsg)
+            case _            => Valid
+          }
+        )
+      )
 
   def bigDecimalFormat(precision: Int, scale: Int, errorMsg: String): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
@@ -102,7 +110,14 @@ object FormUtils {
           else
             Exception
               .allCatch[BigDecimal]
-              .either(BigDecimal(userInput))
+              .either(
+                BigDecimal(
+                  userInput
+                    .replaceAllLiterally("£", "")
+                    .replaceAllLiterally(" ", "")
+                    .replaceAllLiterally(",", "")
+                )
+              )
               .flatMap { bd =>
                 if (bd.scale > scale) Left(new Throwable("Wrong precision"))
                 else if (bd.precision - bd.scale > precision - scale) Left(new Throwable("Wrong precision"))
