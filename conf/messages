@@ -640,7 +640,7 @@ enter-reimbursement-claim.amount-paid.error.required=Enter the amount that was p
 enter-reimbursement-claim.amount-paid.error.invalid=Paid amount must be a number, like 30
 enter-reimbursement-claim.amount-should-of-paid.error.required=Enter the amount that should have been paid, in pounds
 enter-reimbursement-claim.amount-should-of-paid.error.invalid=Amount that should have been paid must be a number, like 30
-enter-reimbursement-claim.invalid.reimbursement-claim=Amount that should have been paid must be lower than the amount paid
+enter-reimbursement-claim.invalid.reimbursement-claim=The claim amount must be lower than paid amount
 
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE
@@ -830,8 +830,10 @@ enter-bank-details.account-number.help-text=Must be between 6 and 8 digits long
 enter-bank-details.account-number.error.required=Enter an account number
 enter-bank-details.account-number.error.length=Account number must be between 6 and 8 digits
 enter-bank-details.account-number.error.invalid=Enter a valid account number like 00733445
-enter-bank-details.error.moc-check-failed=Account number must be valid for the given sort code
-enter-bank-details.error.account-does-not-exist=Account number must belong to an active bank account
+enter-bank-details.error.moc-check-failed=We were unable to verify your sort code and account no. Try again using different details
+enter-bank-details.error.moc-check-no=Enter a valid combination of bank account number and sort code.
+enter-bank-details.error.account-does-not-exist=We were unable to verify your sort code and account no. Try again using different details
+enter-bank-details.error.account-exists-error=The service was unavailable to verify your bank details. Try again later
 enter-bank-details.error.INVALID_ACCOUNT_NUMBER=Invalid account number
 enter-bank-details.error.INVALID_SORTCODE=Invalid sort code
 

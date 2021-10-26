@@ -211,13 +211,21 @@ class BankAccountController @Inject() (
                         .fill(bankAccountDetails)
                         .withError("enter-bank-details", s"error.$errorKey")
                       BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
+                    } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
+                      val form = BankAccountController.enterBankDetailsForm
+                        .withError("enter-bank-details", "error.moc-check-no")
+                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
                     } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
                       val form = BankAccountController.enterBankDetailsForm
                         .withError("enter-bank-details", "error.moc-check-failed")
                       BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
+                    } else if (reputationResponse.accountExists === Some(ReputationResponse.Error)) {
                       val form = BankAccountController.enterBankDetailsForm
                         .fill(bankAccountDetails)
+                        .withError("enter-bank-details", s"error.account-exists-error")
+                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
+                    } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
+                      val form = BankAccountController.enterBankDetailsForm
                         .withError("enter-bank-details", s"error.account-does-not-exist")
                       BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
                     } else {

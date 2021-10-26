@@ -179,7 +179,7 @@ object EnterReimbursementClaimController {
     enterReimbursementClaimKey ->
       mapping(
         s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
-        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid")
+        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
       )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
         .verifying(
           "invalid.reimbursement-claim",
