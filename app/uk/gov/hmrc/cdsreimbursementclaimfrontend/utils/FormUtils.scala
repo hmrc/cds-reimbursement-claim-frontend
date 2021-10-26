@@ -24,9 +24,9 @@ import play.api.data.format.{Formats, Formatter}
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{FormError, Forms, Mapping}
 
-import scala.math.BigDecimal.{RoundingMode, valueOf}
-import scala.util.control.Exception
+import scala.math.BigDecimal.RoundingMode
 import scala.util.Try
+import scala.util.control.Exception
 
 object FormUtils {
 
