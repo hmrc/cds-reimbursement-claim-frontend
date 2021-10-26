@@ -24,16 +24,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 package object answers {
 
-  type LeadMrn = MRN
-
+  type LeadMrn       = MRN
   type AssociatedMrn = MRN
+
+  type SupportingEvidencesAnswer = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer      = NonEmptyList[Duty]
+  type ClaimsAnswer              = NonEmptyList[Claim]
 
   type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
   type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]
-  type SupportingEvidencesAnswer          = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer               = NonEmptyList[Duty]
   type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
-  type ClaimsAnswer                       = NonEmptyList[Claim]
+  type AssociatedMRNsClaimsAnswer         = NonEmptyList[ClaimsAnswer]
 
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 

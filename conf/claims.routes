@@ -116,5 +116,8 @@ POST        /multiple/check-movement-reference-numbers              uk.gov.hmrc.
 GET         /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDuties(index: Int)
 POST        /multiple/select-duties/:index                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController.selectDutiesSubmit(index: Int)
 
-GET         /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimController.enterClaim(index: Int, taxCode: TaxCode)
-POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimController.enterClaimSubmit(index: Int, taxCode: TaxCode)
+GET         /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.enterClaim(index: Int, taxCode: TaxCode)
+POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.enterClaimSubmit(index: Int, taxCode: TaxCode)
+
+GET         /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummary()
+POST        /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummarySubmit()
