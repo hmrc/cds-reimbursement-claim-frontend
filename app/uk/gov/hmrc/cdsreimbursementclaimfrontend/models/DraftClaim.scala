@@ -91,12 +91,12 @@ final case class DraftClaim(
   }
 
   object Declarations
-      extends LeadAndAssociatedItems[DisplayDeclaration](displayDeclaration, associatedMRNsDeclarationAnswer)
+      extends DraftClaim.LeadAndAssociatedItems[DisplayDeclaration](displayDeclaration, associatedMRNsDeclarationAnswer)
 
   object DutiesSelections
-      extends LeadAndAssociatedItemList[Duty](dutiesSelectedAnswer, associatedMRNsDutiesSelectedAnswer)
+      extends DraftClaim.LeadAndAssociatedItemList[Duty](dutiesSelectedAnswer, associatedMRNsDutiesSelectedAnswer)
 
-  object Claims extends LeadAndAssociatedItemList[Claim](claimsAnswer, associatedMRNsClaimsAnswer)
+  object Claims extends DraftClaim.LeadAndAssociatedItemList[Claim](claimsAnswer, associatedMRNsClaimsAnswer)
 
 }
 
@@ -106,38 +106,32 @@ object DraftClaim {
 
   implicit val eq: Eq[DraftClaim]          = Eq.fromUniversalEquals
   implicit val format: OFormat[DraftClaim] = derived.oformat()
-}
 
-class LeadAndAssociatedItems[A](leadItem: => Option[A], associatedItems: => Option[NonEmptyList[A]]) {
+  class LeadAndAssociatedItems[A](leadItem: => Option[A], associatedItems: => Option[NonEmptyList[A]]) {
 
-  lazy val list: List[A] = {
-    leadItem match {
-      case Some(x) =>
-        val xs = associatedItems.map(_.toList).getOrElse(Nil)
-        x :: xs
-      case None    =>
-        Nil
+    lazy val list: List[A] = {
+      leadItem.toList ++ associatedItems.toList.flatMap(_.toList)
+
     }
 
+    def get(index: Int): Option[A] =
+      list.get(index.toLong)
   }
 
-  def get(index: Int): Option[A] =
-    list.get(index.toLong)
-}
+  class LeadAndAssociatedItemList[A](
+    leadItem: => Option[NonEmptyList[A]],
+    associatedItems: => Option[NonEmptyList[NonEmptyList[A]]]
+  ) {
 
-class LeadAndAssociatedItemList[A](
-  leadItem: => Option[NonEmptyList[A]],
-  associatedItems: => Option[NonEmptyList[NonEmptyList[A]]]
-) {
+    lazy val list: List[List[A]] = {
+      val x  = leadItem.map(_.toList).getOrElse(Nil)
+      val xs = associatedItems
+        .map(_.map(_.toList).toList)
+        .getOrElse(Nil)
+      x :: xs
+    }
 
-  lazy val list: List[List[A]] = {
-    val x  = leadItem.map(_.toList).getOrElse(Nil)
-    val xs = associatedItems
-      .map(_.map(_.toList).toList)
-      .getOrElse(Nil)
-    x :: xs
+    def get(index: Int): Option[List[A]] =
+      list.get(index.toLong)
   }
-
-  def get(index: Int): Option[List[A]] =
-    list.get(index.toLong)
 }

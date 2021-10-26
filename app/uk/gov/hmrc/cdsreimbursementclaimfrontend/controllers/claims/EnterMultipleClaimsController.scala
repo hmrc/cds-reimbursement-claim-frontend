@@ -108,15 +108,13 @@ class EnterMultipleClaimsController @Inject() (
     }
   }
 
-  val checkClaimSummary: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      Ok
-    }
+  val checkClaimSummary: Action[AnyContent] = Action {
+    Ok
+  }
 
-  val checkClaimSummarySubmit: Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      Ok
-    }
+  val checkClaimSummarySubmit: Action[AnyContent] = Action {
+    Ok
+  }
 
   private def whenAuthenticatedAndValidRequest(mrnIndex: Int, taxCode: TaxCode)(
     body: RequestWithSessionData[_] => FillingOutClaim => MRN => List[Claim] => Claim => Future[Result]
