@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxSemigroup
 import cats.syntax.eq.catsSyntaxEq
 import julienrf.json.derived
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer.ReimbursementClaimOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType, DutyTypes, TaxCode, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer.ReimbursementClaimOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType, DutyTypes, ReimbursementClaim, TaxCode, TaxCodes}
 
 final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
 
@@ -40,8 +40,8 @@ final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map
       )
 
     for {
-      combinedTaxCodeClaims <- reimbursementClaims.values.reduceOption((x, y) => x |+| y)
-      answer                <- NonEmptyList.fromList(combinedTaxCodeClaims.map(toClaim).toList)
+      combinedReimbursements <- reimbursementClaims.values.reduceOption((x, y) => x |+| y)
+      answer                 <- NonEmptyList.fromList(combinedReimbursements.map(toClaim).toList)
     } yield answer
   }
 }

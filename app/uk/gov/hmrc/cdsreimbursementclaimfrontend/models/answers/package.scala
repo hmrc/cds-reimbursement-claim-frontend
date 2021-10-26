@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.data.{NonEmptyList, NonEmptyMap}
+import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 package object answers {
 
@@ -29,13 +28,12 @@ package object answers {
 
   type AssociatedMrn = MRN
 
-  type AssociatedMRNsAnswer                         = NonEmptyList[AssociatedMrn]
-  type AssociatedMRNsDeclarationAnswer              = NonEmptyList[DisplayDeclaration]
-  type SupportingEvidencesAnswer                    = NonEmptyList[UploadDocument]
-  type DutiesSelectedAnswer                         = NonEmptyList[Duty]
-  type AssociatedMRNsDutiesSelectedAnswer           = NonEmptyList[DutiesSelectedAnswer]
-  type SelectedDutiesAndTaxCodesReimbursementAnswer = NonEmptyMap[DutyType, SelectedTaxCodesReimbursementAnswer]
-  type ClaimsAnswer                                 = NonEmptyList[Claim]
+  type AssociatedMRNsAnswer               = NonEmptyList[AssociatedMrn]
+  type AssociatedMRNsDeclarationAnswer    = NonEmptyList[DisplayDeclaration]
+  type SupportingEvidencesAnswer          = NonEmptyList[UploadDocument]
+  type DutiesSelectedAnswer               = NonEmptyList[Duty]
+  type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
+  type ClaimsAnswer                       = NonEmptyList[Claim]
 
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 

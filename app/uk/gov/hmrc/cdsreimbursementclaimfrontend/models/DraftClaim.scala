@@ -21,14 +21,13 @@ import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementClaimAnswer, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 
 import java.util.UUID
 
@@ -46,9 +45,11 @@ final case class DraftClaim(
   basisOfClaimAnswer: Option[BasisOfClaim] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
+  //
   dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
   dutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
   reimbursementClaimAnswer: Option[ReimbursementClaimAnswer] = None,
+  //
   commoditiesDetailsAnswer: Option[CommodityDetails] = None,
   claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
@@ -60,8 +61,8 @@ final case class DraftClaim(
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
-  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None
-  //selectedDutiesAndTaxCodesReimbursementAnswer: Option[SelectedDutiesAndTaxCodesReimbursementAnswer] = None
+  associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None,
+  selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =

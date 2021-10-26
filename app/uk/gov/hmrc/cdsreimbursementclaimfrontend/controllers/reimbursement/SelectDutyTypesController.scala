@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -26,12 +25,12 @@ import play.api.data.Forms.{list, mapping, nonEmptyText}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyTypesController.selectDutyTypesForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, DutyTypes, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -55,37 +54,41 @@ class SelectDutyTypesController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[DutyTypesAnswer] = _.dutyTypesSelectedAnswer
+  implicit val dataExtractor: DraftClaim => Option[SelectedDutyTaxCodesReimbursementAnswer] =
+    _.selectedDutyTaxCodesReimbursementAnswer
 
   def showDutyTypes(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[DutyTypesAnswer] { (_, answer) =>
-      answer.fold(Ok(selectDutyTypesPage(selectDutyTypesForm)))(dutyType =>
-        Ok(selectDutyTypesPage(selectDutyTypesForm.fill(dutyType)))
+    withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
+      Ok(
+        selectDutyTypesPage(
+          answer.map(_.value.keys.toList).foldLeft(selectDutyTypesForm)(_.fill(_))
+        )
       )
     }
   }
 
   def submitDutyTypes(): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
-      withAnswers[DutyTypesAnswer] { (fillingOutClaim, answer) =>
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, answer) =>
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
-            selectedAnswer =>
-              if (answer.fold(false)(selectedAnswer === _))
-                Redirect(reimbursementRoutes.SelectDutyCodesController.start())
-              else {
-                val updatedJourney =
-                  FillingOutClaim.from(fillingOutClaim)(_.copy(dutyTypesSelectedAnswer = Some(selectedAnswer)))
+            selectedDuties => {
+              val updatedAnswer =
+                answer.getOrElse(SelectedDutyTaxCodesReimbursementAnswer.none).updateFrom(selectedDuties)
 
-                EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                  .leftMap(_ => Error("could not update session"))
-                  .fold(
-                    logAndDisplayError("could not get duty types selected"),
-                    _ => Redirect(reimbursementRoutes.SelectDutyCodesController.start())
-                  )
-              }
+              val updatedJourney =
+                FillingOutClaim
+                  .from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = Some(updatedAnswer)))
+
+              EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                .leftMap(_ => Error("could not update session"))
+                .fold(
+                  logAndDisplayError("could not get duty types selected"),
+                  _ => Redirect(reimbursementRoutes.SelectDutyCodesController.iterate())
+                )
+            }
           )
       }
     }
@@ -93,17 +96,17 @@ class SelectDutyTypesController @Inject() (
 
 object SelectDutyTypesController {
 
-  def selectDutyTypesForm: Form[DutyTypesAnswer] = Form(
+  lazy val selectDutyTypesForm: Form[List[DutyType]] = Form(
     mapping(
       "select-duty-types" -> list(
         mapping(
           "" -> nonEmptyText
             .verifying(
-              "invalid duty type code",
+              "error.invalid",
               code => DutyTypes has code
             )
         )(DutyType.apply)(DutyType.unapply)
       ).verifying("error.required", _.nonEmpty)
-    )(DutyTypesAnswer(_))(dutyTypesAnswer => Some(dutyTypesAnswer.dutyTypesSelected))
+    )(identity)(Some(_))
   )
 }

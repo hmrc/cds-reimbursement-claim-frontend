@@ -56,7 +56,7 @@ class SelectDutyCodesController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[DutyCodesAnswer] = _.dutyCodesSelectedAnswer
 
-  def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[DutyCodesAnswer] { (fillingOutClaim, answer) =>
       fillingOutClaim.draftClaim.dutyTypesSelectedAnswer
         .fold(

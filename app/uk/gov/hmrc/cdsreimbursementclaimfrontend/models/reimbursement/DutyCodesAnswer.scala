@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.Eq
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, ReimbursementClaim, TaxCode}
 
 final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 

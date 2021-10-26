@@ -90,7 +90,7 @@ object WelshStringOps {
 
     @scala.annotation.tailrec
     private def isBefore(l1: List[Int], l2: List[Int]): Boolean =
-      (l1 -> l2) match {
+      l1 -> l2 match {
         case (h1 :: Nil, h2 :: Nil) => h1 < h2
         case (h1 :: Nil, h2 :: _)   => h1 <= h2
         case (h1 :: _, h2 :: Nil)   => h1 < h2

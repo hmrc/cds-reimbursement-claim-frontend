@@ -85,6 +85,7 @@ object CompleteClaim {
             maybeScheduledDocument,
             maybeAssociatedMRNs,
             _,
+            _,
             _
           ) =>
         (

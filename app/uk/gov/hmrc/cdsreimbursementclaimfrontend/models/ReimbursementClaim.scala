@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
 import cats.kernel.Semigroup
@@ -22,11 +22,11 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class ReimbursementClaim(paidAmount: BigDecimal, shouldOfPaid: BigDecimal) {
 
-  val refundTotal: BigDecimal = paidAmount - shouldOfPaid
+  lazy val refundTotal: BigDecimal = paidAmount - shouldOfPaid
 
-  def isBlank: Boolean = paidAmount === 0 && shouldOfPaid === 0
+  lazy val isBlank: Boolean = paidAmount === 0 && shouldOfPaid === 0
 
-  def isValid: Boolean = paidAmount > shouldOfPaid
+  lazy val isValid: Boolean = paidAmount > shouldOfPaid
 }
 
 object ReimbursementClaim {
