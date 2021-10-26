@@ -82,7 +82,10 @@ object DraftClaimGen {
       importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
-      reimbursementMethodAnswer = reimbursementMethodAnswer,
+      reimbursementMethodAnswer =
+        if (selectNumberOfClaimsAnswer === SelectNumberOfClaimsAnswer.Individual)
+          reimbursementMethodAnswer
+        else None,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
       associatedMRNsAnswer = associatedMRNsAnswer
     )

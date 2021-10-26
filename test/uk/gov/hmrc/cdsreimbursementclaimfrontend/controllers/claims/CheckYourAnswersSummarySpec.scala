@@ -59,13 +59,7 @@ abstract class CheckYourAnswersSummarySpec
   protected def genData(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): (SessionData, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val initialClaim        = sample(genValidDraftClaim(selectNumberOfClaimsAnswer))
-    val claim               =
-      if (
-        selectNumberOfClaimsAnswer != SelectNumberOfClaimsAnswer.Individual
-      ) // Only individual journeys are currently eligible for CMA
-        initialClaim.copy(reimbursementMethodAnswer = None)
-      else initialClaim
+    val claim               = sample(genValidDraftClaim(selectNumberOfClaimsAnswer))
     val fillingOutClaim     = FillingOutClaim(ggCredId, signedInUserDetails, claim)
     val session             = SessionData.empty.copy(journeyStatus = Some(fillingOutClaim))
     (session, claim)
