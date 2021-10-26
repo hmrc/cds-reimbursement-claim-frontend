@@ -61,7 +61,7 @@ class EnterReimbursementClaimController @Inject() (
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, answer) =>
       fillingOutClaim.draftClaim.dutyCodesSelectedAnswer
         .fold(
-          Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
+          Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.iterate()))
         ) { dutyCodesAnswer =>
           val reimbursementClaimAnswer: ReimbursementClaimAnswer =
             answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))

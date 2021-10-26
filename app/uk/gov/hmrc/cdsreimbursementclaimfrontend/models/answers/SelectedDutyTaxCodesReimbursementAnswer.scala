@@ -24,17 +24,12 @@ import scala.collection.SortedMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
-) extends AnyVal {
+) extends AnyVal
 
-  def updateFrom(selectedDuties: List[DutyType]): SelectedDutyTaxCodesReimbursementAnswer = {
-    // remove
-
-
-    // fo
-  }
-}
-
+@SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
 object SelectedDutyTaxCodesReimbursementAnswer {
+
+  // Ordering
 
   private val dutyTypesRankMap = DutyTypes.all.zipWithIndex.toMap
   private val taxCodesRankMap  = DutyTypes.all.map(_.taxCodes).reduce(_ ++ _).toSet.zipWithIndex.toMap
@@ -44,6 +39,8 @@ object SelectedDutyTaxCodesReimbursementAnswer {
 
   implicit val taxCodesOrdering: Ordering[TaxCode] = (a: TaxCode, b: TaxCode) =>
     taxCodesRankMap(a) compare taxCodesRankMap(b)
+
+  // Formats
 
   implicit val sortedTaxCodeReimbursementMapFormat: Format[SortedMap[TaxCode, Reimbursement]] =
     SortedMapFormat[TaxCode, Reimbursement](TaxCode(_), _.value)
@@ -63,8 +60,25 @@ object SelectedDutyTaxCodesReimbursementAnswer {
         sortedDutyTaxCodeReimbursementMapFormat.writes(answer.value)
     }
 
+  // Construction
+
   val none: SelectedDutyTaxCodesReimbursementAnswer =
     SelectedDutyTaxCodesReimbursementAnswer(
       SortedMap.empty[DutyType, SortedMap[TaxCode, Reimbursement]]
     )
+
+  def buildFrom(selectedDuties: List[DutyType]): Builder =
+    Builder(selectedDuties)
+
+  final case class Builder(selectedDuties: List[DutyType]) extends AnyVal {
+
+    def synchronizingWith(other: SelectedDutyTaxCodesReimbursementAnswer): SelectedDutyTaxCodesReimbursementAnswer =
+      SelectedDutyTaxCodesReimbursementAnswer(
+        SortedMap(
+          selectedDuties.map(selectedDuty =>
+            selectedDuty -> other.value.getOrElse(selectedDuty, SortedMap.empty[TaxCode, Reimbursement])
+          ): _*
+        )
+      )
+  }
 }

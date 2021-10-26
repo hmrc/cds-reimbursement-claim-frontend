@@ -62,7 +62,7 @@ class CheckReimbursementClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
 
       maybeReimbursementClaimAnswer.fold(
-        Redirect(reimbursementRoutes.SelectDutyCodesController.start())
+        Redirect(reimbursementRoutes.SelectDutyCodesController.iterate())
       )(answer => Ok(checkReimbursementClaim(whetherDutiesCorrectForm, answer)))
     }
   }
@@ -73,7 +73,7 @@ class CheckReimbursementClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
 
       maybeReimbursementClaimAnswer.fold(
-        Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
+        Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.iterate()))
       )(answer =>
         whetherDutiesCorrectForm
           .bindFromRequest()

@@ -61,7 +61,7 @@ class SelectDutyTypesController @Inject() (
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, answer) =>
       Ok(
         selectDutyTypesPage(
-          answer.map(_.value.keys.toList).foldLeft(selectDutyTypesForm)(_.fill(_))
+          answer.map(_.value.keys.toList).fold(selectDutyTypesForm)(selectDutyTypesForm.fill)
         )
       )
     }
@@ -69,14 +69,16 @@ class SelectDutyTypesController @Inject() (
 
   def submitDutyTypes(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, answer) =>
+      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
         selectDutyTypesForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedDuties => {
+              val previousAnswer = maybeAnswer getOrElse SelectedDutyTaxCodesReimbursementAnswer.none
+
               val updatedAnswer =
-                answer.getOrElse(SelectedDutyTaxCodesReimbursementAnswer.none).updateFrom(selectedDuties)
+                SelectedDutyTaxCodesReimbursementAnswer buildFrom selectedDuties synchronizingWith previousAnswer
 
               val updatedJourney =
                 FillingOutClaim
