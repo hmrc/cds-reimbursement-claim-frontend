@@ -229,7 +229,15 @@ class EnterAssociatedMrnControllerSpec
       }
 
       "accept the same MRN when changing an existing" in {
-        val displayDeclaration = sample[DisplayDeclaration]
+        val eori: Eori         = sample[Eori]
+        val declarantDetails   = sample[DeclarantDetails].copy(declarantEORI = eori.value)
+        val consigneeDetails   = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
+        val displayDeclaration = Functor[Id].map(sample[DisplayDeclaration])(dd =>
+          dd.copy(displayResponseDetail =
+            dd.displayResponseDetail
+              .copy(consigneeDetails = Some(consigneeDetails), declarantDetails = declarantDetails)
+          )
+        )
 
         forAll { (leadMrn: MRN, mrn: MRN, mrns: List[MRN]) =>
           val associatedMRNsAnswer = mrn +: mrns
@@ -242,7 +250,8 @@ class EnterAssociatedMrnControllerSpec
             leadMrn,
             Some(SelectNumberOfClaimsAnswer.Multiple),
             Some(displayDeclaration),
-            associatedDeclarations
+            associatedDeclarations,
+            eori = Some(eori)
           )
 
           inSequence {
