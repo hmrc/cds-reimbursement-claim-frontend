@@ -26,8 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisF
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, SelectNumberOfClaimsAnswer}
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
@@ -56,7 +57,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
               s"$checkYourAnswersKey.contact-details.h2"
             )
-          ).flatMap(_.toList) ++ Seq(
+          ).flatMap(_.toList) ++ reimbursementMethodHeaders(claim.reimbursementMethodAnswer) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
             s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
@@ -85,7 +86,10 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
               messages(s"$checkYourAnswersKey.basis.l0"),
               messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
             )
-          }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
+          }.toList ++ reimbursementMethodSummaries(
+            claim.reimbursementMethodAnswer,
+            claim.bankAccountDetailsAnswer
+          ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
               s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
@@ -190,4 +194,52 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
       )
     }
   }
+
+  private def reimbursementMethodHeaders(
+    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer]
+  ): Seq[String] =
+    reimbursementMethodAnswer match {
+      case Some(CurrentMonthAdjustment) => Seq(s"$checkYourAnswersKey.reimbursement-method.h2")
+      case Some(BankAccountTransfer)    =>
+        Seq(s"$checkYourAnswersKey.reimbursement-method.h2", s"$checkYourAnswersKey.bank-details.h2")
+      case _                            => Seq(s"$checkYourAnswersKey.bank-details.h2")
+    }
+
+  private def reimbursementMethodSummaries(
+    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
+    bankDetails: Option[BankAccountDetails]
+  ): Seq[(String, String)] =
+    (reimbursementMethodAnswer, bankDetails) match {
+      case (Some(CurrentMonthAdjustment), _)                     =>
+        Seq(
+          (
+            messages(s"$checkYourAnswersKey.reimbursement-method.label"),
+            messages(s"$checkYourAnswersKey.reimbursement-method.cma")
+          )
+        )
+      case (Some(BankAccountTransfer), Some(bankAccountDetails)) =>
+        Seq(
+          (
+            messages(s"$checkYourAnswersKey.reimbursement-method.label"),
+            messages(s"$checkYourAnswersKey.reimbursement-method.bt")
+          )
+        ) ++ bankAccountDetailsSummaries(bankAccountDetails)
+      case (None, Some(bankAccountDetails))                      =>
+        bankAccountDetailsSummaries(bankAccountDetails)
+    }
+
+  private def bankAccountDetailsSummaries(bankAccountDetails: BankAccountDetails): Seq[(String, String)] = Seq(
+    (
+      messages(s"$checkYourAnswersKey.bank-details.account-name.label"),
+      bankAccountDetails.accountName.value
+    ),
+    (
+      messages(s"$checkYourAnswersKey.bank-details.sort-code.label"),
+      bankAccountDetails.sortCode.value
+    ),
+    (
+      messages(s"$checkYourAnswersKey.bank-details.account-number.label"),
+      bankAccountDetails.accountNumber.value
+    )
+  )
 }
