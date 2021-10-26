@@ -31,7 +31,14 @@ final case class Claim(
   paymentMethod: String = PaymentMethod.`001`,
   paymentReference: String = PaymentReference.notApplicable,
   isFilled: Boolean = false
-)
+) {
+
+  def correctedAmount: BigDecimal = paidAmount - claimAmount
+
+  def fillWithCorrectedAmount(correctedAmount: BigDecimal): Claim =
+    copy(isFilled = true, claimAmount = paidAmount - correctedAmount)
+
+}
 
 object Claim {
 
