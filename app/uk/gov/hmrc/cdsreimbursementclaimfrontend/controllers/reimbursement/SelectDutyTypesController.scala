@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 import cats.data.EitherT
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms.{list, mapping, nonEmptyText}
 import play.api.mvc._
@@ -45,7 +44,6 @@ class SelectDutyTypesController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  val config: Configuration,
   selectDutyTypesPage: pages.select_duty_types
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -75,6 +73,7 @@ class SelectDutyTypesController @Inject() (
           .fold(
             formWithErrors => BadRequest(selectDutyTypesPage(formWithErrors)),
             selectedDuties => {
+
               val previousAnswer = maybeAnswer getOrElse SelectedDutyTaxCodesReimbursementAnswer.none
 
               val updatedAnswer =

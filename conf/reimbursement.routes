@@ -5,7 +5,7 @@ GET         /scheduled/select-duties/start                          uk.gov.hmrc.
 GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)
 POST        /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
 
-GET         /scheduled/select-duties/reimbursement-claim/start      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.start()
+GET         /scheduled/select-duties/reimbursement-claim/start      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.iterate()
 GET         /scheduled/select-duties/:dutyType/:dutyCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.showReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode)
 POST        /scheduled/select-duties/:dutyType/:dutyCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.submitReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode)
 

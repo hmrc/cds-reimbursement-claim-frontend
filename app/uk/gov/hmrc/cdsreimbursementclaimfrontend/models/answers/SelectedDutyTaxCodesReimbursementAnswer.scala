@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import play.api.libs.json.{Format, JsResult, JsValue}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{dutyTypesRankMap, taxCodesOrdering}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, Reimbursement, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
@@ -24,7 +25,26 @@ import scala.collection.SortedMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
-) extends AnyVal
+) extends AnyVal {
+
+  def getTaxCodes(dutyType: DutyType): List[TaxCode] =
+    value.get(dutyType).toList.flatMap(_.keys.toList)
+
+  def reapply(taxCodes: List[TaxCode])(dutyType: DutyType): SelectedDutyTaxCodesReimbursementAnswer = {
+    val currentlySelectedTaxCodes = value(dutyType)
+
+    val updatedTaxCodesSelection = SortedMap(
+      taxCodes.map(taxCode => taxCode -> currentlySelectedTaxCodes.getOrElse(taxCode, Reimbursement.blank)): _*
+    )
+
+    SelectedDutyTaxCodesReimbursementAnswer(
+      value - dutyType + (dutyType -> updatedTaxCodesSelection)
+    )
+  }
+
+  def findNextSelectedDutyAfter(previous: DutyType): Option[DutyType] =
+    DutyTypes.all.drop(dutyTypesRankMap(previous) + 1).find(value.contains)
+}
 
 @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
 object SelectedDutyTaxCodesReimbursementAnswer {

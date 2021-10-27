@@ -86,6 +86,7 @@ object CompleteClaim {
             maybeAssociatedMRNs,
             _,
             _,
+            _,
             _
           ) =>
         (
