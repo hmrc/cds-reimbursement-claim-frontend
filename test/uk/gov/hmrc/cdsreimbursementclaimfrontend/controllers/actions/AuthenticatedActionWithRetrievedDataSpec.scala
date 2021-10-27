@@ -253,7 +253,7 @@ class AuthenticatedActionWithRetrievedDataSpec
 
             val redirectTo = redirectLocation(result)
             redirectTo shouldBe Some(
-              s"$signInUrl?continue_url=${urlEncode(selfBaseUrl + requestUri)}&origin=$origin"
+              s"$signInUrl?continue=${urlEncode(selfBaseUrl + requestUri)}&origin=$origin"
             )
           }
         }
