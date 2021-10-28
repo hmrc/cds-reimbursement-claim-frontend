@@ -19,23 +19,25 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, Reimbursement, TaxCode}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer._
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, SummaryList, SummaryListRow}
 
-class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode, Reimbursement])] {
+import scala.collection.SortedMap
 
-  def render(key: String, answer: (DutyType, Map[TaxCode, Reimbursement]))(implicit
+class TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] {
+
+  def render(key: String, answer: (DutyType, SortedMap[TaxCode, Reimbursement]))(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
-    val dutyType       = answer._1
-    val reimbursements = answer._2
+    val duty                      = answer._1
+    val claimsMadeAgainstTaxCodes = answer._2
 
     SummaryList(
-      reimbursements.map { taxCodeWithClaim: (TaxCode, Reimbursement) =>
+      claimsMadeAgainstTaxCodes.map { taxCodeWithClaim: (TaxCode, Reimbursement) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 
@@ -46,7 +48,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterReimbursementClaimController.enterClaim(dutyType, taxCode).url}",
+                  href = s"${routes.EnterReimbursementClaimController.enterClaim(duty, taxCode).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
                 )
@@ -55,11 +57,11 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
           )
         )
       }.toSeq ++ (
-        if (reimbursements.size > 1) {
+        if (claimsMadeAgainstTaxCodes.size > 1) {
           Seq(
             SummaryListRow(
-              key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${dutyType.repr}")))),
-              value = Value(Text(reimbursements.subtotal.toPoundSterlingString))
+              key = Key(Text(messages(s"$key.duty-code.total.key", messages(s"duty-type.${duty.repr}")))),
+              value = Value(Text(claimsMadeAgainstTaxCodes.subtotal.toPoundSterlingString))
             )
           )
         } else Nil

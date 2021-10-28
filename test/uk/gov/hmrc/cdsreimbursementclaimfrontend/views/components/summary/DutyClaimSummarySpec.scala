@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummary.{EUDutyClaimSummary, ExciseDutyClaimSummary, UKDutyClaimSummary}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.{genClaims, totalOf}
 
 class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
@@ -33,19 +33,19 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
       forAll(genClaims(TaxCodes.UK), genClaims(TaxCodes.EU), genClaims(TaxCodes.excise)) {
         (ukClaims, euClaims, exciseClaims) =>
           val answer    = NonEmptyList.fromListUnsafe(ukClaims ++ euClaims ++ exciseClaims)
-          val summaries = DutyClaimSummary.forMultiple(answer)
+          val summaries = DutyTypeSummary.buildFrom(answer)
 
           summaries should contain allOf (
-            UKDutyClaimSummary(totalOf(ukClaims)),
-            EUDutyClaimSummary(totalOf(euClaims)),
-            ExciseDutyClaimSummary(totalOf(exciseClaims))
+            UKDutyTypeSummary(totalOf(ukClaims)),
+            EUDutyTypeSummary(totalOf(euClaims)),
+            ExciseDutyTypeSummary(totalOf(exciseClaims))
           )
       }
     }
 
     "exclude empty summaries" in {
       forAll { taxCode: TaxCode =>
-        DutyClaimSummary.forMultiple(
+        DutyTypeSummary.buildFrom(
           NonEmptyList.one(
             Claim(
               taxCode = taxCode,

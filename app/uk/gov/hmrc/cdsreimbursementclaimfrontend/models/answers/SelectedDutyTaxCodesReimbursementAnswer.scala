@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.implicits.catsSyntaxApply
+import cats.implicits.{catsSyntaxApply, catsSyntaxSemigroup}
 import play.api.libs.json.{Format, JsResult, JsValue}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{dutyTypesRankMap, taxCodesOrdering}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{SelectedTaxCodesReimbursementOps, dutyTypesRankMap, taxCodesOrdering}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, Reimbursement, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
@@ -28,32 +28,22 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
 ) extends AnyVal {
 
-  /** @param dutyType
-    * @return
-    */
+  /** Gets selected tax codes for duty */
   def getTaxCodes(dutyType: DutyType): List[TaxCode] =
     value.get(dutyType).toList.flatMap(_.keys.toList)
 
-  /** @param previous
-    * @return
-    */
+  /** Finds next duty following an order */
   def findNextSelectedDutyAfter(previous: DutyType): Option[DutyType] =
     DutyTypes.all.drop(dutyTypesRankMap(previous) + 1).find(value.contains)
 
-  /** @return
-    */
+  /** Finds next available unclaimed reimbursement */
   def findUnclaimedReimbursement: Option[(DutyType, TaxCode)] =
     for {
       unclaimedReimbursements <- value.find(_._2.exists(_._2.isUnclaimed))
       firstAvailable          <- unclaimedReimbursements._2.find(_._2.isUnclaimed)
     } yield (unclaimedReimbursements._1, firstAvailable._1)
 
-  /** Updates tax codes selection
-    *
-    * @param taxCodes Selected tax codes
-    * @param dutyType the duty to assign selection against
-    * @return updated  answer
-    */
+  /** Updates tax codes selection for concrete duty */
   def reapply(taxCodes: List[TaxCode])(dutyType: DutyType): SelectedDutyTaxCodesReimbursementAnswer = {
     val currentlySelectedTaxCodes = value(dutyType)
 
@@ -66,24 +56,26 @@ final case class SelectedDutyTaxCodesReimbursementAnswer(
     )
   }
 
-  /** Updates reimbursement claim for given duty and tax code
-    *
-    * @param duty Selected duty to make claim against
-    * @param taxCode selected tax code to make claim against
-    * @param claim the claim to update
-    * @return updated answer
-    */
+  /** Updates claim for given duty and tax code */
   def update(duty: DutyType, taxCode: TaxCode, claim: Reimbursement): Option[SelectedDutyTaxCodesReimbursementAnswer] =
     for {
       current <- value.get(duty)
       updated <- current.get(taxCode) *> Some(current - taxCode + (taxCode -> claim))
     } yield SelectedDutyTaxCodesReimbursementAnswer(value - duty + (duty -> updated))
+
+  /** Summarising same tax code reimbursements together */
+  def combine: Option[Map[TaxCode, Reimbursement]]                                                                    =
+    value.values.map(_.toMap).reduceOption((x, y) => x |+| y)
+
+  /** Calculates claimed amount total for all selected tax codes */
+  def total: BigDecimal =
+    value.values.foldLeft(BigDecimal(0))((amount, reimbursements) => amount + reimbursements.subtotal)
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
 object SelectedDutyTaxCodesReimbursementAnswer {
 
-  // ordering
+  // Ordering
 
   private val dutyTypesRankMap = DutyTypes.all.zipWithIndex.toMap
   private val taxCodesRankMap  = DutyTypes.all.map(_.taxCodes).reduce(_ ++ _).toSet.zipWithIndex.toMap
@@ -94,7 +86,7 @@ object SelectedDutyTaxCodesReimbursementAnswer {
   implicit val taxCodesOrdering: Ordering[TaxCode] = (a: TaxCode, b: TaxCode) =>
     taxCodesRankMap(a) compare taxCodesRankMap(b)
 
-  // formats
+  // Formats
 
   implicit val sortedTaxCodeReimbursementMapFormat: Format[SortedMap[TaxCode, Reimbursement]] =
     SortedMapFormat[TaxCode, Reimbursement](TaxCode(_), _.value)
@@ -114,7 +106,18 @@ object SelectedDutyTaxCodesReimbursementAnswer {
         sortedDutyTaxCodeReimbursementMapFormat.writes(answer.value)
     }
 
-  // construction
+  // Extensions
+
+  implicit class SelectedTaxCodesReimbursementOps(val value: SortedMap[TaxCode, Reimbursement]) extends AnyVal {
+
+    /** Calculates claimed amount total against given tax code */
+    def subtotal: BigDecimal =
+      value.values.foldLeft(BigDecimal(0)) { (total, claim) =>
+        total + claim.refundTotal
+      }
+  }
+
+  // Construction
 
   val none: SelectedDutyTaxCodesReimbursementAnswer =
     SelectedDutyTaxCodesReimbursementAnswer(

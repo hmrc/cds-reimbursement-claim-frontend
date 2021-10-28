@@ -71,9 +71,6 @@ object CompleteClaim {
             maybeBasisForClaim,
             maybeSupportingEvidences,
             _,
-            _,
-            _,
-            _,
             draftCommodityAnswer,
             draftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
@@ -97,41 +94,39 @@ object CompleteClaim {
           validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
           validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer),
           validateScheduledDocumentAnswer(maybeScheduledDocument, typeOfClaim)
-        )
-          .mapN {
-            case (
-                  declarantTypeAnswer,
-                  detailsRegisteredWithCdsAnswer,
-                  supportingEvidenceAnswer,
-                  commodityDetailsAnswer,
-                  importerEoriNumberAnswer,
-                  declarantEoriNumberAnswer,
-                  maybeScheduledDocumentAnswer
-                ) =>
-              CompleteClaim(
-                id = id,
-                movementReferenceNumber = mrn,
-                maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
+        ).mapN {
+          case (
                 declarantTypeAnswer,
                 detailsRegisteredWithCdsAnswer,
-                draftMrnContactDetails,
-                draftMrnContactAddress,
-                maybeBasisForClaim,
-                maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
                 supportingEvidenceAnswer,
                 commodityDetailsAnswer,
-                draftNorthernIrelandAnswer,
-                maybeDisplayDeclaration,
-                maybeDuplicateDisplayDeclaration,
                 importerEoriNumberAnswer,
                 declarantEoriNumberAnswer,
-                claimsAnswer,
-                maybeReimbursementMethodAnswer,
-                maybeScheduledDocumentAnswer,
-                maybeAssociatedMRNs
-              )
-          }
-          .toEither
+                maybeScheduledDocumentAnswer
+              ) =>
+            CompleteClaim(
+              id = id,
+              movementReferenceNumber = mrn,
+              maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
+              declarantTypeAnswer,
+              detailsRegisteredWithCdsAnswer,
+              draftMrnContactDetails,
+              draftMrnContactAddress,
+              maybeBasisForClaim,
+              maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
+              supportingEvidenceAnswer,
+              commodityDetailsAnswer,
+              draftNorthernIrelandAnswer,
+              maybeDisplayDeclaration,
+              maybeDuplicateDisplayDeclaration,
+              importerEoriNumberAnswer,
+              declarantEoriNumberAnswer,
+              claimsAnswer,
+              maybeReimbursementMethodAnswer,
+              maybeScheduledDocumentAnswer,
+              maybeAssociatedMRNs
+            )
+        }.toEither
           .leftMap { errors =>
             Error(
               s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"

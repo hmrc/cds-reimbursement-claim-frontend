@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Reimbursement, TaxCode}
 
 object ClaimsAnswer {
 
@@ -26,4 +26,18 @@ object ClaimsAnswer {
 
   def apply(l: List[Claim]): Option[ClaimsAnswer] =
     NonEmptyList.fromList(l)
+
+  def apply(selectedDutyTaxCodesReimbursements: SelectedDutyTaxCodesReimbursementAnswer): Option[ClaimsAnswer] = {
+
+    def toClaim(taxCodeWithClaim: (TaxCode, Reimbursement)) =
+      Claim(
+        taxCode = taxCodeWithClaim._1,
+        paidAmount = taxCodeWithClaim._2.paidAmount,
+        claimAmount = taxCodeWithClaim._2.shouldOfPaid
+      )
+
+    selectedDutyTaxCodesReimbursements.combine.flatMap { combinedReimbursements =>
+      NonEmptyList.fromList(combinedReimbursements.map(toClaim).toList)
+    }
+  }
 }

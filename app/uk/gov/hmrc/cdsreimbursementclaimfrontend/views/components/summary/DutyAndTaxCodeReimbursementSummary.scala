@@ -19,14 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.govukfrontend.views.Aliases.{SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList}
 
-class ReimbursementTotalSummary extends AnswerSummary[ReimbursementClaimAnswer] {
+class DutyAndTaxCodeReimbursementSummary extends AnswerSummary[SelectedDutyTaxCodesReimbursementAnswer] {
 
-  def render(key: String, answer: ReimbursementClaimAnswer)(implicit
+  def render(key: String, reimbursements: SelectedDutyTaxCodesReimbursementAnswer)(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList =
@@ -34,7 +34,7 @@ class ReimbursementTotalSummary extends AnswerSummary[ReimbursementClaimAnswer] 
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.total"))),
-          value = Value(Text(answer.total.toPoundSterlingString))
+          value = Value(Text(reimbursements.total.toPoundSterlingString))
         )
       )
     )
