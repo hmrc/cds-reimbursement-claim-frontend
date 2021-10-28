@@ -37,12 +37,12 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(form: Form[YesNo], answer: ReimbursementClaimAnswer)(implicit  request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, routes: ReimbursementRoutes)
+@(form: Form[YesNo], answer: ReimbursementClaimAnswer)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, routes: ReimbursementRoutes)
 
 @key = @{"check-claim-summary"}
 @title = @{messages(s"$key.title")}
 
-@postAction = @{reimbursementRoutes.CheckReimbursementClaimController.submitReimbursementClaim()}
+@postAction = @{reimbursementRoutes.CheckReimbursementClaimController.submitReimbursements()}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

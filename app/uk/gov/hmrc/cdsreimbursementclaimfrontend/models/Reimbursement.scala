@@ -24,14 +24,14 @@ final case class Reimbursement(paidAmount: BigDecimal, shouldOfPaid: BigDecimal)
 
   lazy val refundTotal: BigDecimal = paidAmount - shouldOfPaid
 
-  lazy val isBlank: Boolean = paidAmount === 0 && shouldOfPaid === 0
+  lazy val isUnclaimed: Boolean = paidAmount === 0 && shouldOfPaid === 0
 
-  lazy val hasValidClaim: Boolean = paidAmount > shouldOfPaid
+  lazy val isValid: Boolean = paidAmount > shouldOfPaid
 }
 
 object Reimbursement {
 
-  val blank: Reimbursement = Reimbursement(paidAmount = 0, shouldOfPaid = 0)
+  val unclaimed: Reimbursement = Reimbursement(paidAmount = 0, shouldOfPaid = 0)
 
   implicit val reimbursementSemigroup: Semigroup[Reimbursement] = (x: Reimbursement, y: Reimbursement) =>
     Reimbursement(
@@ -39,5 +39,5 @@ object Reimbursement {
       shouldOfPaid = x.shouldOfPaid + y.shouldOfPaid
     )
 
-  implicit val reimbursementFormat: OFormat[Reimbursement] = Json.format[Reimbursement]
+  implicit val format: OFormat[Reimbursement] = Json.format[Reimbursement]
 }

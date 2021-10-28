@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import play.api.Configuration
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -45,7 +44,6 @@ class CheckReimbursementClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  val config: Configuration,
   checkReimbursementClaim: pages.check_reimbursement_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -56,18 +54,18 @@ class CheckReimbursementClaimController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
 
-  def showReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def showReimbursements(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
       implicit val routes: ReimbursementRoutes =
         extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
 
-      maybeReimbursementClaimAnswer.fold(
-        Redirect(reimbursementRoutes.SelectDutyCodesController.iterate())
-      )(answer => Ok(checkReimbursementClaim(whetherDutiesCorrectForm, answer)))
+      maybeReimbursementClaimAnswer.fold(Redirect(reimbursementRoutes.SelectDutyCodesController.iterate()))(answer =>
+        Ok(checkReimbursementClaim(whetherDutiesCorrectForm, answer))
+      )
     }
   }
 
-  def submitReimbursementClaim(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+  def submitReimbursements(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
       implicit val routes: ReimbursementRoutes =
         extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Scheduled)
@@ -84,9 +82,9 @@ class CheckReimbursementClaimController @Inject() (
                 val updatedClaim = FillingOutClaim.from(fillingOutClaim)(_.copy(claimsAnswer = answer.toClaimsAnswer))
 
                 EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedClaim))))
-                  .leftMap(_ => Error("could not update session"))
+                  .leftMap(_ => Error("Could not update session"))
                   .fold(
-                    logAndDisplayError("could not update reimbursement claims"),
+                    logAndDisplayError("Could not update reimbursement claims"),
                     _ => Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled))
                   )
               case No  =>
@@ -100,6 +98,5 @@ class CheckReimbursementClaimController @Inject() (
 
 object CheckReimbursementClaimController {
 
-  val whetherDutiesCorrectForm: Form[YesNo] =
-    YesOrNoQuestionForm("check-claim-summary")
+  val whetherDutiesCorrectForm: Form[YesNo] = YesOrNoQuestionForm("check-claim-summary")
 }

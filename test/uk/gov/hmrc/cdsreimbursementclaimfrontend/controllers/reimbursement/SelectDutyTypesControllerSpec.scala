@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, ReimbursementClaim, SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
 
 import scala.concurrent.Future
 
@@ -216,8 +216,8 @@ class SelectDutyTypesControllerSpec
           DutyCodesAnswer(Map(DutyType.UkDuty -> List(TaxCode.A00), DutyType.EuDuty -> List(TaxCode.A50)))
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
           Map(
-            DutyType.UkDuty -> Map(TaxCode.A00 -> ReimbursementClaim(10, 2)),
-            DutyType.EuDuty -> Map(TaxCode.A50 -> ReimbursementClaim(10, 2))
+            DutyType.UkDuty -> Map(TaxCode.A00 -> Reimbursement(10, 2)),
+            DutyType.EuDuty -> Map(TaxCode.A50 -> Reimbursement(10, 2))
           )
         )
 

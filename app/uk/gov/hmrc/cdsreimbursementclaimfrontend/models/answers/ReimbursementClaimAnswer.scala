@@ -23,16 +23,16 @@ import julienrf.json.derived
 import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer.ReimbursementClaimOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType, DutyTypes, ReimbursementClaim, TaxCode, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DutyType, DutyTypes, Reimbursement, TaxCode, TaxCodes}
 
-final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, ReimbursementClaim]]) {
+final case class ReimbursementClaimAnswer(reimbursementClaims: Map[DutyType, Map[TaxCode, Reimbursement]]) {
 
   def total: BigDecimal =
     reimbursementClaims.values.foldLeft(BigDecimal(0))((amount, reimbursement) => amount + reimbursement.subtotal)
 
   def toClaimsAnswer: Option[ClaimsAnswer] = {
 
-    def toClaim(taxCodeWithClaim: (TaxCode, ReimbursementClaim)) =
+    def toClaim(taxCodeWithClaim: (TaxCode, Reimbursement)) =
       Claim(
         taxCode = taxCodeWithClaim._1,
         paidAmount = taxCodeWithClaim._2.paidAmount,
@@ -51,21 +51,21 @@ object ReimbursementClaimAnswer {
   val none: ReimbursementClaimAnswer = ReimbursementClaimAnswer(Map.empty)
 
   def initialise(dutyCodesAnswer: DutyCodesAnswer): ReimbursementClaimAnswer = {
-    val claimsToAnswer: Map[DutyType, Map[TaxCode, ReimbursementClaim]] = dutyCodesAnswer.dutyCodes.map {
+    val claimsToAnswer: Map[DutyType, Map[TaxCode, Reimbursement]] = dutyCodesAnswer.dutyCodes.map {
       dutyTypeToTaxCodeTuple =>
         dutyTypeToTaxCodeTuple._1 -> dutyTypeToTaxCodeTuple._2
-          .map(taxCodeToReimbursementClaimTuple => taxCodeToReimbursementClaimTuple -> ReimbursementClaim.blank)
+          .map(taxCodeToReimbursementClaimTuple => taxCodeToReimbursementClaimTuple -> Reimbursement.unclaimed)
           .toMap
     }
 
     ReimbursementClaimAnswer(claimsToAnswer)
   }
 
-  implicit def dutyPaidAndClaimAmountAnswerFormat: Format[Map[DutyType, Map[TaxCode, ReimbursementClaim]]] =
-    new Format[Map[DutyType, Map[TaxCode, ReimbursementClaim]]] {
-      override def reads(json: JsValue): JsResult[Map[DutyType, Map[TaxCode, ReimbursementClaim]]] =
+  implicit def dutyPaidAndClaimAmountAnswerFormat: Format[Map[DutyType, Map[TaxCode, Reimbursement]]] =
+    new Format[Map[DutyType, Map[TaxCode, Reimbursement]]] {
+      override def reads(json: JsValue): JsResult[Map[DutyType, Map[TaxCode, Reimbursement]]] =
         json
-          .validate[Map[String, Map[String, ReimbursementClaim]]]
+          .validate[Map[String, Map[String, Reimbursement]]]
           .map { stringToStringToDutyPaidAndClaimAmounts =>
             stringToStringToDutyPaidAndClaimAmounts.map { dutyTypeTuple =>
               DutyTypes.find(dutyTypeTuple._1) match {
@@ -82,7 +82,7 @@ object ReimbursementClaimAnswer {
             }
           }
 
-      override def writes(o: Map[DutyType, Map[TaxCode, ReimbursementClaim]]): JsValue =
+      override def writes(o: Map[DutyType, Map[TaxCode, Reimbursement]]): JsValue =
         Json.toJson(
           o.map { dutyTypesTuple =>
             (
@@ -100,18 +100,18 @@ object ReimbursementClaimAnswer {
 
     def isIncompleteReimbursementClaim: Option[(DutyType, TaxCode)] =
       for {
-        blankClaimsPerDutyType <- reimbursementClaimAnswer.reimbursementClaims.find(_._2.exists(_._2.isBlank))
-        firstClaimPerTaxCode   <- blankClaimsPerDutyType._2.find(_._2.isBlank)
+        blankClaimsPerDutyType <- reimbursementClaimAnswer.reimbursementClaims.find(_._2.exists(_._2.isUnclaimed))
+        firstClaimPerTaxCode   <- blankClaimsPerDutyType._2.find(_._2.isUnclaimed)
       } yield (blankClaimsPerDutyType._1, firstClaimPerTaxCode._1)
 
     def updateReimbursementClaim(
       dutyType: DutyType,
       dutyCode: TaxCode,
-      reimbursementClaim: ReimbursementClaim
+      reimbursementClaim: Reimbursement
     ): ReimbursementClaimAnswer = {
-      val codeToReimbursementClaim: Map[TaxCode, ReimbursementClaim]  =
+      val codeToReimbursementClaim: Map[TaxCode, Reimbursement]  =
         reimbursementClaimAnswer.reimbursementClaims(dutyType)
-      val updatedReimbursementClaim: Map[TaxCode, ReimbursementClaim] =
+      val updatedReimbursementClaim: Map[TaxCode, Reimbursement] =
         codeToReimbursementClaim + (dutyCode                                            -> reimbursementClaim)
       ReimbursementClaimAnswer(reimbursementClaimAnswer.reimbursementClaims + (dutyType -> updatedReimbursementClaim))
     }
@@ -123,16 +123,16 @@ object ReimbursementClaimAnswer {
       val dutyTypesToDeleteFromAnswer: Set[DutyType] =
         reimbursementClaimAnswer.reimbursementClaims.keys.toSet.diff(selectedDutyTypes)
 
-      val answerWithDeselectedDutyTypes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      val answerWithDeselectedDutyTypes: Map[DutyType, Map[TaxCode, Reimbursement]] =
         reimbursementClaimAnswer.reimbursementClaims.filterNot(dutyTypeToClaimTuple =>
           dutyTypesToDeleteFromAnswer.contains(dutyTypeToClaimTuple._1)
         )
 
       val dutyTypesToAddToAnswer: Set[DutyType] = selectedDutyTypes.diff(answerWithDeselectedDutyTypes.keys.toSet)
 
-      val newlySelectedDutyTypesWithSelectedTaxCodes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      val newlySelectedDutyTypesWithSelectedTaxCodes: Map[DutyType, Map[TaxCode, Reimbursement]] =
         answerWithDeselectedDutyTypes ++ dutyTypesToAddToAnswer.map(dutyType =>
-          dutyType -> dutyCodesAnswer.dutyCodes(dutyType).map(taxCode => taxCode -> ReimbursementClaim.blank).toMap
+          dutyType -> dutyCodesAnswer.dutyCodes(dutyType).map(taxCode => taxCode -> Reimbursement.unclaimed).toMap
         )
 
       val unchangedDutyTypes: Set[DutyType] =
@@ -150,14 +150,14 @@ object ReimbursementClaimAnswer {
           else false
         }
 
-      val unchangedDutyTypesWithDeselectedTaxCodes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      val unchangedDutyTypesWithDeselectedTaxCodes: Map[DutyType, Map[TaxCode, Reimbursement]] =
         unchangedDutyTypesWithTaxCodesDeselected.map { dutyType =>
           val newTaxCodeSelection     = dutyCodesAnswer.dutyCodes(dutyType).toSet
           val currentTaxCodeSelection = newlySelectedDutyTypesWithSelectedTaxCodes(dutyType).keySet
 
           val unchangedTaxCodes: Set[TaxCode] = currentTaxCodeSelection.diff(newTaxCodeSelection)
 
-          val unchangedTaxCodesWithReimbursementClaim: Set[(TaxCode, ReimbursementClaim)] =
+          val unchangedTaxCodesWithReimbursementClaim: Set[(TaxCode, Reimbursement)] =
             unchangedTaxCodes
               .map(taxCode =>
                 newlySelectedDutyTypesWithSelectedTaxCodes(dutyType).filterNot(taxCodeToReimbursementClaimTuple =>
@@ -173,7 +173,7 @@ object ReimbursementClaimAnswer {
           dutyType -> unchangedTaxCodesWithReimbursementClaim.toMap
         }.toMap
 
-      val answerWithDeselectedTaxCodes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      val answerWithDeselectedTaxCodes: Map[DutyType, Map[TaxCode, Reimbursement]] =
         newlySelectedDutyTypesWithSelectedTaxCodes ++ unchangedDutyTypesWithDeselectedTaxCodes
 
       val unchangedDutyTypesWithAddedTaxCodes: Set[DutyType] =
@@ -183,17 +183,17 @@ object ReimbursementClaimAnswer {
           if (newTaxCodeSelection.size > currentTaxCodeSelection.size) true else false
         }
 
-      val unchangedDutyTypesWithNewlyAddedTaxCodes: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+      val unchangedDutyTypesWithNewlyAddedTaxCodes: Map[DutyType, Map[TaxCode, Reimbursement]] =
         unchangedDutyTypesWithAddedTaxCodes.map { dutyType =>
           val newTaxCodeSelection         = dutyCodesAnswer.dutyCodes(dutyType).toSet
           val currentTaxCodeSelection     = answerWithDeselectedTaxCodes(dutyType).keySet
           val taxCodesToAdd: Set[TaxCode] = newTaxCodeSelection.diff(currentTaxCodeSelection)
 
-          val unchangedTaxCodes: Map[TaxCode, ReimbursementClaim] = answerWithDeselectedTaxCodes(dutyType)
+          val unchangedTaxCodes: Map[TaxCode, Reimbursement] = answerWithDeselectedTaxCodes(dutyType)
 
-          val completeTaxCodes: Map[TaxCode, ReimbursementClaim] = {
-            val taxCodeToReimbursementClaimMap: Map[TaxCode, ReimbursementClaim] =
-              taxCodesToAdd.map(taxCode => taxCode -> ReimbursementClaim.blank).toMap
+          val completeTaxCodes: Map[TaxCode, Reimbursement] = {
+            val taxCodeToReimbursementClaimMap: Map[TaxCode, Reimbursement] =
+              taxCodesToAdd.map(taxCode => taxCode -> Reimbursement.unclaimed).toMap
             taxCodeToReimbursementClaimMap ++ unchangedTaxCodes
           }
 
@@ -208,7 +208,7 @@ object ReimbursementClaimAnswer {
     }
   }
 
-  implicit class ReimbursementClaimOps(val reimbursement: Map[TaxCode, ReimbursementClaim]) extends AnyVal {
+  implicit class ReimbursementClaimOps(val reimbursement: Map[TaxCode, Reimbursement]) extends AnyVal {
 
     def subtotal: BigDecimal =
       reimbursement.values.foldLeft(BigDecimal(0))((total, claim) => total + claim.refundTotal)

@@ -19,15 +19,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, ReimbursementClaim, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, Reimbursement, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer._
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, SummaryList, SummaryListRow}
 
-class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode, ReimbursementClaim])] {
+class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode, Reimbursement])] {
 
-  def render(key: String, answer: (DutyType, Map[TaxCode, ReimbursementClaim]))(implicit
+  def render(key: String, answer: (DutyType, Map[TaxCode, Reimbursement]))(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
@@ -35,7 +35,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
     val reimbursements = answer._2
 
     SummaryList(
-      reimbursements.map { taxCodeWithClaim: (TaxCode, ReimbursementClaim) =>
+      reimbursements.map { taxCodeWithClaim: (TaxCode, Reimbursement) =>
         val taxCode       = taxCodeWithClaim._1
         val reimbursement = taxCodeWithClaim._2
 
@@ -46,7 +46,7 @@ class ReimbursementSubtotalSummary extends AnswerSummary[(DutyType, Map[TaxCode,
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterReimbursementClaimController.showReimbursementClaim(dutyType, taxCode).url}",
+                  href = s"${routes.EnterReimbursementClaimController.enterClaim(dutyType, taxCode).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
                 )

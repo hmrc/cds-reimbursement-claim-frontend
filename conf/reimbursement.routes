@@ -6,11 +6,11 @@ GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.
 POST        /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
 
 GET         /scheduled/select-duties/reimbursement-claim/start      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.iterate()
-GET         /scheduled/select-duties/:dutyType/:dutyCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.showReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode)
-POST        /scheduled/select-duties/:dutyType/:dutyCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.submitReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode)
+GET         /scheduled/select-duties/:dutyType/:taxCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.enterClaim(dutyType: DutyType, taxCode: TaxCode)
+POST        /scheduled/select-duties/:dutyType/:taxCode            uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.submitClaim(dutyType: DutyType, taxCode: TaxCode)
 
-GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.showReimbursementClaim()
-POST        /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.submitReimbursementClaim()
+GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.showReimbursements()
+POST        /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.submitReimbursements()
 
 GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.showReimbursementMethod()
 POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.ReimbursementMethodController.submitReimbursementMethod()

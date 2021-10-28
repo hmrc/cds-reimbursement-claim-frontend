@@ -35,7 +35,7 @@ class TotalReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
   ): SummaryList = {
     val amendCall =
       if (router.journeyBindable === JourneyBindable.Scheduled)
-        reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim()
+        reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()
       else claimsRoutes.EnterClaimController.checkClaimSummary()
 
     val individualClaimSummaries = DutyClaimSummary.forMultiple(claims)

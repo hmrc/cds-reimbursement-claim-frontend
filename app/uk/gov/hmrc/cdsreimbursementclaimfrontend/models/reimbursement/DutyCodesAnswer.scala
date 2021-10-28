@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 
 import cats.Eq
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, ReimbursementClaim, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, Reimbursement, TaxCode}
 
 final case class DutyCodesAnswer(dutyCodes: Map[DutyType, List[TaxCode]])
 
@@ -60,10 +60,10 @@ object DutyCodesAnswer {
     def sortedDutyTypeToDutyCodesMap: Map[DutyType, List[TaxCode]] =
       dutyCodesAnswer.dutyCodes.toSeq.sorted.toMap
 
-    def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, ReimbursementClaim]] =
+    def toReimbursementClaimMap: Map[DutyType, Map[TaxCode, Reimbursement]] =
       dutyCodesAnswer.dutyCodes.map { dutyTypeToDutyCodeMap =>
         dutyTypeToDutyCodeMap._1 -> dutyTypeToDutyCodeMap._2
-          .map(taxCode => taxCode -> ReimbursementClaim.blank)
+          .map(taxCode => taxCode -> Reimbursement.unclaimed)
           .toMap
       }
   }

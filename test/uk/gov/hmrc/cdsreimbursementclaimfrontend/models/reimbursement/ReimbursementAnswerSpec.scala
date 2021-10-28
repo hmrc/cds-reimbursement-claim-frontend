@@ -19,18 +19,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, ReimbursementClaim, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, Reimbursement, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementClaimGen._
 
-class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
+class ReimbursementAnswerSpec extends AnyWordSpec with Matchers {
 
   "Reimbursement Claim Answer Ops" must {
 
     "update the reimbursement claim answer" when {
 
       "a duty type have been deleted" in {
-        val reimbursementClaim = sample[ReimbursementClaim]
+        val reimbursementClaim = sample[Reimbursement]
 
         val dutyCodesAnswer = DutyCodesAnswer(
           Map[DutyType, List[TaxCode]](
@@ -40,25 +40,25 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             ),
-            DutyType.Beer   -> Map[TaxCode, ReimbursementClaim](
+            DutyType.Beer   -> Map[TaxCode, Reimbursement](
               TaxCode.NI440 -> reimbursementClaim
             )
           )
         )
 
         val updatedReimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             )
           )
@@ -69,7 +69,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
       }
 
       "a new duty type have been added" in {
-        val reimbursementClaim = sample[ReimbursementClaim]
+        val reimbursementClaim = sample[Reimbursement]
 
         val dutyCodesAnswer = DutyCodesAnswer(
           Map[DutyType, List[TaxCode]](
@@ -80,26 +80,26 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             )
           )
         )
 
         val updatedReimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             ),
-            DutyType.Beer   -> Map[TaxCode, ReimbursementClaim](
-              TaxCode.NI440 -> ReimbursementClaim.blank
+            DutyType.Beer   -> Map[TaxCode, Reimbursement](
+              TaxCode.NI440 -> Reimbursement.blank
             )
           )
         )
@@ -108,7 +108,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
       }
 
       "a tax code for a duty type has been deleted" in {
-        val reimbursementClaim = sample[ReimbursementClaim]
+        val reimbursementClaim = sample[Reimbursement]
 
         val dutyCodesAnswer = DutyCodesAnswer(
           Map[DutyType, List[TaxCode]](
@@ -118,11 +118,11 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim,
               TaxCode.A90 -> reimbursementClaim
             )
@@ -130,11 +130,11 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val updatedReimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             )
           )
@@ -145,7 +145,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
       }
 
       "a tax code for a duty type has been added" in {
-        val reimbursementClaim = sample[ReimbursementClaim]
+        val reimbursementClaim = sample[Reimbursement]
 
         val dutyCodesAnswer = DutyCodesAnswer(
           Map[DutyType, List[TaxCode]](
@@ -155,24 +155,24 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim
             )
           )
         )
 
         val updatedReimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim,
-              TaxCode.A90 -> ReimbursementClaim.blank
+              TaxCode.A90 -> Reimbursement.blank
             )
           )
         )
@@ -185,7 +185,7 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
     "return the same answer" when {
 
       "the duty type and respective duty code answer has not changed" in {
-        val reimbursementClaim = sample[ReimbursementClaim]
+        val reimbursementClaim = sample[Reimbursement]
 
         val dutyCodesAnswer = DutyCodesAnswer(
           Map[DutyType, List[TaxCode]](
@@ -195,11 +195,11 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val reimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim,
               TaxCode.A90 -> reimbursementClaim
             )
@@ -207,11 +207,11 @@ class ReimbursementClaimAnswerSpec extends AnyWordSpec with Matchers {
         )
 
         val updatedReimbursementClaimAnswer = ReimbursementClaimAnswer(
-          Map[DutyType, Map[TaxCode, ReimbursementClaim]](
-            DutyType.UkDuty -> Map[TaxCode, ReimbursementClaim](
+          Map[DutyType, Map[TaxCode, Reimbursement]](
+            DutyType.UkDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A00 -> reimbursementClaim
             ),
-            DutyType.EuDuty -> Map[TaxCode, ReimbursementClaim](
+            DutyType.EuDuty -> Map[TaxCode, Reimbursement](
               TaxCode.A50 -> reimbursementClaim,
               TaxCode.A90 -> reimbursementClaim
             )
