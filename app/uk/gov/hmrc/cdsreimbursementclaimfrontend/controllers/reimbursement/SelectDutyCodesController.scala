@@ -114,7 +114,7 @@ class SelectDutyCodesController @Inject() (
 
 object SelectDutyCodesController {
 
-  val selectDutyCodesKey = "select-duty-codes"
+  val selectDutyCodesKey: String = "select-duty-codes"
 
   val selectDutyCodesForm: Form[List[TaxCode]] =
     Form(
