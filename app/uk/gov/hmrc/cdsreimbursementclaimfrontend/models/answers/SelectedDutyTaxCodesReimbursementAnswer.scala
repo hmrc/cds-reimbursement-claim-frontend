@@ -23,6 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes, Re
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SortedMapFormat
 
 import scala.collection.SortedMap
+import scala.collection.immutable.ListMap
 
 final case class SelectedDutyTaxCodesReimbursementAnswer(
   value: SortedMap[DutyType, SortedMap[TaxCode, Reimbursement]]
@@ -77,8 +78,8 @@ object SelectedDutyTaxCodesReimbursementAnswer {
 
   // Ordering
 
-  private val dutyTypesRankMap = DutyTypes.all.zipWithIndex.toMap
-  private val taxCodesRankMap  = DutyTypes.all.map(_.taxCodes).reduce(_ ++ _).toSet.zipWithIndex.toMap
+  private lazy val dutyTypesRankMap = ListMap(DutyTypes.all.zipWithIndex: _*)
+  private lazy val taxCodesRankMap  = ListMap(DutyTypes.all.map(_.taxCodes).reduce(_ ++ _).zipWithIndex: _*)
 
   implicit val dutyTypesOrdering: Ordering[DutyType] = (a: DutyType, b: DutyType) =>
     dutyTypesRankMap(a) compare dutyTypesRankMap(b)
