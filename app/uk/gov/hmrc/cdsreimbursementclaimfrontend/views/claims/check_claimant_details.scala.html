@@ -71,7 +71,7 @@
             name = key,
             legend = if(mandatoryDataAvailable) messages(s"$key.want-to-continue.title") else messages(s"$key.add-different.title"),
             legendAsHeading = true,
-            hintKey = if(mandatoryDataAvailable) Some(s"$key.want-to-continue.hint") else None,
+            hintKey = if(mandatoryDataAvailable) Some(s"$key.want-to-continue.hint") else Some(s"$key.add-different.hint"),
             inline = true,
             items = Seq(
                 RadioItem(
