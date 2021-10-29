@@ -114,10 +114,12 @@ class SelectDutyCodesController @Inject() (
 
 object SelectDutyCodesController {
 
+  val selectDutyCodesKey = "select-duty-codes"
+
   val selectDutyCodesForm: Form[List[TaxCode]] =
     Form(
       mapping(
-        "select-duty-codes" -> list(
+        selectDutyCodesKey -> list(
           mapping(
             "" -> nonEmptyText
               .verifying(
