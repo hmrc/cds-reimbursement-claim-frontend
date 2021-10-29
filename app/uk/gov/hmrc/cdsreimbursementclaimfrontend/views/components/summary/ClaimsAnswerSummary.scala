@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class TotalReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
+class ClaimsAnswerSummary extends AnswerSummary[ClaimsAnswer] {
 
   def render(key: String, claims: ClaimsAnswer)(implicit
     router: ReimbursementRoutes,
@@ -35,10 +35,10 @@ class TotalReimbursementClaimSummary extends AnswerSummary[ClaimsAnswer] {
   ): SummaryList = {
     val amendCall =
       if (router.journeyBindable === JourneyBindable.Scheduled)
-        reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim()
+        reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()
       else claimsRoutes.EnterClaimController.checkClaimSummary()
 
-    val individualClaimSummaries = DutyClaimSummary.forMultiple(claims)
+    val individualClaimSummaries = DutyTypeSummary.buildFrom(claims)
 
     SummaryList(rows =
       individualClaimSummaries

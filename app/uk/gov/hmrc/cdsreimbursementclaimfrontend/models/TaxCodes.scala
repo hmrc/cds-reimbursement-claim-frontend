@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode._
 
 object TaxCodes {
@@ -93,7 +94,10 @@ object TaxCodes {
   private[models] val taxCodesStringMap: Map[String, TaxCode] =
     all.map(a => a.value -> a).toMap
 
-  def find(taxCode: String): Option[TaxCode]                  =
+  def has(code: String): Boolean                              =
+    TaxCodes.all.exists(_.value === code)
+
+  def find(taxCode: String): Option[TaxCode] =
     taxCodesStringMap.get(taxCode)
 
   def findUnsafe(taxCode: String): TaxCode =

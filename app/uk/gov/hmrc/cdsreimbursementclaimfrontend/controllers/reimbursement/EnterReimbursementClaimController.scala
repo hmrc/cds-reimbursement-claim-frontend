@@ -17,26 +17,24 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.syntax.all._
 import com.google.inject.Inject
-import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.enterReimbursementClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.{ReimbursementClaim, ReimbursementClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Error, TaxCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Error, Reimbursement, TaxCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +44,6 @@ class EnterReimbursementClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  val config: Configuration,
   enterReimbursementClaimPage: pages.enter_reimbursement_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -55,132 +52,95 @@ class EnterReimbursementClaimController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[ReimbursementClaimAnswer] = _.reimbursementClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[SelectedDutyTaxCodesReimbursementAnswer] =
+    _.selectedDutyTaxCodesReimbursementAnswer
 
-  def start(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
-    withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, answer) =>
-      fillingOutClaim.draftClaim.dutyCodesSelectedAnswer
-        .fold(
-          Future.successful(Redirect(reimbursementRoutes.SelectDutyCodesController.start()))
-        ) { dutyCodesAnswer =>
-          val reimbursementClaimAnswer: ReimbursementClaimAnswer =
-            answer.getOrElse(ReimbursementClaimAnswer.initialise(dutyCodesAnswer))
+  def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    def redirectToSummaryPage: Future[Result] =
+      Future.successful(Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()))
 
-          val updatedJourneyStatus = FillingOutClaim.from(fillingOutClaim)(
-            _.copy(
-              reimbursementClaimAnswer = Some(reimbursementClaimAnswer.updateAnswer(dutyCodesAnswer))
-            )
+    def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
+      Future.successful(
+        Redirect(
+          reimbursementRoutes.EnterReimbursementClaimController.enterClaim(
+            dutyAndTaxCode._1,
+            dutyAndTaxCode._2
           )
+        )
+      )
 
-          EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourneyStatus))))
-            .leftMap(_ => Error("could not update session"))
-            .fold(
-              logAndDisplayError("could not update reimbursement claims"),
-              _ =>
-                reimbursementClaimAnswer.isIncompleteReimbursementClaim match {
-                  case Some(dutyTypeAndTaxCode) =>
-                    Redirect(
-                      reimbursementRoutes.EnterReimbursementClaimController
-                        .showReimbursementClaim(dutyTypeAndTaxCode._1, dutyTypeAndTaxCode._2)
-                    )
-                  case None                     =>
-                    Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-                }
-            )
-        }
+    withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
+      maybeAnswer.flatMap(_.findUnclaimedReimbursement).fold(redirectToSummaryPage) { dutyAndTaxCode =>
+        start(dutyAndTaxCode)
+      }
     }
   }
 
-  def showReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
+  def enterClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ReimbursementClaimAnswer] { (_, answer) =>
-        val reimbursementInputForm =
-          answer
-            .map(_.reimbursementClaims(dutyType)(dutyCode))
-            .filter(!_.isBlank)
-            .foldLeft(EnterReimbursementClaimController.enterReimbursementClaimForm)((form, answer) =>
-              form.fill(answer)
-            )
+      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
         Ok(
           enterReimbursementClaimPage(
-            reimbursementInputForm,
             dutyType,
-            dutyCode
+            dutyCode,
+            maybeAnswer
+              .map(_.value(dutyType)(dutyCode))
+              .filter(!_.isUnclaimed)
+              .foldLeft(enterReimbursementClaimForm)((form, answer) => form.fill(answer))
           )
         )
       }
     }
 
-  def submitReimbursementClaim(dutyType: DutyType, dutyCode: TaxCode): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request: RequestWithSessionData[AnyContent] =>
-      withAnswers[ReimbursementClaimAnswer] { (fillingOutClaim, maybeReimbursementClaimAnswer) =>
-        EnterReimbursementClaimController.enterReimbursementClaimForm
+  def submitClaim(dutyType: DutyType, taxCode: TaxCode): Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
+        def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) =
+          updateSession(sessionCache, request)(
+            _.copy(journeyStatus =
+              from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some)).some
+            )
+          )
+
+        enterReimbursementClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterReimbursementClaimPage(formWithErrors, dutyType, dutyCode)),
-            reimbursementClaim =>
-              maybeReimbursementClaimAnswer
+            formWithErrors => BadRequest(enterReimbursementClaimPage(dutyType, taxCode, formWithErrors)),
+            claim =>
+              EitherT
+                .fromOption[Future](
+                  maybeAnswer.flatMap(_.update(dutyType, taxCode, claim)),
+                  Error("Could not find reimbursement to update")
+                )
+                .semiflatTap(updateClaim)
                 .fold(
-                  Future.successful(
-                    Redirect(baseRoutes.IneligibleController.ineligible())
-                  )
-                )(reimbursementClaimAnswer =>
-                  updateSessionCache(
-                    dutyType,
-                    dutyCode,
-                    reimbursementClaim,
-                    reimbursementClaimAnswer,
-                    fillingOutClaim
-                  )
+                  logAndDisplayError("Error updating reimbursement for scheduled journey: "),
+                  _.findUnclaimedReimbursement
+                    .map { dutyAndTaxCode =>
+                      Redirect(
+                        reimbursementRoutes.EnterReimbursementClaimController.enterClaim(
+                          dutyAndTaxCode._1,
+                          dutyAndTaxCode._2
+                        )
+                      )
+                    }
+                    .getOrElse(Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()))
                 )
           )
       }
     }
-
-  private def updateSessionCache(
-    dutyType: DutyType,
-    dutyCode: TaxCode,
-    reimbursementClaim: ReimbursementClaim,
-    reimbursementClaimAnswer: ReimbursementClaimAnswer,
-    fillingOutClaim: FillingOutClaim
-  )(implicit hc: HeaderCarrier, request: RequestWithSessionData[AnyContent]): Future[Result] = {
-
-    val updatedReimbursementClaimAnswer: ReimbursementClaimAnswer =
-      reimbursementClaimAnswer.updateReimbursementClaim(dutyType, dutyCode, reimbursementClaim)
-
-    val updatedJourney =
-      FillingOutClaim.from(fillingOutClaim)(
-        _.copy(reimbursementClaimAnswer = Some(updatedReimbursementClaimAnswer))
-      )
-
-    EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
-      .leftMap(_ => Error("could not update session"))
-      .fold(
-        logAndDisplayError("could not get duty types selected"),
-        _ =>
-          updatedReimbursementClaimAnswer.isIncompleteReimbursementClaim match {
-            case Some(dutyTypeAndTaxCode) =>
-              Redirect(
-                reimbursementRoutes.EnterReimbursementClaimController
-                  .showReimbursementClaim(dutyTypeAndTaxCode._1, dutyTypeAndTaxCode._2)
-              )
-            case None                     =>
-              Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursementClaim())
-          }
-      )
-  }
 }
 
 object EnterReimbursementClaimController {
 
   val enterReimbursementClaimKey: String = "enter-reimbursement-claim"
 
-  def enterReimbursementClaimForm: Form[ReimbursementClaim] = Form(
+  val enterReimbursementClaimForm: Form[Reimbursement] = Form(
     enterReimbursementClaimKey ->
       mapping(
         s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
         s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
-      )(ReimbursementClaim.apply)(ReimbursementClaim.unapply)
+      )(Reimbursement.apply)(Reimbursement.unapply)
         .verifying(
           "invalid.reimbursement-claim",
           _.isValid
