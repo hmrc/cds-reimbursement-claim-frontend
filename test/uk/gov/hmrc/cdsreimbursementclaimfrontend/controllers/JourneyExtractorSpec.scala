@@ -23,7 +23,7 @@ import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -40,7 +40,7 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
     "Return the default JourneyBindable" in {
       val msgReq               = fakeRequest2MessageRequest(FakeRequest())
       val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
-      val draftC285Claim       = sample[DraftClaim].copy(selectNumberOfClaimsAnswer = None)
+      val draftC285Claim       = sample[DraftClaim].copy(maybeTypeOfClaim = None)
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
       val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
@@ -48,19 +48,19 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
       JourneyExtractor.extractJourney(request) shouldBe JourneyBindable.Single
     }
 
-    "Return the JourneyBindable belonging to the SelectNumberOfClaimsAnswer" in new TableDrivenPropertyChecks {
+    "Return the JourneyBindable belonging to the TypeOfClaim" in new TableDrivenPropertyChecks {
 
       val testCases = Table(
         ("NumberOfClaimsType", "JourneyBindable"),
-        (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
-        (SelectNumberOfClaimsAnswer.Multiple, JourneyBindable.Multiple),
-        (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
+        (TypeOfClaim.Individual, JourneyBindable.Single),
+        (TypeOfClaim.Multiple, JourneyBindable.Multiple),
+        (TypeOfClaim.Scheduled, JourneyBindable.Scheduled)
       )
 
       forAll(testCases) { (numberOfClaims, journeyBindable) =>
         val msgReq               = fakeRequest2MessageRequest(FakeRequest())
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
-        val draftC285Claim       = sample[DraftClaim].copy(selectNumberOfClaimsAnswer = Some(numberOfClaims))
+        val draftC285Claim       = sample[DraftClaim].copy(maybeTypeOfClaim = Some(numberOfClaims))
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
         val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)

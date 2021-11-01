@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -56,12 +56,12 @@ class SelectNumberOfClaimsController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[SelectNumberOfClaimsAnswer] = _.selectNumberOfClaimsAnswer
+  implicit val dataExtractor: DraftClaim => Option[TypeOfClaim] = _.maybeTypeOfClaim
 
   def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
     authenticatedActionWithSessionData).async { implicit request =>
-    withAnswers[SelectNumberOfClaimsAnswer] { (_, answers) =>
-      val emptyForm  = SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
+    withAnswers[TypeOfClaim] { (_, answers) =>
+      val emptyForm  = SelectNumberOfClaimsController.typeOfClaimForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill)
       Ok(selectNumberOfClaimsPage(filledForm))
     }
@@ -69,15 +69,15 @@ class SelectNumberOfClaimsController @Inject() (
 
   def submit(): Action[AnyContent] =
     (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[SelectNumberOfClaimsAnswer] { (fillingOutClaim, _) =>
-        SelectNumberOfClaimsController.selectNumberOfClaimsAnswerForm
+      withAnswers[TypeOfClaim] { (fillingOutClaim, _) =>
+        SelectNumberOfClaimsController.typeOfClaimForm
           .bindFromRequest()
           .fold(
             formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
             updatedAnswers => {
 
               val updatedJourney =
-                FillingOutClaim.from(fillingOutClaim)(_.copy(selectNumberOfClaimsAnswer = Some(updatedAnswers)))
+                FillingOutClaim.from(fillingOutClaim)(_.copy(maybeTypeOfClaim = Some(updatedAnswers)))
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
@@ -85,9 +85,9 @@ class SelectNumberOfClaimsController @Inject() (
                   logAndDisplayError("Could not capture select number of claims"),
                   _ => {
                     val redirectUrl = updatedAnswers match {
-                      case SelectNumberOfClaimsAnswer.Individual => JourneyBindable.Single
-                      case SelectNumberOfClaimsAnswer.Multiple   => JourneyBindable.Multiple
-                      case SelectNumberOfClaimsAnswer.Scheduled  => JourneyBindable.Scheduled
+                      case TypeOfClaim.Individual => JourneyBindable.Single
+                      case TypeOfClaim.Multiple   => JourneyBindable.Multiple
+                      case TypeOfClaim.Scheduled  => JourneyBindable.Scheduled
                     }
                     Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
                   }
@@ -103,14 +103,14 @@ object SelectNumberOfClaimsController {
 
   val dataKey: String = "select-number-of-claims"
 
-  val selectNumberOfClaimsAnswerForm: Form[SelectNumberOfClaimsAnswer] =
+  val typeOfClaimForm: Form[TypeOfClaim] =
     Form(
       mapping(
         dataKey -> number
-          .verifying("invalid", a => SelectNumberOfClaimsAnswer.allClaimsTypes.map(_.value).contains(a))
-          .transform[SelectNumberOfClaimsAnswer](
-            SelectNumberOfClaimsAnswer.allClaimsIntToType,
-            SelectNumberOfClaimsAnswer.allClaimsTypeToInt
+          .verifying("invalid", a => TypeOfClaim.allClaimsTypes.map(_.value).contains(a))
+          .transform[TypeOfClaim](
+            TypeOfClaim.allClaimsIntToType,
+            TypeOfClaim.allClaimsTypeToInt
           )
       )(identity)(Some(_))
     )

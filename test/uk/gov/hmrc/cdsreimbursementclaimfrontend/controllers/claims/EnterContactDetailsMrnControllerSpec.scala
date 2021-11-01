@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -83,13 +83,13 @@ class EnterContactDetailsMrnControllerSpec
   private def getSessionWithPreviousAnswer(
     maybeMrnContactDetailsAnswer: Option[MrnContactDetails],
     mrnContactAddressAnswer: Option[ContactAddress],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
+    maybeTypeOfClaim: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank
       .copy(
         mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer,
         mrnContactAddressAnswer = mrnContactAddressAnswer,
-        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+        maybeTypeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId            = sample[GGCredId]

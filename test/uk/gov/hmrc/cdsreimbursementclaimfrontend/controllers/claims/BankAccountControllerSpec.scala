@@ -31,7 +31,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectNumberOfClaimsAnswer, SupportingEvidencesAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SupportingEvidencesAnswer, TypeOfClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
@@ -90,7 +90,7 @@ class BankAccountControllerSpec
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetails],
     bankAccountType: Option[BankAccountType],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
+    maybeTypeOfClaim: Option[TypeOfClaim],
     supportingEvidences: Option[SupportingEvidencesAnswer] = None
   ): (SessionData, FillingOutClaim, DraftClaim) = {
 
@@ -99,7 +99,7 @@ class BankAccountControllerSpec
         bankAccountDetailsAnswer = maybeBankAccountDetails,
         bankAccountTypeAnswer = bankAccountType,
         supportingEvidencesAnswer = supportingEvidences,
-        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+        maybeTypeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
 
@@ -118,13 +118,13 @@ class BankAccountControllerSpec
 
   private def sessionWithMaskedBankDetails(
     maybeMaskedBankDetails: Option[MaskedBankDetails],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
+    maybeTypeOfClaim: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
     val draftC285Claim        =
       DraftClaim.blank.copy(
         displayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
-        selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+        maybeTypeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId              = sample[GGCredId]

@@ -28,14 +28,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.Supporti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, TypeOfClaim}
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
   "The CYA page" should {
 
     "display answer summaries for the Single journey" in {
-      val (session, claim) = genData(SelectNumberOfClaimsAnswer.Individual)
+      val (session, claim) = genData(TypeOfClaim.Individual)
 
       inSequence {
         mockAuthWithNoRetrievals()
