@@ -31,44 +31,47 @@ package object generators {
       .flatMap(Gen.listOfN(_, Gen.alphaChar))
       .map(_.mkString(""))
 
-  def genLocalDateTime: Gen[LocalDateTime] =
+  lazy val genLocalDateTime: Gen[LocalDateTime] =
     Gen
       .chooseNum(0L, 10000L)
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
 
-  implicit val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
+
+  lazy val genBigDecimal: Gen[BigDecimal] =
+    Gen.choose(0L, 10000L).map(BigDecimal(_))
+
+  lazy val arbitraryBigDecimal: Arbitrary[BigDecimal] =
+    Arbitrary(genBigDecimal)
+
+  lazy val arbitraryBoolean: Typeclass[Boolean] = Arbitrary(
     Gen.oneOf(true, false)
   )
 
-  implicit val arbitraryString: Typeclass[String] = Arbitrary(
+  implicit lazy val arbitraryString: Typeclass[String] = Arbitrary(
     Gen.nonEmptyListOf(Gen.alphaUpperChar).map(_.mkString(""))
   )
 
-  implicit val arbitraryLong: Arbitrary[Long] = Arbitrary(
+  implicit lazy val arbitraryLong: Arbitrary[Long] = Arbitrary(
     Gen.choose(-5e13.toLong, 5e13.toLong)
   )
 
-  implicit val arbitraryBigDecimal: Arbitrary[BigDecimal] = Arbitrary(
-    Gen.choose(0L, 1e9.toLong).map(BigDecimal(_))
-  )
-
-  implicit val arbitraryLocalDate: Arbitrary[LocalDate] = Arbitrary(
+  implicit lazy val arbitraryLocalDate: Arbitrary[LocalDate] = Arbitrary(
     Gen.chooseNum(0L, 10000L).map(LocalDate.ofEpochDay)
   )
 
-  implicit val arbitraryLocalDateTime: Arbitrary[LocalDateTime] =
+  implicit lazy val arbitraryLocalDateTime: Arbitrary[LocalDateTime] =
     Arbitrary(genLocalDateTime)
 
-  implicit val arbitraryInstant: Arbitrary[Instant] =
+  implicit lazy val arbitraryInstant: Arbitrary[Instant] =
     Arbitrary(
       Gen
         .chooseNum(0L, 10000L)
         .map(Instant.ofEpochMilli)
     )
 
-  implicit val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
+  implicit lazy val arbitraryUuid: Arbitrary[UUID] = Arbitrary(UUID.randomUUID())
 
-  implicit val arbitraryUrl: Arbitrary[URL] = Arbitrary(
+  implicit lazy val arbitraryUrl: Arbitrary[URL] = Arbitrary(
     for {
       protocol <- Gen.oneOf("http", "https")
       hostname <- genStringWithMaxSizeOfN(7)

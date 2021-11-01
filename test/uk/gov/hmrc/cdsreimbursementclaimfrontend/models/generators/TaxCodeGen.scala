@@ -18,15 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyTypes, TaxCode}
 
-object DutyTypeGen {
+@SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+object TaxCodeGen {
 
-  lazy val genDuty: Gen[DutyType] = Gen.oneOf(DutyTypes.all)
+  lazy val genTaxCode: Gen[TaxCode] =
+    Gen.oneOf(DutyTypes.all.map(_.taxCodes).distinct.reduce(_ ++ _))
 
-  implicit lazy val arbitraryDutyTypeGen: Typeclass[DutyType] = Arbitrary(genDuty)
+  implicit lazy val arbitraryTaxCodeGen: Typeclass[TaxCode] =
+    Arbitrary(genTaxCode)
 
-  implicit lazy val arbitraryDutyTypes: Typeclass[List[DutyType]] = Arbitrary(
-    Gen.listOf(genDuty).map(_.distinct)
+  implicit lazy val arbitraryTaxCodes: Typeclass[List[TaxCode]] = Arbitrary(
+    Gen.listOf(genTaxCode).map(_.distinct)
   )
 }

@@ -90,7 +90,7 @@ object DraftClaimGen {
       associatedMRNsAnswer = associatedMRNsAnswer
     )
 
-  implicit val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
+  implicit lazy val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
     for {
       numberOfClaims <- gen[SelectNumberOfClaimsAnswer].arbitrary
       claim          <- genValidDraftClaim(numberOfClaims)

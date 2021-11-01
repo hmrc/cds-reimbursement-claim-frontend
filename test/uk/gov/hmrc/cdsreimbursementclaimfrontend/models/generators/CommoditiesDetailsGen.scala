@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
 
 object CommoditiesDetailsGen {
 
-  implicit val arbitraryCompleteCommodityDetailsAnswer: Typeclass[CommodityDetails] =
+  implicit lazy val arbitraryCompleteCommodityDetailsAnswer: Typeclass[CommodityDetails] =
     gen[CommodityDetails]
 
 }

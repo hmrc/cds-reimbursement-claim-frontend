@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.{FillingOutClaim, JustSubmittedClaim, SubmitClaimFailed}
 
 object JourneyStatusGen extends JourneyStatusLowerPriorityGen {
-  implicit val arbitraryJourneyStatus: Typeclass[JourneyStatus] = gen[JourneyStatus]
+  implicit lazy val arbitraryJourneyStatus: Typeclass[JourneyStatus] = gen[JourneyStatus]
 }
 
 trait JourneyStatusLowerPriorityGen {
@@ -33,10 +33,10 @@ trait JourneyStatusLowerPriorityGen {
   import CompleteClaimGen._
   import SubmissionResponseGen._
 
-  implicit val arbitraryFillingOutClaim: Typeclass[FillingOutClaim] = gen[FillingOutClaim]
+  implicit lazy val arbitraryFillingOutClaim: Typeclass[FillingOutClaim] = gen[FillingOutClaim]
 
-  implicit val arbitraryJustSubmittedClaim: Typeclass[JustSubmittedClaim] = gen[JustSubmittedClaim]
+  implicit lazy val arbitraryJustSubmittedClaim: Typeclass[JustSubmittedClaim] = gen[JustSubmittedClaim]
 
-  implicit val arbitrarySubmitClaimFailed: Typeclass[SubmitClaimFailed] = gen[SubmitClaimFailed]
+  implicit lazy val arbitrarySubmitClaimFailed: Typeclass[SubmitClaimFailed] = gen[SubmitClaimFailed]
 
 }

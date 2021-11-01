@@ -21,5 +21,5 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 object YesNoGen {
 
-  implicit val arbitraryYesNo: Typeclass[YesNo] = gen[YesNo]
+  implicit lazy val arbitraryYesNo: Typeclass[YesNo] = gen[YesNo]
 }

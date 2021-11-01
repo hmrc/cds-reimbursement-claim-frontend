@@ -24,6 +24,5 @@ object SessionDataGen {
   import JourneyStatusGen._
   import UserTypeGen._
 
-  implicit val arbitrarySessionData: Typeclass[SessionData] = gen[SessionData]
-
+  implicit lazy val arbitrarySessionData: Typeclass[SessionData] = gen[SessionData]
 }

@@ -139,4 +139,7 @@ object SelectedDutyTaxCodesReimbursementAnswer {
         )
       )
   }
+
+  implicit def builderToAnswer(builder: Builder): SelectedDutyTaxCodesReimbursementAnswer =
+    builder synchronizingWith SelectedDutyTaxCodesReimbursementAnswer.none
 }
