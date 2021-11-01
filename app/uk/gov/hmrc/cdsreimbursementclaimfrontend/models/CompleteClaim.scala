@@ -50,7 +50,8 @@ final case class CompleteClaim(
   claimsAnswer: ClaimsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
-  associatedMRNsAnswer: Option[AssociatedMRNsAnswer]
+  associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
+  typeOfClaim: Option[SelectNumberOfClaimsAnswer]
 )
 
 object CompleteClaim {
@@ -127,7 +128,8 @@ object CompleteClaim {
                 claimsAnswer,
                 maybeReimbursementMethodAnswer,
                 maybeScheduledDocumentAnswer,
-                maybeAssociatedMRNs
+                maybeAssociatedMRNs,
+                typeOfClaim
               )
           }
           .toEither
