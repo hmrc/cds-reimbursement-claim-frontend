@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -58,18 +58,18 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
-    (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsAnswer.Multiple, JourneyBindable.Multiple),
-    (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
+    (TypeOfClaim.Individual, JourneyBindable.Single),
+    (TypeOfClaim.Multiple, JourneyBindable.Multiple),
+    (TypeOfClaim.Scheduled, JourneyBindable.Scheduled)
   )
 
   private def sessionWithClaimState(
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       declarantTypeAnswer = declarantTypeAnswer,
-      selectNumberOfClaimsAnswer = numberOfClaims
+      maybeTypeOfClaim = numberOfClaims
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]

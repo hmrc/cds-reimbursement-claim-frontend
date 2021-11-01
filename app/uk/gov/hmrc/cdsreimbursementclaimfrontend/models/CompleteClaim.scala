@@ -50,7 +50,8 @@ final case class CompleteClaim(
   claimsAnswer: ClaimsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
-  associatedMRNsAnswer: Option[AssociatedMRNsAnswer]
+  associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
+  typeOfClaim: Option[TypeOfClaim]
 )
 
 object CompleteClaim {
@@ -124,7 +125,8 @@ object CompleteClaim {
               claimsAnswer,
               maybeReimbursementMethodAnswer,
               maybeScheduledDocumentAnswer,
-              maybeAssociatedMRNs
+              maybeAssociatedMRNs,
+              typeOfClaim
             )
         }.toEither
           .leftMap { errors =>
@@ -213,12 +215,12 @@ object CompleteClaim {
 
   def validateScheduledDocumentAnswer(
     maybeScheduledDocument: Option[ScheduledDocumentAnswer],
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): Validation[Option[ScheduledDocumentAnswer]] =
     Validated.condNel(
       numberOfClaims.forall(answer =>
-        (answer === SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isEmpty)
+        (answer === TypeOfClaim.Scheduled && maybeScheduledDocument.isDefined) ||
+          (answer =!= TypeOfClaim.Scheduled && maybeScheduledDocument.isEmpty)
       ),
       maybeScheduledDocument,
       "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"

@@ -35,7 +35,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovemen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, JourneyExtractor, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -84,12 +84,12 @@ class EnterMovementReferenceNumberControllerSpec
 
   private def sessionWithClaimState(
     maybeMovementReferenceNumberAnswer: Option[MRN],
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
       DraftClaim.blank.copy(
         movementReferenceNumber = maybeMovementReferenceNumberAnswer,
-        selectNumberOfClaimsAnswer = numberOfClaims
+        maybeTypeOfClaim = numberOfClaims
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -110,12 +110,12 @@ class EnterMovementReferenceNumberControllerSpec
 
     def runJourney(
       journeyBindable: JourneyBindable,
-      selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer,
+      typeOfClaim: TypeOfClaim,
       expectedTitle: String
     ) = {
       featureSwitch.BulkClaim.enable()
 
-      val (session, _, _) = sessionWithClaimState(None, Some(selectNumberOfClaimsAnswer))
+      val (session, _, _) = sessionWithClaimState(None, Some(typeOfClaim))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -138,21 +138,21 @@ class EnterMovementReferenceNumberControllerSpec
       "show title on the Single journey" in {
         runJourney(
           JourneyBindable.Single,
-          SelectNumberOfClaimsAnswer.Individual,
+          TypeOfClaim.Individual,
           s"$enterMovementReferenceNumberKey.title"
         )
       }
       "show title on the Multiple journey" in {
         runJourney(
           JourneyBindable.Multiple,
-          SelectNumberOfClaimsAnswer.Multiple,
+          TypeOfClaim.Multiple,
           s"$enterMovementReferenceNumberKey.multiple.title"
         )
       }
       "show title on the Scheduled journey" in {
         runJourney(
           JourneyBindable.Scheduled,
-          SelectNumberOfClaimsAnswer.Scheduled,
+          TypeOfClaim.Scheduled,
           s"$enterMovementReferenceNumberKey.scheduled.title"
         )
       }

@@ -32,7 +32,7 @@ import cats.data.NonEmptyList
 
 final case class DraftClaim(
   id: UUID,
-  selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer] = None,
+  maybeTypeOfClaim: Option[TypeOfClaim] = None,
   movementReferenceNumber: Option[MRN] = None,
   duplicateMovementReferenceNumberAnswer: Option[MRN] = None,
   declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,

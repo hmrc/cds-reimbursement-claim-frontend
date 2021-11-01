@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer, TypeOfClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
@@ -43,7 +43,7 @@ import java.util.UUID
 
 object DraftClaimGen {
 
-  def genValidDraftClaim(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): Gen[DraftClaim] =
+  def genValidDraftClaim(typeOfClaim: TypeOfClaim): Gen[DraftClaim] =
     for {
       mrn                            <- genMRN
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
@@ -61,11 +61,11 @@ object DraftClaimGen {
       eori                           <- arbitraryEori.arbitrary
       claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
       reimbursementMethodAnswer      <- arbitraryReimbursementMethodAnswer.arbitrary
-      scheduledDocumentAnswer        <- genScheduledDocumentAnswer(selectNumberOfClaimsAnswer)
-      associatedMRNsAnswer           <- genAssociatedMrnsAnswer(selectNumberOfClaimsAnswer)
+      scheduledDocumentAnswer        <- genScheduledDocumentAnswer(typeOfClaim)
+      associatedMRNsAnswer           <- genAssociatedMrnsAnswer(typeOfClaim)
     } yield DraftClaim(
       id = UUID.randomUUID(),
-      selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer.some,
+      maybeTypeOfClaim = typeOfClaim.some,
       movementReferenceNumber = mrn.some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
@@ -83,7 +83,7 @@ object DraftClaimGen {
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
       claimsAnswer = claimsAnswer.some,
       reimbursementMethodAnswer =
-        if (selectNumberOfClaimsAnswer === SelectNumberOfClaimsAnswer.Individual)
+        if (typeOfClaim === TypeOfClaim.Individual)
           reimbursementMethodAnswer
         else None,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
@@ -92,20 +92,20 @@ object DraftClaimGen {
 
   implicit val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
     for {
-      numberOfClaims <- gen[SelectNumberOfClaimsAnswer].arbitrary
+      numberOfClaims <- gen[TypeOfClaim].arbitrary
       claim          <- genValidDraftClaim(numberOfClaims)
     } yield claim
   }
 
-  def genScheduledDocumentAnswer(answer: SelectNumberOfClaimsAnswer): Gen[Option[ScheduledDocumentAnswer]] =
-    if (answer === SelectNumberOfClaimsAnswer.Scheduled)
+  def genScheduledDocumentAnswer(answer: TypeOfClaim): Gen[Option[ScheduledDocumentAnswer]] =
+    if (answer === TypeOfClaim.Scheduled)
       gen[UploadDocument].arbitrary.map { doc =>
         Some(ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs))))
       }
     else None
 
-  def genAssociatedMrnsAnswer(answer: SelectNumberOfClaimsAnswer): Gen[Option[AssociatedMRNsAnswer]] =
-    if (answer === SelectNumberOfClaimsAnswer.Multiple) {
+  def genAssociatedMrnsAnswer(answer: TypeOfClaim): Gen[Option[AssociatedMRNsAnswer]] =
+    if (answer === TypeOfClaim.Multiple) {
       arbitraryAssociatedMRNsAnswer.arbitrary.map(_.some)
     } else None
 }

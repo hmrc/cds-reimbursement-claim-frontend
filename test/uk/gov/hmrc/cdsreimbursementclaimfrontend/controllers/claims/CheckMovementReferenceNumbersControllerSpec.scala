@@ -46,7 +46,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.asScalaBufferConverter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckMovementReferenceNumbersControllerSpec.genMrnsWithRandomIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 
 class CheckMovementReferenceNumbersControllerSpec
     extends ControllerSpec
@@ -82,12 +82,12 @@ class CheckMovementReferenceNumbersControllerSpec
   private def sessionWithClaimState(
     associatedMRNsAnswer: List[MRN],
     movementReferenceNumber: MRN,
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       associatedMRNsAnswer = NonEmptyList.fromList(associatedMRNsAnswer),
       movementReferenceNumber = Some(movementReferenceNumber),
-      selectNumberOfClaimsAnswer = numberOfClaims
+      maybeTypeOfClaim = numberOfClaims
     )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -144,7 +144,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
     "display the page title" in forAll { reference: MRN =>
       val (session, _, _) =
-        sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+        sessionWithClaimState(Nil, reference, Some(TypeOfClaim.Multiple))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -161,7 +161,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "the user has not answered this question before" in forAll { reference: MRN =>
         val (session, _, _) =
-          sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+          sessionWithClaimState(Nil, reference, Some(TypeOfClaim.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -184,7 +184,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
       "the user does not select an option and submits the page" in forAll { reference: MRN =>
         val (session, _, _) =
-          sessionWithClaimState(Nil, reference, Some(SelectNumberOfClaimsAnswer.Multiple))
+          sessionWithClaimState(Nil, reference, Some(TypeOfClaim.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -213,7 +213,7 @@ class CheckMovementReferenceNumbersControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(SelectNumberOfClaimsAnswer.Multiple)
+              Some(TypeOfClaim.Multiple)
             )
 
           val updatedDraftClaim = draftClaim.copy(
@@ -246,7 +246,7 @@ class CheckMovementReferenceNumbersControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(SelectNumberOfClaimsAnswer.Multiple)
+              Some(TypeOfClaim.Multiple)
             )
 
           inSequence {
@@ -270,7 +270,7 @@ class CheckMovementReferenceNumbersControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(SelectNumberOfClaimsAnswer.Multiple)
+              Some(TypeOfClaim.Multiple)
             )
 
           inSequence {
