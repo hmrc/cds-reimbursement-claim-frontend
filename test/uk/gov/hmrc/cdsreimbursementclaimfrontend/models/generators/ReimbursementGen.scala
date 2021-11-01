@@ -17,8 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 
-object ReimbursementClaimGen {
-  implicit val arbitraryReimbursementClaim: Typeclass[ReimbursementClaim] = gen[ReimbursementClaim]
+object ReimbursementGen {
+  implicit val arbitraryReimbursementClaim: Typeclass[Reimbursement] = gen[Reimbursement]
 }

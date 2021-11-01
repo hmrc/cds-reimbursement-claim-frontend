@@ -24,14 +24,14 @@ package object summary {
 
   implicit val claimTypeSummary: ClaimTypeSummary                                 = new ClaimTypeSummary
   implicit val basisOfClaimSummary: BasisOfClaimSummary                           = new BasisOfClaimSummary
-  implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
-  implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
+  implicit val claimsAnswerSummary: ClaimsAnswerSummary                           = new ClaimsAnswerSummary
   implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
-  implicit val totalReimbursementClaimSummary: TotalReimbursementClaimSummary     = new TotalReimbursementClaimSummary
+  implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
+  implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
-  implicit val reimbursementSubtotalSummary: ReimbursementSubtotalSummary         = new ReimbursementSubtotalSummary
-  implicit val reimbursementTotalSummary: ReimbursementTotalSummary               = new ReimbursementTotalSummary
+  implicit val reimbursementsSummary: DutyAndTaxCodeReimbursementSummary          = new DutyAndTaxCodeReimbursementSummary
+  implicit val taxCodeReimbursementSummary: TaxCodeReimbursementSummary           = new TaxCodeReimbursementSummary
   implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary

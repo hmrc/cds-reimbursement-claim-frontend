@@ -26,9 +26,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyCodesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.DutyTypesAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement.ReimbursementClaimAnswer
 
 import java.util.UUID
 import cats.data.NonEmptyList
@@ -47,9 +44,6 @@ final case class DraftClaim(
   basisOfClaimAnswer: Option[BasisOfClaim] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
-  dutyTypesSelectedAnswer: Option[DutyTypesAnswer] = None,
-  dutyCodesSelectedAnswer: Option[DutyCodesAnswer] = None,
-  reimbursementClaimAnswer: Option[ReimbursementClaimAnswer] = None,
   commoditiesDetailsAnswer: Option[CommodityDetails] = None,
   claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
@@ -62,7 +56,8 @@ final case class DraftClaim(
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
   associatedMRNsDeclarationAnswer: Option[AssociatedMRNsDeclarationAnswer] = None,
   associatedMRNsDutiesSelectedAnswer: Option[AssociatedMRNsDutiesSelectedAnswer] = None,
-  associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer] = None
+  associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer] = None,
+  selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
 ) {
 
   def isMandatoryContactDataAvailable: Boolean =
@@ -133,5 +128,6 @@ object DraftClaim {
 
     def get(index: Int): Option[List[A]] =
       list.get(index.toLong)
+
   }
 }

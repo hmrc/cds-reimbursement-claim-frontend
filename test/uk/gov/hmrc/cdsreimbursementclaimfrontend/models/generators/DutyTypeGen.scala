@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import cats.Eq
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import org.scalacheck.magnolia.Typeclass
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, DutyTypes}
 
-final case class DutyTypesAnswer(dutyTypesSelected: List[DutyType])
+object DutyTypeGen {
 
-object DutyTypesAnswer {
-  implicit val eq: Eq[DutyTypesAnswer]          = Eq.fromUniversalEquals[DutyTypesAnswer]
-  implicit val format: OFormat[DutyTypesAnswer] = Json.format[DutyTypesAnswer]
+  def genDuty: Gen[DutyType] = Gen.oneOf(DutyTypes.all)
+
+  implicit lazy val arbitraryDutyTypeGen: Typeclass[DutyType] = Arbitrary(genDuty)
 }
