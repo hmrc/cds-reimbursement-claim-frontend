@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -64,9 +64,9 @@ class EnterCommoditiesDetailsControllerSpec
 
   val testCases = Table(
     ("NumberOfClaimsType", "JourneyBindable"),
-    (SelectNumberOfClaimsAnswer.Individual, JourneyBindable.Single),
-    (SelectNumberOfClaimsAnswer.Multiple, JourneyBindable.Multiple),
-    (SelectNumberOfClaimsAnswer.Scheduled, JourneyBindable.Scheduled)
+    (TypeOfClaim.Individual, JourneyBindable.Single),
+    (TypeOfClaim.Multiple, JourneyBindable.Multiple),
+    (TypeOfClaim.Scheduled, JourneyBindable.Scheduled)
   )
 
   lazy val controller: EnterCommoditiesDetailsController = instanceOf[EnterCommoditiesDetailsController]
@@ -77,13 +77,13 @@ class EnterCommoditiesDetailsControllerSpec
 
   private def sessionWithClaimState(
     maybeCommoditiesDetailsAnswer: Option[CommodityDetails],
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
       DraftClaim.blank
         .copy(
           commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
-          selectNumberOfClaimsAnswer = numberOfClaims
+          maybeTypeOfClaim = numberOfClaims
         )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]

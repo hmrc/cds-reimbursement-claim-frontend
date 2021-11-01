@@ -39,7 +39,7 @@ import java.net.URLEncoder
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 import org.scalactic.source.Position
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 
 @Singleton
 class TestMessagesApi(
@@ -195,10 +195,10 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def urlEncode(s: String): String = URLEncoder.encode(s, "UTF-8")
 
-  def toSelectNumberOfClaims(journeyBindable: JourneyBindable): SelectNumberOfClaimsAnswer = journeyBindable match {
-    case JourneyBindable.Single    => SelectNumberOfClaimsAnswer.Individual
-    case JourneyBindable.Multiple  => SelectNumberOfClaimsAnswer.Multiple
-    case JourneyBindable.Scheduled => SelectNumberOfClaimsAnswer.Scheduled
+  def toSelectNumberOfClaims(journeyBindable: JourneyBindable): TypeOfClaim = journeyBindable match {
+    case JourneyBindable.Single    => TypeOfClaim.Individual
+    case JourneyBindable.Multiple  => TypeOfClaim.Multiple
+    case JourneyBindable.Scheduled => TypeOfClaim.Scheduled
   }
 
   def isCheckboxChecked(document: Document, fieldValue: String): Boolean =

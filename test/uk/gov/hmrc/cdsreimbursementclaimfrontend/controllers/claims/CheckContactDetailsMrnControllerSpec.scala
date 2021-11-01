@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContact
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, SelectNumberOfClaimsAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
@@ -84,14 +84,14 @@ class CheckContactDetailsMrnControllerSpec
   private def getSessionWithPreviousAnswer(
     displayDeclaration: Option[DisplayDeclaration],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer],
+    maybeTypeOfClaim: Option[TypeOfClaim],
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       displayDeclaration = displayDeclaration,
       declarantTypeAnswer = declarantTypeAnswer,
-      selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+      maybeTypeOfClaim = maybeTypeOfClaim,
       movementReferenceNumber = Some(sample[MRN]),
       mrnContactDetailsAnswer = mrnContactDetailsAnswer,
       mrnContactAddressAnswer = mrnContactAddressAnswer

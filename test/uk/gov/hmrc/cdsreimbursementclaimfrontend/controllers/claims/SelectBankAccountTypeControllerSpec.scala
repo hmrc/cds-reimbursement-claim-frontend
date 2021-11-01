@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -78,11 +78,11 @@ class SelectBankAccountTypeControllerSpec
 
   private def getSessionWithPreviousAnswer(
     bankAccountType: Option[BankAccountType],
-    selectNumberOfClaimsAnswer: Option[SelectNumberOfClaimsAnswer]
+    maybeTypeOfClaim: Option[TypeOfClaim]
   ): SessionData = {
     val draftC285Claim      = DraftClaim.blank.copy(
       bankAccountTypeAnswer = bankAccountType,
-      selectNumberOfClaimsAnswer = selectNumberOfClaimsAnswer,
+      maybeTypeOfClaim = maybeTypeOfClaim,
       movementReferenceNumber = Some(sample[MRN])
     )
     val ggCredId            = sample[GGCredId]

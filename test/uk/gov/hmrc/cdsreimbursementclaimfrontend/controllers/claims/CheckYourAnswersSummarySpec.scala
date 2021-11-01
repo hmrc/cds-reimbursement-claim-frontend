@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectNumberOfClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -56,10 +56,10 @@ abstract class CheckYourAnswersSummarySpec
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  protected def genData(selectNumberOfClaimsAnswer: SelectNumberOfClaimsAnswer): (SessionData, DraftClaim) = {
+  protected def genData(maybeTypeOfClaim: TypeOfClaim): (SessionData, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val claim               = sample(genValidDraftClaim(selectNumberOfClaimsAnswer))
+    val claim               = sample(genValidDraftClaim(maybeTypeOfClaim))
     val fillingOutClaim     = FillingOutClaim(ggCredId, signedInUserDetails, claim)
     val session             = SessionData.empty.copy(journeyStatus = Some(fillingOutClaim))
     (session, claim)

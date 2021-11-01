@@ -51,7 +51,7 @@ final case class CompleteClaim(
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  typeOfClaim: Option[SelectNumberOfClaimsAnswer]
+  typeOfClaim: Option[TypeOfClaim]
 )
 
 object CompleteClaim {
@@ -215,12 +215,12 @@ object CompleteClaim {
 
   def validateScheduledDocumentAnswer(
     maybeScheduledDocument: Option[ScheduledDocumentAnswer],
-    numberOfClaims: Option[SelectNumberOfClaimsAnswer]
+    numberOfClaims: Option[TypeOfClaim]
   ): Validation[Option[ScheduledDocumentAnswer]] =
     Validated.condNel(
       numberOfClaims.forall(answer =>
-        (answer === SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= SelectNumberOfClaimsAnswer.Scheduled && maybeScheduledDocument.isEmpty)
+        (answer === TypeOfClaim.Scheduled && maybeScheduledDocument.isDefined) ||
+          (answer =!= TypeOfClaim.Scheduled && maybeScheduledDocument.isEmpty)
       ),
       maybeScheduledDocument,
       "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"
