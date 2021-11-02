@@ -106,5 +106,7 @@ class CheckReimbursementClaimController @Inject() (
 
 object CheckReimbursementClaimController {
 
-  val whetherDutiesCorrectForm: Form[YesNo] = YesOrNoQuestionForm("check-claim-summary")
+  val checkClaimSummaryKey: String = "check-claim-summary"
+
+  val whetherDutiesCorrectForm: Form[YesNo] = YesOrNoQuestionForm(checkClaimSummaryKey)
 }

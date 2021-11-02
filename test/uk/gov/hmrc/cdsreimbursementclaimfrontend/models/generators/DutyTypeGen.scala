@@ -24,9 +24,9 @@ object DutyTypeGen {
 
   lazy val genDuty: Gen[DutyType] = Gen.oneOf(DutyTypes.all)
 
+  lazy val genDuties: Gen[List[DutyType]] = Gen.listOf(genDuty).map(_.distinct)
+
   implicit lazy val arbitraryDutyTypeGen: Typeclass[DutyType] = Arbitrary(genDuty)
 
-  implicit lazy val arbitraryDutyTypes: Typeclass[List[DutyType]] = Arbitrary(
-    Gen.listOf(genDuty).map(_.distinct)
-  )
+  implicit lazy val arbitraryDutyTypes: Typeclass[List[DutyType]] = Arbitrary(genDuties)
 }

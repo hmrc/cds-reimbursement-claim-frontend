@@ -217,7 +217,7 @@ class SelectDutyCodesControllerSpec
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
               .text() shouldBe messageFromMessageKey(
-              s"select-duty-codes.error.required"
+              s"$selectDutyCodesKey.error.required"
             ),
           BAD_REQUEST
         )

@@ -26,10 +26,12 @@ object TaxCodeGen {
   lazy val genTaxCode: Gen[TaxCode] =
     Gen.oneOf(DutyTypes.all.map(_.taxCodes).distinct.reduce(_ ++ _))
 
+  lazy val genTaxCodes: Gen[List[TaxCode]] =
+    Gen.listOf(genTaxCode).map(_.distinct)
+
   implicit lazy val arbitraryTaxCodeGen: Typeclass[TaxCode] =
     Arbitrary(genTaxCode)
 
-  implicit lazy val arbitraryTaxCodes: Typeclass[List[TaxCode]] = Arbitrary(
-    Gen.listOf(genTaxCode).map(_.distinct)
-  )
+  implicit lazy val arbitraryTaxCodes: Typeclass[List[TaxCode]] =
+    Arbitrary(genTaxCodes)
 }

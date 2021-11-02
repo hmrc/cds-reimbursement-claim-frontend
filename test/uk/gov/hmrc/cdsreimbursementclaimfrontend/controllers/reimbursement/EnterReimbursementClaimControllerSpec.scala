@@ -19,6 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.http.Status.BAD_REQUEST
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -37,6 +38,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.genBigDecimal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, DutyTypes, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
 
@@ -67,7 +69,7 @@ class EnterReimbursementClaimControllerSpec
 
     "redirect to the check reimbursements page" when {
       "no reimbursements to claim" in {
-        val (session, _) = sessionWithDutyCodesState()
+        val (session, _) = sessionWithAnswer()
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -83,7 +85,7 @@ class EnterReimbursementClaimControllerSpec
 
     "show enter claim amount page" when {
       "user has selected duty and tax codes" in forAll { (duty: DutyType, taxCode: TaxCode) =>
-        val (session, _) = sessionWithDutyCodesState(
+        val (session, _) = sessionWithAnswer(
           SelectedDutyTaxCodesReimbursementAnswer(SortedMap(duty -> SortedMap(taxCode -> Reimbursement.unclaimed))).some
         )
 
@@ -102,7 +104,7 @@ class EnterReimbursementClaimControllerSpec
     "display already entered amounts" when {
       "user revisits enter claim page again" in forAll {
         (duty: DutyType, taxCode: TaxCode, reimbursement: Reimbursement) =>
-          val (session, _) = sessionWithDutyCodesState(
+          val (session, _) = sessionWithAnswer(
             SelectedDutyTaxCodesReimbursementAnswer(SortedMap(duty -> SortedMap(taxCode -> reimbursement))).some
           )
 
@@ -130,7 +132,7 @@ class EnterReimbursementClaimControllerSpec
     "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
       forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), genReimbursement) {
         (customDuty, exciseDuty, reimbursement) =>
-          val (session, draftClaim) = sessionWithDutyCodesState(
+          val (session, draftClaim) = sessionWithAnswer(
             SelectedDutyTaxCodesReimbursementAnswer(
               SortedMap(
                 customDuty -> SortedMap(customDuty.taxCodes(0) -> Reimbursement.unclaimed),
@@ -175,7 +177,7 @@ class EnterReimbursementClaimControllerSpec
 
     "save user defined amounts and redirect to the next page" in {
       forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (duty, reimbursement) =>
-        val (session, draftClaim) = sessionWithDutyCodesState(
+        val (session, draftClaim) = sessionWithAnswer(
           SelectedDutyTaxCodesReimbursementAnswer(
             SortedMap(duty -> SortedMap(duty.taxCodes(0) -> Reimbursement.unclaimed))
           ).some
@@ -213,9 +215,77 @@ class EnterReimbursementClaimControllerSpec
         )
       }
     }
+
+    "show an error summary" when {
+      "duty amounts missing or invalid" in forAll { (duty: DutyType, taxCode: TaxCode) =>
+        val (session, _) = sessionWithAnswer()
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          controller.submitClaim(duty, taxCode)(
+            FakeRequest().withFormUrlEncodedBody(
+              Seq(
+                s"$enterReimbursementClaimKey.amount-paid"           -> "",
+                s"$enterReimbursementClaimKey.amount-should-of-paid" -> "bad"
+              ): _*
+            )
+          ),
+          messageFromMessageKey(
+            messageKey = s"$enterReimbursementClaimKey.title",
+            messages(s"duty-type.${duty.repr}"),
+            taxCode.value
+          ),
+          doc => {
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(1) > a")
+              .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.amount-paid.error.required")
+            doc
+              .select(".govuk-error-summary__list > li:nth-child(2) > a")
+              .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.amount-should-of-paid.error.invalid")
+          },
+          BAD_REQUEST
+        )
+      }
+
+      "should paid amount is greater or equal to paid amount" in {
+        forAll(genDuty, genTaxCode, genBigDecimal, Gen.choose(0, 100)) { (duty, taxCode, amount, n) =>
+          val (session, _) = sessionWithAnswer()
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            controller.submitClaim(duty, taxCode)(
+              FakeRequest().withFormUrlEncodedBody(
+                Seq(
+                  s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(amount),
+                  s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(amount + n)
+                ): _*
+              )
+            ),
+            messageFromMessageKey(
+              messageKey = s"$enterReimbursementClaimKey.title",
+              messages(s"duty-type.${duty.repr}"),
+              taxCode.value
+            ),
+            doc =>
+              doc
+                .select(".govuk-error-summary__list > li:nth-child(1) > a")
+                .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.invalid.reimbursement-claim"),
+            BAD_REQUEST
+          )
+        }
+      }
+    }
   }
 
-  def sessionWithDutyCodesState(
+  def sessionWithAnswer(
     selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
   ): (SessionData, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
