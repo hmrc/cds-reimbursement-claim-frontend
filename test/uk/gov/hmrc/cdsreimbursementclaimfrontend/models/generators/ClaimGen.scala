@@ -21,5 +21,5 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 object ClaimGen {
-  implicit val arbitraryMrnContactDetailsGen: Arbitrary[MrnContactDetails] = gen[MrnContactDetails]
+  implicit lazy val arbitraryMrnContactDetailsGen: Arbitrary[MrnContactDetails] = gen[MrnContactDetails]
 }

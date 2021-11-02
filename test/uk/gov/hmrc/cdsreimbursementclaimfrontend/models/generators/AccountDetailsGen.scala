@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
 
 object AccountDetailsGen {
 
-  def genAccountDetails: Gen[AccountDetails] =
+  lazy val genAccountDetails: Gen[AccountDetails] =
     for {
       accountType          <- genStringWithMaxSizeOfN(10)
       accountNumber        <- genStringWithMaxSizeOfN(10)

@@ -26,26 +26,38 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
 object UpscanGen extends OptionValues {
 
-  def genEvidenceDocumentType: Gen[UploadDocumentType] =
+  def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
+    Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
+
+  lazy val genEvidenceDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes)
 
-  implicit val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
+  implicit lazy val arbitraryUploadRequestGen: Typeclass[UploadRequest] = gen[UploadRequest]
 
-  implicit val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
+  implicit lazy val arbitraryUploadDetails: Typeclass[UploadDetails] = gen[UploadDetails]
 
-  implicit val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
+  implicit lazy val arbitraryUpscanSuccess: Typeclass[UpscanSuccess] = gen[UpscanSuccess]
 
-  implicit val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
+  implicit lazy val arbitraryUpscanFailure: Typeclass[UpscanFailure] = gen[UpscanFailure]
 
-  implicit val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
+  implicit lazy val arbitraryUpscanUploadMeta: Typeclass[UpscanUploadMeta] = gen[UpscanUploadMeta]
 
-  implicit val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
+  implicit lazy val arbitraryUpscanUpload: Typeclass[UpscanUpload] = gen[UpscanUpload]
 
-  implicit val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] = Arbitrary {
-    genEvidenceDocumentType
-  }
+  implicit lazy val arbitrarySupportingEvidenceDocumentType: Typeclass[UploadDocumentType] =
+    Arbitrary(genEvidenceDocumentType)
 
-  implicit val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
+  implicit lazy val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
+    for {
+      n         <- Gen.chooseNum(1, 9)
+      evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
+    } yield evidences.value
+  )
+
+  implicit lazy val arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
+    Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
+
+  implicit lazy val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
     for {
       uploadReference  <- gen[UploadReference].arbitrary
       upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
@@ -63,17 +75,4 @@ object UpscanGen extends OptionValues {
       documentType = Some(documentType)
     )
   }
-
-  implicit val arbitrarySupportingEvidenceAnswer: Typeclass[SupportingEvidencesAnswer] = Arbitrary(
-    for {
-      n         <- Gen.chooseNum(1, 9)
-      evidences <- arbitrarySupportingEvidencesAnswerOfN(n).arbitrary
-    } yield evidences.value
-  )
-
-  def arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
-    Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
-
-  def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
-    Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
 }

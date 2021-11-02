@@ -22,40 +22,40 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNum
 
 object BankAccountGen {
 
-  def genAccountName: Gen[AccountName] =
+  lazy val genAccountName: Gen[AccountName] =
     Gen
       .nonEmptyListOf(Gen.alphaChar)
       .map(_.take(40).mkString)
       .map(AccountName(_))
 
-  implicit val arbitraryAccountName: Typeclass[AccountName] =
-    Arbitrary(genAccountName)
-
-  def genSortCode: Gen[SortCode] =
+  lazy val genSortCode: Gen[SortCode] =
     Gen
       .listOfN(6, Gen.numChar)
       .map(_.mkString)
       .map(SortCode(_))
 
-  implicit val arbitrarySortCode: Typeclass[SortCode] =
-    Arbitrary(genSortCode)
-
-  def genAccountNumber: Gen[AccountNumber] =
+  lazy val genAccountNumber: Gen[AccountNumber] =
     Gen
       .listOfN(8, Gen.numChar)
       .map(_.mkString)
       .map(AccountNumber(_))
 
-  implicit val arbitraryAccountNumber: Typeclass[AccountNumber] =
-    Arbitrary(genAccountNumber)
-
-  def genBankAccountDetails: Gen[BankAccountDetails] =
+  lazy val genBankAccountDetails: Gen[BankAccountDetails] =
     for {
       accountName   <- genAccountName
       sortCode      <- genSortCode
       accountNumber <- genAccountNumber
     } yield BankAccountDetails(accountName, sortCode, accountNumber)
 
-  implicit val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
+  implicit lazy val arbitrarySortCode: Typeclass[SortCode] =
+    Arbitrary(genSortCode)
+
+  implicit lazy val arbitraryAccountNumber: Typeclass[AccountNumber] =
+    Arbitrary(genAccountNumber)
+
+  implicit lazy val arbitraryAccountName: Typeclass[AccountName] =
+    Arbitrary(genAccountName)
+
+  implicit lazy val arbitraryBankAccountDetailsGen: Typeclass[BankAccountDetails] =
     Arbitrary(genBankAccountDetails)
 }

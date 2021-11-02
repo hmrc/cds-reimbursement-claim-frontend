@@ -21,5 +21,5 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 object JourneyBindableGen {
 
-  implicit val arbitraryJourneyBindable: Typeclass[JourneyBindable] = gen[JourneyBindable]
+  implicit lazy val arbitraryJourneyBindable: Typeclass[JourneyBindable] = gen[JourneyBindable]
 }

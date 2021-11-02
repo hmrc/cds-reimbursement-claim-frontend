@@ -22,5 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 
 object SignedInUserDetailsGen {
-  implicit val arbitrarySignedInUserDetails: Typeclass[SignedInUserDetails] = gen[SignedInUserDetails]
+
+  implicit lazy val arbitrarySignedInUserDetails: Typeclass[SignedInUserDetails] = gen[SignedInUserDetails]
 }

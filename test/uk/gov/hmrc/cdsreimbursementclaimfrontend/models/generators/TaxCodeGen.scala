@@ -16,11 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DetailsRegisteredWithCdsAnswer
+import org.scalacheck.magnolia.Typeclass
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyTypes, TaxCode}
 
-object DetailsRegisteredWithCdsAnswerGen {
+@SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+object TaxCodeGen {
 
-  implicit lazy val arbitraryDetailsRegisteredWithCds: Typeclass[DetailsRegisteredWithCdsAnswer] =
-    gen[DetailsRegisteredWithCdsAnswer]
+  lazy val genTaxCode: Gen[TaxCode] =
+    Gen.oneOf(DutyTypes.all.map(_.taxCodes).distinct.reduce(_ ++ _))
+
+  lazy val genTaxCodes: Gen[List[TaxCode]] =
+    Gen.listOf(genTaxCode).map(_.distinct)
+
+  implicit lazy val arbitraryTaxCodeGen: Typeclass[TaxCode] =
+    Arbitrary(genTaxCode)
+
+  implicit lazy val arbitraryTaxCodes: Typeclass[List[TaxCode]] =
+    Arbitrary(genTaxCodes)
 }

@@ -21,6 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIre
 
 object NorthernIrelandAnswerGen {
 
-  implicit val arbitraryNorthernIrelandAnswer: Typeclass[ClaimNorthernIrelandAnswer] =
+  implicit lazy val arbitraryNorthernIrelandAnswer: Typeclass[ClaimNorthernIrelandAnswer] =
     gen[ClaimNorthernIrelandAnswer]
 }

@@ -23,21 +23,18 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress,
 
 object ContactAddressGen {
 
-  implicit val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
-    gen[AddressLookupRequest]
-
-  def genCountry: Gen[Country] =
-    Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DM").map(Country(_))
-
-  def genPostcode: Gen[String] = for {
+  lazy val genPostcode: Gen[String] = for {
     first <- Gen.listOfN(3, Gen.alphaNumChar)
     last  <- Gen.listOfN(3, Gen.alphaNumChar)
   } yield s"${first.mkString("")} ${last.mkString("")}"
 
-  def genContactAddressOpt: Gen[Option[ContactAddress]] =
+  lazy val genContactAddressOpt: Gen[Option[ContactAddress]] =
     Gen.option(arbitraryContactAddress.arbitrary)
 
-  implicit val arbitraryContactAddress: Typeclass[ContactAddress] =
+  lazy val genCountry: Gen[Country] =
+    Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DM").map(Country(_))
+
+  implicit lazy val arbitraryContactAddress: Typeclass[ContactAddress] =
     Arbitrary(
       for {
         num      <- Gen.choose(1, 100)
@@ -56,4 +53,7 @@ object ContactAddressGen {
         country = country
       )
     )
+
+  implicit lazy val arbitraryAddressRequest: Typeclass[AddressLookupRequest] =
+    gen[AddressLookupRequest]
 }

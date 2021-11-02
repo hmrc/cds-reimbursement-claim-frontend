@@ -33,7 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sa
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
 
@@ -53,6 +53,9 @@ class SelectDutyTypesControllerSpec
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 2)
 
   def performAction(data: Seq[(String, String)]): Future[Result] =
     controller.submitDutyTypes()(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -184,7 +187,7 @@ class SelectDutyTypesControllerSpec
     }
   }
 
-  private def sessionWithDutyTypesState(
+  def sessionWithDutyTypesState(
     selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =

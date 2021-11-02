@@ -23,7 +23,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimReques
 object SubmissionResponseGen {
   import IdGen._
 
-  implicit val arbitrarySubmissionResponse: Typeclass[SubmitClaimResponse] = gen[SubmitClaimResponse]
-  implicit val arbitrarySubmitClaimRequest: Typeclass[SubmitClaimRequest]  = gen[SubmitClaimRequest]
-  implicit val arbitrarySubmitClaimError: Typeclass[SubmitClaimError]      = gen[SubmitClaimError]
+  implicit lazy val arbitrarySubmissionResponse: Typeclass[SubmitClaimResponse] = gen[SubmitClaimResponse]
+  implicit lazy val arbitrarySubmitClaimRequest: Typeclass[SubmitClaimRequest]  = gen[SubmitClaimRequest]
+  implicit lazy val arbitrarySubmitClaimError: Typeclass[SubmitClaimError]      = gen[SubmitClaimError]
 }

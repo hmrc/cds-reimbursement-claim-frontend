@@ -21,7 +21,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMet
 
 object ReimbursementMethodAnswerGen {
 
-  implicit val arbitraryReimbursementMethodAnswer: Typeclass[Option[ReimbursementMethodAnswer]] =
+  implicit lazy val arbitraryReimbursementMethodAnswer: Typeclass[Option[ReimbursementMethodAnswer]] =
     gen[Option[ReimbursementMethodAnswer]]
 
 }

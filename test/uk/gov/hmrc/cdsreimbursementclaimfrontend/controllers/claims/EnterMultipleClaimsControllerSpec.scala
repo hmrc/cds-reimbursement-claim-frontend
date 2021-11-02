@@ -22,6 +22,7 @@ import cats.data.NonEmptyList
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalactic.source.Position
+import org.scalatest.Assertion
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.Lang
 import play.api.i18n.Messages
@@ -157,10 +158,10 @@ class EnterMultipleClaimsControllerSpec
   def assertHintTextIsDisplayed(
     document: Document,
     expectedHintText: String
-  )(implicit pos: Position): Unit =
+  )(implicit pos: Position): Assertion =
     getHintText(document, "multiple-enter-claim-hint") shouldBe Some(expectedHintText)
 
-  def assertMrnIsDisplayedInBold(document: Document, mrn: MRN)(implicit pos: Position): Unit = {
+  def assertMrnIsDisplayedInBold(document: Document, mrn: MRN)(implicit pos: Position): Assertion = {
     val element = document.select("span#MRN")
     element.text()        shouldBe mrn.value
     element.attr("class") shouldBe "govuk-!-font-weight-bold"

@@ -131,7 +131,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "display the page" when {
       "all mandatory data from Acc14 is available" in forAll(journeys) { journey =>
-        val acc14                      = generateAcc14WithAddresses()
+        val acc14                      = genAcc14WithAddresses
         val mrnContactDetails          = sample[MrnContactDetails].copy(phoneNumber = Some(sample[PhoneNumber]))
         val mrnContactAddress          = sample[ContactAddress]
           .copy(line2 = Some(alphaCharGen(10)), line3 = Some(alphaCharGen(10)), country = Country.uk)
@@ -177,7 +177,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "not all mandatory data from Acc14 is available, page redirects" in forAll(journeys) { journey =>
-        val acc14 = generateAcc14WithAddresses()
+        val acc14 = genAcc14WithAddresses
 
         val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -200,7 +200,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "not all mandatory data from Acc14 is available, no contact details are shown" in forAll(journeys) { journey =>
-        val acc14 = generateAcc14WithAddresses()
+        val acc14 = genAcc14WithAddresses
 
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -242,7 +242,7 @@ class CheckContactDetailsMrnControllerSpec
         )
 
       "user chooses the Yes option" in forAll(journeys) { journey =>
-        val acc14           = generateAcc14WithAddresses()
+        val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -263,7 +263,7 @@ class CheckContactDetailsMrnControllerSpec
 
       "user chooses the No option" in forAll(journeys) { journey =>
         featureSwitch.NorthernIreland.disable()
-        val acc14           = generateAcc14WithAddresses()
+        val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -283,7 +283,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "the user does not select an option" in forAll(journeys) { journey =>
-        val acc14           = generateAcc14WithAddresses()
+        val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -310,7 +310,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        val acc14           = generateAcc14WithAddresses()
+        val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -346,7 +346,7 @@ class CheckContactDetailsMrnControllerSpec
 
       "user chooses the Yes option" in forAll(journeys) { journey =>
         featureSwitch.NorthernIreland.disable()
-        val acc14   = generateAcc14WithAddresses()
+        val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -367,7 +367,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "user chooses the No option" in forAll(journeys) { journey =>
-        val acc14   = generateAcc14WithAddresses()
+        val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -388,7 +388,7 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
       "the user does not select an option" in forAll(journeys) { journey =>
-        val acc14   = generateAcc14WithAddresses()
+        val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -416,7 +416,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "an invalid option value is submitted" in forAll(journeys) { journey =>
-        val acc14   = generateAcc14WithAddresses()
+        val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
@@ -448,7 +448,7 @@ class CheckContactDetailsMrnControllerSpec
   "CheckContactDetailsMrnController Companion object" should {
 
     "Acc14 extractors for DeclarantTypeAnswer.Importer" in {
-      val acc14           = generateAcc14WithAddresses()
+      val acc14           = genAcc14WithAddresses
       val acc14consignee  = acc14.displayResponseDetail.consigneeDetails
       val fillingOutClaim = getSessionWithPreviousAnswer(
         Some(acc14),
@@ -467,7 +467,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "Acc14 extractors for DeclarantTypeAnswer.AssociatedWithImporterCompany" in {
-      val acc14           = generateAcc14WithAddresses()
+      val acc14           = genAcc14WithAddresses
       val acc14consignee  = acc14.displayResponseDetail.consigneeDetails
       val fillingOutClaim =
         getSessionWithPreviousAnswer(
@@ -487,7 +487,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "Acc14 extractors for DeclarantTypeAnswer.AssociatedWithRepresentativeCompany" in {
-      val acc14           = generateAcc14WithAddresses()
+      val acc14           = genAcc14WithAddresses
       val acc14Declarant  = acc14.displayResponseDetail.declarantDetails
       val fillingOutClaim =
         getSessionWithPreviousAnswer(
@@ -548,7 +548,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "return true if we have no session data, but valid Acc14 data" in {
-      val acc14           = generateAcc14WithAddresses()
+      val acc14           = genAcc14WithAddresses
       val fillingOutClaim = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
@@ -561,7 +561,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "return false if we have no session data, and no contact name in Acc14 data" in {
-      val fullAcc14        = generateAcc14WithAddresses()
+      val fullAcc14        = genAcc14WithAddresses
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(contactName = None)))
       )
@@ -580,7 +580,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "return false if we have no session data, and no contact address line1 in Acc14 data" in {
-      val fullAcc14        = generateAcc14WithAddresses()
+      val fullAcc14        = genAcc14WithAddresses
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(addressLine1 = None)))
       )
@@ -600,7 +600,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "return false if we have no session data, and no contact address postcode in Acc14 data" in {
-      val fullAcc14        = generateAcc14WithAddresses()
+      val fullAcc14        = genAcc14WithAddresses
       val consigneeDetails = Functor[Id].map(fullAcc14.displayResponseDetail.consigneeDetails.getOrElse(fail))(cd =>
         cd.copy(contactDetails = cd.contactDetails.map(contact => contact.copy(postalCode = None)))
       )
@@ -653,7 +653,7 @@ class CheckContactDetailsMrnControllerSpec
     "update an address once complete" in forAll(journeys) { journey =>
       val id           = sample[UUID]
       val address      = sample[ContactAddress]
-      val acc14        = generateAcc14WithAddresses()
+      val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
@@ -675,7 +675,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "fail to update address once bad address lookup ID provided" in forAll(journeys) { journey =>
       val id           = sample[UUID]
-      val acc14        = generateAcc14WithAddresses()
+      val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
@@ -692,7 +692,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "redirect to show page once address lookup ID is not provided" in forAll(journeys) { journey =>
-      val acc14        = generateAcc14WithAddresses()
+      val acc14        = genAcc14WithAddresses
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
