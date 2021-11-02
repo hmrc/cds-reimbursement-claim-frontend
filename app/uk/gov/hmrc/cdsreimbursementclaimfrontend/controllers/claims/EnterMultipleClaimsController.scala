@@ -16,41 +16,48 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.data.EitherT
+import cats.data.NonEmptyList
+import cats.implicits.catsSyntaxEq
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.Configuration
+import play.api.data.Form
+import play.api.data.Forms.mapping
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Multiple
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, Error, TaxCode, Claim, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
-import play.api.data.Form
-import play.api.data.Forms.mapping
-
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-import cats.implicits.catsSyntaxEq
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import cats.data.EitherT
 import scala.concurrent.Future
-import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 
 @Singleton
 class EnterMultipleClaimsController @Inject() (
@@ -59,7 +66,8 @@ class EnterMultipleClaimsController @Inject() (
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
   val config: Configuration,
-  enterMultipleClaimPage: pages.enter_multiple_claim,
+  enterMultipleClaimPage: pages.enter_multiple_claims,
+  checkMultipleClaimSummaryPage: pages.check_multiple_claim_summary,
   mrnDoesNotExistPage: pages.mrn_does_not_exist
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -72,11 +80,14 @@ class EnterMultipleClaimsController @Inject() (
 
   def enterClaim(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] =
     whenAuthenticatedAndValidRequest(mrnIndex, taxCode) { implicit request => _ => mrn => _ => claim =>
-      val emptyForm = correctedAmountForm(claim.paidAmount)
-      val form      =
+      val emptyForm  = correctedAmountForm(claim.paidAmount)
+      val form       =
         if (claim.isFilled) emptyForm.fill(CorrectedAmount(claim.correctedAmount))
         else emptyForm
-      Ok(enterMultipleClaimPage(form, mrnIndex, mrn, claim))
+      val submitCall = routes.EnterMultipleClaimsController
+        .enterClaimSubmit(mrnIndex, claim.taxCode)
+        .maybeSetChangeFlag
+      Ok(enterMultipleClaimPage(form, mrnIndex, mrn, claim, submitCall))
     }
 
   def enterClaimSubmit(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] = {
@@ -87,7 +98,10 @@ class EnterMultipleClaimsController @Inject() (
         .fold(
           formWithErrors => {
             val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "multiple-enter-claim"))
-            BadRequest(enterMultipleClaimPage(formWithErrors.copy(errors = updatedErrors), mrnIndex, mrn, claim))
+            val submitCall    = routes.EnterMultipleClaimsController.enterClaimSubmit(mrnIndex, claim.taxCode)
+            BadRequest(
+              enterMultipleClaimPage(formWithErrors.copy(errors = updatedErrors), mrnIndex, mrn, claim, submitCall)
+            )
           },
           formOk => {
             val correctedAmount = formOk.amount
@@ -100,7 +114,13 @@ class EnterMultipleClaimsController @Inject() (
                     .leftMap(_ => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not save claims"),
-                      _ => Redirect(selectNextPage(updatedJourney, mrnIndex, taxCode))
+                      _ =>
+                        Redirect(
+                          if (isChangeRequest)
+                            routes.EnterMultipleClaimsController.checkClaimSummary()
+                          else
+                            selectNextPage(updatedJourney, mrnIndex, taxCode)
+                        )
                     )
               )
           }
@@ -108,13 +128,77 @@ class EnterMultipleClaimsController @Inject() (
     }
   }
 
-  val checkClaimSummary: Action[AnyContent] = Action {
-    Ok
-  }
+  val checkClaimSummary: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.MRNs.nonEmptyListOpt match {
+          case None =>
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
 
-  val checkClaimSummarySubmit: Action[AnyContent] = Action {
-    Ok
-  }
+          case Some(mrns) =>
+            journey.draftClaim.Claims.nonEmptyListOpt match {
+              case None =>
+                Redirect(SelectMultipleDutiesController.selectNextPage(journey, 1))
+
+              case Some(claimsList) =>
+                firstMissingClaimEntry(claimsList) match {
+                  case Some((mrnIndex, taxCode)) =>
+                    Redirect(routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode))
+
+                  case None =>
+                    val mrnsWithClaimsList = mrns.zipWithIndex
+                      .zipWith(claimsList) { case ((mrn, index), claim) => (index, mrn, claim) }
+                    val changeCall         =
+                      (mrnIndex: Int, taxCode: TaxCode) =>
+                        routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode).setChangeFlag
+                    Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, isClaimCorrectForm, changeCall))
+                }
+            }
+        }
+      }
+    }
+
+  val checkClaimSummarySubmit: Action[AnyContent] =
+    authenticatedActionWithSessionData.async { implicit request =>
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.MRNs.nonEmptyListOpt match {
+          case None       =>
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
+          case Some(mrns) =>
+            journey.draftClaim.Claims.nonEmptyListOpt match {
+              case None =>
+                Redirect(SelectMultipleDutiesController.selectNextPage(journey, 1))
+
+              case Some(claimsList) =>
+                firstMissingClaimEntry(claimsList) match {
+                  case Some((mrnIndex, taxCode)) =>
+                    Redirect(routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode))
+
+                  case None =>
+                    isClaimCorrectForm
+                      .bindFromRequest()
+                      .fold(
+                        formWithErrors => {
+                          val mrnsWithClaimsList = mrns.zipWithIndex
+                            .zipWith(claimsList) { case ((mrn, index), claim) => (index, mrn, claim) }
+                          val changeCall         =
+                            (mrnIndex: Int, taxCode: TaxCode) =>
+                              routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode).setChangeFlag
+                          Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, formWithErrors, changeCall))
+                        },
+                        {
+                          case Yes =>
+                            Redirect(routes.BankAccountController.checkBankAccountDetails(Multiple))
+
+                          case No =>
+                            Redirect(routes.SelectMultipleDutiesController.selectDuties(1))
+                        }
+                      )
+                }
+            }
+        }
+      }
+    }
 
   private def whenAuthenticatedAndValidRequest(mrnIndex: Int, taxCode: TaxCode)(
     body: RequestWithSessionData[_] => FillingOutClaim => MRN => List[Claim] => Claim => Future[Result]
@@ -221,6 +305,14 @@ object EnterMultipleClaimsController {
             .getOrElse(Left(s"Missing claims answer for ${OrdinalNumeral(index + 1)} MRN."))
       }
 
+  def firstMissingClaimEntry(claimsList: NonEmptyList[NonEmptyList[Claim]]): Option[(Int, TaxCode)] =
+    claimsList.zipWithIndex
+      .collect { case (claims, index) =>
+        claims.find(claim => !claim.isFilled).map(claim => (index + 1, claim.taxCode))
+      }
+      .headOption
+      .flatten
+
   def correctedAmountForm(paidAmount: BigDecimal): Form[CorrectedAmount] =
     Form(
       mapping(
@@ -228,5 +320,8 @@ object EnterMultipleClaimsController {
       )(CorrectedAmount.apply)(CorrectedAmount.unapply)
         .verifying("invalid.claim", a => a.amount >= 0 && a.amount < paidAmount)
     )
+
+  val isClaimCorrectForm: Form[YesNo] =
+    YesOrNoQuestionForm("multiple-check-claim-summary")
 
 }

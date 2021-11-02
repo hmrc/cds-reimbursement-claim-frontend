@@ -57,6 +57,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import scala.concurrent.Future
 import scala.util.Random
 import play.api.http.Status
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 class EnterMultipleClaimsControllerSpec
     extends ControllerSpec
@@ -77,12 +78,11 @@ class EnterMultipleClaimsControllerSpec
 
   lazy val displayDeclaration = sample[DisplayDeclaration]
   lazy val nonEmptyListOfMRN  = sample[List[MRN]](Gen.listOfN(20, genMRN))
-  lazy val ndrc               = sample[NdrcDetails]
 
   def randomListOfTaxCodes = Random.shuffle(TaxCodes.excise).toList
 
   val nonEmptyListOfTaxCodesGen =
-    Gen.chooseNum(1, TaxCodes.excise.length).map(n => randomListOfTaxCodes.take(n))
+    Gen.chooseNum(10, TaxCodes.excise.length).map(n => randomListOfTaxCodes.take(n))
 
   private def getSessionWithSelectedDuties(
     selectedMrnIndex: Int,
@@ -113,7 +113,13 @@ class EnterMultipleClaimsControllerSpec
       selectedTaxCodeLists.map(_.map(Duty.apply)).toList
 
     def ndrscDetails(index: Int): List[NdrcDetails] =
-      ndrcTaxCodeLists(index).map(code => ndrc.copy(taxType = code.value))
+      if (index < 0 || index >= ndrcTaxCodeLists.length) Nil
+      else
+        ndrcTaxCodeLists(index)
+          .map(code =>
+            sample[NdrcDetails](genNdrcDetails)
+              .copy(taxType = code.value)
+          )
 
     def acc14(index: Int) = Functor[Id].map(displayDeclaration) { dd =>
       dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrscDetails(index))))
@@ -139,7 +145,7 @@ class EnterMultipleClaimsControllerSpec
       SessionData.empty.copy(journeyStatus = Some(journey)),
       journey.draftClaim,
       leadMrn :: associatedMrns,
-      Seq.empty
+      ndrscDetails(selectedMrnIndex)
     )
   }
 
@@ -148,6 +154,9 @@ class EnterMultipleClaimsControllerSpec
 
   def performActionEnterClaim(i: Int, taxCode: TaxCode): Future[Result] =
     controller.enterClaim(i, taxCode)(FakeRequest())
+
+  def performActionCheckClaimSummary(): Future[Result] =
+    controller.checkClaimSummary(FakeRequest())
 
   def getHintText(document: Document, hintTextId: String): Option[String] = {
     val hintTextElement = document.select(s"div#$hintTextId")
@@ -174,7 +183,7 @@ class EnterMultipleClaimsControllerSpec
     )
   }
 
-  "Enter Multiple Claims Controller" must {
+  "EnterMultipleClaimsController.enterClaim" must {
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
         (1 to 7).foreach { selectedMrnIndex =>
@@ -258,6 +267,218 @@ class EnterMultipleClaimsControllerSpec
         }
       }
     }
+  }
+
+  private def getSessionWithEnteredClaims(
+    mrnCount: Int,
+    skipNthClaim: Option[Int] = None
+  ): (SessionData, DraftClaim, Seq[MRN], List[List[Claim]]) = {
+
+    val leadMrn        = sample[MRN]
+    val associatedMrns = nonEmptyListOfMRN.take(mrnCount - 1)
+
+    val ndrcTaxCodeLists: Seq[List[TaxCode]] =
+      (0 until mrnCount)
+        .map(_ => sample(nonEmptyListOfTaxCodesGen))
+
+    val ndrcDetailsList: Seq[List[NdrcDetails]] =
+      ndrcTaxCodeLists
+        .map(
+          _.map(taxCode =>
+            sample[NdrcDetails](genNdrcDetails)
+              .copy(taxType = taxCode.value)
+          )
+        )
+
+    val selectedTaxCodeLists: Seq[List[TaxCode]] =
+      ndrcTaxCodeLists.zipWithIndex.map { case (l, i) =>
+        l.take(i + 1)
+      }
+
+    val selectedDutiesLists: List[List[Duty]] =
+      selectedTaxCodeLists.map(_.map(Duty.apply)).toList
+
+    val claimsLists: List[List[Claim]] =
+      ndrcDetailsList
+        .map(_.zipWithIndex.map { case (ndrc, i) =>
+          val claim = Claim.fromNdrc(ndrc).getOrElse(Claim.fromDuty(Duty(TaxCode(ndrc.taxType))))
+          claim
+            .copy(
+              isFilled = !skipNthClaim.contains(i),
+              claimAmount = BigDecimal(Random.nextInt(claim.paidAmount.toInt))
+            )
+        })
+        .toList
+
+    def acc14(index: Int) = Functor[Id].map(displayDeclaration) { dd =>
+      dd.copy(displayResponseDetail = dd.displayResponseDetail.copy(ndrcDetails = Some(ndrcDetailsList(index))))
+    }
+
+    val draftC285Claim = DraftClaim.blank.copy(
+      movementReferenceNumber = if (mrnCount > 0) Some(leadMrn) else None,
+      displayDeclaration = if (mrnCount > 0) Some(acc14(0)) else None,
+      associatedMRNsAnswer = NonEmptyList.fromList(associatedMrns),
+      associatedMRNsDeclarationAnswer = NonEmptyList.fromList(associatedMrns.zipWithIndex.map(x => acc14(x._2 + 1))),
+      basisOfClaimAnswer = Some(IncorrectExciseValue),
+      dutiesSelectedAnswer = selectedDutiesLists.headOption.flatMap(NonEmptyList.fromList),
+      claimsAnswer = claimsLists.headOption.flatMap(NonEmptyList.fromList),
+      associatedMRNsDutiesSelectedAnswer =
+        NonEmptyList.fromList(selectedDutiesLists.drop(1).map(NonEmptyList.fromListUnsafe)),
+      associatedMRNsClaimsAnswer = NonEmptyList.fromList(claimsLists.drop(1).map(NonEmptyList.fromListUnsafe))
+    )
+
+    val ggCredId            = sample[GGCredId]
+    val signedInUserDetails = sample[SignedInUserDetails]
+
+    val journey = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+
+    (
+      SessionData.empty.copy(journeyStatus = Some(journey)),
+      journey.draftClaim,
+      leadMrn :: associatedMrns,
+      claimsLists
+    )
+  }
+
+  def assertAllSummarySectionHeadersAreDisplayed(document: Document, mrns: Seq[MRN])(implicit pos: Position): Unit = {
+    val elements        = document.select("h2")
+    val expectedHeaders = mrns.zipWithIndex
+      .map { case (mrn, index) =>
+        messageFromMessageKey(
+          "multiple-check-claim-summary.duty.label",
+          OrdinalNumeral(index + 1).capitalize,
+          mrn.value
+        )
+      }
+    elements.eachText() should contain allElementsOf expectedHeaders
+  }
+
+  def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[Claim]])(implicit
+    pos: Position
+  ): Unit = {
+    val elements       = document.select("dd.govuk-summary-list__value")
+    val amounts        = claimsList.map(_.map(_.claimAmount))
+    val expectedValues =
+      amounts.flatMap(_.map(_.toPoundSterlingString)) ++
+        amounts.map(_.sum.toPoundSterlingString) ++
+        Seq(amounts.map(_.sum).sum.toPoundSterlingString)
+    elements.eachText() should contain allElementsOf expectedValues
+  }
+
+  "EnterMultipleClaimsController.checkClaimSummary" must {
+    "redirect to the start of the journey" when {
+      "there is no journey status in the session" in {
+        val session = getSessionWithEnteredClaims(mrnCount = 0)._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session.copy(journeyStatus = None))
+        }
+
+        checkIsRedirect(
+          performActionCheckClaimSummary(),
+          baseRoutes.StartController.start()
+        )
+      }
+    }
+
+    "redirect to the `Enter MRN` page" when {
+      "an MRN has not been yet provided" in {
+        val session = getSessionWithEnteredClaims(mrnCount = 0)._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performActionCheckClaimSummary(),
+          routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
+        )
+      }
+
+    }
+
+    "redirect to the `Select Duties` page" when {
+      "none duties has been selected yet" in {
+        val session = getSessionWithSelectedDuties(2, mrnCount = 3)._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performActionCheckClaimSummary(),
+          routes.SelectMultipleDutiesController.selectDuties(1)
+        )
+      }
+
+    }
+
+    "redirect to the `Enter Claim` page" when {
+      "none claims has been entered yet" in {
+        val taxCode          = TaxCode.A70
+        val selectedTaxCodes = taxCode :: randomListOfTaxCodes.take(3)
+        val session          = getSessionWithSelectedDuties(1, mrnCount = 3, selectedTaxCodes = selectedTaxCodes)._1
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performActionCheckClaimSummary(),
+          routes.EnterMultipleClaimsController.enterClaim(1, taxCode)
+        )
+      }
+
+      "some claims has not been entered yet" in {
+        (1 to 7).foreach { mrnCount =>
+          val (session, _, _, claimsList) =
+            getSessionWithEnteredClaims(mrnCount, skipNthClaim = Some(mrnCount - 1))
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          val taxCode = claimsList(0)(mrnCount - 1).taxCode
+
+          checkIsRedirect(
+            performActionCheckClaimSummary(),
+            routes.EnterMultipleClaimsController.enterClaim(1, taxCode)
+          )
+        }
+      }
+
+    }
+
+    "display the multiple claims summary page" when {
+      "all claims has been entered" in {
+        (1 to 7).foreach { mrnCount =>
+          val (session, _, mrns, claimsList) = getSessionWithEnteredClaims(mrnCount)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkPageIsDisplayed(
+            performActionCheckClaimSummary(),
+            messageFromMessageKey(
+              "multiple-check-claim-summary.title"
+            ),
+            doc => {
+              assertAllSummarySectionHeadersAreDisplayed(doc, mrns)
+              assertAllClaimValuesAreDisplayed(doc, claimsList)
+            }
+          )
+        }
+      }
+
+    }
+
   }
 
 }

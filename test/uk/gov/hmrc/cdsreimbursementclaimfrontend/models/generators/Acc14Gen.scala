@@ -29,11 +29,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGe
 
 object Acc14Gen {
 
-  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
-    n <- Gen.choose(min, max)
-    m <- Gen.listOfN(n, genNdrcDetails)
-  } yield m
-
   lazy val genNdrcDetails: Gen[NdrcDetails] = for {
     taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
     amount           <- Gen.choose(0L, 10000L).map(_.toString)
@@ -44,6 +39,11 @@ object Acc14Gen {
 
   implicit lazy val arbitraryNdrcDetails: Typeclass[NdrcDetails] =
     Arbitrary(genNdrcDetails)
+
+  def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
+    n <- Gen.choose(min, max)
+    m <- Gen.listOfN(n, genNdrcDetails)
+  } yield m
 
   lazy val genContactDetails: Gen[ContactDetails] =
     for {

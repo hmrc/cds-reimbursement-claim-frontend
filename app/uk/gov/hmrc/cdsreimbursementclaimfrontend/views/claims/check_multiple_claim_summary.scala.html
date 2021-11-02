@@ -17,10 +17,14 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import play.api.data.Form
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import cats.data.NonEmptyList
@@ -29,7 +33,7 @@
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-        claimSummaryHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.ClaimSummaryHelper,
+        claimSummaryHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.MultipleClaimSummaryHelper,
         submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
         formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
@@ -39,52 +43,37 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(claims: NonEmptyList[Claim], form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(mrnWithClaimsList: NonEmptyList[(Int,MRN,NonEmptyList[Claim])], form: Form[YesNo], changeCall: (Int, TaxCode) => Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 
-@key = @{"check-claim-summary"}
+@key = @{"multiple-check-claim-summary"}
 @title = @{messages(s"$key.title")}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-    @if(claims.containsUkClaim(claims)) {
-        @pageHeading(messages(s"$key.uk-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeUkClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
+    @for((index, mrn, claims) <- mrnWithClaimsList.toList){
+        @pageHeading(messages(s"$key.duty.label",OrdinalNumeral(index+1).capitalize,mrn.value), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(SummaryList(claimSummaryHelper.makeClaimSummaryRows(index+1,claims,changeCall)))
     }
 
-    @if(claims.containsEuClaim(claims)) {
-        @pageHeading(messages(s"$key.eu-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeEuClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
-    }
-    @if(claims.containsExciseClaim(claims)) {
-        @pageHeading(messages(s"$key.excise-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeExciseClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
-    }
+    @pageHeading(messages(s"$key.overall-total.header"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+    @summary(SummaryList(List(claimSummaryHelper.makeOverallTotalRow(mrnWithClaimsList)),"govuk-!-margin-bottom-9"))
 
-    @pageHeading(messages(s"$key.overall-total.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(SummaryList(List(claimSummaryHelper.makeClaimTotalRow(claims))))
-
-    @formWithCSRF(routes.EnterClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterMultipleClaimsController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,
             legend = messages(s"$key.are-duties-correct"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
+            classes = "govuk-fieldset__legend--s",
             inline = true,
             items = Seq(
                 RadioItem(

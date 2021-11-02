@@ -49,6 +49,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
 
 @Singleton
 class SelectMultipleDutiesController @Inject() (
@@ -139,14 +141,33 @@ class SelectMultipleDutiesController @Inject() (
                     dutiesSelected => {
                       val newDraftClaim = mrnIndex match {
                         case 1 =>
-                          journey.draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelected))
+                          journey.draftClaim.copy(
+                            dutiesSelectedAnswer = Some(dutiesSelected),
+                            claimsAnswer = journey.draftClaim.claimsAnswer
+                              .map(claims =>
+                                syncSelectedDutiesWithExistingClaims(mrnIndex, dutiesSelected, claims, journey)
+                              )
+                          )
 
                         case i =>
-                          journey.draftClaim.copy(associatedMRNsDutiesSelectedAnswer =
+                          val associatedMRNsDutiesSelectedAnswer =
                             journey.draftClaim.associatedMRNsDutiesSelectedAnswer
                               .replaceOrAppend(i - 2, dutiesSelected)
                               .getOrElse(journey.draftClaim.associatedMRNsDutiesSelectedAnswer)
-                          )
+
+                          val associatedMRNsClaimsAnswer = for {
+                            selectedDuties <- associatedMRNsDutiesSelectedAnswer
+                            existingClaims <- journey.draftClaim.associatedMRNsClaimsAnswer
+                          } yield selectedDuties
+                            .zipWith(existingClaims)((d, c) =>
+                              syncSelectedDutiesWithExistingClaims(mrnIndex, d, c, journey)
+                            )
+
+                          journey.draftClaim
+                            .copy(
+                              associatedMRNsDutiesSelectedAnswer = associatedMRNsDutiesSelectedAnswer,
+                              associatedMRNsClaimsAnswer = associatedMRNsClaimsAnswer
+                            )
                       }
 
                       val updatedJourney: FillingOutClaim = journey.copy(draftClaim = newDraftClaim)
@@ -224,6 +245,16 @@ object SelectMultipleDutiesController {
       )
     }
   }
+
+  def syncSelectedDutiesWithExistingClaims(
+    mrnIndex: Int,
+    selectedDuties: NonEmptyList[Duty],
+    existingClaims: NonEmptyList[Claim],
+    journey: FillingOutClaim
+  ): NonEmptyList[Claim] =
+    NonEmptyList.fromListUnsafe(
+      EnterMultipleClaimsController.prepareClaims(mrnIndex - 1, selectedDuties.toList, existingClaims.toList, journey)
+    )
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def selectDutiesForm(allAvailableDuties: DutiesSelectedAnswer): Form[DutiesSelectedAnswer] = Form(
