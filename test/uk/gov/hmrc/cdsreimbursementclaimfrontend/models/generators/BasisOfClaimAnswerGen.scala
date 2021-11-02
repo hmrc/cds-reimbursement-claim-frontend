@@ -22,9 +22,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 
 object BasisOfClaimAnswerGen {
 
-  def genBasisOfClaimAnswerOpt: Gen[Option[BasisOfClaim]] =
+  lazy val genBasisOfClaimAnswerOpt: Gen[Option[BasisOfClaim]] =
     Gen.option(arbitraryBasisOfClaimAnswer.arbitrary)
 
-  implicit val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
+  implicit lazy val arbitraryBasisOfClaimAnswer: Typeclass[BasisOfClaim] =
     gen[BasisOfClaim]
 }

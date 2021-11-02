@@ -23,5 +23,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 object AssociatedMRNsAnswerGen {
   import IdGen._
 
-  implicit val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] = gen[NonEmptyList[AssociatedMrn]]
+  implicit lazy val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] =
+    gen[NonEmptyList[AssociatedMrn]]
 }

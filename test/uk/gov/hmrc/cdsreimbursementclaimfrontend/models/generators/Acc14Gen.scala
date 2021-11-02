@@ -29,22 +29,23 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGe
 
 object Acc14Gen {
 
-  def genNdrcDetails: Gen[NdrcDetails] = for {
-    taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
-    amount           <- Gen.choose(0L, 10000.toLong).map(_.toString)
-    paymentMethod    <- Gen.oneOf("001", "002", "003") //001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
-    paymentReference <- arbitraryString.arbitrary.map(_.take(18))
-    cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) //0 = CMA Not Eligible, 1 = CMA Eligible
-  } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
-
-  implicit val arbitraryNdrcDetails: Typeclass[NdrcDetails] = Arbitrary(genNdrcDetails)
-
   def genListNdrcDetails(min: Int = 2, max: Int = 5): Gen[List[NdrcDetails]] = for {
     n <- Gen.choose(min, max)
     m <- Gen.listOfN(n, genNdrcDetails)
   } yield m
 
-  def genContactDetails: Gen[ContactDetails] =
+  lazy val genNdrcDetails: Gen[NdrcDetails] = for {
+    taxType          <- Gen.oneOf(TaxCodes.all).map(_.value)
+    amount           <- Gen.choose(0L, 10000L).map(_.toString)
+    paymentMethod    <- Gen.oneOf("001", "002", "003") //001 = Immediate Payment, 002 = Duty Deferment, 003 = Cash Account
+    paymentReference <- genStringWithMaxSizeOfN(18)
+    cmaEligible      <- Gen.oneOf(None, Some("0"), Some("1")) //0 = CMA Not Eligible, 1 = CMA Eligible
+  } yield NdrcDetails(taxType, amount, paymentMethod, paymentReference, cmaEligible)
+
+  implicit lazy val arbitraryNdrcDetails: Typeclass[NdrcDetails] =
+    Arbitrary(genNdrcDetails)
+
+  lazy val genContactDetails: Gen[ContactDetails] =
     for {
       contactName  <- Gen.option(genStringWithMaxSizeOfN(7))
       addressLine1 <- Gen.option(Gen.posNum[Int].map(num => s"$num ${genStringWithMaxSizeOfN(7)}"))
@@ -67,9 +68,10 @@ object Acc14Gen {
       emailAddress
     )
 
-  implicit val arbitraryContactDetails: Typeclass[ContactDetails] = gen[ContactDetails]
+  implicit lazy val arbitraryContactDetails: Typeclass[ContactDetails] =
+    gen[ContactDetails]
 
-  def genEstablishmentAddress: Gen[EstablishmentAddress] =
+  lazy val genEstablishmentAddress: Gen[EstablishmentAddress] =
     for {
       num          <- Gen.choose(1, 100)
       street       <- genStringWithMaxSizeOfN(7)
@@ -85,9 +87,10 @@ object Acc14Gen {
       countryCode.code
     )
 
-  implicit val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] = gen[EstablishmentAddress]
+  implicit lazy val arbitraryEstablishmentAddress: Typeclass[EstablishmentAddress] =
+    gen[EstablishmentAddress]
 
-  def generateAcc14WithAddresses(): DisplayDeclaration = {
+  lazy val genAcc14WithAddresses: DisplayDeclaration = {
     val contactDetails       =
       sample[ContactDetails].copy(
         contactName = Some(alphaCharGen(20)),
@@ -123,5 +126,4 @@ object Acc14Gen {
 
     displayDeclaration
   }
-
 }

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
 
 import cats.implicits.catsSyntaxOptionId
+import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
@@ -25,19 +26,21 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.enterReimbursementClaimKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimControllerSpec.formatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{dutyTypesOrdering, taxCodesOrdering}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutyTypeGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, DutyTypes, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
 
+import java.text.DecimalFormat
 import scala.collection.immutable.SortedMap
 
 class EnterReimbursementClaimControllerSpec
@@ -58,7 +61,7 @@ class EnterReimbursementClaimControllerSpec
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
-    PropertyCheckConfiguration(minSuccessful = 10)
+    PropertyCheckConfiguration(minSuccessful = 2)
 
   "Enter Reimbursement Controller" should {
 
@@ -124,8 +127,91 @@ class EnterReimbursementClaimControllerSpec
       }
     }
 
-    "save user defined amounts and ask user to enter next amounts for the next reimbursement" in {
+    "save user defined amounts and ask user to enter next amounts for upcoming reimbursement" in {
+      forAll(Gen.oneOf(DutyTypes.custom), Gen.oneOf(DutyTypes.excise), genReimbursement) {
+        (customDuty, exciseDuty, reimbursement) =>
+          val (session, draftClaim) = sessionWithDutyCodesState(
+            SelectedDutyTaxCodesReimbursementAnswer(
+              SortedMap(
+                customDuty -> SortedMap(customDuty.taxCodes(0) -> Reimbursement.unclaimed),
+                exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> Reimbursement.unclaimed)
+              )
+            ).some
+          )
 
+          val updatedSession: SessionData =
+            session.copy(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
+              fillingOutClaim.copy(
+                draftClaim = draftClaim.copy(
+                  selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
+                    SortedMap(
+                      customDuty -> SortedMap(customDuty.taxCodes(0) -> reimbursement),
+                      exciseDuty -> SortedMap(exciseDuty.taxCodes(0) -> Reimbursement.unclaimed)
+                    )
+                  ).some
+                )
+              )
+            })
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+            mockStoreSession(updatedSession)(Right(()))
+          }
+
+          checkIsRedirect(
+            controller.submitClaim(customDuty, customDuty.taxCodes(0))(
+              FakeRequest().withFormUrlEncodedBody(
+                Seq(
+                  s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
+                  s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+                ): _*
+              )
+            ),
+            routes.EnterReimbursementClaimController.enterClaim(exciseDuty, exciseDuty.taxCodes(0))
+          )
+      }
+    }
+
+    "save user defined amounts and redirect to the next page" in {
+      forAll(Gen.oneOf(DutyTypes.custom), genReimbursement) { (duty, reimbursement) =>
+        val (session, draftClaim) = sessionWithDutyCodesState(
+          SelectedDutyTaxCodesReimbursementAnswer(
+            SortedMap(duty -> SortedMap(duty.taxCodes(0) -> Reimbursement.unclaimed))
+          ).some
+        )
+
+        val updatedSession: SessionData =
+          session.copy(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
+            fillingOutClaim.copy(
+              draftClaim = draftClaim.copy(
+                selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
+                  SortedMap(
+                    duty -> SortedMap(duty.taxCodes(0) -> reimbursement)
+                  )
+                ).some
+              )
+            )
+          })
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockStoreSession(updatedSession)(Right(()))
+        }
+
+        checkIsRedirect(
+          controller.submitClaim(duty, duty.taxCodes(0))(
+            FakeRequest().withFormUrlEncodedBody(
+              Seq(
+                s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
+                s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+              ): _*
+            )
+          ),
+          routes.CheckReimbursementClaimController.showReimbursements()
+        )
+      }
     }
   }
 
@@ -142,4 +228,12 @@ class EnterReimbursementClaimControllerSpec
       draftC285Claim
     )
   }
+}
+
+object EnterReimbursementClaimControllerSpec {
+
+  private val formatter = new DecimalFormat()
+
+  formatter.setMinimumFractionDigits(2)
+  formatter.setGroupingUsed(false)
 }

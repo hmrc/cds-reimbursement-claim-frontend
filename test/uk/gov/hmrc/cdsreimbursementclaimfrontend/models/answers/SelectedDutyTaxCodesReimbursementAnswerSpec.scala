@@ -134,8 +134,6 @@ class SelectedDutyTaxCodesReimbursementAnswerSpec extends AnyWordSpec with Scala
         SortedMap(duty -> SortedMap(claims.map(claim => claim._1 -> claim._2): _*))
       ).findUnclaimedReimbursement.isDefined should be(true)
     }
-
-    "calculate total & subtotal" in {}
   }
 }
 

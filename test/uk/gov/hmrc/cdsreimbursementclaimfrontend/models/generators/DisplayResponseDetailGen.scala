@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
 
 object DisplayResponseDetailGen {
 
-  def genDeclarantDetails: Gen[DeclarantDetails] =
+  lazy val genDeclarantDetails: Gen[DeclarantDetails] =
     for {
       eori                 <- genEori.map(_.value)
       legalName            <- genStringWithMaxSizeOfN(10)
@@ -34,15 +34,14 @@ object DisplayResponseDetailGen {
       contactDetails       <- Gen.option(genContactDetails)
     } yield DeclarantDetails(eori, legalName, establishmentAddress, contactDetails)
 
-  def genConsigneeDetails: Gen[ConsigneeDetails] =
-    for {
-      eori                 <- genEori.map(_.value)
-      legalName            <- genStringWithMaxSizeOfN(10)
-      establishmentAddress <- genEstablishmentAddress
-      contactDetails       <- Gen.option(genContactDetails)
-    } yield ConsigneeDetails(eori, legalName, establishmentAddress, contactDetails)
+  lazy val genConsigneeDetails: Gen[ConsigneeDetails] = for {
+    eori                 <- genEori.map(_.value)
+    legalName            <- genStringWithMaxSizeOfN(10)
+    establishmentAddress <- genEstablishmentAddress
+    contactDetails       <- Gen.option(genContactDetails)
+  } yield ConsigneeDetails(eori, legalName, establishmentAddress, contactDetails)
 
-  def genConsigneeBankDetails: Gen[ConsigneeBankDetails] =
+  lazy val genConsigneeBankDetails: Gen[ConsigneeBankDetails] =
     for {
       accountHolderName <- genStringWithMaxSizeOfN(15)
       sortCode          <- genSortCode
@@ -53,7 +52,7 @@ object DisplayResponseDetailGen {
       accountNumber.value
     )
 
-  def genDeclarantBankDetails: Gen[DeclarantBankDetails] =
+  lazy val genDeclarantBankDetails: Gen[DeclarantBankDetails] =
     for {
       accountHolderName <- genStringWithMaxSizeOfN(15)
       sortCode          <- genSortCode
@@ -64,23 +63,25 @@ object DisplayResponseDetailGen {
       accountNumber.value
     )
 
-  def genBankDetails: Gen[BankDetails] = for {
-    consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
-    declarantBankDetails <- Gen.option(genDeclarantBankDetails)
-  } yield BankDetails(
-    consigneeBankDetails = consigneeBankDetails,
-    declarantBankDetails = declarantBankDetails
-  )
+  lazy val genBankDetails: Gen[BankDetails] =
+    for {
+      consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
+      declarantBankDetails <- Gen.option(genDeclarantBankDetails)
+    } yield BankDetails(
+      consigneeBankDetails = consigneeBankDetails,
+      declarantBankDetails = declarantBankDetails
+    )
 
-  def genMaskedBankDetails: Gen[MaskedBankDetails] = for {
-    consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
-    declarantBankDetails <- Gen.option(genDeclarantBankDetails)
-  } yield MaskedBankDetails(
-    consigneeBankDetails = consigneeBankDetails,
-    declarantBankDetails = declarantBankDetails
-  )
+  lazy val genMaskedBankDetails: Gen[MaskedBankDetails] =
+    for {
+      consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
+      declarantBankDetails <- Gen.option(genDeclarantBankDetails)
+    } yield MaskedBankDetails(
+      consigneeBankDetails = consigneeBankDetails,
+      declarantBankDetails = declarantBankDetails
+    )
 
-  def genDisplayResponseDetail: Gen[DisplayResponseDetail] =
+  lazy val genDisplayResponseDetail: Gen[DisplayResponseDetail] =
     for {
       declarationId            <- genStringWithMaxSizeOfN(10)
       acceptanceDate           <- genLocalDateTime
@@ -111,13 +112,24 @@ object DisplayResponseDetailGen {
       ndrcDetails = ndrcDetails
     )
 
-  implicit val arbitraryDeclarantDetails: Typeclass[DeclarantDetails]           = Arbitrary(genDeclarantDetails)
-  implicit val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails]           = Arbitrary(genConsigneeDetails)
-  implicit val arbitraryConsigneeBankDetails: Typeclass[ConsigneeBankDetails]   = Arbitrary(genConsigneeBankDetails)
-  implicit val arbitraryDeclarantBankDetails: Typeclass[DeclarantBankDetails]   = Arbitrary(genDeclarantBankDetails)
-  implicit val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] = Arbitrary(
-    genDisplayResponseDetail
-  )
-  implicit val arbitraryBankDetails: Typeclass[BankDetails]                     = Arbitrary(genBankDetails)
-  implicit val arbitraryMaskedBankDetails: Typeclass[MaskedBankDetails]         = Arbitrary(genMaskedBankDetails)
+  implicit lazy val arbitraryDeclarantDetails: Typeclass[DeclarantDetails] =
+    Arbitrary(genDeclarantDetails)
+
+  implicit lazy val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails] =
+    Arbitrary(genConsigneeDetails)
+
+  implicit lazy val arbitraryConsigneeBankDetails: Typeclass[ConsigneeBankDetails] =
+    Arbitrary(genConsigneeBankDetails)
+
+  implicit lazy val arbitraryDeclarantBankDetails: Typeclass[DeclarantBankDetails] =
+    Arbitrary(genDeclarantBankDetails)
+
+  implicit lazy val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] =
+    Arbitrary(genDisplayResponseDetail)
+
+  implicit lazy val arbitraryBankDetails: Typeclass[BankDetails] =
+    Arbitrary(genBankDetails)
+
+  implicit lazy val arbitraryMaskedBankDetails: Typeclass[MaskedBankDetails] =
+    Arbitrary(genMaskedBankDetails)
 }

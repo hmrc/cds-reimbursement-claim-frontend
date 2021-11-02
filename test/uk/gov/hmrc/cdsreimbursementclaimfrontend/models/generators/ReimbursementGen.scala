@@ -23,8 +23,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
 object ReimbursementGen {
 
   lazy val genReimbursement: Gen[Reimbursement] = for {
-    paidAmount       <- genBigDecimal
     shouldPaidAmount <- genBigDecimal
+    random           <- Gen.choose(1, 100)
+    paidAmount        = random + shouldPaidAmount
   } yield Reimbursement(paidAmount, shouldPaidAmount)
 
   implicit lazy val arbitraryReimbursementClaim: Typeclass[Reimbursement] =

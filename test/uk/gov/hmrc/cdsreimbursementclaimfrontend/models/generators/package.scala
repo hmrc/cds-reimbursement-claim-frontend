@@ -36,7 +36,6 @@ package object generators {
       .chooseNum(0L, 10000L)
       .map(millis => LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()))
 
-
   lazy val genBigDecimal: Gen[BigDecimal] =
     Gen.choose(0L, 10000L).map(BigDecimal(_))
 
