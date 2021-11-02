@@ -15,6 +15,7 @@
  *@
 
 @import play.api.data.Form
+@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
@@ -38,7 +39,7 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(form : Form[CorrectedAmount], mrnIndex: Int, mrn: MRN, claim: Claim)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[CorrectedAmount], mrnIndex: Int, mrn: MRN, claim: Claim, submitCall: Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
     @key = @{"multiple-enter-claim"}
     @title = @{messages(s"$key.title", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}"), OrdinalNumeral(mrnIndex))}
@@ -53,7 +54,7 @@
 
         @paragraph(Html(messages(s"$key.help-text",mrn.value)), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @formWithCSRF(routes.EnterMultipleClaimsController.enterClaimSubmit(mrnIndex,claim.taxCode), 'novalidate -> "novalidate") {
+        @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
 
             @paragraph(Html(messages(s"$key.paid-amount-label", claim.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 

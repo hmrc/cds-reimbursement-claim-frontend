@@ -787,6 +787,16 @@ check-claim-summary.duty-code.row.key={0} reimbursement
 check-claim-summary.duty-code.total.key={0} claims total reimbursement
 check-claim-summary.total.header=Total
 
+multiple-check-claim-summary.title=Check the reimbursement claim totals for all MRNs
+multiple-check-claim-summary.help-text=These are the calculations based on the information you gave us.
+multiple-check-claim-summary.duty.label={0} MRN: {1}
+multiple-check-claim-summary.total=Reimbursement for this MRN
+multiple-check-claim-summary.overall-total.header=Total
+multiple-check-claim-summary.overall-total.label=Total reimbursement
+multiple-check-claim-summary.are-duties-correct=Are these duties correct?
+multiple-check-claim-summary.yes=Yes
+multiple-check-claim-summary.no=No, select different duties
+
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
 #===================================================

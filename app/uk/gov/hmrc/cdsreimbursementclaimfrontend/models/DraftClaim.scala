@@ -63,10 +63,7 @@ final case class DraftClaim(
   def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
-  object MRNs {
-
-    lazy val list: List[MRN] =
-      leadMrn.toList ++ associatedMRNsAnswer.list
+  object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
     def apply(): List[MRN] = list
 
@@ -80,9 +77,6 @@ final case class DraftClaim(
         (associatedMRNsAnswer.map(_.toList), associatedMRNsDeclarationAnswer.map(_.toList))
           .mapN((mrns, declarations) => mrns zip declarations)
           .getOrElse(Nil)
-
-    def get(index: Int): Option[MRN] =
-      list.get(index.toLong)
   }
 
   object Declarations
@@ -106,8 +100,10 @@ object DraftClaim {
 
     lazy val list: List[A] = {
       leadItem.toList ++ associatedItems.toList.flatMap(_.toList)
-
     }
+
+    lazy val nonEmptyListOpt: Option[NonEmptyList[A]] =
+      leadItem.map(NonEmptyList.of(_, associatedItems.map(_.toList).getOrElse(Nil): _*))
 
     def get(index: Int): Option[A] =
       list.get(index.toLong)
@@ -125,6 +121,9 @@ object DraftClaim {
         .getOrElse(Nil)
       x :: xs
     }
+
+    lazy val nonEmptyListOpt: Option[NonEmptyList[NonEmptyList[A]]] =
+      leadItem.map(NonEmptyList.of(_, associatedItems.map(_.toList).getOrElse(Nil): _*))
 
     def get(index: Int): Option[List[A]] =
       list.get(index.toLong)
