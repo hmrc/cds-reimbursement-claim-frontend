@@ -796,6 +796,7 @@ multiple-check-claim-summary.overall-total.label=Total reimbursement
 multiple-check-claim-summary.are-duties-correct=Are these duties correct?
 multiple-check-claim-summary.yes=Yes
 multiple-check-claim-summary.no=No, select different duties
+multiple-check-claim-summary.error.invalid=Select Yes if these duties are correct.
 
 #===================================================
 #  CHECK CLAIM TIMEOUT PAGE
