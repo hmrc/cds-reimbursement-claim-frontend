@@ -1038,7 +1038,9 @@ check-your-answers.claim-calculation.scheduled.h2=Total reimbursement claim for 
 check-your-answers.claim-calculation.uk-duty.label=UK Duty
 check-your-answers.claim-calculation.eu-duty.label=EU Duty
 check-your-answers.claim-calculation.excise-duty.label=Excise Duty
+check-your-answers.claim-calculation.duty.label=reimbursement claim for MRN {0}
 check-your-answers.claim-calculation.total=Total reimbursement
+check-your-answers.claim-calculation.multiple.total=Total
 
 check-your-answers.bank-details.h2=Bank details
 check-your-answers.attached-documents.h2=Supporting documents
