@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{rout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SelectedDutyTaxCodesReimbursementAnswer, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, SelectedDutyTaxCodesReimbursementAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
@@ -88,7 +88,10 @@ class CheckReimbursementClaimController @Inject() (
             formWithErrors => Future.successful(BadRequest(checkReimbursementClaim(reimbursements, formWithErrors))),
             {
               case Yes =>
-                val updatedClaim = from(fillingOutClaim)(_.copy(claimsAnswer = ClaimsAnswer(reimbursements)))
+                val updatedClaim =
+                  from(fillingOutClaim)(
+                    _.copy(claimedReimbursementsAnswer = ClaimedReimbursementsAnswer(reimbursements))
+                  )
 
                 EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = updatedClaim.some)))
                   .leftMap(_ => Error("Could not update session"))

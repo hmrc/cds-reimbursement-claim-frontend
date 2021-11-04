@@ -96,7 +96,7 @@
     @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
 
     @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.claimsAnswer.summary(s"$key.claim-calculation"))
+    @summary(completeClaim.claimedReimbursementsAnswer.summary(s"$key.claim-calculation"))
 
     @completeClaim.reimbursementMethodAnswer.map { rma =>
         @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")

@@ -272,7 +272,7 @@ class EnterMultipleClaimsControllerSpec
   private def getSessionWithEnteredClaims(
     mrnCount: Int,
     skipNthClaim: Option[Int] = None
-  ): (SessionData, DraftClaim, Seq[MRN], List[List[Claim]]) = {
+  ): (SessionData, DraftClaim, Seq[MRN], List[List[ClaimedReimbursement]]) = {
 
     val leadMrn        = sample[MRN]
     val associatedMrns = nonEmptyListOfMRN.take(mrnCount - 1)
@@ -298,10 +298,11 @@ class EnterMultipleClaimsControllerSpec
     val selectedDutiesLists: List[List[Duty]] =
       selectedTaxCodeLists.map(_.map(Duty.apply)).toList
 
-    val claimsLists: List[List[Claim]] =
+    val claimedReimbursementLists: List[List[ClaimedReimbursement]] =
       ndrcDetailsList
         .map(_.zipWithIndex.map { case (ndrc, i) =>
-          val claim = Claim.fromNdrc(ndrc).getOrElse(Claim.fromDuty(Duty(TaxCode(ndrc.taxType))))
+          val claim =
+            ClaimedReimbursement.fromNdrc(ndrc).getOrElse(ClaimedReimbursement.fromDuty(Duty(TaxCode(ndrc.taxType))))
           claim
             .copy(
               isFilled = !skipNthClaim.contains(i),
@@ -321,10 +322,11 @@ class EnterMultipleClaimsControllerSpec
       associatedMRNsDeclarationAnswer = NonEmptyList.fromList(associatedMrns.zipWithIndex.map(x => acc14(x._2 + 1))),
       basisOfClaimAnswer = Some(IncorrectExciseValue),
       dutiesSelectedAnswer = selectedDutiesLists.headOption.flatMap(NonEmptyList.fromList),
-      claimsAnswer = claimsLists.headOption.flatMap(NonEmptyList.fromList),
+      claimedReimbursementsAnswer = claimedReimbursementLists.headOption.flatMap(NonEmptyList.fromList),
       associatedMRNsDutiesSelectedAnswer =
         NonEmptyList.fromList(selectedDutiesLists.drop(1).map(NonEmptyList.fromListUnsafe)),
-      associatedMRNsClaimsAnswer = NonEmptyList.fromList(claimsLists.drop(1).map(NonEmptyList.fromListUnsafe))
+      associatedMRNsClaimsAnswer =
+        NonEmptyList.fromList(claimedReimbursementLists.drop(1).map(NonEmptyList.fromListUnsafe))
     )
 
     val ggCredId            = sample[GGCredId]
@@ -336,7 +338,7 @@ class EnterMultipleClaimsControllerSpec
       SessionData.empty.copy(journeyStatus = Some(journey)),
       journey.draftClaim,
       leadMrn :: associatedMrns,
-      claimsLists
+      claimedReimbursementLists
     )
   }
 
@@ -353,7 +355,7 @@ class EnterMultipleClaimsControllerSpec
     elements.eachText() should contain allElementsOf expectedHeaders
   }
 
-  def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[Claim]])(implicit
+  def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[ClaimedReimbursement]])(implicit
     pos: Position
   ): Unit = {
     val elements       = document.select("dd.govuk-summary-list__value")

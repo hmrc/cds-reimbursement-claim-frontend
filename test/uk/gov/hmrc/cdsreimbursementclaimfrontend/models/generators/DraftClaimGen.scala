@@ -22,7 +22,7 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer, TypeOfClaim}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen.arbitraryClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetailsOpt
@@ -59,7 +59,7 @@ object DraftClaimGen {
       claimNorthernIrelandAnswer     <- arbitraryNorthernIrelandAnswer.arbitrary
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
-      claimsAnswer                   <- arbitraryClaimsAnswer.arbitrary
+      claimedReimbursementsAnswer    <- arbitraryClaimedReimbursementsAnswer.arbitrary
       reimbursementMethodAnswer      <- arbitraryReimbursementMethodAnswer.arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(typeOfClaim)
       associatedMRNsAnswer           <- genAssociatedMrnsAnswer(typeOfClaim)
@@ -81,7 +81,7 @@ object DraftClaimGen {
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
-      claimsAnswer = claimsAnswer.some,
+      claimedReimbursementsAnswer = claimedReimbursementsAnswer.some,
       reimbursementMethodAnswer =
         if (typeOfClaim === TypeOfClaim.Individual)
           reimbursementMethodAnswer

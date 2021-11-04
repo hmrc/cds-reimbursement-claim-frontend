@@ -23,13 +23,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
-class ClaimsAnswerSummary extends AnswerSummary[ClaimsAnswer] {
+class ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
 
-  def render(key: String, claims: ClaimsAnswer)(implicit
+  def render(key: String, reimbursements: ClaimedReimbursementsAnswer)(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
@@ -38,7 +38,7 @@ class ClaimsAnswerSummary extends AnswerSummary[ClaimsAnswer] {
         reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()
       else claimsRoutes.EnterClaimController.checkClaimSummary()
 
-    val individualClaimSummaries = DutyTypeSummary.buildFrom(claims)
+    val individualClaimSummaries = DutyTypeSummary.buildFrom(reimbursements)
 
     SummaryList(rows =
       individualClaimSummaries

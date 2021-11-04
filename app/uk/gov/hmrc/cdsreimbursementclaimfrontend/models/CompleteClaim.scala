@@ -47,7 +47,7 @@ final case class CompleteClaim(
   maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
-  claimsAnswer: ClaimsAnswer,
+  claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
@@ -146,8 +146,10 @@ object CompleteClaim {
   ): Validation[DeclarantTypeAnswer] =
     maybeDeclarantTypeAnswer toValidNel "missing declarant type answer"
 
-  def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
-    maybeClaimsAnswer toValidNel "missing claims answer"
+  def validateClaimedReimbursementsAnswer(
+    maybeReimbursementsAnswer: Option[ClaimedReimbursementsAnswer]
+  ): Validation[ClaimedReimbursementsAnswer] =
+    maybeReimbursementsAnswer toValidNel "missing claimed reimbursements"
 
   def validateDetailsRegisteredWithCdsEntryNumber(
     maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]

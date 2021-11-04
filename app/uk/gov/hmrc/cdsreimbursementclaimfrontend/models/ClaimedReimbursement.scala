@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim.{PaymentMethod, PaymentReference}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement.{PaymentMethod, PaymentReference}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 
 import java.util.UUID
 
-final case class Claim(
+final case class ClaimedReimbursement(
   taxCode: TaxCode,
   paidAmount: BigDecimal,
   claimAmount: BigDecimal,
@@ -35,18 +35,18 @@ final case class Claim(
 
   def correctedAmount: BigDecimal = paidAmount - claimAmount
 
-  def fillWithCorrectedAmount(correctedAmount: BigDecimal): Claim =
+  def fillWithCorrectedAmount(correctedAmount: BigDecimal): ClaimedReimbursement =
     copy(isFilled = true, claimAmount = paidAmount - correctedAmount)
 
 }
 
-object Claim {
+object ClaimedReimbursement {
 
-  def fromNdrc(ndrc: NdrcDetails): Option[Claim] =
+  def fromNdrc(ndrc: NdrcDetails): Option[ClaimedReimbursement] =
     TaxCodes
       .find(ndrc.taxType)
       .map(taxType =>
-        Claim(
+        ClaimedReimbursement(
           paymentMethod = ndrc.paymentMethod,
           paymentReference = ndrc.paymentReference,
           taxCode = taxType,
@@ -55,7 +55,7 @@ object Claim {
         )
       )
 
-  def fromDuty(duty: Duty): Claim = Claim(
+  def fromDuty(duty: Duty): ClaimedReimbursement = ClaimedReimbursement(
     taxCode = duty.taxCode,
     paidAmount = 0,
     claimAmount = 0,
@@ -73,25 +73,28 @@ object Claim {
 
   // TODO: Remove - the only usage is ClaimSummaryHelper which is obsolete.
   // The check claim page for the single journey has a new design and please use DutyTypeSummary which has 100% better optimised lookup
-  implicit class ListClaimOps(val claims: NonEmptyList[Claim]) extends AnyVal {
+  implicit class ListClaimOps(val claims: NonEmptyList[ClaimedReimbursement]) extends AnyVal {
 
     def total: BigDecimal = claims.map(_.claimAmount).toList.sum
 
-    def isUkClaim(claim: Claim): Boolean     = TaxCodes.UK.contains(claim.taxCode)
-    def isEuClaim(claim: Claim): Boolean     = TaxCodes.EU.contains(claim.taxCode)
-    def isExciseClaim(claim: Claim): Boolean = TaxCodes.excise.contains(claim.taxCode)
+    def isUkClaim(claim: ClaimedReimbursement): Boolean     = TaxCodes.UK.contains(claim.taxCode)
+    def isEuClaim(claim: ClaimedReimbursement): Boolean     = TaxCodes.EU.contains(claim.taxCode)
+    def isExciseClaim(claim: ClaimedReimbursement): Boolean = TaxCodes.excise.contains(claim.taxCode)
 
-    def ukClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isUkClaim(claim))
-    def euClaims(claims: NonEmptyList[Claim]): List[Claim]     = claims.filter(claim => isEuClaim(claim))
-    def exciseClaims(claims: NonEmptyList[Claim]): List[Claim] = claims.filter(claim => isExciseClaim(claim))
+    def ukClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement]     =
+      claims.filter(claim => isUkClaim(claim))
+    def euClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement]     =
+      claims.filter(claim => isEuClaim(claim))
+    def exciseClaims(claims: NonEmptyList[ClaimedReimbursement]): List[ClaimedReimbursement] =
+      claims.filter(claim => isExciseClaim(claim))
 
     def ukClaimTotal: BigDecimal = claims.filter(claim => isUkClaim(claim)).map(_.claimAmount).sum
 
-    def containsUkClaim(claims: NonEmptyList[Claim]): Boolean     = ukClaims(claims).nonEmpty
-    def containsEuClaim(claims: NonEmptyList[Claim]): Boolean     = euClaims(claims).nonEmpty
-    def containsExciseClaim(claims: NonEmptyList[Claim]): Boolean = exciseClaims(claims).nonEmpty
+    def containsUkClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean     = ukClaims(claims).nonEmpty
+    def containsEuClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean     = euClaims(claims).nonEmpty
+    def containsExciseClaim(claims: NonEmptyList[ClaimedReimbursement]): Boolean = exciseClaims(claims).nonEmpty
 
   }
 
-  implicit val format: OFormat[Claim] = Json.format[Claim]
+  implicit val format: OFormat[ClaimedReimbursement] = Json.format[ClaimedReimbursement]
 }

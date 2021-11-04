@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.Authenticat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -201,7 +201,9 @@ class EnterMultipleClaimsController @Inject() (
     }
 
   private def whenAuthenticatedAndValidRequest(mrnIndex: Int, taxCode: TaxCode)(
-    body: RequestWithSessionData[_] => FillingOutClaim => MRN => List[Claim] => Claim => Future[Result]
+    body: RequestWithSessionData[_] => FillingOutClaim => MRN => List[
+      ClaimedReimbursement
+    ] => ClaimedReimbursement => Future[Result]
   ): Action[AnyContent] = {
     val index = mrnIndex - 1
     authenticatedActionWithSessionData.async { implicit request =>
@@ -255,9 +257,9 @@ object EnterMultipleClaimsController {
   def prepareClaims(
     index: Int,
     selectedDuties: List[Duty],
-    existingClaims: List[Claim],
+    existingClaims: List[ClaimedReimbursement],
     journey: FillingOutClaim
-  ): List[Claim] = {
+  ): List[ClaimedReimbursement] = {
 
     val ndrcDetails: Option[List[NdrcDetails]] =
       journey.draftClaim.Declarations
@@ -273,9 +275,9 @@ object EnterMultipleClaimsController {
           ndrcDetails
             .flatMap(
               _.find(ndrc => ndrc.taxType === duty.taxCode.value)
-                .flatMap(ndrc => Claim.fromNdrc(ndrc))
+                .flatMap(ndrc => ClaimedReimbursement.fromNdrc(ndrc))
             )
-            .getOrElse(Claim.fromDuty(duty))
+            .getOrElse(ClaimedReimbursement.fromDuty(duty))
       }
     }
   }
@@ -283,15 +285,15 @@ object EnterMultipleClaimsController {
   def updateJourneyWithClaim(
     journey: FillingOutClaim,
     index: Int,
-    claims: List[Claim],
-    newClaim: Claim
+    claims: List[ClaimedReimbursement],
+    newClaim: ClaimedReimbursement
   ): Either[String, FillingOutClaim] =
     NonEmptyList
       .fromList(claims)
       .replaceOrAppend(claims.indexWhere(_.taxCode === newClaim.taxCode), newClaim)
       .flatMap { claimsAnswer =>
         if (index === 0) {
-          Right(journey.copy(draftClaim = journey.draftClaim.copy(claimsAnswer = claimsAnswer)))
+          Right(journey.copy(draftClaim = journey.draftClaim.copy(claimedReimbursementsAnswer = claimsAnswer)))
         } else
           claimsAnswer
             .map { ca =>
@@ -305,7 +307,7 @@ object EnterMultipleClaimsController {
             .getOrElse(Left(s"Missing claims answer for ${OrdinalNumeral(index + 1)} MRN."))
       }
 
-  def firstMissingClaimEntry(claimsList: NonEmptyList[NonEmptyList[Claim]]): Option[(Int, TaxCode)] =
+  def firstMissingClaimEntry(claimsList: NonEmptyList[NonEmptyList[ClaimedReimbursement]]): Option[(Int, TaxCode)] =
     claimsList.zipWithIndex
       .collect { case (claims, index) =>
         claims.find(claim => !claim.isFilled).map(claim => (index + 1, claim.taxCode))

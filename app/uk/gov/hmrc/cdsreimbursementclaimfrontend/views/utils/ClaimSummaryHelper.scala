@@ -18,8 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
 import play.api.i18n.{Lang, Langs, MessagesApi}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, Claim}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, ClaimedReimbursement}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, _}
 
@@ -32,18 +32,16 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
 
   private val key = "check-claim-summary"
 
-  def makeUkClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.ukClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.ukClaims(claimsAnswer))
+  def makeUkClaimSummary(answer: ClaimedReimbursementsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(answer.ukClaims(answer)) ++ makeTotalRow(answer.ukClaims(answer))
 
-  def makeEuClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.euClaims(claimsAnswer)) ++ makeTotalRow(claimsAnswer.euClaims(claimsAnswer))
+  def makeEuClaimSummary(answer: ClaimedReimbursementsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(answer.euClaims(answer)) ++ makeTotalRow(answer.euClaims(answer))
 
-  def makeExciseClaimSummary(claimsAnswer: ClaimsAnswer): List[SummaryListRow] =
-    makeClaimSummaryRows(claimsAnswer.exciseClaims(claimsAnswer)) ++ makeTotalRow(
-      claimsAnswer.exciseClaims(claimsAnswer)
-    )
+  def makeExciseClaimSummary(answer: ClaimedReimbursementsAnswer): List[SummaryListRow] =
+    makeClaimSummaryRows(answer.exciseClaims(answer)) ++ makeTotalRow(answer.exciseClaims(answer))
 
-  def makeClaimSummaryRows(claims: List[Claim]): List[SummaryListRow] =
+  def makeClaimSummaryRows(claims: List[ClaimedReimbursement]): List[SummaryListRow] =
     claims.map { claim =>
       SummaryListRow(
         key = Key(Text(messages(s"select-duties.duty.${claim.taxCode}")(lang))),
@@ -62,13 +60,13 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
       )
     }
 
-  def makeTotalRow(claims: List[Claim]): List[SummaryListRow] =
+  def makeTotalRow(claims: List[ClaimedReimbursement]): List[SummaryListRow] =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
       value = Value(Text(claims.map(_.claimAmount).sum.toPoundSterlingString))
     ) :: Nil
 
-  def makeClaimTotalRow(claims: ClaimsAnswer): SummaryListRow =
+  def makeClaimTotalRow(claims: ClaimedReimbursementsAnswer): SummaryListRow =
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
       value = Value(Text(claims.total.toPoundSterlingString))

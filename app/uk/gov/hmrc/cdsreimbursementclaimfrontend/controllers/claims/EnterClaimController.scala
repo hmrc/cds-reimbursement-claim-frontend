@@ -33,9 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, DraftClaim, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
@@ -63,12 +63,12 @@ class EnterClaimController @Inject() (
     with SessionDataExtractor
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[ClaimsAnswer] = _.claimsAnswer
+  implicit val dataExtractor: DraftClaim => Option[ClaimedReimbursementsAnswer] = _.claimedReimbursementsAnswer
 
   def startClaim(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, _) =>
-        generateClaimsFromDuties(fillingOutClaim.draftClaim).map(ClaimsAnswer(_)) match {
+      withAnswers[ClaimedReimbursementsAnswer] { (fillingOutClaim, _) =>
+        generateReimbursementsFromDuties(fillingOutClaim.draftClaim).map(ClaimedReimbursementsAnswer(_)) match {
           case Left(error)         =>
             logger.warn("Error generating claims: ", error)
             Redirect(routes.SelectDutiesController.selectDuties())
@@ -77,14 +77,14 @@ class EnterClaimController @Inject() (
             Redirect(routes.SelectDutiesController.selectDuties())
           case Right(Some(claims)) =>
             val nextPage = calculateNextPage(claims)
-            updateClaimAnswer(claims, fillingOutClaim, nextPage)
+            updateClaimedReimbursementsAnswer(claims, fillingOutClaim, nextPage)
         }
       }
     }
 
   def enterClaim(id: UUID): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (_, answer) =>
+      withAnswers[ClaimedReimbursementsAnswer] { (_, answer) =>
         answer
           .flatMap(_.find(_.id === id))
           .map { claim =>
@@ -98,25 +98,25 @@ class EnterClaimController @Inject() (
 
   def enterClaimSubmit(id: UUID): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim, answers) =>
+      withAnswers[ClaimedReimbursementsAnswer] { (fillingOutClaim, answers) =>
         answers match {
-          case None         =>
+          case None                 =>
             Redirect(routes.EnterClaimController.startClaim())
-          case Some(claims) =>
-            claims.find(_.id === id) match {
-              case None        =>
+          case Some(reimbursements) =>
+            reimbursements.find(_.id === id) match {
+              case None                =>
                 Redirect(routes.EnterClaimController.startClaim())
-              case Some(claim) =>
-                mrnClaimAmountForm(claim.paidAmount)
+              case Some(reimbursement) =>
+                mrnClaimAmountForm(reimbursement.paidAmount)
                   .bindFromRequest()
                   .fold(
                     formWithErrors => {
                       val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "enter-claim"))
-                      BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), claim))
+                      BadRequest(enterClaimPage(id, formWithErrors.copy(errors = updatedErrors), reimbursement))
                     },
                     formOk => {
-                      val newClaim = claim.copy(claimAmount = formOk.amount, isFilled = true)
-                      replaceUpdateRedirect(claims, newClaim, fillingOutClaim)
+                      val newClaim = reimbursement.copy(claimAmount = formOk.amount, isFilled = true)
+                      replaceUpdateRedirect(reimbursements, newClaim, fillingOutClaim)
                     }
                   )
             }
@@ -126,7 +126,7 @@ class EnterClaimController @Inject() (
 
   def checkClaimSummary(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (_, answers) =>
+      withAnswers[ClaimedReimbursementsAnswer] { (_, answers) =>
         answers match {
           case Some(claims) => Ok(checkClaimSummaryPage(claims, whetherClaimCorrect))
           case None         => Redirect(routes.EnterClaimController.startClaim())
@@ -136,12 +136,12 @@ class EnterClaimController @Inject() (
 
   def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
+      withAnswers[ClaimedReimbursementsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
         whetherClaimCorrect
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              fillingOutClaim.draftClaim.claimsAnswer
+              fillingOutClaim.draftClaim.claimedReimbursementsAnswer
                 .map(claims => Future.successful(BadRequest(checkClaimSummaryPage(claims, formWithErrors))))
                 .getOrElse(Future.successful(errorHandler.errorResult())),
             {
@@ -159,31 +159,39 @@ class EnterClaimController @Inject() (
       }
     }
 
-  protected def calculateNextPage(claimAnswer: ClaimsAnswer): Result =
-    claimAnswer.find(_.isFilled === false) match {
+  protected def calculateNextPage(claimedReimbursements: ClaimedReimbursementsAnswer): Result =
+    claimedReimbursements.find(_.isFilled === false) match {
       case Some(claim) =>
         Redirect(routes.EnterClaimController.enterClaim(claim.id))
       case None        =>
         Redirect(routes.EnterClaimController.checkClaimSummary())
     }
 
-  protected def updateClaimAnswer(claimAnswer: ClaimsAnswer, fillingOutClaim: FillingOutClaim, nextPage: Result)(
-    implicit request: RequestWithSessionData[AnyContent]
+  protected def updateClaimedReimbursementsAnswer(
+    reimbursements: ClaimedReimbursementsAnswer,
+    fillingOutClaim: FillingOutClaim,
+    nextPage: Result
+  )(implicit
+    request: RequestWithSessionData[AnyContent]
   ): Future[Result] = {
-    val newDraftClaim  = fillingOutClaim.draftClaim.copy(claimsAnswer = Some(claimAnswer))
+    val newDraftClaim  = fillingOutClaim.draftClaim.copy(claimedReimbursementsAnswer = Some(reimbursements))
     val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
     EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
       .leftMap(_ => Error("could not update session"))
       .fold(logAndDisplayError("could not save claims"), _ => nextPage)
   }
 
-  protected def replaceUpdateRedirect(claimAnswer: ClaimsAnswer, newClaim: Claim, fillingOutClaim: FillingOutClaim)(
-    implicit request: RequestWithSessionData[AnyContent]
+  protected def replaceUpdateRedirect(
+    answer: ClaimedReimbursementsAnswer,
+    newReimbursement: ClaimedReimbursement,
+    fillingOutClaim: FillingOutClaim
+  )(implicit
+    request: RequestWithSessionData[AnyContent]
   ): Future[Result] = {
-    val notEditedClaims = claimAnswer.toList.filterNot(_.id === newClaim.id)
-    val claims          = ClaimsAnswer(newClaim, notEditedClaims: _*)
+    val notEditedClaims = answer.toList.filterNot(_.id === newReimbursement.id)
+    val claims          = ClaimedReimbursementsAnswer(newReimbursement, notEditedClaims: _*)
     val nextPage        = calculateNextPage(claims)
-    updateClaimAnswer(claims, fillingOutClaim, nextPage)
+    updateClaimedReimbursementsAnswer(claims, fillingOutClaim, nextPage)
   }
 
 }
@@ -223,8 +231,8 @@ object EnterClaimController {
         .verifying("invalid.claim", a => a.amount <= paidAmount)
     )
 
-  def generateClaimsFromDuties(draftC285Claim: DraftClaim): Either[Error, List[Claim]] = {
-    val claims      = draftC285Claim.claimsAnswer.map(_.toList).getOrElse(Nil)
+  def generateReimbursementsFromDuties(draftC285Claim: DraftClaim): Either[Error, List[ClaimedReimbursement]] = {
+    val claims      = draftC285Claim.claimedReimbursementsAnswer.map(_.toList).getOrElse(Nil)
     val ndrcDetails = draftC285Claim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails).getOrElse(Nil)
     draftC285Claim.dutiesSelectedAnswer
       .map(_.toList)
@@ -235,8 +243,8 @@ object EnterClaimController {
           case None        => //No Claim for the given Duty, we have to create one
             ndrcDetails
               .find(ndrc => ndrc.taxType === duty.taxCode.value)
-              .flatMap(ndrc => Claim.fromNdrc(ndrc))
-              .getOrElse(Claim.fromDuty(duty))
+              .flatMap(ndrc => ClaimedReimbursement.fromNdrc(ndrc))
+              .getOrElse(ClaimedReimbursement.fromDuty(duty))
         }
       }.toList)
   }

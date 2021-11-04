@@ -17,26 +17,26 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, Reimbursement, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, Reimbursement, TaxCode}
 
-object ClaimsAnswer {
+object ClaimedReimbursementsAnswer {
 
-  def apply(head: Claim, tail: Claim*): ClaimsAnswer =
+  def apply(head: ClaimedReimbursement, tail: ClaimedReimbursement*): ClaimedReimbursementsAnswer =
     NonEmptyList.of(head, tail: _*)
 
-  def apply(l: List[Claim]): Option[ClaimsAnswer] =
-    NonEmptyList.fromList(l)
+  def apply(items: List[ClaimedReimbursement]): Option[ClaimedReimbursementsAnswer] =
+    NonEmptyList.fromList(items)
 
-  def apply(selectedDutyTaxCodesReimbursements: SelectedDutyTaxCodesReimbursementAnswer): Option[ClaimsAnswer] = {
+  def apply(reimbursements: SelectedDutyTaxCodesReimbursementAnswer): Option[ClaimedReimbursementsAnswer] = {
 
     def toClaim(taxCodeWithClaim: (TaxCode, Reimbursement)) =
-      Claim(
+      ClaimedReimbursement(
         taxCode = taxCodeWithClaim._1,
         paidAmount = taxCodeWithClaim._2.paidAmount,
         claimAmount = taxCodeWithClaim._2.shouldOfPaid
       )
 
-    selectedDutyTaxCodesReimbursements.combine.flatMap { combinedReimbursements =>
+    reimbursements.combine.flatMap { combinedReimbursements =>
       NonEmptyList.fromList(combinedReimbursements.map(toClaim).toList)
     }
   }
