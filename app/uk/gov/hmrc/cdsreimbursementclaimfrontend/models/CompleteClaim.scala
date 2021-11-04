@@ -30,6 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber
 
 import java.util.UUID
 import cats.data.NonEmptyList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Multiple
 
 final case class CompleteClaim(
   id: UUID,
@@ -65,6 +68,16 @@ final case class CompleteClaim(
       .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
     mrns.zipWith(claims)((m, c) => (m, c))
   }
+
+  lazy val totalReimbursementAmount: BigDecimal =
+    typeOfClaim
+      .map {
+        case Individual => claimsAnswer.total
+        case Scheduled  => claimsAnswer.total
+        case Multiple   =>
+          multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+      }
+      .getOrElse(0)
 
 }
 
