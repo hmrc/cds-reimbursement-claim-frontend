@@ -26,7 +26,7 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterReimbursementClaimControllerSpec.formatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimControllerSpec.formatter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -45,7 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, D
 import java.text.DecimalFormat
 import scala.collection.immutable.SortedMap
 
-class EnterReimbursementClaimControllerSpec
+class EnterScheduledClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -300,7 +300,7 @@ class EnterReimbursementClaimControllerSpec
   }
 }
 
-object EnterReimbursementClaimControllerSpec {
+object EnterScheduledClaimControllerSpec {
 
   private val formatter = new DecimalFormat()
 
