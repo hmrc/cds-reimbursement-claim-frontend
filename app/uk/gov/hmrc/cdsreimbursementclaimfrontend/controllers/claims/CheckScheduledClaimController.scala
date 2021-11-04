@@ -44,7 +44,7 @@ class CheckScheduledClaimController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  checkSingleClaimPage: pages.check_scheduled_claim_summary
+  checkScheduledClaimPage: pages.check_scheduled_claim_summary
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -65,7 +65,7 @@ class CheckScheduledClaimController @Inject() (
 
       def loadPage(answer: SelectedDutyTaxCodesReimbursementAnswer): Future[Result] =
         Future.successful(
-          Ok(checkSingleClaimPage(answer, whetherDutiesCorrectForm))
+          Ok(checkScheduledClaimPage(answer, whetherDutiesCorrectForm))
         )
 
       maybeAnswer.fold(redirectToSelectDutiesPage)(loadPage)
@@ -84,7 +84,7 @@ class CheckScheduledClaimController @Inject() (
         whetherDutiesCorrectForm
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(checkSingleClaimPage(reimbursements, formWithErrors))),
+            formWithErrors => Future.successful(BadRequest(checkScheduledClaimPage(reimbursements, formWithErrors))),
             {
               case Yes =>
                 val updatedClaim =
