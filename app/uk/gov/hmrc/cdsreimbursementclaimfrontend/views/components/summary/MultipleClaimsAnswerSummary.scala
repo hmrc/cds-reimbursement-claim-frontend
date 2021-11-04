@@ -21,15 +21,15 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 
-class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, ClaimsAnswer)]] {
+class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, ClaimedReimbursementsAnswer)]] {
 
-  def render(key: String, mrnsWithClaimsList: NonEmptyList[(MRN, ClaimsAnswer)])(implicit
+  def render(key: String, mrnsWithClaimsList: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)])(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
