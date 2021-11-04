@@ -148,10 +148,13 @@ class EnterMultipleClaimsController @Inject() (
                   case None =>
                     val mrnsWithClaimsList = mrns.zipWithIndex
                       .zipWith(claimsList) { case ((mrn, index), claim) => (index, mrn, claim) }
-                    val changeCall         =
+                    val submitCall         =
+                      routes.EnterMultipleClaimsController.checkClaimSummarySubmit.maybeSetChangeFlag
+
+                    val changeCall =
                       (mrnIndex: Int, taxCode: TaxCode) =>
                         routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode).setChangeFlag
-                    Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, isClaimCorrectForm, changeCall))
+                    Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, isClaimCorrectForm, submitCall, changeCall))
                 }
             }
         }
@@ -181,14 +184,21 @@ class EnterMultipleClaimsController @Inject() (
                         formWithErrors => {
                           val mrnsWithClaimsList = mrns.zipWithIndex
                             .zipWith(claimsList) { case ((mrn, index), claim) => (index, mrn, claim) }
+                          val submitCall         =
+                            routes.EnterMultipleClaimsController.checkClaimSummarySubmit.maybeSetChangeFlag
                           val changeCall         =
                             (mrnIndex: Int, taxCode: TaxCode) =>
                               routes.EnterMultipleClaimsController.enterClaim(mrnIndex, taxCode).setChangeFlag
-                          Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, formWithErrors, changeCall))
+                          Ok(checkMultipleClaimSummaryPage(mrnsWithClaimsList, formWithErrors, submitCall, changeCall))
                         },
                         {
                           case Yes =>
-                            Redirect(routes.BankAccountController.checkBankAccountDetails(Multiple))
+                            Redirect(
+                              if (isChangeRequest)
+                                routes.CheckYourAnswersAndSubmitController.checkAllAnswers(Multiple)
+                              else
+                                routes.BankAccountController.checkBankAccountDetails(Multiple)
+                            )
 
                           case No =>
                             Redirect(routes.SelectMultipleDutiesController.selectDuties(1))

@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -96,7 +97,12 @@
     @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
 
     @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.claimsAnswer.summary(s"$key.claim-calculation"))
+    @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Individual) || completeClaim.typeOfClaim.contains(TypeOfClaim.Scheduled)){
+        @summary(completeClaim.claimsAnswer.summary(s"$key.claim-calculation"))
+    }
+    @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Multiple)){
+        @summary(completeClaim.multipleClaimsAnswer.summary(s"$key.claim-calculation"))
+    }
 
     @completeClaim.reimbursementMethodAnswer.map { rma =>
         @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
