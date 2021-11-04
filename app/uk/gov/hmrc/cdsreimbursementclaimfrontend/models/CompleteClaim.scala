@@ -51,7 +51,8 @@ final case class CompleteClaim(
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  typeOfClaim: Option[TypeOfClaim]
+  typeOfClaim: Option[TypeOfClaim],
+  maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 )
 
 object CompleteClaim {
@@ -84,7 +85,7 @@ object CompleteClaim {
             maybeAssociatedMRNs,
             _,
             _,
-            _,
+            maybeAssociatedMRNsClaimsAnswer,
             _
           ) =>
         (
@@ -126,7 +127,8 @@ object CompleteClaim {
               maybeReimbursementMethodAnswer,
               maybeScheduledDocumentAnswer,
               maybeAssociatedMRNs,
-              typeOfClaim
+              typeOfClaim,
+              maybeAssociatedMRNsClaimsAnswer
             )
         }.toEither
           .leftMap { errors =>
