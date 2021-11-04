@@ -46,7 +46,7 @@ import scala.concurrent.Future
 import scala.util.Random
 
 @SuppressWarnings(Array("org.wartremover.warts.TraversableOps", "org.wartremover.warts.OptionPartial"))
-class EnterClaimedReimbursementControllerSpec
+class EnterSingleClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
