@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
 
 import java.util.UUID
+import cats.data.NonEmptyList
 
 final case class CompleteClaim(
   id: UUID,
@@ -53,7 +54,19 @@ final case class CompleteClaim(
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
   typeOfClaim: Option[TypeOfClaim],
   maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
-)
+) {
+
+  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimsAnswer)] = {
+    val mrns   = associatedMRNsAnswer
+      .map(mrns => movementReferenceNumber :: mrns)
+      .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
+    val claims = maybeAssociatedMRNsClaimsAnswer
+      .map(claimsAnswers => claimsAnswer :: claimsAnswers)
+      .getOrElse(NonEmptyList(claimsAnswer, Nil))
+    mrns.zipWith(claims)((m, c) => (m, c))
+  }
+
+}
 
 object CompleteClaim {
 

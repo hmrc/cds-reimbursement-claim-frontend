@@ -43,7 +43,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(mrnWithClaimsList: NonEmptyList[(Int,MRN,NonEmptyList[ClaimedReimbursement])], form: Form[YesNo], changeCall: (Int, TaxCode) => Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(mrnWithClaimsList: NonEmptyList[(Int,MRN,NonEmptyList[ClaimedReimbursement])], form: Form[YesNo], submitCall: Call, changeCall: (Int, TaxCode) => Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 
 @key = @{"multiple-check-claim-summary"}
@@ -66,7 +66,7 @@
     @pageHeading(messages(s"$key.overall-total.header"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @summary(SummaryList(List(claimSummaryHelper.makeOverallTotalRow(mrnWithClaimsList)),"govuk-!-margin-bottom-9"))
 
-    @formWithCSRF(routes.EnterMultipleClaimsController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
+    @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
         @radios(
             form = form,
             name = key,

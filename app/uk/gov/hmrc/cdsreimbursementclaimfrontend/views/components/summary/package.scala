@@ -24,6 +24,7 @@ package object summary {
 
   implicit val claimTypeSummary: ClaimTypeSummary                                 = new ClaimTypeSummary
   implicit val basisOfClaimSummary: BasisOfClaimSummary                           = new BasisOfClaimSummary
+  implicit val multipleClaimsAnswerSummary: MultipleClaimsAnswerSummary           = new MultipleClaimsAnswerSummary
   implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
   implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
