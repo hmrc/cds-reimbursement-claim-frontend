@@ -25,6 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 
 class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, ClaimsAnswer)]] {
 
@@ -32,7 +33,8 @@ class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, Claim
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
-    val amendCall = claimsRoutes.EnterMultipleClaimsController.checkClaimSummary()
+    val amendCall =
+      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary().setChangeFlag
 
     val totalAmount: BigDecimal =
       mrnsWithClaimsList.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
