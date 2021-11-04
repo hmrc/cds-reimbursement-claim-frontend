@@ -25,7 +25,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.ACCEPTED
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import play.api.test.Helpers.{LOCATION, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddres
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
 import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -139,6 +138,33 @@ class AddressLookupServiceSpec
         mockGetAddress(id)(Right(HttpResponse(NOT_FOUND, Json.obj().toString())))
 
         await(addressLookupService.retrieveUserAddress(id).value).isLeft should be(true)
+      }
+    }
+
+    "an address with only one address line" should {
+      import DefaultAddressLookupService.addressLookupResponseReads
+
+      "fail to deserialise" in {
+        val addressJson = Json.parse("""{
+            |    "auditRef": "101ca9ed-8dab-4868-80e3-024642e33df7",
+            |    "address":
+            |    {
+            |        "lines":
+            |        [
+            |            "Buckingham Palace"
+            |        ],
+            |        "country":
+            |        {
+            |            "code": "GB",
+            |            "name": "United Kingdom"
+            |        },
+            |        "postcode": "SW1A 1AA"
+            |    }
+            |}""".stripMargin)
+
+        val path = JsPath \ "address" \ "lines"
+        val err  = JsonValidationError("error.minLength", 2)
+        addressJson.validate[ContactAddress] shouldBe JsError(List((path, List(err))))
       }
     }
   }
