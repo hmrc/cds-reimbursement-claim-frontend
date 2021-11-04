@@ -443,6 +443,55 @@ class CheckContactDetailsMrnControllerSpec
         )
       }
     }
+
+    "Redirect to the problem page" when {
+      def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
+        controller.updateAddress(journey, maybeAddressId)(FakeRequest())
+
+      "user chooses an address without a post code" in forAll(journeys) { journey =>
+        val id            = sample[UUID]
+        val acc14         = genAcc14WithAddresses
+        val (session, _)  = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey))
+        )
+        val errorResponse = Error("parsing address lookup response:/address/postcode: error.path.missing")
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockAddressRetrieve(Left(errorResponse))
+        }
+
+        checkIsRedirect(
+          updateAddress(journey, Some(id)),
+          routes.ProblemWithAddressController.problem(journey)
+        )
+      }
+
+      "user chooses an address without an address line 1" in forAll(journeys) { journey =>
+        val id            = sample[UUID]
+        val acc14         = genAcc14WithAddresses
+        val (session, _)  = getSessionWithPreviousAnswer(
+          Some(acc14),
+          Some(DeclarantTypeAnswer.Importer),
+          Some(toSelectNumberOfClaims(journey))
+        )
+        val errorResponse = Error("parsing address lookup response:/address/lines: error.minLength")
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+          mockAddressRetrieve(Left(errorResponse))
+        }
+
+        checkIsRedirect(
+          updateAddress(journey, Some(id)),
+          routes.ProblemWithAddressController.problem(journey)
+        )
+      }
+    }
   }
 
   "CheckContactDetailsMrnController Companion object" should {

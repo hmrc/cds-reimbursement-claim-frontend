@@ -44,7 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -174,7 +173,15 @@ class CheckContactDetailsMrnController @Inject() (
           .map(updateLookupAddress)
           .getOrElse(EitherT.rightT[Future, Error](()))
           .fold(
-            logAndDisplayError("Error updating Address Lookup address: "),
+            {
+              case e @ Error(message, _, _)
+                  if message.contains("/address/postcode: error.path.missing") ||
+                    message.contains("/address/lines: error.minLength") =>
+                logger warn s"Error updating Address Lookup address: $e"
+                Redirect(routes.ProblemWithAddressController.problem(journey))
+              case e: Error =>
+                logAndDisplayError("Error updating Address Lookup address: ")(errorHandler, request)(e)
+            },
             _ => Redirect(routes.CheckContactDetailsMrnController.show(journey))
           )
       }(dataExtractor, request, journey)

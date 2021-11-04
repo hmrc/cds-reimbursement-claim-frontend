@@ -30,9 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
 import java.net.URL
 import java.util.UUID
+import play.api.libs.json.Reads.minLength
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DefaultAddressLookupService])
@@ -86,7 +86,7 @@ class DefaultAddressLookupService @Inject() (connector: AddressLookupConnector)(
 object DefaultAddressLookupService {
 
   implicit val addressLookupResponseReads: Reads[ContactAddress] = (
-    (JsPath \ "address" \ "lines").read[Array[String]] and
+    (JsPath \ "address" \ "lines").read[Array[String]](minLength[Array[String]](2)) and
       (JsPath \ "address" \ "postcode").read[String] and
       (JsPath \ "address" \ "country" \ "code").read[String].map(Country(_))
   ).apply((lines, postcode, country) =>
