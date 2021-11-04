@@ -50,7 +50,7 @@ class ClaimSummaryHelper @Inject() (implicit langs: Langs, messages: MessagesApi
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.EnterClaimController.enterClaim(claim.id).url}",
+                href = s"${routes.EnterSingleClaimController.enterClaim(claim.id).url}",
                 content = Text(messages("cya.change")(lang)),
                 visuallyHiddenText = Some(messages(s"select-duties.duty.${claim.taxCode}")(lang))
               )

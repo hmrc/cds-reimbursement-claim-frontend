@@ -26,7 +26,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, DutiesSelectedAnswer}
@@ -53,7 +52,7 @@ class EnterClaimedReimbursementControllerSpec
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
-  lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
+  lazy val controller: EnterSingleClaimController      = instanceOf[EnterSingleClaimController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
@@ -166,7 +165,7 @@ class EnterClaimedReimbursementControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary()
       )
 
     }
@@ -187,7 +186,7 @@ class EnterClaimedReimbursementControllerSpec
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterSingleClaimController.enterClaim(UUID.randomUUID()).url
       )
     }
 
@@ -210,7 +209,7 @@ class EnterClaimedReimbursementControllerSpec
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterSingleClaimController.enterClaim(UUID.randomUUID()).url
       )
     }
   }
@@ -335,7 +334,7 @@ class EnterClaimedReimbursementControllerSpec
             "enter-claim" -> "5.00"
           )
         ),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary()
       )
     }
 
@@ -438,10 +437,10 @@ class EnterClaimedReimbursementControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod()
+        routes.ReimbursementMethodController.showReimbursementMethod()
       )
     }
 
@@ -464,7 +463,7 @@ class EnterClaimedReimbursementControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
@@ -491,7 +490,7 @@ class EnterClaimedReimbursementControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "false"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "false"))
       checkIsRedirect(
         result,
         routes.SelectDutiesController.selectDuties()
@@ -503,7 +502,7 @@ class EnterClaimedReimbursementControllerSpec
 
     "Return an error if there are no duties" in {
       val draftC285Claim = generateDraftC285Claim(None)
-      EnterClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Left(
+      EnterSingleClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Left(
         Error("No duties in session when arriving on ClaimController")
       )
     }
@@ -518,7 +517,7 @@ class EnterClaimedReimbursementControllerSpec
       val claimAnswers         = ClaimedReimbursementsAnswer(reimbursements)
 
       val draftC285Claim = generateDraftC285Claim(claimAnswers, dutiesSelectedAnswer)
-      EnterClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Right(reimbursements)
+      EnterSingleClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Right(reimbursements)
     }
 
     "Generate new claims from duties" in {
@@ -526,12 +525,15 @@ class EnterClaimedReimbursementControllerSpec
       val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(numberOfDuties).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
-      EnterClaimController.generateReimbursementsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
+      EnterSingleClaimController
+        .generateReimbursementsFromDuties(draftC285Claim)
+        .getOrElse(fail)
+        .size shouldBe numberOfDuties
     }
   }
 
   "MRN Claim Amount Validation" must {
-    val form        = EnterClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
+    val form        = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
     val claimAmount = "enter-claim"
 
     val goodData = Map(
@@ -569,7 +571,7 @@ class EnterClaimedReimbursementControllerSpec
         errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
       }
       "Reject when claimAmount > paidAmount" in {
-        val testForm = EnterClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
+        val testForm = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
         val data     = Map(claimAmount -> "101.00")
         val errors   = testForm.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
@@ -585,7 +587,7 @@ class EnterClaimedReimbursementControllerSpec
         ndrcDetails = Some(ndrcDetail),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe true
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
 
     "Return false for a single selected duty with cma not eligible" in {
@@ -595,7 +597,7 @@ class EnterClaimedReimbursementControllerSpec
         ndrcDetails = Some(ndrcDetail),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
 
     "Return false for a single selected duty with cma not present" in {
@@ -606,7 +608,7 @@ class EnterClaimedReimbursementControllerSpec
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
       println(ndrcDetail)
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
 
     "Return true for a multiple duties selected claim ith cma eligible on all" in {
@@ -618,7 +620,7 @@ class EnterClaimedReimbursementControllerSpec
         ndrcDetails = Some(ndrcDetails),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe true
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
 
     "Return false for a multiple duties selected claim ith cma eligible on all except one" in {
@@ -638,7 +640,7 @@ class EnterClaimedReimbursementControllerSpec
         ndrcDetails = Some(ndrcDetails),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
   }
 }

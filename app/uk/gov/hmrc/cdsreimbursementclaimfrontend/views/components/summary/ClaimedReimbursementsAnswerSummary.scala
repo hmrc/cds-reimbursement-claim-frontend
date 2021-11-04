@@ -20,7 +20,6 @@ import cats.implicits.catsSyntaxEq
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
@@ -35,8 +34,8 @@ class ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursem
   ): SummaryList = {
     val amendCall =
       if (router.journeyBindable === JourneyBindable.Scheduled)
-        reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()
-      else claimsRoutes.EnterClaimController.checkClaimSummary()
+        claimsRoutes.CheckScheduledClaimController.showReimbursements()
+      else claimsRoutes.EnterSingleClaimController.checkClaimSummary()
 
     val individualClaimSummaries = DutyTypeSummary.buildFrom(reimbursements)
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -24,8 +24,8 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{EuDuty, UkDuty, Wine}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -40,7 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DraftCla
 
 import scala.collection.immutable.SortedMap
 
-class CheckReimbursementClaimControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
+class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport with SessionSupport {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -48,7 +48,7 @@ class CheckReimbursementClaimControllerSpec extends ControllerSpec with AuthSupp
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: CheckReimbursementClaimController = instanceOf[CheckReimbursementClaimController]
+  val controller: CheckScheduledClaimController = instanceOf[CheckScheduledClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)

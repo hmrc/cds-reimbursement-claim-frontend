@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
@@ -26,8 +26,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.enterReimbursementClaimKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimControllerSpec.formatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterReimbursementClaimControllerSpec.formatter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
@@ -57,7 +57,7 @@ class EnterReimbursementClaimControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterReimbursementClaimController = instanceOf[EnterReimbursementClaimController]
+  val controller: EnterScheduledClaimController = instanceOf[EnterScheduledClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
   implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -78,7 +78,7 @@ class EnterReimbursementClaimControllerSpec
 
         checkIsRedirect(
           controller.iterate()(FakeRequest()),
-          routes.CheckReimbursementClaimController.showReimbursements()
+          routes.CheckScheduledClaimController.showReimbursements()
         )
       }
     }
@@ -96,7 +96,7 @@ class EnterReimbursementClaimControllerSpec
 
         checkIsRedirect(
           controller.iterate()(FakeRequest()),
-          routes.EnterReimbursementClaimController.enterClaim(duty, taxCode)
+          routes.EnterScheduledClaimController.enterClaim(duty, taxCode)
         )
       }
     }
@@ -116,7 +116,7 @@ class EnterReimbursementClaimControllerSpec
           checkPageIsDisplayed(
             controller.enterClaim(duty, taxCode)(FakeRequest()),
             messageFromMessageKey(
-              messageKey = s"$enterReimbursementClaimKey.title",
+              messageKey = s"$enterScheduledClaimKey.title",
               messages(s"duty-type.${duty.repr}"),
               taxCode.value
             ),
@@ -165,12 +165,12 @@ class EnterReimbursementClaimControllerSpec
             controller.submitClaim(customDuty, customDuty.taxCodes(0))(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
-                  s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+                  s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
+                  s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
                 ): _*
               )
             ),
-            routes.EnterReimbursementClaimController.enterClaim(exciseDuty, exciseDuty.taxCodes(0))
+            routes.EnterScheduledClaimController.enterClaim(exciseDuty, exciseDuty.taxCodes(0))
           )
       }
     }
@@ -206,12 +206,12 @@ class EnterReimbursementClaimControllerSpec
           controller.submitClaim(duty, duty.taxCodes(0))(
             FakeRequest().withFormUrlEncodedBody(
               Seq(
-                s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
-                s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+                s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
+                s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
               ): _*
             )
           ),
-          routes.CheckReimbursementClaimController.showReimbursements()
+          routes.CheckScheduledClaimController.showReimbursements()
         )
       }
     }
@@ -229,23 +229,23 @@ class EnterReimbursementClaimControllerSpec
           controller.submitClaim(duty, taxCode)(
             FakeRequest().withFormUrlEncodedBody(
               Seq(
-                s"$enterReimbursementClaimKey.amount-paid"           -> "",
-                s"$enterReimbursementClaimKey.amount-should-of-paid" -> "bad"
+                s"$enterScheduledClaimKey.amount-paid"           -> "",
+                s"$enterScheduledClaimKey.amount-should-of-paid" -> "bad"
               ): _*
             )
           ),
           messageFromMessageKey(
-            messageKey = s"$enterReimbursementClaimKey.title",
+            messageKey = s"$enterScheduledClaimKey.title",
             messages(s"duty-type.${duty.repr}"),
             taxCode.value
           ),
           doc => {
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
-              .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.amount-paid.error.required")
+              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.amount-paid.error.required")
             doc
               .select(".govuk-error-summary__list > li:nth-child(2) > a")
-              .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.amount-should-of-paid.error.invalid")
+              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.amount-should-of-paid.error.invalid")
           },
           BAD_REQUEST
         )
@@ -264,20 +264,20 @@ class EnterReimbursementClaimControllerSpec
             controller.submitClaim(duty, taxCode)(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterReimbursementClaimKey.amount-paid"           -> formatter.format(amount),
-                  s"$enterReimbursementClaimKey.amount-should-of-paid" -> formatter.format(amount + n)
+                  s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(amount),
+                  s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(amount + n)
                 ): _*
               )
             ),
             messageFromMessageKey(
-              messageKey = s"$enterReimbursementClaimKey.title",
+              messageKey = s"$enterScheduledClaimKey.title",
               messages(s"duty-type.${duty.repr}"),
               taxCode.value
             ),
             doc =>
               doc
                 .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                .text() shouldBe messageFromMessageKey(s"$enterReimbursementClaimKey.invalid.reimbursement-claim"),
+                .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.invalid.reimbursement-claim"),
             BAD_REQUEST
           )
         }

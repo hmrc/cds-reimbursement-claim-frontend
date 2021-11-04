@@ -19,7 +19,7 @@
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
@@ -39,7 +39,7 @@
 
 @key = @{"reimbursement-method"}
 @title = @{messages(s"$key.title")}
-@postAction = @{reimbursementRoutes.ReimbursementMethodController.submitReimbursementMethod()}
+@postAction = @{claimsRoutes.ReimbursementMethodController.submitReimbursementMethod()}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

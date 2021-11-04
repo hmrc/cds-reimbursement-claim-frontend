@@ -19,7 +19,7 @@
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectedDutyTaxCodesReimbursementAnswer, YesNo}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
@@ -42,7 +42,7 @@
 @key = @{"check-claim-summary"}
 @title = @{messages(s"$key.title")}
 
-@postAction = @{reimbursementRoutes.CheckReimbursementClaimController.submitReimbursements()}
+@postAction = @{claimRoutes.CheckScheduledClaimController.submitReimbursements()}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

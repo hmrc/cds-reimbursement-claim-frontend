@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.ClaimAmount
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.ClaimAmount
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
 @import java.util.UUID
@@ -52,7 +52,7 @@
 
     @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-    @formWithCSRF(routes.EnterClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
+    @formWithCSRF(routes.EnterSingleClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
         @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body"))
 

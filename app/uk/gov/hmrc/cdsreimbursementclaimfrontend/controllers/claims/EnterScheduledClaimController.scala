@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.syntax.all._
@@ -25,8 +25,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.EnterReimbursementClaimController.enterReimbursementClaimForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterScheduledClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
@@ -34,17 +34,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, E
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FormUtils.moneyMapping
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnterReimbursementClaimController @Inject() (
+class EnterScheduledClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  enterReimbursementClaimPage: pages.enter_reimbursement_claim
+  enterScheduledClaimPage: pages.enter_scheduled_claim
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -57,12 +57,12 @@ class EnterReimbursementClaimController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def redirectToSummaryPage: Future[Result] =
-      Future.successful(Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()))
+      Future.successful(Redirect(claimRoutes.CheckScheduledClaimController.showReimbursements()))
 
     def start(dutyAndTaxCode: (DutyType, TaxCode)): Future[Result] =
       Future.successful(
         Redirect(
-          reimbursementRoutes.EnterReimbursementClaimController.enterClaim(
+          claimRoutes.EnterScheduledClaimController.enterClaim(
             dutyAndTaxCode._1,
             dutyAndTaxCode._2
           )
@@ -80,13 +80,13 @@ class EnterReimbursementClaimController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
         Ok(
-          enterReimbursementClaimPage(
+          enterScheduledClaimPage(
             dutyType,
             dutyCode,
             maybeAnswer
               .map(_.value(dutyType)(dutyCode))
               .filter(!_.isUnclaimed)
-              .foldLeft(enterReimbursementClaimForm)((form, answer) => form.fill(answer))
+              .foldLeft(enterScheduledClaimForm)((form, answer) => form.fill(answer))
           )
         )
       }
@@ -102,10 +102,10 @@ class EnterReimbursementClaimController @Inject() (
             )
           )
 
-        enterReimbursementClaimForm
+        enterScheduledClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterReimbursementClaimPage(dutyType, taxCode, formWithErrors)),
+            formWithErrors => BadRequest(enterScheduledClaimPage(dutyType, taxCode, formWithErrors)),
             claim =>
               EitherT
                 .fromOption[Future](
@@ -118,25 +118,25 @@ class EnterReimbursementClaimController @Inject() (
                   _.findUnclaimedReimbursement
                     .map { dutyAndTaxCode =>
                       Redirect(
-                        reimbursementRoutes.EnterReimbursementClaimController.enterClaim(
+                        claimRoutes.EnterScheduledClaimController.enterClaim(
                           dutyAndTaxCode._1,
                           dutyAndTaxCode._2
                         )
                       )
                     }
-                    .getOrElse(Redirect(reimbursementRoutes.CheckReimbursementClaimController.showReimbursements()))
+                    .getOrElse(Redirect(claimRoutes.CheckScheduledClaimController.showReimbursements()))
                 )
           )
       }
     }
 }
 
-object EnterReimbursementClaimController {
+object EnterScheduledClaimController {
 
-  val enterReimbursementClaimKey: String = "enter-reimbursement-claim"
+  val enterScheduledClaimKey: String = "enter-scheduled-claim"
 
-  val enterReimbursementClaimForm: Form[Reimbursement] = Form(
-    enterReimbursementClaimKey ->
+  val enterScheduledClaimForm: Form[Reimbursement] = Form(
+    enterScheduledClaimKey ->
       mapping(
         s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
         s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid", allowZero = true)

@@ -33,7 +33,7 @@ object ClaimedReimbursementsAnswer {
       ClaimedReimbursement(
         taxCode = taxCodeWithClaim._1,
         paidAmount = taxCodeWithClaim._2.paidAmount,
-        claimAmount = taxCodeWithClaim._2.shouldOfPaid
+        claimAmount = taxCodeWithClaim._2.refundTotal
       )
 
     reimbursements.combine.flatMap { combinedReimbursements =>

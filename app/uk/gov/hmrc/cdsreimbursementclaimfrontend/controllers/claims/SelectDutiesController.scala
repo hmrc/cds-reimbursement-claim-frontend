@@ -102,7 +102,7 @@ class SelectDutiesController @Inject() (
                     .leftMap(_ => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not get duties selected "),
-                      _ => Redirect(routes.EnterClaimController.startClaim())
+                      _ => Redirect(routes.EnterSingleClaimController.startClaim())
                     )
                 }
               )
