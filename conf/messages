@@ -1076,6 +1076,16 @@ confirmation-of-submission.what-next.l3=explain why your claim was rejected
 confirmation-of-submission.what-next.link.1.start-another-claim=Start another claim
 
 #===================================================
+#  PROBLEM WITH ADDRESS
+#===================================================
+problem-with-address.title=There is a problem with your contact address
+problem-with-address.paragraph.1=Some information about your contact address was missing.
+problem-with-address.paragraph.2=This could be because:
+problem-with-address.point.1=the postcode you entered is missing address line 1
+problem-with-address.point.2=you did not provide a postcode for this address
+problem-with-address.button.tryAgain=Try again
+
+#===================================================
 #  NON-UK ADDRESS - START
 #===================================================
 address-building.error.required=Enter a building name or number
