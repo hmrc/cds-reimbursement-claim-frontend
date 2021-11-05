@@ -95,11 +95,11 @@ POST        /:journey/change-commodity-details                      uk.gov.hmrc.
 GET         /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
 POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
 
-GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.startClaim()
-GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaim(id : java.util.UUID)
-POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.enterClaimSubmit(id: java.util.UUID)
-GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummary()
-POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterClaimController.checkClaimSummarySubmit()
+GET         /single/start-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.startClaim()
+GET         /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaim(id : java.util.UUID)
+POST        /single/enter-claim/:id                                 uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.enterClaimSubmit(id: java.util.UUID)
+GET         /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummary()
+POST        /single/check-claim                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController.checkClaimSummarySubmit()
 
 GET         /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey: JourneyBindable)
 POST        /:journey/enter-commodity-details                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journey: JourneyBindable)
@@ -123,3 +123,20 @@ POST        /multiple/select-duties/:index/:taxCode                 uk.gov.hmrc.
 
 GET         /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummary()
 POST        /multiple/check-claim                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.checkClaimSummarySubmit()
+
+GET         /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.showDutyTypes()
+POST        /scheduled/select-duties/select-duty-types              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyTypesController.submitDutyTypes()
+
+GET         /scheduled/select-duties/start                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.iterate()
+GET         /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.showDutyCodes(dutyType: DutyType)
+POST        /scheduled/select-duties/:dutyType                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.submitDutyCodes(dutyType: DutyType)
+
+GET         /scheduled/select-duties/reimbursement-claim/start      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.iterate()
+GET         /scheduled/select-duties/:dutyType/:taxCode             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.enterClaim(dutyType: DutyType, taxCode: TaxCode)
+POST        /scheduled/select-duties/:dutyType/:taxCode             uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterScheduledClaimController.submitClaim(dutyType: DutyType, taxCode: TaxCode)
+
+GET         /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.showReimbursements()
+POST        /scheduled/check-claim                                  uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.submitReimbursements()
+
+GET         /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.showReimbursementMethod()
+POST        /single/select-reimbursement-method                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ReimbursementMethodController.submitReimbursementMethod()

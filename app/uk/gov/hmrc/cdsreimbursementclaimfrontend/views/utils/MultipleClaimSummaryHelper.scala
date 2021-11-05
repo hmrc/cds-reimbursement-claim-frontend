@@ -22,7 +22,7 @@ import play.api.i18n.Langs
 import play.api.i18n.MessagesApi
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -41,7 +41,7 @@ class MultipleClaimSummaryHelper @Inject() (implicit langs: Langs, messages: Mes
 
   def makeClaimSummaryRows(
     mrnIndex: Int,
-    claims: NonEmptyList[Claim],
+    claims: NonEmptyList[ClaimedReimbursement],
     changeCall: (Int, TaxCode) => Call
   ): List[SummaryListRow] =
     (claims.map { claim =>
@@ -62,7 +62,7 @@ class MultipleClaimSummaryHelper @Inject() (implicit langs: Langs, messages: Mes
       )
     } ++ makeTotalRow(claims)).toList
 
-  def makeTotalRow(claims: NonEmptyList[Claim]): List[SummaryListRow] = {
+  def makeTotalRow(claims: NonEmptyList[ClaimedReimbursement]): List[SummaryListRow] = {
     val total = claims.map(_.claimAmount).toList.sum
     SummaryListRow(
       key = Key(Text(messages(s"$key.total")(lang))),
@@ -70,7 +70,9 @@ class MultipleClaimSummaryHelper @Inject() (implicit langs: Langs, messages: Mes
     ) :: Nil
   }
 
-  def makeOverallTotalRow(mrnWithClaimsList: NonEmptyList[(Int, MRN, NonEmptyList[Claim])]): SummaryListRow = {
+  def makeOverallTotalRow(
+    mrnWithClaimsList: NonEmptyList[(Int, MRN, NonEmptyList[ClaimedReimbursement])]
+  ): SummaryListRow = {
     val overallTotal: BigDecimal =
       mrnWithClaimsList.flatMap(_._3.map(_.claimAmount)).toList.sum
     SummaryListRow(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import org.jsoup.nodes.Document
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -26,19 +26,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails}
 
 import scala.concurrent.Future
 

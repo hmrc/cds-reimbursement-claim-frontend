@@ -50,7 +50,7 @@ final case class DraftClaim(
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
   importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
   declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
-  claimsAnswer: Option[ClaimsAnswer] = None,
+  claimedReimbursementsAnswer: Option[ClaimedReimbursementsAnswer] = None,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer] = None,
@@ -85,7 +85,11 @@ final case class DraftClaim(
   object DutiesSelections
       extends DraftClaim.LeadAndAssociatedItemList[Duty](dutiesSelectedAnswer, associatedMRNsDutiesSelectedAnswer)
 
-  object Claims extends DraftClaim.LeadAndAssociatedItemList[Claim](claimsAnswer, associatedMRNsClaimsAnswer)
+  object Claims
+      extends DraftClaim.LeadAndAssociatedItemList[ClaimedReimbursement](
+        claimedReimbursementsAnswer,
+        associatedMRNsClaimsAnswer
+      )
 
 }
 

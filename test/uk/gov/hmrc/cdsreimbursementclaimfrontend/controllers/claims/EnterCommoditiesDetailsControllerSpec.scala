@@ -32,7 +32,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
@@ -227,7 +226,7 @@ class EnterCommoditiesDetailsControllerSpec
         checkIsRedirect(
           performAction(Seq("enter-commodities-details" -> "some package")),
           if (journeyBindable === JourneyBindable.Scheduled) {
-            reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+            routes.SelectDutyTypesController.showDutyTypes()
           } else if (journeyBindable === JourneyBindable.Multiple) {
             routes.SelectMultipleDutiesController.selectDuties(1)
           } else {

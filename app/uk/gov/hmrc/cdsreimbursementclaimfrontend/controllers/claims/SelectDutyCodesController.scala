@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.OptionT
 import cats.implicits.catsSyntaxOptionId
@@ -25,15 +25,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.selectDutyCodesForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, DutyType, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,10 +56,10 @@ class SelectDutyCodesController @Inject() (
 
   def iterate(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     def selectDuties: Future[Result] =
-      Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
+      Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
 
     def start(dutyType: DutyType): Future[Result] =
-      Future(Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
+      Future(Redirect(claimRoutes.SelectDutyCodesController.showDutyCodes(dutyType)))
 
     withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (_, maybeAnswer) =>
       maybeAnswer.flatMap(_.value.headOption).fold(selectDuties) { selectedDutyTaxCodesReimbursement =>
@@ -101,12 +101,12 @@ class SelectDutyCodesController @Inject() (
                     _ =>
                       maybeAnswer
                         .flatMap(_.findNextSelectedDutyAfter(currentDuty))
-                        .fold(Redirect(reimbursementRoutes.EnterReimbursementClaimController.iterate()))(nextDuty =>
-                          Redirect(reimbursementRoutes.SelectDutyCodesController.showDutyCodes(nextDuty))
+                        .fold(Redirect(claimRoutes.EnterScheduledClaimController.iterate()))(nextDuty =>
+                          Redirect(claimRoutes.SelectDutyCodesController.showDutyCodes(nextDuty))
                         )
                   )
                 )
-                .getOrElse(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
+                .getOrElse(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
           )
       }
     }

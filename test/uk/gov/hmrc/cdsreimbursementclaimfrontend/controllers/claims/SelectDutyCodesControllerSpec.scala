@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.Gen
@@ -26,8 +26,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesController.selectDutyCodesKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesController.selectDutyCodesKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutyCodesControllerSpec.genDutyWithRandomlySelectedTaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
@@ -193,7 +193,7 @@ class SelectDutyCodesControllerSpec
           controller.submitDutyCodes(duty)(
             FakeRequest().withFormUrlEncodedBody(s"$selectDutyCodesKey[]" -> taxCode.value)
           ),
-          routes.EnterReimbursementClaimController.iterate()
+          routes.EnterScheduledClaimController.iterate()
         )
       }
     }

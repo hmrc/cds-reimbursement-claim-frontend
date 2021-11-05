@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 
 sealed abstract class DutyTypeSummary(val total: BigDecimal, val messageKey: String)
 
@@ -32,16 +32,16 @@ object DutyTypeSummary {
   final case class ExciseDutyTypeSummary(override val total: BigDecimal)
       extends DutyTypeSummary(total, messageKey = "excise-duty.label")
 
-  def buildFrom(claims: ClaimsAnswer): Seq[DutyTypeSummary] = {
-    val totals = claims.foldLeft(Array[BigDecimal](xs = 0, 0, 0))((buff, claim) =>
-      if (TaxCodes.UK.contains(claim.taxCode)) {
-        buff(0) += claim.claimAmount
+  def buildFrom(reimbursements: ClaimedReimbursementsAnswer): Seq[DutyTypeSummary] = {
+    val totals = reimbursements.foldLeft(Array[BigDecimal](xs = 0, 0, 0))((buff, reimbursement) =>
+      if (TaxCodes.UK.contains(reimbursement.taxCode)) {
+        buff(0) += reimbursement.claimAmount
         buff
-      } else if (TaxCodes.EU.contains(claim.taxCode)) {
-        buff(1) += claim.claimAmount
+      } else if (TaxCodes.EU.contains(reimbursement.taxCode)) {
+        buff(1) += reimbursement.claimAmount
         buff
-      } else if (TaxCodes.excise.contains(claim.taxCode)) {
-        buff(2) += claim.claimAmount
+      } else if (TaxCodes.excise.contains(reimbursement.taxCode)) {
+        buff(2) += reimbursement.claimAmount
         buff
       } else buff
     )

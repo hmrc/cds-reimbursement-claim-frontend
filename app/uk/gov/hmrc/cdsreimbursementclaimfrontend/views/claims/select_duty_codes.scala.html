@@ -18,10 +18,10 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyTypes
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
@@ -35,31 +35,20 @@
     checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form: Form[List[DutyType]])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(dutyType: DutyType, form: Form[List[TaxCode]])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-@key = @{"select-duty-types"}
-@title = @{messages(s"$key.title")}
+@key = @{"select-duty-codes"}
+@title = @{messages(s"$key.title", messages(s"$key.h1.${dutyType.repr}"))}
 
-@postAction = @{reimbursementRoutes.SelectDutyTypesController.submitDutyTypes()}
+@postAction = @{claimsRoutes.SelectDutyCodesController.submitDutyCodes(dutyType)}
 
-@customsOptions = @{
-    DutyTypes.custom.map { dutyType =>
+@options = @{
+    dutyType.taxCodes.map { dutyCode =>
         CheckboxItem(
             name = Some(s"$key[]"),
-            value = dutyType.repr,
-            content = Text(messages(s"duty-type.${dutyType.repr}")),
-            checked = form.data.exists(_._2 == dutyType.repr)
-        )
-    }
-}
-
-@exciseOptions = @{
-    DutyTypes.excise.map { dutyType =>
-        CheckboxItem(
-            name = Some(s"$key[]"),
-            value = dutyType.repr,
-            content = Text(messages(s"duty-type.${dutyType.repr}")),
-            checked = form.data.exists(_._2 == dutyType.repr)
+            value = dutyCode.value,
+            content = Text(messages(s"tax-code.${dutyCode.value}")),
+            checked = form.data.exists(_._2 == dutyCode.value)
         )
     }
 }
@@ -79,15 +68,9 @@
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @checkboxes(
-            field = form(s"$key-custom"),
-            legend = messages(s"$key.checkbox-legend.1"),
-            items = customsOptions
-        )
-
-        @checkboxes(
-            field = form(s"$key-excise"),
-            legend = messages(s"$key.checkbox-legend.2"),
-            items = exciseOptions
+            field = form(s"$key"),
+            legend = messages(s"duty-type.${dutyType.repr}"),
+            items = options
         )
 
         @submitButton("button.continue")

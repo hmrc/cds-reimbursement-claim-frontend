@@ -21,7 +21,6 @@ import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
@@ -50,7 +49,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 
 @Singleton
 class SelectMultipleDutiesController @Inject() (
@@ -58,7 +57,6 @@ class SelectMultipleDutiesController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
-  val config: Configuration,
   selectMultipleDutiesPage: pages.select_multiple_duties,
   mrnDoesNotExistPage: pages.mrn_does_not_exist
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
@@ -143,7 +141,7 @@ class SelectMultipleDutiesController @Inject() (
                         case 1 =>
                           journey.draftClaim.copy(
                             dutiesSelectedAnswer = Some(dutiesSelected),
-                            claimsAnswer = journey.draftClaim.claimsAnswer
+                            claimedReimbursementsAnswer = journey.draftClaim.claimedReimbursementsAnswer
                               .map(claims =>
                                 syncSelectedDutiesWithExistingClaims(mrnIndex, dutiesSelected, claims, journey)
                               )
@@ -249,9 +247,9 @@ object SelectMultipleDutiesController {
   def syncSelectedDutiesWithExistingClaims(
     mrnIndex: Int,
     selectedDuties: NonEmptyList[Duty],
-    existingClaims: NonEmptyList[Claim],
+    existingClaims: NonEmptyList[ClaimedReimbursement],
     journey: FillingOutClaim
-  ): NonEmptyList[Claim] =
+  ): NonEmptyList[ClaimedReimbursement] =
     NonEmptyList.fromListUnsafe(
       EnterMultipleClaimsController.prepareClaims(mrnIndex - 1, selectedDuties.toList, existingClaims.toList, journey)
     )

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
@@ -26,26 +26,25 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.whetherDutiesCorrectForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.CheckReimbursementClaimController.whetherDutiesCorrectForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, SelectedDutyTaxCodesReimbursementAnswer, YesNo}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, SelectedDutyTaxCodesReimbursementAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{reimbursement => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckReimbursementClaimController @Inject() (
+class CheckScheduledClaimController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionCache: SessionCache,
   cc: MessagesControllerComponents,
-  checkReimbursementClaim: pages.check_reimbursement_claim
+  checkScheduledClaimPage: pages.check_scheduled_claim_summary
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, errorHandler: ErrorHandler)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -62,11 +61,11 @@ class CheckReimbursementClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, Scheduled)
 
       def redirectToSelectDutiesPage: Future[Result] =
-        Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimsRoutes.SelectDutyTypesController.showDutyTypes()))
 
       def loadPage(answer: SelectedDutyTaxCodesReimbursementAnswer): Future[Result] =
         Future.successful(
-          Ok(checkReimbursementClaim(answer, whetherDutiesCorrectForm))
+          Ok(checkScheduledClaimPage(answer, whetherDutiesCorrectForm))
         )
 
       maybeAnswer.fold(redirectToSelectDutiesPage)(loadPage)
@@ -79,16 +78,19 @@ class CheckReimbursementClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, Scheduled)
 
       def selectDuties: Future[Result] =
-        Future.successful(Redirect(reimbursementRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimsRoutes.SelectDutyTypesController.showDutyTypes()))
 
       maybeAnswer.fold(selectDuties)(reimbursements =>
         whetherDutiesCorrectForm
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(checkReimbursementClaim(reimbursements, formWithErrors))),
+            formWithErrors => Future.successful(BadRequest(checkScheduledClaimPage(reimbursements, formWithErrors))),
             {
               case Yes =>
-                val updatedClaim = from(fillingOutClaim)(_.copy(claimsAnswer = ClaimsAnswer(reimbursements)))
+                val updatedClaim =
+                  from(fillingOutClaim)(
+                    _.copy(claimedReimbursementsAnswer = ClaimedReimbursementsAnswer(reimbursements))
+                  )
 
                 EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = updatedClaim.some)))
                   .leftMap(_ => Error("Could not update session"))
@@ -104,7 +106,7 @@ class CheckReimbursementClaimController @Inject() (
   }
 }
 
-object CheckReimbursementClaimController {
+object CheckScheduledClaimController {
 
   val checkClaimSummaryKey: String = "check-claim-summary"
 

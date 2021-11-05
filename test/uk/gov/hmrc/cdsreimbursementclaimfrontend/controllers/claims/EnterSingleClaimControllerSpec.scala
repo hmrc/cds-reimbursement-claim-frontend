@@ -26,12 +26,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{BAD_REQUEST, _}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimsAnswer, DutiesSelectedAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimsAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -47,13 +46,13 @@ import scala.concurrent.Future
 import scala.util.Random
 
 @SuppressWarnings(Array("org.wartremover.warts.TraversableOps", "org.wartremover.warts.OptionPartial"))
-class EnterClaimControllerSpec
+class EnterSingleClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
     with ScalaCheckDrivenPropertyChecks {
 
-  lazy val controller: EnterClaimController            = instanceOf[EnterClaimController]
+  lazy val controller: EnterSingleClaimController      = instanceOf[EnterSingleClaimController]
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
       bind[AuthConnector].toInstance(mockAuthConnector),
@@ -65,7 +64,7 @@ class EnterClaimControllerSpec
   implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def createSessionWithPreviousAnswers(
-    maybeClaimsAnswer: Option[ClaimsAnswer],
+    maybeReimbursementAnswer: Option[ClaimedReimbursementsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
     movementReferenceNumber: MRN = sample[MRN]
@@ -74,7 +73,7 @@ class EnterClaimControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val draftC285Claim      =
       generateDraftC285Claim(
-        maybeClaimsAnswer,
+        maybeReimbursementAnswer,
         maybeDutiesSelectedAnswer,
         ndrcDetails,
         movementReferenceNumber
@@ -87,7 +86,7 @@ class EnterClaimControllerSpec
   }
 
   private def generateDraftC285Claim(
-    maybeClaimsAnswer: Option[ClaimsAnswer],
+    maybeReimbursementAnswer: Option[ClaimedReimbursementsAnswer],
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
     ndrcDetails: Option[List[NdrcDetails]] = None,
     movementReferenceNumber: MRN = sample[MRN]
@@ -98,16 +97,16 @@ class EnterClaimControllerSpec
 
     DraftClaim.blank.copy(
       movementReferenceNumber = Some(movementReferenceNumber),
-      claimsAnswer = maybeClaimsAnswer,
+      claimedReimbursementsAnswer = maybeReimbursementAnswer,
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,
       displayDeclaration = Some(acc14)
     )
   }
 
-  private def updateSession(sessionData: SessionData, claimsAnswer: ClaimsAnswer): SessionData =
+  private def updateSession(sessionData: SessionData, answer: ClaimedReimbursementsAnswer): SessionData =
     sessionData.journeyStatus match {
       case Some(FillingOutClaim(g, s, (draftClaim: DraftClaim))) =>
-        val newClaim      = draftClaim.copy(claimsAnswer = Some(claimsAnswer))
+        val newClaim      = draftClaim.copy(claimedReimbursementsAnswer = Some(answer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                     => fail()
@@ -152,11 +151,11 @@ class EnterClaimControllerSpec
     "redirect to the checkClaim page if we have finished claims for all duties" in {
       val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(10).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
-      val claim                = selectedTaxCodes.map(taxCode =>
-        sample[Claim]
+      val claimedReimbursement = selectedTaxCodes.map(taxCode =>
+        sample[ClaimedReimbursement]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       )
-      val answers              = ClaimsAnswer(claim).getOrElse(fail())
+      val answers              = ClaimedReimbursementsAnswer(claimedReimbursement).getOrElse(fail())
       val session              = createSessionWithPreviousAnswers(Some(answers), dutiesSelectedAnswer)._1
 
       inSequence {
@@ -166,7 +165,7 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary()
       )
 
     }
@@ -187,17 +186,18 @@ class EnterClaimControllerSpec
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterSingleClaimController.enterClaim(UUID.randomUUID()).url
       )
     }
 
     "Redirect to the enterClaim page if we have an unfinished claim for a duty" in {
       val taxCode              = TaxCode.A20
       val dutiesSelectedAnswer = DutiesSelectedAnswer(Duty(taxCode))
-      val claim                = sample[Claim]
+      val claim                = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
-      val session = createSessionWithPreviousAnswers(Some(ClaimsAnswer(claim)), Some(dutiesSelectedAnswer))._1
+      val session =
+        createSessionWithPreviousAnswers(Some(ClaimedReimbursementsAnswer(claim)), Some(dutiesSelectedAnswer))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -209,7 +209,7 @@ class EnterClaimControllerSpec
       status(result) shouldBe SEE_OTHER
       compareUrlsWithouthId(
         redirectLocation(result).getOrElse(fail()),
-        routes.EnterClaimController.enterClaim(UUID.randomUUID()).url
+        routes.EnterSingleClaimController.enterClaim(UUID.randomUUID()).url
       )
     }
   }
@@ -246,10 +246,11 @@ class EnterClaimControllerSpec
     }
 
     "render when the user has not answered this question before" in {
-      val taxCode = TaxCode.B05
-      val claim   = sample[Claim] //An answer is created by the startClaim method, with isFilled = false
-        .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
-      val answers = ClaimsAnswer(claim)
+      val taxCode              = TaxCode.B05
+      val claimedReimbursement =
+        sample[ClaimedReimbursement] //An answer is created by the startClaim method, with isFilled = false
+          .copy(claimAmount = BigDecimal(0), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
+      val answers              = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
 
@@ -259,16 +260,16 @@ class EnterClaimControllerSpec
       }
 
       checkPageIsDisplayed(
-        performAction(claim.id),
+        performAction(claimedReimbursement.id),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Value Added Tax")
       )
     }
 
     "render the previous answer when the user has answered this question before" in {
-      val taxCode = TaxCode.B05
-      val claim   = sample[Claim]
+      val taxCode              = TaxCode.B05
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
-      val answers = ClaimsAnswer(claim)
+      val answers              = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
 
@@ -278,7 +279,7 @@ class EnterClaimControllerSpec
       }
 
       checkPageIsDisplayed(
-        performAction(claim.id),
+        performAction(claimedReimbursement.id),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Value Added Tax"),
         doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
       )
@@ -305,7 +306,7 @@ class EnterClaimControllerSpec
     }
 
     "user enters a valid paid and claim amount on the MRN journey" in {
-      val claim = sample[Claim]
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(
           claimAmount = BigDecimal(1.00).setScale(2),
           paidAmount = BigDecimal(10.00).setScale(2),
@@ -313,12 +314,12 @@ class EnterClaimControllerSpec
           taxCode = TaxCode.A00
         )
 
-      val answers = ClaimsAnswer(claim)
+      val answers = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session        =
         createSessionWithPreviousAnswers(Some(answers), None, None, sample[MRN])._1
-      val updatedAnswer  = claim.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
-      val updatedSession = updateSession(session, ClaimsAnswer(updatedAnswer))
+      val updatedAnswer  = claimedReimbursement.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
+      val updatedSession = updateSession(session, ClaimedReimbursementsAnswer(updatedAnswer))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -328,21 +329,21 @@ class EnterClaimControllerSpec
 
       checkIsRedirect(
         performAction(
-          claim.id,
+          claimedReimbursement.id,
           Seq(
             "enter-claim" -> "5.00"
           )
         ),
-        routes.EnterClaimController.checkClaimSummary()
+        routes.EnterSingleClaimController.checkClaimSummary()
       )
     }
 
     "an invalid option value is submitted" in {
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
+      val taxCode              = TaxCode.A00
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
-      val answers = ClaimsAnswer(claim)
+      val answers = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session =
         createSessionWithPreviousAnswers(Some(answers), None, None, sample[MRN])._1
@@ -354,7 +355,7 @@ class EnterClaimControllerSpec
 
       checkPageIsDisplayed(
         performAction(
-          claim.id,
+          claimedReimbursement.id,
           Seq(
             "enter-claim.paid-amount"  -> "sdfdf",
             "enter-claim.claim-amount" -> "dfsfs"
@@ -415,14 +416,14 @@ class EnterClaimControllerSpec
       controller.checkClaimSummarySubmit()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "Redirect to ReimbursementMethod if user says details are correct, they are on the MRN journey and all the selected duties are cma eligible" in {
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
+      val taxCode              = TaxCode.A00
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
       val selectedDuties = DutiesSelectedAnswer(Duty(taxCode))
       val ndrcDetails    = genNdrcDetails.sample.map(_.copy(taxType = taxCode.value, cmaEligible = Some("1"))).toList
 
-      val answers = ClaimsAnswer(claim)
+      val answers = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session =
         createSessionWithPreviousAnswers(
@@ -436,19 +437,19 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
-        reimbursementRoutes.ReimbursementMethodController.showReimbursementMethod()
+        routes.ReimbursementMethodController.showReimbursementMethod()
       )
     }
 
     "Redirect to CheckBankAccountDetails if user says details are correct and on the MRN journey" in {
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
+      val taxCode              = TaxCode.A00
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
-      val answers = ClaimsAnswer(claim)
+      val answers = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session =
         createSessionWithPreviousAnswers(
@@ -462,7 +463,7 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "true"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
       checkIsRedirect(
         result,
         routes.BankAccountController.checkBankAccountDetails(JourneyBindable.Single)
@@ -471,11 +472,11 @@ class EnterClaimControllerSpec
 
     "Redirect to SelectDuties if user says details are incorrect and on the MRN journey" in {
 
-      val taxCode = TaxCode.A00
-      val claim   = sample[Claim]
+      val taxCode              = TaxCode.A00
+      val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = false, taxCode = taxCode)
 
-      val answers = ClaimsAnswer(claim)
+      val answers = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session =
         createSessionWithPreviousAnswers(
@@ -489,7 +490,7 @@ class EnterClaimControllerSpec
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result = performAction(Seq(EnterClaimController.checkClaimSummaryKey -> "false"))
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "false"))
       checkIsRedirect(
         result,
         routes.SelectDutiesController.selectDuties()
@@ -501,7 +502,7 @@ class EnterClaimControllerSpec
 
     "Return an error if there are no duties" in {
       val draftC285Claim = generateDraftC285Claim(None)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Left(
+      EnterSingleClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Left(
         Error("No duties in session when arriving on ClaimController")
       )
     }
@@ -509,14 +510,14 @@ class EnterClaimControllerSpec
     "Return previous claims from the session" in {
       val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(1).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
-      val claims               = selectedTaxCodes.map(taxCode =>
-        sample[Claim]
+      val reimbursements       = selectedTaxCodes.map(taxCode =>
+        sample[ClaimedReimbursement]
           .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
       )
-      val claimAnswers         = ClaimsAnswer(claims)
+      val claimAnswers         = ClaimedReimbursementsAnswer(reimbursements)
 
       val draftC285Claim = generateDraftC285Claim(claimAnswers, dutiesSelectedAnswer)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim) shouldBe Right(claims)
+      EnterSingleClaimController.generateReimbursementsFromDuties(draftC285Claim) shouldBe Right(reimbursements)
     }
 
     "Generate new claims from duties" in {
@@ -524,12 +525,15 @@ class EnterClaimControllerSpec
       val selectedTaxCodes     = Random.shuffle(TaxCodes.all).take(numberOfDuties).toList
       val dutiesSelectedAnswer = DutiesSelectedAnswer(selectedTaxCodes.map(Duty(_)))
       val draftC285Claim       = generateDraftC285Claim(None, dutiesSelectedAnswer)
-      EnterClaimController.generateClaimsFromDuties(draftC285Claim).getOrElse(fail).size shouldBe numberOfDuties
+      EnterSingleClaimController
+        .generateReimbursementsFromDuties(draftC285Claim)
+        .getOrElse(fail)
+        .size shouldBe numberOfDuties
     }
   }
 
   "MRN Claim Amount Validation" must {
-    val form        = EnterClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
+    val form        = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("99999999999.99"))
     val claimAmount = "enter-claim"
 
     val goodData = Map(
@@ -567,7 +571,7 @@ class EnterClaimControllerSpec
         errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
       }
       "Reject when claimAmount > paidAmount" in {
-        val testForm = EnterClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
+        val testForm = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
         val data     = Map(claimAmount -> "101.00")
         val errors   = testForm.bind(data).errors
         errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.claim")
@@ -583,7 +587,7 @@ class EnterClaimControllerSpec
         ndrcDetails = Some(ndrcDetail),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe true
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
 
     "Return false for a single selected duty with cma not eligible" in {
@@ -593,7 +597,7 @@ class EnterClaimControllerSpec
         ndrcDetails = Some(ndrcDetail),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
 
     "Return false for a single selected duty with cma not present" in {
@@ -604,7 +608,7 @@ class EnterClaimControllerSpec
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
       )
       println(ndrcDetail)
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
 
     "Return true for a multiple duties selected claim ith cma eligible on all" in {
@@ -616,7 +620,7 @@ class EnterClaimControllerSpec
         ndrcDetails = Some(ndrcDetails),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe true
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
 
     "Return false for a multiple duties selected claim ith cma eligible on all except one" in {
@@ -636,7 +640,7 @@ class EnterClaimControllerSpec
         ndrcDetails = Some(ndrcDetails),
         maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
       )
-      EnterClaimController.isCmaEligible(claim) shouldBe false
+      EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
   }
 }

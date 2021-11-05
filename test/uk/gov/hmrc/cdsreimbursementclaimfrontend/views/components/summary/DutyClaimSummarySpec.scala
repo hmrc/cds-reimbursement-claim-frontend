@@ -21,24 +21,24 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Claim, TaxCode, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, TaxCode, TaxCodes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.{genClaims, totalOf}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.{genReimbursements, totalOf}
 
 class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 
   "The duty claim summary" should {
     "compute totals for different duties" in {
-      forAll(genClaims(TaxCodes.UK), genClaims(TaxCodes.EU), genClaims(TaxCodes.excise)) {
-        (ukClaims, euClaims, exciseClaims) =>
-          val answer    = NonEmptyList.fromListUnsafe(ukClaims ++ euClaims ++ exciseClaims)
+      forAll(genReimbursements(TaxCodes.UK), genReimbursements(TaxCodes.EU), genReimbursements(TaxCodes.excise)) {
+        (ukReimbursements, euReimbursements, exciseReimbursements) =>
+          val answer    = NonEmptyList.fromListUnsafe(ukReimbursements ++ euReimbursements ++ exciseReimbursements)
           val summaries = DutyTypeSummary.buildFrom(answer)
 
           summaries should contain allOf (
-            UKDutyTypeSummary(totalOf(ukClaims)),
-            EUDutyTypeSummary(totalOf(euClaims)),
-            ExciseDutyTypeSummary(totalOf(exciseClaims))
+            UKDutyTypeSummary(totalOf(ukReimbursements)),
+            EUDutyTypeSummary(totalOf(euReimbursements)),
+            ExciseDutyTypeSummary(totalOf(exciseReimbursements))
           )
       }
     }
@@ -47,7 +47,7 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
       forAll { taxCode: TaxCode =>
         DutyTypeSummary.buildFrom(
           NonEmptyList.one(
-            Claim(
+            ClaimedReimbursement(
               taxCode = taxCode,
               claimAmount = 0,
               paidAmount = 0
@@ -61,19 +61,19 @@ class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks wit
 
 object DutyClaimSummarySpec {
 
-  def genClaims(codes: Seq[TaxCode]): Gen[List[Claim]] =
+  def genReimbursements(codes: Seq[TaxCode]): Gen[List[ClaimedReimbursement]] =
     for {
       n       <- Gen.choose(1, codes.length)
       picked  <- Gen.pick(n, codes)
       amounts <- Gen.listOfN(n, Gen.posNum[Double].map(BigDecimal(_)))
     } yield (picked zip amounts).map { case (taxCode, amount) =>
-      Claim(
+      ClaimedReimbursement(
         taxCode = taxCode,
         claimAmount = amount,
         paidAmount = 0
       )
     }.toList
 
-  def totalOf(claims: List[Claim]): BigDecimal =
+  def totalOf(claims: List[ClaimedReimbursement]): BigDecimal =
     claims.map(_.claimAmount).sum
 }

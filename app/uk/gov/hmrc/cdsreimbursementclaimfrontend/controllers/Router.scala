@@ -20,7 +20,6 @@ import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.{routes => reimbursementRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
@@ -148,7 +147,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
       case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
       case false =>
         if (journeyBindable === JourneyBindable.Scheduled) {
-          reimbursementRoutes.SelectDutyTypesController.showDutyTypes()
+          claimRoutes.SelectDutyTypesController.showDutyTypes()
         } else if (journeyBindable === JourneyBindable.Multiple) {
           claimRoutes.SelectMultipleDutiesController.selectDuties(1)
         } else {

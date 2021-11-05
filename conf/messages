@@ -632,17 +632,17 @@ select-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
 select-duty-codes.h1.tobacco=tobacco products
 select-duty-codes.h1.climate-change-levy=Climate Change Levy
 
-enter-reimbursement-claim.title=Claim details for all MRNS under {0} {1}
-enter-reimbursement-claim.p1=Provide your claim details for {0}.
-enter-reimbursement-claim.p2=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
-enter-reimbursement-claim.amount-paid=How much was paid, in pounds?
-enter-reimbursement-claim.amount-should-of-paid=How much should have been paid, in pounds?
-enter-reimbursement-claim.amount-paid.hint=The amount must be lower than or equal to the paid amount.
-enter-reimbursement-claim.amount-paid.error.required=Enter the amount that was paid, in pounds
-enter-reimbursement-claim.amount-paid.error.invalid=Paid amount must be a number, like 30
-enter-reimbursement-claim.amount-should-of-paid.error.required=Enter the amount that should have been paid, in pounds
-enter-reimbursement-claim.amount-should-of-paid.error.invalid=Amount that should have been paid must be a number, like 30
-enter-reimbursement-claim.invalid.reimbursement-claim=The claim amount must be lower than paid amount
+enter-scheduled-claim.title=Claim details for all MRNS under {0} {1}
+enter-scheduled-claim.p1=Provide your claim details for {0}.
+enter-scheduled-claim.p2=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-scheduled-claim.amount-paid=How much was paid, in pounds?
+enter-scheduled-claim.amount-should-of-paid=How much should have been paid, in pounds?
+enter-scheduled-claim.amount-paid.hint=The amount must be lower than or equal to the paid amount.
+enter-scheduled-claim.amount-paid.error.required=Enter the amount that was paid, in pounds
+enter-scheduled-claim.amount-paid.error.invalid=Paid amount must be a number, like 30
+enter-scheduled-claim.amount-should-of-paid.error.required=Enter the amount that should have been paid, in pounds
+enter-scheduled-claim.amount-should-of-paid.error.invalid=Amount that should have been paid must be a number, like 30
+enter-scheduled-claim.invalid.reimbursement-claim=The claim amount must be lower than paid amount
 
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE

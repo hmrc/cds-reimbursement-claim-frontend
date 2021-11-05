@@ -19,9 +19,8 @@
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Claim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMultipleClaimsController.CorrectedAmount
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -39,39 +38,37 @@
     paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 )
 
-@(form : Form[CorrectedAmount], mrnIndex: Int, mrn: MRN, claim: Claim, submitCall: Call)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form: Form[CorrectedAmount], mrnIndex: Int, mrn: MRN, reimbursement: ClaimedReimbursement, submitCall: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
-    @key = @{"multiple-enter-claim"}
-    @title = @{messages(s"$key.title", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}"), OrdinalNumeral(mrnIndex))}
+@key = @{"multiple-enter-claim"}
+@title = @{messages(s"$key.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"), OrdinalNumeral(mrnIndex))}
 
-    @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
+@hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-    @layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
-        @errorSummary(form.errors)
+    @errorSummary(form.errors)
 
-        @pageHeading(title)
+    @pageHeading(title)
 
-        @paragraph(Html(messages(s"$key.help-text",mrn.value)), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text", mrn.value)), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
+    @formWithCSRF(submitCall, 'novalidate -> "novalidate") {
 
-            @paragraph(Html(messages(s"$key.paid-amount-label", claim.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
+        @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 
-            @inputText(
-                form = form,
-                id = key,
-                name = key,
-                label = s"$key.claim-amount",
-                labelClasses = Some("govuk-label govuk-label--m"),
-                isPageHeading = false,
-                classes = Some("govuk-input govuk-input--width-5"),
-                hintHtml = Some(Html(messages(s"$key.claim-amount.hint", claim.taxCode, messages(s"select-duties.duty.${claim.taxCode}")))),
-                prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
-            )
+        @inputText(
+            form = form,
+            id = key,
+            name = key,
+            label = s"$key.claim-amount",
+            labelClasses = Some("govuk-label govuk-label--m"),
+            isPageHeading = false,
+            classes = Some("govuk-input govuk-input--width-5"),
+            hintHtml = Some(Html(messages(s"$key.claim-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))),
+            prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
+        )
 
-            @submitButton("button.continue")
-
-        }
-
+        @submitButton("button.continue")
     }
+}

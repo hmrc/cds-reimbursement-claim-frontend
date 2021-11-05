@@ -48,7 +48,7 @@ final case class CompleteClaim(
   maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
-  claimsAnswer: ClaimsAnswer,
+  claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
@@ -56,13 +56,13 @@ final case class CompleteClaim(
   maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
-  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimsAnswer)] = {
+  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)] = {
     val mrns   = associatedMRNsAnswer
       .map(mrns => movementReferenceNumber :: mrns)
       .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
     val claims = maybeAssociatedMRNsClaimsAnswer
-      .map(claimsAnswers => claimsAnswer :: claimsAnswers)
-      .getOrElse(NonEmptyList(claimsAnswer, Nil))
+      .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
+      .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
     mrns.zipWith(claims)((m, c) => (m, c))
   }
 
@@ -161,8 +161,10 @@ object CompleteClaim {
   ): Validation[DeclarantTypeAnswer] =
     maybeDeclarantTypeAnswer toValidNel "missing declarant type answer"
 
-  def validateClaimsAnswer(maybeClaimsAnswer: Option[ClaimsAnswer]): Validation[ClaimsAnswer] =
-    maybeClaimsAnswer toValidNel "missing claims answer"
+  def validateClaimedReimbursementsAnswer(
+    maybeReimbursementsAnswer: Option[ClaimedReimbursementsAnswer]
+  ): Validation[ClaimedReimbursementsAnswer] =
+    maybeReimbursementsAnswer toValidNel "missing claimed reimbursements"
 
   def validateDetailsRegisteredWithCdsEntryNumber(
     maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]

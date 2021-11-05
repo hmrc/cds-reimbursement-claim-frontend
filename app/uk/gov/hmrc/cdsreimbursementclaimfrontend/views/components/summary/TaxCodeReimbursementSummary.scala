@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.reimbursement.routes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, Reimbursement, TaxCode}
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}
@@ -48,7 +48,7 @@ class TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[Tax
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.EnterReimbursementClaimController.enterClaim(duty, taxCode).url}",
+                  href = s"${routes.EnterScheduledClaimController.enterClaim(duty, taxCode).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.duty-code.row.key", messages(s"tax-code.${taxCode.value}")))
                 )

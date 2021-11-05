@@ -24,7 +24,6 @@ package object summary {
 
   implicit val claimTypeSummary: ClaimTypeSummary                                 = new ClaimTypeSummary
   implicit val basisOfClaimSummary: BasisOfClaimSummary                           = new BasisOfClaimSummary
-  implicit val claimsAnswerSummary: ClaimsAnswerSummary                           = new ClaimsAnswerSummary
   implicit val multipleClaimsAnswerSummary: MultipleClaimsAnswerSummary           = new MultipleClaimsAnswerSummary
   implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
@@ -32,6 +31,7 @@ package object summary {
   implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
   implicit val reimbursementsSummary: DutyAndTaxCodeReimbursementSummary          = new DutyAndTaxCodeReimbursementSummary
+  implicit val claimedReimbursementsSummary: ClaimedReimbursementsAnswerSummary   = new ClaimedReimbursementsAnswerSummary
   implicit val taxCodeReimbursementSummary: TaxCodeReimbursementSummary           = new TaxCodeReimbursementSummary
   implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
