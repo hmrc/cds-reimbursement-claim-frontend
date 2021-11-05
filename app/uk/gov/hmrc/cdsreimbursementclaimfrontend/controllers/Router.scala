@@ -285,7 +285,7 @@ case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNum
   val subKey          = None
   val journeyBindable = JourneyBindable.Single
 
-  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
+  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectTypeOfClaimController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 }

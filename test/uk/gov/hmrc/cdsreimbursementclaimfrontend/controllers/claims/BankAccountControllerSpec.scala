@@ -31,7 +31,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SupportingEvidencesAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SupportingEvidencesAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse.{Indeterminate, No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{CommonBarsResponse, ReputationErrorResponse, ReputationResponse}
@@ -45,6 +45,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountNumber, BankAccountDetails, BankAccountType, DraftClaim, Error, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -90,7 +91,7 @@ class BankAccountControllerSpec
   private def sessionWithClaimState(
     maybeBankAccountDetails: Option[BankAccountDetails],
     bankAccountType: Option[BankAccountType],
-    maybeTypeOfClaim: Option[TypeOfClaim],
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer],
     supportingEvidences: Option[SupportingEvidencesAnswer] = None
   ): (SessionData, FillingOutClaim, DraftClaim) = {
 
@@ -99,7 +100,7 @@ class BankAccountControllerSpec
         bankAccountDetailsAnswer = maybeBankAccountDetails,
         bankAccountTypeAnswer = bankAccountType,
         supportingEvidencesAnswer = supportingEvidences,
-        maybeTypeOfClaim = maybeTypeOfClaim,
+        typeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
 
@@ -118,13 +119,13 @@ class BankAccountControllerSpec
 
   private def sessionWithMaskedBankDetails(
     maybeMaskedBankDetails: Option[MaskedBankDetails],
-    maybeTypeOfClaim: Option[TypeOfClaim]
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
     val draftC285Claim        =
       DraftClaim.blank.copy(
         displayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),
-        maybeTypeOfClaim = maybeTypeOfClaim,
+        typeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId              = sample[GGCredId]
@@ -161,7 +162,7 @@ class BankAccountControllerSpec
       "Redirect when MaskedBankDetails is empty" in forAll(journeys) { journey =>
         val maskedBankDetails = MaskedBankDetails(None, None)
         val (session, _, _)   =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toSelectNumberOfClaims(journey).some)
+          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -177,7 +178,7 @@ class BankAccountControllerSpec
       }
 
       "Redirect when MaskedBankDetails is None" in forAll(journeys) { journey =>
-        val (session, _, _) = sessionWithMaskedBankDetails(None, toSelectNumberOfClaims(journey).some)
+        val (session, _, _) = sessionWithMaskedBankDetails(None, toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -193,7 +194,7 @@ class BankAccountControllerSpec
         val consigneeDetails  = sample[ConsigneeBankDetails]
         val maskedBankDetails = MaskedBankDetails(Some(consigneeDetails), None)
         val (session, _, _)   =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toSelectNumberOfClaims(journey).some)
+          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -207,7 +208,7 @@ class BankAccountControllerSpec
         val declarantBankDetails = sample[DeclarantBankDetails]
         val maskedBankDetails    = MaskedBankDetails(None, Some(declarantBankDetails))
         val (session, _, _)      =
-          sessionWithMaskedBankDetails(Some(maskedBankDetails), toSelectNumberOfClaims(journey).some)
+          sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -231,7 +232,7 @@ class BankAccountControllerSpec
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = businessBankAccount
         val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val updatedBankAccount = businessBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
@@ -252,7 +253,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers         = businessBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form            = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
@@ -284,7 +285,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers         = businessBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form            = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
@@ -319,7 +320,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers         = businessBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form            = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
@@ -347,7 +348,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers            = businessBankAccount
         val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form               = BankAccountController.enterBankDetailsForm.fill(businessBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
@@ -380,7 +381,7 @@ class BankAccountControllerSpec
         )
         val answers          = businessBankAccount
         val (session, _, _)  =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -404,7 +405,7 @@ class BankAccountControllerSpec
         )
         val answers         = businessBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -432,7 +433,7 @@ class BankAccountControllerSpec
           CommonBarsResponse(accountNumberWithSortCodeIsValid = Yes, accountExists = Some(Yes), otherError = None)
         val answers            = personalBankAccount
         val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val updatedBankAccount = personalBankAccount.copy(accountNumber = sample[AccountNumber])
         val updatedSession     = updateSession(session, updatedBankAccount)
         inSequence {
@@ -454,7 +455,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers            = personalBankAccount
         val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form               = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), Some(ReputationResponse.Error), None)
@@ -485,7 +486,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers                               = personalBankAccount
         val (session, _, _)                       =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form                                  = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request                               = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountNumberWithSortCodeIsValidCases = Seq(Indeterminate, ReputationResponse.Error)
@@ -519,7 +520,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers         = personalBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form            = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request         = FakeRequest().withFormUrlEncodedBody(form: _*)
 
@@ -548,7 +549,7 @@ class BankAccountControllerSpec
       ) { journey =>
         val answers            = personalBankAccount
         val (session, _, _)    =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         val form               = BankAccountController.enterBankDetailsForm.fill(personalBankAccount).data.toSeq
         val request            = FakeRequest().withFormUrlEncodedBody(form: _*)
         val accountExistsCases = Seq(Some(No), Some(Indeterminate), None)
@@ -580,7 +581,7 @@ class BankAccountControllerSpec
         )
         val answers          = personalBankAccount
         val (session, _, _)  =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(session)
@@ -604,7 +605,7 @@ class BankAccountControllerSpec
         )
         val answers         = personalBankAccount
         val (session, _, _) =
-          sessionWithClaimState(Some(answers), Some(bankAccountType), toSelectNumberOfClaims(journey).some)
+          sessionWithClaimState(Some(answers), Some(bankAccountType), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()

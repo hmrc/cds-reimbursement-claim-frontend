@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -78,11 +78,11 @@ class SelectBankAccountTypeControllerSpec
 
   private def getSessionWithPreviousAnswer(
     bankAccountType: Option[BankAccountType],
-    maybeTypeOfClaim: Option[TypeOfClaim]
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): SessionData = {
     val draftC285Claim      = DraftClaim.blank.copy(
       bankAccountTypeAnswer = bankAccountType,
-      maybeTypeOfClaim = maybeTypeOfClaim,
+      typeOfClaim = maybeTypeOfClaim,
       movementReferenceNumber = Some(sample[MRN])
     )
     val ggCredId            = sample[GGCredId]
@@ -143,7 +143,7 @@ class SelectBankAccountTypeControllerSpec
     "display the page" when {
 
       "the user has not answered this question before" in forAll(journeys) { journey =>
-        val session = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)
+        val session = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -162,7 +162,7 @@ class SelectBankAccountTypeControllerSpec
 
       "the user has answered this question before and chosen Business Account " in forAll(journeys) { journey =>
         val session =
-          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toSelectNumberOfClaims(journey).some)
+          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -181,7 +181,7 @@ class SelectBankAccountTypeControllerSpec
 
       "the user has answered this question before and chosen Personal Account " in forAll(journeys) { journey =>
         val session =
-          getSessionWithPreviousAnswer(Some(BankAccountType.PersonalBankAccount), toSelectNumberOfClaims(journey).some)
+          getSessionWithPreviousAnswer(Some(BankAccountType.PersonalBankAccount), toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -201,7 +201,7 @@ class SelectBankAccountTypeControllerSpec
     "handle submit requests" when {
 
       "user chooses the Business Account option" in forAll(journeys) { journey =>
-        val session        = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)
+        val session        = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
         val updatedSession = updateSession(session, BankAccountType.BusinessBankAccount)
 
         inSequence {
@@ -217,7 +217,7 @@ class SelectBankAccountTypeControllerSpec
       }
 
       "user chooses the Personal Account option" in forAll(journeys) { journey =>
-        val session        = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)
+        val session        = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
         val updatedSession = updateSession(session, BankAccountType.PersonalBankAccount)
 
         inSequence {
@@ -234,7 +234,7 @@ class SelectBankAccountTypeControllerSpec
 
       "the user amends their previous answer" in forAll(journeys) { journey =>
         val session        =
-          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toSelectNumberOfClaims(journey).some)
+          getSessionWithPreviousAnswer(Some(BankAccountType.BusinessBankAccount), toTypeOfClaim(journey).some)
         val updatedSession = updateSession(session, BankAccountType.PersonalBankAccount)
         inSequence {
           mockAuthWithNoRetrievals()
@@ -252,7 +252,7 @@ class SelectBankAccountTypeControllerSpec
 
     "show an error summary" when {
       "the user does not select an option and submits the page" in forAll(journeys) { journey =>
-        val session = getSessionWithPreviousAnswer(None, toSelectNumberOfClaims(journey).some)
+        val session = getSessionWithPreviousAnswer(None, toTypeOfClaim(journey).some)
 
         inSequence {
           mockAuthWithNoRetrievals()

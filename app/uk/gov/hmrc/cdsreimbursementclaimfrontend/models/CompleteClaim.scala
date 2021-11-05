@@ -30,32 +30,32 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber
 
 import java.util.UUID
 import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Multiple
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.Multiple
 
 final case class CompleteClaim(
   id: UUID,
   movementReferenceNumber: MRN,
-  maybeDuplicateMovementReferenceNumberAnswer: Option[MRN],
+  duplicateMovementReferenceNumberAnswer: Option[MRN],
   declarantTypeAnswer: DeclarantTypeAnswer,
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
   mrnContactDetailsAnswer: Option[MrnContactDetails],
   mrnContactAddressAnswer: Option[ContactAddress],
-  maybeBasisOfClaimAnswer: Option[BasisOfClaim],
-  maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
+  basisOfClaimAnswer: Option[BasisOfClaim],
+  bankAccountDetailsAnswer: Option[BankAccountDetails],
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
   commodityDetailsAnswer: CommodityDetails,
   northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
-  maybeDisplayDeclaration: Option[DisplayDeclaration],
-  maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
+  displayDeclaration: Option[DisplayDeclaration],
+  duplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumber],
   declarantEoriNumber: Option[DeclarantEoriNumber],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  typeOfClaim: Option[TypeOfClaim],
+  typeOfClaim: TypeOfClaimAnswer,
   maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
@@ -70,15 +70,11 @@ final case class CompleteClaim(
   }
 
   lazy val totalReimbursementAmount: BigDecimal =
-    typeOfClaim
-      .map {
-        case Individual => claimedReimbursementsAnswer.total
-        case Scheduled  => claimedReimbursementsAnswer.total
-        case Multiple   =>
-          multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
-      }
-      .getOrElse(0)
-
+    typeOfClaim match {
+      case Individual => claimedReimbursementsAnswer.total
+      case Scheduled  => claimedReimbursementsAnswer.total
+      case Multiple   => multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+    }
 }
 
 object CompleteClaim {
@@ -87,25 +83,25 @@ object CompleteClaim {
     draftClaim match {
       case DraftClaim(
             id,
-            typeOfClaim,
+            maybeTypeOfClaim,
             Some(mrn),
-            maybeDuplicateMovementReferenceNumber,
-            draftDeclarantTypeAnswer,
+            maybeDuplicateMovementReferenceNumberAnswer,
+            maybeDraftDeclarantTypeAnswer,
             _,
-            draftMrnContactDetails,
-            draftMrnContactAddress,
+            maybeDraftMrnContactDetails,
+            maybeDraftMrnContactAddress,
             maybeBankAccountDetails,
             _,
             maybeBasisForClaim,
             maybeSupportingEvidences,
             _,
-            draftCommodityAnswer,
-            draftNorthernIrelandAnswer,
+            maybeDraftCommodityAnswer,
+            maybeDraftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
-            draftImporterEoriNumberAnswer,
-            draftDeclarantEoriNumberAnswer,
-            Some(claimsAnswer),
+            maybeDraftImporterEoriNumberAnswer,
+            maybeDraftDeclarantEoriNumberAnswer,
+            Some(claimedReimbursementsAnswer),
             maybeReimbursementMethodAnswer,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
@@ -115,13 +111,13 @@ object CompleteClaim {
             _
           ) =>
         (
-          validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-          validateDetailsRegisteredWithCdsMrn(draftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
+          validateDeclarantTypeAnswer(maybeDraftDeclarantTypeAnswer),
+          validateDetailsRegisteredWithCdsMrn(maybeDraftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
           validateSupportingEvidencesAnswer(maybeSupportingEvidences),
-          validateCommodityDetailsAnswer(draftCommodityAnswer),
-          validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
-          validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer),
-          validateScheduledDocumentAnswer(maybeScheduledDocument, typeOfClaim)
+          validateCommodityDetailsAnswer(maybeDraftCommodityAnswer),
+          validateImporterEoriNumberAnswer(maybeDraftImporterEoriNumberAnswer),
+          validateDeclarantEoriNumberAnswer(maybeDraftDeclarantEoriNumberAnswer),
+          validateScheduledDocumentAnswer(maybeScheduledDocument, maybeTypeOfClaim)
         ).mapN {
           case (
                 declarantTypeAnswer,
@@ -133,27 +129,27 @@ object CompleteClaim {
                 maybeScheduledDocumentAnswer
               ) =>
             CompleteClaim(
-              id = id,
-              movementReferenceNumber = mrn,
-              maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
+              id,
+              mrn,
+              maybeDuplicateMovementReferenceNumberAnswer,
               declarantTypeAnswer,
               detailsRegisteredWithCdsAnswer,
-              draftMrnContactDetails,
-              draftMrnContactAddress,
+              maybeDraftMrnContactDetails,
+              maybeDraftMrnContactAddress,
               maybeBasisForClaim,
-              maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
+              maybeBankAccountDetails,
               supportingEvidenceAnswer,
               commodityDetailsAnswer,
-              draftNorthernIrelandAnswer,
+              maybeDraftNorthernIrelandAnswer,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               importerEoriNumberAnswer,
               declarantEoriNumberAnswer,
-              claimsAnswer,
+              claimedReimbursementsAnswer,
               maybeReimbursementMethodAnswer,
               maybeScheduledDocumentAnswer,
               maybeAssociatedMRNs,
-              typeOfClaim,
+              maybeTypeOfClaim.getOrElse(TypeOfClaimAnswer.Individual),
               maybeAssociatedMRNsClaimsAnswer
             )
         }.toEither
@@ -245,12 +241,12 @@ object CompleteClaim {
 
   def validateScheduledDocumentAnswer(
     maybeScheduledDocument: Option[ScheduledDocumentAnswer],
-    numberOfClaims: Option[TypeOfClaim]
+    numberOfClaims: Option[TypeOfClaimAnswer]
   ): Validation[Option[ScheduledDocumentAnswer]] =
     Validated.condNel(
       numberOfClaims.forall(answer =>
-        (answer === TypeOfClaim.Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= TypeOfClaim.Scheduled && maybeScheduledDocument.isEmpty)
+        (answer === TypeOfClaimAnswer.Scheduled && maybeScheduledDocument.isDefined) ||
+          (answer =!= TypeOfClaimAnswer.Scheduled && maybeScheduledDocument.isEmpty)
       ),
       maybeScheduledDocument,
       "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"
@@ -259,10 +255,10 @@ object CompleteClaim {
   implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) extends AnyVal {
 
     def bankDetails: Option[BankAccountDetails] =
-      completeClaim.maybeBankAccountDetailsAnswer match {
+      completeClaim.bankAccountDetailsAnswer match {
         case None =>
           for {
-            displayDeclaration   <- completeClaim.maybeDisplayDeclaration
+            displayDeclaration   <- completeClaim.displayDeclaration
             bankDetails          <- displayDeclaration.displayResponseDetail.maskedBankDetails
             consigneeBankDetails <- bankDetails.consigneeBankDetails
           } yield BankAccountDetails(
@@ -270,7 +266,7 @@ object CompleteClaim {
             SortCode(consigneeBankDetails.sortCode),
             AccountNumber(consigneeBankDetails.accountNumber)
           )
-        case _    => completeClaim.maybeBankAccountDetailsAnswer
+        case _    => completeClaim.bankAccountDetailsAnswer
       }
 
     def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()

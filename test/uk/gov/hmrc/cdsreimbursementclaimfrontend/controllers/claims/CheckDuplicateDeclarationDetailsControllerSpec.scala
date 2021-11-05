@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserD
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 
 import scala.concurrent.Future
 
@@ -66,13 +66,13 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
   private def sessionWithClaimStateForDuplicate(
     maybeDisplayDeclaration: Option[DisplayDeclaration],
-    numberOfClaims: Option[TypeOfClaim]
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
       DraftClaim.blank.copy(
         duplicateDisplayDeclaration = maybeDisplayDeclaration,
         movementReferenceNumber = Some(sample[MRN]),
-        maybeTypeOfClaim = numberOfClaims
+        typeOfClaim = maybeTypeOfClaim
       )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
@@ -93,7 +93,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       "there is no journey status in the session for duplicate declaration details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val (session, _, _) = sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))
+        val (session, _, _) = sessionWithClaimStateForDuplicate(None, Some(toTypeOfClaim(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -153,9 +153,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         )
 
         val draftC285Claim                =
-          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))._3
+          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))._3
         val (session, fillingOutClaim, _) =
-          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
+          sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -173,9 +173,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       "there is no duplicate declaration" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.show(journey)(FakeRequest())
 
-        val draftC285Claim                = sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))._3
+        val draftC285Claim                = sessionWithClaimStateForDuplicate(None, Some(toTypeOfClaim(journey)))._3
         val (session, fillingOutClaim, _) =
-          sessionWithClaimStateForDuplicate(None, Some(toSelectNumberOfClaims(journey)))
+          sessionWithClaimStateForDuplicate(None, Some(toTypeOfClaim(journey)))
 
         val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
@@ -200,7 +200,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       //TODO Update Redirect url when decision is made
       "the user confirms the duplicate details are correct" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
-        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
+        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -216,7 +216,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
       //TODO Update Redirect url when decision is made
       "the user confirms the details are incorrect" in forAll(journeys) { journey =>
         val displayDeclaration = sample[DisplayDeclaration]
-        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toSelectNumberOfClaims(journey)))
+        val session            = sessionWithClaimStateForDuplicate(Some(displayDeclaration), Some(toTypeOfClaim(journey)))
 
         inSequence {
           mockAuthWithNoRetrievals()

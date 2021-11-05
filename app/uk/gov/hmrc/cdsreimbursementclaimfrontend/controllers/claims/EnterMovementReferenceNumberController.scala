@@ -125,7 +125,7 @@ class EnterMovementReferenceNumberController @Inject() (
                   },
                   mrnJourney =>
                     Redirect(
-                      getRoutes(getNumberOfClaims(fillingOutClaim.draftClaim), journey)
+                      getRoutes(getTypeOfClaim(fillingOutClaim.draftClaim), journey)
                         .nextPageForEnterMRN(mrnJourney)
                     )
                 )

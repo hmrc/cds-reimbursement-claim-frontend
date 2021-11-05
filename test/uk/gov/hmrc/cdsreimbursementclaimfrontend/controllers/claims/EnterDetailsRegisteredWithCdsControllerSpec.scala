@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, DetailsRegisteredWithCdsAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, DetailsRegisteredWithCdsAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -266,7 +266,7 @@ class EnterDetailsRegisteredWithCdsControllerSpec
       val updatedJourney = fillingOutClaim.copy(draftClaim =
         draftC285Claim.copy(
           movementReferenceNumber = Some(sample[MRN]),
-          maybeTypeOfClaim = Some(TypeOfClaim.Individual),
+          typeOfClaim = Some(TypeOfClaimAnswer.Individual),
           declarantTypeAnswer = Some(DeclarantTypeAnswer.AssociatedWithImporterCompany)
         )
       )

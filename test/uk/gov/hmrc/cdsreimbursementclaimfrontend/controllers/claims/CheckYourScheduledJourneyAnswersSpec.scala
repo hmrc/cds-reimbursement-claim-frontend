@@ -24,16 +24,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 
 class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
   "The CYA page" should {
 
     "display answer summaries for the Scheduled journey" in {
-      val (session, claim) = genData(TypeOfClaim.Scheduled)
+      val (session, claim) = genData(TypeOfClaimAnswer.Scheduled)
 
       inSequence {
         mockAuthWithNoRetrievals()

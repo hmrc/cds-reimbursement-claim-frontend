@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssociatedMrnController.enterAssociatedMrnKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -87,7 +87,7 @@ class EnterAssociatedMrnControllerSpec
   private def sessionWithClaimState(
     associatedMrns: List[MRN],
     movementReferenceNumber: MRN,
-    numberOfClaims: Option[TypeOfClaim],
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer],
     displayDeclaration: Option[DisplayDeclaration] = None,
     associatedDeclarations: List[DisplayDeclaration] = Nil,
     eori: Option[Eori] = None
@@ -96,7 +96,7 @@ class EnterAssociatedMrnControllerSpec
       displayDeclaration = displayDeclaration,
       associatedMRNsAnswer = NonEmptyList.fromList(associatedMrns),
       movementReferenceNumber = Some(movementReferenceNumber),
-      maybeTypeOfClaim = numberOfClaims,
+      typeOfClaim = maybeTypeOfClaim,
       associatedMRNsDeclarationAnswer = NonEmptyList.fromList(associatedDeclarations)
     )
     val ggCredId            = sample[GGCredId]
@@ -145,7 +145,7 @@ class EnterAssociatedMrnControllerSpec
           sessionWithClaimState(
             mrns,
             leadMrn,
-            Some(TypeOfClaim.Multiple)
+            Some(TypeOfClaimAnswer.Multiple)
           )
 
         inSequence {
@@ -172,7 +172,7 @@ class EnterAssociatedMrnControllerSpec
           sessionWithClaimState(
             indexWithMrns._2,
             mrn,
-            Some(TypeOfClaim.Multiple)
+            Some(TypeOfClaimAnswer.Multiple)
           )
 
         inSequence {
@@ -210,7 +210,7 @@ class EnterAssociatedMrnControllerSpec
           val (session, _, _) = sessionWithClaimState(
             mrns,
             leadMrn,
-            Some(TypeOfClaim.Multiple)
+            Some(TypeOfClaimAnswer.Multiple)
           )
 
           inSequence {
@@ -248,7 +248,7 @@ class EnterAssociatedMrnControllerSpec
           val (session, _, _) = sessionWithClaimState(
             associatedMRNsAnswer,
             leadMrn,
-            Some(TypeOfClaim.Multiple),
+            Some(TypeOfClaimAnswer.Multiple),
             Some(displayDeclaration),
             associatedDeclarations,
             eori = Some(eori)
@@ -276,7 +276,7 @@ class EnterAssociatedMrnControllerSpec
           val (session, _, _) = sessionWithClaimState(
             associatedMRNsAnswer,
             leadMrn,
-            Some(TypeOfClaim.Multiple)
+            Some(TypeOfClaimAnswer.Multiple)
           )
 
           inSequence {
@@ -303,7 +303,7 @@ class EnterAssociatedMrnControllerSpec
           val (session, _, _) = sessionWithClaimState(
             associatedMRNsAnswer,
             leadMrn,
-            Some(TypeOfClaim.Multiple)
+            Some(TypeOfClaimAnswer.Multiple)
           )
 
           inSequence {
@@ -328,7 +328,7 @@ class EnterAssociatedMrnControllerSpec
           val associatedMrnIndex = AssociatedMrnIndex.fromListIndex(mrnIndex)
 
           val (session, _, _) =
-            sessionWithClaimState(Nil, leadMrn, Some(TypeOfClaim.Multiple))
+            sessionWithClaimState(Nil, leadMrn, Some(TypeOfClaimAnswer.Multiple))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -364,7 +364,7 @@ class EnterAssociatedMrnControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(TypeOfClaim.Multiple),
+              Some(TypeOfClaimAnswer.Multiple),
               displayDeclaration = Some(displayDeclaration),
               associatedDeclarations = mrns.map(_ => displayDeclaration),
               eori = Some(eori)
@@ -405,7 +405,7 @@ class EnterAssociatedMrnControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(TypeOfClaim.Multiple),
+              Some(TypeOfClaimAnswer.Multiple),
               displayDeclaration = Some(displayDeclaration),
               associatedDeclarations = mrns.map(_ => displayDeclaration),
               eori = Some(userEori)
@@ -459,7 +459,7 @@ class EnterAssociatedMrnControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(TypeOfClaim.Multiple),
+              Some(TypeOfClaimAnswer.Multiple),
               displayDeclaration = Some(leadDisplayDeclaration),
               associatedDeclarations = mrns.map(_ => secondDisplayDeclaration),
               eori = Some(userEori)
@@ -516,7 +516,7 @@ class EnterAssociatedMrnControllerSpec
             sessionWithClaimState(
               mrns,
               leadMrn,
-              Some(TypeOfClaim.Multiple),
+              Some(TypeOfClaimAnswer.Multiple),
               displayDeclaration = Some(leadDisplayDeclaration),
               associatedDeclarations = mrns.map(_ => secondDisplayDeclaration),
               eori = Some(userEori)
