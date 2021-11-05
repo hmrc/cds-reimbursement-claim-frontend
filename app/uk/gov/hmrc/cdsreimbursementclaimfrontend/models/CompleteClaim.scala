@@ -72,8 +72,8 @@ final case class CompleteClaim(
   lazy val totalReimbursementAmount: BigDecimal =
     typeOfClaim
       .map {
-        case Individual => claimsAnswer.total
-        case Scheduled  => claimsAnswer.total
+        case Individual => claimedReimbursementsAnswer.total
+        case Scheduled  => claimedReimbursementsAnswer.total
         case Multiple   =>
           multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
       }
