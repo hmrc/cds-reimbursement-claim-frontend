@@ -16,7 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
+import cats.Id
 import cats.data.NonEmptyList
+import cats.implicits.catsSyntaxOption
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, Reimbursement, TaxCode}
 
 object ClaimedReimbursementsAnswer {
@@ -40,4 +43,7 @@ object ClaimedReimbursementsAnswer {
       NonEmptyList.fromList(combinedReimbursements.map(toClaim).toList)
     }
   }
+
+  val validator: Validator[Id, ClaimedReimbursementsAnswer] = maybeClaimedReimbursements =>
+    maybeClaimedReimbursements.toValidNel(MissingAnswerError("Claimed reimbursements"))
 }

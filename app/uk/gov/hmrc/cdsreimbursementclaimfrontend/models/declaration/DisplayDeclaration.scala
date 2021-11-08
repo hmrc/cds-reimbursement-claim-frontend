@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import play.api.libs.json.{Json, OFormat}
+import cats.Id
 import cats.implicits._
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
@@ -25,36 +27,48 @@ final case class DisplayDeclaration(
 
 object DisplayDeclaration {
 
-  implicit class DisplayDeclarationOps(displayDeclaration: DisplayDeclaration) {
+  val validator: Validator[Id, DisplayDeclaration] = maybeDisplayDeclaration =>
+    maybeDisplayDeclaration.toValidNel(MissingAnswerError("Display declaration"))
 
-    private val declaration: DisplayResponseDetail = displayDeclaration.displayResponseDetail
+  // TODO: not good code, most of this needed to be mapped when parsing from JSON
+  // Same as devs must know about some workaround extension class import which not always the case
+  implicit class DisplayDeclarationOps(val displayDeclaration: DisplayDeclaration) extends AnyVal {
 
     def totalPaidCharges: BigDecimal =
       BigDecimal(
-        declaration.ndrcDetails.fold(0.0)(ndrcDetails => ndrcDetails.map(s => s.amount.toDouble).sum)
+        displayDeclaration.displayResponseDetail.ndrcDetails.fold(0.0)(ndrcDetails =>
+          ndrcDetails.map(s => s.amount.toDouble).sum
+        )
       )
 
-    def consigneeName: Option[String] = declaration.consigneeDetails.map(details => details.legalName)
+    def consigneeName: Option[String] =
+      displayDeclaration.displayResponseDetail.consigneeDetails.map(details => details.legalName)
 
     def consigneeEmail: Option[String] =
-      declaration.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.emailAddress))
+      displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
+        details.contactDetails.flatMap(f => f.emailAddress)
+      )
 
     def consigneeTelephone: Option[String] =
-      declaration.consigneeDetails.flatMap(details => details.contactDetails.flatMap(f => f.telephone))
+      displayDeclaration.displayResponseDetail.consigneeDetails.flatMap(details =>
+        details.contactDetails.flatMap(f => f.telephone)
+      )
 
     def consigneeAddress: Option[String] =
-      declaration.consigneeDetails.map(details => establishmentAddress(details.establishmentAddress).mkString("<br />"))
+      displayDeclaration.displayResponseDetail.consigneeDetails.map(details =>
+        establishmentAddress(details.establishmentAddress).mkString("<br />")
+      )
 
-    def declarantName: String = declaration.declarantDetails.legalName
+    def declarantName: String = displayDeclaration.displayResponseDetail.declarantDetails.legalName
 
     def declarantEmailAddress: Option[String] =
-      declaration.declarantDetails.contactDetails.flatMap(details => details.emailAddress)
+      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.emailAddress)
 
     def declarantTelephoneNumber: Option[String] =
-      declaration.declarantDetails.contactDetails.flatMap(details => details.telephone)
+      displayDeclaration.displayResponseDetail.declarantDetails.contactDetails.flatMap(details => details.telephone)
 
     def declarantContactAddress: Option[String] =
-      Option(declaration.declarantDetails.establishmentAddress).map(address =>
+      Option(displayDeclaration.displayResponseDetail.declarantDetails.establishmentAddress).map(address =>
         establishmentAddress(address).mkString("<br />")
       )
 

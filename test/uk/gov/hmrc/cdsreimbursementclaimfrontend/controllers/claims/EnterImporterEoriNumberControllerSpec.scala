@@ -29,16 +29,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.{controllers, models}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration, DisplayResponseDetail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -73,7 +74,7 @@ class EnterImporterEoriNumberControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
+    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumberAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       importerEoriNumberAnswer = maybeImporterEoriNumberAnswer,
@@ -142,7 +143,7 @@ class EnterImporterEoriNumberControllerSpec
       "the user has answered this question before" in forAll(testCases) { journeyBindable =>
         def performAction(): Future[Result] = controller.enterImporterEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = ImporterEoriNumber(Eori("GB03152858027018"))
+        val answers = models.answers.ImporterEoriNumberAnswer(Eori("GB03152858027018"))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -171,7 +172,7 @@ class EnterImporterEoriNumberControllerSpec
         )
 
       val eori: Eori                    = sample[Eori]
-      val answers                       = ImporterEoriNumber(eori)
+      val answers                       = models.answers.ImporterEoriNumberAnswer(eori)
       val draftC285Claim                = sessionWithClaimState(Some(answers))._3
         .copy(importerEoriNumberAnswer = Some(answers))
       val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers))
@@ -231,7 +232,7 @@ class EnterImporterEoriNumberControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = ImporterEoriNumber(Eori("df"))
+        val answers = models.answers.ImporterEoriNumberAnswer(Eori("df"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -267,7 +268,7 @@ class EnterImporterEoriNumberControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = ImporterEoriNumber(Eori("df"))
+        val answers = ImporterEoriNumberAnswer(Eori("df"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(

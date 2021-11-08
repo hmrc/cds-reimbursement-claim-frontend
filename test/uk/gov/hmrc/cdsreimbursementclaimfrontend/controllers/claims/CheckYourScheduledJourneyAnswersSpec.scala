@@ -25,8 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisF
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswers, TypeOfClaimAnswer}
 
 class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
@@ -73,7 +72,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
               messages(
-                s"$whoIsMakingTheClaimKey.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
+                s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(claim.declarantTypeAnswer.value)}"
               )
             ),
             (

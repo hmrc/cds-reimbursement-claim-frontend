@@ -30,8 +30,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{Authentica
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNumberAnswer, ImporterEoriNumberAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, Eori, ImporterEoriNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
@@ -54,20 +55,20 @@ class EnterDeclarantEoriNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumber] = _.declarantEoriNumberAnswer
+  implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumberAnswer] = _.declarantEoriNumberAnswer
 
   def enterDeclarantEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumber] { (_, answers, router) =>
-        val emptyForm                             = EnterDeclarantEoriNumberController.eoriNumberForm
-        val filledForm: Form[DeclarantEoriNumber] = answers.fold(emptyForm)(emptyForm.fill)
+      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (_, answers, router) =>
+        val emptyForm                                   = EnterDeclarantEoriNumberController.eoriNumberForm
+        val filledForm: Form[DeclarantEoriNumberAnswer] = answers.fold(emptyForm)(emptyForm.fill)
         Ok(enterDeclarantEoriNumberPage(filledForm, router))
       }
     }
 
   def enterDeclarantEoriNumberSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DeclarantEoriNumber] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (fillingOutClaim, _, router) =>
         EnterDeclarantEoriNumberController.eoriNumberForm
           .bindFromRequest()
           .fold(
@@ -110,9 +111,9 @@ class EnterDeclarantEoriNumberController @Inject() (
 
   private def hasMatchOnEori(
     fillingOutClaim: FillingOutClaim,
-    declarantEoriNumber: DeclarantEoriNumber
+    declarantEoriNumber: DeclarantEoriNumberAnswer
   ): Either[Error, Boolean] = {
-    val maybeImporterEoriNumber: Option[ImporterEoriNumber] =
+    val maybeImporterEoriNumber: Option[ImporterEoriNumberAnswer] =
       fillingOutClaim.draftClaim.importerEoriNumberAnswer
 
     val maybeDisplayDeclaration: Option[DisplayDeclaration] = fillingOutClaim.draftClaim.displayDeclaration
@@ -142,10 +143,10 @@ object EnterDeclarantEoriNumberController {
       .verifying("invalid.number", str => Eori(str).isValid)
       .transform[Eori](Eori(_), _.value)
 
-  val eoriNumberForm: Form[DeclarantEoriNumber] = Form(
+  val eoriNumberForm: Form[DeclarantEoriNumberAnswer] = Form(
     mapping(
       "enter-declarant-eori-number" -> eoriNumberMapping
-    )(DeclarantEoriNumber.apply)(DeclarantEoriNumber.unapply)
+    )(DeclarantEoriNumberAnswer.apply)(DeclarantEoriNumberAnswer.unapply)
   )
 
 }

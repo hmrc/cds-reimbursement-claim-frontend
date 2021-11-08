@@ -17,18 +17,17 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.data.NonEmptyList
 import cats.syntax.all._
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsClaimsAnswer, DeclarantEoriNumberAnswer, ImporterEoriNumberAnswer, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.DeclarantEoriNumber
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import java.util.UUID
-import cats.data.NonEmptyList
 
 final case class DraftClaim(
   id: UUID,
@@ -44,12 +43,12 @@ final case class DraftClaim(
   basisOfClaimAnswer: Option[BasisOfClaim] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
-  commoditiesDetailsAnswer: Option[CommodityDetails] = None,
+  commoditiesDetailsAnswer: Option[CommodityDetailsAnswer] = None,
   claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
-  importerEoriNumberAnswer: Option[ImporterEoriNumber] = None,
-  declarantEoriNumberAnswer: Option[DeclarantEoriNumber] = None,
+  importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
+  declarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer] = None,
   claimedReimbursementsAnswer: Option[ClaimedReimbursementsAnswer] = None,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None,
@@ -91,6 +90,40 @@ final case class DraftClaim(
         associatedMRNsClaimsAnswer
       )
 
+  def isComplete: Boolean = {
+
+    def isSingleJourneyComplete: Boolean =
+      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
+        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
+        DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
+        MRN.validator.validate(movementReferenceNumber).isValid
+
+    def isMultipleJourneyComplete: Boolean =
+      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
+        AssociatedMRNsClaimsAnswer.validator.validate(associatedMRNsClaimsAnswer).isValid &&
+        AssociatedMRNsAnswer.validator.validate(associatedMRNsAnswer).isValid &&
+        DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
+        MRN.validator.validate(movementReferenceNumber).isValid
+
+    def isScheduledJourneyComplete: Boolean =
+      SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
+        CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        ScheduledDocumentAnswer.validator.validate(scheduledDocumentAnswer).isValid &&
+        DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
+        DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
+        MRN.validator.validate(movementReferenceNumber).isValid
+
+    typeOfClaim match {
+      case Some(Scheduled) => isScheduledJourneyComplete
+      case Some(Multiple)  => isMultipleJourneyComplete
+      case _               => isSingleJourneyComplete
+    }
+  }
 }
 
 object DraftClaim {

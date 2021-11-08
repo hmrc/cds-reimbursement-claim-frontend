@@ -25,10 +25,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ReimbursementMethodAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswers, ReimbursementMethodAnswer, TypeOfClaimAnswer}
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
@@ -70,7 +69,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
               messages(
-                s"$whoIsMakingTheClaimKey.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
+                s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(claim.declarantTypeAnswer.value)}"
               )
             ),
             (

@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, DeclarantEoriNumberAnswer, ImporterEoriNumberAnswer, ScheduledDocumentAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
@@ -35,9 +35,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, answers}
 
 import java.util.UUID
 
@@ -79,8 +78,8 @@ object DraftClaimGen {
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
       claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
       displayDeclaration = displayDeclaration.some,
-      importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
-      declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
+      importerEoriNumberAnswer = answers.ImporterEoriNumberAnswer(eori).some,
+      declarantEoriNumberAnswer = DeclarantEoriNumberAnswer(eori).some,
       claimedReimbursementsAnswer = claimedReimbursementsAnswer.some,
       reimbursementMethodAnswer =
         if (typeOfClaim === TypeOfClaimAnswer.Individual)

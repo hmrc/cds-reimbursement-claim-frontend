@@ -33,9 +33,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, CommodityDetails, DraftClaim, SessionData, SignedInUserDetails, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, DraftClaim, SessionData, SignedInUserDetails, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{CommodityDetailsAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -70,7 +70,7 @@ class EnterCommoditiesDetailsControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeCommoditiesDetailsAnswer: Option[CommodityDetails],
+    maybeCommoditiesDetailsAnswer: Option[CommodityDetailsAnswer],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
@@ -142,7 +142,7 @@ class EnterCommoditiesDetailsControllerSpec
       "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
         def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
 
-        val answers = CommodityDetails("some package")
+        val answers = CommodityDetailsAnswer("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -169,7 +169,7 @@ class EnterCommoditiesDetailsControllerSpec
         (numberOfClaims, journeyBindable) =>
           def performAction(): Future[Result] = controller.changeCommoditiesDetails(journeyBindable)(FakeRequest())
 
-          val answers = CommodityDetails("some package")
+          val answers = CommodityDetailsAnswer("some package")
 
           val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
             .copy(
@@ -201,7 +201,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CommodityDetails("some package")
+        val answers = CommodityDetailsAnswer("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -236,7 +236,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CommodityDetails("some package")
+        val answers = CommodityDetailsAnswer("some package")
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(
@@ -269,7 +269,7 @@ class EnterCommoditiesDetailsControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = CommodityDetails(List.fill(600)('c').mkString(" "))
+        val answers = CommodityDetailsAnswer(List.fill(600)('c').mkString(" "))
 
         val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
           .copy(

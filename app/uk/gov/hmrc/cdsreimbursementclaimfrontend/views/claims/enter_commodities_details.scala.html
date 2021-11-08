@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CommodityDetails
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 
 @this(
@@ -30,7 +30,7 @@
  errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[CommodityDetails], router:ReimbursementRoutes, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[CommodityDetailsAnswer], router:ReimbursementRoutes, isAmend: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-commodities-details"}
     @title = @{messages(s"$key.title")}
