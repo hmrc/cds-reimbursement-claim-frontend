@@ -53,14 +53,14 @@ final case class CompleteClaim(
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
+  associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
   lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)] = {
     val mrns   = associatedMRNsAnswer
       .map(mrns => movementReferenceNumber :: mrns)
       .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
-    val claims = maybeAssociatedMRNsClaimsAnswer
+    val claims = associatedMRNsClaimsAnswer
       .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
       .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
     mrns.zipWith(claims)((m, c) => (m, c))
