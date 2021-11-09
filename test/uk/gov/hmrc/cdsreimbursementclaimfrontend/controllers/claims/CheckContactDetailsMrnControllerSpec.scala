@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContact
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
@@ -84,14 +84,14 @@ class CheckContactDetailsMrnControllerSpec
   private def getSessionWithPreviousAnswer(
     displayDeclaration: Option[DisplayDeclaration],
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    maybeTypeOfClaim: Option[TypeOfClaim],
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer],
     mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
     mrnContactAddressAnswer: Option[ContactAddress] = None
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       displayDeclaration = displayDeclaration,
       declarantTypeAnswer = declarantTypeAnswer,
-      maybeTypeOfClaim = maybeTypeOfClaim,
+      typeOfClaim = maybeTypeOfClaim,
       movementReferenceNumber = Some(sample[MRN]),
       mrnContactDetailsAnswer = mrnContactDetailsAnswer,
       mrnContactAddressAnswer = mrnContactAddressAnswer
@@ -115,7 +115,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in forAll(journeys) { journey =>
-        val session = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
+        val session = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -138,7 +138,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           Some(mrnContactDetails),
           Some(mrnContactAddress)
         )
@@ -182,7 +182,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, _) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           None,
           None
         )
@@ -205,7 +205,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, fillingOutClaim) = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           None,
           None
         )
@@ -246,7 +246,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val fillingOutClaim = foc
 
@@ -267,7 +267,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val fillingOutClaim = foc
 
@@ -287,7 +287,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val fillingOutClaim = foc
 
@@ -314,7 +314,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val fillingOutClaim = foc
 
@@ -350,7 +350,7 @@ class CheckContactDetailsMrnControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           Some(sample[MrnContactDetails]),
           Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
@@ -371,7 +371,7 @@ class CheckContactDetailsMrnControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           Some(sample[MrnContactDetails]),
           Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
@@ -392,7 +392,7 @@ class CheckContactDetailsMrnControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           Some(sample[MrnContactDetails]),
           Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
@@ -420,7 +420,7 @@ class CheckContactDetailsMrnControllerSpec
         val session = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey)),
+          Some(toTypeOfClaim(journey)),
           Some(sample[MrnContactDetails]),
           Some(sample[ContactAddress].copy(country = Country.uk))
         )._1
@@ -454,7 +454,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val errorResponse = Error("parsing address lookup response:/address/postcode: error.path.missing")
 
@@ -476,7 +476,7 @@ class CheckContactDetailsMrnControllerSpec
         val (session, _)  = getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.Importer),
-          Some(toSelectNumberOfClaims(journey))
+          Some(toTypeOfClaim(journey))
         )
         val errorResponse = Error("parsing address lookup response:/address/lines: error.minLength")
 
@@ -502,7 +502,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single))
+        Some(toTypeOfClaim(JourneyBindable.Single))
       )._2
 
       val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
@@ -522,7 +522,7 @@ class CheckContactDetailsMrnControllerSpec
         getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.AssociatedWithImporterCompany),
-          Some(toSelectNumberOfClaims(JourneyBindable.Single))
+          Some(toTypeOfClaim(JourneyBindable.Single))
         )._2
 
       val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
@@ -542,7 +542,7 @@ class CheckContactDetailsMrnControllerSpec
         getSessionWithPreviousAnswer(
           Some(acc14),
           Some(DeclarantTypeAnswer.AssociatedWithRepresentativeCompany),
-          Some(toSelectNumberOfClaims(JourneyBindable.Single))
+          Some(toTypeOfClaim(JourneyBindable.Single))
         )._2
 
       val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
@@ -563,7 +563,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         Some(sample[MrnContactDetails]),
         Some(sample[ContactAddress])
       )._2
@@ -575,7 +575,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         Some(sample[MrnContactDetails]),
         None
       )._2
@@ -587,7 +587,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim = getSessionWithPreviousAnswer(
         None,
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         Some(sample[ContactAddress])
       )._2
@@ -601,7 +601,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
       )._2
@@ -620,7 +620,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
       )._2
@@ -639,7 +639,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
       )._2
@@ -659,7 +659,7 @@ class CheckContactDetailsMrnControllerSpec
       val fillingOutClaim  = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(JourneyBindable.Single)),
+        Some(toTypeOfClaim(JourneyBindable.Single)),
         None,
         None
       )._2
@@ -673,7 +673,7 @@ class CheckContactDetailsMrnControllerSpec
 
     "start successfully" in forAll(journeys) { journey =>
       val lookupUrl = sample[URL]
-      val session   = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
+      val session   = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -688,7 +688,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "fail to start once error response received downstream ALF service" in forAll(journeys) { journey =>
-      val session = getSessionWithPreviousAnswer(None, None, Some(toSelectNumberOfClaims(journey)))._1
+      val session = getSessionWithPreviousAnswer(None, None, Some(toTypeOfClaim(journey)))._1
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -706,7 +706,7 @@ class CheckContactDetailsMrnControllerSpec
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(journey))
+        Some(toTypeOfClaim(journey))
       )
 
       inSequence {
@@ -728,7 +728,7 @@ class CheckContactDetailsMrnControllerSpec
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(journey))
+        Some(toTypeOfClaim(journey))
       )
 
       inSequence {
@@ -745,7 +745,7 @@ class CheckContactDetailsMrnControllerSpec
       val (session, _) = getSessionWithPreviousAnswer(
         Some(acc14),
         Some(DeclarantTypeAnswer.Importer),
-        Some(toSelectNumberOfClaims(journey))
+        Some(toTypeOfClaim(journey))
       )
 
       inSequence {

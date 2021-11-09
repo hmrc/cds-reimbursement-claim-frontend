@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.json.{Json, OFormat}
+import cats.data.ValidatedNel
 
-final case class DeclarantEoriNumber(value: Eori)
+package object validation {
 
-object DeclarantEoriNumber {
+  type FieldName = String
+  type Message   = String
 
-  implicit val format: OFormat[DeclarantEoriNumber] = Json.format[DeclarantEoriNumber]
+  type ValidationResult[A] = ValidatedNel[AnswerError, A]
 }

@@ -29,7 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -57,19 +57,19 @@ class SelectWhoIsMakingTheClaimControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   val testCases = Table(
-    ("NumberOfClaimsType", "JourneyBindable"),
-    (TypeOfClaim.Individual, JourneyBindable.Single),
-    (TypeOfClaim.Multiple, JourneyBindable.Multiple),
-    (TypeOfClaim.Scheduled, JourneyBindable.Scheduled)
+    ("ClaimType", "JourneyBindable"),
+    (TypeOfClaimAnswer.Individual, JourneyBindable.Single),
+    (TypeOfClaimAnswer.Multiple, JourneyBindable.Multiple),
+    (TypeOfClaimAnswer.Scheduled, JourneyBindable.Scheduled)
   )
 
   private def sessionWithClaimState(
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
-    numberOfClaims: Option[TypeOfClaim]
+    typeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       declarantTypeAnswer = declarantTypeAnswer,
-      maybeTypeOfClaim = numberOfClaims
+      typeOfClaim = typeOfClaim
     )
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
@@ -90,9 +90,9 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
     "redirect to the start of the journey" when {
 
-      "there is no journey status in the session" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "there is no journey status in the session" in forAll(testCases) { (claimType, journeyBindable) =>
         def performAction(): Future[Result] = controller.selectDeclarantType(journeyBindable)(FakeRequest())
-        val (session, _, _)                 = sessionWithClaimState(None, Some(numberOfClaims))
+        val (session, _, _)                 = sessionWithClaimState(None, Some(claimType))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -113,10 +113,10 @@ class SelectWhoIsMakingTheClaimControllerSpec
       def performAction(journeyBindable: JourneyBindable): Future[Result] =
         controller.selectDeclarantType(journeyBindable)(FakeRequest())
 
-      "the user has not answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        val draftC285Claim                = sessionWithClaimState(None, Some(numberOfClaims))._3
+      "the user has not answered this question before" in forAll(testCases) { (claimType, journeyBindable) =>
+        val draftC285Claim                = sessionWithClaimState(None, Some(claimType))._3
           .copy(movementReferenceNumber = Some(sample[MRN]))
-        val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(None, Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {
@@ -131,12 +131,12 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
       }
 
-      "the user has answered this question before" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "the user has answered this question before" in forAll(testCases) { (claimType, journeyBindable) =>
         val declarantType                 = DeclarantTypeAnswer.Importer
         val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
           .copy(movementReferenceNumber = Some(sample[MRN]))
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {
@@ -158,15 +158,15 @@ class SelectWhoIsMakingTheClaimControllerSpec
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
-      "user chooses a valid option" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "user chooses a valid option" in forAll(testCases) { (claimType, journeyBindable) =>
         val declarantType                 = DeclarantTypeAnswer.Importer
         val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
           .copy(
             declarantTypeAnswer = Some(answers),
             movementReferenceNumber = Some(sample[MRN])
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {
@@ -180,15 +180,15 @@ class SelectWhoIsMakingTheClaimControllerSpec
         )
       }
 
-      "the user does not select an option" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "the user does not select an option" in forAll(testCases) { (claimType, journeyBindable) =>
         val declarantType                 = DeclarantTypeAnswer.Importer
         val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
           .copy(
             declarantTypeAnswer = Some(answers),
             movementReferenceNumber = Some(sample[MRN])
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {
@@ -209,15 +209,15 @@ class SelectWhoIsMakingTheClaimControllerSpec
         )
       }
 
-      "an invalid option value is submitted" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "an invalid option value is submitted" in forAll(testCases) { (claimType, journeyBindable) =>
         val declarantType                 = DeclarantTypeAnswer.Importer
         val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
           .copy(
             declarantTypeAnswer = Some(answers),
             movementReferenceNumber = Some(sample[MRN])
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {
@@ -238,7 +238,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         )
       }
 
-      "the user amends their answer" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
+      "the user amends their answer" in forAll(testCases) { (claimType, journeyBindable) =>
         def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
           controller.changeDeclarantTypeSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
@@ -247,12 +247,12 @@ class SelectWhoIsMakingTheClaimControllerSpec
         val declarantType = DeclarantTypeAnswer.Importer
 
         val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
+        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
           .copy(
             declarantTypeAnswer = Some(answers),
             movementReferenceNumber = Some(sample[MRN])
           )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
         val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
 
         inSequence {

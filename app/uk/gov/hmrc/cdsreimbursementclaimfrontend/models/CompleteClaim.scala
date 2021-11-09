@@ -17,95 +17,118 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.Validated
-import cats.data.Validated.{Valid, invalidNel}
+import cats.data.NonEmptyList
+import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.{Individual, Multiple, Scheduled}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNumberAnswer, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
 import java.util.UUID
-import cats.data.NonEmptyList
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Scheduled
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim.Multiple
 
 final case class CompleteClaim(
   id: UUID,
+  typeOfClaim: TypeOfClaimAnswer,
   movementReferenceNumber: MRN,
-  maybeDuplicateMovementReferenceNumberAnswer: Option[MRN],
+  duplicateMovementReferenceNumberAnswer: Option[MRN],
   declarantTypeAnswer: DeclarantTypeAnswer,
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
   mrnContactDetailsAnswer: Option[MrnContactDetails],
   mrnContactAddressAnswer: Option[ContactAddress],
-  maybeBasisOfClaimAnswer: Option[BasisOfClaim],
-  maybeBankAccountDetailsAnswer: Option[BankAccountDetails],
+  basisOfClaimAnswer: Option[BasisOfClaim],
+  bankAccountDetailsAnswer: Option[BankAccountDetails],
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
-  commodityDetailsAnswer: CommodityDetails,
+  commodityDetailsAnswer: CommodityDetailsAnswer,
   northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
-  maybeDisplayDeclaration: Option[DisplayDeclaration],
-  maybeDuplicateDisplayDeclaration: Option[DisplayDeclaration],
-  importerEoriNumber: Option[ImporterEoriNumber],
-  declarantEoriNumber: Option[DeclarantEoriNumber],
+  displayDeclaration: Option[DisplayDeclaration],
+  duplicateDisplayDeclaration: Option[DisplayDeclaration],
+  importerEoriNumber: Option[ImporterEoriNumberAnswer],
+  declarantEoriNumber: Option[DeclarantEoriNumberAnswer],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  typeOfClaim: Option[TypeOfClaim],
-  maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
+  associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
   lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)] = {
     val mrns   = associatedMRNsAnswer
       .map(mrns => movementReferenceNumber :: mrns)
       .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
-    val claims = maybeAssociatedMRNsClaimsAnswer
+    val claims = associatedMRNsClaimsAnswer
       .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
       .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
     mrns.zipWith(claims)((m, c) => (m, c))
   }
 
   lazy val totalReimbursementAmount: BigDecimal =
-    typeOfClaim
-      .map {
-        case Individual => claimedReimbursementsAnswer.total
-        case Scheduled  => claimedReimbursementsAnswer.total
-        case Multiple   =>
-          multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
-      }
-      .getOrElse(0)
+    typeOfClaim match {
+      case Individual => claimedReimbursementsAnswer.total
+      case Scheduled  => claimedReimbursementsAnswer.total
+      case Multiple   => multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+    }
 
+  lazy val bankDetails: Option[BankAccountDetails] =
+    bankAccountDetailsAnswer match {
+      case None =>
+        for {
+          declaration          <- displayDeclaration
+          bankDetails          <- declaration.displayResponseDetail.maskedBankDetails
+          consigneeBankDetails <- bankDetails.consigneeBankDetails
+        } yield BankAccountDetails(
+          AccountName(consigneeBankDetails.accountHolderName),
+          SortCode(consigneeBankDetails.sortCode),
+          AccountNumber(consigneeBankDetails.accountNumber)
+        )
+      case _    => bankAccountDetailsAnswer
+    }
+
+  lazy val bankAccountType: String =
+    BankAccountType.allAccountTypes.map(_.value).toString()
 }
 
 object CompleteClaim {
+
+  def detailsRegisteredWithCds(
+    declarant: DeclarantTypeAnswer,
+    declaration: DisplayDeclaration,
+    email: Email
+  ): DetailsRegisteredWithCdsAnswer =
+    declarant match {
+      case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+        consigneeToClaimantDetails(declaration, email)
+      case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+        declarantToClaimantDetails(declaration, email)
+    }
 
   def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, CompleteClaim] =
     draftClaim match {
       case DraftClaim(
             id,
-            typeOfClaim,
-            Some(mrn),
-            maybeDuplicateMovementReferenceNumber,
-            draftDeclarantTypeAnswer,
+            maybeTypeOfClaim,
+            maybeMrn,
+            maybeDuplicateMovementReferenceNumberAnswer,
+            maybeDraftDeclarantTypeAnswer,
             _,
-            draftMrnContactDetails,
-            draftMrnContactAddress,
+            maybeDraftMrnContactDetails,
+            maybeDraftMrnContactAddress,
             maybeBankAccountDetails,
             _,
             maybeBasisForClaim,
             maybeSupportingEvidences,
             _,
-            draftCommodityAnswer,
-            draftNorthernIrelandAnswer,
+            maybeDraftCommodityAnswer,
+            maybeDraftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
-            draftImporterEoriNumberAnswer,
-            draftDeclarantEoriNumberAnswer,
-            Some(claimsAnswer),
+            maybeImporterEoriNumberAnswer,
+            maybeDeclarantEoriNumberAnswer,
+            maybeClaimedReimbursementsAnswer,
             maybeReimbursementMethodAnswer,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
@@ -115,51 +138,47 @@ object CompleteClaim {
             _
           ) =>
         (
-          validateDeclarantTypeAnswer(draftDeclarantTypeAnswer),
-          validateDetailsRegisteredWithCdsMrn(draftDeclarantTypeAnswer, maybeDisplayDeclaration, verifiedEmail),
-          validateSupportingEvidencesAnswer(maybeSupportingEvidences),
-          validateCommodityDetailsAnswer(draftCommodityAnswer),
-          validateImporterEoriNumberAnswer(draftImporterEoriNumberAnswer),
-          validateDeclarantEoriNumberAnswer(draftDeclarantEoriNumberAnswer),
-          validateScheduledDocumentAnswer(maybeScheduledDocument, typeOfClaim)
-        ).mapN {
-          case (
-                declarantTypeAnswer,
-                detailsRegisteredWithCdsAnswer,
-                supportingEvidenceAnswer,
-                commodityDetailsAnswer,
-                importerEoriNumberAnswer,
-                declarantEoriNumberAnswer,
-                maybeScheduledDocumentAnswer
-              ) =>
-            CompleteClaim(
-              id = id,
-              movementReferenceNumber = mrn,
-              maybeDuplicateMovementReferenceNumberAnswer = maybeDuplicateMovementReferenceNumber,
-              declarantTypeAnswer,
-              detailsRegisteredWithCdsAnswer,
-              draftMrnContactDetails,
-              draftMrnContactAddress,
-              maybeBasisForClaim,
-              maybeBankAccountDetailsAnswer = maybeBankAccountDetails,
-              supportingEvidenceAnswer,
-              commodityDetailsAnswer,
-              draftNorthernIrelandAnswer,
-              maybeDisplayDeclaration,
-              maybeDuplicateDisplayDeclaration,
-              importerEoriNumberAnswer,
-              declarantEoriNumberAnswer,
-              claimsAnswer,
-              maybeReimbursementMethodAnswer,
-              maybeScheduledDocumentAnswer,
-              maybeAssociatedMRNs,
-              typeOfClaim,
-              maybeAssociatedMRNsClaimsAnswer
-            )
+          MRN.validator.validate(maybeMrn),
+          DisplayDeclaration.validator.validate(maybeDisplayDeclaration),
+          DeclarantTypeAnswer.validator.validate(maybeDraftDeclarantTypeAnswer),
+          SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
+          CommodityDetailsAnswer.validator.validate(maybeDraftCommodityAnswer),
+          ClaimedReimbursementsAnswer.validator.validate(maybeClaimedReimbursementsAnswer),
+          if (maybeTypeOfClaim.exists(_ === Scheduled))
+            ScheduledDocumentAnswer.validator.validate(maybeScheduledDocument)
+          else Valid(None)
+        ).mapN { case (mrn, declaration, maybeDeclarant, maybeEvidences, maybeCommodity, maybeClaim, maybeSchedule) =>
+          CompleteClaim(
+            id,
+            maybeTypeOfClaim.getOrElse(Individual),
+            mrn,
+            maybeDuplicateMovementReferenceNumberAnswer,
+            maybeDeclarant,
+            detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
+            maybeDraftMrnContactDetails,
+            maybeDraftMrnContactAddress,
+            maybeBasisForClaim,
+            maybeBankAccountDetails,
+            maybeEvidences,
+            maybeCommodity,
+            maybeDraftNorthernIrelandAnswer,
+            maybeDisplayDeclaration,
+            maybeDuplicateDisplayDeclaration,
+            maybeImporterEoriNumberAnswer,
+            maybeDeclarantEoriNumberAnswer,
+            maybeClaim,
+            maybeReimbursementMethodAnswer,
+            maybeSchedule,
+            maybeAssociatedMRNs,
+            maybeAssociatedMRNsClaimsAnswer
+          )
         }.toEither
           .leftMap { errors =>
             Error(
-              s"could not create complete claim in order to submit claim request: ${errors.toList.mkString("; ")}"
+              s"could not create complete claim in order to submit claim request: ${errors
+                .map(_.toString)
+                .toList
+                .mkString("; ")}"
             )
           }
 
@@ -168,111 +187,4 @@ object CompleteClaim {
 
   implicit val eq: Eq[CompleteClaim]         = Eq.fromUniversalEquals[CompleteClaim]
   implicit val format: Format[CompleteClaim] = Json.format[CompleteClaim]
-
-  def validateDeclarantTypeAnswer(
-    maybeDeclarantTypeAnswer: Option[DeclarantTypeAnswer]
-  ): Validation[DeclarantTypeAnswer] =
-    maybeDeclarantTypeAnswer toValidNel "missing declarant type answer"
-
-  def validateClaimedReimbursementsAnswer(
-    maybeReimbursementsAnswer: Option[ClaimedReimbursementsAnswer]
-  ): Validation[ClaimedReimbursementsAnswer] =
-    maybeReimbursementsAnswer toValidNel "missing claimed reimbursements"
-
-  def validateDetailsRegisteredWithCdsEntryNumber(
-    maybeDetailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer]
-  ): Validation[DetailsRegisteredWithCdsAnswer] =
-    maybeDetailsRegisteredWithCdsAnswer toValidNel "missing claimant details type answer"
-
-  def validateCommodityDetailsAnswer(
-    maybeClaimsAnswer: Option[CommodityDetails]
-  ): Validation[CommodityDetails] =
-    maybeClaimsAnswer toValidNel "missing commodity details answer"
-
-  def validateSupportingEvidencesAnswer(
-    maybeSupportingEvidencesAnswer: Option[SupportingEvidencesAnswer]
-  ): Validation[SupportingEvidencesAnswer] =
-    maybeSupportingEvidencesAnswer toValidNel "missing supporting evidences answer"
-
-  def validateClaimantContactDetailsEntryNumber(
-    maybeMrnContactDetails: Option[MrnContactDetails]
-  ): Validation[Option[MrnContactDetails]] =
-    maybeMrnContactDetails match {
-      case None => invalidNel("incomplete contact details")
-      case a    => Valid(a)
-    }
-
-  def validateDeclarantEoriNumberAnswer(
-    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
-  ): Validation[Option[DeclarantEoriNumber]] =
-    maybeDeclarantEoriNumberAnswer match {
-      case Some(value) =>
-        value match {
-          case DeclarantEoriNumber(_) => Valid(Some(value))
-          case _                      => invalidNel("incomplete declarant eori number answer")
-        }
-      case None        => Valid(None)
-    }
-
-  def validateImporterEoriNumberAnswer(
-    maybeImporterEoriNumberAnswer: Option[ImporterEoriNumber]
-  ): Validation[Option[ImporterEoriNumber]] =
-    maybeImporterEoriNumberAnswer match {
-      case Some(value) =>
-        value match {
-          case ImporterEoriNumber(_) => Valid(Some(value))
-          case _                     => invalidNel("incomplete importer eori number answer")
-        }
-      case None        => Valid(None)
-    }
-
-  def validateDetailsRegisteredWithCdsMrn(
-    maybeDeclarantType: Option[DeclarantTypeAnswer],
-    maybeDisplayDeclaration: Option[DisplayDeclaration],
-    verifiedEmail: Email
-  ): Validation[DetailsRegisteredWithCdsAnswer] =
-    (maybeDeclarantType, maybeDisplayDeclaration)
-      .mapN { (declarantType, displayDeclaration) =>
-        val detailsRegisteredWithCdsFormData = declarantType match {
-          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-            consigneeToClaimantDetails(displayDeclaration, verifiedEmail)
-          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-            declarantToClaimantDetails(displayDeclaration, verifiedEmail)
-        }
-        Valid(detailsRegisteredWithCdsFormData)
-      }
-      .getOrElse(invalidNel("Missing declarant type or display declaration"))
-
-  def validateScheduledDocumentAnswer(
-    maybeScheduledDocument: Option[ScheduledDocumentAnswer],
-    numberOfClaims: Option[TypeOfClaim]
-  ): Validation[Option[ScheduledDocumentAnswer]] =
-    Validated.condNel(
-      numberOfClaims.forall(answer =>
-        (answer === TypeOfClaim.Scheduled && maybeScheduledDocument.isDefined) ||
-          (answer =!= TypeOfClaim.Scheduled && maybeScheduledDocument.isEmpty)
-      ),
-      maybeScheduledDocument,
-      "Scheduled document is either missing for Scheduled journey or was present in other type of journeys"
-    )
-
-  implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) extends AnyVal {
-
-    def bankDetails: Option[BankAccountDetails] =
-      completeClaim.maybeBankAccountDetailsAnswer match {
-        case None =>
-          for {
-            displayDeclaration   <- completeClaim.maybeDisplayDeclaration
-            bankDetails          <- displayDeclaration.displayResponseDetail.maskedBankDetails
-            consigneeBankDetails <- bankDetails.consigneeBankDetails
-          } yield BankAccountDetails(
-            AccountName(consigneeBankDetails.accountHolderName),
-            SortCode(consigneeBankDetails.sortCode),
-            AccountNumber(consigneeBankDetails.accountNumber)
-          )
-        case _    => completeClaim.maybeBankAccountDetailsAnswer
-      }
-
-    def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()
-  }
 }

@@ -26,12 +26,14 @@ import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{numStringGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, Eori, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 
 import scala.concurrent.Future
@@ -62,7 +64,7 @@ class EnterDeclarantEoriNumberControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumber]
+    maybeDeclarantEoriNumberAnswer: Option[DeclarantEoriNumberAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       declarantEoriNumberAnswer = maybeDeclarantEoriNumberAnswer,
@@ -131,7 +133,7 @@ class EnterDeclarantEoriNumberControllerSpec
       "the user has answered this question before" in forAll(testCases) { journeyBindable =>
         def performAction(): Future[Result] = controller.enterDeclarantEoriNumber(journeyBindable)(FakeRequest())
 
-        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
+        val answers = models.answers.DeclarantEoriNumberAnswer(Eori("GB03152858027018"))
 
         val draftC285Claim = sessionWithClaimState(Some(answers))._3
 
@@ -160,7 +162,7 @@ class EnterDeclarantEoriNumberControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
+        val answers = models.answers.DeclarantEoriNumberAnswer(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -191,7 +193,7 @@ class EnterDeclarantEoriNumberControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
+        val answers = models.answers.DeclarantEoriNumberAnswer(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(
@@ -227,7 +229,7 @@ class EnterDeclarantEoriNumberControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val answers = DeclarantEoriNumber(Eori("GB03152858027018"))
+        val answers = DeclarantEoriNumberAnswer(Eori("GB03152858027018"))
 
         val draftC285Claim                = sessionWithClaimState(Some(answers))._3
           .copy(

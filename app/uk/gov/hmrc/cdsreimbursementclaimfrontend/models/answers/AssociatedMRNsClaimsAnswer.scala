@@ -16,23 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.Id
-import cats.implicits.catsSyntaxOption
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import cats.data.Validated
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
 
-sealed trait DeclarantTypeAnswer extends Product with Serializable
+object AssociatedMRNsClaimsAnswer {
 
-object DeclarantTypeAnswer {
-
-  case object Importer extends DeclarantTypeAnswer
-  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
-  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
-
-  val validator: Validator[Id, DeclarantTypeAnswer] = (maybeDeclarantType: Option[DeclarantTypeAnswer]) =>
-    maybeDeclarantType.toValidNel(MissingAnswerError("Declarant type"))
-
-  implicit val declarantTypeFormat: OFormat[DeclarantTypeAnswer] =
-    derived.oformat[DeclarantTypeAnswer]()
+  val validator: Validator[Option, AssociatedMRNsClaimsAnswer] = maybeAssociatedMRNsClaims =>
+    Validated.condNel(
+      maybeAssociatedMRNsClaims.isDefined,
+      maybeAssociatedMRNsClaims,
+      MissingAnswerError("Associated MRN claims")
+    )
 }

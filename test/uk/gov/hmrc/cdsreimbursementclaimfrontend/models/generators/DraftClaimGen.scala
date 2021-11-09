@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsAnswer, ScheduledDocumentAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
@@ -35,15 +35,14 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{DeclarantEoriNumber, ImporterEoriNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, answers}
 
 import java.util.UUID
 
 object DraftClaimGen {
 
-  def genValidDraftClaim(typeOfClaim: TypeOfClaim): Gen[DraftClaim] =
+  def genValidDraftClaim(typeOfClaim: TypeOfClaimAnswer): Gen[DraftClaim] =
     for {
       mrn                            <- genMRN
       declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
@@ -65,7 +64,7 @@ object DraftClaimGen {
       associatedMRNsAnswer           <- genAssociatedMrnsAnswer(typeOfClaim)
     } yield DraftClaim(
       id = UUID.randomUUID(),
-      maybeTypeOfClaim = typeOfClaim.some,
+      typeOfClaim = typeOfClaim.some,
       movementReferenceNumber = mrn.some,
       declarantTypeAnswer = declarantType.some,
       detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
@@ -79,11 +78,11 @@ object DraftClaimGen {
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
       claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
       displayDeclaration = displayDeclaration.some,
-      importerEoriNumberAnswer = ImporterEoriNumber(eori).some,
-      declarantEoriNumberAnswer = DeclarantEoriNumber(eori).some,
+      importerEoriNumberAnswer = answers.ImporterEoriNumberAnswer(eori).some,
+      declarantEoriNumberAnswer = DeclarantEoriNumberAnswer(eori).some,
       claimedReimbursementsAnswer = claimedReimbursementsAnswer.some,
       reimbursementMethodAnswer =
-        if (typeOfClaim === TypeOfClaim.Individual)
+        if (typeOfClaim === TypeOfClaimAnswer.Individual)
           reimbursementMethodAnswer
         else None,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
@@ -92,20 +91,20 @@ object DraftClaimGen {
 
   implicit lazy val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
     for {
-      numberOfClaims <- gen[TypeOfClaim].arbitrary
+      numberOfClaims <- gen[TypeOfClaimAnswer].arbitrary
       claim          <- genValidDraftClaim(numberOfClaims)
     } yield claim
   }
 
-  def genScheduledDocumentAnswer(answer: TypeOfClaim): Gen[Option[ScheduledDocumentAnswer]] =
-    if (answer === TypeOfClaim.Scheduled)
+  def genScheduledDocumentAnswer(answer: TypeOfClaimAnswer): Gen[Option[ScheduledDocumentAnswer]] =
+    if (answer === TypeOfClaimAnswer.Scheduled)
       gen[UploadDocument].arbitrary.map { doc =>
         Some(ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs))))
       }
     else None
 
-  def genAssociatedMrnsAnswer(answer: TypeOfClaim): Gen[Option[AssociatedMRNsAnswer]] =
-    if (answer === TypeOfClaim.Multiple) {
+  def genAssociatedMrnsAnswer(answer: TypeOfClaimAnswer): Gen[Option[AssociatedMRNsAnswer]] =
+    if (answer === TypeOfClaimAnswer.Multiple) {
       arbitraryAssociatedMRNsAnswer.arbitrary.map(_.some)
     } else None
 }

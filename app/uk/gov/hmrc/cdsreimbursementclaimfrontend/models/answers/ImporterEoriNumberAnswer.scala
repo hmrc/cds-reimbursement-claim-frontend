@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
-final case class ImporterEoriNumber(value: Eori)
+final case class ImporterEoriNumberAnswer(value: Eori)
 
-object ImporterEoriNumber {
+object ImporterEoriNumberAnswer {
 
-  implicit val format: OFormat[ImporterEoriNumber] = Json.format[ImporterEoriNumber]
+  implicit val importerEoriNumberFormat: OFormat[ImporterEoriNumberAnswer] =
+    Json.format[ImporterEoriNumberAnswer]
 }

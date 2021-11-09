@@ -25,7 +25,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedRequest, RequestWithSessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimNorthernIrelandAnswer, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimNorthernIrelandAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -108,7 +108,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftClaim].copy(
-            maybeTypeOfClaim = Some(TypeOfClaim.Multiple),
+            typeOfClaim = Some(TypeOfClaimAnswer.Multiple),
             movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
@@ -130,7 +130,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftClaim].copy(
-            maybeTypeOfClaim = Some(TypeOfClaim.Multiple),
+            typeOfClaim = Some(TypeOfClaimAnswer.Multiple),
             movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
@@ -152,7 +152,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftClaim].copy(
-            maybeTypeOfClaim = None,
+            typeOfClaim = None,
             movementReferenceNumber = Some(sample[MRN]),
             claimNorthernIrelandAnswer = expectedData
           )
@@ -174,7 +174,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       =
           sample[DraftClaim].copy(
-            maybeTypeOfClaim = None,
+            typeOfClaim = None,
             movementReferenceNumber = None,
             claimNorthernIrelandAnswer = expectedData
           )
