@@ -114,7 +114,8 @@ class EnterSingleClaimController @Inject() (
                       BadRequest(enterSingleClaimPage(id, formWithErrors.copy(errors = updatedErrors), reimbursement))
                     },
                     formOk => {
-                      val newClaim = reimbursement.copy(claimAmount = formOk.amount, isFilled = true)
+                      val newClaim =
+                        reimbursement.copy(claimAmount = (reimbursement.paidAmount - formOk.amount), isFilled = true)
                       replaceUpdateRedirect(reimbursements, newClaim, fillingOutClaim)
                     }
                   )

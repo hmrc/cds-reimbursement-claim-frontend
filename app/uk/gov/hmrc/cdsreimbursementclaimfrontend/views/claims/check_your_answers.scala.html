@@ -97,7 +97,10 @@
     @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
 
     @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Individual) || completeClaim.typeOfClaim.contains(TypeOfClaim.Scheduled)){
+    @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Individual)){
+        @summary(completeClaim.claimedReimbursementsAnswer.summary(s"$key.claim-calculation"))
+    }
+    @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Scheduled)){
         @summary(completeClaim.claimedReimbursementsAnswer.summary(s"$key.claim-calculation"))
     }
     @if(completeClaim.typeOfClaim.contains(TypeOfClaim.Multiple)){
