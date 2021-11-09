@@ -33,6 +33,7 @@ import java.util.UUID
 
 final case class CompleteClaim(
   id: UUID,
+  typeOfClaim: TypeOfClaimAnswer,
   movementReferenceNumber: MRN,
   duplicateMovementReferenceNumberAnswer: Option[MRN],
   declarantTypeAnswer: DeclarantTypeAnswer,
@@ -52,7 +53,6 @@ final case class CompleteClaim(
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
   scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
-  typeOfClaim: TypeOfClaimAnswer,
   maybeAssociatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
@@ -72,6 +72,24 @@ final case class CompleteClaim(
       case Scheduled  => claimedReimbursementsAnswer.total
       case Multiple   => multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
     }
+
+  lazy val bankDetails: Option[BankAccountDetails] =
+    bankAccountDetailsAnswer match {
+      case None =>
+        for {
+          declaration          <- displayDeclaration
+          bankDetails          <- declaration.displayResponseDetail.maskedBankDetails
+          consigneeBankDetails <- bankDetails.consigneeBankDetails
+        } yield BankAccountDetails(
+          AccountName(consigneeBankDetails.accountHolderName),
+          SortCode(consigneeBankDetails.sortCode),
+          AccountNumber(consigneeBankDetails.accountNumber)
+        )
+      case _    => bankAccountDetailsAnswer
+    }
+
+  lazy val bankAccountType: String =
+    BankAccountType.allAccountTypes.map(_.value).toString()
 }
 
 object CompleteClaim {
@@ -110,7 +128,7 @@ object CompleteClaim {
             maybeDuplicateDisplayDeclaration,
             maybeImporterEoriNumberAnswer,
             maybeDeclarantEoriNumberAnswer,
-            Some(claimedReimbursementsAnswer),
+            maybeClaimedReimbursementsAnswer,
             maybeReimbursementMethodAnswer,
             maybeScheduledDocument,
             maybeAssociatedMRNs,
@@ -125,39 +143,39 @@ object CompleteClaim {
           DeclarantTypeAnswer.validator.validate(maybeDraftDeclarantTypeAnswer),
           SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
           CommodityDetailsAnswer.validator.validate(maybeDraftCommodityAnswer),
+          ClaimedReimbursementsAnswer.validator.validate(maybeClaimedReimbursementsAnswer),
           if (maybeTypeOfClaim.exists(_ === Scheduled))
             ScheduledDocumentAnswer.validator.validate(maybeScheduledDocument)
           else Valid(None)
-        ).mapN { case (mrn, declaration, declarant, evidences, commodity, schedule) =>
+        ).mapN { case (mrn, declaration, maybeDeclarant, maybeEvidences, maybeCommodity, maybeClaim, maybeSchedule) =>
           CompleteClaim(
             id,
+            maybeTypeOfClaim.getOrElse(Individual),
             mrn,
             maybeDuplicateMovementReferenceNumberAnswer,
-            declarant,
-            detailsRegisteredWithCds(declarant, declaration, verifiedEmail),
+            maybeDeclarant,
+            detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
             maybeDraftMrnContactDetails,
             maybeDraftMrnContactAddress,
             maybeBasisForClaim,
             maybeBankAccountDetails,
-            evidences,
-            commodity,
+            maybeEvidences,
+            maybeCommodity,
             maybeDraftNorthernIrelandAnswer,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
             maybeImporterEoriNumberAnswer,
             maybeDeclarantEoriNumberAnswer,
-            claimedReimbursementsAnswer,
+            maybeClaim,
             maybeReimbursementMethodAnswer,
-            schedule,
+            maybeSchedule,
             maybeAssociatedMRNs,
-            maybeTypeOfClaim.getOrElse(Individual),
             maybeAssociatedMRNsClaimsAnswer
           )
         }.toEither
           .leftMap { errors =>
             Error(
-              s"could not create complete claim in order to submit claim request: ${
-                errors
+              s"could not create complete claim in order to submit claim request: ${errors
                 .map(_.toString)
                 .toList
                 .mkString("; ")}"
@@ -169,24 +187,4 @@ object CompleteClaim {
 
   implicit val eq: Eq[CompleteClaim]         = Eq.fromUniversalEquals[CompleteClaim]
   implicit val format: Format[CompleteClaim] = Json.format[CompleteClaim]
-
-  implicit class CompleteClaimOps(private val completeClaim: CompleteClaim) extends AnyVal {
-
-    def bankDetails: Option[BankAccountDetails] =
-      completeClaim.bankAccountDetailsAnswer match {
-        case None =>
-          for {
-            displayDeclaration   <- completeClaim.displayDeclaration
-            bankDetails          <- displayDeclaration.displayResponseDetail.maskedBankDetails
-            consigneeBankDetails <- bankDetails.consigneeBankDetails
-          } yield BankAccountDetails(
-            AccountName(consigneeBankDetails.accountHolderName),
-            SortCode(consigneeBankDetails.sortCode),
-            AccountNumber(consigneeBankDetails.accountNumber)
-          )
-        case _    => completeClaim.bankAccountDetailsAnswer
-      }
-
-    def bankAccountType: String = BankAccountType.allAccountTypes.map(_.value).toString()
-  }
 }

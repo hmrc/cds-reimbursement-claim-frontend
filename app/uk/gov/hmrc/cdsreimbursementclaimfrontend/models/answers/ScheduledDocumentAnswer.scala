@@ -26,7 +26,11 @@ final case class ScheduledDocumentAnswer(uploadDocument: UploadDocument) extends
 object ScheduledDocumentAnswer {
 
   val validator: Validator[Option, ScheduledDocumentAnswer] = maybeScheduledDocument =>
-    Validated.condNel(maybeScheduledDocument.isDefined, maybeScheduledDocument, MissingAnswerError("Scheduled document"))
+    Validated.condNel(
+      maybeScheduledDocument.isDefined,
+      maybeScheduledDocument,
+      MissingAnswerError("Scheduled document")
+    )
 
   implicit val scheduledDocumentFormat: OFormat[ScheduledDocumentAnswer] =
     Json.format[ScheduledDocumentAnswer]

@@ -20,8 +20,7 @@ sealed abstract class AnswerError(val fieldName: FieldName, val message: Message
   override def toString: String = s"$fieldName: $message"
 }
 
-final case class MissingAnswerError(override val fieldName: FieldName)
-  extends AnswerError(fieldName, "Missing")
+final case class MissingAnswerError(override val fieldName: FieldName) extends AnswerError(fieldName, "Missing")
 
 final case class IncorrectAnswerError(override val fieldName: FieldName, override val message: Message)
-  extends AnswerError(fieldName, message)
+    extends AnswerError(fieldName, message)
