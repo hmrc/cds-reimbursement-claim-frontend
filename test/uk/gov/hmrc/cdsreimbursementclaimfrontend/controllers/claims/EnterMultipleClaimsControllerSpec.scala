@@ -303,10 +303,11 @@ class EnterMultipleClaimsControllerSpec
         .map(_.zipWithIndex.map { case (ndrc, i) =>
           val claim =
             ClaimedReimbursement.fromNdrc(ndrc).getOrElse(ClaimedReimbursement.fromDuty(Duty(TaxCode(ndrc.taxType))))
+
           claim
             .copy(
               isFilled = !skipNthClaim.contains(i),
-              claimAmount = BigDecimal(Random.nextInt(claim.paidAmount.toInt))
+              claimAmount = BigDecimal(Gen.choose(1, claim.paidAmount.toInt + 1).hashCode())
             )
         })
         .toList
