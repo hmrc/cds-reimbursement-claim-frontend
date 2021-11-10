@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
-
-object CommoditiesDetailsGen {
-
-  implicit lazy val arbitraryCompleteCommodityDetailsAnswer: Typeclass[CommodityDetailsAnswer] =
-    gen[CommodityDetailsAnswer]
-
+sealed abstract class AnswerError(val fieldName: FieldName, val message: Message) {
+  override def toString: String = s"$fieldName: $message"
 }
+
+final case class MissingAnswerError(override val fieldName: FieldName) extends AnswerError(fieldName, "Missing")
+
+final case class IncorrectAnswerError(override val fieldName: FieldName, override val message: Message)
+    extends AnswerError(fieldName, message)

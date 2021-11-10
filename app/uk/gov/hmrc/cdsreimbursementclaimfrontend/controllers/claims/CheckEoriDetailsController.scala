@@ -117,7 +117,7 @@ class CheckEoriDetailsController @Inject() (
                                             .leftMap(logError.andThen(returnErrorPage))
                     result             <- EitherT.rightT[Future, Result](
                                             if (featureSwitch.BulkClaim.isEnabled())
-                                              Redirect(routes.SelectNumberOfClaimsController.show())
+                                              Redirect(routes.SelectTypeOfClaimController.show())
                                             else
                                               Redirect(
                                                 routes.EnterMovementReferenceNumberController

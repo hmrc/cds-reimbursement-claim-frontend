@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
 
 @this(
  layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -70,7 +71,7 @@
                 hintKey = None,
                 classes = "govuk-visually-hidden",
                 inline = true,
-                items = DeclarantTypeAnswer.items.zipWithIndex.map(pair =>
+                items = DeclarantTypeAnswers.all.zipWithIndex.map(pair =>
                     RadioItem(
                         id = Some(s"$key.importer${pair._2}"),
                         value = Some(pair._2.toString),

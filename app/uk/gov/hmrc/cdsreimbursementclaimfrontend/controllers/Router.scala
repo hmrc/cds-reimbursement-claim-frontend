@@ -94,6 +94,11 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
+  def nextPageForScheduleOfMrnDocument(isComplete: Boolean): Call =
+    if (isComplete)
+      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+    else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled)
+
   def nextPageForCheckDeclarationDetails(
     whetherDeclarationDetailsCorrect: YesNo,
     hasAssociatedMrns: Boolean
@@ -285,7 +290,7 @@ case object JourneyNotDetectedRoutes extends JourneyTypeRoutes with ReferenceNum
   val subKey          = None
   val journeyBindable = JourneyBindable.Single
 
-  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectNumberOfClaimsController.show()
+  val selectNumberOfClaimsPage: Call                      = claimRoutes.SelectTypeOfClaimController.show()
   def nextPageForEnterMRN(importer: MrnJourney): Call     = controllers.routes.IneligibleController.ineligible()
   def nextPageForDuplicateMRN(importer: MrnJourney): Call = controllers.routes.IneligibleController.ineligible()
 }

@@ -30,7 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -83,13 +83,13 @@ class EnterContactDetailsMrnControllerSpec
   private def getSessionWithPreviousAnswer(
     maybeMrnContactDetailsAnswer: Option[MrnContactDetails],
     mrnContactAddressAnswer: Option[ContactAddress],
-    maybeTypeOfClaim: Option[TypeOfClaim]
+    maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank
       .copy(
         mrnContactDetailsAnswer = maybeMrnContactDetailsAnswer,
         mrnContactAddressAnswer = mrnContactAddressAnswer,
-        maybeTypeOfClaim = maybeTypeOfClaim,
+        typeOfClaim = maybeTypeOfClaim,
         movementReferenceNumber = Some(sample[MRN])
       )
     val ggCredId            = sample[GGCredId]
@@ -136,7 +136,7 @@ class EnterContactDetailsMrnControllerSpec
       "the user has not answered this question before and is adding details" in forAll(journeys) { journey =>
         def performAction(): Future[Result] = controller.enterMrnContactDetails(journey)(FakeRequest())
 
-        val session = getSessionWithPreviousAnswer(None, None, toSelectNumberOfClaims(journey).some)._1
+        val session = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -157,7 +157,7 @@ class EnterContactDetailsMrnControllerSpec
         val session              = getSessionWithPreviousAnswer(
           contactDetailsAnswer,
           contactAddressAnswer,
-          toSelectNumberOfClaims(journey).some
+          toTypeOfClaim(journey).some
         )._1
 
         inSequence {
@@ -179,7 +179,7 @@ class EnterContactDetailsMrnControllerSpec
 
         val answers = Some(contactDetails)
         val session =
-          getSessionWithPreviousAnswer(answers, contactAddressAnswer, toSelectNumberOfClaims(journey).some)._1
+          getSessionWithPreviousAnswer(answers, contactAddressAnswer, toTypeOfClaim(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -213,7 +213,7 @@ class EnterContactDetailsMrnControllerSpec
       " the user enters details" in forAll(journeys) { journey =>
         val contactDetails = MrnContactDetails(nameData, emailData, phoneData)
 
-        val session        = getSessionWithPreviousAnswer(None, None, toSelectNumberOfClaims(journey).some)._1
+        val session        = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
         val updatedSession = updateSession(session, contactDetails)
 
         inSequence {
@@ -229,7 +229,7 @@ class EnterContactDetailsMrnControllerSpec
       }
 
       "the user did not enter any details" in forAll(journeys) { journey =>
-        val session = getSessionWithPreviousAnswer(None, None, toSelectNumberOfClaims(journey).some)._1
+        val session = getSessionWithPreviousAnswer(None, None, toTypeOfClaim(journey).some)._1
 
         inSequence {
           mockAuthWithNoRetrievals()

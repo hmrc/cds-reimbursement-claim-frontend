@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+trait Validator[F[_], A] {
 
-object CommoditiesDetailsGen {
-
-  implicit lazy val arbitraryCompleteCommodityDetailsAnswer: Typeclass[CommodityDetailsAnswer] =
-    gen[CommodityDetailsAnswer]
-
+  def validate(target: Option[A]): ValidationResult[F[A]]
 }

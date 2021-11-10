@@ -16,13 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
+import cats.data.Validated
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 final case class ScheduledDocumentAnswer(uploadDocument: UploadDocument) extends AnyVal
 
 object ScheduledDocumentAnswer {
 
-  implicit val format: OFormat[ScheduledDocumentAnswer] =
+  val validator: Validator[Option, ScheduledDocumentAnswer] = maybeScheduledDocument =>
+    Validated.condNel(
+      maybeScheduledDocument.isDefined,
+      maybeScheduledDocument,
+      MissingAnswerError("Scheduled document")
+    )
+
+  implicit val scheduledDocumentFormat: OFormat[ScheduledDocumentAnswer] =
     Json.format[ScheduledDocumentAnswer]
 }

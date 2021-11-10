@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -42,7 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
-class SelectNumberOfClaimsControllerSpec
+class SelectTypeOfClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -60,16 +60,15 @@ class SelectNumberOfClaimsControllerSpec
   override def beforeEach(): Unit =
     featureSwitch.BulkClaim.enable()
 
-  lazy val errorHandler: ErrorHandler                 = instanceOf[ErrorHandler]
-  lazy val controller: SelectNumberOfClaimsController = instanceOf[SelectNumberOfClaimsController]
+  lazy val errorHandler: ErrorHandler              = instanceOf[ErrorHandler]
+  lazy val controller: SelectTypeOfClaimController = instanceOf[SelectTypeOfClaimController]
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def getSessionWithPreviousAnswer(numberOfClaimsType: Option[TypeOfClaim]): SessionData = {
-    val maybeTypeOfClaim    = numberOfClaimsType
-    val draftC285Claim      = DraftClaim.blank.copy(maybeTypeOfClaim = maybeTypeOfClaim)
+  private def getSessionWithPreviousAnswer(claimType: Option[TypeOfClaimAnswer]): SessionData = {
+    val draftC285Claim      = DraftClaim.blank.copy(typeOfClaim = claimType)
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
@@ -78,11 +77,11 @@ class SelectNumberOfClaimsControllerSpec
     SessionData.empty.copy(journeyStatus = Some(journey))
   }
 
-  private def updateSession(sessionData: SessionData, numberOfClaimsType: TypeOfClaim): SessionData =
+  private def updateSession(sessionData: SessionData, typeOfClaim: TypeOfClaimAnswer): SessionData =
     sessionData.journeyStatus match {
       case Some(FillingOutClaim(g, s, draftClaim: DraftClaim)) =>
         val newClaim      =
-          draftClaim.copy(maybeTypeOfClaim = Some(numberOfClaimsType))
+          draftClaim.copy(typeOfClaim = Some(typeOfClaim))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
@@ -112,7 +111,7 @@ class SelectNumberOfClaimsControllerSpec
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").text()
 
-  "SelectNumberOfClaimsController" must {
+  "SelectTypeOfClaimController" must {
 
     "redirect to the error page" when {
       "the feature switch bulk claim is disabled" in {
@@ -162,7 +161,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Individual " in {
-        val session = getSessionWithPreviousAnswer(Some(TypeOfClaim.Individual))
+        val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Individual))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -182,7 +181,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Multiple " in {
-        val session = getSessionWithPreviousAnswer(Some(TypeOfClaim.Multiple))
+        val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Multiple))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -202,7 +201,7 @@ class SelectNumberOfClaimsControllerSpec
       }
 
       "the user has answered this question before and chosen Scheduled " in {
-        val session = getSessionWithPreviousAnswer(Some(TypeOfClaim.Scheduled))
+        val session = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Scheduled))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -228,7 +227,7 @@ class SelectNumberOfClaimsControllerSpec
 
       "user chooses the Individual option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaim.Individual)
+        val updatedSession = updateSession(session, TypeOfClaimAnswer.Individual)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -237,14 +236,14 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(SelectNumberOfClaimsController.dataKey -> "0")),
+          performAction(Seq(SelectTypeOfClaimController.dataKey -> "0")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single)
         )
       }
 
       "user chooses the Multiple option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaim.Multiple)
+        val updatedSession = updateSession(session, TypeOfClaimAnswer.Multiple)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -253,14 +252,14 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(SelectNumberOfClaimsController.dataKey -> "1")),
+          performAction(Seq(SelectTypeOfClaimController.dataKey -> "1")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Multiple)
         )
       }
 
       "user chooses the Scheduled option" in {
         val session        = getSessionWithPreviousAnswer(None)
-        val updatedSession = updateSession(session, TypeOfClaim.Scheduled)
+        val updatedSession = updateSession(session, TypeOfClaimAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -269,14 +268,14 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
+          performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
 
       "the user amends their previous answer" in {
-        val session        = getSessionWithPreviousAnswer(Some(TypeOfClaim.Individual))
-        val updatedSession = updateSession(session, TypeOfClaim.Scheduled)
+        val session        = getSessionWithPreviousAnswer(Some(TypeOfClaimAnswer.Individual))
+        val updatedSession = updateSession(session, TypeOfClaimAnswer.Scheduled)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -285,7 +284,7 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq(SelectNumberOfClaimsController.dataKey -> "2")),
+          performAction(Seq(SelectTypeOfClaimController.dataKey -> "2")),
           routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Scheduled)
         )
       }
@@ -321,7 +320,7 @@ class SelectNumberOfClaimsControllerSpec
         }
 
         checkPageIsDisplayed(
-          performAction(Seq(SelectNumberOfClaimsController.dataKey -> "3")),
+          performAction(Seq(SelectTypeOfClaimController.dataKey -> "3")),
           messageFromMessageKey("select-number-of-claims.title"),
           getErrorSummary(_) shouldBe messageFromMessageKey(s"select-number-of-claims.invalid"),
           BAD_REQUEST

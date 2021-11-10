@@ -16,17 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.data.{NonEmptyList, Validated}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
-object AssociatedMRNsAnswer {
+final case class DeclarantEoriNumberAnswer(value: Eori)
 
-  val validator: Validator[Option, AssociatedMRNsAnswer] = maybeAssociatedMRNs =>
-    Validated.condNel(maybeAssociatedMRNs.isDefined, maybeAssociatedMRNs, MissingAnswerError("Associated MRNs"))
+object DeclarantEoriNumberAnswer {
 
-  def apply(mrn: AssociatedMrn): AssociatedMRNsAnswer =
-    NonEmptyList.one(mrn)
-
-  def apply(associatedMRNs: List[AssociatedMrn]): Option[AssociatedMRNsAnswer] =
-    NonEmptyList.fromList(associatedMRNs)
+  implicit val format: OFormat[DeclarantEoriNumberAnswer] = Json.format[DeclarantEoriNumberAnswer]
 }

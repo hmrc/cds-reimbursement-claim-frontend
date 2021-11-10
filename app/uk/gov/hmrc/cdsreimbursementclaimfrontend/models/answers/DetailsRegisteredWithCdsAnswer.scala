@@ -32,8 +32,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 
@@ -45,5 +44,7 @@ final case class DetailsRegisteredWithCdsAnswer(
 )
 
 object DetailsRegisteredWithCdsAnswer {
-  implicit val format: OFormat[DetailsRegisteredWithCdsAnswer] = derived.oformat[DetailsRegisteredWithCdsAnswer]()
+
+  implicit val cdsDetailsFormat: OFormat[DetailsRegisteredWithCdsAnswer] =
+    Json.format[DetailsRegisteredWithCdsAnswer]
 }

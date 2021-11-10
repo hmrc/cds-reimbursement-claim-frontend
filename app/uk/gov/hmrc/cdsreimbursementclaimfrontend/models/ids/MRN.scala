@@ -16,9 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
-import cats.Eq
-import play.api.libs.json.{Json, OFormat}
+import cats.data.Validated
+import cats.implicits.catsSyntaxOption
+import cats.{Eq, Id}
+import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 import java.util.Locale
 
@@ -31,11 +35,16 @@ object MRN {
 
   private val validityRegex = """\d{2}[a-zA-Z]{2}\w{13}\d"""
 
+  val validator: Validator[Id, MRN] = (maybeMrn: Option[MRN]) =>
+    maybeMrn.toValidNel[AnswerError](MissingAnswerError("MRN")).andThen { mrn =>
+      Validated.condNel[AnswerError, MRN](mrn.isValid, mrn, IncorrectAnswerError("MRN", "Invalid"))
+    }
+
   def apply(value: String): MRN = {
     val valueInUppercaseWithNoSpaces = value.toUpperCase(Locale.UK).replaceAll("\\s", "")
     new MRN(valueInUppercaseWithNoSpaces)
   }
 
-  implicit val eq: Eq[MRN]          = Eq.fromUniversalEquals
-  implicit val format: OFormat[MRN] = Json.format[MRN]
+  implicit val eq: Eq[MRN]         = Eq.fromUniversalEquals
+  implicit val format: Format[MRN] = SimpleStringFormat(MRN(_), _.value)
 }

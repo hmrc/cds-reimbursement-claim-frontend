@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.JustSubmittedClaim
-
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -40,7 +40,7 @@
             <h1 class="govuk-panel__title">@title</h1>
             <div class="govuk-panel__body">
                 <span>@messages(s"$key.reimbursement-amount")</span><br>
-                <strong>@{justSubmittedClaim.completeClaim.claimedReimbursementsAnswer.total}</strong>
+                <strong>@{justSubmittedClaim.completeClaim.totalReimbursementAmount.toPoundSterlingString}</strong>
             </div>
             <br>
             <div class="govuk-panel__body">

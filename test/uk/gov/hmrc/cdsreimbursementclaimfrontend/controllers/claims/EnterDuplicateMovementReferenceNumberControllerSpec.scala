@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -76,7 +76,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
 
     "display the page" in {
       val journey      = JourneyBindable.Multiple
-      val (session, _) = getSession(Some(TypeOfClaim.Multiple))
+      val (session, _) = getSession(Some(TypeOfClaimAnswer.Multiple))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -97,7 +97,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     "update the duplicate MRN" in {
       val journey          = JourneyBindable.Multiple
       val updatedMrn       = sample[MRN]
-      val (session, claim) = getSession(Some(TypeOfClaim.Multiple))
+      val (session, claim) = getSession(Some(TypeOfClaimAnswer.Multiple))
 
       val displayDeclaration = sample[DisplayDeclaration]
       val updatedClaim       =
@@ -121,12 +121,12 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     }
   }
 
-  private def getSession(numberOfClaims: Option[TypeOfClaim]): (SessionData, FillingOutClaim) = {
+  private def getSession(maybeTypeOfClaim: Option[TypeOfClaimAnswer]): (SessionData, FillingOutClaim) = {
     val mrn                 = sample[MRN]
     val draftC285Claim      = DraftClaim.blank.copy(
       movementReferenceNumber = Some(mrn),
       duplicateMovementReferenceNumberAnswer = Some(mrn),
-      maybeTypeOfClaim = numberOfClaims
+      typeOfClaim = maybeTypeOfClaim
     )
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]

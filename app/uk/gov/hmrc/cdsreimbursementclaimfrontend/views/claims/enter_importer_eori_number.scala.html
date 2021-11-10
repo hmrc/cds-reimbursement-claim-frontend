@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.ImporterEoriNumber
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ImporterEoriNumberAnswer
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -33,7 +33,7 @@
 )
 
 
-@(form: Form[ImporterEoriNumber], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ImporterEoriNumberAnswer], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-importer-eori-number"}
     @title = @{messages(s"$key.title")}

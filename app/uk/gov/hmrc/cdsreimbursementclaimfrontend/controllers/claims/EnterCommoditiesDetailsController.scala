@@ -26,7 +26,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CommodityDetails, DraftClaim, Error, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
@@ -49,14 +50,14 @@ class EnterCommoditiesDetailsController @Inject() (
     with Logging
     with SessionUpdates {
 
-  implicit val dataExtractor: DraftClaim => Option[CommodityDetails] = _.commoditiesDetailsAnswer
+  implicit val dataExtractor: DraftClaim => Option[CommodityDetailsAnswer] = _.commoditiesDetailsAnswer
 
   def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
   def changeCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
 
   def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CommodityDetails] { (_, answers, router) =>
+      withAnswersAndRoutes[CommodityDetailsAnswer] { (_, answers, router) =>
         val commoditiesDetailsForm =
           answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
             form.fill(answer)
@@ -72,7 +73,7 @@ class EnterCommoditiesDetailsController @Inject() (
 
   def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CommodityDetails] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[CommodityDetailsAnswer] { (fillingOutClaim, _, router) =>
         EnterCommoditiesDetailsController.commoditiesDetailsForm
           .bindFromRequest()
           .fold(
@@ -103,9 +104,9 @@ class EnterCommoditiesDetailsController @Inject() (
 
 object EnterCommoditiesDetailsController {
 
-  val commoditiesDetailsForm: Form[CommodityDetails] = Form(
+  val commoditiesDetailsForm: Form[CommodityDetailsAnswer] = Form(
     mapping(
       "enter-commodities-details" -> nonEmptyText(maxLength = 500)
-    )(CommodityDetails.apply)(CommodityDetails.unapply)
+    )(CommodityDetailsAnswer.apply)(CommodityDetailsAnswer.unapply)
   )
 }

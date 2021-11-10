@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer._
 
-final case class CommodityDetails(value: String) extends AnyVal
+object DeclarantTypeAnswers {
 
-object CommodityDetails {
-  implicit val format: OFormat[CommodityDetails] = Json.format[CommodityDetails]
+  val all: IndexedSeq[DeclarantTypeAnswer] = IndexedSeq(
+    Importer,
+    AssociatedWithImporterCompany,
+    AssociatedWithRepresentativeCompany
+  )
+
+  def apply(index: Int): DeclarantTypeAnswer =
+    all(index)
+
+  def indexOf(answer: DeclarantTypeAnswer): Int =
+    all.indexOf(answer)
+
+  def size: Int = all.size
 }

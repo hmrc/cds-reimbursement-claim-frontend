@@ -24,9 +24,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer.{items => declarantTypes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AnswersOps, TypeOfClaim}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AnswersOps, DeclarantTypeAnswers, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
@@ -34,7 +33,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
   "The CYA page" should {
 
     "display answer summaries for the Multiple journey" in {
-      val (session, claim) = genData(TypeOfClaim.Multiple)
+      val (session, claim) = genData(TypeOfClaimAnswer.Multiple)
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -68,7 +67,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             (
               messages(s"$checkYourAnswersKey.claimant-type.l0"),
               messages(
-                s"$whoIsMakingTheClaimKey.importer${declarantTypes.indexOf(claim.declarantTypeAnswer.value)}"
+                s"$whoIsMakingTheClaimKey.importer${DeclarantTypeAnswers.indexOf(claim.declarantTypeAnswer.value)}"
               )
             ),
             (
