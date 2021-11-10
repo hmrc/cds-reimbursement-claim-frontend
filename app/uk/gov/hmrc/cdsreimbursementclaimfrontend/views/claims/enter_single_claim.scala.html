@@ -41,7 +41,7 @@
 
 @key = @{"enter-claim"}
 @title = @{messages(s"$key.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"))}
-
+@hintText = @{Html(messages(s"$key.claim-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
@@ -54,7 +54,7 @@
 
     @formWithCSRF(routes.EnterSingleClaimController.enterClaimSubmit(id), 'novalidate -> "novalidate") {
 
-        @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body"))
+        @paragraph(Html(messages(s"$key.paid-amount-label", reimbursement.paidAmount.toPoundSterlingString)), Some("govuk-body-l govuk-!-font-weight-bold"))
 
         @inputText(
             form = form,
@@ -63,7 +63,8 @@
             label = s"$key.claim-amount",
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
-            hint = Some(s"$key.claim-amount.hint"),
+            hintHtml = Some(hintText),
+            labelClasses = Some("govuk-label govuk-label--m"),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 
