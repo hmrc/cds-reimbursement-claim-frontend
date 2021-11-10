@@ -37,7 +37,7 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(journey: JourneyBindable, evidences: SupportingEvidencesAnswer, maxUploads: Int, form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(journey: JourneyBindable, evidences: SupportingEvidencesAnswer, form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"supporting-evidence.check-your-answers"}
 
@@ -85,29 +85,27 @@
 
         @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-            @if(evidences.size < maxUploads) {
-                @radios(
-                    form = form,
-                    name = key,
-                    legend = messages(s"$key.add-another-document-question"),
-                    legendAsHeading = false,
-                    hintKey = None,
-                    classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
-                    inline = true,
-                    items = Seq(
-                        RadioItem(
-                            value = Some("true"),
-                            content = Text(messages("generic.yes")),
-                            checked = false
-                        ),
-                        RadioItem(
-                            value = Some("false"),
-                            content = Text(messages("generic.no")),
-                            checked = false
-                        )
+            @radios(
+                form = form,
+                name = key,
+                legend = messages(s"$key.add-another-document-question"),
+                legendAsHeading = false,
+                hintKey = None,
+                classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
+                inline = true,
+                items = Seq(
+                    RadioItem(
+                        value = Some("true"),
+                        content = Text(messages("generic.yes")),
+                        checked = false
+                    ),
+                    RadioItem(
+                        value = Some("false"),
+                        content = Text(messages("generic.no")),
+                        checked = false
                     )
                 )
-            }
+            )
 
             @submitButton("button.continue")
         }
