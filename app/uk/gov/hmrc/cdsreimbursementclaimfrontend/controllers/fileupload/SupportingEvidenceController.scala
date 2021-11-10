@@ -64,8 +64,6 @@ class SupportingEvidenceController @Inject() (
     with SessionUpdates
     with SessionDataExtractor {
 
-  lazy val maxUploads: Int = config.readMaxUploadsValue(supportingEvidenceKey)
-
   implicit val supportingEvidenceExtractor: DraftClaim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
@@ -74,19 +72,16 @@ class SupportingEvidenceController @Inject() (
   def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[SupportingEvidencesAnswer] { (_, answer, router) =>
-        if (answer.exists(_.length >= maxUploads))
-          Future.successful(Redirect(routes.SupportingEvidenceController.checkYourAnswers(journey)))
-        else
-          upscanService
-            .initiate(
-              routes.SupportingEvidenceController.handleUpscanErrorRedirect(journey),
-              reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
-              config.readMaxFileSize(supportingEvidenceKey)
-            )
-            .fold(
-              _ => errorHandler.errorResult(),
-              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router))
-            )
+        upscanService
+          .initiate(
+            routes.SupportingEvidenceController.handleUpscanErrorRedirect(journey),
+            reference => routes.SupportingEvidenceController.scanProgress(journey, reference),
+            config.readMaxFileSize(supportingEvidenceKey)
+          )
+          .fold(
+            _ => errorHandler.errorResult(),
+            upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router))
+          )
       }
     }
 
@@ -278,7 +273,7 @@ class SupportingEvidenceController @Inject() (
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
 
         def listUploadedItems(evidences: SupportingEvidencesAnswer) =
-          Ok(checkYourAnswersPage(journey, evidences, maxUploads, whetherAddAnotherDocument))
+          Ok(checkYourAnswersPage(journey, evidences, whetherAddAnotherDocument))
 
         maybeSupportingEvidences.fold(redirectToUploadEvidence)(listUploadedItems)
       }
@@ -293,7 +288,7 @@ class SupportingEvidenceController @Inject() (
             withAnswers[SupportingEvidencesAnswer] { (_, maybeEvidences) =>
               maybeEvidences.fold(
                 Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-              )(evidences => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)))
+              )(evidences => BadRequest(checkYourAnswersPage(journey, evidences, formWithErrors)))
             },
           {
             case Yes =>
