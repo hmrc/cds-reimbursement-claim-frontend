@@ -307,7 +307,7 @@ class EnterMultipleClaimsControllerSpec
           claim
             .copy(
               isFilled = !skipNthClaim.contains(i),
-              claimAmount = BigDecimal(Gen.choose(1, claim.paidAmount.toInt + 1).hashCode())
+              claimAmount = sample(Gen.choose(1, claim.paidAmount.toInt + 1).map(BigDecimal(_)))
             )
         })
         .toList
