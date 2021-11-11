@@ -64,38 +64,6 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
     )
   }
 
-  private def testFormError(
-    uploadReference: UploadReference,
-    data: (String, String)*
-  )(
-    expectedErrorMessageKey: String,
-    errorArgs: Seq[String] = Nil
-  )(pageTitleKey: String, titleArgs: String*)(
-    performAction: (UploadReference, Seq[(String, String)]) => Future[Result],
-    currentSession: SessionData = sessionWithClaimState(
-      supportingEvidencesAnswer = Some(sample[SupportingEvidencesAnswer])
-    )._1
-  ) = {
-    inSequence {
-      mockAuthWithNoRetrievals()
-      mockGetSession(currentSession)
-    }
-    checkPageIsDisplayed(
-      performAction(uploadReference, data),
-      messageFromMessageKey(pageTitleKey, titleArgs: _*),
-      { doc =>
-        doc
-          .select("#error-summary-display > ul > li > a")
-          .text() shouldBe messageFromMessageKey(
-          expectedErrorMessageKey,
-          errorArgs: _*
-        )
-        doc.title() should startWith("Error:")
-      },
-      BAD_REQUEST
-    )
-  }
-
   "Supporting Evidence Controller" when {
 
     "handling requests to upload supporting evidence" must {
