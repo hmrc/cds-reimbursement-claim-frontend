@@ -57,7 +57,7 @@
 
         @inputText(
             form = form,
-            id = key,
+            id = s"$key.amount-paid",
             name = s"$key.amount-paid",
             label = s"$key.amount-paid",
             labelClasses = Some("govuk-label govuk-label--m"),
@@ -69,7 +69,7 @@
 
         @inputText(
             form = form,
-            id = key,
+            id = s"$key.amount-should-of-paid",
             name = s"$key.amount-should-of-paid",
             label = s"$key.amount-should-of-paid",
             labelClasses = Some("govuk-label govuk-label--m"),
