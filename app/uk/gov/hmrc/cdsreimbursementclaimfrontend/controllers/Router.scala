@@ -94,10 +94,10 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val subKey: Option[String]
   val journeyBindable: JourneyBindable
 
-  def nextPageForScheduleOfMrnDocument(isComplete: Boolean): Call =
-    if (isComplete)
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    else claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(JourneyBindable.Scheduled)
+  object CheckAnswers {
+    def when(flag: Boolean)(alternatively: Call): Call =
+      if (flag) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable) else alternatively
+  }
 
   def nextPageForCheckDeclarationDetails(
     whetherDeclarationDetailsCorrect: YesNo,

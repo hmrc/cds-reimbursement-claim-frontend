@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Sch
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.whetherDutiesCorrectForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
@@ -61,7 +61,7 @@ class CheckScheduledClaimController @Inject() (
         extractRoutes(fillingOutClaim.draftClaim, Scheduled)
 
       def redirectToSelectDutiesPage: Future[Result] =
-        Future.successful(Redirect(claimsRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
 
       def loadPage(answer: SelectedDutyTaxCodesReimbursementAnswer): Future[Result] =
         Future.successful(
@@ -77,8 +77,10 @@ class CheckScheduledClaimController @Inject() (
       implicit val routes: ReimbursementRoutes =
         extractRoutes(fillingOutClaim.draftClaim, Scheduled)
 
+      import routes._
+
       def selectDuties: Future[Result] =
-        Future.successful(Redirect(claimsRoutes.SelectDutyTypesController.showDutyTypes()))
+        Future.successful(Redirect(claimRoutes.SelectDutyTypesController.showDutyTypes()))
 
       maybeAnswer.fold(selectDuties)(reimbursements =>
         whetherDutiesCorrectForm
@@ -96,7 +98,12 @@ class CheckScheduledClaimController @Inject() (
                   .leftMap(_ => Error("Could not update session"))
                   .fold(
                     logAndDisplayError("Could not update reimbursement claims: "),
-                    _ => Redirect(claimsRoutes.BankAccountController.checkBankAccountDetails(Scheduled))
+                    _ =>
+                      Redirect(
+                        CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                          claimRoutes.BankAccountController.checkBankAccountDetails(Scheduled)
+                        )
+                      )
                   )
               case No  => selectDuties
             }

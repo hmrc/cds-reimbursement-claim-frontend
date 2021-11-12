@@ -25,11 +25,10 @@ import play.api.data.Forms.mapping
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.extractJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Single
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterSingleClaimController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, YesNo}
@@ -146,14 +145,15 @@ class EnterSingleClaimController @Inject() (
                 .getOrElse(Future.successful(errorHandler.errorResult())),
             {
               case Yes =>
-                fillingOutClaim.draftClaim match {
-                  case claim: DraftClaim if isCmaEligible(claim) =>
-                    Redirect(routes.ReimbursementMethodController.showReimbursementMethod())
-                  case _                                         =>
-                    Redirect(routes.BankAccountController.checkBankAccountDetails(extractJourney))
-                }
-
-              case No => Redirect(routes.SelectDutiesController.selectDuties())
+                request
+                  .routeToCheckAnswers(Single)
+                  .whenComplete(fillingOutClaim.draftClaim)(alternatively = fillingOutClaim.draftClaim match {
+                    case claim: DraftClaim if isCmaEligible(claim) =>
+                      routes.ReimbursementMethodController.showReimbursementMethod()
+                    case _                                         =>
+                      routes.BankAccountController.checkBankAccountDetails(Single)
+                  })
+              case No  => Redirect(routes.SelectDutiesController.selectDuties())
             }
           )
       }
@@ -251,6 +251,5 @@ object EnterSingleClaimController {
 
   val checkClaimSummaryKey: String = "check-claim-summary"
 
-  val whetherClaimCorrect: Form[YesNo] =
-    YesOrNoQuestionForm(checkClaimSummaryKey)
+  val whetherClaimCorrect: Form[YesNo] = YesOrNoQuestionForm(checkClaimSummaryKey)
 }
