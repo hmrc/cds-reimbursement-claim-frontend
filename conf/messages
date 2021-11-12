@@ -763,7 +763,7 @@ multiple-enter-claim.title=Claim details for duty {0} - {1} under {2} MRN
 multiple-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>. HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.claim-amount=How much should have been paid, in pounds?
-multiple-enter-claim.claim-amount.hint=This is the {0} - {1} amount you should have paid. The claim amount must be lower than or equal to the paid amount.
+multiple-enter-claim.claim-amount.hint=This is the {0} - {1} amount you should have paid. The claim amount must be lower than the paid amount.
 multiple-enter-claim.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
