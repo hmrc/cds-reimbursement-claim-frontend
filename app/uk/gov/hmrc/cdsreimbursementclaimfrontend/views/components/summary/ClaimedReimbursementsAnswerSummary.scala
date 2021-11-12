@@ -32,6 +32,7 @@ class ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursem
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
+
     val amendCall =
       if (router.journeyBindable === JourneyBindable.Scheduled)
         claimsRoutes.CheckScheduledClaimController.showReimbursements()
