@@ -18,7 +18,6 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -34,15 +33,12 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], isAmend: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], isCompleted: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
 @title = @{messages(lang(key, router.subKey, "title"))}
 
-@postAction = @{
-    if(isAmend) routes.EnterMovementReferenceNumberController.changeMrnSubmit(router.journeyBindable)
-    else routes.EnterMovementReferenceNumberController.enterMrnSubmit(router.journeyBindable)
-}
+@postAction = @{router.submitUrlForEnterMovementReferenceNumber(isCompleted)}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

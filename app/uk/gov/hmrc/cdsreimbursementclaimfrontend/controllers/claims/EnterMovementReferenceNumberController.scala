@@ -60,22 +60,22 @@ class EnterMovementReferenceNumberController @Inject() (
   import cats.data.EitherT._
   implicit val dataExtractor: DraftClaim => Option[MRN] = _.movementReferenceNumber
 
-  def enterJourneyMrn(journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn(isAmend = false, journey)
-  def changeJourneyMrn(journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn(isAmend = true, journey)
+  def enterJourneyMrn(implicit journey: JourneyBindable): Action[AnyContent]  = changeOrEnterMrn()
+  def changeJourneyMrn(implicit journey: JourneyBindable): Action[AnyContent] = changeOrEnterMrn()
 
-  protected def changeOrEnterMrn(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
+  protected def changeOrEnterMrn()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[MRN] { (_, previousAnswer) =>
+      withAnswers[MRN] { (fillingOutClaim, previousAnswer) =>
         val emptyForm = movementReferenceNumberForm()
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
-        Ok(enterMovementReferenceNumberPage(form, isAmend, ReimbursementRoutes(journey)))
+        Ok(enterMovementReferenceNumberPage(form, fillingOutClaim.draftClaim.isComplete, ReimbursementRoutes(journey)))
       }
     }
 
-  def enterMrnSubmit(journey: JourneyBindable): Action[AnyContent]  = mrnSubmit(isAmend = false, journey)
-  def changeMrnSubmit(journey: JourneyBindable): Action[AnyContent] = mrnSubmit(isAmend = true, journey)
+  def enterMrnSubmit(implicit journey: JourneyBindable): Action[AnyContent]  = mrnSubmit()
+  def changeMrnSubmit(implicit journey: JourneyBindable): Action[AnyContent] = mrnSubmit()
 
-  def mrnSubmit(isAmend: Boolean, journey: JourneyBindable): Action[AnyContent] =
+  def mrnSubmit()(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MRN] { (fillingOutClaim, previousAnswer) =>
         EnterMovementReferenceNumberController
@@ -84,12 +84,16 @@ class EnterMovementReferenceNumberController @Inject() (
           .fold(
             formWithErrors =>
               BadRequest(
-                enterMovementReferenceNumberPage(formWithErrors, isAmend, ReimbursementRoutes(journey))
+                enterMovementReferenceNumberPage(
+                  formWithErrors,
+                  fillingOutClaim.draftClaim.isComplete,
+                  ReimbursementRoutes(journey)
+                )
               ),
             mrnNumber => {
               val isSameAsPrevious = previousAnswer.exists(_.value === mrnNumber.value)
 
-              if (isSameAsPrevious && isAmend)
+              if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
               else if (isSameAsPrevious && journey === JourneyBindable.Multiple)
                 Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
