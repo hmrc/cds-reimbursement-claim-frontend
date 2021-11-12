@@ -101,7 +101,7 @@ class CheckScheduledClaimController @Inject() (
                     _ =>
                       Redirect(
                         CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                          claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable)
+                          claimRoutes.BankAccountController.checkBankAccountDetails(Scheduled)
                         )
                       )
                   )

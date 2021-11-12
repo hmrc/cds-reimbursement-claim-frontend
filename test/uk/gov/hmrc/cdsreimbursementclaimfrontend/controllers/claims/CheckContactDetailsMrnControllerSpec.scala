@@ -445,7 +445,7 @@ class CheckContactDetailsMrnControllerSpec
     }
 
     "Redirect to the problem page" when {
-      def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID] = None): Future[Result] =
+      def updateAddress(journey: JourneyBindable, maybeAddressId: Option[UUID]): Future[Result] =
         controller.updateAddress(journey, maybeAddressId)(FakeRequest())
 
       "user chooses an address without a post code" in forAll(journeys) { journey =>
