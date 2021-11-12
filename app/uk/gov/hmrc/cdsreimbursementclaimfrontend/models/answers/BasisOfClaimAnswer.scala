@@ -38,7 +38,7 @@ object BasisOfClaimAnswer {
   case object PersonalEffects extends BasisOfClaimAnswer
   case object Preference extends BasisOfClaimAnswer
   case object RGR extends BasisOfClaimAnswer
-  case object ProofOfReturnRefundGiven$Answer extends BasisOfClaimAnswer
+  case object ProofOfReturnRefundGiven extends BasisOfClaimAnswer
   case object IncorrectExciseValue extends BasisOfClaimAnswer //Northern Ireland only
   case object IncorrectAdditionalInformationCode extends BasisOfClaimAnswer //Northern Ireland only
   case object Miscellaneous extends BasisOfClaimAnswer

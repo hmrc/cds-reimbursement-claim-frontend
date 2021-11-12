@@ -20,7 +20,6 @@ import cats.Functor
 import cats.Id
 import cats.data.NonEmptyList
 import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
 import org.scalacheck.Gen
 import org.scalactic.source.Position
 import org.scalatest.Assertion
@@ -344,30 +343,30 @@ class EnterMultipleClaimsControllerSpec
     )
   }
 
-//  def assertAllSummarySectionHeadersAreDisplayed(document: Document, mrns: Seq[MRN])(implicit pos: Position): Unit = {
-//    val elements = document.select("h2")
-//    val expectedHeaders = mrns.zipWithIndex
-//      .map { case (mrn, index) =>
-//        messageFromMessageKey(
-//          "multiple-check-claim-summary.duty.label",
-//          OrdinalNumeral(index + 1).capitalize,
-//          mrn.value
-//        )
-//      }
-//    elements.eachText() should contain allElementsOf expectedHeaders
-//  }
-//
-//  def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[ClaimedReimbursement]])(implicit
-//    pos: Position
-//  ): Unit = {
-//    val elements       = document.select("dd.govuk-summary-list__value")
-//    val amounts        = claimsList.map(_.map(_.claimAmount))
-//    val expectedValues =
-//      amounts.flatMap(_.map(_.toPoundSterlingString)) ++
-//        amounts.map(_.sum.toPoundSterlingString) ++
-//        Seq(amounts.map(_.sum).sum.toPoundSterlingString)
-//    elements.eachText() should contain allElementsOf expectedValues
-//  }
+  def assertAllSummarySectionHeadersAreDisplayed(document: Document, mrns: Seq[MRN])(implicit pos: Position): Unit = {
+    val elements        = document.select("h2")
+    val expectedHeaders = mrns.zipWithIndex
+      .map { case (mrn, index) =>
+        messageFromMessageKey(
+          "multiple-check-claim-summary.duty.label",
+          OrdinalNumeral(index + 1).capitalize,
+          mrn.value
+        )
+      }
+    elements.eachText() should contain allElementsOf expectedHeaders
+  }
+
+  def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[ClaimedReimbursement]])(implicit
+    pos: Position
+  ): Unit = {
+    val elements       = document.select("dd.govuk-summary-list__value")
+    val amounts        = claimsList.map(_.map(_.claimAmount))
+    val expectedValues =
+      amounts.flatMap(_.map(_.toPoundSterlingString)) ++
+        amounts.map(_.sum.toPoundSterlingString) ++
+        Seq(amounts.map(_.sum).sum.toPoundSterlingString)
+    elements.eachText() should contain allElementsOf expectedValues
+  }
 
   "EnterMultipleClaimsController.checkClaimSummary" must {
     "redirect to the start of the journey" when {
@@ -472,11 +471,11 @@ class EnterMultipleClaimsControllerSpec
             performActionCheckClaimSummary(),
             messageFromMessageKey(
               "multiple-check-claim-summary.title"
-            )
-//            doc => {
-//              assertAllSummarySectionHeadersAreDisplayed(doc, mrns)
-//              assertAllClaimValuesAreDisplayed(doc, claimsList)
-//            }
+            ),
+            doc => {
+              assertAllSummarySectionHeadersAreDisplayed(doc, mrns)
+              assertAllClaimValuesAreDisplayed(doc, claimsList)
+            }
           )
         }
       }

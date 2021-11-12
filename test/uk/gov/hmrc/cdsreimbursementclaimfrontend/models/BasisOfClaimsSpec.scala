@@ -54,7 +54,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
             PersonalEffects,
             Preference,
             RGR,
-            ProofOfReturnRefundGiven$Answer,
+            ProofOfReturnRefundGiven,
             Miscellaneous
           )
         )
@@ -85,7 +85,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           PersonalEffects,
           Preference,
           RGR,
-          ProofOfReturnRefundGiven$Answer,
+          ProofOfReturnRefundGiven,
           IncorrectAdditionalInformationCode,
           Miscellaneous
         )
@@ -106,7 +106,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven$Answer,
+        ProofOfReturnRefundGiven,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous
@@ -127,7 +127,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven$Answer,
+        ProofOfReturnRefundGiven,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous
@@ -149,7 +149,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven$Answer,
+        ProofOfReturnRefundGiven,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous

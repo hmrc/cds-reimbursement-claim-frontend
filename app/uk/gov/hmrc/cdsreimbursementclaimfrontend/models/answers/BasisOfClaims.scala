@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.{DuplicateEntry, DutySuspension, EndUseRelief, IncorrectAdditionalInformationCode, IncorrectCommodityCode, IncorrectCpc, IncorrectExciseValue, IncorrectValue, InwardProcessingReliefFromCustomsDuty, Miscellaneous, OutwardProcessingRelief, PersonalEffects, Preference, ProofOfReturnRefundGiven$Answer, RGR}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, TaxCodes}
 
@@ -46,7 +46,7 @@ object BasisOfClaims {
     PersonalEffects,
     Preference,
     RGR,
-    ProofOfReturnRefundGiven$Answer,
+    ProofOfReturnRefundGiven,
     IncorrectExciseValue,
     IncorrectAdditionalInformationCode,
     Miscellaneous
