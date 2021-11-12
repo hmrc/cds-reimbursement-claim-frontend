@@ -22,7 +22,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
@@ -50,7 +50,7 @@ object DraftClaimGen {
       maybeContactAddressAnswer      <- genContactAddressOpt
       bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
-      maybeBasisOfClaimAnswer        <- genBasisOfClaimAnswerOpt
+      basisOfClaimAnswer             <- arbitraryBasisOfClaimAnswer.arbitrary
       supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
       commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
@@ -71,7 +71,7 @@ object DraftClaimGen {
       mrnContactAddressAnswer = maybeContactAddressAnswer,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
-      basisOfClaimAnswer = maybeBasisOfClaimAnswer,
+      basisOfClaimAnswer = basisOfClaimAnswer.some,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,

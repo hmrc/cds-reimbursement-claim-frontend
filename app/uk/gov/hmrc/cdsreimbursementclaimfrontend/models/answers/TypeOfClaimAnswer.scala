@@ -23,6 +23,7 @@ import play.api.libs.json.OFormat
 sealed abstract class TypeOfClaimAnswer(val value: Int) extends Product with Serializable
 
 object TypeOfClaimAnswer {
+
   case object Individual extends TypeOfClaimAnswer(0)
   case object Multiple extends TypeOfClaimAnswer(1)
   case object Scheduled extends TypeOfClaimAnswer(2)

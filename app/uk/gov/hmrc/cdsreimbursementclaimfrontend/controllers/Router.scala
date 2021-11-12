@@ -21,11 +21,11 @@ import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaim, MrnJourney}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 trait SubmitRoutes extends Product with Serializable {
@@ -42,11 +42,6 @@ trait SubmitRoutes extends Product with Serializable {
 
   def submitUrlForEnterDeclarantEoriNumber(): Call =
     claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
-
-  def submitUrlForBasisOfClaim(isAmend: Boolean): Call =
-    if (isAmend)
-      claimRoutes.SelectBasisForClaimController.changeBasisForClaimSubmit(journeyBindable)
-    else claimRoutes.SelectBasisForClaimController.selectBasisForClaimSubmit(journeyBindable)
 
   def submitUrlForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {
@@ -122,30 +117,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
-
-  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim): Call =
-    basisOfClaim match {
-      case BasisOfClaim.DuplicateEntry =>
-        claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
-      case _                           =>
-        claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
-    }
-
-  def nextPageForBasisForClaim(basisOfClaim: BasisOfClaim, isAmend: Boolean): Call =
-    if (isAmend) {
-      basisOfClaim match {
-        case BasisOfClaim.DuplicateEntry =>
-          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
-        case _                           =>
-          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-      }
-    } else
-      basisOfClaim match {
-        case BasisOfClaim.DuplicateEntry =>
-          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
-        case _                           =>
-          claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
-      }
 
   def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
     isAmend match {

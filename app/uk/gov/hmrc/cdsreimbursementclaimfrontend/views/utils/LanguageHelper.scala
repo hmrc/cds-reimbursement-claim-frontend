@@ -16,9 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 
+import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 object LanguageHelper {
+
+  def combine(level1: String, journey: JourneyBindable, level3: String)(implicit messages: Messages): List[String] =
+    lang(level1, journey.value.replace(JourneyBindable.Single.value, "").some, level3)
 
   def lang(level1: String, level2: Option[String], level3: String)(implicit messages: Messages): List[String] = {
     val default = s"$level1.$level3"

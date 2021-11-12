@@ -20,13 +20,15 @@ import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed abstract class JourneyBindable(val value: String) extends Product with Serializable
+sealed abstract class JourneyBindable(val value: String, val initialBasisOfClaimsHintIndex: Int)
+    extends Product
+    with Serializable
 
 object JourneyBindable {
 
-  case object Single extends JourneyBindable("single")
-  case object Multiple extends JourneyBindable("multiple")
-  case object Scheduled extends JourneyBindable("scheduled")
+  case object Single extends JourneyBindable("single", initialBasisOfClaimsHintIndex = 0)
+  case object Multiple extends JourneyBindable("multiple", initialBasisOfClaimsHintIndex = 1)
+  case object Scheduled extends JourneyBindable("scheduled", initialBasisOfClaimsHintIndex = 1)
 
   def parse(in: String): JourneyBindable = in match {
     case "single"    => Single

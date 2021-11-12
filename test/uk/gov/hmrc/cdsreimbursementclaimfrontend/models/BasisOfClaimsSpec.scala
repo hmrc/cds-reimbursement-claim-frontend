@@ -20,8 +20,8 @@ import cats.implicits.catsSyntaxOptionId
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims, ClaimNorthernIrelandAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -38,7 +38,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         claimNorthernIrelandAnswer = ClaimNorthernIrelandAnswer.No.some
       )
 
-      val claims = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
+      val claims = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
 
       claims should be(
         BasisOfClaims(items =
@@ -54,7 +54,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
             PersonalEffects,
             Preference,
             RGR,
-            ProofOfReturnRefundGiven,
+            ProofOfReturnRefundGiven$Answer,
             Miscellaneous
           )
         )
@@ -69,7 +69,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
       displayDeclaration = None
     )
 
-    val claims = BasisOfClaims().withoutNorthernIrelandClaimsIfApplies(draftC285Claim)
+    val claims = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
 
     claims should be(
       BasisOfClaims(items =
@@ -85,7 +85,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
           PersonalEffects,
           Preference,
           RGR,
-          ProofOfReturnRefundGiven,
+          ProofOfReturnRefundGiven$Answer,
           IncorrectAdditionalInformationCode,
           Miscellaneous
         )
@@ -94,7 +94,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "filter duplicate entry claim and incorrect EORI for scheduled journey" in {
-    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Scheduled).claims should be(
+    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Scheduled).claims should be(
       List(
         DutySuspension,
         EndUseRelief,
@@ -106,7 +106,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven,
+        ProofOfReturnRefundGiven$Answer,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous
@@ -115,7 +115,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "filter duplicate entry claim and incorrect EORI for multiple journey" in {
-    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Multiple).claims should be(
+    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Multiple).claims should be(
       List(
         DutySuspension,
         EndUseRelief,
@@ -127,7 +127,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven,
+        ProofOfReturnRefundGiven$Answer,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous
@@ -136,7 +136,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "contain duplicate entry and incorrect EORI claim for single journey" in {
-    BasisOfClaims.withoutJourneyClaimsIfApplies(JourneyBindable.Single).claims should be(
+    BasisOfClaims.excludeNonJourneyClaims(JourneyBindable.Single).claims should be(
       List(
         DuplicateEntry,
         DutySuspension,
@@ -149,7 +149,7 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
         PersonalEffects,
         Preference,
         RGR,
-        ProofOfReturnRefundGiven,
+        ProofOfReturnRefundGiven$Answer,
         IncorrectExciseValue,
         IncorrectAdditionalInformationCode,
         Miscellaneous
@@ -158,10 +158,10 @@ class BasisOfClaimsSpec extends AnyWordSpec with Matchers {
   }
 
   "build basis of claims key" in {
-    val basisOfClaim = sample[BasisOfClaim]
+    val basisOfClaim = sample[BasisOfClaimAnswer]
 
     BasisOfClaims(List.empty).buildKey(parentKey = "key", basisOfClaim) should be(
-      s"key.reason.d${basisOfClaim.value}"
+      s"key.reason.d${BasisOfClaims.indexOf(basisOfClaim)}"
     )
   }
 }

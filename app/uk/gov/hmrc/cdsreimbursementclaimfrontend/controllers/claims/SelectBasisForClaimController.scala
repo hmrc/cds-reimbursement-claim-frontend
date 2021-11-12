@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
+import cats.implicits.catsSyntaxOptionId
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
@@ -26,10 +26,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BasisOfClaims, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -54,34 +55,28 @@ class SelectBasisForClaimController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[BasisOfClaim] = _.basisOfClaimAnswer
+  implicit val dataExtractor: DraftClaim => Option[BasisOfClaimAnswer] = _.basisOfClaimAnswer
 
-  def selectBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)(journey)
-  def changeBasisForClaim(journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)(journey)
-
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectBasisForClaim(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[BasisOfClaim] { (fillingOutClaim, answer, router) =>
+      withAnswers[BasisOfClaimAnswer] { (fillingOutClaim, answer) =>
         val emptyForm  = SelectBasisForClaimController.reasonForClaimForm
-        val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(SelectReasonForClaim(basisOfClaim)))
+        val filledForm = answer.fold(emptyForm)(basisOfClaim => emptyForm.fill(basisOfClaim))
         Ok(
           selectReasonForClaimPage(
             filledForm,
             getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-            getBasisOfClaimsHints(journey),
-            isAmend,
-            router
+            getBasisOfClaimsHints(journey)
           )
         )
       }
     }
 
-  def selectBasisForClaimSubmit(journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)(journey)
-  def changeBasisForClaimSubmit(journey: JourneyBindable): Action[AnyContent] = submit(isAmend = true)(journey)
-
-  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectBasisForClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[BasisOfClaim] { (fillingOutClaim, _, router) =>
+      withAnswersAndRoutes[BasisOfClaimAnswer] { (fillingOutClaim, _, routes) =>
+        import routes._
+
         SelectBasisForClaimController.reasonForClaimForm
           .bindFromRequest()
           .fold(
@@ -90,23 +85,27 @@ class SelectBasisForClaimController @Inject() (
                 selectReasonForClaimPage(
                   formWithErrors,
                   getPossibleClaimTypes(fillingOutClaim.draftClaim, journey),
-                  getBasisOfClaimsHints(journey),
-                  isAmend,
-                  router
+                  getBasisOfClaimsHints(journey)
                 )
               ),
-            formOk => {
-              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(
-                _.copy(
-                  basisOfClaimAnswer = formOk.reasonForClaim.some
-                )
-              )
+            answer => {
+              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(basisOfClaimAnswer = answer.some))
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedJourney.some)))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not store reason for claim answer"),
-                  _ => Redirect(router.nextPageForBasisForClaim(formOk.reasonForClaim, isAmend))
+                  _ =>
+                    Redirect(
+                      answer match {
+                        case BasisOfClaimAnswer.DuplicateEntry =>
+                          claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journeyBindable)
+                        case _                                 =>
+                          CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                            claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
+                          )
+                      }
+                    )
                 )
             }
           )
@@ -118,25 +117,20 @@ object SelectBasisForClaimController {
 
   val selectBasisForClaimKey: String = "select-basis-for-claim"
 
-  final case class SelectReasonForClaim(reasonForClaim: BasisOfClaim)
-
-  val reasonForClaimForm: Form[SelectReasonForClaim] =
+  val reasonForClaimForm: Form[BasisOfClaimAnswer] =
     Form(
       mapping(
         selectBasisForClaimKey -> number
-          .verifying("invalid reason for claim", a => allClaimsTypes.map(_.value).contains(a))
-          .transform[BasisOfClaim](allClaimsIntToType, allClaimsTypeToInt)
-      )(SelectReasonForClaim.apply)(SelectReasonForClaim.unapply)
+          .verifying("invalid reason for claim", idx => BasisOfClaims.contains(idx))
+          .transform[BasisOfClaimAnswer](BasisOfClaims.all(_), BasisOfClaims.indexOf)
+      )(identity)(Some(_))
     )
 
   def getPossibleClaimTypes(draftClaim: DraftClaim, journey: JourneyBindable): BasisOfClaims =
     BasisOfClaims
-      .withoutJourneyClaimsIfApplies(journey)
-      .withoutNorthernIrelandClaimsIfApplies(draftClaim)
+      .excludeNonJourneyClaims(journey)
+      .excludeNorthernIrelandClaims(draftClaim)
 
-  def getBasisOfClaimsHints(journeyBindable: JourneyBindable): DropdownHints =
-    DropdownHints.range(
-      if (journeyBindable === JourneyBindable.Scheduled || journeyBindable === JourneyBindable.Multiple) 1 else 0,
-      12
-    )
+  def getBasisOfClaimsHints(journey: JourneyBindable): DropdownHints =
+    DropdownHints.range(journey.initialBasisOfClaimsHintIndex, maxHints = 12)
 }

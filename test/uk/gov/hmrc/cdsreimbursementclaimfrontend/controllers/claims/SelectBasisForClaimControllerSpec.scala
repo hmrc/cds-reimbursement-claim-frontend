@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxOptionId
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.OptionValues
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -29,6 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
@@ -38,11 +40,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import scala.concurrent.Future
 
-class SelectBasisForClaimControllerSpec
-    extends ControllerSpec
-    with AuthSupport
-    with SessionSupport
-    with ScalaCheckDrivenPropertyChecks {
+class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport with SessionSupport with OptionValues {
 
   override val overrideBindings: List[GuiceableModule] =
     List[GuiceableModule](
@@ -61,7 +59,7 @@ class SelectBasisForClaimControllerSpec
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   private def sessionWithClaimState(
-    maybeReasonForClaim: Option[BasisOfClaim]
+    maybeReasonForClaim: Option[BasisOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val draftC285Claim      =
       DraftClaim.blank.copy(
@@ -103,8 +101,8 @@ class SelectBasisForClaimControllerSpec
 
     "display the page" when {
 
-      "the user has not answered this question before and the NI feature switch is enabled and ERN feature switch is disabled" in {
-        def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
+      "the user has not answered this question before and the NI feature switch is enabled" in {
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.enable()
 
@@ -125,7 +123,7 @@ class SelectBasisForClaimControllerSpec
       }
 
       "the user has not answered this question before and the NI feature switch is disabled" in {
-        def performAction(): Future[Result] = controller.changeBasisForClaim(JourneyBindable.Single)(FakeRequest())
+        def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.disable()
 
@@ -149,7 +147,7 @@ class SelectBasisForClaimControllerSpec
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
         featureSwitch.NorthernIreland.enable()
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief.some
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
@@ -172,7 +170,7 @@ class SelectBasisForClaimControllerSpec
 
         featureSwitch.NorthernIreland.disable()
 
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer.some)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer.some)
@@ -192,7 +190,7 @@ class SelectBasisForClaimControllerSpec
 
       "the user has come from the CYA page and is amending their answer" in {
 
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief.some
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
           .copy(
@@ -224,7 +222,7 @@ class SelectBasisForClaimControllerSpec
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief.some
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim = sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
 
@@ -245,24 +243,28 @@ class SelectBasisForClaimControllerSpec
 
       "the user amends their answer" in {
         def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeBasisForClaimSubmit(JourneyBindable.Single)(
+          controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val basisOfClaimAnswer = BasisOfClaim.IncorrectCpc.some
+        val claim = sample(genValidDraftClaim(TypeOfClaimAnswer.Individual))
+        val idx   = BasisOfClaims.indexOf(claim.basisOfClaimAnswer.value)
 
-        val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
-        val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
-
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val session = SessionData.empty.copy(
+          journeyStatus = FillingOutClaim(
+            sample[GGCredId],
+            sample[SignedInUserDetails],
+            claim
+          ).some
+        )
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session)
         }
 
         checkIsRedirect(
-          performAction(Seq(selectBasisForClaimKey -> "4")),
+          performAction(Seq(selectBasisForClaimKey -> idx.toString)),
           routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
         )
       }
@@ -272,13 +274,13 @@ class SelectBasisForClaimControllerSpec
     "show an error summary" when {
 
       def performAction(data: Seq[(String, String)]): Future[Result] =
-        controller.changeBasisForClaimSubmit(JourneyBindable.Single)(
+        controller.selectBasisForClaimSubmit(JourneyBindable.Single)(
           FakeRequest().withFormUrlEncodedBody(data: _*)
         )
 
       "the user does not select an option" in {
 
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief.some
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)
         val (session, fillingOutClaim, _) = sessionWithClaimState(basisOfClaimAnswer)
@@ -307,7 +309,7 @@ class SelectBasisForClaimControllerSpec
 
       "an invalid option value is submitted" in {
 
-        val basisOfClaimAnswer = BasisOfClaim.EndUseRelief.some
+        val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim =
           sessionWithClaimState(basisOfClaimAnswer)._3.copy(basisOfClaimAnswer = basisOfClaimAnswer)

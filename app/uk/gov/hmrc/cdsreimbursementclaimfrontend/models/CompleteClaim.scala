@@ -40,7 +40,7 @@ final case class CompleteClaim(
   detailsRegisteredWithCdsAnswer: DetailsRegisteredWithCdsAnswer,
   mrnContactDetailsAnswer: Option[MrnContactDetails],
   mrnContactAddressAnswer: Option[ContactAddress],
-  basisOfClaimAnswer: Option[BasisOfClaim],
+  basisOfClaimAnswer: BasisOfClaimAnswer,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
   commodityDetailsAnswer: CommodityDetailsAnswer,
@@ -139,39 +139,50 @@ object CompleteClaim {
           ) =>
         (
           MRN.validator.validate(maybeMrn),
+          BasisOfClaimAnswer.validator.validate(maybeBasisForClaim),
           DisplayDeclaration.validator.validate(maybeDisplayDeclaration),
           DeclarantTypeAnswer.validator.validate(maybeDraftDeclarantTypeAnswer),
-          SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
           CommodityDetailsAnswer.validator.validate(maybeDraftCommodityAnswer),
+          SupportingEvidencesAnswer.validator.validate(maybeSupportingEvidences),
           ClaimedReimbursementsAnswer.validator.validate(maybeClaimedReimbursementsAnswer),
           if (maybeTypeOfClaim.exists(_ === Scheduled))
             ScheduledDocumentAnswer.validator.validate(maybeScheduledDocument)
           else Valid(None)
-        ).mapN { case (mrn, declaration, maybeDeclarant, maybeEvidences, maybeCommodity, maybeClaim, maybeSchedule) =>
-          CompleteClaim(
-            id,
-            maybeTypeOfClaim.getOrElse(Individual),
-            mrn,
-            maybeDuplicateMovementReferenceNumberAnswer,
-            maybeDeclarant,
-            detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
-            maybeDraftMrnContactDetails,
-            maybeDraftMrnContactAddress,
-            maybeBasisForClaim,
-            maybeBankAccountDetails,
-            maybeEvidences,
-            maybeCommodity,
-            maybeDraftNorthernIrelandAnswer,
-            maybeDisplayDeclaration,
-            maybeDuplicateDisplayDeclaration,
-            maybeImporterEoriNumberAnswer,
-            maybeDeclarantEoriNumberAnswer,
-            maybeClaim,
-            maybeReimbursementMethodAnswer,
-            maybeSchedule,
-            maybeAssociatedMRNs,
-            maybeAssociatedMRNsClaimsAnswer
-          )
+        ).mapN {
+          case (
+                mrn,
+                basisOfClaims,
+                declaration,
+                maybeDeclarant,
+                maybeCommodity,
+                maybeEvidences,
+                maybeClaim,
+                maybeSchedule
+              ) =>
+            CompleteClaim(
+              id,
+              maybeTypeOfClaim.getOrElse(Individual),
+              mrn,
+              maybeDuplicateMovementReferenceNumberAnswer,
+              maybeDeclarant,
+              detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
+              maybeDraftMrnContactDetails,
+              maybeDraftMrnContactAddress,
+              basisOfClaims,
+              maybeBankAccountDetails,
+              maybeEvidences,
+              maybeCommodity,
+              maybeDraftNorthernIrelandAnswer,
+              maybeDisplayDeclaration,
+              maybeDuplicateDisplayDeclaration,
+              maybeImporterEoriNumberAnswer,
+              maybeDeclarantEoriNumberAnswer,
+              maybeClaim,
+              maybeReimbursementMethodAnswer,
+              maybeSchedule,
+              maybeAssociatedMRNs,
+              maybeAssociatedMRNsClaimsAnswer
+            )
         }.toEither
           .leftMap { errors =>
             Error(
