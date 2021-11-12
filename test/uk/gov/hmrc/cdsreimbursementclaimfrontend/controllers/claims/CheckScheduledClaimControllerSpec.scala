@@ -23,17 +23,18 @@ import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Scheduled
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{EuDuty, UkDuty, Wine}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A30, A70, B00}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectedDutyTaxCodesReimbursementAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{dutyTypesOrdering, taxCodesOrdering}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DraftClaim, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
@@ -158,19 +159,46 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
 
       checkIsRedirect(
         controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "true")),
-        claimsRoutes.BankAccountController.checkBankAccountDetails(Scheduled)
+        claimsRoutes.BankAccountController.checkBankAccountDetails(JourneyBindable.Scheduled)
+      )
+    }
+
+    "continue with Check Your Answers page" in {
+      val session = sessionWithClaim(
+        sample(genValidDraftClaim(TypeOfClaimAnswer.Scheduled)).copy(
+          selectedDutyTaxCodesReimbursementAnswer = Some(
+            SelectedDutyTaxCodesReimbursementAnswer(
+              SortedMap(UkDuty -> SortedMap(A30 -> Reimbursement(paidAmount = 99, shouldOfPaid = 78)))
+            )
+          )
+        )
+      )
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+        mockStoreSession(Right(()))
+      }
+
+      checkIsRedirect(
+        controller.submitReimbursements()(FakeRequest().withFormUrlEncodedBody(checkClaimSummaryKey -> "true")),
+        claimsRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Scheduled)
       )
     }
   }
 
   def sessionWithAnswer(
     selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
-  ): SessionData = {
+  ): SessionData =
+    sessionWithClaim(
+      DraftClaim.blank.copy(
+        selectedDutyTaxCodesReimbursementAnswer = selectedDutyTaxCodesReimbursementAnswer
+      )
+    )
+
+  def sessionWithClaim(c285Claim: DraftClaim): SessionData = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    val draftC285Claim      = DraftClaim.blank.copy(
-      selectedDutyTaxCodesReimbursementAnswer = selectedDutyTaxCodesReimbursementAnswer
-    )
-    SessionData.empty.copy(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim).some)
+    SessionData.empty.copy(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, c285Claim).some)
   }
 }
