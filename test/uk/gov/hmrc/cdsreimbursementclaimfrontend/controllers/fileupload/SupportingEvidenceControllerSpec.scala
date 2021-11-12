@@ -71,6 +71,25 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
       def performAction(journey: JourneyBindable): Future[Result] =
         controller.uploadSupportingEvidence(journey)(FakeRequest())
 
+      "show check your answers page" when {
+
+        "the number of uploads have reached the maximum allowed" in {
+          val answer          = sample(arbitrarySupportingEvidencesAnswerOfN(60))
+          val journey         = sample[JourneyBindable]
+          val (session, _, _) = sessionWithClaimState(supportingEvidencesAnswer = answer)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(journey),
+            routes.SupportingEvidenceController.checkYourAnswers(journey)
+          )
+        }
+      }
+
       "show technical error page" when {
 
         "upscan initiate call fails" in {
