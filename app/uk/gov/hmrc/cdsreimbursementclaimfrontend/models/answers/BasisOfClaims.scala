@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, TaxCodes}
 
 import scala.collection.immutable.HashSet
 
-final case class BasisOfClaims(items: List[BasisOfClaim]) extends AnyVal {
-  def buildKey(parentKey: String, basisOfClaim: BasisOfClaim): String =
-    s"$parentKey.reason.d${basisOfClaim.value}"
+final case class BasisOfClaims(items: List[BasisOfClaimAnswer]) extends AnyVal {
+  def buildKey(parentKey: String, basisOfClaim: BasisOfClaimAnswer): String =
+    s"$parentKey.reason.d${all.indexOf(basisOfClaim)}"
 }
 
 object BasisOfClaims {
@@ -33,21 +34,39 @@ object BasisOfClaims {
   private val ukExciseCodeStrings: HashSet[String] =
     HashSet(TaxCodes.excise.map(_.value): _*)
 
-  def apply(): Builder = Builder(allClaimsTypes)
+  val all: List[BasisOfClaimAnswer] = List(
+    DuplicateEntry,
+    DutySuspension,
+    EndUseRelief,
+    IncorrectCommodityCode,
+    IncorrectCpc,
+    IncorrectValue,
+    InwardProcessingReliefFromCustomsDuty,
+    OutwardProcessingRelief,
+    PersonalEffects,
+    Preference,
+    RGR,
+    ProofOfReturnRefundGiven,
+    IncorrectExciseValue,
+    IncorrectAdditionalInformationCode,
+    Miscellaneous
+  )
 
-  def withoutJourneyClaimsIfApplies(journey: JourneyBindable): Builder =
+  def apply(): Builder = Builder(all)
+
+  def excludeNonJourneyClaims(journey: JourneyBindable): Builder =
     BasisOfClaims().filterUsing(journey)
 
-  final case class Builder(claims: List[BasisOfClaim]) {
+  final case class Builder(claims: List[BasisOfClaimAnswer]) {
 
     def filterUsing(journey: JourneyBindable): Builder =
       copy(
         if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple)
-          claims.diff(List(DuplicateEntry))
+          claims.diff(DuplicateEntry :: Nil)
         else claims
       )
 
-    def withoutNorthernIrelandClaimsIfApplies(claim: DraftClaim): BasisOfClaims = {
+    def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfClaims = {
 
       val isNorthernIrelandJourney =
         claim.claimNorthernIrelandAnswer.getOrElse(ClaimNorthernIrelandAnswer.No)
@@ -63,17 +82,23 @@ object BasisOfClaims {
       val items = isNorthernIrelandJourney match {
         case ClaimNorthernIrelandAnswer.No  =>
           claims.diff(
-            List(IncorrectExciseValue, IncorrectAdditionalInformationCode)
+            IncorrectExciseValue :: IncorrectAdditionalInformationCode :: Nil
           )
         case ClaimNorthernIrelandAnswer.Yes =>
           if (hasNorthernIrelandExciseCodes) claims
-          else claims.diff(List(IncorrectExciseValue))
+          else claims.diff(IncorrectExciseValue :: Nil)
       }
 
       BasisOfClaims(items)
     }
   }
 
-  implicit def basisOfClaims2List(basisOfClaims: BasisOfClaims): List[BasisOfClaim] =
+  def indexOf(basisOfClaim: BasisOfClaimAnswer): Int =
+    all.indexOf(basisOfClaim)
+
+  def contains(index: Int): Boolean =
+    all.lift(index).isDefined
+
+  implicit def basisOfClaims2List(basisOfClaims: BasisOfClaims): List[BasisOfClaimAnswer] =
     basisOfClaims.items
 }

@@ -21,9 +21,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.ThirdPartyImporter
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -51,43 +49,6 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
         router.nextPageForEnterMRN(ThirdPartyImporter(sample[DisplayDeclaration])) shouldBe
           claimRoutes.EnterImporterEoriNumberController.enterImporterEoriNumber(router.journeyBindable)
-      }
-    }
-  }
-
-  "The next page after basis of claim" must {
-    val nonDuplicateClaims     = BasisOfClaim.allClaimsTypes.filterNot(_ == BasisOfClaim.DuplicateEntry)
-    val nonDuplicateClaimTable = Table("Claim", nonDuplicateClaims: _*)
-
-    "enter duplicate reference number when basis of claim has duplicate entry selected" in {
-      forAll(allRoutes) { router =>
-        router.nextPageForBasisForClaim(
-          BasisOfClaim.DuplicateEntry,
-          isAmend = false
-        ) shouldBe claimRoutes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(router.journeyBindable)
-      }
-    }
-
-    "enter commodities details when basis of claim doesn't have duplicate entry selected" in {
-      forAll(allRoutes) { router =>
-        forAll(nonDuplicateClaimTable) { basisForClaim =>
-          router.nextPageForBasisForClaim(
-            basisForClaim,
-            isAmend = false
-          ) shouldBe claimRoutes.EnterCommoditiesDetailsController
-            .enterCommoditiesDetails(router.journeyBindable)
-        }
-      }
-    }
-
-    "be check your answers when answer is amended" in {
-      forAll(allRoutes) { router =>
-        forAll(nonDuplicateClaimTable) { basisForClaim =>
-          router.nextPageForBasisForClaim(
-            basisForClaim,
-            isAmend = true
-          ) shouldBe claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable)
-        }
       }
     }
   }
@@ -182,13 +143,6 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
           .addDetailsSubmit(
             router.journeyBindable
           )
-      }
-    }
-
-    "BasisOfClaim" in {
-      forAll(allRoutes) { router =>
-        router.submitUrlForBasisOfClaim(true) shouldBe claimRoutes.SelectBasisForClaimController
-          .changeBasisForClaimSubmit(router.journeyBindable)
       }
     }
 
