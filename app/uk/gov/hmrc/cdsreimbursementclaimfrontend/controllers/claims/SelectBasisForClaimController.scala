@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxOptionId
+import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Forms.{mapping, number}
 import play.api.data._
@@ -132,5 +132,8 @@ object SelectBasisForClaimController {
       .excludeNorthernIrelandClaims(draftClaim)
 
   def getBasisOfClaimsHints(journey: JourneyBindable): DropdownHints =
-    DropdownHints.range(journey.initialBasisOfClaimsHintIndex, maxHints = 12)
+    DropdownHints.range(
+      if (journey === JourneyBindable.Scheduled || journey === JourneyBindable.Multiple) 1 else 0,
+      maxHints = 12
+    )
 }
