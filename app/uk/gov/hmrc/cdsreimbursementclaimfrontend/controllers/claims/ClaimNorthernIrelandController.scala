@@ -25,6 +25,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.whetherNorthernIrelandClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
@@ -63,7 +64,7 @@ class ClaimNorthernIrelandController @Inject() (
     (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
       implicit request =>
         withAnswers[YesNo] { (_, answer) =>
-          val emptyForm  = ClaimNorthernIrelandController.whetherNorthernIrelandClaim
+          val emptyForm  = whetherNorthernIrelandClaim
           val filledForm = answer.fold(emptyForm)(emptyForm.fill)
           Ok(northernIrelandAnswerPage(filledForm))
         }
@@ -75,7 +76,7 @@ class ClaimNorthernIrelandController @Inject() (
         withAnswersAndRoutes[YesNo] { (fillingOutClaim, previousAnswer, routes) =>
           import routes._
 
-          ClaimNorthernIrelandController.whetherNorthernIrelandClaim
+          whetherNorthernIrelandClaim
             .bindFromRequest()
             .fold(
               formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors)),

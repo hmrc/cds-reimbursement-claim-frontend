@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
@@ -55,21 +54,11 @@ final case class CompleteClaim(
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
-  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, NonEmptyList[ClaimedReimbursement])] = {
-    val mrns                                                     = associatedMRNsAnswer
-      .map(mrns => movementReferenceNumber :: mrns)
-      .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
-    val claims: NonEmptyList[NonEmptyList[ClaimedReimbursement]] = associatedMRNsClaimsAnswer
-      .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
-      .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
-    mrns.zipWith(claims)((m, c) => (m, c))
-  }
-
   lazy val totalReimbursementAmount: BigDecimal =
     typeOfClaim match {
       case Individual => claimedReimbursementsAnswer.total
       case Scheduled  => claimedReimbursementsAnswer.total
-      case Multiple   => multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+      case Multiple   => multipleReimbursementsTotal
     }
 
   lazy val bankDetails: Option[BankAccountDetails] =
@@ -89,6 +78,10 @@ final case class CompleteClaim(
 
   lazy val bankAccountType: String =
     BankAccountType.allAccountTypes.map(_.value).toString()
+
+  def multipleReimbursementsTotal: BigDecimal =
+    (claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList).flatMap(_.toList))
+      .map(_.claimAmount).sum
 }
 
 object CompleteClaim {
