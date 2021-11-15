@@ -56,7 +56,7 @@ final case class CompleteClaim(
 ) {
 
   lazy val multipleClaimsAnswer: NonEmptyList[(MRN, NonEmptyList[ClaimedReimbursement])] = {
-    val mrns   = associatedMRNsAnswer
+    val mrns                                                     = associatedMRNsAnswer
       .map(mrns => movementReferenceNumber :: mrns)
       .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
     val claims: NonEmptyList[NonEmptyList[ClaimedReimbursement]] = associatedMRNsClaimsAnswer

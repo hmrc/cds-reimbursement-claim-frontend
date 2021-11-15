@@ -61,10 +61,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
 
   def checkAllAnswers(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withCompleteDraftClaim { (fillingOutClaim, completeClaim) =>
-        implicit val router: ReimbursementRoutes =
-          extractRoutes(fillingOutClaim.draftClaim, journey)
-        Ok(checkYourAnswersPage(completeClaim))
+      request.using { case fillingOutClaim: FillingOutClaim =>
+        implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        Ok(checkYourAnswersPage(fillingOutClaim.draftClaim))
       }
     }
 

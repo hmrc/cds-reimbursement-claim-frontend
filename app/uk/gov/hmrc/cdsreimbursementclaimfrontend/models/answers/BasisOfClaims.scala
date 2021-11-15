@@ -20,6 +20,7 @@ import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, TaxCodes}
 
 import scala.collection.immutable.HashSet
@@ -69,7 +70,7 @@ object BasisOfClaims {
     def excludeNorthernIrelandClaims(claim: DraftClaim): BasisOfClaims = {
 
       val isNorthernIrelandJourney =
-        claim.claimNorthernIrelandAnswer.getOrElse(ClaimNorthernIrelandAnswer.No)
+        claim.whetherNorthernIrelandAnswer.getOrElse(No)
 
       val receivedExciseCodes =
         claim.displayDeclaration
@@ -80,11 +81,11 @@ object BasisOfClaims {
         receivedExciseCodes.toSet.intersect(ukExciseCodeStrings).nonEmpty
 
       val items = isNorthernIrelandJourney match {
-        case ClaimNorthernIrelandAnswer.No  =>
+        case No  =>
           claims.diff(
             IncorrectExciseValue :: IncorrectAdditionalInformationCode :: Nil
           )
-        case ClaimNorthernIrelandAnswer.Yes =>
+        case Yes =>
           if (hasNorthernIrelandExciseCodes) claims
           else claims.diff(IncorrectExciseValue :: Nil)
       }

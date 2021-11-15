@@ -141,7 +141,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
         claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetails(journeyBindable)
       case No  =>
         if (featureSwitch.NorthernIreland.isEnabled())
-          claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+          claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journeyBindable)
         else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     }
 
@@ -152,7 +152,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
     answer match {
       case Yes =>
         if (featureSwitch.NorthernIreland.isEnabled())
-          claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaim(journeyBindable)
+          claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journeyBindable)
         else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
 
       case No =>

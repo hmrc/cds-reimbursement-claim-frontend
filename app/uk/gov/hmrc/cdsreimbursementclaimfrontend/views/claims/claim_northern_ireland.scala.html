@@ -39,7 +39,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[YesNo], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
+@(form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, journey: JourneyBindable)
 
 @key = @{"claim-northern-ireland"}
 @title = @{messages(s"$key.title")}
@@ -52,9 +52,9 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(lang(key, router.subKey, "help-text"))), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, journey, "help-text"))), Some("govuk-body"))
 
-    @formWithCSRF(claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journey), 'novalidate -> "novalidate") {
+    @formWithCSRF(claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaimSubmit(journey), 'novalidate -> "novalidate") {
 
         @radios(
             form = form,

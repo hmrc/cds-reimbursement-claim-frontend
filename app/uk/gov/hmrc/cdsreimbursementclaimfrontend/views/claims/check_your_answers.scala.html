@@ -21,9 +21,11 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -44,9 +46,15 @@
 @title = @{messages(s"$key.title")}
 
 @mrnSummary = @{
-    claim.associatedMRNsAnswer.fold(claim.movementReferenceNumber.summary(s"$key.reference-number")) { mrns =>
-        (claim.movementReferenceNumber +: mrns.toList).summary(s"$key.reference-number")
-    }
+    def leadMrnSummary(maybeLeadMrn: Option[MRN]): SummaryList =
+        maybeLeadMrn.fold(SummaryList())(_.summary(s"$key.reference-number"))
+
+    def multipleMrnsSummary(maybeLeadMrn: Option[MRN]): AssociatedMRNsAnswer => SummaryList = mrns =>
+        (maybeLeadMrn.toList ++ mrns.toList).summary(s"$key.reference-number")
+
+    claim.associatedMRNsAnswer.fold(leadMrnSummary(claim.movementReferenceNumber))(
+        multipleMrnsSummary(claim.movementReferenceNumber)
+    )
 }
 
 @contactSummary = @{
