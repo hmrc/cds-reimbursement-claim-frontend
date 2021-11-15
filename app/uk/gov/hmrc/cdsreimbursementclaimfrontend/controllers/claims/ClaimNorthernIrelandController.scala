@@ -85,10 +85,9 @@ class ClaimNorthernIrelandController @Inject() (
                   _.copy(
                     whetherNorthernIrelandAnswer = Some(currentAnswer),
                     basisOfClaimAnswer = (previousAnswer, currentAnswer) match {
-                      case (Some(No), Yes) | (Some(Yes), No)
-                          if fillingOutClaim.draftClaim.hasNorthernIrelandBasisOfClaim =>
-                        None
-                      case _ =>
+                      case (Some(No), Yes)                                                              => None
+                      case (Some(Yes), No) if fillingOutClaim.draftClaim.hasNorthernIrelandBasisOfClaim => None
+                      case _                                                                            =>
                         fillingOutClaim.draftClaim.basisOfClaimAnswer
                     }
                   )
@@ -100,7 +99,7 @@ class ClaimNorthernIrelandController @Inject() (
                     logAndDisplayError("could not capture select number of claims"),
                     _ =>
                       Redirect(
-                        CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                        CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
                           claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
                         )
                       )
