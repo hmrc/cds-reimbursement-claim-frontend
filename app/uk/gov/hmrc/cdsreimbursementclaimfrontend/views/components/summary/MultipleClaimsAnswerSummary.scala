@@ -16,20 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import cats.data.NonEmptyList
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.ChangeFlagUtils._
 
-class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, ClaimedReimbursementsAnswer)]] {
+class MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbursementsAnswer)]] {
 
-  def render(key: String, mrnsWithClaimsList: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)])(implicit
+  def render(key: String, mrnsWithClaimsList: List[(MRN, ClaimedReimbursementsAnswer)])(implicit
     router: ReimbursementRoutes,
     messages: Messages
   ): SummaryList = {
@@ -37,10 +36,10 @@ class MultipleClaimsAnswerSummary extends AnswerSummary[NonEmptyList[(MRN, Claim
       claimsRoutes.EnterMultipleClaimsController.checkClaimSummary().setChangeFlag
 
     val totalAmount: BigDecimal =
-      mrnsWithClaimsList.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+      mrnsWithClaimsList.flatMap(_._2.toList.map(_.claimAmount)).sum
 
     SummaryList(rows =
-      mrnsWithClaimsList.toList
+      mrnsWithClaimsList
         .map { case (mrn, claims) =>
           SummaryListRow(
             key = Key(Text(mrn.value)),

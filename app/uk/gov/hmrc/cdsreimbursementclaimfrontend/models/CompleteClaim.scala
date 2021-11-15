@@ -44,7 +44,6 @@ final case class CompleteClaim(
   bankAccountDetailsAnswer: Option[BankAccountDetails],
   supportingEvidencesAnswer: SupportingEvidencesAnswer,
   commodityDetailsAnswer: CommodityDetailsAnswer,
-  northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
   displayDeclaration: Option[DisplayDeclaration],
   duplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumberAnswer],
@@ -56,11 +55,11 @@ final case class CompleteClaim(
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
 
-  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)] = {
+  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, NonEmptyList[ClaimedReimbursement])] = {
     val mrns   = associatedMRNsAnswer
       .map(mrns => movementReferenceNumber :: mrns)
       .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
-    val claims = associatedMRNsClaimsAnswer
+    val claims: NonEmptyList[NonEmptyList[ClaimedReimbursement]] = associatedMRNsClaimsAnswer
       .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
       .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
     mrns.zipWith(claims)((m, c) => (m, c))
@@ -123,7 +122,7 @@ object CompleteClaim {
             maybeSupportingEvidences,
             _,
             maybeDraftCommodityAnswer,
-            maybeDraftNorthernIrelandAnswer,
+            _,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
             maybeImporterEoriNumberAnswer,
@@ -172,7 +171,6 @@ object CompleteClaim {
               maybeBankAccountDetails,
               maybeEvidences,
               maybeCommodity,
-              maybeDraftNorthernIrelandAnswer,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               maybeImporterEoriNumberAnswer,

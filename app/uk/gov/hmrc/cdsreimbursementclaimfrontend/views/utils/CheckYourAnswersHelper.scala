@@ -20,7 +20,7 @@ import cats.syntax.all._
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -32,34 +32,11 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
 
   private val key = "check-your-answers"
 
-  def makeNorthernIrelandClaimSummary(
-    completeClaim: CompleteClaim
-  )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
-    completeClaim.northernIrelandAnswer.fold(List.empty[SummaryListRow])(claimNorthernIrelandAnswer =>
-      List(
-        SummaryListRow(
-          key = Key(Text(messages(s"$key.northern-ireland-claim.label"))),
-          value = Value(Text(claimNorthernIrelandAnswer.toString)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.ClaimNorthernIrelandController.changeNorthernIrelandClaim(journey).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.northern-ireland-claim.label"))
-                )
-              )
-            )
-          )
-        )
-      )
-    )
-
   def makeBankDetailsSummary(
-    completeClaim: CompleteClaim
+    claim: DraftClaim
   )(implicit messages: Messages, journey: JourneyBindable): List[SummaryListRow] =
     List(
-      completeClaim.bankDetails.map { details =>
+      claim.bankAccountDetailsAnswer.map { details =>
         SummaryListRow(
           key = Key(Text(messages(s"$key.bank-details.account-name.label"))),
           value = Value(Text(details.accountName.value)),
@@ -76,7 +53,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           )
         )
       },
-      completeClaim.bankDetails.map { details =>
+      claim.bankAccountDetailsAnswer.map { details =>
         SummaryListRow(
           key = Key(Text(messages(s"$key.bank-details.sort-code.label"))),
           value = Value(Text(details.sortCode.value)),
@@ -93,7 +70,7 @@ class CheckYourAnswersHelper @Inject() (implicit val featureSwitch: FeatureSwitc
           )
         )
       },
-      completeClaim.bankDetails.map { details =>
+      claim.bankAccountDetailsAnswer.map { details =>
         SummaryListRow(
           key = Key(Text(messages(s"$key.bank-details.account-number.label"))),
           value = Value(Text(details.accountNumber.value)),

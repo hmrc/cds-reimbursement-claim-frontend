@@ -55,11 +55,6 @@ trait SubmitRoutes extends Product with Serializable {
       case false => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
     }
 
-  def submitUrlForClaimNorthernIreland(isAmend: Boolean): Call =
-    if (isAmend)
-      claimRoutes.ClaimNorthernIrelandController.changeNorthernIrelandClaimSubmit(journeyBindable)
-    else claimRoutes.ClaimNorthernIrelandController.selectNorthernIrelandClaimSubmit(journeyBindable)
-
   def submitPageForClaimantDetails(isChange: Boolean): Call = {
     val controller = claimRoutes.CheckContactDetailsMrnController
     if (isChange) controller.submit(journeyBindable)
@@ -139,14 +134,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
       claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
     else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
-
-  def nextPageForForClaimNorthernIreland(isAmend: Boolean, isAnswerChanged: Boolean): Call =
-    if (!isAmend) {
-      claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-    } else {
-      if (isAnswerChanged) claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-      else claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    }
 
   def nextPageForAddClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService): Call =
     answer match {
