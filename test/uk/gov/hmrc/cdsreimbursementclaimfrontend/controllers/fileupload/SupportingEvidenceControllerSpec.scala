@@ -745,6 +745,23 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
             claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
           )
         }
+
+        "user has already added the maximum number of documents" in {
+          val journey = sample[JourneyBindable]
+          val answer  = sample(arbitrarySupportingEvidencesAnswerOfN(60))
+
+          val (session, _, _) = sessionWithClaimState(answer)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            performAction(journey, whetherAddNewDocument = None),
+            claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
+          )
+        }
       }
 
       "redirect to upload new document page" when {
