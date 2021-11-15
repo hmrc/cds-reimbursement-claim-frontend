@@ -94,7 +94,7 @@
 
     @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
       @pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-      @summary(whetherNorthernIrelandClaim.summary(""))
+      @summary(whetherNorthernIrelandClaim.summary(s"$key.northern-ireland-claim"))
     }
 
     @claim.commoditiesDetailsAnswer.map { commodity =>
