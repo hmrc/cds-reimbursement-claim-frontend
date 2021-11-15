@@ -41,7 +41,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{supportingevidence => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -286,22 +285,27 @@ class SupportingEvidenceController @Inject() (
 
   def checkYourAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      whetherAddAnotherDocument
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            withAnswers[SupportingEvidencesAnswer] { (_, maybeEvidences) =>
-              maybeEvidences.fold(
-                Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-              )(evidences => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)))
-            },
-          {
-            case Yes =>
-              Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
-            case No  =>
-              Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+      withAnswers[SupportingEvidencesAnswer] { (_, maybeEvidences) =>
+        maybeEvidences.fold(
+          Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+        ) { evidences =>
+          if (evidences.size >= maxUploads) {
+            Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+          } else {
+            whetherAddAnotherDocument
+              .bindFromRequest()
+              .fold(
+                formWithErrors => BadRequest(checkYourAnswersPage(journey, evidences, maxUploads, formWithErrors)),
+                {
+                  case Yes =>
+                    Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
+                  case No  =>
+                    Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
+                }
+              )
           }
-        )
+        }
+      }
     }
 }
 
