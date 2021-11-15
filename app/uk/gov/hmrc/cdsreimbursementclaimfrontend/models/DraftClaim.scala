@@ -68,6 +68,9 @@ final case class DraftClaim(
   def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
 
+  def hasNorthernIrelandBasisOfClaim: Boolean =
+    basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
+
   object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
     def apply(): List[MRN] = list

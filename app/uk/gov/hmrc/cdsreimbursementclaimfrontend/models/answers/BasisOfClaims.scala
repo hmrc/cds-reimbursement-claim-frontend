@@ -53,6 +53,11 @@ object BasisOfClaims {
     Miscellaneous
   )
 
+  val northernIreland: List[BasisOfClaimAnswer] = List(
+    IncorrectExciseValue,
+    IncorrectAdditionalInformationCode
+  )
+
   def apply(): Builder = Builder(all)
 
   def excludeNonJourneyClaims(journey: JourneyBindable): Builder =
@@ -82,9 +87,7 @@ object BasisOfClaims {
 
       val items = isNorthernIrelandJourney match {
         case No  =>
-          claims.diff(
-            IncorrectExciseValue :: IncorrectAdditionalInformationCode :: Nil
-          )
+          claims.diff(northernIreland)
         case Yes =>
           if (hasNorthernIrelandExciseCodes) claims
           else claims.diff(IncorrectExciseValue :: Nil)

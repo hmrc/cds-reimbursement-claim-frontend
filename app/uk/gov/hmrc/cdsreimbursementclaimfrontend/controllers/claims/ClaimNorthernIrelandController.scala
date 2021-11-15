@@ -17,7 +17,6 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import play.api.data.Form
@@ -30,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => c
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -80,20 +80,30 @@ class ClaimNorthernIrelandController @Inject() (
             .bindFromRequest()
             .fold(
               formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors)),
-              answer => {
-                val updatedJourney = from(fillingOutClaim)(_.copy(whetherNorthernIrelandAnswer = Some(answer)))
+              currentAnswer => {
+                val updatedJourney = from(fillingOutClaim)(
+                  _.copy(
+                    whetherNorthernIrelandAnswer = Some(currentAnswer),
+                    basisOfClaimAnswer = (previousAnswer, currentAnswer) match {
+                      case (Some(No), Yes) | (Some(Yes), No)
+                          if fillingOutClaim.draftClaim.hasNorthernIrelandBasisOfClaim =>
+                        None
+                      case _ =>
+                        fillingOutClaim.draftClaim.basisOfClaimAnswer
+                    }
+                  )
+                )
 
                 EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                   .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not capture select number of claims"),
                     _ =>
-                      Redirect {
-                        val isAnswerChanged = previousAnswer.forall(_ =!= answer)
-                        CheckAnswers.when(fillingOutClaim.draftClaim.isComplete && !isAnswerChanged)(alternatively =
+                      Redirect(
+                        CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                           claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
                         )
-                      }
+                      )
                   )
               }
             )

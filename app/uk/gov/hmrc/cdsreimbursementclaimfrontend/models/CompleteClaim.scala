@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
+import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
@@ -27,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 
@@ -41,7 +43,7 @@ final case class CompleteClaim(
   mrnContactAddressAnswer: Option[ContactAddress],
   basisOfClaimAnswer: BasisOfClaimAnswer,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
-  supportingEvidencesAnswer: SupportingEvidencesAnswer,
+  documents: NonEmptyList[UploadDocument],
   commodityDetailsAnswer: CommodityDetailsAnswer,
   displayDeclaration: Option[DisplayDeclaration],
   duplicateDisplayDeclaration: Option[DisplayDeclaration],
@@ -49,7 +51,6 @@ final case class CompleteClaim(
   declarantEoriNumber: Option[DeclarantEoriNumberAnswer],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
-  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
@@ -81,7 +82,8 @@ final case class CompleteClaim(
 
   def multipleReimbursementsTotal: BigDecimal =
     (claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList).flatMap(_.toList))
-      .map(_.claimAmount).sum
+      .map(_.claimAmount)
+      .sum
 }
 
 object CompleteClaim {
@@ -145,10 +147,10 @@ object CompleteClaim {
                 mrn,
                 basisOfClaims,
                 declaration,
-                maybeDeclarant,
-                maybeCommodity,
-                maybeEvidences,
-                maybeClaim,
+                declarant,
+                commodity,
+                evidences,
+                claim,
                 maybeSchedule
               ) =>
             CompleteClaim(
@@ -156,21 +158,20 @@ object CompleteClaim {
               maybeTypeOfClaim.getOrElse(Individual),
               mrn,
               maybeDuplicateMovementReferenceNumberAnswer,
-              maybeDeclarant,
-              detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
+              declarant,
+              detailsRegisteredWithCds(declarant, declaration, verifiedEmail),
               maybeDraftMrnContactDetails,
               maybeDraftMrnContactAddress,
               basisOfClaims,
               maybeBankAccountDetails,
-              maybeEvidences,
-              maybeCommodity,
+              evidences ++ maybeSchedule.map(_.uploadDocument).toList,
+              commodity,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               maybeImporterEoriNumberAnswer,
               maybeDeclarantEoriNumberAnswer,
-              maybeClaim,
+              claim,
               maybeReimbursementMethodAnswer,
-              maybeSchedule,
               maybeAssociatedMRNs,
               maybeAssociatedMRNsClaimsAnswer
             )
