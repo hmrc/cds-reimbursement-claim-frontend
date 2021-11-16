@@ -24,7 +24,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import cats.data.NonEmptyList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
@@ -45,7 +44,7 @@
   @title = @{messages(s"multiple-$key.title", OrdinalNumeral(mrnIndex))}
 
   @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
-    @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
+    @options = @{dutiesToDisplay.map { duty =>
 
         CheckboxItem(
             name = Some(s"$key[]"),

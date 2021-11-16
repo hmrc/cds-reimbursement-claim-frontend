@@ -32,7 +32,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegist
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocument}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, answers}
@@ -54,7 +54,7 @@ object DraftClaimGen {
       supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
       commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
-      claimNorthernIrelandAnswer     <- arbitraryNorthernIrelandAnswer.arbitrary
+      whetherNorthernIrelandClaim    <- arbitraryYesNo.arbitrary
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimedReimbursementsAnswer    <- arbitraryClaimedReimbursementsAnswer.arbitrary
@@ -75,7 +75,7 @@ object DraftClaimGen {
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
-      claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
+      whetherNorthernIrelandAnswer = whetherNorthernIrelandClaim.some,
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = answers.ImporterEoriNumberAnswer(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumberAnswer(eori).some,

@@ -44,7 +44,7 @@ final case class DraftClaim(
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
   commoditiesDetailsAnswer: Option[CommodityDetailsAnswer] = None,
-  claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
+  whetherNorthernIrelandAnswer: Option[YesNo] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
   importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
@@ -59,8 +59,17 @@ final case class DraftClaim(
   selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
 ) {
 
+  lazy val multipleClaimsAnswer: List[(MRN, ClaimedReimbursementsAnswer)] = {
+    val mrns   = MRNs()
+    val claims = Claims()
+    mrns zip claims
+  }
+
   def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
+
+  def hasNorthernIrelandBasisOfClaim: Boolean =
+    basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
 
   object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
@@ -88,7 +97,11 @@ final case class DraftClaim(
       extends DraftClaim.LeadAndAssociatedItemList[ClaimedReimbursement](
         claimedReimbursementsAnswer,
         associatedMRNsClaimsAnswer
-      )
+      ) {
+
+    def apply(): Seq[ClaimedReimbursementsAnswer] =
+      claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList)
+  }
 
   def isComplete: Boolean = {
 

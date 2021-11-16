@@ -20,7 +20,8 @@ import cats.{Functor, Id}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.{IncorrectAdditionalInformationCode, IncorrectExciseValue}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims, ClaimNorthernIrelandAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -38,7 +39,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
       val draftC285Claim =
         sample[DraftClaim].copy(
           movementReferenceNumber = Some(sample[MRN]),
-          claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.No)
+          whetherNorthernIrelandAnswer = Some(No)
         )
 
       val codes: List[BasisOfClaimAnswer] = BasisOfClaims().excludeNorthernIrelandClaims(draftC285Claim)
@@ -65,7 +66,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         sample[DraftClaim]
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
+            whetherNorthernIrelandAnswer = Some(Yes),
             displayDeclaration = Some(acc14)
           )
 
@@ -86,7 +87,7 @@ class ExciseCodesSpec extends AnyWordSpec with Matchers {
         sample[DraftClaim]
           .copy(
             movementReferenceNumber = Some(sample[MRN]),
-            claimNorthernIrelandAnswer = Some(ClaimNorthernIrelandAnswer.Yes),
+            whetherNorthernIrelandAnswer = Some(Yes),
             displayDeclaration = Some(acc14)
           )
 

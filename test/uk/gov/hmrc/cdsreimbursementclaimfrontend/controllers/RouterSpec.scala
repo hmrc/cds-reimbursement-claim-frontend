@@ -159,12 +159,5 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
           .changeDeclarantTypeSubmit(router.journeyBindable)
       }
     }
-
-    "ClaimNorthernIreland" in {
-      forAll(allRoutes) { router =>
-        router.submitUrlForClaimNorthernIreland(true) shouldBe claimRoutes.ClaimNorthernIrelandController
-          .changeNorthernIrelandClaimSubmit(router.journeyBindable)
-      }
-    }
   }
 }

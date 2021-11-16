@@ -272,7 +272,7 @@ class CheckYourAnswersAndSubmitControllerSpec
           mockGetSession(SessionData(FillingOutClaim.from(fillingOutClaim)(_.copy(commoditiesDetailsAnswer = None))))
         }
 
-        checkIsTechnicalErrorPage(controller.checkAllAnswers(journeyBindable)(FakeRequest()))
+        checkIsTechnicalErrorPage(controller.checkAllAnswersSubmit(journeyBindable)(FakeRequest()))
 
       }
 

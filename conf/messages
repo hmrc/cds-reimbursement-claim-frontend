@@ -427,7 +427,7 @@ claim-northern-ireland.help-text=
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
 claim-northern-ireland.error.required=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
-claim-northern-ireland.invalid=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
+claim-northern-ireland.error.invalid=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
 
 claim-northern-ireland.scheduled.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
 claim-northern-ireland.multiple.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.

@@ -21,36 +21,44 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary._
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 @this(
-    layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
-    pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
-    cyaHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourAnswersHelper,
-    summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
-    submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
-    paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
-    formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+        layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
+        pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading,
+        cyaHelper: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.CheckYourAnswersHelper,
+        summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary,
+        submitButton: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.button,
+        paragraph: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block,
+        formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(completeClaim: CompleteClaim)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
+@(claim: DraftClaim)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
 
 @mrnSummary = @{
-    completeClaim.associatedMRNsAnswer.fold(completeClaim.movementReferenceNumber.summary(s"$key.reference-number")) { mrns =>
-        (completeClaim.movementReferenceNumber +: mrns.toList).summary(s"$key.reference-number")
-    }
+    def leadMrnSummary(maybeLeadMrn: Option[MRN]): SummaryList =
+        maybeLeadMrn.fold(SummaryList())(_.summary(s"$key.reference-number"))
+
+    def multipleMrnsSummary(maybeLeadMrn: Option[MRN]): AssociatedMRNsAnswer => SummaryList = mrns =>
+        (maybeLeadMrn.toList ++ mrns.toList).summary(s"$key.reference-number")
+
+    claim.associatedMRNsAnswer.fold(leadMrnSummary(claim.movementReferenceNumber))(
+        multipleMrnsSummary(claim.movementReferenceNumber)
+    )
 }
 
 @contactSummary = @{
-    (completeClaim.mrnContactDetailsAnswer, completeClaim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
+    (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer).mapN { (contactDetails, contactAddress) =>
         (contactDetails, contactAddress).summary("claimant-details")
     }
 }
@@ -62,58 +70,75 @@
     @pageHeading(messages(lang(s"$key.reference-number", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(mrnSummary)
 
-    @completeClaim.scheduledDocumentAnswer.map { scheduledDocument =>
+    @claim.scheduledDocumentAnswer.map { scheduledDocument =>
         @pageHeading(messages(s"$key.scheduled-document.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(scheduledDocument.summary(s"$key.scheduled-document"))
     }
 
-    @completeClaim.displayDeclaration.map { displayDeclaration =>
+    @claim.displayDeclaration.map { displayDeclaration =>
         @pageHeading(messages(s"$key.declaration-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(displayDeclaration.summary(s"$key.declaration-details").drop(2))
     }
 
-    @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.declarantTypeAnswer.summary(s"$key.claimant-type"))
+    @claim.declarantTypeAnswer.map { declarantType =>
+        @pageHeading(messages(s"$key.claimant-type.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(declarantType.summary(s"$key.claimant-type"))
+    }
 
-    @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.detailsRegisteredWithCdsAnswer.summary(s"$key.claimant-details"))
+    @claim.detailsRegisteredWithCdsAnswer.map { cdsDetails =>
+        @pageHeading(messages(s"$key.claimant-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(cdsDetails.summary(s"$key.claimant-details"))
+    }
 
     @contactSummary.map { details =>
         @pageHeading(messages(s"$key.contact-details.h2"), "govuk-heading-m", "h2")
         @summary(details)
     }
 
-    @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.basisOfClaimAnswer.summary(s"$key.basis"))
-
-    @completeClaim.northernIrelandAnswer.map { _ =>
-      @pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-      @summary(SummaryList(cyaHelper.makeNorthernIrelandClaimSummary(completeClaim)(messages, router.journeyBindable)))
+    @claim.basisOfClaimAnswer.map { basisOfClaim =>
+        @pageHeading(messages(s"$key.basis.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(basisOfClaim.summary(s"$key.basis"))
     }
 
-    @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.commodityDetailsAnswer.summary(s"$key.commodities-details"))
-
-    @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @if(completeClaim.typeOfClaim === TypeOfClaimAnswer.Individual || completeClaim.typeOfClaim === TypeOfClaimAnswer.Scheduled){
-        @summary(completeClaim.claimedReimbursementsAnswer.summary(s"$key.claim-calculation"))
-    }
-    @if(completeClaim.typeOfClaim === TypeOfClaimAnswer.Multiple){
-        @summary(completeClaim.multipleClaimsAnswer.summary(s"$key.claim-calculation"))
+    @claim.whetherNorthernIrelandAnswer.map { whetherNorthernIrelandClaim =>
+        @pageHeading(messages(s"$key.northern-ireland-claim.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(whetherNorthernIrelandClaim.summary(s"$key.northern-ireland-claim"))
     }
 
-    @completeClaim.reimbursementMethodAnswer.map { rma =>
+    @claim.commoditiesDetailsAnswer.map { commodity =>
+        @pageHeading(messages(s"$key.commodity-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(commodity.summary(s"$key.commodities-details"))
+    }
+
+    @claim.claimedReimbursementsAnswer.map { reimbursement =>
+        @if(claim.typeOfClaim.isEmpty ||
+            claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
+            claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
+            @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(reimbursement.summary(s"$key.claim-calculation"))
+        }
+    }
+
+    @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
+        @summary(claim.multipleClaimsAnswer.summary(s"$key.claim-calculation"))
+    }
+
+    @claim.reimbursementMethodAnswer.map { rma =>
         @pageHeading(messages(s"$key.reimbursement-method.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(rma.summary(s"$key.reimbursement-method"))
     }
 
-    @if(!completeClaim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
-        @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(cyaHelper.makeBankDetailsSummary(completeClaim)(messages, router.journeyBindable)))
+    @claim.bankAccountDetailsAnswer.map { _ =>
+        @if(!claim.reimbursementMethodAnswer.contains(CurrentMonthAdjustment)) {
+            @pageHeading(messages(s"$key.bank-details.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @summary(SummaryList(cyaHelper.makeBankDetailsSummary(claim)(messages, router.journeyBindable)))
+        }
     }
 
-    @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(completeClaim.supportingEvidencesAnswer.summary(s"$key.attached-documents"))
+    @claim.supportingEvidencesAnswer.map { evidences =>
+        @pageHeading(messages(s"$key.attached-documents.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
+        @summary(evidences.summary(s"$key.attached-documents"))
+    }
 
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))

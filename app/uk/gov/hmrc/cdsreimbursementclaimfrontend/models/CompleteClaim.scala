@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNu
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 
@@ -42,35 +43,23 @@ final case class CompleteClaim(
   mrnContactAddressAnswer: Option[ContactAddress],
   basisOfClaimAnswer: BasisOfClaimAnswer,
   bankAccountDetailsAnswer: Option[BankAccountDetails],
-  supportingEvidencesAnswer: SupportingEvidencesAnswer,
+  documents: NonEmptyList[UploadDocument],
   commodityDetailsAnswer: CommodityDetailsAnswer,
-  northernIrelandAnswer: Option[ClaimNorthernIrelandAnswer],
   displayDeclaration: Option[DisplayDeclaration],
   duplicateDisplayDeclaration: Option[DisplayDeclaration],
   importerEoriNumber: Option[ImporterEoriNumberAnswer],
   declarantEoriNumber: Option[DeclarantEoriNumberAnswer],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
   reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
-  scheduledDocumentAnswer: Option[ScheduledDocumentAnswer],
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
-
-  lazy val multipleClaimsAnswer: NonEmptyList[(MRN, ClaimedReimbursementsAnswer)] = {
-    val mrns   = associatedMRNsAnswer
-      .map(mrns => movementReferenceNumber :: mrns)
-      .getOrElse(NonEmptyList(movementReferenceNumber, Nil))
-    val claims = associatedMRNsClaimsAnswer
-      .map(claimsAnswers => claimedReimbursementsAnswer :: claimsAnswers)
-      .getOrElse(NonEmptyList(claimedReimbursementsAnswer, Nil))
-    mrns.zipWith(claims)((m, c) => (m, c))
-  }
 
   lazy val totalReimbursementAmount: BigDecimal =
     typeOfClaim match {
       case Individual => claimedReimbursementsAnswer.total
       case Scheduled  => claimedReimbursementsAnswer.total
-      case Multiple   => multipleClaimsAnswer.toList.flatMap(_._2.toList.map(_.claimAmount)).sum
+      case Multiple   => multipleReimbursementsTotal
     }
 
   lazy val bankDetails: Option[BankAccountDetails] =
@@ -90,6 +79,11 @@ final case class CompleteClaim(
 
   lazy val bankAccountType: String =
     BankAccountType.allAccountTypes.map(_.value).toString()
+
+  def multipleReimbursementsTotal: BigDecimal =
+    (claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList).flatMap(_.toList))
+      .map(_.claimAmount)
+      .sum
 }
 
 object CompleteClaim {
@@ -123,7 +117,7 @@ object CompleteClaim {
             maybeSupportingEvidences,
             _,
             maybeDraftCommodityAnswer,
-            maybeDraftNorthernIrelandAnswer,
+            _,
             maybeDisplayDeclaration,
             maybeDuplicateDisplayDeclaration,
             maybeImporterEoriNumberAnswer,
@@ -153,10 +147,10 @@ object CompleteClaim {
                 mrn,
                 basisOfClaims,
                 declaration,
-                maybeDeclarant,
-                maybeCommodity,
-                maybeEvidences,
-                maybeClaim,
+                declarant,
+                commodity,
+                evidences,
+                claim,
                 maybeSchedule
               ) =>
             CompleteClaim(
@@ -164,22 +158,20 @@ object CompleteClaim {
               maybeTypeOfClaim.getOrElse(Individual),
               mrn,
               maybeDuplicateMovementReferenceNumberAnswer,
-              maybeDeclarant,
-              detailsRegisteredWithCds(maybeDeclarant, declaration, verifiedEmail),
+              declarant,
+              detailsRegisteredWithCds(declarant, declaration, verifiedEmail),
               maybeDraftMrnContactDetails,
               maybeDraftMrnContactAddress,
               basisOfClaims,
               maybeBankAccountDetails,
-              maybeEvidences,
-              maybeCommodity,
-              maybeDraftNorthernIrelandAnswer,
+              evidences ++ maybeSchedule.map(_.uploadDocument).toList,
+              commodity,
               maybeDisplayDeclaration,
               maybeDuplicateDisplayDeclaration,
               maybeImporterEoriNumberAnswer,
               maybeDeclarantEoriNumberAnswer,
-              maybeClaim,
+              claim,
               maybeReimbursementMethodAnswer,
-              maybeSchedule,
               maybeAssociatedMRNs,
               maybeAssociatedMRNsClaimsAnswer
             )
