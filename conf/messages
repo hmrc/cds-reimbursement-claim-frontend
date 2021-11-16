@@ -427,7 +427,7 @@ claim-northern-ireland.help-text=
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
 claim-northern-ireland.error.required=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
-claim-northern-ireland.invalid=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
+claim-northern-ireland.error.invalid=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
 
 claim-northern-ireland.scheduled.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
 claim-northern-ireland.multiple.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
@@ -764,9 +764,9 @@ enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been p
 multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
 multiple-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>. HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
-multiple-enter-claim.claim-amount=How much should have been paid, in pounds?
-multiple-enter-claim.claim-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
-multiple-enter-claim.claim-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
+multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
+multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
+multiple-enter-claim.actual-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
 multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than amount paid

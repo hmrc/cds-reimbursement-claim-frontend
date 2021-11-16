@@ -27,7 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswers, ReimbursementMethodAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaims, DeclarantTypeAnswers, ReimbursementMethodAnswer, TypeOfClaimAnswer}
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
 
@@ -83,7 +83,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
           ) ++ claim.basisOfClaimAnswer.map { answer =>
             (
               messages(s"$checkYourAnswersKey.basis.l0"),
-              messages(s"$selectBasisForClaimKey.reason.d${answer.value}")
+              messages(s"$selectBasisForClaimKey.reason.d${BasisOfClaims.indexOf(answer)}")
             )
           }.toList ++ reimbursementMethodSummaries(
             claim.reimbursementMethodAnswer,

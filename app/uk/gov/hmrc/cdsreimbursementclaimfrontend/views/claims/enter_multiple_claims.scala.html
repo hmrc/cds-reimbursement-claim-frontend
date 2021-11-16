@@ -61,11 +61,11 @@
             form = form,
             id = key,
             name = key,
-            label = s"$key.claim-amount",
+            label = s"$key.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
-            hintHtml = Some(Html(messages(s"$key.claim-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))),
+            hintHtml = Some(Html(messages(s"$key.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 

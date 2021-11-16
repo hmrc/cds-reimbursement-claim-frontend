@@ -28,10 +28,10 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.CmaEligibleAndDuties
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.{IncorrectExciseValue, PersonalEffects}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A80, A85, A90, A95}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DutiesSelectedAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.{IncorrectExciseValue, PersonalEffects}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, DutiesSelectedAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -65,7 +65,7 @@ class SelectDutiesControllerSpec
     maybeDutiesSelectedAnswer: Option[DutiesSelectedAnswer],
     movementReferenceNumber: MRN,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    basisOfClaim: BasisOfClaim = PersonalEffects
+    basisOfClaim: BasisOfClaimAnswer = PersonalEffects
   ): (SessionData, FillingOutClaim) = {
     val draftC285Claim      = DraftClaim.blank.copy(
       dutiesSelectedAnswer = maybeDutiesSelectedAnswer,

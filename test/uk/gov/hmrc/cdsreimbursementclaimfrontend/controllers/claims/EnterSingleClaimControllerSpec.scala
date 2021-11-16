@@ -359,8 +359,8 @@ class EnterSingleClaimControllerSpec
         performAction(
           claimedReimbursement.id,
           Seq(
-            "enter-claim.paid-amount"  -> "sdfdf",
-            "enter-claim.claim-amount" -> "dfsfs"
+            "enter-claim.paid-amount"   -> "sdfdf",
+            "enter-claim.actual-amount" -> "dfsfs"
           )
         ),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
