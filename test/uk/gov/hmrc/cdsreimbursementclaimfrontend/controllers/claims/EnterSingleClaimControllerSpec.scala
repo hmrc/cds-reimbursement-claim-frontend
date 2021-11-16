@@ -582,19 +582,19 @@ class EnterSingleClaimControllerSpec
       }
       "Reject claimAmount too many decimal digits" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject claimAmount too many decimals" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject claimAmount too long" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject when claimAmount > paidAmount" in {
         val testForm = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("100.00"))

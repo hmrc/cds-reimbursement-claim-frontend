@@ -38,6 +38,7 @@
 
 @key = @{"enter-scheduled-claim"}
 @title = @{messages(s"$key.title", messages(s"duty-type.${dutyType.repr}"), dutyCode.value)}
+@hintText = @{Html(messages(s"$key.actual-amount.hint", messages(s"tax-code.${dutyCode.value}")))}
 
 @postAction = @{claimRoutes.EnterScheduledClaimController.submitClaim(dutyType, dutyCode)}
 
@@ -49,17 +50,15 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.p1", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body govuk-!-margin-bottom-6"))
-
-    @paragraph(Html(messages(s"$key.p2", messages(s"tax-code.${dutyCode.value}"))), Some("govuk-body govuk-!-margin-bottom-4"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @inputText(
             form = form,
-            id = s"$key.amount-paid",
-            name = s"$key.amount-paid",
-            label = s"$key.amount-paid",
+            id = s"$key.paid-amount",
+            name = s"$key.paid-amount",
+            label = s"$key.paid-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
@@ -69,13 +68,13 @@
 
         @inputText(
             form = form,
-            id = s"$key.amount-should-of-paid",
-            name = s"$key.amount-should-of-paid",
-            label = s"$key.amount-should-of-paid",
+            id = s"$key.actual-amount",
+            name = s"$key.actual-amount",
+            label = s"$key.actual-amount",
             labelClasses = Some("govuk-label govuk-label--m"),
             isPageHeading = false,
             classes = Some("govuk-input govuk-!-width-one-quarter"),
-            hint = Some(s"$key.amount-paid.hint"),
+            hintHtml = Some(hintText),
             prefix = Some(PrefixOrSuffix(content = Text(messages(s"currency"))))
         )
 

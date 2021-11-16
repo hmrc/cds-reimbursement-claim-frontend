@@ -165,8 +165,8 @@ class EnterScheduledClaimControllerSpec
             controller.submitClaim(customDuty, customDuty.taxCodes(0))(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
-                  s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+                  s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
+                  s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
                 ): _*
               )
             ),
@@ -206,8 +206,8 @@ class EnterScheduledClaimControllerSpec
           controller.submitClaim(duty, duty.taxCodes(0))(
             FakeRequest().withFormUrlEncodedBody(
               Seq(
-                s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(reimbursement.paidAmount),
-                s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(reimbursement.shouldOfPaid)
+                s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(reimbursement.paidAmount),
+                s"$enterScheduledClaimKey.actual-amount" -> formatter.format(reimbursement.shouldOfPaid)
               ): _*
             )
           ),
@@ -229,8 +229,8 @@ class EnterScheduledClaimControllerSpec
           controller.submitClaim(duty, taxCode)(
             FakeRequest().withFormUrlEncodedBody(
               Seq(
-                s"$enterScheduledClaimKey.amount-paid"           -> "",
-                s"$enterScheduledClaimKey.amount-should-of-paid" -> "bad"
+                s"$enterScheduledClaimKey.paid-amount"   -> "",
+                s"$enterScheduledClaimKey.actual-amount" -> "bad"
               ): _*
             )
           ),
@@ -242,16 +242,16 @@ class EnterScheduledClaimControllerSpec
           doc => {
             doc
               .select(".govuk-error-summary__list > li:nth-child(1) > a")
-              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.amount-paid.error.required")
+              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.paid-amount.error.required")
             doc
               .select(".govuk-error-summary__list > li:nth-child(2) > a")
-              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.amount-should-of-paid.error.invalid")
+              .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.actual-amount.error.invalid")
           },
           BAD_REQUEST
         )
       }
 
-      "should paid amount is greater or equal to paid amount" in {
+      "actual amount is greater or equal to paid amount" in {
         forAll(genDuty, genTaxCode, genBigDecimal, Gen.choose(0, 100)) { (duty, taxCode, amount, n) =>
           val (session, _) = sessionWithAnswer()
 
@@ -264,8 +264,8 @@ class EnterScheduledClaimControllerSpec
             controller.submitClaim(duty, taxCode)(
               FakeRequest().withFormUrlEncodedBody(
                 Seq(
-                  s"$enterScheduledClaimKey.amount-paid"           -> formatter.format(amount),
-                  s"$enterScheduledClaimKey.amount-should-of-paid" -> formatter.format(amount + n)
+                  s"$enterScheduledClaimKey.paid-amount"   -> formatter.format(amount),
+                  s"$enterScheduledClaimKey.actual-amount" -> formatter.format(amount + n)
                 ): _*
               )
             ),
@@ -277,7 +277,7 @@ class EnterScheduledClaimControllerSpec
             doc =>
               doc
                 .select(".govuk-error-summary__list > li:nth-child(1) > a")
-                .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.invalid.reimbursement-claim"),
+                .text() shouldBe messageFromMessageKey(s"$enterScheduledClaimKey.actual-amount.invalid.claim"),
             BAD_REQUEST
           )
         }
