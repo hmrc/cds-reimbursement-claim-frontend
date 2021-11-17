@@ -22,10 +22,12 @@ import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Scheduled
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.ScheduleOfMrnDocumentController.configKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => uploadRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
@@ -189,8 +191,11 @@ class ScheduleOfMrnDocumentController @Inject() (
   def reviewSubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case journey: FillingOutClaim =>
-        val router = extractRoutes(journey.draftClaim, JourneyBindable.Scheduled)
-        Redirect(router.nextPageForScheduleOfMrnDocument(journey.draftClaim.isComplete))
+        request
+          .routeToCheckAnswers(Scheduled)
+          .whenComplete(journey.draftClaim)(alternatively =
+            claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantType(Scheduled)
+          )
       }
     }
 

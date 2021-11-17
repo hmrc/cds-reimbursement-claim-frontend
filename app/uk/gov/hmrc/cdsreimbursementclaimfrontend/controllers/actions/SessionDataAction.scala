@@ -22,8 +22,10 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData, SignedInUserDetails, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction.NextPageBuilder
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, ReimbursementRoutes, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, JourneyStatus, SessionData, SignedInUserDetails, UserType}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,6 +56,9 @@ final case class RequestWithSessionData[A](
 
   def startNewJourney: Result =
     Redirect(baseRoutes.StartController.start())
+
+  def routeToCheckAnswers(journeyBindable: JourneyBindable): NextPageBuilder =
+    NextPageBuilder(ReimbursementRoutes(journeyBindable))
 }
 
 @Singleton
@@ -73,4 +78,16 @@ class SessionDataAction @Inject() (
   ): RequestWithSessionData[A] =
     RequestWithSessionData(sessionData, request)
 
+}
+
+object SessionDataAction {
+
+  final case class NextPageBuilder(router: ReimbursementRoutes) extends AnyVal {
+    import router._
+
+    def whenComplete(claim: DraftClaim)(alternatively: Call): Result =
+      Redirect(
+        CheckAnswers.when(claim.isComplete)(alternatively)
+      )
+  }
 }

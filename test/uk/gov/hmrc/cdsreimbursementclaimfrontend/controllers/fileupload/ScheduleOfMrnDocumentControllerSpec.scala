@@ -22,14 +22,15 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadReference, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanFailure
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails}
 
@@ -41,19 +42,16 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  private def sessionWithScheduleOfMrnDocumentState(
-    scheduledDocumentAnswer: Option[ScheduledDocumentAnswer] = None
-  ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      = DraftClaim.blank.copy(scheduledDocumentAnswer = scheduledDocumentAnswer)
+  private def sessionWithClaim(claim: DraftClaim): (SessionData, FillingOutClaim, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
     val email               = sample[Email]
     val eori                = sample[Eori]
     val signedInUserDetails = SignedInUserDetails(Some(email), eori, Email(""), ContactName(""))
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, claim)
     (
       SessionData.empty.copy(journeyStatus = Some(journey)),
       journey,
-      draftC285Claim
+      claim
     )
   }
 
@@ -64,8 +62,9 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show file upload page" when {
 
         "number of uploads has not exceeded limit" in {
+          val (session, _, _) = sessionWithClaim(DraftClaim.blank)
+
           val uploadReference = sample[UploadReference]
-          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
           val upscanUpload    = genUpscanUpload(uploadReference)
 
           inSequence {
@@ -87,7 +86,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show the file upload failed page" when {
 
         "uploaded file size exceeds threshold" in {
-          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
+          val (session, _, _) = sessionWithClaim(DraftClaim.blank)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -108,11 +107,10 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
 
       "show review page" when {
         "document is uploaded" in {
-          val uploadDocument = sample[UploadDocument]
+          val scheduledDocument = sample[ScheduledDocumentAnswer]
 
-          val answer = ScheduledDocumentAnswer(uploadDocument)
-
-          val (session, _, _) = sessionWithScheduleOfMrnDocumentState(answer.some)
+          val (session, _, _) =
+            sessionWithClaim(DraftClaim.blank.copy(scheduledDocumentAnswer = scheduledDocument.some))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -127,12 +125,11 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       }
 
       "redirect to Select Who Is Making Claim page" when {
-        "no document is being amended" in {
-          val uploadDocument = sample[UploadDocument]
+        "journey is incomplete" in {
+          val scheduledDocument = sample[ScheduledDocumentAnswer]
 
-          val answer = ScheduledDocumentAnswer(uploadDocument)
-
-          val (session, _, _) = sessionWithScheduleOfMrnDocumentState(answer.some)
+          val (session, _, _) =
+            sessionWithClaim(DraftClaim.blank.copy(scheduledDocumentAnswer = scheduledDocument.some))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -146,14 +143,32 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
         }
       }
 
+      "redirect to Check Your Answers page" when {
+        "journey is complete" in {
+          val claim = sample(genValidDraftClaim(TypeOfClaimAnswer.Scheduled))
+
+          val (session, _, _) = sessionWithClaim(claim)
+
+          inSequence {
+            mockAuthWithNoRetrievals()
+            mockGetSession(session)
+          }
+
+          checkIsRedirect(
+            controller.reviewSubmit()(FakeRequest()),
+            claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Scheduled)
+          )
+        }
+      }
+
       "handling requests to delete schedule document" must {
         "redirect to upload scheduled document page" when {
           "removing stored evidence" in {
-            val uploadDocument = sample[UploadDocument]
+            val scheduledDocument = sample[ScheduledDocumentAnswer]
 
-            val answer = ScheduledDocumentAnswer(uploadDocument)
+            val draftClaim = DraftClaim.blank.copy(scheduledDocumentAnswer = scheduledDocument.some)
 
-            val (session, journey, draftClaim) = sessionWithScheduleOfMrnDocumentState(answer.some)
+            val (session, journey, _) = sessionWithClaim(draftClaim)
 
             val updatedDraftReturn = draftClaim.copy(scheduledDocumentAnswer = None)
             val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
@@ -178,7 +193,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
       "show file format or infected file error page" when {
 
         "an upscan failure call back is received" in {
-          val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
+          val (session, _, _) = sessionWithClaim(DraftClaim.blank)
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -206,7 +221,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             upscanCallBack = Some(upscanFailure)
           )
 
-        val (session, _, _) = sessionWithScheduleOfMrnDocumentState()
+        val (session, _, _) = sessionWithClaim(DraftClaim.blank)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -219,7 +234,6 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
           routes.ScheduleOfMrnDocumentController.handleFormatOrVirusCheckErrorCallback()
         )
       }
-
     }
   }
 }

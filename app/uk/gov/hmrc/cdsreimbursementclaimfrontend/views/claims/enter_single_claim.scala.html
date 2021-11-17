@@ -41,7 +41,7 @@
 
 @key = @{"enter-claim"}
 @title = @{messages(s"$key.title", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}"))}
-@hintText = @{Html(messages(s"$key.claim-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
+@hintText = @{Html(messages(s"$key.actual-amount.hint", reimbursement.taxCode, messages(s"select-duties.duty.${reimbursement.taxCode}")))}
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
 @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
@@ -60,7 +60,7 @@
             form = form,
             id = key,
             name = key,
-            label = s"$key.claim-amount",
+            label = s"$key.actual-amount",
             isPageHeading = false,
             classes = Some("govuk-input govuk-input--width-5"),
             hintHtml = Some(hintText),

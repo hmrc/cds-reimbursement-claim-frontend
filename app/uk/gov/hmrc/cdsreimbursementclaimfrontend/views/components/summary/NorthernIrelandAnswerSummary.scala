@@ -17,30 +17,28 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.govukfrontend.views.Aliases.{ActionItem, Key, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryList, SummaryListRow, Value}
 
-class BasisOfClaimSummary extends AnswerSummary[BasisOfClaimAnswer] {
+class NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
 
-  def render(key: String, answer: BasisOfClaimAnswer)(implicit
-    router: ReimbursementRoutes,
-    messages: Messages
-  ): SummaryList =
+  def render(key: String, answer: YesNo)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
-          key = Key(Text(messages(s"$key.l0"))),
-          value = Value(Text(messages(s"select-basis-for-claim.reason.d${BasisOfClaims.indexOf(answer)}"))),
+          key = Key(Text(messages(s"$key.label"))),
+          value = Value(Text(answer.toString)),
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
-                  href = routes.SelectBasisForClaimController.selectBasisForClaim(router.journeyBindable).url,
+                  href =
+                    s"${routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.l0"))
+                  visuallyHiddenText = Some(messages(s"$key.label"))
                 )
               )
             )

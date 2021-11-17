@@ -24,7 +24,6 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Duty
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 @import cats.data.NonEmptyList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.OrdinalNumeral
@@ -39,20 +38,18 @@
  checkboxes: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.input_checkboxes
 )
 
-@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], cmaEligibleList: Seq[Boolean], mrnIndex: Int, mrn: MRN)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
+@(form : Form[DutiesSelectedAnswer], dutiesToDisplay : NonEmptyList[Duty], mrnIndex: Int, mrn: MRN)(implicit  request: RequestWithSessionData[_], messages:Messages, viewConfig: ViewConfig)
 
   @key = @{"select-duties"}
   @title = @{messages(s"multiple-$key.title", OrdinalNumeral(mrnIndex))}
 
   @postAction = @{routes.SelectMultipleDutiesController.selectDutiesSubmit(mrnIndex)}
-    @options = @{dutiesToDisplay.zipWithIndex.map { case (duty: Duty, index: Int) =>
+    @options = @{dutiesToDisplay.map { duty =>
 
-        val isCmaEligible: Boolean = cmaEligibleList.nonEmpty && cmaEligibleList(index)
         CheckboxItem(
             name = Some(s"$key[]"),
             value = duty.taxCode.value,
             content = Text(duty.taxCode.value + " - " + messages(s"$key.duty.${duty.taxCode.value}")),
-            hint = if(isCmaEligible) None else Some(Hint(content = Text(messages(s"$key.duty.hint")))),
             checked = form.data.exists(_._2 == duty.taxCode.value)
         )
     }}

@@ -20,14 +20,14 @@ import cats.data.NonEmptyList
 import org.scalacheck.magnolia._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.OptionValues
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ScheduledDocumentAnswer, SupportingEvidencesAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UploadDetails, UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 
 object UpscanGen extends OptionValues {
 
   def arbitrarySupportingEvidencesAnswerOfN(n: Int): Typeclass[Option[SupportingEvidencesAnswer]] =
-    Arbitrary(Gen.listOfN(n, arbitrarySupportingEvidence.arbitrary).map(NonEmptyList.fromList))
+    Arbitrary(Gen.listOfN(n, arbitraryUploadDocument.arbitrary).map(NonEmptyList.fromList))
 
   lazy val genEvidenceDocumentType: Gen[UploadDocumentType] =
     Gen.oneOf(UploadDocumentType.getListOfEvidenceTypes)
@@ -57,7 +57,7 @@ object UpscanGen extends OptionValues {
   implicit lazy val arbitrarySupportingEvidencesAnswerOpt: Typeclass[Option[SupportingEvidencesAnswer]] =
     Arbitrary(Gen.option(arbitrarySupportingEvidenceAnswer.arbitrary))
 
-  implicit lazy val arbitrarySupportingEvidence: Typeclass[UploadDocument] = Arbitrary {
+  implicit lazy val arbitraryUploadDocument: Typeclass[UploadDocument] = Arbitrary {
     for {
       uploadReference  <- gen[UploadReference].arbitrary
       upscanUploadMeta <- arbitraryUpscanUploadMeta.arbitrary
@@ -75,4 +75,12 @@ object UpscanGen extends OptionValues {
       documentType = Some(documentType)
     )
   }
+
+  lazy val genScheduledDocument: Gen[ScheduledDocumentAnswer] =
+    arbitraryUploadDocument.arbitrary.map(doc =>
+      ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs)))
+    )
+
+  implicit lazy val arbitraryScheduledDocumentAnswer: Typeclass[ScheduledDocumentAnswer] =
+    Arbitrary(genScheduledDocument)
 }

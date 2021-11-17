@@ -29,6 +29,7 @@ package object summary {
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
   implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
   implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
+  implicit val northernIrelandAnswerSummary: NorthernIrelandAnswerSummary         = new NorthernIrelandAnswerSummary
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
   implicit val reimbursementsSummary: DutyAndTaxCodeReimbursementSummary          = new DutyAndTaxCodeReimbursementSummary
   implicit val claimedReimbursementsSummary: ClaimedReimbursementsAnswerSummary   = new ClaimedReimbursementsAnswerSummary

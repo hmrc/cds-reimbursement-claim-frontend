@@ -34,7 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfClaim.IncorrectExciseValue
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, Error, TaxCode, TaxCodes, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
@@ -72,9 +72,9 @@ class SelectMultipleDutiesController @Inject() (
         journey.draftClaim.MRNs
           .get(mrnIndex - 1)
           .fold(BadRequest(mrnDoesNotExistPage())) { mrn =>
-            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey, mrnIndex)
+            val dutiesAvailableMap: DutiesAvailable = getAvailableDuties(journey, mrnIndex)
 
-            cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
+            dutiesAvailableMap.dutiesSelectedAnswer.fold(
               error => {
                 logger.warn("No Available duties: ", error)
                 Redirect(baseRoutes.IneligibleController.ineligible())
@@ -95,7 +95,6 @@ class SelectMultipleDutiesController @Inject() (
                   selectMultipleDutiesPage(
                     filledForm,
                     dutiesAvailable,
-                    cmaEligibleDutiesMap.isCmaEligible,
                     mrnIndex,
                     mrn
                   )
@@ -113,9 +112,9 @@ class SelectMultipleDutiesController @Inject() (
         journey.draftClaim.MRNs
           .get(mrnIndex - 1)
           .fold(Future.successful(BadRequest(mrnDoesNotExistPage()))) { mrn =>
-            val cmaEligibleDutiesMap: CmaEligibleAndDuties = getAvailableDuties(journey, mrnIndex)
+            val dutiesAvailableMap: DutiesAvailable = getAvailableDuties(journey, mrnIndex)
 
-            cmaEligibleDutiesMap.dutiesSelectedAnswer.fold(
+            dutiesAvailableMap.dutiesSelectedAnswer.fold(
               error => {
                 logger.warn("No Available duties: ", error)
                 Future.successful(Redirect(baseRoutes.IneligibleController.ineligible()))
@@ -130,7 +129,6 @@ class SelectMultipleDutiesController @Inject() (
                           selectMultipleDutiesPage(
                             formWithErrors,
                             dutiesAvailable,
-                            cmaEligibleDutiesMap.isCmaEligible,
                             mrnIndex,
                             mrn
                           )
@@ -201,12 +199,11 @@ object SelectMultipleDutiesController {
         routes.SelectMultipleDutiesController.selectDuties(mrnIndex)
       )
 
-  final case class CmaEligibleAndDuties(
-    isCmaEligible: Seq[Boolean],
+  final case class DutiesAvailable(
     dutiesSelectedAnswer: Either[Error, DutiesSelectedAnswer]
   )
 
-  def getAvailableDuties(fillingOutClaim: FillingOutClaim, mrnIndex: Int): CmaEligibleAndDuties = {
+  def getAvailableDuties(fillingOutClaim: FillingOutClaim, mrnIndex: Int): DutiesAvailable = {
 
     val displayDeclaration: Option[DisplayDeclaration] = mrnIndex match {
       case 1          => fillingOutClaim.draftClaim.displayDeclaration
@@ -225,19 +222,13 @@ object SelectMultipleDutiesController {
       .map(_.map(n => TaxCodes.find(n.taxType)).flatten(Option.option2Iterable))
       .getOrElse(Nil)
 
-    val isCmaEligible = ndrcDetails
-      .getOrElse(Nil)
-      .map(_.cmaEligible.getOrElse("0") === "1")
-
     if (wasIncorrectExciseCodeSelected) {
       val receivedExciseCodes = acc14TaxCodes.intersect(TaxCodes.excise).map(Duty(_))
-      CmaEligibleAndDuties(
-        isCmaEligible,
+      DutiesAvailable(
         DutiesSelectedAnswer(receivedExciseCodes).toRight(Error("No excise tax codes were received from Acc14"))
       )
     } else {
-      CmaEligibleAndDuties(
-        isCmaEligible,
+      DutiesAvailable(
         DutiesSelectedAnswer(acc14TaxCodes.map(Duty(_)))
           .toRight(Error("No UK or EU tax codes were received from Acc14"))
       )

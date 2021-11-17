@@ -40,11 +40,11 @@ final case class DraftClaim(
   mrnContactAddressAnswer: Option[ContactAddress] = None,
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
   bankAccountTypeAnswer: Option[BankAccountType] = None,
-  basisOfClaimAnswer: Option[BasisOfClaim] = None,
+  basisOfClaimAnswer: Option[BasisOfClaimAnswer] = None,
   supportingEvidencesAnswer: Option[SupportingEvidencesAnswer] = None,
   dutiesSelectedAnswer: Option[DutiesSelectedAnswer] = None,
   commoditiesDetailsAnswer: Option[CommodityDetailsAnswer] = None,
-  claimNorthernIrelandAnswer: Option[ClaimNorthernIrelandAnswer] = None,
+  whetherNorthernIrelandAnswer: Option[YesNo] = None,
   displayDeclaration: Option[DisplayDeclaration] = None,
   duplicateDisplayDeclaration: Option[DisplayDeclaration] = None,
   importerEoriNumberAnswer: Option[ImporterEoriNumberAnswer] = None,
@@ -59,8 +59,17 @@ final case class DraftClaim(
   selectedDutyTaxCodesReimbursementAnswer: Option[SelectedDutyTaxCodesReimbursementAnswer] = None
 ) {
 
+  lazy val multipleClaimsAnswer: List[(MRN, ClaimedReimbursementsAnswer)] = {
+    val mrns   = MRNs()
+    val claims = Claims()
+    mrns zip claims
+  }
+
   def isMandatoryContactDataAvailable: Boolean =
     (mrnContactAddressAnswer *> mrnContactDetailsAnswer).isDefined
+
+  def hasNorthernIrelandBasisOfClaim: Boolean =
+    basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
 
   object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
@@ -88,7 +97,11 @@ final case class DraftClaim(
       extends DraftClaim.LeadAndAssociatedItemList[ClaimedReimbursement](
         claimedReimbursementsAnswer,
         associatedMRNsClaimsAnswer
-      )
+      ) {
+
+    def apply(): Seq[ClaimedReimbursementsAnswer] =
+      claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList)
+  }
 
   def isComplete: Boolean = {
 
@@ -96,6 +109,7 @@ final case class DraftClaim(
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
         MRN.validator.validate(movementReferenceNumber).isValid
@@ -103,6 +117,7 @@ final case class DraftClaim(
     def isMultipleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         AssociatedMRNsClaimsAnswer.validator.validate(associatedMRNsClaimsAnswer).isValid &&
         AssociatedMRNsAnswer.validator.validate(associatedMRNsAnswer).isValid &&
@@ -113,6 +128,7 @@ final case class DraftClaim(
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
+        BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         ScheduledDocumentAnswer.validator.validate(scheduledDocumentAnswer).isValid &&
         DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
         DisplayDeclaration.validator.validate(displayDeclaration).isValid &&
@@ -164,6 +180,5 @@ object DraftClaim {
 
     def get(index: Int): Option[List[A]] =
       list.get(index.toLong)
-
   }
 }

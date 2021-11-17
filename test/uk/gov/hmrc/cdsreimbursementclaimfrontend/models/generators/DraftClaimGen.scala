@@ -17,11 +17,12 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
-import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
+import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.genBasisOfClaimAnswerOpt
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDetailsGen.arbitraryCompleteCommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
@@ -30,12 +31,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.NorthernIrelandAnswerGen.arbitraryNorthernIrelandAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadDocument, UploadDocumentType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocument}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, answers}
 
 import java.util.UUID
@@ -51,11 +50,11 @@ object DraftClaimGen {
       maybeContactAddressAnswer      <- genContactAddressOpt
       bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
       bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
-      maybeBasisOfClaimAnswer        <- genBasisOfClaimAnswerOpt
+      basisOfClaimAnswer             <- arbitraryBasisOfClaimAnswer.arbitrary
       supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
       dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
       commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
-      claimNorthernIrelandAnswer     <- arbitraryNorthernIrelandAnswer.arbitrary
+      whetherNorthernIrelandClaim    <- arbitraryYesNo.arbitrary
       displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
       eori                           <- arbitraryEori.arbitrary
       claimedReimbursementsAnswer    <- arbitraryClaimedReimbursementsAnswer.arbitrary
@@ -72,11 +71,11 @@ object DraftClaimGen {
       mrnContactAddressAnswer = maybeContactAddressAnswer,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,
       bankAccountTypeAnswer = bankAccountTypeAnswer.some,
-      basisOfClaimAnswer = maybeBasisOfClaimAnswer,
+      basisOfClaimAnswer = basisOfClaimAnswer.some,
       supportingEvidencesAnswer = supportingEvidencesAnswer.some,
       dutiesSelectedAnswer = dutiesSelectedAnswer.some,
       commoditiesDetailsAnswer = commoditiesDetailsAnswer.some,
-      claimNorthernIrelandAnswer = claimNorthernIrelandAnswer.some,
+      whetherNorthernIrelandAnswer = whetherNorthernIrelandClaim.some,
       displayDeclaration = displayDeclaration.some,
       importerEoriNumberAnswer = answers.ImporterEoriNumberAnswer(eori).some,
       declarantEoriNumberAnswer = DeclarantEoriNumberAnswer(eori).some,
@@ -98,9 +97,7 @@ object DraftClaimGen {
 
   def genScheduledDocumentAnswer(answer: TypeOfClaimAnswer): Gen[Option[ScheduledDocumentAnswer]] =
     if (answer === TypeOfClaimAnswer.Scheduled)
-      gen[UploadDocument].arbitrary.map { doc =>
-        Some(ScheduledDocumentAnswer(doc.copy(documentType = Some(UploadDocumentType.ScheduleOfMRNs))))
-      }
+      genScheduledDocument.map(Some(_))
     else None
 
   def genAssociatedMrnsAnswer(answer: TypeOfClaimAnswer): Gen[Option[AssociatedMRNsAnswer]] =

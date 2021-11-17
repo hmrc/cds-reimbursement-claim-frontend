@@ -17,19 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.data.EitherT
-import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import com.google.inject.Inject
 import play.api.data.Form
-import play.api.data.Forms.{mapping, number}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimNorthernIrelandAnswer._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.whetherNorthernIrelandClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim.from
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -46,7 +46,7 @@ class ClaimNorthernIrelandController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   val featureSwitch: FeatureSwitchService,
-  claimNorthernIrelandPage: claim_northern_ireland
+  northernIrelandAnswerPage: claim_northern_ireland
 )(implicit
   viewConfig: ViewConfig,
   ec: ExecutionContext,
@@ -58,51 +58,51 @@ class ClaimNorthernIrelandController @Inject() (
     with SessionDataExtractor
     with Logging {
 
-  implicit val dataExtractor: DraftClaim => Option[ClaimNorthernIrelandAnswer] = _.claimNorthernIrelandAnswer
+  implicit val dataExtractor: DraftClaim => Option[YesNo] = _.whetherNorthernIrelandAnswer
 
-  def selectNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
-  def changeNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
-
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectWhetherNorthernIrelandClaim(implicit journey: JourneyBindable): Action[AnyContent] =
     (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
       implicit request =>
-        withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (_, answers, router) =>
-          val emptyForm  = ClaimNorthernIrelandController.claimNorthernIrelandForm
-          val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-          Ok(claimNorthernIrelandPage(filledForm, router, isAmend))
+        withAnswers[YesNo] { (_, answer) =>
+          val emptyForm  = whetherNorthernIrelandClaim
+          val filledForm = answer.fold(emptyForm)(emptyForm.fill)
+          Ok(northernIrelandAnswerPage(filledForm))
         }
     }
 
-  def selectNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)
-  def changeNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = true)
-
-  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectWhetherNorthernIrelandClaimSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     (featureSwitch.NorthernIreland.hideIfNotEnabled andThen authenticatedActionWithSessionData).async {
       implicit request =>
-        withAnswersAndRoutes[ClaimNorthernIrelandAnswer] { (fillingOutClaim, _, router) =>
-          ClaimNorthernIrelandController.claimNorthernIrelandForm
+        withAnswersAndRoutes[YesNo] { (fillingOutClaim, previousAnswer, routes) =>
+          import routes._
+
+          whetherNorthernIrelandClaim
             .bindFromRequest()
             .fold(
-              formWithErrors =>
-                BadRequest(
-                  claimNorthernIrelandPage(
-                    formWithErrors,
-                    router,
-                    isAmend
+              formWithErrors => BadRequest(northernIrelandAnswerPage(formWithErrors)),
+              currentAnswer => {
+                val updatedJourney = from(fillingOutClaim)(
+                  _.copy(
+                    whetherNorthernIrelandAnswer = Some(currentAnswer),
+                    basisOfClaimAnswer = (previousAnswer, currentAnswer) match {
+                      case (Some(No), Yes)                                                              => None
+                      case (Some(Yes), No) if fillingOutClaim.draftClaim.hasNorthernIrelandBasisOfClaim => None
+                      case _                                                                            =>
+                        fillingOutClaim.draftClaim.basisOfClaimAnswer
+                    }
                   )
-                ),
-              formOk => {
-
-                val newNiAnswer    = fillingOutClaim.draftClaim.claimNorthernIrelandAnswer
-                val answerChanged  = newNiAnswer.forall(n => n.value =!= formOk.value)
-                val updatedJourney =
-                  FillingOutClaim.from(fillingOutClaim)(_.copy(claimNorthernIrelandAnswer = Some(formOk)))
+                )
 
                 EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                   .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not capture select number of claims"),
-                    _ => Redirect(router.nextPageForForClaimNorthernIreland(isAmend, answerChanged))
+                    _ =>
+                      Redirect(
+                        CheckAnswers.when(updatedJourney.draftClaim.isComplete)(alternatively =
+                          claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
+                        )
+                      )
                   )
               }
             )
@@ -114,13 +114,5 @@ object ClaimNorthernIrelandController {
 
   val dataKey: String = "claim-northern-ireland"
 
-  val claimNorthernIrelandForm: Form[ClaimNorthernIrelandAnswer] =
-    Form(
-      mapping(
-        dataKey -> number
-          .verifying("invalid", a => allClaimsTypes.map(_.value).contains(a))
-          .transform[ClaimNorthernIrelandAnswer](allClaimsIntToType, allClaimsTypeToInt)
-      )(identity)(Some(_))
-    )
-
+  val whetherNorthernIrelandClaim: Form[YesNo] = YesOrNoQuestionForm(dataKey)
 }

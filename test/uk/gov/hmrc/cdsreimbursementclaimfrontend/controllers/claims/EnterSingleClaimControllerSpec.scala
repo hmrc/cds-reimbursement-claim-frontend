@@ -28,9 +28,10 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, DutiesSelectedAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{ClaimedReimbursementsAnswer, DutiesSelectedAnswer, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, NdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{moneyGen, sample}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -40,16 +41,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, SessionData, Sign
 
 import java.util.UUID
 import org.scalacheck.Gen
+import org.scalatest.OptionValues
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{genListNdrcDetails, genNdrcDetails}
 
 import scala.concurrent.Future
 import scala.util.Random
 
-@SuppressWarnings(Array("org.wartremover.warts.TraversableOps", "org.wartremover.warts.OptionPartial"))
 class EnterSingleClaimControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with OptionValues
     with ScalaCheckDrivenPropertyChecks {
 
   lazy val controller: EnterSingleClaimController      = instanceOf[EnterSingleClaimController]
@@ -357,8 +359,8 @@ class EnterSingleClaimControllerSpec
         performAction(
           claimedReimbursement.id,
           Seq(
-            "enter-claim.paid-amount"  -> "sdfdf",
-            "enter-claim.claim-amount" -> "dfsfs"
+            "enter-claim.paid-amount"   -> "sdfdf",
+            "enter-claim.actual-amount" -> "dfsfs"
           )
         ),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Customs Duty"),
@@ -496,6 +498,30 @@ class EnterSingleClaimControllerSpec
         routes.SelectDutiesController.selectDuties()
       )
     }
+
+    "Redirect to Check Your Answers page" in {
+      val session = SessionData.empty.copy(
+        journeyStatus = Some(
+          FillingOutClaim(
+            sample[GGCredId],
+            sample[SignedInUserDetails],
+            sample(genValidDraftClaim(TypeOfClaimAnswer.Individual))
+          )
+        )
+      )
+
+      inSequence {
+        mockAuthWithNoRetrievals()
+        mockGetSession(session)
+      }
+
+      val result = performAction(Seq(EnterSingleClaimController.checkClaimSummaryKey -> "true"))
+
+      checkIsRedirect(
+        result,
+        routes.CheckYourAnswersAndSubmitController.checkAllAnswers(JourneyBindable.Single)
+      )
+    }
   }
 
   "generateClaimsFromDuties" must {
@@ -556,19 +582,19 @@ class EnterSingleClaimControllerSpec
       }
       "Reject claimAmount too many decimal digits" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(0, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject claimAmount too many decimals" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(1, 3))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject claimAmount too long" in {
         val errors = form.bind(goodData.updated(claimAmount, moneyGen(12, 2))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject negative numbers" in {
         val errors = form.bind(goodData.updated(claimAmount, "-1")).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("claim-amount.error.invalid")
+        errors.headOption.getOrElse(fail()).messages shouldBe List("actual-amount.error.invalid")
       }
       "Reject when claimAmount > paidAmount" in {
         val testForm = EnterSingleClaimController.mrnClaimAmountForm(BigDecimal("100.00"))
@@ -585,7 +611,9 @@ class EnterSingleClaimControllerSpec
       val claim      = generateDraftC285Claim(
         None,
         ndrcDetails = Some(ndrcDetail),
-        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+        maybeDutiesSelectedAnswer = ndrcDetail.headOption
+          .map(details => Duty(TaxCode(details.taxType)))
+          .flatMap(duty => DutiesSelectedAnswer(duty :: Nil))
       )
       EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
@@ -595,7 +623,9 @@ class EnterSingleClaimControllerSpec
       val claim      = generateDraftC285Claim(
         None,
         ndrcDetails = Some(ndrcDetail),
-        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+        maybeDutiesSelectedAnswer = ndrcDetail.headOption
+          .map(details => Duty(TaxCode(details.taxType)))
+          .flatMap(duty => DutiesSelectedAnswer(duty :: Nil))
       )
       EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
@@ -605,7 +635,9 @@ class EnterSingleClaimControllerSpec
       val claim      = generateDraftC285Claim(
         None,
         ndrcDetails = Some(ndrcDetail),
-        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(Duty(TaxCode(ndrcDetail.head.taxType))))
+        maybeDutiesSelectedAnswer = ndrcDetail.headOption
+          .map(details => Duty(TaxCode(details.taxType)))
+          .flatMap(duty => DutiesSelectedAnswer(duty :: Nil))
       )
       println(ndrcDetail)
       EnterSingleClaimController.isCmaEligible(claim) shouldBe false
@@ -618,7 +650,7 @@ class EnterSingleClaimControllerSpec
       val claim                          = generateDraftC285Claim(
         None,
         ndrcDetails = Some(ndrcDetails),
-        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
+        maybeDutiesSelectedAnswer = DutiesSelectedAnswer(selectedDuties)
       )
       EnterSingleClaimController.isCmaEligible(claim) shouldBe true
     }
@@ -629,7 +661,7 @@ class EnterSingleClaimControllerSpec
           _.map(_.copy(cmaEligible = Some("1")))
         )
         .getOrElse(Nil)
-      val ineligible                            = Gen.pick(1, initialNdrcDetails.map(_.taxType)).sample.get.head
+      val ineligible                            = sample(Gen.pick(1, initialNdrcDetails.map(_.taxType))).headOption.value
       val ndrcDetails                           = initialNdrcDetails.map {
         case detail if detail.taxType == ineligible => detail.copy(cmaEligible = Some("0"))
         case detail                                 => detail
@@ -638,7 +670,7 @@ class EnterSingleClaimControllerSpec
       val claim                                 = generateDraftC285Claim(
         None,
         ndrcDetails = Some(ndrcDetails),
-        maybeDutiesSelectedAnswer = Some(DutiesSelectedAnswer(selectedDuties).get)
+        maybeDutiesSelectedAnswer = DutiesSelectedAnswer(selectedDuties)
       )
       EnterSingleClaimController.isCmaEligible(claim) shouldBe false
     }
