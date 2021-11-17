@@ -769,7 +769,7 @@ multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should 
 multiple-enter-claim.actual-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
-multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than amount paid
+multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
