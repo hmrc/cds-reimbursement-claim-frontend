@@ -42,9 +42,6 @@ GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.
 GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)
 POST        /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journey: JourneyBindable)
 
-GET         /:journey/change-who-is-the-declarant                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantType(journey: JourneyBindable)
-POST        /:journey/change-who-is-the-declarant                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit(journey: JourneyBindable)
-
 GET         /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
 POST        /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
 

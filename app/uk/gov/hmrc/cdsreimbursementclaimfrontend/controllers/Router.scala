@@ -31,6 +31,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
+  def submitUrlForWhoIsMakingTheClaim(): Call =
+    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
+
   def submitUrlForCheckDeclarationDetails(): Call =
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
@@ -47,12 +50,6 @@ trait SubmitRoutes extends Product with Serializable {
     isAmend match {
       case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
       case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
-    }
-
-  def submitUrlForWhoIsMakingTheClaim(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.SelectWhoIsMakingTheClaimController.changeDeclarantTypeSubmit(journeyBindable)
-      case false => claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
     }
 
   def submitPageForClaimantDetails(isChange: Boolean): Call = {
@@ -85,7 +82,7 @@ trait JourneyTypeRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
   object CheckAnswers {
-    def when(flag: Boolean)(alternatively: Call): Call =
+    def when(flag: Boolean)(alternatively: => Call): Call =
       if (flag) claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable) else alternatively
   }
 
@@ -125,15 +122,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
           claimRoutes.SelectDutiesController.selectDuties()
         }
     }
-
-  def nextPageForWhoIsMakingTheClaim(
-    isAmend: Boolean,
-    mandatoryDataAvailable: Boolean
-  ): Call =
-    if (isAmend)
-      claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-    else if (mandatoryDataAvailable) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
-    else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
 
   def nextPageForAddClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService): Call =
     answer match {

@@ -20,7 +20,6 @@ import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import org.scalacheck.magnolia._
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AssociatedMRNsAnswerGen.arbitraryAssociatedMRNsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen.arbitraryClaimedReimbursementsAnswer
@@ -32,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegist
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocument}
@@ -61,6 +61,7 @@ object DraftClaimGen {
       reimbursementMethodAnswer      <- arbitraryReimbursementMethodAnswer.arbitrary
       scheduledDocumentAnswer        <- genScheduledDocumentAnswer(typeOfClaim)
       associatedMRNsAnswer           <- genAssociatedMrnsAnswer(typeOfClaim)
+      associatedMRNsClaimsAnswer     <- genAssociatedMRNsClaimsAnswer(typeOfClaim)
     } yield DraftClaim(
       id = UUID.randomUUID(),
       typeOfClaim = typeOfClaim.some,
@@ -85,7 +86,8 @@ object DraftClaimGen {
           reimbursementMethodAnswer
         else None,
       scheduledDocumentAnswer = scheduledDocumentAnswer,
-      associatedMRNsAnswer = associatedMRNsAnswer
+      associatedMRNsAnswer = associatedMRNsAnswer,
+      associatedMRNsClaimsAnswer = associatedMRNsClaimsAnswer
     )
 
   implicit lazy val arbitraryDraftC285Claim: Typeclass[DraftClaim] = Arbitrary {
@@ -101,7 +103,12 @@ object DraftClaimGen {
     else None
 
   def genAssociatedMrnsAnswer(answer: TypeOfClaimAnswer): Gen[Option[AssociatedMRNsAnswer]] =
-    if (answer === TypeOfClaimAnswer.Multiple) {
+    if (answer === TypeOfClaimAnswer.Multiple)
       arbitraryAssociatedMRNsAnswer.arbitrary.map(_.some)
-    } else None
+    else None
+
+  def genAssociatedMRNsClaimsAnswer(answer: TypeOfClaimAnswer): Gen[Option[AssociatedMRNsClaimsAnswer]] =
+    if (answer === TypeOfClaimAnswer.Multiple)
+      arbitraryAssociatedMRNsClaimsAnswer.arbitrary.map(_.some)
+    else None
 }

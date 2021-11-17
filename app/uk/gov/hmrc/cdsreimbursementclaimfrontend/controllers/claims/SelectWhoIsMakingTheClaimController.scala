@@ -24,6 +24,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
@@ -51,30 +53,26 @@ class SelectWhoIsMakingTheClaimController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[DeclarantTypeAnswer] = _.declarantTypeAnswer
 
-  def selectDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = false)
-  def changeDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
-
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DeclarantTypeAnswer] { (_, answers, router) =>
-        val emptyForm  = SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
+        val emptyForm  = chooseDeclarantTypeForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-        Ok(selectWhoIsMakingTheClaimPage(filledForm, isAmend, router))
+        Ok(selectWhoIsMakingTheClaimPage(filledForm, router))
       }
     }
 
-  def selectDeclarantTypeSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = false)
-  def changeDeclarantTypeSubmit(implicit journey: JourneyBindable): Action[AnyContent] = submit(isAmend = true)
-
-  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def selectDeclarantTypeSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DeclarantTypeAnswer] { (fillingOutClaim, _, router) =>
-        SelectWhoIsMakingTheClaimController.chooseDeclarantTypeForm
+        import router._
+
+        chooseDeclarantTypeForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, isAmend, router)),
-            formOk => {
-              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Option(formOk)))
+            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, router)),
+            answer => {
+              val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(answer)))
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("Could not save Declarant Type"))
@@ -82,18 +80,17 @@ class SelectWhoIsMakingTheClaimController @Inject() (
                   logAndDisplayError("Submit Declarant Type error: "),
                   _ =>
                     Redirect(
-                      router.nextPageForWhoIsMakingTheClaim(
-                        isAmend,
-                        fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
+                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                        if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
+                          claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
+                        else claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
                       )
                     )
                 )
             }
           )
       }
-
     }
-
 }
 
 object SelectWhoIsMakingTheClaimController {
@@ -105,10 +102,7 @@ object SelectWhoIsMakingTheClaimController {
       mapping(
         whoIsMakingTheClaimKey -> number
           .verifying("invalid", a => a >= 0 && a < DeclarantTypeAnswers.size)
-          .transform[DeclarantTypeAnswer](
-            index => DeclarantTypeAnswers(index),
-            importer => DeclarantTypeAnswers.indexOf(importer)
-          )
+          .transform[DeclarantTypeAnswer](DeclarantTypeAnswers(_), DeclarantTypeAnswers.indexOf)
       )(identity)(Some(_))
     )
 }
