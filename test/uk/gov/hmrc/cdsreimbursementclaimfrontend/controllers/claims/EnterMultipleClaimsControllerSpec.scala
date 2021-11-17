@@ -255,7 +255,7 @@ class EnterMultipleClaimsControllerSpec
                 assertHintTextIsDisplayed(
                   doc,
                   messageFromMessageKey(
-                    s"multiple-enter-claim.claim-amount.hint",
+                    s"multiple-enter-claim.actual-amount.hint",
                     taxCode,
                     messageFromMessageKey(s"select-duties.duty.$taxCode")
                   )

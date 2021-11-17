@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import cats.data.EitherT
 import cats.syntax.all._
 import com.google.inject.Inject
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.data.Forms.mapping
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
@@ -105,7 +105,8 @@ class EnterScheduledClaimController @Inject() (
         enterScheduledClaimForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterScheduledClaimPage(dutyType, taxCode, formWithErrors)),
+            formWithErrors =>
+              BadRequest(enterScheduledClaimPage(dutyType, taxCode, redirectVerificationMessage(formWithErrors))),
             claim =>
               EitherT
                 .fromOption[Future](
@@ -129,6 +130,15 @@ class EnterScheduledClaimController @Inject() (
           )
       }
     }
+
+  def redirectVerificationMessage(formWithErrors: Form[Reimbursement]): Form[Reimbursement] = {
+    val errors: Seq[FormError] = formWithErrors.errors.map {
+      case formError if formError.messages.contains("invalid.claim") =>
+        formError.copy(key = s"${formError.key}.actual-amount")
+      case formError                                                 => formError
+    }
+    formWithErrors.copy(errors = errors)
+  }
 }
 
 object EnterScheduledClaimController {
@@ -138,11 +148,11 @@ object EnterScheduledClaimController {
   val enterScheduledClaimForm: Form[Reimbursement] = Form(
     enterScheduledClaimKey ->
       mapping(
-        s"amount-paid"           -> moneyMapping(13, 2, "error.invalid"),
-        s"amount-should-of-paid" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
+        "paid-amount"   -> moneyMapping(13, 2, "error.invalid"),
+        "actual-amount" -> moneyMapping(13, 2, "error.invalid", allowZero = true)
       )(Reimbursement.apply)(Reimbursement.unapply)
         .verifying(
-          "invalid.reimbursement-claim",
+          "invalid.claim",
           _.isValid
         )
   )
