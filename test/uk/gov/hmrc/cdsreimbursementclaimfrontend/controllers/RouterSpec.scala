@@ -86,31 +86,6 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
     }
   }
 
-  "The next page after select who is making the claim" must {
-
-    "be check your answers when answer is amended" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
-        router.nextPageForWhoIsMakingTheClaim(isAmend = true, mandatoryDataAvailable = true) shouldBe
-          claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(router.journeyBindable)
-      }
-    }
-
-    "be check contact details when contact details are returned" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
-        router.nextPageForWhoIsMakingTheClaim(isAmend = false, mandatoryDataAvailable = true) shouldBe
-          claimRoutes.CheckContactDetailsMrnController.show(router.journeyBindable)
-      }
-    }
-
-    "be add contact details when no contact details are returned" in {
-      forAll(Table("EntryRoutes", MRNSingleRoutes, MRNMultipleRoutes, MRNMultipleRoutes)) { router =>
-        router.nextPageForWhoIsMakingTheClaim(isAmend = false, mandatoryDataAvailable = false) shouldBe
-          claimRoutes.CheckContactDetailsMrnController.addDetailsShow(router.journeyBindable)
-      }
-    }
-
-  }
-
   "Submit urls in templates must point to the same controller" when {
 
     "CheckDeclarationDetails" in {
@@ -150,13 +125,6 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
       forAll(allRoutes) { router =>
         router.submitUrlForCommoditiesDetails(true) shouldBe claimRoutes.EnterCommoditiesDetailsController
           .changeCommoditiesDetailsSubmit(router.journeyBindable)
-      }
-    }
-
-    "WhoIsMakingTheClaim" in {
-      forAll(allRoutes) { router =>
-        router.submitUrlForWhoIsMakingTheClaim(true) shouldBe claimRoutes.SelectWhoIsMakingTheClaimController
-          .changeDeclarantTypeSubmit(router.journeyBindable)
       }
     }
   }
