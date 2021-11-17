@@ -55,10 +55,10 @@ class SelectWhoIsMakingTheClaimController @Inject() (
 
   def selectDeclarantType(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[DeclarantTypeAnswer] { (_, answers) =>
+      withAnswersAndRoutes[DeclarantTypeAnswer] { (_, answers, router) =>
         val emptyForm  = chooseDeclarantTypeForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-        Ok(selectWhoIsMakingTheClaimPage(filledForm))
+        Ok(selectWhoIsMakingTheClaimPage(filledForm, router))
       }
     }
 
@@ -70,7 +70,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
         chooseDeclarantTypeForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors)),
+            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, router)),
             answer => {
               val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(answer)))
 

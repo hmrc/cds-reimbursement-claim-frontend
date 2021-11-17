@@ -31,6 +31,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
 
+  def submitUrlForWhoIsMakingTheClaim(): Call =
+    claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
+
   def submitUrlForCheckDeclarationDetails(): Call =
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
