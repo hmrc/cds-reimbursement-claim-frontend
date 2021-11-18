@@ -774,15 +774,16 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim totals for your MRN
+check-claim-summary.title=Check the reimbursement claim total for your MRN
 check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Total reimbursement
+check-claim-summary.total=Reimbursement for this MRN
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties

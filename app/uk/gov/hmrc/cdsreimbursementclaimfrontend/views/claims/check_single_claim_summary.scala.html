@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import cats.data.NonEmptyList
@@ -39,7 +40,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(claims: NonEmptyList[ClaimedReimbursement], form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(mrn: MRN, claims: NonEmptyList[ClaimedReimbursement], form: Form[YesNo])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 
 @key = @{"check-claim-summary"}
@@ -47,35 +48,15 @@
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
-@layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {
+@layout(pageTitle = Some(s"$title"), suppressBackLink = false, hasErrors = hasErrors) {
 
     @errorSummary(form.errors)
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-8"))
+    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body"))
 
-    @if(claims.containsUkClaim(claims)) {
-        @pageHeading(messages(s"$key.uk-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeUkClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
-    }
-
-    @if(claims.containsEuClaim(claims)) {
-        @pageHeading(messages(s"$key.eu-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeEuClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
-    }
-    @if(claims.containsExciseClaim(claims)) {
-        @pageHeading(messages(s"$key.excise-duty.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-        @summary(SummaryList(claimSummaryHelper.makeExciseClaimSummary(claims)))
-    } else {
-        @paragraph(Html(""))
-    }
-
-    @pageHeading(messages(s"$key.overall-total.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
-    @summary(SummaryList(List(claimSummaryHelper.makeClaimTotalRow(claims))))
+    @pageHeading(messages(s"$key.duty.label",mrn.value), "govuk-heading-m", "h2")
+    @summary(SummaryList(claimSummaryHelper.makeClaimSummary(claims)))
 
     @formWithCSRF(routes.EnterSingleClaimController.checkClaimSummarySubmit, 'novalidate -> "novalidate") {
         @radios(
@@ -84,7 +65,7 @@
             legend = messages(s"$key.are-duties-correct"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "govuk-fieldset__legend--m govuk-!-margin-top-6",
+            classes = "govuk-fieldset__legend--s",
             inline = true,
             items = Seq(
                 RadioItem(

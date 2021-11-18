@@ -36,6 +36,31 @@ package object answers {
   type AssociatedMRNsDutiesSelectedAnswer = NonEmptyList[DutiesSelectedAnswer]
   type AssociatedMRNsClaimsAnswer         = NonEmptyList[ClaimedReimbursementsAnswer]
 
+  implicit final class NonEmptyListOps[A](val list: NonEmptyList[A]) extends AnyVal {
+
+    def replaceOrAppend(cond: A => Boolean, item: A): NonEmptyList[A] =
+      list.find(cond) match {
+        case Some(_) =>
+          list.map {
+            case i if cond(i) => item
+            case i            => i
+          }
+
+        case None =>
+          list ::: NonEmptyList(item, Nil)
+      }
+
+    def canAppendAt(index: Int): Boolean =
+      index >= 0 && index === list.length
+
+    def remove(index: Int): Option[NonEmptyList[A]] =
+      NonEmptyList.fromList(list.toList.take(index) ::: list.toList.drop(index + 1))
+
+    def listAllElementsExceptAt(index: Int): List[A] =
+      list.toList.take(index) ::: list.toList.drop(index + 1)
+
+  }
+
   implicit final class AnswersOps[A](val answer: Option[NonEmptyList[A]]) extends AnyVal {
 
     def get(i: AssociatedMrnIndex): Option[A] =
@@ -53,7 +78,7 @@ package object answers {
     def canAppendAt(index: Int): Boolean =
       index >= 0 && (answer match {
         case None       => index === 0
-        case Some(list) => index === list.length
+        case Some(list) => list.canAppendAt(index)
       })
 
     def isDefinedAt(i: AssociatedMrnIndex): Boolean =
@@ -81,10 +106,7 @@ package object answers {
 
     def remove(index: Int): Option[NonEmptyList[A]] =
       if (index < 0) answer
-      else
-        answer.flatMap { list =>
-          NonEmptyList.fromList(list.toList.take(index) ::: list.toList.drop(index + 1))
-        }
+      else answer.flatMap(_.remove(index))
 
     def list: List[A] = answer.map(_.toList).getOrElse(Nil)
 
@@ -93,9 +115,7 @@ package object answers {
 
     def listAllElementsExceptAt(index: Int): List[A] =
       answer
-        .map { list =>
-          list.toList.take(index) ::: list.toList.drop(index + 1)
-        }
+        .map(_.listAllElementsExceptAt(index))
         .getOrElse(Nil)
 
     def length: Int = answer.map(_.length).getOrElse(0)
