@@ -23,12 +23,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfi
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnWithNoCheck
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import scala.concurrent.Future
 
 @Singleton
 class CheckDuplicateDeclarationDetailsController @Inject() (
@@ -37,7 +41,8 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   val sessionStore: SessionCache,
   val errorHandler: ErrorHandler,
   cc: MessagesControllerComponents,
-  checkDeclarationDetailsPage: pages.check_declaration_details
+  checkDeclarationDetailsPage: pages.check_declaration_details,
+  enterDuplicateMovementReferenceNumberPage: pages.enter_duplicate_movement_reference_number
 )(implicit viewConfig: ViewConfig)
     extends FrontendController(cc)
     with WithAuthAndSessionDataAction
@@ -48,9 +53,10 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   implicit val duplicateDeclarationExtractor: DraftClaim => Option[DisplayDeclaration] =
     _.duplicateDisplayDeclaration
 
+  val isDuplicate: Boolean = true
+
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      val isDuplicate: Boolean = true
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
@@ -62,8 +68,20 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
 
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (_, _, router) =>
-        Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
+      withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
+        checkDeclarationDetailsAnswerForm
+          .bindFromRequest().fold(
+          formWithErrors => answer
+            .map(declaration =>
+              Future.successful(
+                BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate, router))
+              )
+            ).getOrElse(Future.successful(errorHandler.errorResult())),
+          {
+            case YesNo.No  => Ok(enterDuplicateMovementReferenceNumberPage(enterDuplicateMrnWithNoCheck, router))
+            case YesNo.Yes => Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
+          }
+        )
       }
     }
 
