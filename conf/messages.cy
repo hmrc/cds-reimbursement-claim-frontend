@@ -438,6 +438,7 @@ select-who-is-making-the-claim.details.l2=Gall cwmni cynrychioladol fod yn unigo
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Gwiriwch fod y manylion hyn yn gywir
+check-declaration-details.duplicate.title=Gwiriwch fod y manylion datganiad hyn yn gywir ar gyfer yr MRN dyblyg
 check-declaration-details.help-text=Dyma fanylion y datganiad a roddir gan Gyfeirnod MRN: <strong>{0}</strong> Os yw’r manylion hyn yn anghywir, gallwch eu newid drwy <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries" rel="noreferrer noopener" target="_blank">gysylltu â’r tîm CDS (yn agor mewn tab newydd)</a> drwy’r adran cwestiynau cyffredinol mewnforio ac allforio.
 check-declaration-details.mrn-number.label=Rhif MRN
 check-declaration-details.import-date.label=Dyddiad y mewnforio
