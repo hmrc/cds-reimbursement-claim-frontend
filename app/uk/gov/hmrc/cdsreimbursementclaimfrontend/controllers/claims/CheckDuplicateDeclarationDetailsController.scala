@@ -53,15 +53,13 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   implicit val duplicateDeclarationExtractor: DraftClaim => Option[DisplayDeclaration] =
     _.duplicateDisplayDeclaration
 
-  val isDuplicate: Boolean = true
-
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
         maybeDeclaration.fold(
           Redirect(routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds())
         )(declaration =>
-          Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate, router))
+          Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = true, router))
         )
       }
     }
@@ -70,18 +68,21 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
         checkDeclarationDetailsAnswerForm
-          .bindFromRequest().fold(
-          formWithErrors => answer
-            .map(declaration =>
-              Future.successful(
-                BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate, router))
-              )
-            ).getOrElse(Future.successful(errorHandler.errorResult())),
-          {
-            case YesNo.No  => Ok(enterDuplicateMovementReferenceNumberPage(enterDuplicateMrnWithNoCheck, router))
-            case YesNo.Yes => Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
-          }
-        )
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              answer
+                .map(declaration =>
+                  Future.successful(
+                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate = true, router))
+                  )
+                )
+                .getOrElse(Future.successful(errorHandler.errorResult())),
+            {
+              case YesNo.No  => Ok(enterDuplicateMovementReferenceNumberPage(enterDuplicateMrnWithNoCheck, router))
+              case YesNo.Yes => Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
+            }
+          )
       }
     }
 
