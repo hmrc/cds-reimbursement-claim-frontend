@@ -77,13 +77,18 @@ class CheckDeclarationDetailsController @Inject() (
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),
-            answer =>
+            answer => {
+              println(
+                "    **************&&&&&&*****checkDeclarationDetails " + fillingOutClaim.draftClaim
+                  .toString() + " checkDeclarationDetails*******&&&&&&&&&********     "
+              )
               Redirect(
                 router.nextPageForCheckDeclarationDetails(
                   answer,
                   fillingOutClaim.draftClaim.associatedMRNsAnswer.isDefined
                 )
               )
+            }
           )
       }
     }

@@ -21,6 +21,8 @@ import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
 object ContactDetailsGen {
+  import EmailGen._
+  import PhoneNumberGen._
 
   lazy val genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
     Gen.option(arbitraryMrnContactDetails.arbitrary)

@@ -31,6 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.{MrnImporter, ThirdPartyImporter}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -118,20 +119,39 @@ class EnterMovementReferenceNumberController @Inject() (
                   _             <-
                     EitherT(
                       updateSession(sessionStore, request)(
-                        updateMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+                        if (fillingOutClaim.draftClaim.isComplete) {
+                          println(
+                            "**************&&&&&&*****33333333 " + fillingOutClaim.draftClaim
+                              .toString() + " 333333333********&&&&&&&&&********"
+                          )
+                          renewMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+
+                        } else {
+                          println(
+                            "**************&&&&&&*****1111111111 " + fillingOutClaim.draftClaim
+                              .toString() + " 1111111111111*******&&&&&&&&&********"
+                          )
+                          updateMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+                        }
                       )
                     ).leftMap(_ => Error("Could not save Display Declaration"))
                 } yield mrnJourneyFlow
                 result.fold(
                   e => {
-                    logger.warn("Mrn or Entry Number submission failed: ", e)
+                    logger.warn("Mrn submission failed: ", e)
                     Redirect(baseRoutes.IneligibleController.ineligible())
                   },
-                  mrnJourney =>
+                  mrnJourney => {
+
+                    println(
+                      "**************&&&&&&*****222222222 " + fillingOutClaim.draftClaim
+                        .toString() + " 22222222********&&&&&&&&&********"
+                    )
                     Redirect(
                       getRoutes(getTypeOfClaim(fillingOutClaim.draftClaim), journey)
                         .nextPageForEnterMRN(mrnJourney)
                     )
+                  }
                 )
               }
             }
@@ -142,6 +162,17 @@ class EnterMovementReferenceNumberController @Inject() (
   def updateMRN(fillingOutClaim: FillingOutClaim, mrn: MRN): SessionDataTransform = {
     val updatedDraftClaim = fillingOutClaim.draftClaim.copy(movementReferenceNumber = Some(mrn))
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
+  }
+
+//  val updatedDraftClaim                    = DraftClaim.blank.copy(
+//    typeOfClaim = Some(typeOfClaimAnswer)
+//  )
+
+  def renewMRN(fillingOutClaim: FillingOutClaim, mrn: MRN): SessionDataTransform = {
+    val blankDraftClaim   = DraftClaim.blank
+    val draftClaimWithMrn = blankDraftClaim.copy(movementReferenceNumber = Some(mrn))
+    val journey           = FillingOutClaim(fillingOutClaim.ggCredId, fillingOutClaim.signedInUserDetails, draftClaimWithMrn)
+    updateDraftClaim(journey, draftClaimWithMrn)
   }
 
   def updateMrnAndAcc14(
@@ -164,10 +195,54 @@ class EnterMovementReferenceNumberController @Inject() (
     updateDraftClaim(fillingOutClaim, updatedDraftClaim)
   }
 
+  def renewMrnAndAcc14(
+    fillingOutClaim: FillingOutClaim,
+    mrn: MRN,
+    acc14: DisplayDeclaration,
+    maybeContactDetails: Option[MrnContactDetails],
+    maybeContactAddress: Option[ContactAddress]
+  ): SessionDataTransform = {
+
+    //val blankDraftClaim   = DraftClaim.blank
+    //    val draftClaimWithMrn = blankDraftClaim.copy(movementReferenceNumber = Some(mrn))
+    //    val journey             = FillingOutClaim(fillingOutClaim.ggCredId, fillingOutClaim.signedInUserDetails, draftClaimWithMrn)
+    //    updateDraftClaim(journey, draftClaimWithMrn)
+    val typeOfClaimAnswer: TypeOfClaimAnswer = getTypeOfClaim(fillingOutClaim.draftClaim)
+    val blankDraftClaim                      = DraftClaim.blank
+    val updatedDraftClaim                    = DraftClaim.blank.copy(
+      typeOfClaim = Some(typeOfClaimAnswer),
+      movementReferenceNumber = Some(mrn),
+      displayDeclaration = Some(acc14),
+      mrnContactDetailsAnswer = maybeContactDetails,
+      mrnContactAddressAnswer = maybeContactAddress,
+      associatedMRNsAnswer = None,
+      associatedMRNsDeclarationAnswer = None
+    )
+    val journey                              = FillingOutClaim(fillingOutClaim.ggCredId, fillingOutClaim.signedInUserDetails, blankDraftClaim)
+
+    updateDraftClaim(journey, updatedDraftClaim)
+  }
+//  def renewTypeOfClaim(
+//    fillingOutClaim: FillingOutClaim,
+//  ): SessionDataTransform = {
+//
+//    val blankDraftClaim =
+//    val typeOfClaimAnswer: TypeOfClaimAnswer = getTypeOfClaim(fillingOutClaim.draftClaim)
+//    val updatedDraftClaim                    = DraftClaim.blank.copy(
+//      typeOfClaim = Some(typeOfClaimAnswer)
+//    )
+//    updateDraftClaim(fillingOutClaim, updatedDraftClaim)
+//  }
+
   def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
     val update: SessionDataTransform = _.copy(journeyStatus = Some(fillingOutClaim.copy(draftClaim = newDraftClaim)))
     update
   }
+
+//  def renewDraftClaim(fillingOutClaim: FillingOutClaim): SessionDataTransform = {
+//    val update: SessionDataTransform = _.copy(journeyStatus = Some(fillingOutClaim.copy(draftClaim = newDraftClaim)))
+//    update
+//  }
 }
 
 object EnterMovementReferenceNumberController {

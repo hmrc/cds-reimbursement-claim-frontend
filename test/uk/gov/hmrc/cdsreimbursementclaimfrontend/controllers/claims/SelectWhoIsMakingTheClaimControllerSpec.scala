@@ -29,12 +29,17 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, DeclarantTypeAnswers, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen.genValidDraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
 
 import scala.concurrent.Future
 
@@ -66,21 +71,21 @@ class SelectWhoIsMakingTheClaimControllerSpec
   private def sessionWithClaimState(
     declarantTypeAnswer: Option[DeclarantTypeAnswer],
     typeOfClaim: Option[TypeOfClaimAnswer]
-  ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      = DraftClaim.blank.copy(
-      declarantTypeAnswer = declarantTypeAnswer,
-      typeOfClaim = typeOfClaim
+  ): (SessionData, FillingOutClaim, DraftClaim) =
+    sessionWithClaim(
+      DraftClaim.blank.copy(
+        declarantTypeAnswer = declarantTypeAnswer,
+        typeOfClaim = typeOfClaim
+      )
     )
+
+  private def sessionWithClaim(draftC285Claim: DraftClaim): (SessionData, FillingOutClaim, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
-    val email               = sample[Email]
-    val eori                = sample[Eori]
-    val signedInUserDetails =
-      SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
+    val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+
     (
-      SessionData.empty.copy(
-        journeyStatus = Some(journey)
-      ),
+      SessionData.empty.copy(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )
@@ -238,36 +243,113 @@ class SelectWhoIsMakingTheClaimControllerSpec
         )
       }
 
-      "the user amends their answer" in forAll(testCases) { (claimType, journeyBindable) =>
+      "the user amends their answer" in {
         def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
-          controller.changeDeclarantTypeSubmit(journeyBindable)(
+          controller.selectDeclarantTypeSubmit(journeyBindable)(
             FakeRequest().withFormUrlEncodedBody(data: _*)
           )
 
-        val declarantType = DeclarantTypeAnswer.Importer
+        val journey     = sample[JourneyBindable]
+        val typeOfClaim = toTypeOfClaim(journey)
 
-        val answers                       = declarantType
-        val draftC285Claim                = sessionWithClaimState(Some(answers), Some(claimType))._3
-          .copy(
-            declarantTypeAnswer = Some(answers),
-            movementReferenceNumber = Some(sample[MRN])
-          )
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(claimType))
-        val updatedJourney                = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val declarantType = sample[DeclarantTypeAnswer]
+
+        val claim = sample(genValidDraftClaim(typeOfClaim))
+
+        val (session, fillingOutClaim, _) = sessionWithClaim(claim)
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(
+            session.copy(journeyStatus =
+              Some(
+                FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
+              )
+            )
+          )
         }
 
         checkIsRedirect(
-          performAction(Seq(whoIsMakingTheClaimKey -> "0"), journeyBindable),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+          performAction(Seq(whoIsMakingTheClaimKey -> DeclarantTypeAnswers.indexOf(declarantType).toString), journey),
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
         )
       }
-
     }
 
-  }
+    "shows the user contact details page" when {
+      "mandatory contact details are present" in {
+        def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
+          controller.selectDeclarantTypeSubmit(journeyBindable)(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
 
+        val journey     = sample[JourneyBindable]
+        val typeOfClaim = toTypeOfClaim(journey)
+
+        val declarantType = sample[DeclarantTypeAnswer]
+
+        val claim = DraftClaim.blank.copy(
+          mrnContactAddressAnswer = Some(sample[ContactAddress]),
+          mrnContactDetailsAnswer = Some(sample[MrnContactDetails]),
+          typeOfClaim = Some(typeOfClaim)
+        )
+
+        val (session, fillingOutClaim, _) = sessionWithClaim(claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            session.copy(journeyStatus =
+              Some(
+                FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
+              )
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(Seq(whoIsMakingTheClaimKey -> DeclarantTypeAnswers.indexOf(declarantType).toString), journey),
+          routes.CheckContactDetailsMrnController.show(journey)
+        )
+      }
+    }
+
+    "asks to add contact details" when {
+      "mandatory contact details are not present" in {
+        def performAction(data: Seq[(String, String)], journeyBindable: JourneyBindable): Future[Result] =
+          controller.selectDeclarantTypeSubmit(journeyBindable)(
+            FakeRequest().withFormUrlEncodedBody(data: _*)
+          )
+
+        val journey     = sample[JourneyBindable]
+        val typeOfClaim = toTypeOfClaim(journey)
+
+        val declarantType = sample[DeclarantTypeAnswer]
+
+        val claim = DraftClaim.blank.copy(
+          mrnContactAddressAnswer = None,
+          mrnContactDetailsAnswer = None,
+          typeOfClaim = Some(typeOfClaim)
+        )
+
+        val (session, fillingOutClaim, _) = sessionWithClaim(claim)
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(
+            session.copy(journeyStatus =
+              Some(
+                FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
+              )
+            )
+          )
+        }
+
+        checkIsRedirect(
+          performAction(Seq(whoIsMakingTheClaimKey -> DeclarantTypeAnswers.indexOf(declarantType).toString), journey),
+          routes.CheckContactDetailsMrnController.addDetailsShow(journey)
+        )
+      }
+    }
+  }
 }

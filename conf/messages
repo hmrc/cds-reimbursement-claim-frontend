@@ -769,20 +769,21 @@ multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should 
 multiple-enter-claim.actual-amount.error.invalid=You have entered an invalid claim amount. Enter a valid claim amount you wish to claim for
 multiple-enter-claim.error.required=Enter the amount that should have been paid, in pounds
 multiple-enter-claim.error.invalid=Amount that should have been paid must be a number, like 30
-multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than amount paid
+multiple-enter-claim.invalid.claim=Amount that should have been paid must be lower than the amount paid
 
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim totals for your MRN
+check-claim-summary.title=Check the reimbursement claim total for your MRN
 check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Total reimbursement
+check-claim-summary.total=Reimbursement for this MRN
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties

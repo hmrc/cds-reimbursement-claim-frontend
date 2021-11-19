@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
+import cats.data.NonEmptyList
 import org.scalacheck.magnolia._
 import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, Eori, GGCredId, MRN}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
@@ -29,6 +31,9 @@ object IdGen {
 
   implicit lazy val arbitraryAssociatedMrnIndex: Typeclass[AssociatedMrnIndex] =
     Arbitrary(genAssociatedMrnIndex)
+
+  implicit lazy val arbitraryAssociatedMRNsAnswer: Typeclass[NonEmptyList[AssociatedMrn]] =
+    gen[NonEmptyList[AssociatedMrn]]
 
   lazy val genEori: Gen[Eori] =
     for {

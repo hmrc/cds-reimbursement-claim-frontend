@@ -285,7 +285,7 @@ class SupportingEvidenceController @Inject() (
 
   def checkYourAnswersSubmit(journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[SupportingEvidencesAnswer] { (_, maybeEvidences) =>
+      withAnswers[SupportingEvidencesAnswer] { (fillingOutClaim, maybeEvidences) =>
         maybeEvidences.fold(
           Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
         ) { evidences =>
@@ -300,6 +300,10 @@ class SupportingEvidenceController @Inject() (
                   case Yes =>
                     Redirect(routes.SupportingEvidenceController.uploadSupportingEvidence(journey))
                   case No  =>
+                    println(
+                      "**************&&&&&&*****CheckSupportingEvidences " + fillingOutClaim.draftClaim
+                        .toString() + " CheckSupportingEvidences*******&&&&&&&&&********"
+                    )
                     Redirect(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
                 }
               )
