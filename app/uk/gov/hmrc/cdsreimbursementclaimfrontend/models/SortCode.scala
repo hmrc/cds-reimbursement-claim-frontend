@@ -19,11 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import play.api.libs.functional.syntax.toInvariantFunctorOps
 import play.api.libs.json.Format
 
+import java.util.function.Predicate
+
 final case class SortCode(value: String) extends AnyVal
 
 object SortCode {
 
+  val regex: Predicate[String] = "^\\d{6}$".r.pattern.asPredicate()
+
   implicit val format: Format[SortCode] =
     implicitly[Format[String]].inmap(SortCode(_), _.value)
-
 }

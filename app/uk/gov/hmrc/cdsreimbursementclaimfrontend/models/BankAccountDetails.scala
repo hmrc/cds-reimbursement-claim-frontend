@@ -25,17 +25,7 @@ final case class BankAccountDetails(
 )
 
 object BankAccountDetails {
-  implicit val format: OFormat[BankAccountDetails] = Json.format[BankAccountDetails]
-}
 
-final case class AccountNumber(value: String) extends AnyVal
-
-final case class AccountName(value: String) extends AnyVal
-
-object AccountNumber {
-  implicit val format: OFormat[AccountNumber] = Json.format[AccountNumber]
-}
-
-object AccountName {
-  implicit val format: OFormat[AccountName] = Json.format[AccountName]
+  implicit val format: OFormat[BankAccountDetails] =
+    Json.format[BankAccountDetails]
 }

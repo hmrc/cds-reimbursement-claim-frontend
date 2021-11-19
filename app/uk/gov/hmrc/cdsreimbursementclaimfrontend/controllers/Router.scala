@@ -34,6 +34,9 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForWhoIsMakingTheClaim(): Call =
     claimRoutes.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journeyBindable)
 
+  def submitUrlForEnterBankAccountDetails(): Call =
+    claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
+
   def submitUrlForCheckDeclarationDetails(): Call =
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 
@@ -63,10 +66,6 @@ trait SubmitRoutes extends Product with Serializable {
 
   def submitUrlForEnterMrnContactDetails(): Call =
     claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetailsSubmit(journeyBindable)
-
-  def submitUrlForEnterOrChangeBankAccountDetails(isChange: Boolean): Call =
-    if (isChange) claimRoutes.BankAccountController.changeBankAccountDetailsSubmit(journeyBindable)
-    else claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
   def submitUrlForSelectBankAccountType(): Call =
     claimRoutes.SelectBankAccountTypeController.selectBankAccountTypeSubmit(journeyBindable)
@@ -150,17 +149,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
-
-  def nextPageForCheckBankAccountDetails(): Call =
-    claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
-
-  def nextPageForEnterBankAccountDetails(
-    hasBankAccountType: Boolean
-  ): Call =
-    hasBankAccountType match {
-      case false => claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable)
-      case true  => claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable)
-    }
 
   def nextPageForSelectBankAccountType(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetails(journeyBindable)
