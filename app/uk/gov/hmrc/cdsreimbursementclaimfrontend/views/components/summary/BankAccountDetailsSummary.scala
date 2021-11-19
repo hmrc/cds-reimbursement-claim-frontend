@@ -18,27 +18,35 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
 
   def render(key: String, bankAccountDetails: BankAccountDetails)(implicit
     router: ReimbursementRoutes,
     messages: Messages
-  ): SummaryList =
+  ): SummaryList = {
+
+    def changeCall =
+      if (key.contains(checkYourAnswersKey))
+        routes.BankAccountController.checkBankAccountDetails(router.journeyBindable)
+      else routes.SelectBankAccountTypeController.selectBankAccountType(router.journeyBindable)
+
     SummaryList(
       Seq(
         SummaryListRow(
           key = Key(Text(messages(s"$key.account-name.label"))),
           value = Value(Text(bankAccountDetails.accountName.value)),
+          classes = "govuk-summary-list__row--no-border",
           actions = Some(
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails(router.journeyBindable).url}",
+                  href = changeCall.url,
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.account-name.label"))
                 )
@@ -49,33 +57,13 @@ class BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
         SummaryListRow(
           key = Key(Text(messages(s"$key.sort-code.label"))),
           value = Value(Text(bankAccountDetails.sortCode.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails(router.journeyBindable).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.sort-code.label"))
-                )
-              )
-            )
-          )
+          classes = "govuk-summary-list__row--no-border"
         ),
         SummaryListRow(
           key = Key(Text(messages(s"$key.account-number.label"))),
-          value = Value(Text(bankAccountDetails.accountNumber.value)),
-          actions = Some(
-            Actions(
-              items = Seq(
-                ActionItem(
-                  href = s"${routes.BankAccountController.checkBankAccountDetails(router.journeyBindable).url}",
-                  content = Text(messages("cya.change")),
-                  visuallyHiddenText = Some(messages(s"$key.account-number.label"))
-                )
-              )
-            )
-          )
+          value = Value(Text(bankAccountDetails.accountNumber.value))
         )
       )
     )
+  }
 }
