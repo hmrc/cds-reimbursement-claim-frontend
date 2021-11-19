@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Format
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
-final case class DeclarantBankDetails(
-  accountHolderName: String,
-  sortCode: String,
-  accountNumber: String
-)
+import java.util.function.Predicate
 
-object DeclarantBankDetails {
-  implicit val format: OFormat[DeclarantBankDetails] = Json.format[DeclarantBankDetails]
+final case class AccountName(value: String) extends AnyVal
+
+object AccountName {
+
+  val regex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
+
+  implicit val accountNameFormat: Format[AccountName] =
+    SimpleStringFormat(AccountName(_), _.value)
 }

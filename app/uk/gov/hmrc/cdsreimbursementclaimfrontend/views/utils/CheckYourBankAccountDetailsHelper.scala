@@ -22,7 +22,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountView
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 
 import javax.inject.{Inject, Singleton}
 
@@ -34,13 +34,13 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
   private val key = "bank-details"
 
   def bankAccountDetailsSummary(
-    displayBankAccountDetails: BankAccountView,
+    displayBankAccountDetails: BankAccountDetails,
     router: ReimbursementRoutes
   ): List[SummaryListRow] =
     List(
-      makeAccountHolderNameRow(displayBankAccountDetails.accountName, router),
-      makeSortCodeRow(displayBankAccountDetails.sortCode),
-      makeAccountNumberRow(displayBankAccountDetails.accountNumber)
+      makeAccountHolderNameRow(displayBankAccountDetails.accountName.value, router),
+      makeSortCodeRow(displayBankAccountDetails.sortCode.value),
+      makeAccountNumberRow(displayBankAccountDetails.accountNumber.value)
     ).flattenOption
 
   private def makeAccountHolderNameRow(accountHolderName: String, router: ReimbursementRoutes): Option[SummaryListRow] =
@@ -48,7 +48,7 @@ class CheckYourBankAccountDetailsHelper @Inject() (implicit langs: Langs, messag
       SummaryListRow(
         Key(Text(messages(s"$key.account-name.label")(lang))),
         Value(Text(accountHolderName)),
-        "",
+        classes = "govuk-summary-list__row--no-border",
         Some(
           Actions(
             "govuk-link",
