@@ -192,35 +192,6 @@ class EnterMovementReferenceNumberControllerSpec
 
     }
 
-    "Change MRN page" must {
-      def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.changeJourneyMrn(journeyBindable)(FakeRequest())
-
-      "display the title and the previously saved MRN" in forAll { (mrnAnswer: MRN, journeyBindable: JourneyBindable) =>
-        val typeOfClaim = toTypeOfClaim(journeyBindable)
-        val router      = JourneyExtractor.getRoutes(typeOfClaim, journeyBindable)
-
-        val (session, _, _) = sessionWithClaimState(mrnAnswer.some, Some(typeOfClaim))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(journeyBindable),
-          messageFromMessageKey(
-            s"$enterMovementReferenceNumberKey${router.subKey.map(a => s".$a").getOrElse("")}.title"
-          ),
-          doc => {
-            doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe mrnAnswer.value
-            doc.select("form").attr("action")                        shouldBe
-              routes.EnterMovementReferenceNumberController.changeMrnSubmit(journeyBindable).url
-          }
-        )
-      }
-    }
-
     "We enter an MRN for the first time or update it with the back button (enterMrnSubmit)" must {
 
       def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
@@ -405,16 +376,17 @@ class EnterMovementReferenceNumberControllerSpec
   "We update an MRN coming from the Check Your Answer page (changeMrnSubmit)" must {
 
     def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
-      controller.changeMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.enterMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "return to CYA page if the same MRN is submitted" in forAll { (journeyBindable: JourneyBindable, mrn: MRN) =>
       val answers         = mrn.some
       val (session, _, _) = sessionWithClaimState(answers, Some(toTypeOfClaim(journeyBindable)))
+
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result          = performAction(journeyBindable, enterMovementReferenceNumberKey -> mrn.value)
+      val result = performAction(journeyBindable, enterMovementReferenceNumberKey -> mrn.value)
 
       status(result) shouldBe 303
       redirectLocation(

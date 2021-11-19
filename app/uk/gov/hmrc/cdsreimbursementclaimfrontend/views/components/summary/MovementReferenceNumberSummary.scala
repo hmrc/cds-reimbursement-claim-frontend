@@ -37,7 +37,7 @@ class MovementReferenceNumberSummary extends AnswerSummary[MRN] {
               items = Seq(
                 ActionItem(
                   href =
-                    s"${routes.EnterMovementReferenceNumberController.changeJourneyMrn(router.journeyBindable).url}",
+                    s"${routes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(lang(key, router.subKey, "label")))
                 )

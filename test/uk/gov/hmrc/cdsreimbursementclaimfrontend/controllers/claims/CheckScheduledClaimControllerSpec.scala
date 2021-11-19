@@ -109,7 +109,7 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
         checkPageIsDisplayed(
           controller.showReimbursements()(FakeRequest()),
           messageFromMessageKey(
-            messageKey = s"$checkClaimSummaryKey.title"
+            messageKey = s"$checkClaimSummaryKey.scheduled.title"
           ),
           doc => {
             def messageOf(taxCode: TaxCode) =

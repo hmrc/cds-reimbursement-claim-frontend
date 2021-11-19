@@ -22,27 +22,29 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.data.Forms._
 import play.api.data.{Form, Mapping}
-import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.{extractRoutes, withAnswersAndRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.{routes => fileUploadRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationResponse
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, BankAccountType, BankAccountView, DraftClaim, Error, SortCode, upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, BankAccountType, DraftClaim, Error, SortCode, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import java.util.function.Predicate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging.LoggerOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.http.BadGatewayException
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -63,180 +65,122 @@ class BankAccountController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[BankAccountDetails] = _.bankAccountDetailsAnswer
 
-  private def continuePage(implicit request: RequestWithSessionData[AnyContent], journey: JourneyBindable): Call = {
-    lazy val uploadEvidence   = fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
-    lazy val checkYourAnswers = fileUploadRoutes.SupportingEvidenceController.checkYourAnswers(journey)
-
-    val maybeEvidences = for {
-      session   <- request.sessionData
-      claim     <- session.journeyStatus.collect { case FillingOutClaim(_, _, draftClaim: DraftClaim) =>
-                     draftClaim
-                   }
-      evidences <- claim.supportingEvidencesAnswer
-    } yield evidences
-
-    maybeEvidences.fold(uploadEvidence)(_ => checkYourAnswers)
-  }
-
   def checkBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, declaration, router) =>
-        val isChange = fillingOutClaim.draftClaim.bankAccountDetailsAnswer.nonEmpty
-        isChange match {
-          case true  =>
-            fillingOutClaim.draftClaim.bankAccountDetailsAnswer match {
-              case Some(bankAccountDetails: BankAccountDetails) =>
-                Ok(
-                  checkBankAccountDetailsPage(
-                    BankAccountView(
-                      bankAccountDetails.accountName.value,
-                      bankAccountDetails.sortCode.value,
-                      bankAccountDetails.accountNumber.value
-                    ),
-                    continuePage.url,
-                    router
+      request.using { case fillingOutClaim: FillingOutClaim =>
+        implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        import router._
+
+        val claim = fillingOutClaim.draftClaim
+
+        Stream(
+          claim.bankAccountDetailsAnswer,
+          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.consigneeBankDetails),
+          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.declarantBankDetails)
+        ).find(_.nonEmpty)
+          .flatten
+          .map { bankAccountDetails =>
+            Future.successful(
+              Ok(
+                checkBankAccountDetailsPage(
+                  bankAccountDetails,
+                  CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                    fileUploadRoutes.SupportingEvidenceController.uploadSupportingEvidence(journey)
                   )
                 )
-              case None                                         => Redirect(router.nextPageForCheckBankAccountDetails())
-            }
-          case false =>
-            val answers = declaration.flatMap(p => p.displayResponseDetail.maskedBankDetails)
-
-            answers.fold(Redirect(router.nextPageForCheckBankAccountDetails())) { maskedBankDetails =>
-              (maskedBankDetails.consigneeBankDetails, maskedBankDetails.declarantBankDetails) match {
-                case (Some(cmbd), _)    =>
-                  Ok(
-                    checkBankAccountDetailsPage(
-                      BankAccountView(cmbd.accountHolderName, cmbd.sortCode, cmbd.accountNumber),
-                      continuePage.url,
-                      router
-                    )
-                  )
-                case (None, Some(dmbd)) =>
-                  Ok(
-                    checkBankAccountDetailsPage(
-                      BankAccountView(dmbd.accountHolderName, dmbd.sortCode, dmbd.accountNumber),
-                      continuePage.url,
-                      router
-                    )
-                  )
-                case (None, None)       =>
-                  Redirect(router.nextPageForCheckBankAccountDetails())
-              }
-            }
-
-        }
-      }(_.displayDeclaration, request, journey)
+              )
+            )
+          }
+          .getOrElse {
+            Future.successful(Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journey)))
+          }
+      }
     }
 
-  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isChange = false)
-  def changeBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isChange = true)
-
-  protected def show(
-    isChange: Boolean
-  )(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterBankAccountDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
         val bankDetailsForm =
-          answers.toList.foldLeft(BankAccountController.enterBankDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterBankAccountDetailsPage(bankDetailsForm, router, isChange))
+          answers.toList.foldLeft(enterBankDetailsForm)((form, answer) => form.fill(answer))
+        Ok(enterBankAccountDetailsPage(bankDetailsForm, router))
       }
     }
 
-  def enterBankAccountDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterBankAccountDetailsSubmit(implicit journeyBindable: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      submit(isAmend = false)
-    }
+      withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim, _, router) =>
+        fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
+          case None =>
+            Redirect(claimRoutes.SelectBankAccountTypeController.selectBankAccountType(journeyBindable))
 
-  def changeBankAccountDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      submit(isAmend = true)
-    }
+          case Some(bankAccount: BankAccountType) =>
+            enterBankDetailsForm
+              .bindFromRequest()
+              .fold(
+                requestFormWithErrors => BadRequest(enterBankAccountDetailsPage(requestFormWithErrors, router)),
+                bankAccountDetails => {
+                  val updatedJourney =
+                    FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
 
-  protected def submit(isAmend: Boolean)(implicit
-    request: RequestWithSessionData[AnyContent],
-    messages: Messages,
-    viewConfig: ViewConfig,
-    journeyBindable: JourneyBindable
-  ): Future[Result] =
-    withAnswersAndRoutes[BankAccountDetails] { (fillingOutClaim, _, router) =>
-      fillingOutClaim.draftClaim.bankAccountTypeAnswer match {
-        case None                               => Redirect(router.nextPageForEnterBankAccountDetails(false))
-        case Some(bankAccount: BankAccountType) =>
-          BankAccountController.enterBankDetailsForm
-            .bindFromRequest()
-            .fold(
-              requestFormWithErrors =>
-                BadRequest(
-                  enterBankAccountDetailsPage(
-                    requestFormWithErrors,
-                    router,
-                    isAmend
+                  (for {
+                    _                  <- EitherT
+                                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                                            .leftMap((_: Unit) => Error("could not update session"))
+                    reputationResponse <- {
+                      val barsAccount =
+                        BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
+
+                      if (bankAccount === BankAccountType.BusinessBankAccount) {
+                        claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
+                      } else {
+                        val claimant    = fillingOutClaim.draftClaim.detailsRegisteredWithCdsAnswer
+                        val address     = BarsAddress(Nil, None, claimant.map(_.contactAddress.postcode))
+                        val accountName = Some(bankAccountDetails.accountName.value)
+                        val subject     = BarsSubject(None, accountName, None, None, None, address)
+                        claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
+                      }
+                    }
+                  } yield reputationResponse).fold(
+                    {
+                      case e @ Error(_, Some(_: BadGatewayException), _) =>
+                        logger warn ("could not contact bank account service: ", e)
+                        Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
+                      case e                                             =>
+                        logAndDisplayError("could not process bank account details: ")(errorHandler, request)(e)
+                    },
+                    reputationResponse =>
+                      if (reputationResponse.otherError.isDefined) {
+                        val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")
+                        val form     = enterBankDetailsForm
+                          .fill(bankAccountDetails)
+                          .withError("enter-bank-details", s"error.$errorKey")
+                        BadRequest(enterBankAccountDetailsPage(form, router))
+                      } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
+                        val form = enterBankDetailsForm
+                          .withError("enter-bank-details", "error.moc-check-no")
+                        BadRequest(enterBankAccountDetailsPage(form, router))
+                      } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
+                        val form = enterBankDetailsForm
+                          .withError("enter-bank-details", "error.moc-check-failed")
+                        BadRequest(enterBankAccountDetailsPage(form, router))
+                      } else if (reputationResponse.accountExists === Some(ReputationResponse.Error)) {
+                        val form = enterBankDetailsForm
+                          .fill(bankAccountDetails)
+                          .withError("enter-bank-details", s"error.account-exists-error")
+                        BadRequest(enterBankAccountDetailsPage(form, router))
+                      } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
+                        val form = enterBankDetailsForm
+                          .withError("enter-bank-details", s"error.account-does-not-exist")
+                        BadRequest(enterBankAccountDetailsPage(form, router))
+                      } else {
+                        Redirect(claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
+                      }
                   )
-                ),
-              bankAccountDetails => {
-                val updatedJourney =
-                  FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
-
-                (for {
-                  _                  <- EitherT
-                                          .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                                          .leftMap((_: Unit) => Error("could not update session"))
-                  reputationResponse <- {
-                    val barsAccount =
-                      BarsAccount(bankAccountDetails.sortCode.value, bankAccountDetails.accountNumber.value)
-
-                    if (bankAccount === BankAccountType.BusinessBankAccount) {
-                      claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
-                    } else {
-                      val claimant    = fillingOutClaim.draftClaim.detailsRegisteredWithCdsAnswer
-                      val address     = BarsAddress(Nil, None, claimant.map(_.contactAddress.postcode))
-                      val accountName = Some(bankAccountDetails.accountName.value)
-                      val subject     = BarsSubject(None, accountName, None, None, None, address)
-                      claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))
-                    }
-                  }
-                } yield reputationResponse).fold(
-                  {
-                    case e @ Error(_, Some(_: BadGatewayException), _) =>
-                      logger warn ("could not contact bank account service: ", e)
-                      Redirect(routes.ServiceUnavailableController.unavailable(journeyBindable))
-                    case e                                             =>
-                      logAndDisplayError("could not process bank account details: ")(errorHandler, request)(e)
-                  },
-                  reputationResponse =>
-                    if (reputationResponse.otherError.isDefined) {
-                      val errorKey = reputationResponse.otherError.map(_.code).getOrElse("account-does-not-exist")
-                      val form     = BankAccountController.enterBankDetailsForm
-                        .fill(bankAccountDetails)
-                        .withError("enter-bank-details", s"error.$errorKey")
-                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
-                      val form = BankAccountController.enterBankDetailsForm
-                        .withError("enter-bank-details", "error.moc-check-no")
-                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
-                      val form = BankAccountController.enterBankDetailsForm
-                        .withError("enter-bank-details", "error.moc-check-failed")
-                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else if (reputationResponse.accountExists === Some(ReputationResponse.Error)) {
-                      val form = BankAccountController.enterBankDetailsForm
-                        .fill(bankAccountDetails)
-                        .withError("enter-bank-details", s"error.account-exists-error")
-                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
-                      val form = BankAccountController.enterBankDetailsForm
-                        .withError("enter-bank-details", s"error.account-does-not-exist")
-                      BadRequest(enterBankAccountDetailsPage(form, router, isAmend))
-                    } else {
-                      Redirect(router.nextPageForEnterBankAccountDetails(true))
-                    }
-                )
-              }
-            )
+                }
+              )
+        }
       }
     }
-
 }
 
 object BankAccountController {
@@ -260,17 +204,15 @@ object BankAccountController {
         _.value
       )
 
-  val sortCodeRegex: Predicate[String]   = "^\\d{6}$".r.pattern.asPredicate()
   val sortCodeMapping: Mapping[SortCode] =
     nonEmptyText
       .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
-      .verifying("invalid", e => sortCodeRegex.test(e.value))
+      .verifying("invalid", e => SortCode.regex.test(e.value))
 
-  val accountNameRegex: Predicate[String]      = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
   val accountNameMapping: Mapping[AccountName] =
     nonEmptyText(maxLength = 40)
       .transform[AccountName](s => AccountName(s.trim()), _.value)
-      .verifying("invalid", e => accountNameRegex.test(e.value))
+      .verifying("invalid", e => AccountName.regex.test(e.value))
 
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(

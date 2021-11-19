@@ -33,12 +33,12 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[MRN], isCompleted: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[MRN], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-movement-reference-number"}
 @title = @{messages(lang(key, router.subKey, "title"))}
 
-@postAction = @{router.submitUrlForEnterMovementReferenceNumber(isCompleted)}
+@postAction = @{router.submitUrlForEnterMovementReferenceNumber()}
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 

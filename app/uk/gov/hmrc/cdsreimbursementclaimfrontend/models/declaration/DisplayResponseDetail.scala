@@ -30,7 +30,7 @@ final case class DisplayResponseDetail(
   consigneeDetails: Option[ConsigneeDetails],
   accountDetails: Option[List[AccountDetails]],
   bankDetails: Option[BankDetails],
-  maskedBankDetails: Option[MaskedBankDetails],
+  maskedBankDetails: Option[BankDetails],
   ndrcDetails: Option[List[NdrcDetails]]
 )
 
