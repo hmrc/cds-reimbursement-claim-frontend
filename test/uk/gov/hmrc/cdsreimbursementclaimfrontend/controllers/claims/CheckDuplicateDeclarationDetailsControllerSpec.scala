@@ -208,7 +208,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "0")),
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "true")),
           routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
         )
       }
@@ -223,9 +223,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
           mockGetSession(session._1)
         }
 
-        checkIsRedirect(
-          performAction(journey, Seq(checkDeclarationDetailsKey -> "1")),
-          routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey)
+        checkPageIsDisplayed(
+          performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
+          "Tell us your duplicate Movement Reference Number (MRN)"
         )
       }
 

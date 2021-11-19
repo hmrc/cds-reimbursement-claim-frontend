@@ -410,13 +410,14 @@ select-who-is-making-the-claim.details.paragraph.2=A representative company can 
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Check these declaration details are correct
+check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate MRN
 check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a>.
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
-check-declaration-details.error.invalid=Select yes if you wish to continue with this MRN.
-check-declaration-details.error.number=Select yes if you wish to continue with this MRN.
-check-declaration-details.error.required=Select yes if you wish to continue with this MRN.
+check-declaration-details.error.invalid=Select Yes if this MRN information is correct.
+check-declaration-details.error.number=Select Yes if this MRN information is correct.
+check-declaration-details.error.required=Select Yes if this MRN information is correct.
 check-declaration-details.scheduled.mrn-number.label=Lead MRN
 
 #===================================================
@@ -774,15 +775,17 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim totals for your MRN
+check-claim-summary.title=Check the reimbursement claim total for your MRN
+check-claim-summary.scheduled.title=Check the reimbursement claim totals for all MRNs
 check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Total reimbursement
+check-claim-summary.total=Reimbursement for this MRN
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
