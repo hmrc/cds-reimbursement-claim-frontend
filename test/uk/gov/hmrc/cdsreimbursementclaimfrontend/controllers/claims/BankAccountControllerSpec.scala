@@ -118,7 +118,7 @@ class BankAccountControllerSpec
   }
 
   private def sessionWithMaskedBankDetails(
-    maybeMaskedBankDetails: Option[MaskedBankDetails],
+    maybeMaskedBankDetails: Option[BankDetails],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer]
   ): (SessionData, FillingOutClaim, DraftClaim) = {
     val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = maybeMaskedBankDetails)
@@ -160,7 +160,7 @@ class BankAccountControllerSpec
     "Check Bank Account Details" should {
 
       "Redirect when MaskedBankDetails is empty" in forAll(journeys) { journey =>
-        val maskedBankDetails = MaskedBankDetails(None, None)
+        val maskedBankDetails = BankDetails(None, None)
         val (session, _, _)   =
           sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
 
@@ -191,8 +191,8 @@ class BankAccountControllerSpec
       }
 
       "Ok when MaskedBankDetails has consigneeBankDetails" in forAll(journeys) { journey =>
-        val consigneeDetails  = sample[ConsigneeBankDetails]
-        val maskedBankDetails = MaskedBankDetails(Some(consigneeDetails), None)
+        val consigneeDetails  = sample[BankAccountDetails]
+        val maskedBankDetails = BankDetails(Some(consigneeDetails), None)
         val (session, _, _)   =
           sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
         inSequence {
@@ -205,8 +205,8 @@ class BankAccountControllerSpec
       }
 
       "Ok when MaskedBankDetails has declarantBankDetails" in forAll(journeys) { journey =>
-        val declarantBankDetails = sample[DeclarantBankDetails]
-        val maskedBankDetails    = MaskedBankDetails(None, Some(declarantBankDetails))
+        val declarantBankDetails = sample[BankAccountDetails]
+        val maskedBankDetails    = BankDetails(None, Some(declarantBankDetails))
         val (session, _, _)      =
           sessionWithMaskedBankDetails(Some(maskedBankDetails), toTypeOfClaim(journey).some)
         inSequence {

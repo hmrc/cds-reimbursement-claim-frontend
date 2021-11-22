@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeBankDetails, DisplayDeclaration, DisplayResponseDetail, MaskedBankDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, DisplayDeclaration, DisplayResponseDetail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
@@ -44,8 +44,8 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
     }
 
     "Use the maskedBankDetails from ACC14 when it was not changed manually on the MRN journey" in {
-      val consigneeBankDetails  = sample[ConsigneeBankDetails]
-      val bankAccount           = sample[MaskedBankDetails].copy(consigneeBankDetails = Some(consigneeBankDetails))
+      val consigneeBankDetails  = sample[BankAccountDetails]
+      val bankAccount           = sample[BankDetails].copy(consigneeBankDetails = Some(consigneeBankDetails))
       val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = Some(bankAccount))
       val completeC285Claim     = sample[CompleteClaim]
         .copy(
@@ -54,9 +54,9 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
           bankAccountDetailsAnswer = None
         )
       val bankDetails           = completeC285Claim.bankDetails.getOrElse(fail("No bank details"))
-      bankDetails.accountName.value   shouldBe consigneeBankDetails.accountHolderName
-      bankDetails.sortCode.value      shouldBe consigneeBankDetails.sortCode
-      bankDetails.accountNumber.value shouldBe consigneeBankDetails.accountNumber
+      bankDetails.accountName   shouldBe consigneeBankDetails.accountName
+      bankDetails.sortCode      shouldBe consigneeBankDetails.sortCode
+      bankDetails.accountNumber shouldBe consigneeBankDetails.accountNumber
     }
   }
 }

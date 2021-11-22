@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.magnolia._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, BankAccountDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{genContactDetails, genEstablishmentAddress, genNdrcDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AccountDetailsGen.genAccountDetails
@@ -41,42 +42,22 @@ object DisplayResponseDetailGen {
     contactDetails       <- Gen.option(genContactDetails)
   } yield ConsigneeDetails(eori, legalName, establishmentAddress, contactDetails)
 
-  lazy val genConsigneeBankDetails: Gen[ConsigneeBankDetails] =
+  lazy val genBankAccountDetails: Gen[BankAccountDetails] =
     for {
       accountHolderName <- genStringWithMaxSizeOfN(15)
       sortCode          <- genSortCode
       accountNumber     <- genAccountNumber
-    } yield ConsigneeBankDetails(
-      accountHolderName,
-      sortCode.value,
-      accountNumber.value
-    )
-
-  lazy val genDeclarantBankDetails: Gen[DeclarantBankDetails] =
-    for {
-      accountHolderName <- genStringWithMaxSizeOfN(15)
-      sortCode          <- genSortCode
-      accountNumber     <- genAccountNumber
-    } yield DeclarantBankDetails(
-      accountHolderName,
-      sortCode.value,
-      accountNumber.value
+    } yield BankAccountDetails(
+      AccountName(accountHolderName),
+      sortCode,
+      accountNumber
     )
 
   lazy val genBankDetails: Gen[BankDetails] =
     for {
-      consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
-      declarantBankDetails <- Gen.option(genDeclarantBankDetails)
+      consigneeBankDetails <- Gen.option(genBankAccountDetails)
+      declarantBankDetails <- Gen.option(genBankAccountDetails)
     } yield BankDetails(
-      consigneeBankDetails = consigneeBankDetails,
-      declarantBankDetails = declarantBankDetails
-    )
-
-  lazy val genMaskedBankDetails: Gen[MaskedBankDetails] =
-    for {
-      consigneeBankDetails <- Gen.option(genConsigneeBankDetails)
-      declarantBankDetails <- Gen.option(genDeclarantBankDetails)
-    } yield MaskedBankDetails(
       consigneeBankDetails = consigneeBankDetails,
       declarantBankDetails = declarantBankDetails
     )
@@ -94,7 +75,7 @@ object DisplayResponseDetailGen {
       consigneeDetails         <- Gen.option(genConsigneeDetails)
       accountDetails           <- Gen.option(Gen.nonEmptyListOf(genAccountDetails))
       bankDetails              <- Gen.option(genBankDetails)
-      maskedBankDetails        <- Gen.option(genMaskedBankDetails)
+      maskedBankDetails        <- Gen.option(genBankDetails)
       ndrcDetails              <- Gen.option(Gen.nonEmptyListOf(genNdrcDetails))
     } yield DisplayResponseDetail(
       declarationId = declarationId,
@@ -118,18 +99,9 @@ object DisplayResponseDetailGen {
   implicit lazy val arbitraryConsigneeDetails: Typeclass[ConsigneeDetails] =
     Arbitrary(genConsigneeDetails)
 
-  implicit lazy val arbitraryConsigneeBankDetails: Typeclass[ConsigneeBankDetails] =
-    Arbitrary(genConsigneeBankDetails)
-
-  implicit lazy val arbitraryDeclarantBankDetails: Typeclass[DeclarantBankDetails] =
-    Arbitrary(genDeclarantBankDetails)
-
   implicit lazy val arbitraryDisplayResponseDetail: Typeclass[DisplayResponseDetail] =
     Arbitrary(genDisplayResponseDetail)
 
   implicit lazy val arbitraryBankDetails: Typeclass[BankDetails] =
     Arbitrary(genBankDetails)
-
-  implicit lazy val arbitraryMaskedBankDetails: Typeclass[MaskedBankDetails] =
-    Arbitrary(genMaskedBankDetails)
 }
