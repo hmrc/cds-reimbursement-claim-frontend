@@ -411,7 +411,7 @@ select-who-is-making-the-claim.details.paragraph.2=A representative company can 
 #===================================================
 check-declaration-details.title=Check these declaration details are correct
 check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate MRN
-check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a>.
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration.
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
