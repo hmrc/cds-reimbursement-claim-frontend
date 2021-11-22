@@ -85,52 +85,57 @@ class EnterMovementReferenceNumberController @Inject() (
               ),
             mrnNumber => {
 
-              def getDeclaration(mrn: MRN) = claimService
-                .getDisplayDeclaration(mrn)
-                .leftMap(_ => Error("Could not get declaration"))
+              def getDeclaration(mrn: MRN): EitherT[Future, Error, Option[DisplayDeclaration]] =
+                claimService
+                  .getDisplayDeclaration(mrn)
+                  .leftMap(_ => Error("Could not get declaration"))
 
-              val isSameAsPrevious = previousAnswer.exists(_.value === mrnNumber.value)
+              val isSameAsPrevious: Boolean =
+                previousAnswer.exists(_.value === mrnNumber.value)
 
               if (isSameAsPrevious && fillingOutClaim.draftClaim.isComplete)
                 Redirect(routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey))
               else if (isSameAsPrevious && journey === JourneyBindable.Multiple)
                 Redirect(routes.CheckMovementReferenceNumbersController.showMrns())
               else {
-                val result = for {
-                  maybeAcc14     <- if (isSameAsPrevious)
-                                      EitherT
-                                        .fromOption[Future](
-                                          fillingOutClaim.draftClaim.displayDeclaration,
-                                          mrnNumber
-                                        )
-                                        .leftFlatMap(getDeclaration)
-                                    else getDeclaration(mrnNumber)
-                  mrnJourneyFlow <-
-                    fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
-                      .leftMap(_ => Error("could not evaluate MRN flow"))
+                val result: EitherT[Future, Error, MrnJourney] =
+                  for {
+                    maybeAcc14     <- if (isSameAsPrevious)
+                                        EitherT
+                                          .fromOption[Future](
+                                            fillingOutClaim.draftClaim.displayDeclaration,
+                                            mrnNumber
+                                          )
+                                          .map(Some.apply)
+                                          .leftFlatMap(getDeclaration)
+                                      else
+                                        getDeclaration(mrnNumber)
+                    mrnJourneyFlow <-
+                      fromEither[Future](evaluateMrnJourneyFlow(fillingOutClaim.signedInUserDetails, maybeAcc14))
+                        .leftMap(_ => Error("could not evaluate MRN flow"))
 
-                  declaration   <-
-                    fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
-                  contactDetails = extractContactDetails(
-                                     declaration,
-                                     mrnJourneyFlow,
-                                     fillingOutClaim.signedInUserDetails.verifiedEmail
-                                   )
+                    declaration   <-
+                      fromOption[Future](maybeAcc14, Error("could not unbox display declaration"))
+                    contactDetails = extractContactDetails(
+                                       declaration,
+                                       mrnJourneyFlow,
+                                       fillingOutClaim.signedInUserDetails.verifiedEmail
+                                     )
 
-                  contactAddress = extractContactAddress(declaration, mrnJourneyFlow)
-                  _             <-
-                    EitherT(
-                      updateSession(sessionStore, request)(
-                        if (fillingOutClaim.draftClaim.isComplete)
-                          renewMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
-                        else
-                          updateMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
-                      )
-                    ).leftMap(_ => Error("Could not save Display Declaration"))
-                } yield mrnJourneyFlow
+                    contactAddress = extractContactAddress(declaration, mrnJourneyFlow)
+                    _             <-
+                      EitherT(
+                        updateSession(sessionStore, request)(
+                          if (fillingOutClaim.draftClaim.isComplete)
+                            renewMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+                          else
+                            updateMrnAndAcc14(fillingOutClaim, mrnNumber, declaration, contactDetails, contactAddress)
+                        )
+                      ).leftMap(_ => Error("Could not save Display Declaration"))
+                  } yield mrnJourneyFlow
                 result.fold(
                   e => {
-                    logger.warn("Mrn submission failed: ", e)
+                    logger.warn(s"Mrn submission failed: ${e.message}")
                     Redirect(baseRoutes.IneligibleController.ineligible())
                   },
                   mrnJourney =>
