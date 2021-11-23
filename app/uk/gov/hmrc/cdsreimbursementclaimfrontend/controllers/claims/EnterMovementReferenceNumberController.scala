@@ -103,6 +103,7 @@ class EnterMovementReferenceNumberController @Inject() (
                                           fillingOutClaim.draftClaim.displayDeclaration,
                                           mrnNumber
                                         )
+                                        .map(Some.apply)
                                         .leftFlatMap(getDeclaration)
                                     else getDeclaration(mrnNumber)
                   mrnJourneyFlow <-
@@ -130,7 +131,7 @@ class EnterMovementReferenceNumberController @Inject() (
                 } yield mrnJourneyFlow
                 result.fold(
                   e => {
-                    logger.warn("Mrn submission failed: ", e)
+                    logger.warn(s"Mrn submission failed: ${e.message}")
                     Redirect(baseRoutes.IneligibleController.ineligible())
                   },
                   mrnJourney =>
