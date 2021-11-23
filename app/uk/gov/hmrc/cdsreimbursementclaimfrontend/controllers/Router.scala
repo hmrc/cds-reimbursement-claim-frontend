@@ -37,6 +37,9 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForEnterBankAccountDetails(): Call =
     claimRoutes.BankAccountController.enterBankAccountDetailsSubmit(journeyBindable)
 
+  def submitUrlForEnterMovementReferenceNumber(): Call =
+    claimRoutes.EnterMovementReferenceNumberController.enterMrnSubmit(journeyBindable)
+
   def submitUrlForCheckDeclarationDetails(): Call =
     claimRoutes.CheckDeclarationDetailsController.submit(journeyBindable)
 

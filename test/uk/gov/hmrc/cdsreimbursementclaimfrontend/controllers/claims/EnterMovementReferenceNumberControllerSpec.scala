@@ -16,14 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Functor
+import cats.Id
 import cats.data.EitherT
 import cats.implicits._
-import cats.{Functor, Id}
 import org.jsoup.nodes.Document
 import org.scalacheck.Gen
-import org.scalatest.{EitherValues, OptionValues}
+import org.scalatest.EitherValues
+import org.scalatest.OptionValues
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
@@ -31,20 +36,26 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.C285JourneySessionFixtures
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, JourneyExtractor, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{genOtherThan, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.genOtherThan
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,7 +67,8 @@ class EnterMovementReferenceNumberControllerSpec
     with SessionSupport
     with ScalaCheckPropertyChecks
     with OptionValues
-    with EitherValues {
+    with EitherValues
+    with C285JourneySessionFixtures {
 
   val mockClaimsService: ClaimService = mock[ClaimService]
 
@@ -82,27 +94,6 @@ class EnterMovementReferenceNumberControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 2)
 
-  private def sessionWithClaimState(
-    maybeMovementReferenceNumberAnswer: Option[MRN],
-    typeOfClaim: Option[TypeOfClaimAnswer]
-  ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      =
-      DraftClaim.blank.copy(
-        movementReferenceNumber = maybeMovementReferenceNumberAnswer,
-        typeOfClaim = typeOfClaim
-      )
-    val ggCredId            = sample[GGCredId]
-    val signedInUserDetails = sample[SignedInUserDetails]
-    val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (
-      SessionData.empty.copy(
-        journeyStatus = Some(journey)
-      ),
-      journey,
-      draftC285Claim
-    )
-  }
-
   def getErrorSummary(document: Document): String =
     document.select(".govuk-error-summary__list > li > a").text()
 
@@ -115,7 +106,7 @@ class EnterMovementReferenceNumberControllerSpec
     ) = {
       featureSwitch.BulkClaim.enable()
 
-      val (session, _, _) = sessionWithClaimState(None, Some(typeOfClaim))
+      val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(typeOfClaim))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -170,7 +161,7 @@ class EnterMovementReferenceNumberControllerSpec
         val typeOfClaim = toTypeOfClaim(journeyBindable)
         val router      = JourneyExtractor.getRoutes(typeOfClaim, journeyBindable)
 
-        val (session, _, _) = sessionWithClaimState(mrnAnswer.some, Some(typeOfClaim))
+        val (session, _) = sessionWithMRNAndTypeOfClaimOnly(mrnAnswer.some, Some(typeOfClaim))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -192,35 +183,6 @@ class EnterMovementReferenceNumberControllerSpec
 
     }
 
-    "Change MRN page" must {
-      def performAction(journeyBindable: JourneyBindable): Future[Result] =
-        controller.changeJourneyMrn(journeyBindable)(FakeRequest())
-
-      "display the title and the previously saved MRN" in forAll { (mrnAnswer: MRN, journeyBindable: JourneyBindable) =>
-        val typeOfClaim = toTypeOfClaim(journeyBindable)
-        val router      = JourneyExtractor.getRoutes(typeOfClaim, journeyBindable)
-
-        val (session, _, _) = sessionWithClaimState(mrnAnswer.some, Some(typeOfClaim))
-
-        inSequence {
-          mockAuthWithNoRetrievals()
-          mockGetSession(session)
-        }
-
-        checkPageIsDisplayed(
-          performAction(journeyBindable),
-          messageFromMessageKey(
-            s"$enterMovementReferenceNumberKey${router.subKey.map(a => s".$a").getOrElse("")}.title"
-          ),
-          doc => {
-            doc.select(s"#$enterMovementReferenceNumberKey").`val`() shouldBe mrnAnswer.value
-            doc.select("form").attr("action")                        shouldBe
-              routes.EnterMovementReferenceNumberController.changeMrnSubmit(journeyBindable).url
-          }
-        )
-      }
-    }
-
     "We enter an MRN for the first time or update it with the back button (enterMrnSubmit)" must {
 
       def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
@@ -231,7 +193,7 @@ class EnterMovementReferenceNumberControllerSpec
         val typeOfClaim = toTypeOfClaim(journeyBindable)
         val router      = JourneyExtractor.getRoutes(typeOfClaim, journeyBindable)
 
-        val (session, _, _) = sessionWithClaimState(None, Some(toTypeOfClaim(journeyBindable)))
+        val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(toTypeOfClaim(journeyBindable)))
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -257,8 +219,8 @@ class EnterMovementReferenceNumberControllerSpec
           displayDeclaration: DisplayDeclaration,
           mrn: MRN
         ) =>
-          val (session, foc, _) =
-            sessionWithClaimState(None, Some(toTypeOfClaim(journeyBindable)))
+          val (session, foc) =
+            sessionWithMRNAndTypeOfClaimOnly(None, Some(toTypeOfClaim(journeyBindable)))
 
           val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = foc.signedInUserDetails.eori.value)
           val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
@@ -289,9 +251,9 @@ class EnterMovementReferenceNumberControllerSpec
           consigneeDetails: ConsigneeDetails,
           mrn: MRN
         ) =>
-          val mrnAnswer         = mrn.some
-          val (session, foc, _) =
-            sessionWithClaimState(mrnAnswer, Some(toTypeOfClaim(journeyBindable)))
+          val mrnAnswer      = mrn.some
+          val (session, foc) =
+            sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(toTypeOfClaim(journeyBindable)))
 
           val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = foc.signedInUserDetails.eori.value)
           val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
@@ -322,8 +284,8 @@ class EnterMovementReferenceNumberControllerSpec
           genConsigneeDetails,
           arbitraryDisplayDeclaration.arbitrary
         ) { (journeyBindable, mrn, consigneeDetails, displayDeclaration) =>
-          val mrnAnswer         = mrn.some
-          val (session, foc, _) = sessionWithClaimState(mrnAnswer, Some(toTypeOfClaim(journeyBindable)))
+          val mrnAnswer      = mrn.some
+          val (session, foc) = sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(toTypeOfClaim(journeyBindable)))
 
           val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = foc.signedInUserDetails.eori.value)
           val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
@@ -350,8 +312,9 @@ class EnterMovementReferenceNumberControllerSpec
 
       "Redirect back to Check Movement Numbers page when Lead MRN unchanged" in
         forAll { mrn: MRN =>
-          val mrnAnswer       = mrn.some
-          val (session, _, _) = sessionWithClaimState(mrnAnswer, Some(toTypeOfClaim(JourneyBindable.Multiple)))
+          val mrnAnswer    = mrn.some
+          val (session, _) =
+            sessionWithMRNAndTypeOfClaimOnly(mrnAnswer, Some(toTypeOfClaim(JourneyBindable.Multiple)))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -375,7 +338,7 @@ class EnterMovementReferenceNumberControllerSpec
           mrn: MRN,
           eori: Eori
         ) =>
-          val (session, _, _) = sessionWithClaimState(None, Some(toTypeOfClaim(journeyBindable)))
+          val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(toTypeOfClaim(journeyBindable)))
 
           val updatedConsigneeDetails   = consigneeDetails.copy(consigneeEORI = eori.value)
           val updatedDisplayDeclaration = Functor[Id].map(displayDeclaration)(dd =>
@@ -405,16 +368,17 @@ class EnterMovementReferenceNumberControllerSpec
   "We update an MRN coming from the Check Your Answer page (changeMrnSubmit)" must {
 
     def performAction(journeyBindable: JourneyBindable, data: (String, String)*): Future[Result] =
-      controller.changeMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
+      controller.enterMrnSubmit(journeyBindable)(FakeRequest().withFormUrlEncodedBody(data: _*))
 
     "return to CYA page if the same MRN is submitted" in forAll { (journeyBindable: JourneyBindable, mrn: MRN) =>
-      val answers         = mrn.some
-      val (session, _, _) = sessionWithClaimState(answers, Some(toTypeOfClaim(journeyBindable)))
+      val (session, _) =
+        sessionWithCompleteC285Claim(mrn, toTypeOfClaim(journeyBindable))
+
       inSequence {
         mockAuthWithNoRetrievals()
         mockGetSession(session)
       }
-      val result          = performAction(journeyBindable, enterMovementReferenceNumberKey -> mrn.value)
+      val result = performAction(journeyBindable, enterMovementReferenceNumberKey -> mrn.value)
 
       status(result) shouldBe 303
       redirectLocation(
@@ -424,14 +388,12 @@ class EnterMovementReferenceNumberControllerSpec
 
     "start a new claim if a different MRN is submitted" in {
       (
-        reference: MRN,
         journeyBindable: JourneyBindable,
         displayDeclaration: DisplayDeclaration,
         mrn: MRN
       ) =>
-        val answers         = reference.some
-        val (session, _, _) =
-          sessionWithClaimState(answers, Some(toTypeOfClaim(journeyBindable)))
+        val (session, _) =
+          sessionWithCompleteC285Claim(mrn, toTypeOfClaim(journeyBindable))
 
         inSequence {
           mockAuthWithNoRetrievals()
