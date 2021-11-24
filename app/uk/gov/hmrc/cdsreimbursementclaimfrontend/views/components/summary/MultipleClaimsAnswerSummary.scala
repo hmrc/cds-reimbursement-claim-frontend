@@ -17,6 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
@@ -33,7 +34,7 @@ class MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbu
     messages: Messages
   ): SummaryList = {
     val amendCall =
-      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary().setChangeFlag
+      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary(JourneyBindable.Multiple).setChangeFlag
 
     val totalAmount: BigDecimal =
       mrnsWithClaimsList.flatMap(_._2.toList.map(_.claimAmount)).sum
