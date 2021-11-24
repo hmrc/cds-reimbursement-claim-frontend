@@ -101,6 +101,9 @@ class CheckContactDetailsMrnController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
+        implicit val routes: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        import routes._
+
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         whetherContinue
           .bindFromRequest()
@@ -109,25 +112,27 @@ class CheckContactDetailsMrnController @Inject() (
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
-            answer =>
-              answer match {
-                case Yes =>
-                  Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
-                case No  =>
-                  val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
-                    _.copy(
-                      mrnContactDetailsAnswer = None,
-                      mrnContactAddressAnswer = None
-                    )
+            {
+              case answer@Yes =>
+                Redirect(
+                  CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                    router.nextPageForChangeClaimantDetails(answer, featureSwitch)
                   )
+                )
+              case answer@No =>
+                val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
+                  _.copy(
+                    mrnContactDetailsAnswer = None,
+                    mrnContactAddressAnswer = None)
+                )
 
-                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
-                    .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
-                    .fold(
-                      e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                      _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
-                    )
-              }
+                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                  .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
+                  .fold(
+                    e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
+                    _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
+                  )
+            }
           )
       }
     }
