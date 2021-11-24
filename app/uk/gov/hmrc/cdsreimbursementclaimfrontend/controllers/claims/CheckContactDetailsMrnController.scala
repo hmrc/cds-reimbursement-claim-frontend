@@ -101,9 +101,6 @@ class CheckContactDetailsMrnController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        implicit val routes: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
-        import routes._
-
         val mandatoryDataAvailable = fillingOutClaim.draftClaim.isMandatoryContactDataAvailable
         whetherContinue
           .bindFromRequest()
@@ -113,17 +110,15 @@ class CheckContactDetailsMrnController @Inject() (
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             {
-              case answer@Yes =>
+              case answer @ Yes =>
                 Redirect(
-                  CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                  router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                     router.nextPageForChangeClaimantDetails(answer, featureSwitch)
                   )
                 )
-              case answer@No =>
+              case answer @ No  =>
                 val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
-                  _.copy(
-                    mrnContactDetailsAnswer = None,
-                    mrnContactAddressAnswer = None)
+                  _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
                 )
 
                 EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
