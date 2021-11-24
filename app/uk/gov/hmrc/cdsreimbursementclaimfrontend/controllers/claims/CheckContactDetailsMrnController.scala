@@ -109,25 +109,25 @@ class CheckContactDetailsMrnController @Inject() (
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
-            answer =>
-              answer match {
-                case Yes =>
-                  Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
-                case No  =>
-                  val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
-                    _.copy(
-                      mrnContactDetailsAnswer = None,
-                      mrnContactAddressAnswer = None
-                    )
+            {
+              case answer @ Yes =>
+                Redirect(
+                  router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                    router.nextPageForChangeClaimantDetails(answer, featureSwitch)
                   )
+                )
+              case answer @ No  =>
+                val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
+                  _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
+                )
 
-                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
-                    .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
-                    .fold(
-                      e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                      _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
-                    )
-              }
+                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                  .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
+                  .fold(
+                    e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
+                    _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
+                  )
+            }
           )
       }
     }
