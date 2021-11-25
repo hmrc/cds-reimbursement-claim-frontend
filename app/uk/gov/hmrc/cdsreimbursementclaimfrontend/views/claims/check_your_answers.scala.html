@@ -119,6 +119,7 @@
     }
 
     @if(claim.typeOfClaim.contains(TypeOfClaimAnswer.Multiple)) {
+        @pageHeading(messages(s"$key.multiple-claim-totals.label"), "govuk-heading-m govuk-!-margin-top-9", "h2")
         @summary(claim.multipleClaimsAnswer.summary(s"$key.claim-calculation"))
     }
 
