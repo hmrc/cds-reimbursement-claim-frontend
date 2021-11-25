@@ -194,16 +194,6 @@ class EnterMultipleClaimsController @Inject() (
                         },
                         {
                           case Yes =>
-                            //case answer @ Yes =>
-                            //                Redirect(
-                            //                  router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                            //                    router.nextPageForChangeClaimantDetails(answer, featureSwitch)
-                            //                  )
-                            //                )
-                            //              case answer @ No  =>
-                            //                val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
-                            //                  _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
-                            //                )
                             Redirect(
                               router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                                 routes.BankAccountController.checkBankAccountDetails(Multiple)
