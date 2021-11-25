@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.Id
+import cats.{Eq, Id}
 import cats.implicits.catsSyntaxOption
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
 
-sealed trait DeclarantTypeAnswer extends Product with Serializable
+sealed trait DeclarantTypeAnswer
 
 object DeclarantTypeAnswer {
 
@@ -33,6 +33,9 @@ object DeclarantTypeAnswer {
   val validator: Validator[Id, DeclarantTypeAnswer] = (maybeDeclarantType: Option[DeclarantTypeAnswer]) =>
     maybeDeclarantType.toValidNel(MissingAnswerError("Declarant type"))
 
-  implicit val declarantTypeFormat: OFormat[DeclarantTypeAnswer] =
+  implicit val equality: Eq[DeclarantTypeAnswer] =
+    Eq.fromUniversalEquals[DeclarantTypeAnswer]
+
+  implicit val format: OFormat[DeclarantTypeAnswer] =
     derived.oformat[DeclarantTypeAnswer]()
 }

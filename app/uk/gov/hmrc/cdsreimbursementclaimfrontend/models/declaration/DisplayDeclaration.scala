@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.Id
+import cats.{Eq, Id}
 import cats.implicits._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
@@ -95,4 +95,6 @@ object DisplayDeclaration {
   }
 
   implicit val format: OFormat[DisplayDeclaration] = Json.format[DisplayDeclaration]
+
+  implicit val equality: Eq[DisplayDeclaration] = Eq.fromUniversalEquals[DisplayDeclaration]
 }

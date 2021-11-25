@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer._
+import cats.Eq
+import julienrf.json.derived
+import play.api.libs.json.OFormat
 
-object DeclarantTypeAnswers {
+final case class InspectionAddress(
+  addressLine1: String,
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  townOrCity: Option[String],
+  postalCode: String
+)
 
-  val all: IndexedSeq[DeclarantTypeAnswer] =
-    IndexedSeq[DeclarantTypeAnswer](
-      Importer,
-      AssociatedWithImporterCompany,
-      AssociatedWithRepresentativeCompany
-    )
+object InspectionAddress {
 
-  def apply(index: Int): DeclarantTypeAnswer =
-    all(index)
+  implicit val equality: Eq[DocumentTypeRejectedGoods] =
+    Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
 
-  def indexOf(answer: DeclarantTypeAnswer): Int =
-    all.indexOf(answer)
-
-  def size: Int = all.size
+  implicit val format: OFormat[InspectionAddress] =
+    derived.oformat[InspectionAddress]()
 }
