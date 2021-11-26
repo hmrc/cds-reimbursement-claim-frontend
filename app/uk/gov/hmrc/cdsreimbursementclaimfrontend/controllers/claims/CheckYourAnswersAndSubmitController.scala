@@ -63,7 +63,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
-        Ok(checkYourAnswersPage(fillingOutClaim.draftClaim))
+        Ok(checkYourAnswersPage(fillingOutClaim.draftClaim, fillingOutClaim.signedInUserDetails.verifiedEmail))
       }
     }
 

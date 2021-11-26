@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.Applicative
 import cats.data.EitherT
 import cats.implicits.catsSyntaxOptionId
 import cats.syntax.all._
@@ -35,9 +34,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions.TimeoutConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, YesNo}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{NamePhoneEmail, PhoneNumber}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, MrnContactDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
@@ -200,8 +197,8 @@ class CheckContactDetailsMrnController @Inject() (
     claimantDetailsPage(
       form,
       mandatoryDataAvailable,
-      extractDetailsRegisteredWithCDS(fillingOutClaim),
-      extractEstablishmentAddress(fillingOutClaim),
+      fillingOutClaim.draftClaim.extractDetailsRegisteredWithCDS(fillingOutClaim.signedInUserDetails.verifiedEmail),
+      fillingOutClaim.draftClaim.extractEstablishmentAddress,
       fillingOutClaim.draftClaim.mrnContactDetailsAnswer,
       fillingOutClaim.draftClaim.mrnContactAddressAnswer,
       router
@@ -225,38 +222,4 @@ object CheckContactDetailsMrnController {
   val checkContactDetailsKey: String = "claimant-details"
 
   val whetherContinue: Form[YesNo] = YesOrNoQuestionForm(checkContactDetailsKey)
-
-  def extractDetailsRegisteredWithCDS(fillingOutClaim: FillingOutClaim): NamePhoneEmail = {
-    val email = fillingOutClaim.signedInUserDetails.verifiedEmail
-    Applicative[Option]
-      .map2(fillingOutClaim.draftClaim.displayDeclaration, fillingOutClaim.draftClaim.declarantTypeAnswer) {
-        (declaration, declarantType) =>
-          declarantType match {
-            case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-              val consignee = declaration.displayResponseDetail.consigneeDetails
-              val name      = consignee.map(_.legalName)
-              val phone     = consignee.flatMap(_.contactDetails.flatMap(_.telephone))
-              NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(email))
-            case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-              val declarant = declaration.displayResponseDetail.declarantDetails
-              val name      = declarant.legalName
-              val phone     = declarant.contactDetails.flatMap(_.telephone)
-              NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(email))
-          }
-      }
-      .getOrElse(NamePhoneEmail(None, None, None))
-  }
-
-  def extractEstablishmentAddress(fillingOutClaim: FillingOutClaim): Option[EstablishmentAddress] =
-    Applicative[Option]
-      .map2(fillingOutClaim.draftClaim.displayDeclaration, fillingOutClaim.draftClaim.declarantTypeAnswer) {
-        (declaration, declarantType) =>
-          declarantType match {
-            case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-              declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
-            case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-              Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
-          }
-      }
-      .flatten
 }

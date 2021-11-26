@@ -21,15 +21,13 @@ import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.{Individual, Multiple, Scheduled}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNumberAnswer, _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-
 import java.util.UUID
 
 final case class CompleteClaim(
@@ -87,6 +85,48 @@ final case class CompleteClaim(
 }
 
 object CompleteClaim {
+
+  def declarantToClaimantDetails(
+    displayDeclaration: DisplayDeclaration,
+    verifiedEmail: Email
+  ): DetailsRegisteredWithCdsAnswer = {
+    val declaration          = displayDeclaration.displayResponseDetail
+    val establishmentAddress = declaration.declarantDetails.establishmentAddress
+    DetailsRegisteredWithCdsAnswer(
+      declaration.declarantDetails.legalName,
+      verifiedEmail,
+      ContactAddress(
+        establishmentAddress.addressLine1,
+        establishmentAddress.addressLine2,
+        None,
+        establishmentAddress.addressLine3.getOrElse(""),
+        establishmentAddress.postalCode.getOrElse(""),
+        Country(establishmentAddress.countryCode)
+      ),
+      addCompanyDetails = false
+    )
+  }
+
+  def consigneeToClaimantDetails(
+    displayDeclaration: DisplayDeclaration,
+    verifiedEmail: Email
+  ): DetailsRegisteredWithCdsAnswer = {
+    val declaration          = displayDeclaration.displayResponseDetail
+    val establishmentAddress = declaration.consigneeDetails.map(p => p.establishmentAddress)
+    DetailsRegisteredWithCdsAnswer(
+      declaration.consigneeDetails.map(_.legalName).getOrElse(""),
+      verifiedEmail,
+      ContactAddress(
+        establishmentAddress.map(_.addressLine1).getOrElse(""),
+        establishmentAddress.flatMap(_.addressLine2),
+        None,
+        establishmentAddress.flatMap(_.addressLine3).getOrElse(""),
+        establishmentAddress.flatMap(_.postalCode).getOrElse(""),
+        establishmentAddress.map(cc => Country(cc.countryCode)).getOrElse(Country.uk)
+      ),
+      addCompanyDetails = false
+    )
+  }
 
   def detailsRegisteredWithCds(
     declarant: DeclarantTypeAnswer,

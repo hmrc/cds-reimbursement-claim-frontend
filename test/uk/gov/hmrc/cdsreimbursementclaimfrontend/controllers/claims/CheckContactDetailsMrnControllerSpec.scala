@@ -505,12 +505,13 @@ class CheckContactDetailsMrnControllerSpec
         Some(toTypeOfClaim(JourneyBindable.Single))
       )._2
 
-      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
+      val namePhoneEmail =
+        fillingOutClaim.draftClaim.extractDetailsRegisteredWithCDS(fillingOutClaim.signedInUserDetails.verifiedEmail)
       namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
 
-      val address = extractEstablishmentAddress(fillingOutClaim)
+      val address = fillingOutClaim.draftClaim.extractEstablishmentAddress
       address shouldBe acc14consignee.map(_.establishmentAddress)
 
     }
@@ -525,12 +526,13 @@ class CheckContactDetailsMrnControllerSpec
           Some(toTypeOfClaim(JourneyBindable.Single))
         )._2
 
-      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
+      val namePhoneEmail =
+        fillingOutClaim.draftClaim.extractDetailsRegisteredWithCDS(fillingOutClaim.signedInUserDetails.verifiedEmail)
       namePhoneEmail.name                     shouldBe acc14consignee.map(_.legalName)
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14consignee.flatMap(_.contactDetails).flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
 
-      val address = extractEstablishmentAddress(fillingOutClaim)
+      val address = fillingOutClaim.draftClaim.extractEstablishmentAddress
       address shouldBe acc14consignee.map(_.establishmentAddress)
 
     }
@@ -545,12 +547,13 @@ class CheckContactDetailsMrnControllerSpec
           Some(toTypeOfClaim(JourneyBindable.Single))
         )._2
 
-      val namePhoneEmail = extractDetailsRegisteredWithCDS(fillingOutClaim)
+      val namePhoneEmail =
+        fillingOutClaim.draftClaim.extractDetailsRegisteredWithCDS(fillingOutClaim.signedInUserDetails.verifiedEmail)
       namePhoneEmail.name.getOrElse(fail())   shouldBe acc14Declarant.legalName
       namePhoneEmail.phoneNumber.map(_.value) shouldBe acc14Declarant.contactDetails.flatMap(_.telephone)
       namePhoneEmail.email.getOrElse(fail())  shouldBe fillingOutClaim.signedInUserDetails.verifiedEmail
 
-      val address = extractEstablishmentAddress(fillingOutClaim)
+      val address = fillingOutClaim.draftClaim.extractEstablishmentAddress
       address.getOrElse(fail) shouldBe acc14Declarant.establishmentAddress
 
     }
