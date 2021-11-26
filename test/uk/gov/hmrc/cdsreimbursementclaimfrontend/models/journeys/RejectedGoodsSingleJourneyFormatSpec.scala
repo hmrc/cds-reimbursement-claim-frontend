@@ -11,7 +11,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import java.time.LocalDateTime
 import java.time.Instant
 
-class RejectedGoodsSingleJourneySpec
+class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
     with JsonFormatTest
     with Matchers
