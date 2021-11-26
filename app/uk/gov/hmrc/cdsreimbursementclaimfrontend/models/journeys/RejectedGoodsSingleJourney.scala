@@ -36,6 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionUtils._
 
 import java.time.LocalDate
 
@@ -67,7 +68,45 @@ object RejectedGoodsSingleJourney {
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
     supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
-  )
+  ) {
+
+    def isComplete: Boolean =
+      all(
+        movementReferenceNumber,
+        displayDeclaration,
+        allOrNone(importerEoriNumber, declarantEoriNumber),
+        declarantType,
+        allOrNone(contactDetails, contactAddress),
+        basisOfClaim,
+        requiredWhen(basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances))(
+          basisOfClaimSpecialCircumstances
+        ),
+        detailsOfRejectedGoods,
+        nonEmptyMap(reimbursementClaims),
+        allOrNone(inspectionDate, inspectionAddress),
+        allOrNone(bankAccountDetails, bankAccountType),
+        requiredWhen(isAllSelectedDutiesAreCMAEligible)(reimbursementMethodAnswer),
+        nonEmptyMap(supportingEvidences)
+      ).isDefined
+
+    def getNdrcDetails: Option[List[NdrcDetails]] =
+      for {
+        acc14           <- displayDeclaration
+        ndrcDetailsList <- acc14.displayResponseDetail.ndrcDetails
+      } yield ndrcDetailsList
+
+    def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
+      for {
+        ndrcDetailsList <- getNdrcDetails
+        ndrcDetail      <- ndrcDetailsList.find(_.taxType === taxCode.value)
+      } yield ndrcDetail
+
+    def isAllSelectedDutiesAreCMAEligible: Boolean =
+      reimbursementClaims
+        .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
+        .exists(_.forall(_.cmaEligible.isDefined))
+
+  }
 
   object Answers {
     implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
@@ -94,24 +133,7 @@ object RejectedGoodsSingleJourney {
 // Encapsulated C&E1179 single MRN journey logic
 final class RejectedGoodsSingleJourney private (val answers: Answers) {
 
-  def isComplete: Boolean = ???
-
-  def getNdrcDetails: Option[List[NdrcDetails]] =
-    for {
-      acc14           <- answers.displayDeclaration
-      ndrcDetailsList <- acc14.displayResponseDetail.ndrcDetails
-    } yield ndrcDetailsList
-
-  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    for {
-      ndrcDetailsList <- getNdrcDetails
-      ndrcDetail      <- ndrcDetailsList.find(_.taxType === taxCode.value)
-    } yield ndrcDetail
-
-  def isAllDutiesAreCMAEligible: Boolean =
-    answers.reimbursementClaims
-      .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
-      .exists(_.forall(_.cmaEligible.isDefined))
+  def isComplete: Boolean = answers.isComplete
 
   // resets the journey with the new MRN
   def submitMovementReferenceNumber(mrn: MRN): RejectedGoodsSingleJourney =
@@ -245,11 +267,8 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
     answers.displayDeclaration match {
       case None => Left("selectTaxCodeForReimbursement.missingDisplayDeclaration")
 
-      case Some(displayDeclaration) =>
-        val taxCodeExistsInACC14 =
-          displayDeclaration.displayResponseDetail.ndrcDetails.exists(_.exists(_.taxType === taxCode.value))
-
-        if (taxCodeExistsInACC14) {
+      case Some(_) =>
+        if (answers.getNdrcDetailsFor(taxCode).isDefined) {
           val newReimbursementClaims = answers.reimbursementClaims match {
             case None                      => Map(taxCode -> None)
             case Some(reimbursementClaims) =>
@@ -261,6 +280,27 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
           Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
         } else
           Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
+    }
+
+  def selectAndReplaceTaxCodeSetForReimbursement(taxCodeSet: Set[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
+    answers.displayDeclaration match {
+      case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
+
+      case Some(_) =>
+        val allTaxCodesExistInACC14 = taxCodeSet.forall(answers.getNdrcDetailsFor(_).isDefined)
+        if (allTaxCodesExistInACC14) {
+          val newReimbursementClaims = answers.reimbursementClaims match {
+            case None                      =>
+              taxCodeSet.map(taxCode => (taxCode -> None)).toMap
+
+            case Some(reimbursementClaims) =>
+              taxCodeSet.map { taxCode =>
+                taxCode -> reimbursementClaims.get(taxCode).flatten
+              }.toMap
+          }
+          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+        } else
+          Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
     }
 
   def isValidCorrectedAmount(correctedAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
@@ -275,7 +315,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
         Left("submitCorrectedAmountForReimbursement.missingDisplayDeclaration")
 
       case Some(_) =>
-        getNdrcDetailsFor(taxCode) match {
+        answers.getNdrcDetailsFor(taxCode) match {
           case None =>
             Left("submitCorrectedAmountForReimbursement.taxCodeNotInACC14")
 
@@ -341,7 +381,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
   ): Either[String, RejectedGoodsSingleJourney] =
     if (
       reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer ||
-      isAllDutiesAreCMAEligible
+      answers.isAllSelectedDutiesAreCMAEligible
     )
       Right(answers.reimbursementMethodAnswer match {
         case Some(existing) if existing === reimbursementMethodAnswer => this
