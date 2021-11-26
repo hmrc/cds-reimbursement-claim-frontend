@@ -36,7 +36,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionUtils._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionsValidator._
 
 import java.time.LocalDate
 
@@ -84,12 +84,18 @@ object RejectedGoodsSingleJourney {
           basisOfClaimSpecialCircumstances
         ),
         detailsOfRejectedGoods,
-        nonEmptyMap(reimbursementClaims),
+        isCompleteReimbursementClaims,
         allOrNone(inspectionDate, inspectionAddress),
         allOrNone(bankAccountDetails, bankAccountType),
         requiredWhen(isAllSelectedDutiesAreCMAEligible)(reimbursementMethodAnswer),
-        nonEmptyMap(supportingEvidences)
+        isCompleteSupportingEvidences
       ).isDefined
+
+    def isCompleteReimbursementClaims: Boolean =
+      reimbursementClaims.exists(_.forall(_._2.isDefined))
+
+    def isCompleteSupportingEvidences: Boolean =
+      supportingEvidences.exists(_.forall(_._2.isDefined))
 
     def getNdrcDetails: Option[List[NdrcDetails]] =
       for {

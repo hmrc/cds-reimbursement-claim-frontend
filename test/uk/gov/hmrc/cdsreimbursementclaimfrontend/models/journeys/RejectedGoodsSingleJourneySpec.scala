@@ -32,10 +32,12 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.reimbursementClaims               shouldBe None
       emptyJourney.answers.reimbursementMethodAnswer         shouldBe None
       emptyJourney.answers.supportingEvidences               shouldBe None
-      emptyJourney.isComplete                                shouldBe false
       emptyJourney.answers.getNdrcDetails                    shouldBe None
       emptyJourney.answers.getSelectedDuties                 shouldBe None
       emptyJourney.answers.isAllSelectedDutiesAreCMAEligible shouldBe false
+      emptyJourney.answers.isCompleteReimbursementClaims     shouldBe false
+      emptyJourney.answers.isCompleteSupportingEvidences     shouldBe false
+      emptyJourney.isComplete                                shouldBe false
     }
 
     "accept new MRN submission" in {
