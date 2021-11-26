@@ -18,25 +18,29 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
 
 import cats.Eq
 import cats.syntax.eq._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import java.time.LocalDate
+import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
-import RejectedGoodsSingleJourney.Answers
-import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
+
+import java.time.LocalDate
+
+import RejectedGoodsSingleJourney.Answers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object RejectedGoodsSingleJourney {
 
@@ -92,6 +96,23 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
 
   def isComplete: Boolean = ???
 
+  def getNdrcDetails: Option[List[NdrcDetails]] =
+    for {
+      acc14           <- answers.displayDeclaration
+      ndrcDetailsList <- acc14.displayResponseDetail.ndrcDetails
+    } yield ndrcDetailsList
+
+  def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
+    for {
+      ndrcDetailsList <- getNdrcDetails
+      ndrcDetail      <- ndrcDetailsList.find(_.taxType === taxCode.value)
+    } yield ndrcDetail
+
+  def isAllDutiesAreCMAEligible: Boolean =
+    answers.reimbursementClaims
+      .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
+      .exists(_.forall(_.cmaEligible.isDefined))
+
   // resets the journey with the new MRN
   def submitMovementReferenceNumber(mrn: MRN): RejectedGoodsSingleJourney =
     answers.movementReferenceNumber match {
@@ -135,6 +156,233 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
         new RejectedGoodsSingleJourney(
           answers.copy(declarantType = Some(declarantType))
         )
+    }
+
+  def submitContactDetails(contactDetails: MrnContactDetails): RejectedGoodsSingleJourney =
+    answers.contactDetails match {
+      case Some(existing) if existing === contactDetails => this
+      case _                                             =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(contactDetails = Some(contactDetails))
+        )
+    }
+
+  def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =
+    answers.contactAddress match {
+      case Some(existing) if existing === contactAddress => this
+      case _                                             =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(contactAddress = Some(contactAddress))
+        )
+    }
+
+  def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsSingleJourney =
+    answers.basisOfClaim match {
+      case Some(existing) if existing === basisOfClaim => this
+      case _                                           =>
+        basisOfClaim match {
+          case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
+            new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+
+          case _ =>
+            new RejectedGoodsSingleJourney(
+              answers.copy(
+                basisOfClaim = Some(basisOfClaim),
+                basisOfClaimSpecialCircumstances = None
+              )
+            )
+        }
+    }
+
+  def submitBasisOfClaimSpecialCircumstances(
+    basisOfClaimSpecialCircumstances: String
+  ): Either[String, RejectedGoodsSingleJourney] =
+    answers.basisOfClaim match {
+      case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
+        Right(
+          new RejectedGoodsSingleJourney(
+            answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances))
+          )
+        )
+
+      case _ => Left("basisOfClaim.not_matching")
+    }
+
+  // overwrites basisOfClaim with SpecialCircumstances enum value
+  def forceSubmitBasisOfClaimSpecialCircumstances(
+    basisOfClaimSpecialCircumstances: String
+  ): RejectedGoodsSingleJourney =
+    answers.basisOfClaimSpecialCircumstances match {
+      case Some(existing) if existing === basisOfClaimSpecialCircumstances => this
+      case _                                                               =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(
+            basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
+            basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
+          )
+        )
+    }
+
+  def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
+    answers.methodOfDisposal match {
+      case Some(existing) if existing === methodOfDisposal => this
+      case _                                               =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(methodOfDisposal = Some(methodOfDisposal))
+        )
+    }
+
+  def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsSingleJourney =
+    answers.detailsOfRejectedGoods match {
+      case Some(existing) if existing === detailsOfRejectedGoods => this
+      case _                                                     =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
+        )
+    }
+
+  def selectTaxCodeForReimbursement(taxCode: TaxCode): Either[String, RejectedGoodsSingleJourney] =
+    answers.displayDeclaration match {
+      case None => Left("selectTaxCodeForReimbursement.missingDisplayDeclaration")
+
+      case Some(displayDeclaration) =>
+        val taxCodeExistsInACC14 =
+          displayDeclaration.displayResponseDetail.ndrcDetails.exists(_.exists(_.taxType === taxCode.value))
+
+        if (taxCodeExistsInACC14) {
+          val newReimbursementClaims = answers.reimbursementClaims match {
+            case None                      => Map(taxCode -> None)
+            case Some(reimbursementClaims) =>
+              reimbursementClaims.get(taxCode) match {
+                case None => reimbursementClaims + (taxCode -> None)
+                case _    => reimbursementClaims
+              }
+          }
+          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+        } else
+          Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
+    }
+
+  def isValidCorrectedAmount(correctedAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    correctedAmount >= 0 && correctedAmount < BigDecimal(ndrcDetails.amount)
+
+  def submitCorrectedAmountForReimbursement(
+    taxCode: TaxCode,
+    correctedAmount: BigDecimal
+  ): Either[String, RejectedGoodsSingleJourney] =
+    answers.displayDeclaration match {
+      case None =>
+        Left("submitCorrectedAmountForReimbursement.missingDisplayDeclaration")
+
+      case Some(_) =>
+        getNdrcDetailsFor(taxCode) match {
+          case None =>
+            Left("submitCorrectedAmountForReimbursement.taxCodeNotInACC14")
+
+          case Some(ndrcDetails) if isValidCorrectedAmount(correctedAmount, ndrcDetails) =>
+            val newReimbursementClaims = answers.reimbursementClaims match {
+              case None                      => Map(taxCode -> Some(correctedAmount))
+              case Some(reimbursementClaims) =>
+                reimbursementClaims.get(taxCode) match {
+                  case None => reimbursementClaims + (taxCode -> Some(correctedAmount))
+                  case _    => reimbursementClaims
+                }
+            }
+            Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+
+          case _ =>
+            Left("submitCorrectedAmountForReimbursement.invalidAmount")
+        }
+    }
+
+  implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
+
+  def submitInspectionDate(inspectionDate: LocalDate): Either[String, RejectedGoodsSingleJourney] =
+    if (inspectionDate.isAfter(LocalDate.now()))
+      Right(answers.inspectionDate match {
+        case Some(existing) if existing === inspectionDate => this
+        case _                                             =>
+          new RejectedGoodsSingleJourney(
+            answers.copy(inspectionDate = Some(inspectionDate))
+          )
+      })
+    else
+      Left("submitInspectionDate.mustBeFutureDate")
+
+  def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
+    answers.inspectionAddress match {
+      case Some(existing) if existing === inspectionAddress => this
+      case _                                                =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(inspectionAddress = Some(inspectionAddress))
+        )
+    }
+
+  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): RejectedGoodsSingleJourney =
+    answers.bankAccountDetails match {
+      case Some(existing) if existing === bankAccountDetails => this
+      case _                                                 =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(bankAccountDetails = Some(bankAccountDetails))
+        )
+    }
+
+  def submitBankAccountType(bankAccountType: BankAccountType): RejectedGoodsSingleJourney =
+    answers.bankAccountType match {
+      case Some(existing) if existing === bankAccountType => this
+      case _                                              =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(bankAccountType = Some(bankAccountType))
+        )
+    }
+
+  def submitReimbursementMethodAnswer(
+    reimbursementMethodAnswer: ReimbursementMethodAnswer
+  ): Either[String, RejectedGoodsSingleJourney] =
+    if (
+      reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer ||
+      isAllDutiesAreCMAEligible
+    )
+      Right(answers.reimbursementMethodAnswer match {
+        case Some(existing) if existing === reimbursementMethodAnswer => this
+        case _                                                        =>
+          new RejectedGoodsSingleJourney(
+            answers.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
+          )
+      })
+    else
+      Left("submitReimbursementMethodAnswer.notCMAEligible")
+
+  def submitUploadDocument(uploadDocument: UploadDocument): RejectedGoodsSingleJourney =
+    answers.supportingEvidences match {
+      case Some(supportingEvidences) if supportingEvidences.contains(uploadDocument) =>
+        this
+
+      case Some(supportingEvidences) =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(supportingEvidences = Some(supportingEvidences + (uploadDocument -> None)))
+        )
+
+      case None =>
+        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Map(uploadDocument -> None))))
+    }
+
+  def submitDocumentType(
+    uploadReference: UploadReference,
+    documentType: DocumentTypeRejectedGoods
+  ): Either[String, RejectedGoodsSingleJourney] =
+    answers.supportingEvidences match {
+      case None                      => Left("submitDocumentType.missingSupportingEvidences")
+      case Some(supportingEvidences) =>
+        supportingEvidences.find(_._1.uploadReference === uploadReference) match {
+          case None                      => Left("submitDocumentType.upscanReferenceNotFound")
+          case Some((uploadDocument, _)) =>
+            Right(
+              new RejectedGoodsSingleJourney(
+                answers.copy(supportingEvidences = Some(supportingEvidences + (uploadDocument -> Some(documentType))))
+              )
+            )
+        }
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))

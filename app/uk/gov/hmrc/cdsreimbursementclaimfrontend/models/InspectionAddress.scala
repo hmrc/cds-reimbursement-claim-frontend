@@ -30,8 +30,8 @@ final case class InspectionAddress(
 
 object InspectionAddress {
 
-  implicit val equality: Eq[DocumentTypeRejectedGoods] =
-    Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
+  implicit val equality: Eq[InspectionAddress] =
+    Eq.fromUniversalEquals[InspectionAddress]
 
   implicit val format: OFormat[InspectionAddress] =
     derived.oformat[InspectionAddress]()
