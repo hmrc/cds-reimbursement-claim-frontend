@@ -43,9 +43,11 @@ import java.time.LocalDate
 import RejectedGoodsSingleJourney.Answers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
+// This file contains complete data model of the rejected-goods single journey.
+
 object RejectedGoodsSingleJourney {
 
-  def apply(): RejectedGoodsSingleJourney =
+  def empty: RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers())
 
   // All user answers captured during C&E1179 single MRN journey
@@ -100,6 +102,9 @@ object RejectedGoodsSingleJourney {
         ndrcDetailsList <- getNdrcDetails
         ndrcDetail      <- ndrcDetailsList.find(_.taxType === taxCode.value)
       } yield ndrcDetail
+
+    def getSelectedDuties: Option[Seq[TaxCode]] =
+      reimbursementClaims.map(_.keys.toSeq)
 
     def isAllSelectedDutiesAreCMAEligible: Boolean =
       reimbursementClaims
