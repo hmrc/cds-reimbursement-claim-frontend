@@ -270,7 +270,7 @@ class EnterSingleClaimControllerSpec
     "render the previous answer when the user has answered this question before" in {
       val taxCode              = TaxCode.B05
       val claimedReimbursement = sample[ClaimedReimbursement]
-        .copy(claimAmount = BigDecimal(10), paidAmount = BigDecimal(5), isFilled = true, taxCode = taxCode)
+        .copy(claimAmount = BigDecimal(6), paidAmount = BigDecimal(10), isFilled = true, taxCode = taxCode)
       val answers              = ClaimedReimbursementsAnswer(claimedReimbursement)
 
       val session = createSessionWithPreviousAnswers(Some(answers))._1
@@ -283,7 +283,7 @@ class EnterSingleClaimControllerSpec
       checkPageIsDisplayed(
         performAction(claimedReimbursement.id),
         messageFromMessageKey("enter-claim.title", taxCode.value, "Value Added Tax"),
-        doc => doc.getElementById("enter-claim").`val`() shouldBe "10.00"
+        doc => doc.getElementById("enter-claim").`val`() shouldBe "4.00"
       )
     }
 
@@ -310,8 +310,8 @@ class EnterSingleClaimControllerSpec
     "user enters a valid paid and claim amount on the MRN journey" in {
       val claimedReimbursement = sample[ClaimedReimbursement]
         .copy(
-          claimAmount = BigDecimal(1.00).setScale(2),
-          paidAmount = BigDecimal(10.00).setScale(2),
+          claimAmount = BigDecimal("1.00"),
+          paidAmount = BigDecimal("10.00"),
           isFilled = false,
           taxCode = TaxCode.A00
         )
@@ -320,7 +320,7 @@ class EnterSingleClaimControllerSpec
 
       val session        =
         createSessionWithPreviousAnswers(Some(answers), None, None, sample[MRN])._1
-      val updatedAnswer  = claimedReimbursement.copy(claimAmount = BigDecimal(5.00).setScale(2), isFilled = true)
+      val updatedAnswer  = claimedReimbursement.copy(claimAmount = BigDecimal("5.00"), isFilled = true)
       val updatedSession = updateSession(session, ClaimedReimbursementsAnswer(updatedAnswer))
 
       inSequence {

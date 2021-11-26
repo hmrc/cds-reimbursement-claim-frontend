@@ -410,7 +410,8 @@ select-who-is-making-the-claim.details.paragraph.2=A representative company can 
 #  CHECK DECLARANT DETAILS PAGE
 #===================================================
 check-declaration-details.title=Check these declaration details are correct
-check-declaration-details.help-text=These are the declarant details we have from the MRN declaration. If they are incorrect, you can change them by <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/customs-international-trade-and-excise-enquiries">contacting the CDS team (opens in new tab)</a>.
+check-declaration-details.duplicate.title=Check these declaration details are correct for the duplicate MRN
+check-declaration-details.help-text=These are the declarant details we have from the MRN declaration.
 check-declaration-details.is-information-correct=Continue with this MRN?
 check-declaration-details.yes=Yes
 check-declaration-details.no=No
@@ -521,7 +522,7 @@ duty-type.made-wine=Made-wine
 duty-type.low-alcohol-beverages=Low alcohol beverages
 duty-type.spirits=Spirits
 duty-type.cider-perry=Cider and perry
-duty-type.hydrocarbon-oils=Hydrocarbon oils
+duty-type.hydrocarbon-oils=Hydrocarbon oil
 duty-type.biofuels=Biofuels
 duty-type.miscellaneous-road-fuels=Miscellaneous road fuels
 duty-type.tobacco=Tobacco products
@@ -626,7 +627,7 @@ select-duty-codes.h1.made-wine=made-wine
 select-duty-codes.h1.low-alcohol-beverages=low alcohol beverages
 select-duty-codes.h1.spirits=spirits
 select-duty-codes.h1.cider-perry=cider and perry
-select-duty-codes.h1.hydrocarbon-oils=hydrocarbon oils
+select-duty-codes.h1.hydrocarbon-oils=hydrocarbon oil
 select-duty-codes.h1.biofuels=biofuels
 select-duty-codes.h1.miscellaneous-road-fuels=miscellaneous road fuels
 select-duty-codes.h1.tobacco=tobacco products
@@ -774,15 +775,17 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim totals for your MRN
+check-claim-summary.title=Check the reimbursement claim total for your MRN
+check-claim-summary.scheduled.title=Check the reimbursement claim totals for all MRNs
 check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
+check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
 check-claim-summary.eu-duty.label=EU Duty
 check-claim-summary.excise-duty.label=Excise Duty
 check-claim-summary.overall-total.label=Overall total
 check-claim-summary.change-amount=Change amount
-check-claim-summary.total=Total reimbursement
+check-claim-summary.total=Reimbursement for this MRN
 check-claim-summary.are-duties-correct=Are these duties correct?
 check-claim-summary.yes=Yes
 check-claim-summary.no=No, select different duties
@@ -952,7 +955,8 @@ schedule-document.upload.things-to-show.l3=the amount that should have been paid
 schedule-document.upload.input-title=Select document
 schedule-document.upload.error.required=Upload a scheduled document with all the MRNs
 schedule-document.size-fail.title=There is a problem with the file you uploaded
-schedule-document.size-fail.p1=This could be because:
+schedule-document.size-fail.p1=We could not scan your file.
+schedule-document.size-fail.p2=This could be because:
 schedule-document.size-fail.bullet1=the service has experienced technical issues
 schedule-document.size-fail.bullet2=your file was larger than 10MB
 schedule-document.size-fail.p2=You’ll need to try again.

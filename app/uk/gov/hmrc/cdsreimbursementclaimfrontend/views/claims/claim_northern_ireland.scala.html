@@ -51,7 +51,7 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(combine(key, journey, "help-text"))), Some("govuk-body"))
+    @paragraph(Html(messages(combine(key, journey, "help-text"))), Some("govuk-hint"))
 
     @formWithCSRF(claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaimSubmit(journey), 'novalidate -> "novalidate") {
 

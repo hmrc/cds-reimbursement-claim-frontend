@@ -41,6 +41,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -87,7 +88,7 @@ class EnterSingleClaimController @Inject() (
           .flatMap(_.find(_.id === id))
           .map { claim =>
             val emptyForm = mrnClaimAmountForm(claim.paidAmount)
-            val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.claimAmount)), emptyForm).merge
+            val form      = Either.cond(claim.isFilled, emptyForm.fill(ClaimAmount(claim.correctedAmount)), emptyForm).merge
             Future.successful(Ok(enterSingleClaimPage(id, form, claim)))
           }
           .getOrElse(Future.successful(Redirect(baseRoutes.IneligibleController.ineligible())))
@@ -125,37 +126,53 @@ class EnterSingleClaimController @Inject() (
 
   def checkClaimSummary(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimedReimbursementsAnswer] { (_, answers) =>
-        answers match {
-          case Some(claims) => Ok(checkSingleClaimSummaryPage(claims, whetherClaimCorrect))
-          case None         => Redirect(routes.EnterSingleClaimController.startClaim())
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.movementReferenceNumber match {
+          case Some(mrn) =>
+            journey.draftClaim.claimedReimbursementsAnswer match {
+              case Some(claims) =>
+                Ok(checkSingleClaimSummaryPage(mrn, claims, whetherClaimCorrect))
+
+              case None =>
+                Redirect(routes.EnterSingleClaimController.startClaim())
+            }
+          case None      =>
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
         }
       }
     }
 
   def checkClaimSummarySubmit(): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswers[ClaimedReimbursementsAnswer] { (fillingOutClaim: FillingOutClaim, _) =>
-        whetherClaimCorrect
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              fillingOutClaim.draftClaim.claimedReimbursementsAnswer
-                .map(claims => Future.successful(BadRequest(checkSingleClaimSummaryPage(claims, formWithErrors))))
-                .getOrElse(Future.successful(errorHandler.errorResult())),
-            {
-              case Yes =>
-                request
-                  .routeToCheckAnswers(Single)
-                  .whenComplete(fillingOutClaim.draftClaim)(alternatively = fillingOutClaim.draftClaim match {
-                    case claim: DraftClaim if isCmaEligible(claim) =>
-                      routes.ReimbursementMethodController.showReimbursementMethod()
-                    case _                                         =>
-                      routes.BankAccountController.checkBankAccountDetails(Single)
-                  })
-              case No  => Redirect(routes.SelectDutiesController.selectDuties())
-            }
-          )
+      request.using { case journey: FillingOutClaim =>
+        journey.draftClaim.movementReferenceNumber match {
+          case Some(mrn) =>
+            whetherClaimCorrect
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  journey.draftClaim.claimedReimbursementsAnswer
+                    .map(claims =>
+                      Future.successful(BadRequest(checkSingleClaimSummaryPage(mrn, claims, formWithErrors)))
+                    )
+                    .getOrElse(Future.successful(errorHandler.errorResult())),
+                {
+                  case Yes =>
+                    request
+                      .routeToCheckAnswers(Single)
+                      .whenComplete(journey.draftClaim)(alternatively = journey.draftClaim match {
+                        case claim: DraftClaim if isCmaEligible(claim) =>
+                          routes.ReimbursementMethodController.showReimbursementMethod()
+                        case _                                         =>
+                          routes.BankAccountController.checkBankAccountDetails(Single)
+                      })
+                  case No  => Redirect(routes.SelectDutiesController.selectDuties())
+                }
+              )
+
+          case None =>
+            Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Single))
+        }
       }
     }
 
@@ -188,9 +205,8 @@ class EnterSingleClaimController @Inject() (
   )(implicit
     request: RequestWithSessionData[AnyContent]
   ): Future[Result] = {
-    val notEditedClaims = answer.toList.filterNot(_.id === newReimbursement.id)
-    val claims          = ClaimedReimbursementsAnswer(newReimbursement, notEditedClaims: _*)
-    val nextPage        = calculateNextPage(claims)
+    val claims   = answer.replaceOrAppend((c: ClaimedReimbursement) => c.id === newReimbursement.id, newReimbursement)
+    val nextPage = calculateNextPage(claims)
     updateClaimedReimbursementsAnswer(claims, fillingOutClaim, nextPage)
   }
 

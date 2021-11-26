@@ -41,7 +41,7 @@
 @(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"check-declaration-details"}
-@title = @{messages(s"$key.title")}
+@title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
 @postAction = @{if(isDuplicate) router.submitUrlForCheckDuplicateDeclarationDetails() else router.submitUrlForCheckDeclarationDetails() }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}

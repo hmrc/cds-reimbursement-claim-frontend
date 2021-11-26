@@ -10,9 +10,6 @@ POST        /single/change-number-of-claims                         uk.gov.hmrc.
 GET         /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterJourneyMrn(journey: JourneyBindable)
 POST        /:journey/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMrnSubmit(journey: JourneyBindable)
 
-GET         /:journey/change-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeJourneyMrn(journey: JourneyBindable)
-POST        /:journey/change-movement-reference-number              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.changeMrnSubmit(journey: JourneyBindable)
-
 GET         /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrn(journey: JourneyBindable)
 POST        /:journey/enter-duplicate-movement-reference-number     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(journey: JourneyBindable)
 
@@ -64,9 +61,6 @@ GET         /:journey/check-these-bank-details-are-correct          uk.gov.hmrc.
 
 GET         /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetails(journey: JourneyBindable)
 POST        /:journey/enter-bank-account-details                    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.enterBankAccountDetailsSubmit(journey: JourneyBindable)
-
-GET         /:journey/change-bank-account-details                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetails(journey: JourneyBindable)
-POST        /:journey/change-bank-account-details                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.BankAccountController.changeBankAccountDetailsSubmit(journey: JourneyBindable)
 
 GET         /:journey/bank-account-unavailable                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ServiceUnavailableController.unavailable(journey: JourneyBindable)
 

@@ -67,11 +67,7 @@ final case class CompleteClaim(
           declaration          <- displayDeclaration
           bankDetails          <- declaration.displayResponseDetail.maskedBankDetails
           consigneeBankDetails <- bankDetails.consigneeBankDetails
-        } yield BankAccountDetails(
-          AccountName(consigneeBankDetails.accountHolderName),
-          SortCode(consigneeBankDetails.sortCode),
-          AccountNumber(consigneeBankDetails.accountNumber)
-        )
+        } yield consigneeBankDetails
       case _    => bankAccountDetailsAnswer
     }
 

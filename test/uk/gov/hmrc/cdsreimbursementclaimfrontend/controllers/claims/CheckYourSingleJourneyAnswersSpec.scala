@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
+import cats.implicits.catsSyntaxApply
 import org.jsoup.nodes
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
