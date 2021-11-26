@@ -48,6 +48,12 @@ class RejectedGoodsSingleJourneyFormatSpec
     }
   }
 
+  "RejectedGoodsSingleJourney" should {
+    "serialize into json format and back" in {
+      validateJsonFormat("{}", RejectedGoodsSingleJourney())
+    }
+  }
+
 }
 
 trait RejectedGoodsSingleJourneyTestData {

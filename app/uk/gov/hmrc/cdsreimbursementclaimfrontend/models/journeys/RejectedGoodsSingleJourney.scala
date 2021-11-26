@@ -35,11 +35,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import RejectedGoodsSingleJourney.Answers
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 
 object RejectedGoodsSingleJourney {
+
+  def apply(): RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(Answers())
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
@@ -74,9 +76,18 @@ object RejectedGoodsSingleJourney {
     implicit val format: Format[Answers] = Json.format[Answers]
   }
 
+  implicit val format: Format[RejectedGoodsSingleJourney] =
+    Format(
+      Reads(Answers.format.reads(_).map(answers => new RejectedGoodsSingleJourney(answers))),
+      Writes(journey => Answers.format.writes(journey.answers))
+    )
+
+  implicit val equality: Eq[RejectedGoodsSingleJourney] =
+    Eq.fromUniversalEquals[RejectedGoodsSingleJourney]
+
 }
 
-// A.k.a C&E1179 single MRN journey
+// Encapsulated C&E1179 single MRN journey logic
 final class RejectedGoodsSingleJourney private (val answers: Answers) {
 
   def isComplete: Boolean = ???
@@ -125,5 +136,13 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
           answers.copy(declarantType = Some(declarantType))
         )
     }
+
+  @SuppressWarnings(Array("org.wartremover.warts.All"))
+  override def equals(obj: Any): Boolean =
+    if (obj.isInstanceOf[RejectedGoodsSingleJourney]) {
+      obj.asInstanceOf[RejectedGoodsSingleJourney].answers === this.answers
+    } else false
+
+  override def hashCode(): Int = answers.hashCode
 
 }
