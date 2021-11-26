@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
 
+import cats.Eq
 import cats.syntax.eq._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
@@ -34,6 +35,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import RejectedGoodsSingleJourney.Answers
+import play.api.libs.json.Format
+import play.api.libs.json.Json
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 
 object RejectedGoodsSingleJourney {
 
@@ -58,6 +62,17 @@ object RejectedGoodsSingleJourney {
     reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
     supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
   )
+
+  object Answers {
+    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
+      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] =
+      MapFormat.formatWithOptionalValue[UploadDocument, DocumentTypeRejectedGoods]
+
+    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
+    implicit val format: Format[Answers] = Json.format[Answers]
+  }
 
 }
 
