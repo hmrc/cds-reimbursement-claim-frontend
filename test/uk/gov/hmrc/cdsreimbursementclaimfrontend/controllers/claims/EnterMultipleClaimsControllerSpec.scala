@@ -153,10 +153,10 @@ class EnterMultipleClaimsControllerSpec
     document.select("a.govuk-back-link").attr("href")
 
   def performActionEnterClaim(i: Int, taxCode: TaxCode): Future[Result] =
-    controller.enterClaim(JourneyBindable.Multiple, i, taxCode)(FakeRequest())
+    controller.enterClaim(i, taxCode)(FakeRequest())
 
   def performActionCheckClaimSummary(): Future[Result] =
-    controller.checkClaimSummary(JourneyBindable.Multiple)(FakeRequest())
+    controller.checkClaimSummary(FakeRequest())
 
   def getHintText(document: Document, hintTextId: String): Option[String] = {
     val hintTextElement = document.select(s"div#$hintTextId")
@@ -432,7 +432,7 @@ class EnterMultipleClaimsControllerSpec
 
         checkIsRedirect(
           performActionCheckClaimSummary(),
-          routes.EnterMultipleClaimsController.enterClaim(JourneyBindable.Multiple, 1, taxCode)
+          routes.EnterMultipleClaimsController.enterClaim(1, taxCode)
         )
       }
 
@@ -450,7 +450,7 @@ class EnterMultipleClaimsControllerSpec
 
           checkIsRedirect(
             performActionCheckClaimSummary(),
-            routes.EnterMultipleClaimsController.enterClaim(JourneyBindable.Multiple, 1, taxCode)
+            routes.EnterMultipleClaimsController.enterClaim(1, taxCode)
           )
         }
       }

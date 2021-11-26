@@ -27,7 +27,7 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
@@ -192,7 +192,7 @@ object SelectMultipleDutiesController {
     (for {
       duties <- fillingOutClaim.draftClaim.DutiesSelections.get(mrnIndex - 1)
       duty   <- duties.headOption
-    } yield routes.EnterMultipleClaimsController.enterClaim(JourneyBindable.Multiple, mrnIndex, duty.taxCode))
+    } yield routes.EnterMultipleClaimsController.enterClaim(mrnIndex, duty.taxCode))
       .getOrElse(
         routes.SelectMultipleDutiesController.selectDuties(mrnIndex)
       )
