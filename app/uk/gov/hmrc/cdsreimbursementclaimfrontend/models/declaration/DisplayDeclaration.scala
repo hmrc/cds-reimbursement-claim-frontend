@@ -23,7 +23,15 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{Miss
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
-)
+) {
+
+  def getNdrcDetailsList: Option[List[NdrcDetails]] =
+    displayResponseDetail.ndrcDetails
+
+  def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
+    displayResponseDetail.ndrcDetails.flatMap(_.find(_.taxType === taxType))
+
+}
 
 object DisplayDeclaration {
 

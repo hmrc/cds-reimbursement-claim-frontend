@@ -46,7 +46,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 // This file contains complete data model of
 // the C&E1179 /rejected-goods/ single journey.
 
-object RejectedGoodsSingleJourney {
+object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJourney] {
 
   def empty: RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(Answers())
@@ -96,7 +96,7 @@ object RejectedGoodsSingleJourney {
 }
 
 // Encapsulated C&E1179 single MRN journey logic
-final class RejectedGoodsSingleJourney private (val answers: Answers) {
+final class RejectedGoodsSingleJourney private (val answers: Answers) extends FluentSyntax[RejectedGoodsSingleJourney] {
 
   def isComplete: Boolean =
     all(
@@ -124,16 +124,10 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
     answers.supportingEvidences.exists(_.forall(_._2.isDefined))
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
-    for {
-      acc14           <- answers.displayDeclaration
-      ndrcDetailsList <- acc14.displayResponseDetail.ndrcDetails
-    } yield ndrcDetailsList
+    answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
   def getNdrcDetailsFor(taxCode: TaxCode): Option[NdrcDetails] =
-    for {
-      ndrcDetailsList <- getNdrcDetails
-      ndrcDetail      <- ndrcDetailsList.find(_.taxType === taxCode.value)
-    } yield ndrcDetail
+    answers.displayDeclaration.flatMap(_.getNdrcDetailsFor(taxCode.value))
 
   def getSelectedDuties: Option[Seq[TaxCode]] =
     answers.reimbursementClaims.map(_.keys.toSeq)
@@ -290,19 +284,19 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
           Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
     }
 
-  def selectAndReplaceTaxCodeSetForReimbursement(taxCodeSet: Set[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
+  def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {
       case None => Left("selectTaxCodeSetForReimbursement.missingDisplayDeclaration")
 
       case Some(_) =>
-        val allTaxCodesExistInACC14 = taxCodeSet.forall(getNdrcDetailsFor(_).isDefined)
+        val allTaxCodesExistInACC14 = taxCodes.forall(getNdrcDetailsFor(_).isDefined)
         if (allTaxCodesExistInACC14) {
           val newReimbursementClaims = answers.reimbursementClaims match {
             case None                      =>
-              taxCodeSet.map(taxCode => (taxCode -> None)).toMap
+              taxCodes.map(taxCode => (taxCode -> None)).toMap
 
             case Some(reimbursementClaims) =>
-              taxCodeSet.map { taxCode =>
+              taxCodes.map { taxCode =>
                 taxCode -> reimbursementClaims.get(taxCode).flatten
               }.toMap
           }
@@ -401,18 +395,18 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) {
     else
       Left("submitReimbursementMethodAnswer.notCMAEligible")
 
-  def submitUploadDocument(uploadDocument: UploadDocument): RejectedGoodsSingleJourney =
+  def submitUploadedDocument(uploadedDocument: UploadDocument): RejectedGoodsSingleJourney =
     answers.supportingEvidences match {
-      case Some(supportingEvidences) if supportingEvidences.contains(uploadDocument) =>
+      case Some(supportingEvidences) if supportingEvidences.contains(uploadedDocument) =>
         this
 
       case Some(supportingEvidences) =>
         new RejectedGoodsSingleJourney(
-          answers.copy(supportingEvidences = Some(supportingEvidences + (uploadDocument -> None)))
+          answers.copy(supportingEvidences = Some(supportingEvidences + (uploadedDocument -> None)))
         )
 
       case None =>
-        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Map(uploadDocument -> None))))
+        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Map(uploadedDocument -> None))))
     }
 
   def submitDocumentType(
