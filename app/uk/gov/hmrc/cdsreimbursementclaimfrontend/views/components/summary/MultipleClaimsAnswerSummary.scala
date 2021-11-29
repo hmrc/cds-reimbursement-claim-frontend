@@ -33,7 +33,7 @@ class MultipleClaimsAnswerSummary extends AnswerSummary[List[(MRN, ClaimedReimbu
     messages: Messages
   ): SummaryList = {
     val amendCall =
-      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary().setChangeFlag
+      claimsRoutes.EnterMultipleClaimsController.checkClaimSummary.setChangeFlag
 
     val totalAmount: BigDecimal =
       mrnsWithClaimsList.flatMap(_._2.toList.map(_.claimAmount)).sum
