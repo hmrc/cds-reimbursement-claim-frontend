@@ -27,13 +27,11 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectMultipleDutiesController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer.IncorrectExciseValue
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Duty, Error, TaxCode, TaxCodes, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
@@ -190,9 +188,9 @@ class SelectMultipleDutiesController @Inject() (
 
 object SelectMultipleDutiesController {
 
-  def selectNextPage(journey: FillingOutClaim, mrnIndex: Int): Call =
+  def selectNextPage(fillingOutClaim: FillingOutClaim, mrnIndex: Int): Call =
     (for {
-      duties <- journey.draftClaim.DutiesSelections.get(mrnIndex - 1)
+      duties <- fillingOutClaim.draftClaim.DutiesSelections.get(mrnIndex - 1)
       duty   <- duties.headOption
     } yield routes.EnterMultipleClaimsController.enterClaim(mrnIndex, duty.taxCode))
       .getOrElse(
