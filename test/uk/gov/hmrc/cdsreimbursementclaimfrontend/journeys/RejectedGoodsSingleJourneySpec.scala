@@ -18,9 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+
 import RejectedGoodsSingleJourneyGenerators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
@@ -66,29 +67,59 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "accept submission of a new MRN" in {
-      val journey = emptyJourney.submitMovementReferenceNumber(MRN("foo"))
-      journey.answers.movementReferenceNumber.contains(MRN("foo")) shouldBe true
-      journey.isComplete                                           shouldBe false
-      journey.isCompleteReimbursementClaims                        shouldBe false
-      journey.isCompleteSupportingEvidences                        shouldBe false
-
-      forAll(completeJourneyGen) { journey =>
-        val modifiedJourney = journey.submitMovementReferenceNumber(MRN("foo"))
-        assert(modifiedJourney.answers.displayDeclaration.isEmpty)
-        assert(!modifiedJourney.isComplete)
-        assert(!modifiedJourney.isCompleteReimbursementClaims)
-        assert(!modifiedJourney.isCompleteSupportingEvidences)
+      forAll(IdGen.genMRN) { mrn =>
+        val journey = emptyJourney.submitMovementReferenceNumber(mrn)
+        journey.answers.movementReferenceNumber.contains(mrn) shouldBe true
+        journey.isComplete                                    shouldBe false
+        journey.isCompleteReimbursementClaims                 shouldBe false
+        journey.isCompleteSupportingEvidences                 shouldBe false
       }
     }
 
-    "accept submission of an existing MRN" in {
+    "accept change of the MRN" in {
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourney = journey.submitMovementReferenceNumber(exampleMrn)
+        modifiedJourney.answers.displayDeclaration    shouldBe empty
+        modifiedJourney.isComplete                    shouldBe false
+        modifiedJourney.isCompleteReimbursementClaims shouldBe false
+        modifiedJourney.isCompleteSupportingEvidences shouldBe false
+      }
+    }
+
+    "accept submission of the same MRN" in {
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourney = journey
+          .submitMovementReferenceNumber(journey.answers.movementReferenceNumber.get)
+        modifiedJourney                               shouldBe journey
+        modifiedJourney.isComplete                    shouldBe true
+        modifiedJourney.isCompleteReimbursementClaims shouldBe true
+        modifiedJourney.isCompleteSupportingEvidences shouldBe true
+      }
+    }
+
+    "accept submission of a new ACC14 data" in {
+      forAll(displayDeclarationGen) { acc14 =>
+        val journey = emptyJourney
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(acc14)
+
+        journey.answers.movementReferenceNumber.contains(exampleMrn) shouldBe true
+        journey.answers.displayDeclaration.contains(acc14)           shouldBe true
+        journey.isComplete                                           shouldBe false
+        journey.isCompleteReimbursementClaims                        shouldBe false
+        journey.isCompleteSupportingEvidences                        shouldBe false
+      }
+    }
+
+    "accept change of the ACC14 data" in {
       forAll(completeJourneyGen) { journey =>
         val modifiedJourney =
-          journey.submitMovementReferenceNumber(journey.answers.movementReferenceNumber.get)
-        assert(modifiedJourney === journey)
-        assert(modifiedJourney.isComplete)
-        assert(modifiedJourney.isCompleteReimbursementClaims)
-        assert(modifiedJourney.isCompleteSupportingEvidences)
+          journey
+            .submitDisplayDeclaration(exampleDisplayDeclaration)
+        modifiedJourney.answers.displayDeclaration    shouldBe Some(exampleDisplayDeclaration)
+        modifiedJourney.isComplete                    shouldBe false
+        modifiedJourney.isCompleteReimbursementClaims shouldBe false
+        modifiedJourney.isCompleteSupportingEvidences shouldBe true
       }
     }
 

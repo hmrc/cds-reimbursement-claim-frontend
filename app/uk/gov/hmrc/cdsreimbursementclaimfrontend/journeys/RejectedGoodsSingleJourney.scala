@@ -96,7 +96,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
 }
 
-// Encapsulated C&E1179 single MRN journey logic
+/** An encapsulated C&E1179 single MRN journey logic.
+  * The constructor of this class MUST stay private to protected integrity of the journey
+  */
 final class RejectedGoodsSingleJourney private (val answers: Answers) extends FluentSyntax[RejectedGoodsSingleJourney] {
 
   def isComplete: Boolean =
@@ -139,7 +141,9 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
       .exists(_.forall(_.cmaEligible.isDefined))
 
-  // resets the journey with the new MRN
+  /** Reset the journey with the new MRN
+    * or keep existing journey if submitted the same MRN as before.
+    */
   def submitMovementReferenceNumber(mrn: MRN): RejectedGoodsSingleJourney =
     answers.movementReferenceNumber match {
       case Some(existing) if existing === mrn => this
@@ -147,77 +151,49 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
         new RejectedGoodsSingleJourney(Answers(movementReferenceNumber = Some(mrn)))
     }
 
-  // sets the ACC14 declaration and resets all reimbursementClaims
+  /** Set the ACC14 declaration and reset all reimbursementClaims */
   def submitDisplayDeclaration(displayDeclaration: DisplayDeclaration): RejectedGoodsSingleJourney =
-    answers.displayDeclaration match {
-      case Some(existing) if existing === displayDeclaration => this
-      case _                                                 =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
+    )
 
   def submitImporterEoriNumber(importerEoriNumber: Eori): RejectedGoodsSingleJourney =
-    answers.importerEoriNumber match {
-      case Some(existing) if existing === importerEoriNumber => this
-      case _                                                 =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(importerEoriNumber = Some(importerEoriNumber))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(importerEoriNumber = Some(importerEoriNumber))
+    )
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): RejectedGoodsSingleJourney =
-    answers.declarantEoriNumber match {
-      case Some(existing) if existing === declarantEoriNumber => this
-      case _                                                  =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(declarantEoriNumber = Some(declarantEoriNumber))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(declarantEoriNumber = Some(declarantEoriNumber))
+    )
 
   def submitDeclarantType(declarantType: DeclarantTypeAnswer): RejectedGoodsSingleJourney =
-    answers.declarantType match {
-      case Some(existing) if existing === declarantType => this
-      case _                                            =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(declarantType = Some(declarantType))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(declarantType = Some(declarantType))
+    )
 
   def submitContactDetails(contactDetails: MrnContactDetails): RejectedGoodsSingleJourney =
-    answers.contactDetails match {
-      case Some(existing) if existing === contactDetails => this
-      case _                                             =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(contactDetails = Some(contactDetails))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(contactDetails = Some(contactDetails))
+    )
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =
-    answers.contactAddress match {
-      case Some(existing) if existing === contactAddress => this
-      case _                                             =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(contactAddress = Some(contactAddress))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(contactAddress = Some(contactAddress))
+    )
 
   def submitBasisOfClaim(basisOfClaim: BasisOfRejectedGoodsClaim): RejectedGoodsSingleJourney =
-    answers.basisOfClaim match {
-      case Some(existing) if existing === basisOfClaim => this
-      case _                                           =>
-        basisOfClaim match {
-          case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
-            new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
+    basisOfClaim match {
+      case BasisOfRejectedGoodsClaim.SpecialCircumstances =>
+        new RejectedGoodsSingleJourney(answers.copy(basisOfClaim = Some(basisOfClaim)))
 
-          case _ =>
-            new RejectedGoodsSingleJourney(
-              answers.copy(
-                basisOfClaim = Some(basisOfClaim),
-                basisOfClaimSpecialCircumstances = None
-              )
-            )
-        }
+      case _ =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(
+            basisOfClaim = Some(basisOfClaim),
+            basisOfClaimSpecialCircumstances = None
+          )
+        )
     }
 
   def submitBasisOfClaimSpecialCircumstancesDetails(
@@ -238,34 +214,22 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
   def forceSubmitBasisOfClaimSpecialCircumstances(
     basisOfClaimSpecialCircumstances: String
   ): RejectedGoodsSingleJourney =
-    answers.basisOfClaimSpecialCircumstances match {
-      case Some(existing) if existing === basisOfClaimSpecialCircumstances => this
-      case _                                                               =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(
-            basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-            basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
-          )
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(
+        basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
+        basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
+      )
+    )
 
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
-    answers.methodOfDisposal match {
-      case Some(existing) if existing === methodOfDisposal => this
-      case _                                               =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(methodOfDisposal = Some(methodOfDisposal))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(methodOfDisposal = Some(methodOfDisposal))
+    )
 
   def submitDetailsOfRejectedGoods(detailsOfRejectedGoods: String): RejectedGoodsSingleJourney =
-    answers.detailsOfRejectedGoods match {
-      case Some(existing) if existing === detailsOfRejectedGoods => this
-      case _                                                     =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
+    )
 
   def selectTaxCodeForReimbursement(taxCode: TaxCode): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {
@@ -339,42 +303,28 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
 
   def submitInspectionDate(inspectionDate: LocalDate): Either[String, RejectedGoodsSingleJourney] =
     if (inspectionDate.isAfter(LocalDate.now()))
-      Right(answers.inspectionDate match {
-        case Some(existing) if existing === inspectionDate => this
-        case _                                             =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(inspectionDate = Some(inspectionDate))
-          )
-      })
+      Right(
+        new RejectedGoodsSingleJourney(
+          answers.copy(inspectionDate = Some(inspectionDate))
+        )
+      )
     else
       Left("submitInspectionDate.mustBeFutureDate")
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
-    answers.inspectionAddress match {
-      case Some(existing) if existing === inspectionAddress => this
-      case _                                                =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(inspectionAddress = Some(inspectionAddress))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(inspectionAddress = Some(inspectionAddress))
+    )
 
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): RejectedGoodsSingleJourney =
-    answers.bankAccountDetails match {
-      case Some(existing) if existing === bankAccountDetails => this
-      case _                                                 =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(bankAccountDetails = Some(bankAccountDetails))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(bankAccountDetails = Some(bankAccountDetails))
+    )
 
   def submitBankAccountType(bankAccountType: BankAccountType): RejectedGoodsSingleJourney =
-    answers.bankAccountType match {
-      case Some(existing) if existing === bankAccountType => this
-      case _                                              =>
-        new RejectedGoodsSingleJourney(
-          answers.copy(bankAccountType = Some(bankAccountType))
-        )
-    }
+    new RejectedGoodsSingleJourney(
+      answers.copy(bankAccountType = Some(bankAccountType))
+    )
 
   def submitReimbursementMethod(
     reimbursementMethodAnswer: ReimbursementMethodAnswer
@@ -383,13 +333,11 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
       reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer ||
       isAllSelectedDutiesAreCMAEligible
     )
-      Right(answers.reimbursementMethodAnswer match {
-        case Some(existing) if existing === reimbursementMethodAnswer => this
-        case _                                                        =>
-          new RejectedGoodsSingleJourney(
-            answers.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
-          )
-      })
+      Right(
+        new RejectedGoodsSingleJourney(
+          answers.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
+        )
+      )
     else
       Left("submitReimbursementMethodAnswer.notCMAEligible")
 

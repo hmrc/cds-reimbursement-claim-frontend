@@ -32,8 +32,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import java.time.LocalDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
+
+  val exampleMrn: MRN = IdGen.genMRN.sample.get
 
   val uploadDocument     = buildUploadDocument("foo")
   val uploadDocumentJson = buildUploadDocumentJson("foo")

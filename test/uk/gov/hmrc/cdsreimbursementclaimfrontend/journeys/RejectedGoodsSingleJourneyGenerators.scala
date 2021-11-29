@@ -28,6 +28,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
   val minimalCompleteJourneyWithConsigneeAndAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
@@ -103,6 +104,35 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         error => throw new Exception(s"Cannnot build complete RejectedGoodsSingleJourney because of $error"),
         identity
       )
+    }
+
+  val displayDeclarationCMAEligibleGen: Gen[DisplayDeclaration] =
+    buildDisplayDeclarationGen(cmaEligible = true)
+
+  val displayDeclarationNotCMAEligibleGen: Gen[DisplayDeclaration] =
+    buildDisplayDeclarationGen(cmaEligible = false)
+
+  val displayDeclarationGen: Gen[DisplayDeclaration] =
+    Gen.oneOf(
+      displayDeclarationCMAEligibleGen,
+      displayDeclarationNotCMAEligibleGen
+    )
+
+  val exampleDisplayDeclaration: DisplayDeclaration =
+    displayDeclarationGen.sample.get
+
+  def buildDisplayDeclarationGen(cmaEligible: Boolean): Gen[DisplayDeclaration] =
+    for {
+      id               <- Gen.uuid
+      declarantEORI    <- IdGen.genEori
+      consigneeEORI    <- IdGen.genEori
+      numberOfTaxCodes <- Gen.choose(1, 5)
+      taxCodes         <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
+      paidAmounts      <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1, 10000)).map(_.map(BigDecimal.apply(_)))
+    } yield {
+      val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
+      buildDisplayDeclaration(id.toString(), declarantEORI, Some(consigneeEORI), paidDuties)
     }
 
 }
