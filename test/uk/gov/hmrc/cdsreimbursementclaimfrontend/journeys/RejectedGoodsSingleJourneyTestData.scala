@@ -67,13 +67,15 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitBasisOfClaim(basisOfClaim)
       .submitDetailsOfRejectedGoods(detailsOfRejectedGoods)
       .submitInspectionAddress(inspectionAddress)
-      .submitReimbursementMethod(reimbursementMethod)
-      .flatMap(_.submitInspectionDate(inspectionDate))
-      .conditionallyTry(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
-        _.submitBasisOfClaimSpecialCircumstances(specialCircumstancesDetails)
+      .submitInspectionDate(inspectionDate)
+      .conditionally(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
+        _.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstancesDetails)
       )
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
       .flatMapEach(taxCodesWithCorrectedAmount, submitCorrectedAmountForReimbursement)
+      .conditionally(_.isAllSelectedDutiesAreCMAEligible)(
+        _.submitReimbursementMethod(reimbursementMethod)
+      )
       .mapEach(uploadedDocuments, submitUploadedDocument)
       .flatMapEach(upscanReferencesWithDocumentType, submitDocumentType)
   }

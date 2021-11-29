@@ -59,10 +59,18 @@ trait FluentImplicits[Journey] {
       }
 
     /** Try to modify the journey if the condition holds, otherwise return as is. */
-    def conditionallyTry(condition: => Boolean)(
+    def conditionally(condition: Boolean)(
       modifyFx: Journey => Either[String, Journey]
     ): Either[String, Journey] =
       if (condition) journeyEither.flatMap(modifyFx) else journeyEither
+
+    /** Try to modify the journey if the condition holds, otherwise return as is. */
+    def conditionally(condition: Journey => Boolean)(
+      modifyFx: Journey => Either[String, Journey]
+    ): Either[String, Journey] =
+      journeyEither
+        .map(condition)
+        .flatMap(flag => if (flag) journeyEither.flatMap(modifyFx) else journeyEither)
   }
 
 }

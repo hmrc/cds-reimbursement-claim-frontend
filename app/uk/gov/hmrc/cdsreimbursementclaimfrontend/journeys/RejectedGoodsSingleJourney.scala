@@ -112,9 +112,10 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
       ),
       answers.detailsOfRejectedGoods,
       isCompleteReimbursementClaims,
-      allOrNone(answers.inspectionDate, answers.inspectionAddress),
+      answers.inspectionDate,
+      answers.inspectionAddress,
       allOrNone(answers.bankAccountDetails, answers.bankAccountType),
-      //requiredWhen(isAllSelectedDutiesAreCMAEligible)(answers.reimbursementMethodAnswer),
+      requiredWhen(isAllSelectedDutiesAreCMAEligible)(answers.reimbursementMethodAnswer),
       isCompleteSupportingEvidences
     ).isDefined
 
@@ -219,14 +220,14 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
         }
     }
 
-  def submitBasisOfClaimSpecialCircumstances(
-    basisOfClaimSpecialCircumstances: String
+  def submitBasisOfClaimSpecialCircumstancesDetails(
+    basisOfClaimSpecialCircumstancesDetails: String
   ): Either[String, RejectedGoodsSingleJourney] =
     answers.basisOfClaim match {
       case Some(BasisOfRejectedGoodsClaim.SpecialCircumstances) =>
         Right(
           new RejectedGoodsSingleJourney(
-            answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances))
+            answers.copy(basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstancesDetails))
           )
         )
 
