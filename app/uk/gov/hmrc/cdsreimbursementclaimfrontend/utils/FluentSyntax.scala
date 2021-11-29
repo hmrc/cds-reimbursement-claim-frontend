@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 /** Fluent syntax helper methods. */
 trait FluentSyntax[Journey] {

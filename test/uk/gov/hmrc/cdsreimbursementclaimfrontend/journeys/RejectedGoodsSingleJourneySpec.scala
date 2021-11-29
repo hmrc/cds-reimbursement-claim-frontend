@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class RejectedGoodsSingleJourneySpec
     extends AnyWordSpec
+    with ScalaCheckPropertyChecks
     with JsonFormatTest
     with Matchers
     with RejectedGoodsSingleJourneyTestData {
@@ -62,6 +64,12 @@ class RejectedGoodsSingleJourneySpec
       journey.isComplete                                           shouldBe false
       journey.isCompleteReimbursementClaims                        shouldBe false
       journey.isCompleteSupportingEvidences                        shouldBe false
+    }
+
+    "have completeness check" in {
+      forAll(RejectedGoodsSingleJourneyGenerators.completeJourneyGen) { journey =>
+        assert(journey.isComplete)
+      }
     }
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
@@ -33,13 +33,12 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import java.time.LocalDate
 
-@SuppressWarnings(Array("org.wartremover.warts.Throw"))
 trait RejectedGoodsSingleJourneyTestData {
 
   val uploadDocument     = buildUploadDocument("foo")
   val uploadDocumentJson = buildUploadDocumentJson("foo")
 
-  def buildCompleteJourneyVariant1(
+  def tryBuildRejectedGoodsSingleJourney(
     mrn: MRN,
     displayDeclaration: DisplayDeclaration,
     declarantType: DeclarantTypeAnswer,
@@ -49,6 +48,7 @@ trait RejectedGoodsSingleJourneyTestData {
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
+    reimbursementMethod: ReimbursementMethodAnswer,
     supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)]
   ): Either[String, RejectedGoodsSingleJourney] = {
     val taxCodes: Seq[TaxCode]                                                              =
@@ -67,7 +67,8 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitBasisOfClaim(basisOfClaim)
       .submitDetailsOfRejectedGoods(detailsOfRejectedGoods)
       .submitInspectionAddress(inspectionAddress)
-      .submitInspectionDate(inspectionDate)
+      .submitReimbursementMethod(reimbursementMethod)
+      .flatMap(_.submitInspectionDate(inspectionDate))
       .conditionallyTry(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstances(specialCircumstancesDetails)
       )
@@ -199,4 +200,5 @@ trait RejectedGoodsSingleJourneyTestData {
       |    },
       |    "fileName": "file-name-$id"
       |}""".stripMargin
+
 }

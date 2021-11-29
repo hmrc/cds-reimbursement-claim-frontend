@@ -22,9 +22,9 @@ import play.api.libs.json.OFormat
 
 final case class InspectionAddress(
   addressLine1: String,
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  townOrCity: Option[String],
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  townOrCity: Option[String] = None,
   postalCode: String
 )
 

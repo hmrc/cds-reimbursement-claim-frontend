@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.journeys
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import cats.Eq
 import cats.syntax.eq._
@@ -37,6 +37,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionsValidator._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{FluentImplicits, FluentSyntax}
 
 import java.time.LocalDate
 
@@ -113,7 +114,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
       isCompleteReimbursementClaims,
       allOrNone(answers.inspectionDate, answers.inspectionAddress),
       allOrNone(answers.bankAccountDetails, answers.bankAccountType),
-      requiredWhen(isAllSelectedDutiesAreCMAEligible)(answers.reimbursementMethodAnswer),
+      //requiredWhen(isAllSelectedDutiesAreCMAEligible)(answers.reimbursementMethodAnswer),
       isCompleteSupportingEvidences
     ).isDefined
 
@@ -324,11 +325,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
           case Some(ndrcDetails) if isValidCorrectedAmount(correctedAmount, ndrcDetails) =>
             val newReimbursementClaims = answers.reimbursementClaims match {
               case None                      => Map(taxCode -> Some(correctedAmount))
-              case Some(reimbursementClaims) =>
-                reimbursementClaims.get(taxCode) match {
-                  case None => reimbursementClaims + (taxCode -> Some(correctedAmount))
-                  case _    => reimbursementClaims
-                }
+              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(correctedAmount))
             }
             Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
 
@@ -378,7 +375,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
         )
     }
 
-  def submitReimbursementMethodAnswer(
+  def submitReimbursementMethod(
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsSingleJourney] =
     if (
@@ -433,6 +430,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
       obj.asInstanceOf[RejectedGoodsSingleJourney].answers === this.answers
     } else false
 
-  override def hashCode(): Int = answers.hashCode
+  override def hashCode(): Int    = answers.hashCode
+  override def toString(): String = s"RejectedGoodsSingleJourney(${answers.toString()})"
 
 }

@@ -29,6 +29,9 @@ object BasisOfRejectedGoodsClaim {
   case object NotInAccordanceWithContract extends BasisOfRejectedGoodsClaim
   case object SpecialCircumstances extends BasisOfRejectedGoodsClaim
 
+  val all: Set[BasisOfRejectedGoodsClaim] =
+    Set(DamagedBeforeClearance, Defective, NotInAccordanceWithContract, SpecialCircumstances)
+
   implicit val equality: Eq[BasisOfRejectedGoodsClaim] =
     Eq.fromUniversalEquals[BasisOfRejectedGoodsClaim]
 

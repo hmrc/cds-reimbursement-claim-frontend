@@ -26,6 +26,9 @@ object ReimbursementMethodAnswer {
   final case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
   final case object BankAccountTransfer extends ReimbursementMethodAnswer
 
+  val all: Set[ReimbursementMethodAnswer] =
+    Set(CurrentMonthAdjustment, BankAccountTransfer)
+
   implicit val equality: Eq[ReimbursementMethodAnswer] =
     Eq.fromUniversalEquals[ReimbursementMethodAnswer]
 

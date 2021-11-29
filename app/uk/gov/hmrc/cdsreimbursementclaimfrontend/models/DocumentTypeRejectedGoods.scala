@@ -26,6 +26,9 @@ object DocumentTypeRejectedGoods {
 
   case object Foo extends DocumentTypeRejectedGoods
 
+  val all: Set[DocumentTypeRejectedGoods] =
+    Set(Foo)
+
   implicit val equality: Eq[DocumentTypeRejectedGoods] =
     Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
 

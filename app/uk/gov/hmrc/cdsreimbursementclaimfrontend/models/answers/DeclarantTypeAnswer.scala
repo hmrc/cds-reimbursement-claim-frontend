@@ -30,6 +30,9 @@ object DeclarantTypeAnswer {
   case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
   case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
 
+  val all: Set[DeclarantTypeAnswer] =
+    Set(Importer, AssociatedWithImporterCompany, AssociatedWithRepresentativeCompany)
+
   val validator: Validator[Id, DeclarantTypeAnswer] = (maybeDeclarantType: Option[DeclarantTypeAnswer]) =>
     maybeDeclarantType.toValidNel(MissingAnswerError("Declarant type"))
 
