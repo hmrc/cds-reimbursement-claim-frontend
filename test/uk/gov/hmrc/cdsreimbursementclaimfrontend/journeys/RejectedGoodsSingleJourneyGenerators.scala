@@ -52,7 +52,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       mrn                         <- IdGen.genMRN
       declarantEORI               <- IdGen.genEori
       consigneeEORI               <- IdGen.genEori
-      numberOfTaxCodes            <- Gen.choose(1, TaxCodes.all.length)
+      numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
       paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1, 10000)).map(_.map(BigDecimal.apply(_)))
       correctedAmounts            <-
@@ -66,7 +66,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
           if (cmaEligible) ReimbursementMethodAnswer.all else Set(ReimbursementMethodAnswer.BankAccountTransfer)
         )
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
-      numberOfSupportingEvidences <- Gen.choose(1, 10)
+      numberOfSupportingEvidences <- Gen.choose(1, 2)
       documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(DocumentTypeRejectedGoods.all))
     } yield {
 

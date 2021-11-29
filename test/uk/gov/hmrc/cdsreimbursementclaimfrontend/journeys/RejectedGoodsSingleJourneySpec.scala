@@ -15,16 +15,17 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
+
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import RejectedGoodsSingleJourneyGenerators._
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
     extends AnyWordSpec
     with ScalaCheckPropertyChecks
-    with JsonFormatTest
     with Matchers
     with RejectedGoodsSingleJourneyTestData {
 
@@ -58,19 +59,39 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.isComplete                               shouldBe false
     }
 
-    "accept new MRN submission" in {
+    "check completeness of the journey" in {
+      forAll(completeJourneyGen) { journey =>
+        assert(journey.isComplete)
+      }
+    }
+
+    "accept submission of a new MRN" in {
       val journey = emptyJourney.submitMovementReferenceNumber(MRN("foo"))
       journey.answers.movementReferenceNumber.contains(MRN("foo")) shouldBe true
       journey.isComplete                                           shouldBe false
       journey.isCompleteReimbursementClaims                        shouldBe false
       journey.isCompleteSupportingEvidences                        shouldBe false
-    }
 
-    "have completeness check" in {
-      forAll(RejectedGoodsSingleJourneyGenerators.completeJourneyGen) { journey =>
-        assert(journey.isComplete)
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourney = journey.submitMovementReferenceNumber(MRN("foo"))
+        assert(modifiedJourney.answers.displayDeclaration.isEmpty)
+        assert(!modifiedJourney.isComplete)
+        assert(!modifiedJourney.isCompleteReimbursementClaims)
+        assert(!modifiedJourney.isCompleteSupportingEvidences)
       }
     }
+
+    "accept submission of an existing MRN" in {
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourney =
+          journey.submitMovementReferenceNumber(journey.answers.movementReferenceNumber.get)
+        assert(modifiedJourney === journey)
+        assert(modifiedJourney.isComplete)
+        assert(modifiedJourney.isCompleteReimbursementClaims)
+        assert(modifiedJourney.isCompleteSupportingEvidences)
+      }
+    }
+
   }
 
 }
