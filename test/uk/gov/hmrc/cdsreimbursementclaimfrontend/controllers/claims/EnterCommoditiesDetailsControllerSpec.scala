@@ -36,9 +36,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRout
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, SessionData, SignedInUserDetails, upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, CommodityDetailsAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen.genValidDraftClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindableGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
@@ -72,20 +74,21 @@ class EnterCommoditiesDetailsControllerSpec
   private def sessionWithClaimState(
     maybeCommoditiesDetailsAnswer: Option[CommodityDetailsAnswer],
     maybeTypeOfClaim: Option[TypeOfClaimAnswer]
-  ): (SessionData, FillingOutClaim, DraftClaim) = {
-    val draftC285Claim      =
-      DraftClaim.blank
-        .copy(
-          commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
-          typeOfClaim = maybeTypeOfClaim
-        )
+  ): (SessionData, FillingOutClaim, DraftClaim) =
+    sessionWithClaim(
+      DraftClaim.blank.copy(
+        commoditiesDetailsAnswer = maybeCommoditiesDetailsAnswer,
+        typeOfClaim = maybeTypeOfClaim
+      )
+    )
+
+  private def sessionWithClaim(draftC285Claim: DraftClaim): (SessionData, FillingOutClaim, DraftClaim) = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
+
     (
-      SessionData.empty.copy(
-        journeyStatus = Some(journey)
-      ),
+      SessionData.empty.copy(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )
@@ -167,7 +170,7 @@ class EnterCommoditiesDetailsControllerSpec
 
       "the user has come from the CYA page and is amending their answer" in forAll(testCases) {
         (numberOfClaims, journeyBindable) =>
-          def performAction(): Future[Result] = controller.changeCommoditiesDetails(journeyBindable)(FakeRequest())
+          def performAction(): Future[Result] = controller.enterCommoditiesDetails(journeyBindable)(FakeRequest())
 
           val answers = CommodityDetailsAnswer("some package")
 
@@ -230,23 +233,16 @@ class EnterCommoditiesDetailsControllerSpec
         )
       }
 
-      "the user amends their answer" in forAll(testCases) { (numberOfClaims, journeyBindable) =>
-        def performAction(data: Seq[(String, String)]): Future[Result] =
-          controller.changeCommoditiesDetailsSubmit(journeyBindable)(
-            FakeRequest().withFormUrlEncodedBody(data: _*)
-          )
+      "the user amends their answer" in {
 
-        val answers = CommodityDetailsAnswer("some package")
+        val journey     = sample[JourneyBindable]
+        val typeOfClaim = toTypeOfClaim(journey)
 
-        val draftC285Claim = sessionWithClaimState(Some(answers), Some(numberOfClaims))._3
-          .copy(
-            basisOfClaimAnswer = Some(BasisOfClaimAnswer.DutySuspension),
-            movementReferenceNumber = Some(sample[MRN])
-          )
+        val claim = sample(genValidDraftClaim(typeOfClaim))
 
-        val (session, fillingOutClaim, _) = sessionWithClaimState(Some(answers), Some(numberOfClaims))
+        val (session, fillingOutClaim, _) = sessionWithClaim(claim)
 
-        val updatedJourney = fillingOutClaim.copy(draftClaim = draftC285Claim)
+        val updatedJourney = fillingOutClaim.copy(draftClaim = claim)
 
         inSequence {
           mockAuthWithNoRetrievals()
@@ -254,8 +250,12 @@ class EnterCommoditiesDetailsControllerSpec
         }
 
         checkIsRedirect(
-          performAction(Seq("enter-commodities-details" -> "some package")),
-          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
+          controller.enterCommoditiesDetailsSubmit(journey)(
+            FakeRequest().withFormUrlEncodedBody(
+              "enter-commodities-details" -> claim.commoditiesDetailsAnswer.fold("")(_.value)
+            )
+          ),
+          routes.CheckYourAnswersAndSubmitController.checkAllAnswers(journey)
         )
       }
 

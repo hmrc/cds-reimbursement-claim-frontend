@@ -74,9 +74,6 @@ GET         /:journey/claim-submitted                               uk.gov.hmrc.
 
 GET         /:journey/check-if-claim-was-sent                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.submissionError(journey: JourneyBindable)
 
-GET         /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetails(journey: JourneyBindable)
-POST        /:journey/change-commodity-details                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journey: JourneyBindable)
-
 GET         /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDuties()
 POST        /single/select-duties                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectDutiesController.selectDutiesSubmit()
 

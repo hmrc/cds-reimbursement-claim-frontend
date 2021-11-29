@@ -52,12 +52,6 @@ trait SubmitRoutes extends Product with Serializable {
   def submitUrlForEnterDeclarantEoriNumber(): Call =
     claimRoutes.EnterDeclarantEoriNumberController.enterDeclarantEoriNumberSubmit(journeyBindable)
 
-  def submitUrlForCommoditiesDetails(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.EnterCommoditiesDetailsController.changeCommoditiesDetailsSubmit(journeyBindable)
-      case false => claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetailsSubmit(journeyBindable)
-    }
-
   def submitPageForClaimantDetails(isChange: Boolean): Call = {
     val controller = claimRoutes.CheckContactDetailsMrnController
     if (isChange) controller.submit(journeyBindable)
