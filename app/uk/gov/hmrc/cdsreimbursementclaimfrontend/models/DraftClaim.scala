@@ -112,8 +112,15 @@ final case class DraftClaim(
 
   def isComplete: Boolean = {
 
+    def findBankAccountDetails = Stream(
+      bankAccountDetailsAnswer,
+      displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
+      displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
+    ).find(_.nonEmpty).flatten
+
     def isSingleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
@@ -123,6 +130,7 @@ final case class DraftClaim(
 
     def isMultipleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
@@ -133,6 +141,7 @@ final case class DraftClaim(
 
     def isScheduledJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&

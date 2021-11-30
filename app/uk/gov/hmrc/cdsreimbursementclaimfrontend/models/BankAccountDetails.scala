@@ -16,7 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.data.Validated.{Valid, invalidNel}
+import cats.syntax.all._
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{IncorrectAnswerError, MissingAnswerError, Validator}
 
 final case class BankAccountDetails(
   accountName: AccountName,
@@ -25,6 +28,20 @@ final case class BankAccountDetails(
 )
 
 object BankAccountDetails {
+
+  val validator: Validator[Option, BankAccountDetails] = (maybeBankDetails: Option[BankAccountDetails]) =>
+    maybeBankDetails
+      .toValidNel(MissingAnswerError("Bank account details"))
+      .andThen(bankDetails =>
+        if (!AccountName.isValid(bankDetails.accountName.value))
+          invalidNel(IncorrectAnswerError("Account name", "Invalid"))
+        else if (!AccountNumber.isValid(bankDetails.accountNumber.value))
+          invalidNel(IncorrectAnswerError("Account number", "Invalid"))
+        else if (!SortCode.isValid(bankDetails.sortCode.value))
+          invalidNel(IncorrectAnswerError("Sort code", "Invalid"))
+        else
+          Valid(Some(bankDetails))
+      )
 
   implicit val format: OFormat[BankAccountDetails] =
     Json.format[BankAccountDetails]
