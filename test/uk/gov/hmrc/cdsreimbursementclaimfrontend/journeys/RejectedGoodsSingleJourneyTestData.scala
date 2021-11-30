@@ -33,6 +33,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
@@ -54,7 +55,13 @@ trait RejectedGoodsSingleJourneyTestData {
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
     reimbursementMethod: ReimbursementMethodAnswer,
-    supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)]
+    supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)],
+    importerEoriNumber: Option[Eori] = None,
+    declarantEoriNumber: Option[Eori] = None,
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None
   ): Either[String, RejectedGoodsSingleJourney] = {
     val taxCodes: Seq[TaxCode]                                                              =
       reimbursementClaims.map(_._1)
@@ -65,41 +72,65 @@ trait RejectedGoodsSingleJourneyTestData {
     val upscanReferencesWithDocumentType: Seq[(UploadReference, DocumentTypeRejectedGoods)] =
       uploadedDocuments.map(_.uploadReference).zip(supportingEvidences.map(_._2))
 
+    val submitImporterEoriNumber: RejectedGoodsSingleJourney => Eori => RejectedGoodsSingleJourney =
+      journey => eori => journey.submitImporterEoriNumber(eori)
+
+    val submitDeclarantEoriNumber: RejectedGoodsSingleJourney => Eori => RejectedGoodsSingleJourney =
+      journey => eori => journey.submitDeclarantEoriNumber(eori)
+
+    val submitContactDetails: RejectedGoodsSingleJourney => MrnContactDetails => RejectedGoodsSingleJourney =
+      journey => contactDetails => journey.submitContactDetails(contactDetails)
+
+    val submitContactAddress: RejectedGoodsSingleJourney => ContactAddress => RejectedGoodsSingleJourney =
+      journey => contactAddress => journey.submitContactAddress(contactAddress)
+
+    val submitBankAccountDetails: RejectedGoodsSingleJourney => BankAccountDetails => RejectedGoodsSingleJourney =
+      journey => bankAccountDetails => journey.submitBankAccountDetails(bankAccountDetails)
+
+    val submitBankAccountType: RejectedGoodsSingleJourney => BankAccountType => RejectedGoodsSingleJourney =
+      journey => bankAccountType => journey.submitBankAccountType(bankAccountType)
+
+    def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
+      taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
+    ): Either[String, RejectedGoodsSingleJourney] =
+      journey.submitAmountForReimbursement(taxCodesWithReimbursementAmount._1, taxCodesWithReimbursementAmount._2)
+
+    def submitUploadedDocument(journey: RejectedGoodsSingleJourney)(
+      uploadDocument: UploadDocument
+    ): RejectedGoodsSingleJourney =
+      journey.submitUploadedDocument(uploadDocument)
+
+    def submitDocumentType(journey: RejectedGoodsSingleJourney)(
+      uploadReferenceWithDocumentType: (UploadReference, DocumentTypeRejectedGoods)
+    ): Either[String, RejectedGoodsSingleJourney] =
+      journey.submitDocumentType(uploadReferenceWithDocumentType._1, uploadReferenceWithDocumentType._2)
+
     RejectedGoodsSingleJourney.empty
       .submitMovementReferenceNumber(mrn)
       .submitDisplayDeclaration(displayDeclaration)
+      .mapWhenDefined(importerEoriNumber)(submitImporterEoriNumber)
+      .mapWhenDefined(declarantEoriNumber)(submitDeclarantEoriNumber)
       .submitDeclarantType(declarantType)
+      .mapWhenDefined(contactDetails)(submitContactDetails)
+      .mapWhenDefined(contactAddress)(submitContactAddress)
       .submitBasisOfClaim(basisOfClaim)
-      .submitDetailsOfRejectedGoods(detailsOfRejectedGoods)
-      .submitMethodOfDisposal(methodOfDisposal)
-      .submitInspectionAddress(inspectionAddress)
-      .submitInspectionDate(inspectionDate)
-      .conditionally(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
+      .flatMapWhen(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstancesDetails)
       )
+      .map(_.submitMethodOfDisposal(methodOfDisposal))
+      .map(_.submitDetailsOfRejectedGoods(detailsOfRejectedGoods))
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
       .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
-      .conditionally(_.isAllSelectedDutiesAreCMAEligible)(
+      .flatMap(_.submitInspectionDate(inspectionDate))
+      .map(_.submitInspectionAddress(inspectionAddress))
+      .mapWhenDefined(bankAccountDetails)(submitBankAccountDetails)
+      .mapWhenDefined(bankAccountType)(submitBankAccountType)
+      .flatMapWhen(_.isAllSelectedDutiesAreCMAEligible)(
         _.submitReimbursementMethod(reimbursementMethod)
       )
       .mapEach(uploadedDocuments, submitUploadedDocument)
       .flatMapEach(upscanReferencesWithDocumentType, submitDocumentType)
   }
-
-  private def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
-    taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
-  ): Either[String, RejectedGoodsSingleJourney] =
-    journey.submitAmountForReimbursement(taxCodesWithReimbursementAmount._1, taxCodesWithReimbursementAmount._2)
-
-  private def submitUploadedDocument(journey: RejectedGoodsSingleJourney)(
-    uploadDocument: UploadDocument
-  ): RejectedGoodsSingleJourney =
-    journey.submitUploadedDocument(uploadDocument)
-
-  private def submitDocumentType(journey: RejectedGoodsSingleJourney)(
-    uploadReferenceWithDocumentType: (UploadReference, DocumentTypeRejectedGoods)
-  ): Either[String, RejectedGoodsSingleJourney] =
-    journey.submitDocumentType(uploadReferenceWithDocumentType._1, uploadReferenceWithDocumentType._2)
 
   def buildDisplayDeclaration(
     id: String,

@@ -21,16 +21,34 @@ trait FluentSyntax[Journey] {
   this: Journey =>
 
   // Modify journey if the condition holds, otherwise return as is.
-  def conditionally(condition: => Boolean)(
+  def mapWhen(condition: => Boolean)(
     modifyFx: Journey => Journey
   ): Journey =
     if (condition) modifyFx(this) else this
 
   // Try to modify journey if the condition holds, otherwise return Right as is.
-  def conditionallyTry(condition: => Boolean)(
+  def flatMapWhen(condition: => Boolean)(
     modifyFx: Journey => Either[String, Journey]
   ): Either[String, Journey] =
     if (condition) modifyFx(this) else Right(this)
+
+  /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+  def mapWhenDefined[A](option: Option[A])(
+    modifyFx: Journey => A => Journey
+  ): Journey =
+    option match {
+      case None        => this
+      case Some(value) => modifyFx(this)(value)
+    }
+
+  /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+  def flatMapWhenDefined[A](option: Option[A])(
+    modifyFx: Journey => A => Either[String, Journey]
+  ): Either[String, Journey] =
+    option match {
+      case None        => Right(this)
+      case Some(value) => modifyFx(this)(value)
+    }
 
 }
 
@@ -59,18 +77,37 @@ trait FluentImplicits[Journey] {
       }
 
     /** Try to modify the journey if the condition holds, otherwise return as is. */
-    def conditionally(condition: Boolean)(
+    def flatMapWhen(condition: Boolean)(
       modifyFx: Journey => Either[String, Journey]
     ): Either[String, Journey] =
       if (condition) journeyEither.flatMap(modifyFx) else journeyEither
 
     /** Try to modify the journey if the condition holds, otherwise return as is. */
-    def conditionally(condition: Journey => Boolean)(
+    def flatMapWhen(condition: Journey => Boolean)(
       modifyFx: Journey => Either[String, Journey]
     ): Either[String, Journey] =
       journeyEither
         .map(condition)
         .flatMap(flag => if (flag) journeyEither.flatMap(modifyFx) else journeyEither)
+
+    /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+    def mapWhenDefined[A](option: Option[A])(
+      modifyFx: Journey => A => Journey
+    ): Either[String, Journey] =
+      option match {
+        case None        => journeyEither
+        case Some(value) => journeyEither.map(modifyFx(_)(value))
+      }
+
+    /** Try to modify the journey if the optional value is defined, otherwise return as is. */
+    def flatMapWhenDefined[A](option: Option[A])(
+      modifyFx: Journey => A => Either[String, Journey]
+    ): Either[String, Journey] =
+      option match {
+        case None        => journeyEither
+        case Some(value) => journeyEither.flatMap(modifyFx(_)(value))
+      }
+
   }
 
 }
