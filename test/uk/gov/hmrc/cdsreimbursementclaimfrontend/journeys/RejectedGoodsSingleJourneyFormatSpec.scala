@@ -18,20 +18,24 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
+
+import RejectedGoodsSingleJourneyGenerators._
 
 class RejectedGoodsSingleJourneyFormatSpec
     extends AnyWordSpec
     with JsonFormatTest
     with Matchers
+    with ScalaCheckPropertyChecks
     with RejectedGoodsSingleJourneyTestData {
 
   "RejectedGoodsSingleJourney.Answers" should {
-    "serialize into json format and back" in {
+    "serialize into a JSON format and back" in {
       validateJsonFormat("{}", Answers())
       validateJsonFormat(
         """{"movementReferenceNumber":"19GB03I52858027001"}""",
@@ -62,12 +66,25 @@ class RejectedGoodsSingleJourneyFormatSpec
   }
 
   "RejectedGoodsSingleJourney" should {
-    "serialize into json format and back" in {
+    "serialize journeys into a JSON format and back" in {
       validateJsonFormat("{}", RejectedGoodsSingleJourney.empty)
       validateJsonFormat(
         """{"movementReferenceNumber":"19GB03I52858027001"}""",
         RejectedGoodsSingleJourney.empty.submitMovementReferenceNumber(MRN("19GB03I52858027001"))
       )
+    }
+
+    "serialize complete journey into a JSON format" in {
+      forAll(completeJourneyGen) { journey =>
+        validateCanReadAndWriteJson(journey)
+      }
+    }
+
+    "serialize complete journey's output into a JSON format" in {
+      forAll(completeJourneyGen) { journey =>
+        val output = journey.toOutput.getOrElse(fail("Could not get journey output."))
+        validateCanReadAndWriteJson(output)
+      }
     }
   }
 

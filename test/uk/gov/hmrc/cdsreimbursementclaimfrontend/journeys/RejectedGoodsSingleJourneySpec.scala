@@ -19,9 +19,9 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 
 import RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec

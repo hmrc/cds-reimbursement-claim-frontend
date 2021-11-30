@@ -40,4 +40,10 @@ trait JsonFormatTest {
     actualJson shouldBe expectedJson
   }
 
+  def validateCanReadAndWriteJson[A](entity: A)(implicit format: Format[A]): Assertion = {
+    val actualJson = Json.stringify(Json.toJson(entity))
+    actualJson                     should not be empty
+    Json.parse(actualJson).as[A] shouldBe entity
+  }
+
 }
