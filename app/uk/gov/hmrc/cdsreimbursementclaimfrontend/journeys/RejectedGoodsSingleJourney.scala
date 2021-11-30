@@ -40,7 +40,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionsValidator._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.PrettyPrint
 
 import java.time.LocalDate
 
@@ -59,7 +58,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
   def isComplete: Boolean =
     RejectedGoodsSingleJourney.validator.apply(this).isValid
 
-  /** Check if all the selected duties has a corrected amount defined. */
+  /** Check if all the selected duties have reimbursement amount provided. */
   def isCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(_.forall(_._2.isDefined))
 
@@ -211,31 +210,31 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
           Left("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14")
     }
 
-  def isValidCorrectedAmount(correctedAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
-    correctedAmount >= 0 && correctedAmount < BigDecimal(ndrcDetails.amount)
+  def isValidReimbursementAmount(reimbursementAmount: BigDecimal, ndrcDetails: NdrcDetails): Boolean =
+    reimbursementAmount > 0 && reimbursementAmount <= BigDecimal(ndrcDetails.amount)
 
-  def submitCorrectedAmountForReimbursement(
+  def submitAmountForReimbursement(
     taxCode: TaxCode,
-    correctedAmount: BigDecimal
+    reimbursementAmount: BigDecimal
   ): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {
       case None =>
-        Left("submitCorrectedAmountForReimbursement.missingDisplayDeclaration")
+        Left("submitAmountForReimbursement.missingDisplayDeclaration")
 
       case Some(_) =>
         getNdrcDetailsFor(taxCode) match {
           case None =>
-            Left("submitCorrectedAmountForReimbursement.taxCodeNotInACC14")
+            Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
-          case Some(ndrcDetails) if isValidCorrectedAmount(correctedAmount, ndrcDetails) =>
+          case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
             val newReimbursementClaims = answers.reimbursementClaims match {
-              case None                      => Map(taxCode -> Some(correctedAmount))
-              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(correctedAmount))
+              case None                      => Map(taxCode -> Some(reimbursementAmount))
+              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
             }
             Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
 
           case _ =>
-            Left("submitCorrectedAmountForReimbursement.invalidAmount")
+            Left("submitAmountForReimbursement.invalidReimbursementAmount")
         }
     }
 

@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGood
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 
+/** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
@@ -44,6 +45,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       minimalCompleteJourneyWithConsigneeAndNoneDutyCMAEligibleGen
     )
 
+  /** Minimal journey does not contain optional answers. */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildMinimalCompleteJourneyGen(
     cmaEligible: Boolean,
@@ -56,10 +58,10 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       consigneeEORI               <- IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
-      paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1, 10000)).map(_.map(BigDecimal.apply(_)))
-      correctedAmounts            <-
+      paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1d, 10000d)).map(_.map(BigDecimal.apply(_)))
+      reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.map(a => Gen.choose(0, a.toInt - 1).map(BigDecimal.apply))
+          paidAmounts.map(a => Gen.choose(0.01d, a.toDouble).map(BigDecimal.apply))
         )
       declarantType               <- Gen.oneOf(DeclarantTypeAnswer.all)
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.all)
@@ -77,7 +79,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
 
       val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.take(numberOfSelectedTaxCodes).zip(correctedAmounts).map { case (t, a) => (t, a, cmaEligible) }
+        taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) => (t, a, cmaEligible) }
 
       val supportingEvidences                                      =
         documentTypes.zipWithIndex.map { case (d, i) => (s"evidence-$i", d) }

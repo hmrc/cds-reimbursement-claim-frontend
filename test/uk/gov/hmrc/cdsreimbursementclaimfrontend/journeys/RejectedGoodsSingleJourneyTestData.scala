@@ -58,7 +58,7 @@ trait RejectedGoodsSingleJourneyTestData {
   ): Either[String, RejectedGoodsSingleJourney] = {
     val taxCodes: Seq[TaxCode]                                                              =
       reimbursementClaims.map(_._1)
-    val taxCodesWithCorrectedAmount: Seq[(TaxCode, BigDecimal)]                             =
+    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)]                         =
       reimbursementClaims.map(e => (e._1, e._2))
     val uploadedDocuments: Seq[UploadDocument]                                              =
       supportingEvidences.map(_._1).map(buildUploadDocument)
@@ -78,7 +78,7 @@ trait RejectedGoodsSingleJourneyTestData {
         _.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstancesDetails)
       )
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
-      .flatMapEach(taxCodesWithCorrectedAmount, submitCorrectedAmountForReimbursement)
+      .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .conditionally(_.isAllSelectedDutiesAreCMAEligible)(
         _.submitReimbursementMethod(reimbursementMethod)
       )
@@ -86,10 +86,10 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMapEach(upscanReferencesWithDocumentType, submitDocumentType)
   }
 
-  private def submitCorrectedAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
-    taxCodesWithCorrectedAmount: (TaxCode, BigDecimal)
+  private def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
+    taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
   ): Either[String, RejectedGoodsSingleJourney] =
-    journey.submitCorrectedAmountForReimbursement(taxCodesWithCorrectedAmount._1, taxCodesWithCorrectedAmount._2)
+    journey.submitAmountForReimbursement(taxCodesWithReimbursementAmount._1, taxCodesWithReimbursementAmount._2)
 
   private def submitUploadedDocument(journey: RejectedGoodsSingleJourney)(
     uploadDocument: UploadDocument
