@@ -25,7 +25,10 @@ final case class AccountName(value: String) extends AnyVal
 
 object AccountName {
 
-  val regex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
+  private val regex: Predicate[String] = """^[A-Za-z0-9\-',/& ]{1,40}$""".r.pattern.asPredicate()
+
+  def isValid(value: String): Boolean =
+    regex.test(value)
 
   implicit val accountNameFormat: Format[AccountName] =
     SimpleStringFormat(AccountName(_), _.value)
