@@ -87,7 +87,10 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     answers.movementReferenceNumber match {
       case Some(existing) if existing === mrn => this
       case _                                  =>
-        new RejectedGoodsSingleJourney(RejectedGoodsSingleJourney.Answers(movementReferenceNumber = Some(mrn)))
+        new RejectedGoodsSingleJourney(
+          RejectedGoodsSingleJourney
+            .Answers(userEoriNumber = answers.userEoriNumber, movementReferenceNumber = Some(mrn))
+        )
     }
 
   /** Set the ACC14 declaration and reset all reimbursementClaims */
@@ -330,6 +333,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .flatMap(_ =>
         answers match {
           case RejectedGoodsSingleJourney.Answers(
+                userEoriNumber,
                 Some(mrn),
                 _,
                 importerEoriNumber,
@@ -362,7 +366,9 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod,
-                importerAndDeclarantEoriNumber = for (a <- importerEoriNumber; b <- declarantEoriNumber) yield (a, b),
+                importerAndDeclarantEoriNumber =
+                  for (a <- importerEoriNumber; b <- declarantEoriNumber)
+                    yield (a, b), // ? what should be the value of this if missing, should we use user's EORI?
                 contactDetailsAndAddress = for (a <- contactDetails; b <- contactAddress) yield (a, b),
                 bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
               )
@@ -377,11 +383,12 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJourney] {
 
   /** A starting point to build new instance of the journey. */
-  val empty: RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(Answers())
+  def empty(userEoriNumber: Eori): RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(Answers(userEoriNumber))
 
   // All user answers captured during C&E1179 single MRN journey
   final case class Answers(
+    userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
     importerEoriNumber: Option[Eori] = None,

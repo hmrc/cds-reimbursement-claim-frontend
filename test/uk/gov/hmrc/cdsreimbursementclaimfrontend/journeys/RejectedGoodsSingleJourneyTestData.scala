@@ -38,12 +38,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
 
-  val exampleMrn: MRN = IdGen.genMRN.sample.get
+  val exampleEori: Eori           = IdGen.genEori.sample.get
+  val exampleEoriAsString: String = exampleEori.value
+
+  val exampleMrn: MRN            = IdGen.genMRN.sample.get
+  val exampleMrnAsString: String = exampleMrn.value
+
+  val emptyJourney = RejectedGoodsSingleJourney.empty(exampleEori)
 
   val uploadDocument     = buildUploadDocument("foo")
   val uploadDocumentJson = buildUploadDocumentJson("foo")
 
   def tryBuildRejectedGoodsSingleJourney(
+    userEoriNumber: Eori,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration,
     declarantType: DeclarantTypeAnswer,
@@ -105,7 +112,8 @@ trait RejectedGoodsSingleJourneyTestData {
     ): Either[String, RejectedGoodsSingleJourney] =
       journey.submitDocumentType(uploadReferenceWithDocumentType._1, uploadReferenceWithDocumentType._2)
 
-    RejectedGoodsSingleJourney.empty
+    RejectedGoodsSingleJourney
+      .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitDisplayDeclaration(displayDeclaration)
       .whenDefined(importerEoriNumber)(_.submitImporterEoriNumber _)

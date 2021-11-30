@@ -53,6 +53,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
   ): Gen[RejectedGoodsSingleJourney] =
     for {
       id                          <- Gen.uuid
+      userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
       declarantEORI               <- IdGen.genEori
       consigneeEORI               <- IdGen.genEori
@@ -93,6 +94,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         )
 
       tryBuildRejectedGoodsSingleJourney(
+        userEoriNumber,
         mrn,
         displayDeclaration,
         declarantType,

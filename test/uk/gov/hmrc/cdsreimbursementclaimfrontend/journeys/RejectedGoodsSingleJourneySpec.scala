@@ -30,8 +30,6 @@ class RejectedGoodsSingleJourneySpec
     with Matchers
     with RejectedGoodsSingleJourneyTestData {
 
-  val emptyJourney = RejectedGoodsSingleJourney.empty
-
   "RejectedGoodsSingleJourney" should {
     "have an empty instance" in {
       emptyJourney.answers.bankAccountDetails               shouldBe None
