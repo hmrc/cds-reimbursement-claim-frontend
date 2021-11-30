@@ -110,13 +110,13 @@ class CheckContactDetailsMrnController @Inject() (
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             {
-              case answer @ Yes =>
+              case Yes =>
                 Redirect(
                   router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    router.nextPageForChangeClaimantDetails(answer, featureSwitch)
+                    router.nextPageForChangeClaimantDetails(Yes, featureSwitch)
                   )
                 )
-              case answer @ No  =>
+              case No  =>
                 val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
                   _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
                 )
@@ -125,7 +125,12 @@ class CheckContactDetailsMrnController @Inject() (
                   .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                   .fold(
                     e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                    _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
+                    _ =>
+                      Redirect(
+                        router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                          router.nextPageForChangeClaimantDetails(No, featureSwitch)
+                        )
+                      )
                   )
             }
           )
