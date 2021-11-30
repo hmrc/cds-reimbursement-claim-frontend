@@ -25,6 +25,8 @@ import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterCommoditiesDetailsController.commoditiesDetailsForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, upscan => _}
@@ -52,49 +54,42 @@ class EnterCommoditiesDetailsController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[CommodityDetailsAnswer] = _.commoditiesDetailsAnswer
 
-  def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent]  = show(isAmend = false)
-  def changeCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] = show(isAmend = true)
-
-  def show(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterCommoditiesDetails(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      withAnswersAndRoutes[CommodityDetailsAnswer] { (_, answers, router) =>
-        val commoditiesDetailsForm =
-          answers.toList.foldLeft(EnterCommoditiesDetailsController.commoditiesDetailsForm)((form, answer) =>
-            form.fill(answer)
-          )
-        Ok(enterCommoditiesDetailsPage(commoditiesDetailsForm, router, isAmend))
+      withAnswers[CommodityDetailsAnswer] { (_, answers) =>
+        val form = answers.toList.foldLeft(commoditiesDetailsForm)((form, answer) => form.fill(answer))
+        Ok(enterCommoditiesDetailsPage(form))
       }
     }
 
-  def enterCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent]  =
-    submit(isAmend = false)
-  def changeCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
-    submit(isAmend = true)
-
-  def submit(isAmend: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
+  def enterCommoditiesDetailsSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[CommodityDetailsAnswer] { (fillingOutClaim, _, router) =>
-        EnterCommoditiesDetailsController.commoditiesDetailsForm
+        import router._
+
+        commoditiesDetailsForm
           .bindFromRequest()
           .fold(
-            requestFormWithErrors =>
-              BadRequest(
-                enterCommoditiesDetailsPage(
-                  requestFormWithErrors,
-                  router,
-                  isAmend
-                )
-              ),
+            requestFormWithErrors => BadRequest(enterCommoditiesDetailsPage(requestFormWithErrors)),
             commodityDetails => {
-              val newDraftClaim  =
-                fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
+              val newDraftClaim  = fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
               EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not get commodity details"),
-                  _ => Redirect(router.nextPageForCommoditiesDetails(isAmend))
+                  _ =>
+                    Redirect(
+                      CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively = journeyBindable match {
+                        case JourneyBindable.Scheduled =>
+                          claimRoutes.SelectDutyTypesController.showDutyTypes()
+                        case JourneyBindable.Multiple  =>
+                          claimRoutes.SelectMultipleDutiesController.selectDuties(index = 1)
+                        case _                         =>
+                          claimRoutes.SelectDutiesController.selectDuties()
+                      })
+                    )
                 )
             }
           )
@@ -105,8 +100,8 @@ class EnterCommoditiesDetailsController @Inject() (
 object EnterCommoditiesDetailsController {
 
   val commoditiesDetailsForm: Form[CommodityDetailsAnswer] = Form(
-    mapping(
-      "enter-commodities-details" -> nonEmptyText(maxLength = 500)
-    )(CommodityDetailsAnswer.apply)(CommodityDetailsAnswer.unapply)
+    mapping("enter-commodities-details" -> nonEmptyText(maxLength = 500))(CommodityDetailsAnswer.apply)(
+      CommodityDetailsAnswer.unapply
+    )
   )
 }

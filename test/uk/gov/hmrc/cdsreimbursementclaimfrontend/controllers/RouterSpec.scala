@@ -120,12 +120,5 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
           )
       }
     }
-
-    "CommoditiesDetails" in {
-      forAll(allRoutes) { router =>
-        router.submitUrlForCommoditiesDetails(true) shouldBe claimRoutes.EnterCommoditiesDetailsController
-          .changeCommoditiesDetailsSubmit(router.journeyBindable)
-      }
-    }
   }
 }
