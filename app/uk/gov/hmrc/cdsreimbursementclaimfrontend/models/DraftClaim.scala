@@ -71,6 +71,13 @@ final case class DraftClaim(
   def hasNorthernIrelandBasisOfClaim: Boolean =
     basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
 
+  def findNonEmptyBankAccountDetails: Option[BankAccountDetails] =
+    Stream(
+      bankAccountDetailsAnswer,
+      displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
+      displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+    ).find(_.nonEmpty).flatten
+
   object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
     def apply(): List[MRN] = list

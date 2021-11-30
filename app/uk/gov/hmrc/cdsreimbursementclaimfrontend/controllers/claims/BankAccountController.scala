@@ -71,14 +71,7 @@ class BankAccountController @Inject() (
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
         import router._
 
-        val claim = fillingOutClaim.draftClaim
-
-        Stream(
-          claim.bankAccountDetailsAnswer,
-          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.consigneeBankDetails),
-          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.declarantBankDetails)
-        ).find(_.nonEmpty)
-          .flatten
+        fillingOutClaim.draftClaim.findNonEmptyBankAccountDetails
           .map { bankAccountDetails =>
             Future.successful(
               Ok(
