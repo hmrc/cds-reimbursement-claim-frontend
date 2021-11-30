@@ -51,6 +51,7 @@ trait RejectedGoodsSingleJourneyTestData {
     specialCircumstancesDetails: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
+    methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
     reimbursementMethod: ReimbursementMethodAnswer,
     supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)]
@@ -70,6 +71,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitDeclarantType(declarantType)
       .submitBasisOfClaim(basisOfClaim)
       .submitDetailsOfRejectedGoods(detailsOfRejectedGoods)
+      .submitMethodOfDisposal(methodOfDisposal)
       .submitInspectionAddress(inspectionAddress)
       .submitInspectionDate(inspectionDate)
       .conditionally(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(

@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClai
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
@@ -62,6 +63,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         )
       declarantType               <- Gen.oneOf(DeclarantTypeAnswer.all)
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.all)
+      methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.all)
       reimbursementMethod         <-
         Gen.oneOf(
           if (cmaEligible) ReimbursementMethodAnswer.all else Set(ReimbursementMethodAnswer.BankAccountTransfer)
@@ -97,6 +99,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         "special circumstances details",
         LocalDate.now.plusDays(1),
         InspectionAddress(addressLine1 = "address-line-1", postalCode = "postal-code"),
+        methodOfDisposal,
         reimbursementClaims,
         reimbursementMethod,
         supportingEvidences

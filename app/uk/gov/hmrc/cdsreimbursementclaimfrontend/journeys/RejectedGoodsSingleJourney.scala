@@ -35,95 +35,35 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionsValidator._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.{FluentImplicits, FluentSyntax}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.PrettyPrint
 
 import java.time.LocalDate
 
-import RejectedGoodsSingleJourney.Answers
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
-
-// This file contains complete data model of
-// the C&E1179 /rejected-goods/ single journey.
-
-object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJourney] {
-
-  def empty: RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(Answers())
-
-  // All user answers captured during C&E1179 single MRN journey
-  final case class Answers(
-    movementReferenceNumber: Option[MRN] = None,
-    displayDeclaration: Option[DisplayDeclaration] = None,
-    importerEoriNumber: Option[Eori] = None,
-    declarantEoriNumber: Option[Eori] = None,
-    declarantType: Option[DeclarantTypeAnswer] = None, // is it required at all?
-    contactDetails: Option[MrnContactDetails] = None,
-    contactAddress: Option[ContactAddress] = None,
-    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
-    basisOfClaimSpecialCircumstances: Option[String] = None,
-    methodOfDisposal: Option[MethodOfDisposal] = None,
-    detailsOfRejectedGoods: Option[String] = None,
-    reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
-    inspectionDate: Option[LocalDate] = None,
-    inspectionAddress: Option[InspectionAddress] = None,
-    bankAccountDetails: Option[BankAccountDetails] = None,
-    bankAccountType: Option[BankAccountType] = None,
-    reimbursementMethodAnswer: Option[ReimbursementMethodAnswer] = None,
-    supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
-  )
-
-  object Answers {
-    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
-      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] =
-      MapFormat.formatWithOptionalValue[UploadDocument, DocumentTypeRejectedGoods]
-
-    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
-    implicit val format: Format[Answers] = Json.format[Answers]
-  }
-
-  implicit val format: Format[RejectedGoodsSingleJourney] =
-    Format(
-      Reads(Answers.format.reads(_).map(answers => new RejectedGoodsSingleJourney(answers))),
-      Writes(journey => Answers.format.writes(journey.answers))
-    )
-
-  implicit val equality: Eq[RejectedGoodsSingleJourney] =
-    Eq.fromUniversalEquals[RejectedGoodsSingleJourney]
-
-}
-
 /** An encapsulated C&E1179 single MRN journey logic.
-  * The constructor of this class MUST stay private to protected integrity of the journey
+  * The constructor of this class MUST stay private to protected integrity of the journey.
+  *
+  * The journey uses two nested case classes:
+  *
+  *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user anwers and acquired documents
+  *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
-final class RejectedGoodsSingleJourney private (val answers: Answers) extends FluentSyntax[RejectedGoodsSingleJourney] {
+final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
+    extends FluentSyntax[RejectedGoodsSingleJourney] {
 
+  /** Check if the journey is ready to finalize, i.e. to get the output. */
   def isComplete: Boolean =
-    all(
-      answers.movementReferenceNumber,
-      answers.displayDeclaration,
-      allOrNone(answers.importerEoriNumber, answers.declarantEoriNumber),
-      answers.declarantType,
-      allOrNone(answers.contactDetails, answers.contactAddress),
-      answers.basisOfClaim,
-      requiredWhen(answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances))(
-        answers.basisOfClaimSpecialCircumstances
-      ),
-      answers.detailsOfRejectedGoods,
-      isCompleteReimbursementClaims,
-      answers.inspectionDate,
-      answers.inspectionAddress,
-      allOrNone(answers.bankAccountDetails, answers.bankAccountType),
-      requiredWhen(isAllSelectedDutiesAreCMAEligible)(answers.reimbursementMethodAnswer),
-      isCompleteSupportingEvidences
-    ).isDefined
+    RejectedGoodsSingleJourney.validator.apply(this).isValid
 
+  /** Check if all the selected duties has a corrected amount defined. */
   def isCompleteReimbursementClaims: Boolean =
     answers.reimbursementClaims.exists(_.forall(_._2.isDefined))
 
+  /** Check is all the upoaded documents has document type selected. */
   def isCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.exists(_.forall(_._2.isDefined))
 
@@ -148,7 +88,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
     answers.movementReferenceNumber match {
       case Some(existing) if existing === mrn => this
       case _                                  =>
-        new RejectedGoodsSingleJourney(Answers(movementReferenceNumber = Some(mrn)))
+        new RejectedGoodsSingleJourney(RejectedGoodsSingleJourney.Answers(movementReferenceNumber = Some(mrn)))
     }
 
   /** Set the ACC14 declaration and reset all reimbursementClaims */
@@ -335,7 +275,7 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
     )
       Right(
         new RejectedGoodsSingleJourney(
-          answers.copy(reimbursementMethodAnswer = Some(reimbursementMethodAnswer))
+          answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
         )
       )
     else
@@ -381,5 +321,180 @@ final class RejectedGoodsSingleJourney private (val answers: Answers) extends Fl
 
   override def hashCode(): Int    = answers.hashCode
   override def toString(): String = s"RejectedGoodsSingleJourney(${answers.toString()})"
+
+  /** Validates the journey and retrieves the output. */
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  def toOutput: Either[List[String], RejectedGoodsSingleJourney.Output] =
+    RejectedGoodsSingleJourney.validator
+      .apply(this)
+      .toEither
+      .flatMap(_ =>
+        answers match {
+          case RejectedGoodsSingleJourney.Answers(
+                Some(mrn),
+                _,
+                importerEoriNumber,
+                declarantEoriNumber,
+                Some(declarantType),
+                contactDetails,
+                contactAddress,
+                Some(basisOfClaim),
+                basisOfClaimSpecialCircumstances,
+                Some(methodOfDisposal),
+                Some(detailsOfRejectedGoods),
+                Some(reimbursementClaims),
+                Some(inspectionDate),
+                Some(inspectionAddress),
+                bankAccountDetails,
+                bankAccountType,
+                reimbursementMethod,
+                Some(supportingEvidences)
+              ) =>
+            Right(
+              RejectedGoodsSingleJourney.Output(
+                movementReferenceNumber = mrn,
+                declarantType = declarantType,
+                basisOfClaim = basisOfClaim,
+                methodOfDisposal = methodOfDisposal,
+                detailsOfRejectedGoods = detailsOfRejectedGoods,
+                inspectionDate = inspectionDate,
+                inspectionAddress = inspectionAddress,
+                reimbursementClaims = reimbursementClaims.mapValues(_.get),
+                supportingEvidences = supportingEvidences.mapValues(_.get),
+                basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
+                reimbursementMethod = reimbursementMethod,
+                importerAndDeclarantEoriNumber = for (a <- importerEoriNumber; b <- declarantEoriNumber) yield (a, b),
+                contactDetailsAndAddress = for (a <- contactDetails; b <- contactAddress) yield (a, b),
+                bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
+              )
+            )
+          case _ =>
+            Left(List("Unfortunately could not produce the output, please check if all answers are complete."))
+        }
+      )
+
+}
+
+object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJourney] {
+
+  /** A starting point to build new instance of the journey. */
+  val empty: RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(Answers())
+
+  // All user answers captured during C&E1179 single MRN journey
+  final case class Answers(
+    movementReferenceNumber: Option[MRN] = None,
+    displayDeclaration: Option[DisplayDeclaration] = None,
+    importerEoriNumber: Option[Eori] = None,
+    declarantEoriNumber: Option[Eori] = None,
+    declarantType: Option[DeclarantTypeAnswer] = None, // is it required at all?
+    contactDetails: Option[MrnContactDetails] = None,
+    contactAddress: Option[ContactAddress] = None,
+    basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
+    basisOfClaimSpecialCircumstances: Option[String] = None,
+    methodOfDisposal: Option[MethodOfDisposal] = None,
+    detailsOfRejectedGoods: Option[String] = None,
+    reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
+    inspectionDate: Option[LocalDate] = None,
+    inspectionAddress: Option[InspectionAddress] = None,
+    bankAccountDetails: Option[BankAccountDetails] = None,
+    bankAccountType: Option[BankAccountType] = None,
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
+    supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
+  )
+
+  // Final output of the journey.
+  final case class Output(
+    movementReferenceNumber: MRN,
+    declarantType: DeclarantTypeAnswer,
+    basisOfClaim: BasisOfRejectedGoodsClaim,
+    methodOfDisposal: MethodOfDisposal,
+    detailsOfRejectedGoods: String,
+    inspectionDate: LocalDate,
+    inspectionAddress: InspectionAddress,
+    reimbursementClaims: Map[TaxCode, BigDecimal],
+    supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
+    basisOfClaimSpecialCircumstances: Option[String],
+    reimbursementMethod: Option[ReimbursementMethodAnswer],
+    importerAndDeclarantEoriNumber: Option[(Eori, Eori)],
+    contactDetailsAndAddress: Option[(MrnContactDetails, ContactAddress)],
+    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)]
+  )
+
+  import com.github.arturopala.validator.Validator._
+
+  /** Validate if all answers has been provided and the journey is ready to finalize. */
+  val validator: Validate[RejectedGoodsSingleJourney] =
+    all(
+      checkIsDefined(_.answers.movementReferenceNumber, "missing movementReferenceNumber"),
+      checkIsDefined(_.answers.displayDeclaration, "missing displayDeclaration"),
+      checkIsDefined(_.answers.declarantType, "missing declarantType"),
+      checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
+      checkIsDefined(_.answers.detailsOfRejectedGoods, "missing detailsOfRejectedGoods"),
+      checkIsDefined(_.answers.inspectionDate, "missing inspectionDate"),
+      checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
+      checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
+      checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
+      check(_.isCompleteReimbursementClaims, "incomplete methodOfDisposal"),
+      check(_.isCompleteSupportingEvidences, "incomplete supportingEvidences"),
+      check(
+        journey => allOrNone(journey.answers.importerEoriNumber, journey.answers.declarantEoriNumber),
+        "importerEoriNumber and declarantEoriNumber must be defined both or none"
+      ),
+      check(
+        journey => allOrNone(journey.answers.contactDetails, journey.answers.contactAddress),
+        "contactDetails and contactAddress must be defined both or none"
+      ),
+      check(
+        journey => allOrNone(journey.answers.bankAccountDetails, journey.answers.bankAccountType),
+        "bankAccountDetails and bankAccountType must be defined both or none"
+      ),
+      whenTrue[RejectedGoodsSingleJourney](
+        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+      )(
+        checkIsDefined(
+          _.answers.basisOfClaimSpecialCircumstances,
+          "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances"
+        )
+      ),
+      whenTrue[RejectedGoodsSingleJourney](_.isAllSelectedDutiesAreCMAEligible)(
+        checkIsDefined(
+          _.answers.reimbursementMethod,
+          "reimbursementMethodAnswer must be defined when all selected duties are CMA eligible"
+        )
+      )
+    )
+
+  object Answers {
+    implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
+      MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] =
+      MapFormat.formatWithOptionalValue[UploadDocument, DocumentTypeRejectedGoods]
+
+    implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
+    implicit val format: Format[Answers] = Json.format[Answers]
+  }
+
+  object Output {
+
+    implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
+      MapFormat.format[TaxCode, BigDecimal]
+
+    implicit lazy val mapFormat2: Format[Map[UploadDocument, DocumentTypeRejectedGoods]] =
+      MapFormat.format[UploadDocument, DocumentTypeRejectedGoods]
+
+    implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
+    implicit val format: Format[Output] = Json.format[Output]
+  }
+
+  implicit val format: Format[RejectedGoodsSingleJourney] =
+    Format(
+      Reads(Answers.format.reads(_).map(answers => new RejectedGoodsSingleJourney(answers))),
+      Writes(journey => Answers.format.writes(journey.answers))
+    )
+
+  implicit val equality: Eq[RejectedGoodsSingleJourney] =
+    Eq.fromUniversalEquals[RejectedGoodsSingleJourney]
 
 }

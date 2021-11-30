@@ -7,7 +7,7 @@ object AppDependencies {
   val monocleVersion = "2.1.0"
 
   val validator =
-    ("com.github.arturopala" %% "validator" % "0.3.0")
+    ("com.github.arturopala" %% "validator" % "0.4.0")
       .withExclusions(Vector(InclExclRule().withOrganization("org.typelevel").withArtifact("cats-core")))
 
   val compile = Seq(

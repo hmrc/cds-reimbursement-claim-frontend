@@ -50,7 +50,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.inspectionDate                   shouldBe None
       emptyJourney.answers.methodOfDisposal                 shouldBe None
       emptyJourney.answers.reimbursementClaims              shouldBe None
-      emptyJourney.answers.reimbursementMethodAnswer        shouldBe None
+      emptyJourney.answers.reimbursementMethod              shouldBe None
       emptyJourney.answers.supportingEvidences              shouldBe None
       emptyJourney.getNdrcDetails                           shouldBe None
       emptyJourney.getSelectedDuties                        shouldBe None
@@ -60,9 +60,10 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.isComplete                               shouldBe false
     }
 
-    "check completeness of the journey" in {
+    "check completeness and produce the output" in {
       forAll(completeJourneyGen) { journey =>
-        assert(journey.isComplete)
+        journey.isComplete       shouldBe true
+        journey.toOutput.isRight shouldBe true
       }
     }
 
