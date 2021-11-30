@@ -21,19 +21,19 @@ trait FluentSyntax[Journey] {
   this: Journey =>
 
   // Modify journey if the condition holds, otherwise return as is.
-  def mapWhen(condition: => Boolean)(
+  def when(condition: => Boolean)(
     modifyFx: Journey => Journey
   ): Journey =
     if (condition) modifyFx(this) else this
 
   // Try to modify journey if the condition holds, otherwise return Right as is.
-  def flatMapWhen(condition: => Boolean)(
+  def tryWhen(condition: => Boolean)(
     modifyFx: Journey => Either[String, Journey]
   ): Either[String, Journey] =
     if (condition) modifyFx(this) else Right(this)
 
   /** Try to modify the journey if the optional value is defined, otherwise return as is. */
-  def mapWhenDefined[A](option: Option[A])(
+  def whenDefined[A](option: Option[A])(
     modifyFx: Journey => A => Journey
   ): Journey =
     option match {
@@ -42,7 +42,7 @@ trait FluentSyntax[Journey] {
     }
 
   /** Try to modify the journey if the optional value is defined, otherwise return as is. */
-  def flatMapWhenDefined[A](option: Option[A])(
+  def tryWhenDefined[A](option: Option[A])(
     modifyFx: Journey => A => Either[String, Journey]
   ): Either[String, Journey] =
     option match {

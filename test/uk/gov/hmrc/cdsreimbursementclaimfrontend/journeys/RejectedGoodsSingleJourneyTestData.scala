@@ -108,13 +108,13 @@ trait RejectedGoodsSingleJourneyTestData {
     RejectedGoodsSingleJourney.empty
       .submitMovementReferenceNumber(mrn)
       .submitDisplayDeclaration(displayDeclaration)
-      .mapWhenDefined(importerEoriNumber)(submitImporterEoriNumber)
-      .mapWhenDefined(declarantEoriNumber)(submitDeclarantEoriNumber)
+      .whenDefined(importerEoriNumber)(_.submitImporterEoriNumber _)
+      .whenDefined(declarantEoriNumber)(submitDeclarantEoriNumber)
       .submitDeclarantType(declarantType)
-      .mapWhenDefined(contactDetails)(submitContactDetails)
-      .mapWhenDefined(contactAddress)(submitContactAddress)
+      .whenDefined(contactDetails)(submitContactDetails)
+      .whenDefined(contactAddress)(submitContactAddress)
       .submitBasisOfClaim(basisOfClaim)
-      .flatMapWhen(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
+      .tryWhen(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstancesDetails)
       )
       .map(_.submitMethodOfDisposal(methodOfDisposal))
