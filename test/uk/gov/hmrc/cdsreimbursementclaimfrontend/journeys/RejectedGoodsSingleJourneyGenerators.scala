@@ -33,21 +33,51 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
-  val minimalCompleteJourneyWithConsigneeAndAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildCompleteJourneyGen(allDutiesCmaEligible = true, hasConsigneeDetailsInACC14 = true)
+  val completeJourneyWithMatchingUserEoriAndAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = true,
+      allDutiesCmaEligible = true,
+      hasConsigneeDetailsInACC14 = true
+    )
 
-  val minimalCompleteJourneyWithConsigneeAndNoneDutyCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildCompleteJourneyGen(allDutiesCmaEligible = false, hasConsigneeDetailsInACC14 = true)
+  val completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = true,
+      acc14ConsigneeMatchesUserEori = true,
+      allDutiesCmaEligible = false,
+      hasConsigneeDetailsInACC14 = true
+    )
+
+  val completeJourneyAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = false,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesCmaEligible = true,
+      hasConsigneeDetailsInACC14 = true
+    )
+
+  val completeJourneyNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    buildCompleteJourneyGen(
+      acc14DeclarantMatchesUserEori = false,
+      acc14ConsigneeMatchesUserEori = false,
+      allDutiesCmaEligible = true,
+      hasConsigneeDetailsInACC14 = true
+    )
 
   val completeJourneyGen: Gen[RejectedGoodsSingleJourney] =
     Gen.oneOf(
-      minimalCompleteJourneyWithConsigneeAndAllDutiesCMAEligibleGen,
-      minimalCompleteJourneyWithConsigneeAndNoneDutyCMAEligibleGen
+      completeJourneyWithMatchingUserEoriAndAllDutiesCMAEligibleGen,
+      completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen,
+      completeJourneyAllDutiesCMAEligibleGen,
+      completeJourneyNotCMAEligibleGen
     )
 
   /** Minimal journey does not contain optional answers. */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
+    acc14DeclarantMatchesUserEori: Boolean,
+    acc14ConsigneeMatchesUserEori: Boolean,
     allDutiesCmaEligible: Boolean,
     hasConsigneeDetailsInACC14: Boolean
   ): Gen[RejectedGoodsSingleJourney] =
@@ -55,8 +85,8 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       id                          <- Gen.uuid
       userEoriNumber              <- IdGen.genEori
       mrn                         <- IdGen.genMRN
-      declarantEORI               <- IdGen.genEori
-      consigneeEORI               <- IdGen.genEori
+      declarantEORI               <- if (acc14DeclarantMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
+      consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
       paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1d, 10000d)).map(_.map(BigDecimal.apply(_)))
@@ -109,7 +139,9 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         methodOfDisposal,
         reimbursementClaims,
         reimbursementMethod,
-        supportingEvidences
+        supportingEvidences,
+        declarantEoriNumber = if (acc14DeclarantMatchesUserEori) None else Some(declarantEORI),
+        importerEoriNumber = if (acc14ConsigneeMatchesUserEori) None else Some(consigneeEORI)
       ).fold(
         error => throw new Exception(s"Cannnot build complete RejectedGoodsSingleJourney because of $error"),
         identity
