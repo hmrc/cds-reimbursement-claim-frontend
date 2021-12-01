@@ -35,7 +35,7 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
 
     "display answer summaries for the Multiple journey" in {
       val (session, claim)                              = genData(TypeOfClaimAnswer.Multiple)
-      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus map {
+      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
         case fillingOutClaim: FillingOutClaim => fillingOutClaim
       }
 
@@ -59,7 +59,6 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec wi
             claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
           ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.reference-number.multiple.h2"

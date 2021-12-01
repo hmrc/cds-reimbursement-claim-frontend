@@ -36,7 +36,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
 
     "display answer summaries for the Single journey" in {
       val (session, claim)                              = genData(TypeOfClaimAnswer.Individual)
-      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus map {
+      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
         case fillingOutClaim: FillingOutClaim => fillingOutClaim
       }
 
@@ -60,7 +60,6 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
             claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
           ).flatMap(_.toList) ++ reimbursementMethodHeaders(claim.reimbursementMethodAnswer) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.reference-number.h2",
@@ -184,6 +183,8 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
         ) ++ bankAccountDetailsSummaries(bankAccountDetails)
       case (None, Some(bankAccountDetails))                      =>
         bankAccountDetailsSummaries(bankAccountDetails)
+      case _                                                     =>
+        Seq.empty
     }
 
   private def bankAccountDetailsSummaries(bankAccountDetails: BankAccountDetails): Seq[(String, String)] = Seq(
