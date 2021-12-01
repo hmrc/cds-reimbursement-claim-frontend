@@ -23,7 +23,7 @@ import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
@@ -113,7 +113,7 @@ class CheckContactDetailsMrnController @Inject() (
               case Yes =>
                 Redirect(
                   router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    router.nextPageForChangeClaimantDetails(Yes, featureSwitch)
+                    nextPageForChangeClaimantDetails(Yes, featureSwitch)
                   )
                 )
               case No  =>
@@ -128,7 +128,7 @@ class CheckContactDetailsMrnController @Inject() (
                     _ =>
                       Redirect(
                         router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                          router.nextPageForChangeClaimantDetails(No, featureSwitch)
+                          nextPageForChangeClaimantDetails(No, featureSwitch)
                         )
                       )
                   )
@@ -264,4 +264,16 @@ object CheckContactDetailsMrnController {
           }
       }
       .flatten
+
+  def nextPageForChangeClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService)(implicit
+    journey: JourneyBindable
+  ): Call =
+    answer match {
+      case Yes =>
+        if (featureSwitch.NorthernIreland.isEnabled())
+          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+        else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+      case No  =>
+        routes.CheckContactDetailsMrnController.addDetailsShow(journey)
+    }
 }

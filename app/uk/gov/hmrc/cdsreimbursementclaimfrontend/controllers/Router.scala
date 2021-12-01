@@ -129,20 +129,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
         else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
     }
 
-  def nextPageForChangeClaimantDetails(
-    answer: YesNo,
-    featureSwitch: FeatureSwitchService
-  ): Call =
-    answer match {
-      case Yes =>
-        if (featureSwitch.NorthernIreland.isEnabled())
-          claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journeyBindable)
-        else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-
-      case No =>
-        claimRoutes.CheckContactDetailsMrnController.addDetailsShow(journeyBindable)
-    }
-
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)
     else claimRoutes.CheckContactDetailsMrnController.changeAddress(journeyBindable)
