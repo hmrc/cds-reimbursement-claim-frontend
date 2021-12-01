@@ -61,7 +61,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
     buildCompleteJourneyGen(
       acc14DeclarantMatchesUserEori = false,
       acc14ConsigneeMatchesUserEori = false,
-      allDutiesCmaEligible = true,
+      allDutiesCmaEligible = false,
       hasConsigneeDetailsInACC14 = true
     )
 
