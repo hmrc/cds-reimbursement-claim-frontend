@@ -29,9 +29,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable.Multiple
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.YesOrNoQuestionForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, YesOrNoQuestionForm}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
@@ -92,53 +91,54 @@ class EnterMultipleClaimsController @Inject() (
 
   def enterClaimSubmit(mrnIndex: Int, taxCode: TaxCode): Action[AnyContent] = {
     val index = mrnIndex - 1
-    whenAuthenticatedAndValidRequest(mrnIndex, taxCode) { implicit request => journey => mrn => claims => claim =>
-      correctedAmountForm(claim.paidAmount)
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "multiple-enter-claim"))
-            val submitCall    = routes.EnterMultipleClaimsController.enterClaimSubmit(mrnIndex, claim.taxCode)
-            BadRequest(
-              enterMultipleClaimPage(formWithErrors.copy(errors = updatedErrors), mrnIndex, mrn, claim, submitCall)
-            )
-          },
-          formOk => {
-            val correctedAmount = formOk.amount
-            val newClaim        = claim.fillWithCorrectedAmount(correctedAmount)
-            updateJourneyWithClaim(journey, index, claims, newClaim)
-              .fold(
-                e => logAndDisplayError("could not update draft claim").apply(Error(e)),
-                updatedJourney =>
-                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                    .leftMap(_ => Error("could not update session"))
-                    .fold(
-                      logAndDisplayError("could not save claims"),
-                      _ =>
-                        Redirect(
-                          if (isChangeRequest)
-                            routes.EnterMultipleClaimsController.checkClaimSummary()
-                          else
-                            selectNextPage(updatedJourney, mrnIndex, taxCode)
-                        )
-                    )
+    whenAuthenticatedAndValidRequest(mrnIndex, taxCode) {
+      implicit request => fillingOutClaim => mrn => claims => claim =>
+        correctedAmountForm(claim.paidAmount)
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val updatedErrors = formWithErrors.errors.map(d => d.copy(key = "multiple-enter-claim"))
+              val submitCall    = routes.EnterMultipleClaimsController.enterClaimSubmit(mrnIndex, claim.taxCode)
+              BadRequest(
+                enterMultipleClaimPage(formWithErrors.copy(errors = updatedErrors), mrnIndex, mrn, claim, submitCall)
               )
-          }
-        )
+            },
+            formOk => {
+              val correctedAmount = formOk.amount
+              val newClaim        = claim.fillWithCorrectedAmount(correctedAmount)
+              updateJourneyWithClaim(fillingOutClaim, index, claims, newClaim)
+                .fold(
+                  e => logAndDisplayError("could not update draft claim").apply(Error(e)),
+                  updatedJourney =>
+                    EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                      .leftMap(_ => Error("could not update session"))
+                      .fold(
+                        logAndDisplayError("could not save claims"),
+                        _ =>
+                          Redirect(
+                            if (isChangeRequest)
+                              routes.EnterMultipleClaimsController.checkClaimSummary
+                            else
+                              selectNextPage(updatedJourney, mrnIndex, taxCode)
+                          )
+                      )
+                )
+            }
+          )
     }
   }
 
   val checkClaimSummary: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      request.using { case journey: FillingOutClaim =>
-        journey.draftClaim.MRNs.nonEmptyListOpt match {
+      request.using { case fillingOutClaim: FillingOutClaim =>
+        fillingOutClaim.draftClaim.MRNs.nonEmptyListOpt match {
           case None =>
             Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
 
           case Some(mrns) =>
-            journey.draftClaim.Claims.nonEmptyListOpt match {
+            fillingOutClaim.draftClaim.Claims.nonEmptyListOpt match {
               case None =>
-                Redirect(SelectMultipleDutiesController.selectNextPage(journey, 1))
+                Redirect(SelectMultipleDutiesController.selectNextPage(fillingOutClaim, 1))
 
               case Some(claimsList) =>
                 firstMissingClaimEntry(claimsList) match {
@@ -163,14 +163,15 @@ class EnterMultipleClaimsController @Inject() (
 
   val checkClaimSummarySubmit: Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
-      request.using { case journey: FillingOutClaim =>
-        journey.draftClaim.MRNs.nonEmptyListOpt match {
+      request.using { case fillingOutClaim: FillingOutClaim =>
+        implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, JourneyBindable.Multiple)
+        fillingOutClaim.draftClaim.MRNs.nonEmptyListOpt match {
           case None       =>
             Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(Multiple))
           case Some(mrns) =>
-            journey.draftClaim.Claims.nonEmptyListOpt match {
+            fillingOutClaim.draftClaim.Claims.nonEmptyListOpt match {
               case None =>
-                Redirect(SelectMultipleDutiesController.selectNextPage(journey, 1))
+                Redirect(SelectMultipleDutiesController.selectNextPage(fillingOutClaim, 1))
 
               case Some(claimsList) =>
                 firstMissingClaimEntry(claimsList) match {
@@ -194,10 +195,9 @@ class EnterMultipleClaimsController @Inject() (
                         {
                           case Yes =>
                             Redirect(
-                              if (isChangeRequest)
-                                routes.CheckYourAnswersAndSubmitController.checkAllAnswers(Multiple)
-                              else
+                              router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
                                 routes.BankAccountController.checkBankAccountDetails(Multiple)
+                              )
                             )
 
                           case No =>
@@ -243,8 +243,12 @@ object EnterMultipleClaimsController {
 
   final case class CorrectedAmount(amount: BigDecimal)
 
-  def selectNextPage(journey: FillingOutClaim, mrnIndex: Int, taxCode: TaxCode): Call =
-    journey.draftClaim.DutiesSelections
+  def selectNextPage(
+    fillingOutClaim: FillingOutClaim,
+    mrnIndex: Int,
+    taxCode: TaxCode
+  ): Call =
+    fillingOutClaim.draftClaim.DutiesSelections
       .get(mrnIndex - 1)
       .fold(routes.SelectMultipleDutiesController.selectDuties(mrnIndex)) { duties =>
         val currentDuty = Duty(taxCode)
@@ -257,7 +261,7 @@ object EnterMultipleClaimsController {
           case Some(nextDuty) =>
             routes.EnterMultipleClaimsController.enterClaim(mrnIndex, nextDuty.taxCode)
           case None           =>
-            if (mrnIndex < journey.draftClaim.MRNs.total)
+            if (mrnIndex < fillingOutClaim.draftClaim.MRNs.total)
               routes.SelectMultipleDutiesController.selectDuties(mrnIndex + 1)
             else
               routes.EnterMultipleClaimsController.checkClaimSummary

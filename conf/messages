@@ -1025,6 +1025,7 @@ check-your-answers.claim-calculation.label=Claim calculation
 check-your-answers.claim-calculation.l0=Amount of UK Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l1=Amount of EU Duty to reimburse claimed by you:
 check-your-answers.claim-calculation.l2=Total claimed reimbursement
+check-your-answers.multiple-claim-totals.label=Total reimbursement claim
 check-your-answers.bank-details.label=Bank details
 check-your-answers.bank-details.l0=Bank account name
 check-your-answers.bank-details.l1=Type of bank account

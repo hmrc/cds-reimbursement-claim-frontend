@@ -44,7 +44,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.http.BadGatewayException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import java.util.function.Predicate
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -71,14 +70,7 @@ class BankAccountController @Inject() (
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
         import router._
 
-        val claim = fillingOutClaim.draftClaim
-
-        Stream(
-          claim.bankAccountDetailsAnswer,
-          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.consigneeBankDetails),
-          claim.displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails).flatMap(_.declarantBankDetails)
-        ).find(_.nonEmpty)
-          .flatten
+        fillingOutClaim.draftClaim.findNonEmptyBankAccountDetails
           .map { bankAccountDetails =>
             Future.successful(
               Ok(
@@ -185,17 +177,11 @@ class BankAccountController @Inject() (
 
 object BankAccountController {
 
-  val numberRegex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
-
-  def lengthError(acNum: String): Boolean =
-    if ((acNum.length < 6 || acNum.length > 8) && numberRegex.test(acNum)) false
-    else true
-
   val accountNumberMapping: Mapping[AccountNumber] =
     nonEmptyText
       .transform[String](s => s.replaceAll("[-( )]+", ""), identity)
-      .verifying("error.length", str => lengthError(str))
-      .verifying("error.invalid", str => numberRegex.test(str))
+      .verifying("error.length", str => AccountNumber.hasValidLength(str))
+      .verifying("error.invalid", str => AccountNumber.isValid(str))
       .transform[AccountNumber](
         s => {
           val paddedNumber = s.reverse.padTo(8, '0').reverse
@@ -207,12 +193,12 @@ object BankAccountController {
   val sortCodeMapping: Mapping[SortCode] =
     nonEmptyText
       .transform[SortCode](s => SortCode(s.replaceAll("[-( )]+", "")), _.value)
-      .verifying("invalid", e => SortCode.regex.test(e.value))
+      .verifying("invalid", e => SortCode.isValid(e.value))
 
   val accountNameMapping: Mapping[AccountName] =
     nonEmptyText(maxLength = 40)
       .transform[AccountName](s => AccountName(s.trim()), _.value)
-      .verifying("invalid", e => AccountName.regex.test(e.value))
+      .verifying("invalid", e => AccountName.isValid(e.value))
 
   val enterBankDetailsForm: Form[BankAccountDetails] = Form(
     mapping(
@@ -221,5 +207,4 @@ object BankAccountController {
       "enter-bank-details.account-number" -> accountNumberMapping
     )(BankAccountDetails.apply)(BankAccountDetails.unapply)
   )
-
 }

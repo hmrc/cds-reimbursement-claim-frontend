@@ -22,7 +22,7 @@ import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
@@ -107,13 +107,13 @@ class CheckContactDetailsMrnController @Inject() (
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             {
-              case answer @ Yes =>
+              case Yes =>
                 Redirect(
                   router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    router.nextPageForChangeClaimantDetails(answer, featureSwitch)
+                    nextPageForChangeClaimantDetails(Yes, featureSwitch)
                   )
                 )
-              case answer @ No  =>
+              case No  =>
                 val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
                   _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
                 )
@@ -122,7 +122,12 @@ class CheckContactDetailsMrnController @Inject() (
                   .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                   .fold(
                     e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                    _ => Redirect(router.nextPageForChangeClaimantDetails(answer, featureSwitch))
+                    _ =>
+                      Redirect(
+                        router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
+                          nextPageForChangeClaimantDetails(No, featureSwitch)
+                        )
+                      )
                   )
             }
           )
@@ -215,6 +220,17 @@ class CheckContactDetailsMrnController @Inject() (
       FormError(fe.key, newMsgs)
     })
 
+  def nextPageForChangeClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService)(implicit
+    journey: JourneyBindable
+  ): Call =
+    answer match {
+      case Yes =>
+        if (featureSwitch.NorthernIreland.isEnabled())
+          routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
+        else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
+      case No  =>
+        routes.CheckContactDetailsMrnController.addDetailsShow(journey)
+    }
 }
 
 object CheckContactDetailsMrnController {

@@ -41,7 +41,7 @@ class CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
               items = Seq(
                 ActionItem(
                   href =
-                    s"${routes.EnterCommoditiesDetailsController.changeCommoditiesDetails(router.journeyBindable).url}",
+                    s"${routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(router.journeyBindable).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(label)
                 )

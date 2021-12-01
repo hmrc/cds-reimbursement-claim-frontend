@@ -25,7 +25,10 @@ final case class SortCode(value: String) extends AnyVal
 
 object SortCode {
 
-  val regex: Predicate[String] = "^\\d{6}$".r.pattern.asPredicate()
+  private val regex: Predicate[String] = "^\\d{6}$".r.pattern.asPredicate()
+
+  def isValid(value: String): Boolean =
+    regex.test(value)
 
   implicit val format: Format[SortCode] =
     implicitly[Format[String]].inmap(SortCode(_), _.value)
