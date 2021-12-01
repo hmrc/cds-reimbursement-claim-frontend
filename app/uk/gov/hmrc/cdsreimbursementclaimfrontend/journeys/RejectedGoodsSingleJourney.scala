@@ -91,6 +91,12 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
       .exists(_.forall(_.cmaEligible.isDefined))
 
+  def getDeclarantType: DeclarantTypeAnswer =
+    if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+      DeclarantTypeAnswer.AssociatedWithImporterCompany
+    else
+      DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
     */
@@ -112,24 +118,23 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 
   def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
     if (needsDeclarantAndConsigneeEoriSubmission)
-      Right(
-        new RejectedGoodsSingleJourney(
-          answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+      if (getConsigneeEoriFromACC14.contains(consigneeEoriNumber))
+        Right(
+          new RejectedGoodsSingleJourney(
+            answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+          )
         )
-      )
+      else Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
     else Left("submitConsigneeEoriNumber.unexpected")
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
     if (needsDeclarantAndConsigneeEoriSubmission)
-      Right(
-        new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
-      )
+      if (getDeclarantEoriFromACC14.contains(declarantEoriNumber))
+        Right(
+          new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+        )
+      else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     else Left("submitDeclarantEoriNumber.unexpected")
-
-  def submitDeclarantType(declarantType: DeclarantTypeAnswer): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(declarantType = Some(declarantType))
-    )
 
   def submitContactDetails(contactDetails: MrnContactDetails): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
@@ -352,12 +357,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .flatMap(_ =>
         answers match {
           case RejectedGoodsSingleJourney.Answers(
-                userEoriNumber,
+                _,
                 Some(mrn),
                 _,
                 consigneeEoriNumber,
                 declarantEoriNumber,
-                Some(declarantType),
                 contactDetails,
                 contactAddress,
                 Some(basisOfClaim),
@@ -375,7 +379,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
             Right(
               RejectedGoodsSingleJourney.Output(
                 movementReferenceNumber = mrn,
-                declarantType = declarantType,
+                declarantType = getDeclarantType,
                 basisOfClaim = basisOfClaim,
                 methodOfDisposal = methodOfDisposal,
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
@@ -412,7 +416,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     displayDeclaration: Option[DisplayDeclaration] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
-    declarantType: Option[DeclarantTypeAnswer] = None, // REMOVE
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
@@ -431,7 +434,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
     movementReferenceNumber: MRN,
-    declarantType: DeclarantTypeAnswer, // calculate the value based on the user eori and acc14
+    declarantType: DeclarantTypeAnswer,
     basisOfClaim: BasisOfRejectedGoodsClaim,
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
@@ -453,7 +456,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     all(
       checkIsDefined(_.answers.movementReferenceNumber, "missing movementReferenceNumber"),
       checkIsDefined(_.answers.displayDeclaration, "missing displayDeclaration"),
-      checkIsDefined(_.answers.declarantType, "missing declarantType"),
       checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
       checkIsDefined(_.answers.detailsOfRejectedGoods, "missing detailsOfRejectedGoods"),
       checkIsDefined(_.answers.inspectionDate, "missing inspectionDate"),

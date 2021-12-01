@@ -41,7 +41,6 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.contactDetails                   shouldBe None
       emptyJourney.answers.contactAddress                   shouldBe None
       emptyJourney.answers.declarantEoriNumber              shouldBe None
-      emptyJourney.answers.declarantType                    shouldBe None
       emptyJourney.answers.detailsOfRejectedGoods           shouldBe None
       emptyJourney.answers.displayDeclaration               shouldBe None
       emptyJourney.answers.consigneeEoriNumber              shouldBe None
@@ -65,7 +64,7 @@ class RejectedGoodsSingleJourneySpec
         journey.isComplete shouldBe true
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
         output.movementReferenceNumber                   shouldBe journey.answers.movementReferenceNumber.get
-        output.declarantType                             shouldBe journey.answers.declarantType.get
+        output.declarantType                             shouldBe journey.getDeclarantType
         output.basisOfClaim                              shouldBe journey.answers.basisOfClaim.get
         output.methodOfDisposal                          shouldBe journey.answers.methodOfDisposal.get
         output.detailsOfRejectedGoods                    shouldBe journey.answers.detailsOfRejectedGoods.get
@@ -173,7 +172,7 @@ class RejectedGoodsSingleJourneySpec
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
     }
 
-    "fail building journey if user's eori not matching those of ACC14 and separate EORIs were not provided by the user" in {
+    "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {
       val journeyGen = buildJourneyGen(
         acc14DeclarantMatchesUserEori = false,
         acc14ConsigneeMatchesUserEori = false,
@@ -186,7 +185,7 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
-    "fail if submitting consignee EORI if not needed" in {
+    "fail if submitted consignee EORI is not needed" in {
       val displayDeclaration =
         buildDisplayDeclaration(declarantEORI = exampleEori)
       val journeyEither      =
@@ -199,7 +198,20 @@ class RejectedGoodsSingleJourneySpec
       journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
     }
 
-    "fail if submitting declarant EORI if not needed" in {
+    "fail if submitted consignee EORI is not matching that of ACC14" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
+      val journeyEither      =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+          .submitConsigneeEoriNumber(yetAnotherExampleEori)
+
+      journeyEither shouldBe Left("submitConsigneeEoriNumber.shouldMatchConsigneeEoriFromACC14")
+    }
+
+    "fail if submitted declarant EORI is not needed" in {
       val displayDeclaration =
         buildDisplayDeclaration(declarantEORI = exampleEori)
       val journeyEither      =
@@ -210,6 +222,19 @@ class RejectedGoodsSingleJourneySpec
           .submitDeclarantEoriNumber(anotherExampleEori)
 
       journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
+    }
+
+    "fail if submitted declarant EORI is not matching that of ACC14" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori)
+      val journeyEither      =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+          .submitDeclarantEoriNumber(yetAnotherExampleEori)
+
+      journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     }
 
   }

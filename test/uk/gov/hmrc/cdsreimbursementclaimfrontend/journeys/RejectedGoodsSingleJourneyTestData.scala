@@ -40,6 +40,8 @@ trait RejectedGoodsSingleJourneyTestData {
 
   val exampleEori: Eori           = IdGen.genEori.sample.get
   val anotherExampleEori: Eori    = IdGen.genEori.sample.get
+  val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
+
   val exampleEoriAsString: String = exampleEori.value
 
   val exampleMrn: MRN            = IdGen.genMRN.sample.get
@@ -54,7 +56,6 @@ trait RejectedGoodsSingleJourneyTestData {
     userEoriNumber: Eori,
     mrn: MRN,
     displayDeclaration: DisplayDeclaration,
-    declarantType: DeclarantTypeAnswer,
     basisOfClaim: BasisOfRejectedGoodsClaim,
     detailsOfRejectedGoods: String,
     specialCircumstancesDetails: String,
@@ -101,7 +102,6 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitDisplayDeclaration(displayDeclaration)
       .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
-      .map(_.submitDeclarantType(declarantType))
       .mapWhenDefined(contactDetails)(_.submitContactDetails _)
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
       .map(_.submitBasisOfClaim(basisOfClaim))
