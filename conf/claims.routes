@@ -39,12 +39,6 @@ GET         /:journey/claimant-details/problem-with-address         uk.gov.hmrc.
 GET         /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey: JourneyBindable)
 POST        /:journey/who-is-the-declarant                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.selectDeclarantTypeSubmit(journey: JourneyBindable)
 
-GET         /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
-POST        /single/enter-your-details-as-registered-with-cds       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCdsSubmit()
-
-GET         /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCds()
-POST        /single/change-your-details-as-registered-with-cds      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.changeDetailsRegisteredWithCdsSubmit()
-
 GET         /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey: JourneyBindable)
 POST        /:journey/claim-northern-ireland                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaimSubmit(journey: JourneyBindable)
 

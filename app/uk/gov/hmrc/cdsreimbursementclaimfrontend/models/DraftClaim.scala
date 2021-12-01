@@ -35,7 +35,6 @@ final case class DraftClaim(
   movementReferenceNumber: Option[MRN] = None,
   duplicateMovementReferenceNumberAnswer: Option[MRN] = None,
   declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
-  detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
   mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
   mrnContactAddressAnswer: Option[ContactAddress] = None,
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
@@ -126,7 +125,7 @@ final case class DraftClaim(
             NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(verifiedEmail))
         }
       }
-      .getOrElse(NamePhoneEmail(None, None, None))
+      .getOrElse(NamePhoneEmail())
 
   def extractEstablishmentAddress: Option[EstablishmentAddress] =
     Applicative[Option]

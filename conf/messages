@@ -263,51 +263,6 @@ enter-declarant-eori-number.error.required=Enter a valid EORI number
 enter-declarant-eori-number.input-label=Enter declarant EORI number
 
 #===================================================
-#  ENTER CLAIMANT DETAILS AS REGISTERED WITH CDS
-#===================================================
-enter-claimant-details-as-registered-with-cds.title=Enter your details as registered with CDS
-enter-claimant-details-as-registered-with-cds.help-text=These are the details you used when registering with CDS.
-enter-claimant-details-as-registered-with-cds.individual-full-name.label=Full name
-enter-claimant-details-as-registered-with-cds.individual-full-name.help=This must be your legal name
-enter-claimant-details-as-registered-with-cds.individual-full-name.error.required=Enter a full name
-enter-claimant-details-as-registered-with-cds.individual-email.label=Email address
-enter-claimant-details-as-registered-with-cds.individual-email.error.required=Enter a valid email address
-enter-claimant-details-as-registered-with-cds.individual-email.error.maxLength=Enter a valid email address
-enter-claimant-details-as-registered-with-cds.individual-email.invalid=Enter a valid email address
-enter-claimant-details-as-registered-with-cds.individual-phone-number.error.required=Enter a valid phone number
-enter-claimant-details-as-registered-with-cds.individual-phone-number.error.maxLength=Enter a valid phone number
-enter-claimant-details-as-registered-with-cds.individual-phone-number.invalid=Enter a valid phone number
-enter-claimant-details-as-registered-with-cds.individual-phone-number.label=Phone number
-enter-claimant-details-as-registered-with-cds.individual-phone-number.help=For international numbers include the country code.
-enter-claimant-details-as-registered-with-cds.individual-contact-address.label=Contact address
-enter-claimant-details-as-registered-with-cds.address.line1.label=Address Line 1
-enter-claimant-details-as-registered-with-cds.address.line1.error.required=Enter a address line 1
-enter-claimant-details-as-registered-with-cds.address-line1.error.required=Enter an address line 1
-enter-claimant-details-as-registered-with-cds.address.line2.label=Address Line 2 (optional)
-enter-claimant-details-as-registered-with-cds.address.line3.label=Address Line 3 (optional)
-enter-claimant-details-as-registered-with-cds.address.line4.label=Town or city
-enter-claimant-details-as-registered-with-cds.address-line4.error.required=Enter a valid town or city
-enter-claimant-details-as-registered-with-cds.address.line5.label=Postcode
-enter-claimant-details-as-registered-with-cds.address.line5.postcode.error.required=Enter a valid postcode
-enter-claimant-details-as-registered-with-cds.address.line6.label=Country
-enter-claimant-details-as-registered-with-cds.countryCode.error.required=Enter a country
-enter-claimant-details-as-registered-with-cds.add-company-details.label=Do you want to add contact details so we can contact you about this claim?
-enter-claimant-details-as-registered-with-cds.add-company-details.no=No
-enter-claimant-details-as-registered-with-cds.add-company-details.yes=Yes
-enter-claimant-details-as-registered-with-cds.add-company-details.error.boolean=Choose if you want to add company details
-enter-claimant-details-as-registered-with-cds.add-company-details.error.required=Choose if you want to add company details
-enter-claimant-details-as-registered-with-cds.individual-full-name.error.maxLength= Enter a valid full name
-postcode.error.required=Enter a valid postcode
-postcode.error.pattern=Enter a valid postcode
-postcode.error.tooLong=Enter a valid postcode
-countryCode.enter-claimant-details-as-registered-with-cds.error.required=Enter a country
-address-line1.error.pattern=Enter a valid address line 1
-address-line2.error.pattern=Enter a valid address line 2
-address-line3.error.pattern=Enter a valid address line 3
-address-line4.error.pattern=Enter a valid town or city
-
-
-#===================================================
 #  ENTER CLAIMANT DETAILS AS IMPORTER COMPANY PAGE
 #===================================================
 enter-your-contact-details.help-text=These are the details if we need to contact you about this claim application.
@@ -1103,20 +1058,6 @@ problem-with-address.paragraph.2=This could be because:
 problem-with-address.point.1=the postcode you entered is missing address line 1
 problem-with-address.point.2=you did not provide a postcode for this address
 problem-with-address.button.tryAgain=Try again
-
-#===================================================
-#  NON-UK ADDRESS - START
-#===================================================
-address-building.error.required=Enter a building name or number
-address-line1.error.required=Enter address line 1
-address-line4.error.required=Enter a town or city
-address-line1.error.tooLong=Enter a valid address line 1
-address-line2.error.tooLong=Enter a valid address line 2
-address-line3.error.tooLong=Enter a valid address line 3
-address-line4.error.tooLong=Enter a valid address line 4
-postcode.error.maxLength=Enter a valid postcode
-postcode.error.invalidCharacters=Enter a valid postcode
-countryCode.error.required=Enter a country
 
 #===================================================
 #  COUNTRIES - START

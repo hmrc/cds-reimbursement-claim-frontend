@@ -125,8 +125,8 @@ class BankAccountController @Inject() (
                       if (bankAccount === BankAccountType.BusinessBankAccount) {
                         claimService.getBusinessAccountReputation(BarsBusinessAssessRequest(barsAccount, None))
                       } else {
-                        val claimant    = fillingOutClaim.draftClaim.detailsRegisteredWithCdsAnswer
-                        val address     = BarsAddress(Nil, None, claimant.map(_.contactAddress.postcode))
+                        val postCode    = fillingOutClaim.draftClaim.extractEstablishmentAddress.flatMap(_.postalCode)
+                        val address     = BarsAddress(Nil, None, postCode)
                         val accountName = Some(bankAccountDetails.accountName.value)
                         val subject     = BarsSubject(None, accountName, None, None, None, address)
                         claimService.getPersonalAccountReputation(BarsPersonalAssessRequest(barsAccount, subject))

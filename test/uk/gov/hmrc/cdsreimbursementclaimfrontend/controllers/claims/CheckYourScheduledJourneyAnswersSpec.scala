@@ -34,7 +34,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
 
     "display answer summaries for the Scheduled journey" in {
       val (session, claim)                              = genData(TypeOfClaimAnswer.Scheduled)
-      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus map {
+      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
         case fillingOutClaim: FillingOutClaim => fillingOutClaim
       }
 
@@ -58,7 +58,6 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
             claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
           ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.scheduled-document.h2",
