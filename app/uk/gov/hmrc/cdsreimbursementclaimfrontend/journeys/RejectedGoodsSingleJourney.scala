@@ -48,7 +48,7 @@ import java.time.LocalDate
   *
   * The journey uses two nested case classes:
   *
-  *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user anwers and acquired documents
+  *  - [[RejectedGoodsSingleJourney.Answers]] - keeps record of user answers and acquired documents
   *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
 final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
@@ -110,16 +110,21 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
     )
 
-  // TODO: rename to consignee
-  def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
-    )
+  def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
+    if (needsDeclarantAndConsigneeEoriSubmission)
+      Right(
+        new RejectedGoodsSingleJourney(
+          answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
+        )
+      )
+    else Left("submitConsigneeEoriNumber.unexpected")
 
-  def submitDeclarantEoriNumber(declarantEoriNumber: Eori): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(declarantEoriNumber = Some(declarantEoriNumber))
-    )
+  def submitDeclarantEoriNumber(declarantEoriNumber: Eori): Either[String, RejectedGoodsSingleJourney] =
+    if (needsDeclarantAndConsigneeEoriSubmission)
+      Right(
+        new RejectedGoodsSingleJourney(answers.copy(declarantEoriNumber = Some(declarantEoriNumber)))
+      )
+    else Left("submitDeclarantEoriNumber.unexpected")
 
   def submitDeclarantType(declarantType: DeclarantTypeAnswer): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(

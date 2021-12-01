@@ -186,6 +186,32 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
+    "fail if submitting consignee EORI if not needed" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleEori)
+      val journeyEither      =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+          .submitConsigneeEoriNumber(anotherExampleEori)
+
+      journeyEither shouldBe Left("submitConsigneeEoriNumber.unexpected")
+    }
+
+    "fail if submitting declarant EORI if not needed" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleEori)
+      val journeyEither      =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+          .submitDeclarantEoriNumber(anotherExampleEori)
+
+      journeyEither shouldBe Left("submitDeclarantEoriNumber.unexpected")
+    }
+
   }
 
 }
