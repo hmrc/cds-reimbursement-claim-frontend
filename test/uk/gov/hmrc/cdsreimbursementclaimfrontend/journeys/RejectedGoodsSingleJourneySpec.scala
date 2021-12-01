@@ -137,6 +137,55 @@ class RejectedGoodsSingleJourneySpec
       }
     }
 
+    "needs declarant and consignee submission if user's eori not matching those of ACC14" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(anotherExampleEori))
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
+    }
+
+    "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = exampleEori, consigneeEORI = None)
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+    }
+
+    "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
+      val displayDeclaration =
+        buildDisplayDeclaration(declarantEORI = anotherExampleEori, consigneeEORI = Some(exampleEori))
+      val journey            =
+        RejectedGoodsSingleJourney
+          .empty(exampleEori)
+          .submitMovementReferenceNumber(exampleMrn)
+          .submitDisplayDeclaration(displayDeclaration)
+
+      journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+    }
+
+    "fail building journey if user's eori not matching those of ACC14 and separate EORIs were not provided by the user" in {
+      val journeyGen = buildJourneyGen(
+        acc14DeclarantMatchesUserEori = false,
+        acc14ConsigneeMatchesUserEori = false,
+        submitDeclarantDetails = false,
+        submitConsigneeDetails = false
+      )
+      forAll(journeyGen) { result =>
+        val journey = result.getOrElse(fail("Journey building has failed."))
+        journey.isComplete shouldBe false
+      }
+    }
+
   }
 
 }

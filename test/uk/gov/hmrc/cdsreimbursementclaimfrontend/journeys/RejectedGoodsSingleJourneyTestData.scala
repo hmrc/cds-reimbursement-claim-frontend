@@ -39,6 +39,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 trait RejectedGoodsSingleJourneyTestData {
 
   val exampleEori: Eori           = IdGen.genEori.sample.get
+  val anotherExampleEori: Eori    = IdGen.genEori.sample.get
   val exampleEoriAsString: String = exampleEori.value
 
   val exampleMrn: MRN            = IdGen.genMRN.sample.get
@@ -123,10 +124,10 @@ trait RejectedGoodsSingleJourneyTestData {
   }
 
   def buildDisplayDeclaration(
-    id: String,
+    id: String = "foo",
     declarantEORI: Eori,
-    consigneeEORI: Option[Eori],
-    dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)]
+    consigneeEORI: Option[Eori] = None,
+    dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty
   ): DisplayDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
       dutyDetails.map { case (taxCode, paidAmount, cmaEligible) =>

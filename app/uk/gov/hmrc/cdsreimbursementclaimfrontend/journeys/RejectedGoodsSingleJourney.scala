@@ -66,6 +66,17 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
   def isCompleteSupportingEvidences: Boolean =
     answers.supportingEvidences.exists(_.forall(_._2.isDefined))
 
+  def getConsigneeEoriFromACC14: Option[Eori] =
+    answers.displayDeclaration.flatMap(_.getConsigneeEori)
+
+  def getDeclarantEoriFromACC14: Option[Eori] =
+    answers.displayDeclaration.map(_.getDeclarantEori)
+
+  /** Check if ACC14 have declarant EORI or consignee EORI matching user's EORI */
+  def needsDeclarantAndConsigneeEoriSubmission: Boolean =
+    !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
+      getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
@@ -446,9 +457,17 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
       check(_.isCompleteReimbursementClaims, "incomplete methodOfDisposal"),
       check(_.isCompleteSupportingEvidences, "incomplete supportingEvidences"),
-      check(
-        journey => allOrNone(journey.answers.consigneeEoriNumber, journey.answers.declarantEoriNumber),
-        "consigneeEoriNumber and declarantEoriNumber must be defined both or none"
+      whenTrue[RejectedGoodsSingleJourney](_.needsDeclarantAndConsigneeEoriSubmission)(
+        all(
+          checkIsDefined(
+            _.answers.declarantEoriNumber,
+            "declarantEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
+          ),
+          checkIsDefined(
+            _.answers.consigneeEoriNumber,
+            "consigneeEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
+          )
+        )
       ),
       check(
         journey => allOrNone(journey.answers.contactDetails, journey.answers.contactAddress),

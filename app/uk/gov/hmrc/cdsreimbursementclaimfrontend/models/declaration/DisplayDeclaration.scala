@@ -20,10 +20,17 @@ import cats.{Eq, Id}
 import cats.implicits._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
+
+  def getConsigneeEori: Option[Eori] =
+    displayResponseDetail.consigneeDetails.map(_.consigneeEORI).map(Eori.apply)
+
+  def getDeclarantEori: Eori =
+    Eori(displayResponseDetail.declarantDetails.declarantEORI)
 
   def getNdrcDetailsList: Option[List[NdrcDetails]] =
     displayResponseDetail.ndrcDetails
