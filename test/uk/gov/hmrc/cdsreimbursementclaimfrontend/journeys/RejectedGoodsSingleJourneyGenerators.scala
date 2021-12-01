@@ -34,10 +34,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
   val minimalCompleteJourneyWithConsigneeAndAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildMinimalCompleteJourneyGen(true, true)
+    buildCompleteJourneyGen(allDutiesCmaEligible = true, hasConsigneeDetailsInACC14 = true)
 
   val minimalCompleteJourneyWithConsigneeAndNoneDutyCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildMinimalCompleteJourneyGen(false, true)
+    buildCompleteJourneyGen(allDutiesCmaEligible = false, hasConsigneeDetailsInACC14 = true)
 
   val completeJourneyGen: Gen[RejectedGoodsSingleJourney] =
     Gen.oneOf(
@@ -47,9 +47,9 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
 
   /** Minimal journey does not contain optional answers. */
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  def buildMinimalCompleteJourneyGen(
-    cmaEligible: Boolean,
-    hasConsigneeDetails: Boolean
+  def buildCompleteJourneyGen(
+    allDutiesCmaEligible: Boolean,
+    hasConsigneeDetailsInACC14: Boolean
   ): Gen[RejectedGoodsSingleJourney] =
     for {
       id                          <- Gen.uuid
@@ -69,7 +69,8 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.all)
       reimbursementMethod         <-
         Gen.oneOf(
-          if (cmaEligible) ReimbursementMethodAnswer.all else Set(ReimbursementMethodAnswer.BankAccountTransfer)
+          if (allDutiesCmaEligible) ReimbursementMethodAnswer.all
+          else Set(ReimbursementMethodAnswer.BankAccountTransfer)
         )
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 2)
@@ -77,19 +78,21 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
-        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
+        taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, allDutiesCmaEligible) }
 
       val reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)] =
-        taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) => (t, a, cmaEligible) }
+        taxCodes.take(numberOfSelectedTaxCodes).zip(reimbursementAmount).map { case (t, a) =>
+          (t, a, allDutiesCmaEligible)
+        }
 
-      val supportingEvidences                                      =
+      val supportingEvidences                    =
         documentTypes.zipWithIndex.map { case (d, i) => (s"evidence-$i", d) }
 
-      val displayDeclaration: DisplayDeclaration                   =
+      val displayDeclaration: DisplayDeclaration =
         buildDisplayDeclaration(
           id.toString(),
           declarantEORI,
-          if (hasConsigneeDetails) Some(consigneeEORI) else None,
+          if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
           paidDuties
         )
 

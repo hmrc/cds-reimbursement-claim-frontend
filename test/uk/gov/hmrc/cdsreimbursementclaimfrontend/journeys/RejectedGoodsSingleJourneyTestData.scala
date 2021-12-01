@@ -79,24 +79,6 @@ trait RejectedGoodsSingleJourneyTestData {
     val upscanReferencesWithDocumentType: Seq[(UploadReference, DocumentTypeRejectedGoods)] =
       uploadedDocuments.map(_.uploadReference).zip(supportingEvidences.map(_._2))
 
-    val submitImporterEoriNumber: RejectedGoodsSingleJourney => Eori => RejectedGoodsSingleJourney =
-      journey => eori => journey.submitImporterEoriNumber(eori)
-
-    val submitDeclarantEoriNumber: RejectedGoodsSingleJourney => Eori => RejectedGoodsSingleJourney =
-      journey => eori => journey.submitDeclarantEoriNumber(eori)
-
-    val submitContactDetails: RejectedGoodsSingleJourney => MrnContactDetails => RejectedGoodsSingleJourney =
-      journey => contactDetails => journey.submitContactDetails(contactDetails)
-
-    val submitContactAddress: RejectedGoodsSingleJourney => ContactAddress => RejectedGoodsSingleJourney =
-      journey => contactAddress => journey.submitContactAddress(contactAddress)
-
-    val submitBankAccountDetails: RejectedGoodsSingleJourney => BankAccountDetails => RejectedGoodsSingleJourney =
-      journey => bankAccountDetails => journey.submitBankAccountDetails(bankAccountDetails)
-
-    val submitBankAccountType: RejectedGoodsSingleJourney => BankAccountType => RejectedGoodsSingleJourney =
-      journey => bankAccountType => journey.submitBankAccountType(bankAccountType)
-
     def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
       taxCodesWithReimbursementAmount: (TaxCode, BigDecimal)
     ): Either[String, RejectedGoodsSingleJourney] =
@@ -117,10 +99,10 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitMovementReferenceNumber(mrn)
       .submitDisplayDeclaration(displayDeclaration)
       .whenDefined(importerEoriNumber)(_.submitImporterEoriNumber _)
-      .whenDefined(declarantEoriNumber)(submitDeclarantEoriNumber)
+      .whenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .submitDeclarantType(declarantType)
-      .whenDefined(contactDetails)(submitContactDetails)
-      .whenDefined(contactAddress)(submitContactAddress)
+      .whenDefined(contactDetails)(_.submitContactDetails _)
+      .whenDefined(contactAddress)(_.submitContactAddress _)
       .submitBasisOfClaim(basisOfClaim)
       .tryWhen(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
         _.submitBasisOfClaimSpecialCircumstancesDetails(specialCircumstancesDetails)
@@ -131,8 +113,8 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .flatMap(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
-      .mapWhenDefined(bankAccountDetails)(submitBankAccountDetails)
-      .mapWhenDefined(bankAccountType)(submitBankAccountType)
+      .mapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
+      .mapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .flatMapWhen(_.isAllSelectedDutiesAreCMAEligible)(
         _.submitReimbursementMethod(reimbursementMethod)
       )
