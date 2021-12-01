@@ -141,7 +141,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         reimbursementMethod,
         supportingEvidences,
         declarantEoriNumber = if (acc14DeclarantMatchesUserEori) None else Some(declarantEORI),
-        importerEoriNumber = if (acc14ConsigneeMatchesUserEori) None else Some(consigneeEORI)
+        consigneeEoriNumber = if (acc14ConsigneeMatchesUserEori) None else Some(consigneeEORI)
       ).fold(
         error => throw new Exception(s"Cannnot build complete RejectedGoodsSingleJourney because of $error"),
         identity

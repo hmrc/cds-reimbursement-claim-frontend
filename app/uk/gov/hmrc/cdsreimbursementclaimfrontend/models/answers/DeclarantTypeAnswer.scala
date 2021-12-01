@@ -26,9 +26,9 @@ sealed trait DeclarantTypeAnswer
 
 object DeclarantTypeAnswer {
 
-  case object Importer extends DeclarantTypeAnswer
-  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer
-  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer
+  case object Importer extends DeclarantTypeAnswer //consignee
+  case object AssociatedWithImporterCompany extends DeclarantTypeAnswer //consignee
+  case object AssociatedWithRepresentativeCompany extends DeclarantTypeAnswer //declarant
 
   val all: Set[DeclarantTypeAnswer] =
     Set(Importer, AssociatedWithImporterCompany, AssociatedWithRepresentativeCompany)

@@ -99,9 +99,10 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       answers.copy(displayDeclaration = Some(displayDeclaration), reimbursementClaims = None)
     )
 
-  def submitImporterEoriNumber(importerEoriNumber: Eori): RejectedGoodsSingleJourney =
+  // TODO: rename to consignee
+  def submitConsigneeEoriNumber(consigneeEoriNumber: Eori): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
-      answers.copy(importerEoriNumber = Some(importerEoriNumber))
+      answers.copy(consigneeEoriNumber = Some(consigneeEoriNumber))
     )
 
   def submitDeclarantEoriNumber(declarantEoriNumber: Eori): RejectedGoodsSingleJourney =
@@ -244,7 +245,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
   def submitInspectionDate(inspectionDate: LocalDate): Either[String, RejectedGoodsSingleJourney] =
-    if (inspectionDate.isAfter(LocalDate.now()))
+    if (inspectionDate.isAfter(LocalDate.now())) //invalid assumption
       Right(
         new RejectedGoodsSingleJourney(
           answers.copy(inspectionDate = Some(inspectionDate))
@@ -258,11 +259,13 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       answers.copy(inspectionAddress = Some(inspectionAddress))
     )
 
+  // mandatory only if BankAccount reim method
   def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(bankAccountDetails = Some(bankAccountDetails))
     )
 
+  // mandatory only if BankAccount reim method
   def submitBankAccountType(bankAccountType: BankAccountType): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(bankAccountType = Some(bankAccountType))
@@ -336,7 +339,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 userEoriNumber,
                 Some(mrn),
                 _,
-                importerEoriNumber,
+                consigneeEoriNumber,
                 declarantEoriNumber,
                 Some(declarantType),
                 contactDetails,
@@ -366,8 +369,8 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod,
-                importerAndDeclarantEoriNumber =
-                  for (a <- importerEoriNumber; b <- declarantEoriNumber)
+                consigneeAndDeclarantEoriNumber =
+                  for (a <- consigneeEoriNumber; b <- declarantEoriNumber)
                     yield (a, b), // ? what should be the value of this if missing, should we use user's EORI?
                 contactDetailsAndAddress = for (a <- contactDetails; b <- contactAddress) yield (a, b),
                 bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
@@ -391,9 +394,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     userEoriNumber: Eori,
     movementReferenceNumber: Option[MRN] = None,
     displayDeclaration: Option[DisplayDeclaration] = None,
-    importerEoriNumber: Option[Eori] = None,
+    consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
-    declarantType: Option[DeclarantTypeAnswer] = None, // is it required at all?
+    declarantType: Option[DeclarantTypeAnswer] = None, // REMOVE
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
     basisOfClaim: Option[BasisOfRejectedGoodsClaim] = None,
@@ -409,10 +412,10 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
   )
 
-  // Final output of the journey.
+  // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
     movementReferenceNumber: MRN,
-    declarantType: DeclarantTypeAnswer,
+    declarantType: DeclarantTypeAnswer, // calculate the value based on the user eori and acc14
     basisOfClaim: BasisOfRejectedGoodsClaim,
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
@@ -421,10 +424,10 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     reimbursementClaims: Map[TaxCode, BigDecimal],
     supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
     basisOfClaimSpecialCircumstances: Option[String],
-    reimbursementMethod: Option[ReimbursementMethodAnswer],
-    importerAndDeclarantEoriNumber: Option[(Eori, Eori)],
-    contactDetailsAndAddress: Option[(MrnContactDetails, ContactAddress)],
-    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)]
+    reimbursementMethod: Option[ReimbursementMethodAnswer], // MANDATORY, BankAccount as a default
+    consigneeAndDeclarantEoriNumber: Option[(Eori, Eori)], // MANDATORY
+    contactDetailsAndAddress: Option[(MrnContactDetails, ContactAddress)], // MANDATORY
+    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)] // MANDATORY if CMA as reimb method
   )
 
   import com.github.arturopala.validator.Validator._
@@ -444,8 +447,8 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       check(_.isCompleteReimbursementClaims, "incomplete methodOfDisposal"),
       check(_.isCompleteSupportingEvidences, "incomplete supportingEvidences"),
       check(
-        journey => allOrNone(journey.answers.importerEoriNumber, journey.answers.declarantEoriNumber),
-        "importerEoriNumber and declarantEoriNumber must be defined both or none"
+        journey => allOrNone(journey.answers.consigneeEoriNumber, journey.answers.declarantEoriNumber),
+        "consigneeEoriNumber and declarantEoriNumber must be defined both or none"
       ),
       check(
         journey => allOrNone(journey.answers.contactDetails, journey.answers.contactAddress),

@@ -32,6 +32,7 @@ class RejectedGoodsSingleJourneySpec
 
   "RejectedGoodsSingleJourney" should {
     "have an empty instance" in {
+      emptyJourney.answers.userEoriNumber                   shouldBe exampleEori
       emptyJourney.answers.bankAccountDetails               shouldBe None
       emptyJourney.answers.bankAccountType                  shouldBe None
       emptyJourney.answers.basisOfClaim                     shouldBe None
@@ -43,7 +44,7 @@ class RejectedGoodsSingleJourneySpec
       emptyJourney.answers.declarantType                    shouldBe None
       emptyJourney.answers.detailsOfRejectedGoods           shouldBe None
       emptyJourney.answers.displayDeclaration               shouldBe None
-      emptyJourney.answers.importerEoriNumber               shouldBe None
+      emptyJourney.answers.consigneeEoriNumber              shouldBe None
       emptyJourney.answers.inspectionAddress                shouldBe None
       emptyJourney.answers.inspectionDate                   shouldBe None
       emptyJourney.answers.methodOfDisposal                 shouldBe None
@@ -63,19 +64,19 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         journey.isComplete shouldBe true
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
-        output.movementReferenceNumber                  shouldBe journey.answers.movementReferenceNumber.get
-        output.declarantType                            shouldBe journey.answers.declarantType.get
-        output.basisOfClaim                             shouldBe journey.answers.basisOfClaim.get
-        output.methodOfDisposal                         shouldBe journey.answers.methodOfDisposal.get
-        output.detailsOfRejectedGoods                   shouldBe journey.answers.detailsOfRejectedGoods.get
-        output.inspectionDate                           shouldBe journey.answers.inspectionDate.get
-        output.inspectionAddress                        shouldBe journey.answers.inspectionAddress.get
-        output.reimbursementMethod                      shouldBe journey.answers.reimbursementMethod
-        output.reimbursementClaims                      shouldBe journey.answers.reimbursementClaims.get.mapValues(_.get)
-        output.supportingEvidences                      shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
-        output.importerAndDeclarantEoriNumber.isDefined shouldBe (journey.answers.importerEoriNumber.isDefined && journey.answers.declarantEoriNumber.isDefined)
-        output.contactDetailsAndAddress.isDefined       shouldBe (journey.answers.contactDetails.isDefined && journey.answers.contactAddress.isDefined)
-        output.bankAccountDetailsAndType.isDefined      shouldBe (journey.answers.bankAccountDetails.isDefined && journey.answers.bankAccountType.isDefined)
+        output.movementReferenceNumber                   shouldBe journey.answers.movementReferenceNumber.get
+        output.declarantType                             shouldBe journey.answers.declarantType.get
+        output.basisOfClaim                              shouldBe journey.answers.basisOfClaim.get
+        output.methodOfDisposal                          shouldBe journey.answers.methodOfDisposal.get
+        output.detailsOfRejectedGoods                    shouldBe journey.answers.detailsOfRejectedGoods.get
+        output.inspectionDate                            shouldBe journey.answers.inspectionDate.get
+        output.inspectionAddress                         shouldBe journey.answers.inspectionAddress.get
+        output.reimbursementMethod                       shouldBe journey.answers.reimbursementMethod
+        output.reimbursementClaims                       shouldBe journey.answers.reimbursementClaims.get.mapValues(_.get)
+        output.supportingEvidences                       shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
+        output.consigneeAndDeclarantEoriNumber.isDefined shouldBe (journey.answers.consigneeEoriNumber.isDefined && journey.answers.declarantEoriNumber.isDefined)
+        output.contactDetailsAndAddress.isDefined        shouldBe (journey.answers.contactDetails.isDefined && journey.answers.contactAddress.isDefined)
+        output.bankAccountDetailsAndType.isDefined       shouldBe (journey.answers.bankAccountDetails.isDefined && journey.answers.bankAccountType.isDefined)
       }
     }
 

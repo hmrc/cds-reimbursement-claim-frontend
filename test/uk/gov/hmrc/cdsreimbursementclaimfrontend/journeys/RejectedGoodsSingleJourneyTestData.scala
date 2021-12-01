@@ -63,7 +63,7 @@ trait RejectedGoodsSingleJourneyTestData {
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
     reimbursementMethod: ReimbursementMethodAnswer,
     supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)],
-    importerEoriNumber: Option[Eori] = None,
+    consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,
     contactAddress: Option[ContactAddress] = None,
@@ -98,7 +98,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .empty(userEoriNumber)
       .submitMovementReferenceNumber(mrn)
       .submitDisplayDeclaration(displayDeclaration)
-      .whenDefined(importerEoriNumber)(_.submitImporterEoriNumber _)
+      .whenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .whenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
       .submitDeclarantType(declarantType)
       .whenDefined(contactDetails)(_.submitContactDetails _)
