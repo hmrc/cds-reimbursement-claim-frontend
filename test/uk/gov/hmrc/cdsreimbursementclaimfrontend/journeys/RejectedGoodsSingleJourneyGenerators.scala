@@ -32,30 +32,40 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
-  val completeJourneyWithMatchingUserEoriAndAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+  val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen()
 
   val completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen(allDutiesCmaEligible = false)
 
-  val completeJourneyAllDutiesCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+  val completeJourneyWithNonNatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen(
       acc14DeclarantMatchesUserEori = false,
       acc14ConsigneeMatchesUserEori = false
     )
 
-  val completeJourneyNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+  val completeJourneyWithNonNatchingUserEoriAndNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen(
       acc14DeclarantMatchesUserEori = false,
       acc14ConsigneeMatchesUserEori = false,
       allDutiesCmaEligible = false
     )
 
+  val completeJourneyCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    Gen.oneOf(
+      completeJourneyWithMatchingUserEoriAndCMAEligibleGen,
+      completeJourneyWithNonNatchingUserEoriAndCMAEligibleGen
+    )
+
+  val completeJourneyNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
+    Gen.oneOf(
+      completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen,
+      completeJourneyWithNonNatchingUserEoriAndNotCMAEligibleGen
+    )
+
   val completeJourneyGen: Gen[RejectedGoodsSingleJourney] =
     Gen.oneOf(
-      completeJourneyWithMatchingUserEoriAndAllDutiesCMAEligibleGen,
-      completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen,
-      completeJourneyAllDutiesCMAEligibleGen,
+      completeJourneyCMAEligibleGen,
       completeJourneyNotCMAEligibleGen
     )
 

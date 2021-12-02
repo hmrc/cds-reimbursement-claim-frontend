@@ -339,6 +339,24 @@ class RejectedGoodsSingleJourneySpec
       journeyEither shouldBe Left("submitBankAccountDetails.unexpected")
     }
 
+    "change bankAccountDetails in a complete journey with all duties CMA eligible" in {
+      forAll(completeJourneyCMAEligibleGen) { journey =>
+        val journeyEither =
+          journey.submitBankAccountDetails(exampleBankAccountDetails)
+
+        journeyEither.isRight shouldBe journey.needsBanksAccountDetailsAndTypeSubmission
+      }
+    }
+
+    "change bankAccountDetails in a complete journey not eligible for CMA" in {
+      forAll(completeJourneyNotCMAEligibleGen) { journey =>
+        val journeyEither =
+          journey.submitBankAccountDetails(exampleBankAccountDetails)
+
+        journeyEither.isRight shouldBe true
+      }
+    }
+
   }
 
 }
