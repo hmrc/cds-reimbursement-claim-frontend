@@ -177,7 +177,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       case _ => Left("basisOfClaim.not_matching")
     }
 
-  // overwrites basisOfClaim with SpecialCircumstances enum value
+  /** Overwrites basisOfClaim with SpecialCircumstances enum value. */
   def forceSubmitBasisOfClaimSpecialCircumstances(
     basisOfClaimSpecialCircumstances: String
   ): RejectedGoodsSingleJourney =
@@ -491,6 +491,18 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           )
         )
       ),
+      whenFalse[RejectedGoodsSingleJourney](_.needsDeclarantAndConsigneeEoriSubmission)(
+        all(
+          check(
+            _.answers.declarantEoriNumber.isEmpty,
+            "declarantEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
+          ),
+          check(
+            _.answers.consigneeEoriNumber.isEmpty,
+            "consigneeEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
+          )
+        )
+      ),
       whenTrue[RejectedGoodsSingleJourney](_.needsBanksAccountDetailsAndTypeSubmission)(
         all(
           checkIsDefined(
@@ -503,6 +515,18 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           )
         )
       ),
+      whenFalse[RejectedGoodsSingleJourney](_.needsBanksAccountDetailsAndTypeSubmission)(
+        all(
+          check(
+            _.answers.bankAccountDetails.isEmpty,
+            "bankAccountDetails must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+          ),
+          check(
+            _.answers.bankAccountType.isEmpty,
+            "bankAccountType must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
+          )
+        )
+      ),
       whenTrue[RejectedGoodsSingleJourney](
         _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
       )(
@@ -511,10 +535,24 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances"
         )
       ),
+      whenFalse[RejectedGoodsSingleJourney](
+        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+      )(
+        check(
+          _.answers.basisOfClaimSpecialCircumstances.isEmpty,
+          "basisOfClaimSpecialCircumstances must NOT be defined when basisOfClaim value is not SpecialCircumstances"
+        )
+      ),
       whenTrue[RejectedGoodsSingleJourney](_.isAllSelectedDutiesAreCMAEligible)(
         checkIsDefined(
           _.answers.reimbursementMethod,
           "reimbursementMethodAnswer must be defined when all selected duties are CMA eligible"
+        )
+      ),
+      whenFalse[RejectedGoodsSingleJourney](_.isAllSelectedDutiesAreCMAEligible)(
+        check(
+          _.answers.reimbursementMethod.isEmpty,
+          "reimbursementMethodAnswer must NOT be defined when not all of selected duties are CMA eligible"
         )
       )
     )
