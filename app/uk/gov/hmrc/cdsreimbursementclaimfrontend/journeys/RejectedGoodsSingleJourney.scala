@@ -470,9 +470,19 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
             _.answers.declarantEoriNumber,
             "declarantEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
           ),
+          checkEquals(
+            _.getDeclarantEoriFromACC14,
+            _.answers.declarantEoriNumber,
+            "declarantEoriNumber must be equal to that of ACC14"
+          ),
           checkIsDefined(
             _.answers.consigneeEoriNumber,
             "consigneeEoriNumber must be provided if user's EORI is not matching those of ACC14 declarant or consignee"
+          ),
+          checkEquals(
+            _.getConsigneeEoriFromACC14,
+            _.answers.consigneeEoriNumber,
+            "declarantEoriNumber must be equal to that of ACC14"
           )
         )
       ),
