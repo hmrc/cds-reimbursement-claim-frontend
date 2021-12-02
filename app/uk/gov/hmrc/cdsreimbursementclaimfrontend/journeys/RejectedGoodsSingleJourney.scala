@@ -456,7 +456,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
   /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsSingleJourney] =
-    all[RejectedGoodsSingleJourney](
+    all(
       checkIsDefined(_.answers.movementReferenceNumber, "missing movementReferenceNumber"),
       checkIsDefined(_.answers.displayDeclaration, "missing displayDeclaration"),
       checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
@@ -465,11 +465,12 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
       checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
       checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
-      check(_.isCompleteReimbursementClaims, "incomplete methodOfDisposal"),
-      check(_.isCompleteSupportingEvidences, "incomplete supportingEvidences"),
+      check(_.isCompleteReimbursementClaims, "incomplete reimbursement claims"),
+      check(_.isCompleteSupportingEvidences, "incomplete supporting evidences"),
       checkIsDefined(_.answers.contactDetails, "missing contactDetails"),
       checkIsDefined(_.answers.contactAddress, "missing contactAddress"),
-      whenTrue[RejectedGoodsSingleJourney](_.needsDeclarantAndConsigneeEoriSubmission)(
+      whenTrue(
+        _.needsDeclarantAndConsigneeEoriSubmission,
         all(
           checkIsDefined(
             _.answers.declarantEoriNumber,
@@ -491,19 +492,21 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           )
         )
       ),
-      whenFalse[RejectedGoodsSingleJourney](_.needsDeclarantAndConsigneeEoriSubmission)(
+      whenFalse(
+        _.needsDeclarantAndConsigneeEoriSubmission,
         all(
-          check(
-            _.answers.declarantEoriNumber.isEmpty,
+          checkIsEmpty(
+            _.answers.declarantEoriNumber,
             "declarantEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
           ),
-          check(
-            _.answers.consigneeEoriNumber.isEmpty,
+          checkIsEmpty(
+            _.answers.consigneeEoriNumber,
             "consigneeEoriNumber does not have to be provided if user's EORI is matching those of ACC14 declarant or consignee"
           )
         )
       ),
-      whenTrue[RejectedGoodsSingleJourney](_.needsBanksAccountDetailsAndTypeSubmission)(
+      whenTrue(
+        _.needsBanksAccountDetailsAndTypeSubmission,
         all(
           checkIsDefined(
             _.answers.bankAccountDetails,
@@ -515,43 +518,44 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           )
         )
       ),
-      whenFalse[RejectedGoodsSingleJourney](_.needsBanksAccountDetailsAndTypeSubmission)(
+      whenFalse(
+        _.needsBanksAccountDetailsAndTypeSubmission,
         all(
-          check(
-            _.answers.bankAccountDetails.isEmpty,
+          checkIsEmpty(
+            _.answers.bankAccountDetails,
             "bankAccountDetails must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
           ),
-          check(
-            _.answers.bankAccountType.isEmpty,
+          checkIsEmpty(
+            _.answers.bankAccountType,
             "bankAccountType must NOT be defined when reimbursementMethodAnswer is CurrentMonthAdjustment"
           )
         )
       ),
-      whenTrue[RejectedGoodsSingleJourney](
-        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-      )(
+      whenTrue(
+        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
         checkIsDefined(
           _.answers.basisOfClaimSpecialCircumstances,
           "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances"
         )
       ),
-      whenFalse[RejectedGoodsSingleJourney](
-        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-      )(
-        check(
-          _.answers.basisOfClaimSpecialCircumstances.isEmpty,
+      whenFalse(
+        _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances),
+        checkIsEmpty(
+          _.answers.basisOfClaimSpecialCircumstances,
           "basisOfClaimSpecialCircumstances must NOT be defined when basisOfClaim value is not SpecialCircumstances"
         )
       ),
-      whenTrue[RejectedGoodsSingleJourney](_.isAllSelectedDutiesAreCMAEligible)(
+      whenTrue(
+        _.isAllSelectedDutiesAreCMAEligible,
         checkIsDefined(
           _.answers.reimbursementMethod,
           "reimbursementMethodAnswer must be defined when all selected duties are CMA eligible"
         )
       ),
-      whenFalse[RejectedGoodsSingleJourney](_.isAllSelectedDutiesAreCMAEligible)(
-        check(
-          _.answers.reimbursementMethod.isEmpty,
+      whenFalse(
+        _.isAllSelectedDutiesAreCMAEligible,
+        checkIsEmpty(
+          _.answers.reimbursementMethod,
           "reimbursementMethodAnswer must NOT be defined when not all of selected duties are CMA eligible"
         )
       )
