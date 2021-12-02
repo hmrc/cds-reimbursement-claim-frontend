@@ -39,7 +39,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.OptionsValidator._
 
 import java.time.LocalDate
 
@@ -76,6 +75,10 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
   def needsDeclarantAndConsigneeEoriSubmission: Boolean =
     !(getDeclarantEoriFromACC14.contains(answers.userEoriNumber) ||
       getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+
+  def needsBanksAccountDetailsAndTypeSubmission: Boolean =
+    answers.reimbursementMethod.isEmpty ||
+      answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
@@ -265,40 +268,38 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 
   implicit val equalityOfLocalDate: Eq[LocalDate] = Eq.fromUniversalEquals[LocalDate]
 
-  def submitInspectionDate(inspectionDate: LocalDate): Either[String, RejectedGoodsSingleJourney] =
-    if (inspectionDate.isAfter(LocalDate.now())) //invalid assumption
-      Right(
-        new RejectedGoodsSingleJourney(
-          answers.copy(inspectionDate = Some(inspectionDate))
-        )
-      )
-    else
-      Left("submitInspectionDate.mustBeFutureDate")
+  def submitInspectionDate(inspectionDate: LocalDate): RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(
+      answers.copy(inspectionDate = Some(inspectionDate))
+    )
 
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(inspectionAddress = Some(inspectionAddress))
     )
 
-  // mandatory only if BankAccount reim method
-  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(bankAccountDetails = Some(bankAccountDetails))
-    )
+  def submitBankAccountDetails(bankAccountDetails: BankAccountDetails): Either[String, RejectedGoodsSingleJourney] =
+    if (needsBanksAccountDetailsAndTypeSubmission)
+      Right(
+        new RejectedGoodsSingleJourney(
+          answers.copy(bankAccountDetails = Some(bankAccountDetails))
+        )
+      )
+    else Left("submitBankAccountDetails.unexpected")
 
-  // mandatory only if BankAccount reim method
-  def submitBankAccountType(bankAccountType: BankAccountType): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(bankAccountType = Some(bankAccountType))
-    )
+  def submitBankAccountType(bankAccountType: BankAccountType): Either[String, RejectedGoodsSingleJourney] =
+    if (needsBanksAccountDetailsAndTypeSubmission)
+      Right(
+        new RejectedGoodsSingleJourney(
+          answers.copy(bankAccountType = Some(bankAccountType))
+        )
+      )
+    else Left("submitBankAccountType.unexpected")
 
   def submitReimbursementMethod(
     reimbursementMethodAnswer: ReimbursementMethodAnswer
   ): Either[String, RejectedGoodsSingleJourney] =
-    if (
-      reimbursementMethodAnswer === ReimbursementMethodAnswer.BankAccountTransfer ||
-      isAllSelectedDutiesAreCMAEligible
-    )
+    if (isAllSelectedDutiesAreCMAEligible)
       Right(
         new RejectedGoodsSingleJourney(
           answers.copy(reimbursementMethod = Some(reimbursementMethodAnswer))
@@ -357,13 +358,13 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .flatMap(_ =>
         answers match {
           case RejectedGoodsSingleJourney.Answers(
-                _,
+                userEoriNumber,
                 Some(mrn),
                 _,
                 consigneeEoriNumber,
                 declarantEoriNumber,
-                contactDetails,
-                contactAddress,
+                Some(contactDetails),
+                Some(contactAddress),
                 Some(basisOfClaim),
                 basisOfClaimSpecialCircumstances,
                 Some(methodOfDisposal),
@@ -388,11 +389,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 reimbursementClaims = reimbursementClaims.mapValues(_.get),
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
-                reimbursementMethod = reimbursementMethod,
-                consigneeAndDeclarantEoriNumber =
-                  for (a <- consigneeEoriNumber; b <- declarantEoriNumber)
-                    yield (a, b), // ? what should be the value of this if missing, should we use user's EORI?
-                contactDetailsAndAddress = for (a <- contactDetails; b <- contactAddress) yield (a, b),
+                reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
+                consigneeEoriNumber = consigneeEoriNumber.getOrElse(userEoriNumber),
+                declarantEoriNumber = declarantEoriNumber.getOrElse(userEoriNumber),
+                contactDetails = contactDetails,
+                contactAddress = contactAddress,
                 bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
               )
             )
@@ -443,17 +444,19 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     reimbursementClaims: Map[TaxCode, BigDecimal],
     supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
     basisOfClaimSpecialCircumstances: Option[String],
-    reimbursementMethod: Option[ReimbursementMethodAnswer], // MANDATORY, BankAccount as a default
-    consigneeAndDeclarantEoriNumber: Option[(Eori, Eori)], // MANDATORY
-    contactDetailsAndAddress: Option[(MrnContactDetails, ContactAddress)], // MANDATORY
-    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)] // MANDATORY if CMA as reimb method
+    reimbursementMethod: ReimbursementMethodAnswer,
+    consigneeEoriNumber: Eori,
+    declarantEoriNumber: Eori,
+    contactDetails: MrnContactDetails,
+    contactAddress: ContactAddress,
+    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)]
   )
 
   import com.github.arturopala.validator.Validator._
 
-  /** Validate if all answers has been provided and the journey is ready to finalize. */
+  /** Validate if all required answers has been provided and the journey is ready to produce output. */
   val validator: Validate[RejectedGoodsSingleJourney] =
-    all(
+    all[RejectedGoodsSingleJourney](
       checkIsDefined(_.answers.movementReferenceNumber, "missing movementReferenceNumber"),
       checkIsDefined(_.answers.displayDeclaration, "missing displayDeclaration"),
       checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
@@ -464,6 +467,8 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
       check(_.isCompleteReimbursementClaims, "incomplete methodOfDisposal"),
       check(_.isCompleteSupportingEvidences, "incomplete supportingEvidences"),
+      checkIsDefined(_.answers.contactDetails, "missing contactDetails"),
+      checkIsDefined(_.answers.contactAddress, "missing contactAddress"),
       whenTrue[RejectedGoodsSingleJourney](_.needsDeclarantAndConsigneeEoriSubmission)(
         all(
           checkIsDefined(
@@ -486,13 +491,17 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
           )
         )
       ),
-      check(
-        journey => allOrNone(journey.answers.contactDetails, journey.answers.contactAddress),
-        "contactDetails and contactAddress must be defined both or none"
-      ),
-      check(
-        journey => allOrNone(journey.answers.bankAccountDetails, journey.answers.bankAccountType),
-        "bankAccountDetails and bankAccountType must be defined both or none"
+      whenTrue[RejectedGoodsSingleJourney](_.needsBanksAccountDetailsAndTypeSubmission)(
+        all(
+          checkIsDefined(
+            _.answers.bankAccountDetails,
+            "bankAccountDetails must be defined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+          ),
+          checkIsDefined(
+            _.answers.bankAccountType,
+            "bankAccountType must be defined when reimbursementMethodAnswer is empty or not CurrentMonthAdjustment"
+          )
+        )
       ),
       whenTrue[RejectedGoodsSingleJourney](
         _.answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)

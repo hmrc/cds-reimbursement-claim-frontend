@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.syntax.eq._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-
-import java.time.LocalDate
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -88,7 +87,11 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
     allDutiesCmaEligible: Boolean = true,
     hasConsigneeDetailsInACC14: Boolean = true,
     submitDeclarantDetails: Boolean = true,
-    submitConsigneeDetails: Boolean = true
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true,
+    submitBankAccountDetails: Boolean = true,
+    submitBankAccountType: Boolean = true
   ): Gen[Either[String, RejectedGoodsSingleJourney]] =
     for {
       id                          <- Gen.uuid
@@ -105,14 +108,11 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.all)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.all)
-      reimbursementMethod         <-
-        Gen.oneOf(
-          if (allDutiesCmaEligible) ReimbursementMethodAnswer.all
-          else Set(ReimbursementMethodAnswer.BankAccountTransfer)
-        )
+      reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.all)
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 2)
       documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(DocumentTypeRejectedGoods.all))
+      bankAccountType             <- Gen.oneOf(BankAccountType.allAccountTypes)
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
@@ -141,16 +141,32 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         basisOfClaim,
         "details of rejected goods",
         "special circumstances details",
-        LocalDate.now.plusDays(1),
-        InspectionAddress(addressLine1 = "address-line-1", postalCode = "postal-code"),
+        exampleInspectionDate,
+        exampleInspectionAddress,
         methodOfDisposal,
         reimbursementClaims,
-        reimbursementMethod,
         supportingEvidences,
+        if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
         declarantEoriNumber =
           if (submitDeclarantDetails && !acc14DeclarantMatchesUserEori) Some(declarantEORI) else None,
         consigneeEoriNumber =
-          if (submitConsigneeDetails && !acc14ConsigneeMatchesUserEori) Some(consigneeEORI) else None
+          if (submitConsigneeDetails && !acc14ConsigneeMatchesUserEori) Some(consigneeEORI) else None,
+        contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
+        contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
+        bankAccountDetails =
+          if (
+            submitBankAccountDetails &&
+            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
+          )
+            Some(exampleBankAccountDetails)
+          else None,
+        bankAccountType =
+          if (
+            submitBankAccountType &&
+            (!allDutiesCmaEligible || reimbursementMethod === ReimbursementMethodAnswer.BankAccountTransfer)
+          )
+            Some(bankAccountType)
+          else None
       )
     }
 

@@ -34,6 +34,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
@@ -52,6 +55,36 @@ trait RejectedGoodsSingleJourneyTestData {
   val uploadDocument     = buildUploadDocument("foo")
   val uploadDocumentJson = buildUploadDocumentJson("foo")
 
+  val exampleContactDetails: MrnContactDetails =
+    MrnContactDetails(
+      fullName = "Foo Bar",
+      emailAddress = Email("foo@bar.com"),
+      phoneNumber = Some(PhoneNumber("000000000"))
+    )
+
+  val exampleContactAddress: ContactAddress =
+    ContactAddress(
+      line1 = "1 Foo Road",
+      line2 = None,
+      line3 = None,
+      line4 = "Foobar",
+      postcode = "FO1 1BR",
+      country = Country.uk
+    )
+
+  val exampleInspectionAddress: InspectionAddress =
+    InspectionAddress(addressLine1 = "1 Bar Road", postalCode = "BA1 1FO")
+
+  val exampleInspectionDate: LocalDate =
+    LocalDate.parse("2000-01-01")
+
+  val exampleBankAccountDetails =
+    BankAccountDetails(
+      accountName = AccountName("Foo Bar"),
+      sortCode = SortCode("00000000"),
+      accountNumber = AccountNumber("00000000")
+    )
+
   def tryBuildRejectedGoodsSingleJourney(
     userEoriNumber: Eori,
     mrn: MRN,
@@ -63,8 +96,8 @@ trait RejectedGoodsSingleJourneyTestData {
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
-    reimbursementMethod: ReimbursementMethodAnswer,
     supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)],
+    reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
     contactDetails: Option[MrnContactDetails] = None,
@@ -112,20 +145,18 @@ trait RejectedGoodsSingleJourneyTestData {
       .map(_.submitDetailsOfRejectedGoods(detailsOfRejectedGoods))
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
       .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
-      .flatMap(_.submitInspectionDate(inspectionDate))
+      .map(_.submitInspectionDate(inspectionDate))
       .map(_.submitInspectionAddress(inspectionAddress))
-      .mapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
-      .mapWhenDefined(bankAccountType)(_.submitBankAccountType _)
-      .flatMapWhen(_.isAllSelectedDutiesAreCMAEligible)(
-        _.submitReimbursementMethod(reimbursementMethod)
-      )
+      .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
+      .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)
+      .flatMapWhenDefined(bankAccountType)(_.submitBankAccountType _)
       .mapEach(uploadedDocuments, submitUploadedDocument)
       .flatMapEach(upscanReferencesWithDocumentType, submitDocumentType)
   }
 
   def buildDisplayDeclaration(
     id: String = "foo",
-    declarantEORI: Eori,
+    declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
     dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty
   ): DisplayDeclaration = {
