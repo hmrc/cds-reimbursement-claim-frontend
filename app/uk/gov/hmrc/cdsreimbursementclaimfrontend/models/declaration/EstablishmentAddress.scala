@@ -23,9 +23,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 final case class EstablishmentAddress(
   addressLine1: String,
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  postalCode: Option[String],
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  postalCode: Option[String] = None,
   countryCode: String
 )
 

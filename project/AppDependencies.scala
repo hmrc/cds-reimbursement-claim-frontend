@@ -1,18 +1,24 @@
 import play.core.PlayVersion.current
 import sbt._
+import sbt.librarymanagement.InclExclRule
 
 object AppDependencies {
 
   val monocleVersion = "2.1.0"
 
+  val validator =
+    ("com.github.arturopala" %% "validator" % "0.7.0")
+      .withExclusions(Vector(InclExclRule().withOrganization("org.typelevel").withArtifact("cats-core")))
+
   val compile = Seq(
-    "uk.gov.hmrc"                %% "bootstrap-frontend-play-28" % "5.3.0",
-    "uk.gov.hmrc"                %% "play-frontend-hmrc"         % "1.14.0-play-28",
-    "uk.gov.hmrc"                %% "mongo-caching"              % "7.0.0-play-28",
-    "uk.gov.hmrc"                %% "play-language"              % "4.13.0-play-28",
-    "org.typelevel"              %% "cats-core"                  % "2.3.1",
-    "com.github.kxbmap"          %% "configs"                    % "0.5.0",
-    "org.julienrf"               %% "play-json-derived-codecs"   % "7.0.0"
+    "uk.gov.hmrc"       %% "bootstrap-frontend-play-28" % "5.3.0",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "1.14.0-play-28",
+    "uk.gov.hmrc"       %% "mongo-caching"              % "7.0.0-play-28",
+    "uk.gov.hmrc"       %% "play-language"              % "4.13.0-play-28",
+    "org.typelevel"     %% "cats-core"                  % "2.3.1",
+    "com.github.kxbmap" %% "configs"                    % "0.5.0",
+    "org.julienrf"      %% "play-json-derived-codecs"   % "7.0.0",
+    validator
   )
 
   val test = Seq(

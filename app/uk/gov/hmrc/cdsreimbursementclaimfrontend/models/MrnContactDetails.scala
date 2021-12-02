@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
+import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 
@@ -26,5 +27,7 @@ final case class MrnContactDetails(
 )
 
 object MrnContactDetails {
+
+  implicit val equality: Eq[MrnContactDetails]    = Eq.fromUniversalEquals[MrnContactDetails]
   implicit val format: OFormat[MrnContactDetails] = Json.format[MrnContactDetails]
 }

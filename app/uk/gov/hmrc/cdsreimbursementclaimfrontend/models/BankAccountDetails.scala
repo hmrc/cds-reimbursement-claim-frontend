@@ -18,6 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.Validated.{Valid, invalidNel}
 import cats.syntax.all._
+import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{IncorrectAnswerError, MissingAnswerError, Validator}
 
@@ -42,6 +43,8 @@ object BankAccountDetails {
         else
           Valid(Some(bankDetails))
       )
+  implicit val equality: Eq[BankAccountDetails]        =
+    Eq.fromUniversalEquals[BankAccountDetails]
 
   implicit val format: OFormat[BankAccountDetails] =
     Json.format[BankAccountDetails]

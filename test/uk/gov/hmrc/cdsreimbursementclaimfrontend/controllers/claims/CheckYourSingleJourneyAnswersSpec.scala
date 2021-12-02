@@ -167,13 +167,14 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
     bankDetails: Option[BankAccountDetails]
   ): Seq[(String, String)] =
     (reimbursementMethodAnswer, bankDetails) match {
-      case (Some(CurrentMonthAdjustment), _)                     =>
+      case (Some(CurrentMonthAdjustment), _) =>
         Seq(
           (
             messages(s"$checkYourAnswersKey.reimbursement-method.label"),
             messages(s"$checkYourAnswersKey.reimbursement-method.cma")
           )
         )
+
       case (Some(BankAccountTransfer), Some(bankAccountDetails)) =>
         Seq(
           (
@@ -181,9 +182,10 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
             messages(s"$checkYourAnswersKey.reimbursement-method.bt")
           )
         ) ++ bankAccountDetailsSummaries(bankAccountDetails)
-      case (None, Some(bankAccountDetails))                      =>
+
+      case (None, Some(bankAccountDetails)) =>
         bankAccountDetailsSummaries(bankAccountDetails)
-      case _                                                     =>
+      case _                                =>
         Seq.empty
     }
 
