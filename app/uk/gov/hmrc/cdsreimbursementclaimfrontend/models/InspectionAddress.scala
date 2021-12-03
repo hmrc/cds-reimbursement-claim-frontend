@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
 
-sealed trait ReimbursementMethodAnswer extends Product with Serializable
+final case class InspectionAddress(
+  addressLine1: String,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  townOrCity: Option[String] = None,
+  postalCode: String
+)
 
-object ReimbursementMethodAnswer {
-  final case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
-  final case object BankAccountTransfer extends ReimbursementMethodAnswer
+object InspectionAddress {
 
-  val all: Set[ReimbursementMethodAnswer] =
-    Set(CurrentMonthAdjustment, BankAccountTransfer)
+  implicit val equality: Eq[InspectionAddress] =
+    Eq.fromUniversalEquals[InspectionAddress]
 
-  implicit val equality: Eq[ReimbursementMethodAnswer] =
-    Eq.fromUniversalEquals[ReimbursementMethodAnswer]
-
-  implicit val format: OFormat[ReimbursementMethodAnswer] =
-    derived.oformat[ReimbursementMethodAnswer]()
+  implicit val format: OFormat[InspectionAddress] =
+    derived.oformat[InspectionAddress]()
 }

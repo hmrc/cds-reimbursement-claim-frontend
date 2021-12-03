@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
+import cats.implicits.catsSyntaxApply
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
@@ -25,15 +25,19 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisF
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AnswersOps, BasisOfClaims, DeclarantTypeAnswers, TypeOfClaimAnswer}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
-class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
+class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
 
   "The CYA page" should {
 
     "display answer summaries for the Multiple journey" in {
-      val (session, claim) = genData(TypeOfClaimAnswer.Multiple)
+      val (session, claim)                              = genData(TypeOfClaimAnswer.Multiple)
+      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
+        case fillingOutClaim: FillingOutClaim => fillingOutClaim
+      }
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -52,12 +56,9 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
           headers   should contain allElementsOf (Seq(
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
             claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
-            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
-              s"$checkYourAnswersKey.contact-details.h2"
-            )
+            claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
           ).flatMap(_.toList) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.reference-number.multiple.h2"
@@ -145,53 +146,10 @@ class CheckYourMultipleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
                 }
               )
             }
-            .flatMap(_.toList) ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
-            .mapN { (details, address) =>
-              Seq(
-                Some((messages("claimant-details.contact.details"), details.fullName)),
-                details.phoneNumber.map { phoneNumber =>
-                  (messages("claimant-details.contact.details"), phoneNumber.value)
-                },
-                Some((messages("claimant-details.contact.details"), details.emailAddress.value)),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.line1
-                  )
-                ),
-                address.line2.map { line2 =>
-                  (
-                    messages("claimant-details.contact.address"),
-                    line2
-                  )
-                },
-                address.line3.map { line3 =>
-                  (
-                    messages("claimant-details.contact.address"),
-                    line3
-                  )
-                },
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.line4
-                  )
-                ),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.postcode
-                  )
-                ),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    messages(address.country.messageKey)
-                  )
-                )
-              ).flatMap(_.toList)
-            }
-            .getOrElse(Seq.empty)
+            .flatMap(_.toList) ++ contactDetailsFromCDS(
+            claim,
+            maybeFillingOutClaim.map(_.signedInUserDetails.verifiedEmail)
+          )
         }
       )
     }

@@ -19,9 +19,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
+import java.util.function.Predicate
+
 final case class AccountNumber(value: String) extends AnyVal
 
 object AccountNumber {
+
+  private val regex: Predicate[String] = "^\\d+$".r.pattern.asPredicate()
+
+  def hasValidLength(value: String): Boolean =
+    value.length >= 6 && value.length <= 8
+
+  def isValid(value: String): Boolean =
+    regex.test(value)
 
   implicit val accountNumberFormat: Format[AccountNumber] =
     SimpleStringFormat(AccountNumber(_), _.value)

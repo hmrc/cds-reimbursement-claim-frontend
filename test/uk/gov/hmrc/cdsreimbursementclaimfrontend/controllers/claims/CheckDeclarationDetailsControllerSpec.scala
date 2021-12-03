@@ -186,7 +186,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+          baseRoutes.IneligibleController.ineligible()
         )
       }
 

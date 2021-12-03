@@ -38,7 +38,6 @@ package object summary {
   implicit val cdsClaimantDetailsSummary: CdsClaimantDetailsSummary               = new CdsClaimantDetailsSummary
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
-  implicit val contactDetailsSummary: ContactDetailsSummary                       = new ContactDetailsSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 

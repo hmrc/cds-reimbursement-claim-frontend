@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
+import cats.{Applicative, Eq}
 import cats.data.NonEmptyList
 import cats.syntax.all._
 import julienrf.json.derived
@@ -24,10 +24,10 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMRNsClaimsAnswer, DeclarantEoriNumberAnswer, ImporterEoriNumberAnswer, _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DisplayDeclaration, EstablishmentAddress}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-
 import java.util.UUID
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, NamePhoneEmail, PhoneNumber}
 
 final case class DraftClaim(
   id: UUID,
@@ -35,7 +35,6 @@ final case class DraftClaim(
   movementReferenceNumber: Option[MRN] = None,
   duplicateMovementReferenceNumberAnswer: Option[MRN] = None,
   declarantTypeAnswer: Option[DeclarantTypeAnswer] = None,
-  detailsRegisteredWithCdsAnswer: Option[DetailsRegisteredWithCdsAnswer] = None,
   mrnContactDetailsAnswer: Option[MrnContactDetails] = None,
   mrnContactAddressAnswer: Option[ContactAddress] = None,
   bankAccountDetailsAnswer: Option[BankAccountDetails] = None,
@@ -71,6 +70,13 @@ final case class DraftClaim(
   def hasNorthernIrelandBasisOfClaim: Boolean =
     basisOfClaimAnswer.exists(BasisOfClaims.northernIreland.contains(_))
 
+  def findNonEmptyBankAccountDetails: Option[BankAccountDetails] =
+    Stream(
+      bankAccountDetailsAnswer,
+      displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.consigneeBankDetails)),
+      displayDeclaration.flatMap(_.displayResponseDetail.maskedBankDetails.flatMap(_.declarantBankDetails))
+    ).find(_.nonEmpty).flatten
+
   object MRNs extends DraftClaim.LeadAndAssociatedItems(movementReferenceNumber, associatedMRNsAnswer) {
 
     def apply(): List[MRN] = list
@@ -103,10 +109,47 @@ final case class DraftClaim(
       claimedReimbursementsAnswer.toList ++ associatedMRNsClaimsAnswer.toList.flatMap(_.toList)
   }
 
+  def extractDetailsRegisteredWithCDS(verifiedEmail: Email): NamePhoneEmail =
+    Applicative[Option]
+      .map2(displayDeclaration, declarantTypeAnswer) { (declaration, declarantType) =>
+        declarantType match {
+          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+            val consignee = declaration.displayResponseDetail.consigneeDetails
+            val name      = consignee.map(_.legalName)
+            val phone     = consignee.flatMap(_.contactDetails.flatMap(_.telephone))
+            NamePhoneEmail(name, phone.map(PhoneNumber(_)), Some(verifiedEmail))
+          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+            val declarant = declaration.displayResponseDetail.declarantDetails
+            val name      = declarant.legalName
+            val phone     = declarant.contactDetails.flatMap(_.telephone)
+            NamePhoneEmail(Some(name), phone.map(PhoneNumber(_)), Some(verifiedEmail))
+        }
+      }
+      .getOrElse(NamePhoneEmail())
+
+  def extractEstablishmentAddress: Option[EstablishmentAddress] =
+    Applicative[Option]
+      .map2(displayDeclaration, declarantTypeAnswer) { (declaration, declarantType) =>
+        declarantType match {
+          case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
+            declaration.displayResponseDetail.consigneeDetails.map(_.establishmentAddress)
+          case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
+            Some(declaration.displayResponseDetail.declarantDetails.establishmentAddress)
+        }
+      }
+      .flatten
+
   def isComplete: Boolean = {
+
+    def findBankAccountDetails = Stream(
+      bankAccountDetailsAnswer,
+      displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.consigneeBankDetails)),
+      displayDeclaration.flatMap(_.displayResponseDetail.bankDetails.flatMap(_.declarantBankDetails))
+    ).find(_.nonEmpty).flatten
 
     def isSingleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
@@ -116,6 +159,7 @@ final case class DraftClaim(
 
     def isMultipleJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&
         DeclarantTypeAnswer.validator.validate(declarantTypeAnswer).isValid &&
@@ -126,6 +170,7 @@ final case class DraftClaim(
 
     def isScheduledJourneyComplete: Boolean =
       SupportingEvidencesAnswer.validator.validate(supportingEvidencesAnswer).isValid &&
+        BankAccountDetails.validator.validate(findBankAccountDetails).isValid &&
         ClaimedReimbursementsAnswer.validator.validate(claimedReimbursementsAnswer).isValid &&
         CommodityDetailsAnswer.validator.validate(commoditiesDetailsAnswer).isValid &&
         BasisOfClaimAnswer.validator.validate(basisOfClaimAnswer).isValid &&

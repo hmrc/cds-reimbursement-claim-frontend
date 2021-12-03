@@ -186,10 +186,9 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(),
-          routes.EnterDetailsRegisteredWithCdsController.enterDetailsRegisteredWithCds()
+          baseRoutes.IneligibleController.ineligible()
         )
       }
-
     }
 
     "handle submit requests" when {

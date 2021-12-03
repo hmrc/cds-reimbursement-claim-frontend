@@ -16,14 +16,29 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import cats.Id
+import cats.{Eq, Id}
 import cats.implicits._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
-)
+) {
+
+  def getConsigneeEori: Option[Eori] =
+    displayResponseDetail.consigneeDetails.map(_.consigneeEORI).map(Eori.apply)
+
+  def getDeclarantEori: Eori =
+    Eori(displayResponseDetail.declarantDetails.declarantEORI)
+
+  def getNdrcDetailsList: Option[List[NdrcDetails]] =
+    displayResponseDetail.ndrcDetails
+
+  def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
+    displayResponseDetail.ndrcDetails.flatMap(_.find(_.taxType === taxType))
+
+}
 
 object DisplayDeclaration {
 
@@ -95,4 +110,6 @@ object DisplayDeclaration {
   }
 
   implicit val format: OFormat[DisplayDeclaration] = Json.format[DisplayDeclaration]
+
+  implicit val equality: Eq[DisplayDeclaration] = Eq.fromUniversalEquals[DisplayDeclaration]
 }
