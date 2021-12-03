@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.syntax.eq._
 import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
@@ -26,7 +25,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnJourney.MrnImporter
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, YesNo}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 trait SubmitRoutes extends Product with Serializable {
   val journeyBindable: JourneyBindable
@@ -100,29 +98,6 @@ trait JourneyTypeRoutes extends Product with Serializable {
 
   def nextPageForCheckDuplicateDeclarationDetails(): Call =
     claimRoutes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journeyBindable)
-
-  def nextPageForCommoditiesDetails(isAmend: Boolean): Call =
-    isAmend match {
-      case true  => claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswers(journeyBindable)
-      case false =>
-        if (journeyBindable === JourneyBindable.Scheduled) {
-          claimRoutes.SelectDutyTypesController.showDutyTypes()
-        } else if (journeyBindable === JourneyBindable.Multiple) {
-          claimRoutes.SelectMultipleDutiesController.selectDuties(1)
-        } else {
-          claimRoutes.SelectDutiesController.selectDuties()
-        }
-    }
-
-  def nextPageForAddClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService): Call =
-    answer match {
-      case Yes =>
-        claimRoutes.EnterContactDetailsMrnController.enterMrnContactDetails(journeyBindable)
-      case No  =>
-        if (featureSwitch.NorthernIreland.isEnabled())
-          claimRoutes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journeyBindable)
-        else claimRoutes.SelectBasisForClaimController.selectBasisForClaim(journeyBindable)
-    }
 
   def nextPageForMrnContactDetails(isChange: Boolean): Call =
     if (isChange) claimRoutes.CheckContactDetailsMrnController.show(journeyBindable)

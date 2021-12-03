@@ -22,7 +22,7 @@ import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
@@ -90,7 +90,10 @@ class CheckContactDetailsMrnController @Inject() (
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
-            answer => Redirect(router.nextPageForAddClaimantDetails(answer, featureSwitch))
+            {
+              case Yes => Redirect(routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey))
+              case No  => nextPageForClaimantDetails(fillingOutClaim, router, featureSwitch)
+            }
           )
       }
     }
@@ -107,12 +110,7 @@ class CheckContactDetailsMrnController @Inject() (
               BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
             },
             {
-              case Yes =>
-                Redirect(
-                  router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                    nextPageForChangeClaimantDetails(Yes, featureSwitch)
-                  )
-                )
+              case Yes => nextPageForClaimantDetails(fillingOutClaim, router, featureSwitch)
               case No  =>
                 val updatedClaim = FillingOutClaim.from(fillingOutClaim)(
                   _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
@@ -122,12 +120,7 @@ class CheckContactDetailsMrnController @Inject() (
                   .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                   .fold(
                     e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
-                    _ =>
-                      Redirect(
-                        router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-                          nextPageForChangeClaimantDetails(No, featureSwitch)
-                        )
-                      )
+                    _ => Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
                   )
             }
           )
@@ -220,17 +213,18 @@ class CheckContactDetailsMrnController @Inject() (
       FormError(fe.key, newMsgs)
     })
 
-  def nextPageForChangeClaimantDetails(answer: YesNo, featureSwitch: FeatureSwitchService)(implicit
-    journey: JourneyBindable
-  ): Call =
-    answer match {
-      case Yes =>
+  private def nextPageForClaimantDetails(
+    fillingOutClaim: FillingOutClaim,
+    router: ReimbursementRoutes,
+    featureSwitch: FeatureSwitchService
+  )(implicit journey: JourneyBindable): Result =
+    Redirect(
+      router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
         if (featureSwitch.NorthernIreland.isEnabled())
           routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
         else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
-      case No  =>
-        routes.CheckContactDetailsMrnController.addDetailsShow(journey)
-    }
+      )
+    )
 }
 
 object CheckContactDetailsMrnController {
