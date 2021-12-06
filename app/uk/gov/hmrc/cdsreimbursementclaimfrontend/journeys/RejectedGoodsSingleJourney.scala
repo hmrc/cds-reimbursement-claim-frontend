@@ -182,17 +182,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       case _ => Left("basisOfClaim.not_matching")
     }
 
-  /** Overwrites basisOfClaim with SpecialCircumstances enum value. */
-  def forceSubmitBasisOfClaimSpecialCircumstances(
-    basisOfClaimSpecialCircumstances: String
-  ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(
-        basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-        basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
-      )
-    )
-
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(methodOfDisposal = Some(methodOfDisposal))
@@ -202,25 +191,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     new RejectedGoodsSingleJourney(
       answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
     )
-
-  def selectTaxCodeForReimbursement(taxCode: TaxCode): Either[String, RejectedGoodsSingleJourney] =
-    answers.displayDeclaration match {
-      case None => Left("selectTaxCodeForReimbursement.missingDisplayDeclaration")
-
-      case Some(_) =>
-        if (getNdrcDetailsFor(taxCode).isDefined) {
-          val newReimbursementClaims = answers.reimbursementClaims match {
-            case None                      => Map(taxCode -> None)
-            case Some(reimbursementClaims) =>
-              reimbursementClaims.get(taxCode) match {
-                case None => reimbursementClaims + (taxCode -> None)
-                case _    => reimbursementClaims
-              }
-          }
-          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
-        } else
-          Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
-    }
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {

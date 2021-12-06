@@ -24,8 +24,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import cats.data.Validated
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
+import org.scalacheck.Gen
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
@@ -138,6 +139,7 @@ class RejectedGoodsSingleJourneySpec
           journey
             .submitDisplayDeclaration(exampleDisplayDeclaration)
         modifiedJourney.answers.displayDeclaration    shouldBe Some(exampleDisplayDeclaration)
+        modifiedJourney.answers.reimbursementClaims   shouldBe None
         modifiedJourney.isComplete                    shouldBe false
         modifiedJourney.isCompleteReimbursementClaims shouldBe false
         modifiedJourney.isCompleteSupportingEvidences shouldBe true
@@ -243,6 +245,151 @@ class RejectedGoodsSingleJourneySpec
           .submitDeclarantEoriNumber(yetAnotherExampleEori)
 
       journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+    }
+
+    "submit contact details" in {
+      forAll(ContactDetailsGen.genMrnContactDetails) { contactDetails =>
+        val journey =
+          RejectedGoodsSingleJourney
+            .empty(exampleEori)
+            .submitContactDetails(contactDetails)
+
+        journey.answers.contactDetails shouldBe Some(contactDetails)
+      }
+    }
+
+    "change contact details" in {
+      forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
+        val modifiedJourney = journey.submitContactDetails(contactDetails)
+
+        modifiedJourney.isComplete                     shouldBe true
+        modifiedJourney.toOutput.map(_.contactDetails) shouldBe Right(contactDetails)
+      }
+    }
+
+    "submit contact address" in {
+      // TODO
+    }
+
+    "change contact address" in {
+      // TODO
+    }
+
+    "submit basis of claim" in {
+      //TODO
+    }
+
+    "change basis of claim" in {
+      forAll(completeJourneyGen, Gen.oneOf(BasisOfRejectedGoodsClaim.allButSpecialCircumstances)) {
+        (journey, basisOfClaim) =>
+          val modifiedJourney = journey.submitBasisOfClaim(basisOfClaim)
+
+          modifiedJourney.isComplete                   shouldBe true
+          modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Right(basisOfClaim)
+      }
+    }
+
+    "change basis of claim if special circumstances" in {
+      forAll(completeJourneyGenWithoutSpecialCircumstances) { journey =>
+        val modifiedJourney = journey.submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+
+        modifiedJourney.isComplete                   shouldBe false
+        modifiedJourney.toOutput.map(_.basisOfClaim) shouldBe Left(
+          "basisOfClaimSpecialCircumstances must be defined when basisOfClaim value is SpecialCircumstances" :: Nil
+        )
+      }
+    }
+
+    "submit basis of claim special circumstances details" in {
+      //TODO
+    }
+
+    "change basis of claim special circumstances details" in {
+      //TODO
+    }
+
+    "submit method of disposal" in {
+      // TODO
+    }
+
+    "change method of disposal" in {
+      // TODO
+    }
+
+    "submit details of rejected goods" in {
+      // TODO
+    }
+
+    "change details of rejected goods" in {
+      // TODO
+    }
+
+    "select valid tax codes for reimburesement when none yet selected" in {
+      // TODO test when all selected tax codes are in the ACC14
+    }
+
+    "replace valid tax codes for reimburesement" in {
+      // TODO replace previous selection with new valid selection
+    }
+
+    "select invalid tax codes for reimburesement" in {
+      // TODO test when some of the selected tax codes are NOT in the ACC14
+    }
+
+    "change tax code for reimburesement with the same set" in {
+      // TODO
+    }
+
+    "change tax code for reimburesement with the new valid set" in {
+      // TODO test if already provided amounts has been preserved
+    }
+
+    "change tax code for reimburesement with the new invalid set" in {
+      // TODO
+    }
+
+    "submit valid amount for selected tax code" in {
+      // TODO
+    }
+
+    "submit valid amout for wrong tax code" in {
+      // TODO
+    }
+
+    "submit invalid amount for selected tax code" in {
+      // TODO
+    }
+
+    "submit invalid amout for wrong tax code" in {
+      // TODO
+    }
+
+    "change to valid amount for selected tax code" in {
+      // TODO
+    }
+
+    "change to invalid amount for selected tax code" in {
+      // TODO
+    }
+
+    "change to valid amount for wrong tax code" in {
+      // TODO
+    }
+
+    "submit inspection date" in {
+      // TODO
+    }
+
+    "change inspection date" in {
+      // TODO
+    }
+
+    "submit inspection address" in {
+      // TODO
+    }
+
+    "change inspection address" in {
+      // TODO
     }
 
     "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
