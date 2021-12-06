@@ -268,7 +268,12 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit contact address" in {
-      // TODO
+      forAll(ContactAddressGen.genContactAddress) { contactAddress =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitContactAddress(contactAddress)
+
+        journey.answers.contactAddress shouldBe Some(contactAddress)
+
+      }
     }
 
     "change contact address" in {
