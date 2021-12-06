@@ -321,11 +321,19 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit method of disposal" in {
-      // TODO
+      forAll(Gen.oneOf(MethodOfDisposal.all)) { methodOfDisposal =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitMethodOfDisposal(methodOfDisposal)
+        journey.answers.methodOfDisposal shouldBe Some(methodOfDisposal)
+      }
     }
-
+    
     "change method of disposal" in {
-      // TODO
+      forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.all)) { (journey, methodOfDisposal) =>
+        val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
+
+        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.toOutput.map(_.methodOfDisposal) shouldBe Right(methodOfDisposal)
+      }
     }
 
     "submit details of rejected goods" in {
