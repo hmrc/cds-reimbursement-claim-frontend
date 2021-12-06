@@ -326,7 +326,7 @@ class RejectedGoodsSingleJourneySpec
         journey.answers.methodOfDisposal shouldBe Some(methodOfDisposal)
       }
     }
-    
+
     "change method of disposal" in {
       forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.all)) { (journey, methodOfDisposal) =>
         val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
@@ -337,34 +337,42 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit details of rejected goods" in {
-      // TODO
+      forAll(Gen.alphaStr) { rejectedGoodsDetails =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitDetailsOfRejectedGoods(rejectedGoodsDetails)
+        journey.answers.detailsOfRejectedGoods shouldBe Some(rejectedGoodsDetails)
+      }
     }
 
     "change details of rejected goods" in {
-      // TODO
+      forAll(completeJourneyGen, Gen.alphaStr) { (journey, rejectedGoodsDetails) =>
+        val modifiedJourney = journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails)
+
+        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.toOutput.map(_.detailsOfRejectedGoods) shouldBe Right(rejectedGoodsDetails)
+      }
     }
 
-    "select valid tax codes for reimburesement when none yet selected" in {
+    "select valid tax codes for reimbursement when none yet selected" in {
       // TODO test when all selected tax codes are in the ACC14
     }
 
-    "replace valid tax codes for reimburesement" in {
+    "replace valid tax codes for reimbursement" in {
       // TODO replace previous selection with new valid selection
     }
 
-    "select invalid tax codes for reimburesement" in {
+    "select invalid tax codes for reimbursement" in {
       // TODO test when some of the selected tax codes are NOT in the ACC14
     }
 
-    "change tax code for reimburesement with the same set" in {
+    "change tax code for reimbursement with the same set" in {
       // TODO
     }
 
-    "change tax code for reimburesement with the new valid set" in {
+    "change tax code for reimbursement with the new valid set" in {
       // TODO test if already provided amounts has been preserved
     }
 
-    "change tax code for reimburesement with the new invalid set" in {
+    "change tax code for reimbursement with the new invalid set" in {
       // TODO
     }
 
@@ -372,7 +380,7 @@ class RejectedGoodsSingleJourneySpec
       // TODO
     }
 
-    "submit valid amout for wrong tax code" in {
+    "submit valid amount for wrong tax code" in {
       // TODO
     }
 
@@ -380,7 +388,7 @@ class RejectedGoodsSingleJourneySpec
       // TODO
     }
 
-    "submit invalid amout for wrong tax code" in {
+    "submit invalid amount for wrong tax code" in {
       // TODO
     }
 
