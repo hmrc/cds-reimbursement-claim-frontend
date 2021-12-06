@@ -353,7 +353,7 @@ class EnterMultipleClaimsControllerSpec
           mrn.value
         )
       }
-    elements.eachText() should contain allElementsOf expectedHeaders
+    elements.text() should contain allElementsOf expectedHeaders
   }
 
   def assertAllClaimValuesAreDisplayed(document: Document, claimsList: List[List[ClaimedReimbursement]])(implicit
@@ -365,7 +365,7 @@ class EnterMultipleClaimsControllerSpec
       amounts.flatMap(_.map(_.toPoundSterlingString)) ++
         amounts.map(_.sum.toPoundSterlingString) ++
         Seq(amounts.map(_.sum).sum.toPoundSterlingString)
-    elements.eachText() should contain allElementsOf expectedValues
+    elements.text() should contain allElementsOf expectedValues
   }
 
   "EnterMultipleClaimsController.checkClaimSummary" must {
