@@ -272,16 +272,23 @@ class RejectedGoodsSingleJourneySpec
         val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitContactAddress(contactAddress)
 
         journey.answers.contactAddress shouldBe Some(contactAddress)
-
       }
     }
 
     "change contact address" in {
-      // TODO
+      forAll(completeJourneyGen, ContactAddressGen.genContactAddress) {(journey, contactAddress) =>
+        val modifiedJourney = journey.submitContactAddress(contactAddress)
+
+        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.toOutput.map(_.contactAddress) shouldBe Right(contactAddress)
+      }
     }
 
     "submit basis of claim" in {
-      //TODO
+      forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.all)) { basisOfClaim =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitBasisOfClaim(basisOfClaim)
+        journey.answers.basisOfClaim shouldBe Some(basisOfClaim)
+      }
     }
 
     "change basis of claim" in {
