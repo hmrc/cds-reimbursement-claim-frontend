@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.implicits.{catsSyntaxApply, catsSyntaxTuple2Semigroupal}
+import cats.implicits.catsSyntaxApply
 import org.jsoup.nodes
 import play.api.test.FakeRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
@@ -25,16 +25,20 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectBasisForClaimController.selectBasisForClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaims, DeclarantTypeAnswers, ReimbursementMethodAnswer, TypeOfClaimAnswer}
 
-class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
+class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
 
   "The CYA page" should {
 
     "display answer summaries for the Single journey" in {
-      val (session, claim) = genData(TypeOfClaimAnswer.Individual)
+      val (session, claim)                              = genData(TypeOfClaimAnswer.Individual)
+      val maybeFillingOutClaim: Option[FillingOutClaim] = session.journeyStatus.collect {
+        case fillingOutClaim: FillingOutClaim => fillingOutClaim
+      }
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -53,12 +57,9 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
           headers   should contain allElementsOf (Seq(
             claim.basisOfClaimAnswer *> Some(s"$checkYourAnswersKey.basis.h2"),
             claim.displayDeclaration *> Some(s"$checkYourAnswersKey.declaration-details.h2"),
-            claim.mrnContactAddressAnswer *> claim.mrnContactDetailsAnswer *> Some(
-              s"$checkYourAnswersKey.contact-details.h2"
-            )
+            claim.extractEstablishmentAddress *> Some(s"$checkYourAnswersKey.claimant-details.h2")
           ).flatMap(_.toList) ++ reimbursementMethodHeaders(claim.reimbursementMethodAnswer) ++ Seq(
             s"$checkYourAnswersKey.claimant-type.h2",
-            s"$checkYourAnswersKey.claimant-details.h2",
             s"$checkYourAnswersKey.commodity-details.h2",
             s"$checkYourAnswersKey.attached-documents.h2",
             s"$checkYourAnswersKey.reference-number.h2",
@@ -142,53 +143,10 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
                 }
               )
             }
-            .flatMap(_.toList) ++ (claim.mrnContactDetailsAnswer, claim.mrnContactAddressAnswer)
-            .mapN { (details, address) =>
-              Seq(
-                Some((messages("claimant-details.contact.details"), details.fullName)),
-                details.phoneNumber.map { phoneNumber =>
-                  (messages("claimant-details.contact.details"), phoneNumber.value)
-                },
-                Some((messages("claimant-details.contact.details"), details.emailAddress.value)),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.line1
-                  )
-                ),
-                address.line2.map { line2 =>
-                  (
-                    messages("claimant-details.contact.address"),
-                    line2
-                  )
-                },
-                address.line3.map { line3 =>
-                  (
-                    messages("claimant-details.contact.address"),
-                    line3
-                  )
-                },
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.line4
-                  )
-                ),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    address.postcode
-                  )
-                ),
-                Some(
-                  (
-                    messages("claimant-details.contact.address"),
-                    messages(address.country.messageKey)
-                  )
-                )
-              ).flatMap(_.toList)
-            }
-            .getOrElse(Seq.empty)
+            .flatMap(_.toList) ++ contactDetailsFromCDS(
+            claim,
+            maybeFillingOutClaim.map(_.signedInUserDetails.verifiedEmail)
+          )
         }
       )
     }
@@ -209,13 +167,14 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
     bankDetails: Option[BankAccountDetails]
   ): Seq[(String, String)] =
     (reimbursementMethodAnswer, bankDetails) match {
-      case (Some(CurrentMonthAdjustment), _)                     =>
+      case (Some(CurrentMonthAdjustment), _) =>
         Seq(
           (
             messages(s"$checkYourAnswersKey.reimbursement-method.label"),
             messages(s"$checkYourAnswersKey.reimbursement-method.cma")
           )
         )
+
       case (Some(BankAccountTransfer), Some(bankAccountDetails)) =>
         Seq(
           (
@@ -223,8 +182,11 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec {
             messages(s"$checkYourAnswersKey.reimbursement-method.bt")
           )
         ) ++ bankAccountDetailsSummaries(bankAccountDetails)
-      case (None, Some(bankAccountDetails))                      =>
+
+      case (None, Some(bankAccountDetails)) =>
         bankAccountDetailsSummaries(bankAccountDetails)
+      case _                                =>
+        Seq.empty
     }
 
   private def bankAccountDetailsSummaries(bankAccountDetails: BankAccountDetails): Seq[(String, String)] = Seq(

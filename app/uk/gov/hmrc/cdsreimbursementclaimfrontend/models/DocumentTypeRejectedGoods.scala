@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer._
+import cats.Eq
+import julienrf.json.derived
+import play.api.libs.json._
 
-object DeclarantTypeAnswers {
+sealed trait DocumentTypeRejectedGoods
 
-  val all: IndexedSeq[DeclarantTypeAnswer] =
-    IndexedSeq[DeclarantTypeAnswer](
-      Importer,
-      AssociatedWithImporterCompany,
-      AssociatedWithRepresentativeCompany
-    )
+object DocumentTypeRejectedGoods {
 
-  def apply(index: Int): DeclarantTypeAnswer =
-    all(index)
+  case object Foo extends DocumentTypeRejectedGoods
 
-  def indexOf(answer: DeclarantTypeAnswer): Int =
-    all.indexOf(answer)
+  val all: Set[DocumentTypeRejectedGoods] =
+    Set(Foo)
 
-  def size: Int = all.size
+  implicit val equality: Eq[DocumentTypeRejectedGoods] =
+    Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
+
+  implicit val format: OFormat[DocumentTypeRejectedGoods] =
+    derived.oformat[DocumentTypeRejectedGoods]()
 }

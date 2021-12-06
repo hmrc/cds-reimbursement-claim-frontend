@@ -18,12 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import julienrf.json.derived
-import play.api.data.Forms.{nonEmptyText, number, optional, mapping => formMapping}
-import play.api.data.validation._
-import play.api.data.{Form, Forms, Mapping}
 import play.api.i18n.Messages
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.formatters.{BooleanFormatter, CountryFormatter}
 
 final case class ContactAddress(
   line1: String,
@@ -35,51 +31,6 @@ final case class ContactAddress(
 )
 
 object ContactAddress {
-
-  val addressLineAllowedCharacters: List[Char] =
-    ('A' to 'Z').toList ::: ('a' to 'z').toList ::: ('0' to '9').toList :::
-      List(' ', '-', ',', '.', '&', '\'')
-
-  val addressLineMaxLength: Int = 35
-
-  // address is selected by the index of the address in the given list
-  def addressSelectForm(addresses: List[ContactAddress]): Form[ContactAddress] =
-    Form(
-      formMapping(
-        "address-select" -> number
-          .verifying("invalid", i => i >= 0 && i < addresses.size)
-          .transform[ContactAddress](addresses.apply, addresses.indexOf(_))
-      )(identity)(Some(_))
-    )
-
-  val addressLineMapping: Mapping[String] = {
-
-    def validateAddressLine(s: String): ValidationResult =
-      if (s.length > addressLineMaxLength) Invalid("error.tooLong")
-      else if (!s.forall(addressLineAllowedCharacters.contains(_))) Invalid("error.pattern")
-      else Valid
-
-    nonEmptyText
-      .transform[String](_.trim, identity)
-      .verifying(Constraint[String](validateAddressLine(_)))
-  }
-
-  val addressFormMapping: Mapping[ContactAddress] =
-    formMapping(
-      "address-line1" -> addressLineMapping,
-      "address-line2" -> optional(addressLineMapping),
-      "address-line3" -> optional(addressLineMapping),
-      "address-line4" -> addressLineMapping,
-      "postcode"      -> Postcode.mapping,
-      "countryCode"   -> Forms.of(CountryFormatter)
-    )(ContactAddress.apply)(ContactAddress.unapply)
-
-  val isUkForm: Form[Boolean] =
-    Form(
-      formMapping(
-        "isUk" -> Forms.of(BooleanFormatter)
-      )(identity)(Some(_))
-    )
 
   implicit class AddressOps(private val a: ContactAddress) extends AnyVal {
 

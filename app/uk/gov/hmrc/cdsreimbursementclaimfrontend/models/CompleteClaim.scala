@@ -21,7 +21,6 @@ import cats.data.NonEmptyList
 import cats.data.Validated.Valid
 import cats.syntax.all._
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterDetailsRegisteredWithCdsController.{consigneeToClaimantDetails, declarantToClaimantDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer.{Individual, Multiple, Scheduled}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantEoriNumberAnswer, _}
@@ -84,18 +83,6 @@ final case class CompleteClaim(
 
 object CompleteClaim {
 
-  def detailsRegisteredWithCds(
-    declarant: DeclarantTypeAnswer,
-    declaration: DisplayDeclaration,
-    email: Email
-  ): DetailsRegisteredWithCdsAnswer =
-    declarant match {
-      case DeclarantTypeAnswer.Importer | DeclarantTypeAnswer.AssociatedWithImporterCompany =>
-        consigneeToClaimantDetails(declaration, email)
-      case DeclarantTypeAnswer.AssociatedWithRepresentativeCompany                          =>
-        declarantToClaimantDetails(declaration, email)
-    }
-
   def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, CompleteClaim] =
     draftClaim match {
       case DraftClaim(
@@ -104,7 +91,6 @@ object CompleteClaim {
             maybeMrn,
             maybeDuplicateMovementReferenceNumberAnswer,
             maybeDraftDeclarantTypeAnswer,
-            _,
             maybeDraftMrnContactDetails,
             maybeDraftMrnContactAddress,
             maybeBankAccountDetails,
@@ -155,7 +141,7 @@ object CompleteClaim {
               mrn,
               maybeDuplicateMovementReferenceNumberAnswer,
               declarant,
-              detailsRegisteredWithCds(declarant, declaration, verifiedEmail),
+              DetailsRegisteredWithCdsAnswer(declarant, declaration, verifiedEmail),
               maybeDraftMrnContactDetails,
               maybeDraftMrnContactAddress,
               basisOfClaims,

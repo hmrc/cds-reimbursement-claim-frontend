@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
+import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 
 final case class EstablishmentAddress(
   addressLine1: String,
-  addressLine2: Option[String],
-  addressLine3: Option[String],
-  postalCode: Option[String],
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  postalCode: Option[String] = None,
   countryCode: String
 )
 
@@ -31,4 +33,15 @@ object EstablishmentAddress {
 
   implicit val format: OFormat[EstablishmentAddress] =
     derived.oformat[EstablishmentAddress]()
+
+  implicit val eq: Eq[EstablishmentAddress] = Eq.fromUniversalEquals
+
+  def fromContactAddress(contactAddress: ContactAddress): EstablishmentAddress =
+    EstablishmentAddress(
+      contactAddress.line1,
+      contactAddress.line2,
+      contactAddress.line3,
+      Some(contactAddress.postcode),
+      contactAddress.country.code
+    )
 }

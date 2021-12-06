@@ -27,7 +27,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CommoditiesDe
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genContactAddressOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactDetailsGen.genMrnContactDetailsOpt
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DeclarantTypeAnswerGen.arbitraryDeclarantTypeAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DetailsRegisteredWithCdsAnswerGen.arbitraryDetailsRegisteredWithCds
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen.arbitraryDisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DutiesSelectedAnswerGen.arbitraryDutiesSelectedAnswerGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
@@ -43,31 +42,29 @@ object DraftClaimGen {
 
   def genValidDraftClaim(typeOfClaim: TypeOfClaimAnswer): Gen[DraftClaim] =
     for {
-      mrn                            <- genMRN
-      declarantType                  <- arbitraryDeclarantTypeAnswer.arbitrary
-      detailsRegisteredWithCdsAnswer <- arbitraryDetailsRegisteredWithCds.arbitrary
-      maybeContactDetails            <- genMrnContactDetailsOpt
-      maybeContactAddressAnswer      <- genContactAddressOpt
-      bankAccountDetailsAnswer       <- arbitraryBankAccountDetailsGen.arbitrary
-      bankAccountTypeAnswer          <- gen[BankAccountType].arbitrary
-      basisOfClaimAnswer             <- arbitraryBasisOfClaimAnswer.arbitrary
-      supportingEvidencesAnswer      <- arbitrarySupportingEvidenceAnswer.arbitrary
-      dutiesSelectedAnswer           <- arbitraryDutiesSelectedAnswerGen.arbitrary
-      commoditiesDetailsAnswer       <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
-      whetherNorthernIrelandClaim    <- arbitraryYesNo.arbitrary
-      displayDeclaration             <- arbitraryDisplayDeclaration.arbitrary
-      eori                           <- arbitraryEori.arbitrary
-      claimedReimbursementsAnswer    <- arbitraryClaimedReimbursementsAnswer.arbitrary
-      reimbursementMethodAnswer      <- arbitraryReimbursementMethodAnswer.arbitrary
-      scheduledDocumentAnswer        <- genScheduledDocumentAnswer(typeOfClaim)
-      associatedMRNsAnswer           <- genAssociatedMrnsAnswer(typeOfClaim)
-      associatedMRNsClaimsAnswer     <- genAssociatedMRNsClaimsAnswer(typeOfClaim)
+      mrn                         <- genMRN
+      declarantType               <- arbitraryDeclarantTypeAnswer.arbitrary
+      maybeContactDetails         <- genMrnContactDetailsOpt
+      maybeContactAddressAnswer   <- genContactAddressOpt
+      bankAccountDetailsAnswer    <- arbitraryBankAccountDetailsGen.arbitrary
+      bankAccountTypeAnswer       <- gen[BankAccountType].arbitrary
+      basisOfClaimAnswer          <- arbitraryBasisOfClaimAnswer.arbitrary
+      supportingEvidencesAnswer   <- arbitrarySupportingEvidenceAnswer.arbitrary
+      dutiesSelectedAnswer        <- arbitraryDutiesSelectedAnswerGen.arbitrary
+      commoditiesDetailsAnswer    <- arbitraryCompleteCommodityDetailsAnswer.arbitrary
+      whetherNorthernIrelandClaim <- arbitraryYesNo.arbitrary
+      displayDeclaration          <- arbitraryDisplayDeclaration.arbitrary
+      eori                        <- arbitraryEori.arbitrary
+      claimedReimbursementsAnswer <- arbitraryClaimedReimbursementsAnswer.arbitrary
+      reimbursementMethodAnswer   <- arbitraryReimbursementMethodAnswer.arbitrary
+      scheduledDocumentAnswer     <- genScheduledDocumentAnswer(typeOfClaim)
+      associatedMRNsAnswer        <- genAssociatedMrnsAnswer(typeOfClaim)
+      associatedMRNsClaimsAnswer  <- genAssociatedMRNsClaimsAnswer(typeOfClaim)
     } yield DraftClaim(
       id = UUID.randomUUID(),
       typeOfClaim = typeOfClaim.some,
       movementReferenceNumber = mrn.some,
       declarantTypeAnswer = declarantType.some,
-      detailsRegisteredWithCdsAnswer = detailsRegisteredWithCdsAnswer.some,
       mrnContactDetailsAnswer = maybeContactDetails,
       mrnContactAddressAnswer = maybeContactAddressAnswer,
       bankAccountDetailsAnswer = bankAccountDetailsAnswer.some,

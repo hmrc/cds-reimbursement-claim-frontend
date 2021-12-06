@@ -16,10 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
+import cats.Eq
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+
 final case class NamePhoneEmail(
-  name: Option[String],
-  phoneNumber: Option[PhoneNumber],
-  email: Option[Email]
+  name: Option[String] = None,
+  phoneNumber: Option[PhoneNumber] = None,
+  email: Option[Email] = None
 ) {
   def nonEmpty(): Boolean = name.isDefined || phoneNumber.isDefined || email.isDefined
+}
+
+object NamePhoneEmail {
+  implicit val eq: Eq[NamePhoneEmail] = Eq.fromUniversalEquals
+
+  def fromMrnContactDetails(mrnContactDetails: MrnContactDetails): NamePhoneEmail =
+    NamePhoneEmail(
+      Some(mrnContactDetails.fullName),
+      mrnContactDetails.phoneNumber,
+      Some(mrnContactDetails.emailAddress)
+    )
 }
