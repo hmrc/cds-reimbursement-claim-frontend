@@ -1112,6 +1112,14 @@ postcode.error.invalidCharacters=Enter a valid postcode
 countryCode.error.required=Enter a country
 
 #===================================================
+#  CHOOSE CLAIM TYPE - PAGE
+#===================================================
+choose-claim-type.title=Choose type of claim
+choose-claim-type.c285.title=Repayment of import duties and VAT overpayment (C285)
+choose-claim-type.ce1179.title=Repayment or remission of import duties and VAT on rejected imports (C&E1179)
+choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
+
+#===================================================
 #  COUNTRIES - START
 #===================================================
 countryCode.placeholder=Select country
