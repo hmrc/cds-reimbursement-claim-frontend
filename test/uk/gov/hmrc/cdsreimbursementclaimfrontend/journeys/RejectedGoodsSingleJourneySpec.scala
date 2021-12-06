@@ -276,10 +276,10 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "change contact address" in {
-      forAll(completeJourneyGen, ContactAddressGen.genContactAddress) {(journey, contactAddress) =>
+      forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
         val modifiedJourney = journey.submitContactAddress(contactAddress)
 
-        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.isComplete                     shouldBe true
         modifiedJourney.toOutput.map(_.contactAddress) shouldBe Right(contactAddress)
       }
     }
@@ -331,23 +331,23 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.all)) { (journey, methodOfDisposal) =>
         val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
 
-        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.isComplete                       shouldBe true
         modifiedJourney.toOutput.map(_.methodOfDisposal) shouldBe Right(methodOfDisposal)
       }
     }
 
     "submit details of rejected goods" in {
-      forAll(Gen.alphaStr) { rejectedGoodsDetails =>
+      forAll(Gen.asciiPrintableStr) { rejectedGoodsDetails =>
         val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitDetailsOfRejectedGoods(rejectedGoodsDetails)
         journey.answers.detailsOfRejectedGoods shouldBe Some(rejectedGoodsDetails)
       }
     }
 
     "change details of rejected goods" in {
-      forAll(completeJourneyGen, Gen.alphaStr) { (journey, rejectedGoodsDetails) =>
+      forAll(completeJourneyGen, Gen.asciiPrintableStr) { (journey, rejectedGoodsDetails) =>
         val modifiedJourney = journey.submitDetailsOfRejectedGoods(rejectedGoodsDetails)
 
-        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.isComplete                             shouldBe true
         modifiedJourney.toOutput.map(_.detailsOfRejectedGoods) shouldBe Right(rejectedGoodsDetails)
       }
     }
