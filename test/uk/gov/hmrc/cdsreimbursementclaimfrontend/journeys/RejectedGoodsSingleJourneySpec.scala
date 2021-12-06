@@ -20,10 +20,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-
 import RejectedGoodsSingleJourneyGenerators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import cats.data.Validated
+import cats.data.{ReaderT, Validated}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import org.scalacheck.Gen
@@ -405,7 +404,7 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit inspection date" in {
-      // TODO
+      //TODO
     }
 
     "change inspection date" in {
@@ -413,11 +412,21 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit inspection address" in {
-      // TODO
+      forAll(InspectionAddressGen.genInspectionAddress) { inspectionAddress =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitInspectionAddress(inspectionAddress)
+
+        journey.answers.inspectionAddress shouldBe Some(inspectionAddress)
+
+      }
     }
 
     "change inspection address" in {
-      // TODO
+      forAll(completeJourneyGen, InspectionAddressGen.genInspectionAddress) { (journey, inspectionAddress) =>
+        val modifiedJourney = journey.submitInspectionAddress(inspectionAddress)
+
+        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.toOutput.map(_.inspectionAddress) shouldBe Right(inspectionAddress)
+      }
     }
 
     "submit CurrentMonthAdjustment as reimbursement method when all duties are CMA eligible" in {
