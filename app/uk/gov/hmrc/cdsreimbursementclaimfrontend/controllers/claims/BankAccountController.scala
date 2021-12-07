@@ -118,7 +118,7 @@ class BankAccountController @Inject() (
                     _                  <- EitherT
                                             .liftF(
                                               updateSession(sessionStore, request)(
-                                                _.copy(journeyStatus = Some(updatedJourney))
+                                                _.copyWith(journeyStatus = Some(updatedJourney))
                                               )
                                             )
                                             .leftMap((_: Unit) => Error("could not update session"))

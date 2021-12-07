@@ -142,7 +142,7 @@ class EnterScheduledClaimControllerSpec
           )
 
           val updatedSession: SessionData =
-            session.copy(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
+            session.copyWith(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
               fillingOutClaim.copy(
                 draftClaim = draftClaim.copy(
                   selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
@@ -184,7 +184,7 @@ class EnterScheduledClaimControllerSpec
         )
 
         val updatedSession: SessionData =
-          session.copy(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
+          session.copyWith(journeyStatus = session.journeyStatus.collect { case fillingOutClaim: FillingOutClaim =>
             fillingOutClaim.copy(
               draftClaim = draftClaim.copy(
                 selectedDutyTaxCodesReimbursementAnswer = SelectedDutyTaxCodesReimbursementAnswer(
@@ -294,7 +294,7 @@ class EnterScheduledClaimControllerSpec
       selectedDutyTaxCodesReimbursementAnswer = selectedDutyTaxCodesReimbursementAnswer
     )
     (
-      SessionData.empty.copy(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim).some),
+      SessionData.empty.copyWith(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim).some),
       draftC285Claim
     )
   }

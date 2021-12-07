@@ -71,7 +71,7 @@ class ReimbursementMethodController @Inject() (
           formWithErrors => Future.successful(BadRequest(selectReimbursementMethod(formWithErrors))),
           answer => {
             val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(reimbursementMethodAnswer = Some(answer)))
-            EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+            EitherT(updateSession(sessionCache, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
               .leftMap(_ => Error("could not update session"))
               .fold(
                 logAndDisplayError("could not get reimbursement method selected "),

@@ -42,7 +42,7 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
       val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
       val draftC285Claim       = sample[DraftClaim].copy(typeOfClaim = None)
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-      val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+      val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
       JourneyExtractor.extractJourney(request) shouldBe JourneyBindable.Single
@@ -62,7 +62,7 @@ class JourneyExtractorSpec extends AnyWordSpec with Matchers {
         val authenticatedRequest = AuthenticatedRequest[AnyContent](msgReq)
         val draftC285Claim       = sample[DraftClaim].copy(typeOfClaim = Some(numberOfClaims))
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         JourneyExtractor.extractJourney(request) shouldBe journeyBindable

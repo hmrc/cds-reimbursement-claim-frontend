@@ -74,7 +74,7 @@ class SelectTypeOfClaimControllerSpec
     val eori                = sample[Eori]
     val signedInUserDetails = SignedInUserDetails(Some(email), eori, email, ContactName("Anima Amina"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    SessionData.empty.copy(journeyStatus = Some(journey))
+    SessionData.empty.copyWith(journeyStatus = Some(journey))
   }
 
   private def updateSession(sessionData: SessionData, typeOfClaim: TypeOfClaimAnswer): SessionData =
@@ -83,7 +83,7 @@ class SelectTypeOfClaimControllerSpec
         val newClaim      =
           draftClaim.copy(typeOfClaim = Some(typeOfClaim))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
 
@@ -128,7 +128,7 @@ class SelectTypeOfClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(

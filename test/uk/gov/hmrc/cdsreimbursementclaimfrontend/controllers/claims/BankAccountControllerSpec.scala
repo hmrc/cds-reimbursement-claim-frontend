@@ -109,7 +109,7 @@ class BankAccountControllerSpec
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
 
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -132,7 +132,7 @@ class BankAccountControllerSpec
     val signedInUserDetails   = sample[SignedInUserDetails]
     val journey               = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -146,7 +146,7 @@ class BankAccountControllerSpec
         val newClaim      =
           draftClaim.copy(bankAccountDetailsAnswer = Some(bankAccountDetails))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
 

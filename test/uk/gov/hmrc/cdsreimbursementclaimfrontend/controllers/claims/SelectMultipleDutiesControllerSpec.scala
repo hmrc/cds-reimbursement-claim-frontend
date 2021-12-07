@@ -133,7 +133,7 @@ class SelectMultipleDutiesControllerSpec
     val journey = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
 
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey.draftClaim,
       leadMrn :: associatedMrns
     )
@@ -187,7 +187,7 @@ class SelectMultipleDutiesControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = None))
+            mockGetSession(session.copyWith(journeyStatus = None))
           }
 
           checkIsRedirect(

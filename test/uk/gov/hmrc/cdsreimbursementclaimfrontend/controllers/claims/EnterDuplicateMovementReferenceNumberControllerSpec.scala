@@ -105,7 +105,7 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
           duplicateMovementReferenceNumberAnswer = Some(updatedMrn),
           duplicateDisplayDeclaration = Some(displayDeclaration)
         )
-      val updatedSession     = session.copy(journeyStatus = Some(claim.copy(draftClaim = updatedClaim)))
+      val updatedSession     = session.copyWith(journeyStatus = Some(claim.copy(draftClaim = updatedClaim)))
 
       inSequence {
         mockAuthWithNoRetrievals()
@@ -131,6 +131,6 @@ class EnterDuplicateMovementReferenceNumberControllerSpec
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (SessionData.empty.copy(journeyStatus = Some(journey)), journey)
+    (SessionData.empty.copyWith(journeyStatus = Some(journey)), journey)
   }
 }

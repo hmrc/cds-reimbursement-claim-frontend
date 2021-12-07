@@ -90,7 +90,7 @@ class EnterContactDetailsMrnController @Inject() (
                 FillingOutClaim.from(fillingOutClaim)(_.copy(mrnContactDetailsAnswer = Some(formOk)))
 
               val result = EitherT
-                .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                .liftF(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedClaim))))
                 .leftMap((_: Unit) => Error("could not update session"))
 
               result.fold(

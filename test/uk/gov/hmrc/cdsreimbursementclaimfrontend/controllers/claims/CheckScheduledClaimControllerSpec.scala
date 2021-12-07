@@ -199,6 +199,6 @@ class CheckScheduledClaimControllerSpec extends ControllerSpec with AuthSupport 
   def sessionWithClaim(c285Claim: DraftClaim): SessionData = {
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
-    SessionData.empty.copy(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, c285Claim).some)
+    SessionData.empty.copyWith(journeyStatus = FillingOutClaim(ggCredId, signedInUserDetails, c285Claim).some)
   }
 }

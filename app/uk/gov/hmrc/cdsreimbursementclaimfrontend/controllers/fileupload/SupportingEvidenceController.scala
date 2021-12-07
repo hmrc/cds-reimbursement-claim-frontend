@@ -134,7 +134,7 @@ class SupportingEvidenceController @Inject() (
                                 if maybeAnswers.forall(_.forall(_.uploadReference =!= uploadReference)) =>
                               EitherT(
                                 updateSession(sessionStore, request)(
-                                  _.copy(journeyStatus =
+                                  _.copyWith(journeyStatus =
                                     attachDocument(upscanUpload, upscanSuccess, maybeAnswers, fillingOutReturn).some
                                   )
                                 )
@@ -223,7 +223,7 @@ class SupportingEvidenceController @Inject() (
                 _         <-
                   EitherT(
                     updateSession(sessionStore, request)(
-                      _.copy(
+                      _.copyWith(
                         journeyStatus =
                           FillingOutClaim.from(fillingOutClaim)(_.copy(supportingEvidencesAnswer = evidences.some)).some
                       )
@@ -256,7 +256,7 @@ class SupportingEvidenceController @Inject() (
           )
 
         val result = for {
-          _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
+          _ <- EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(newJourney))))
         } yield ()
 
         result.fold(

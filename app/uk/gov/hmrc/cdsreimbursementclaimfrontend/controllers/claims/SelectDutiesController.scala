@@ -98,7 +98,7 @@ class SelectDutiesController @Inject() (
                     fillingOutClaim.draftClaim.copy(dutiesSelectedAnswer = Some(dutiesSelected))
                   val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-                  EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                  EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                     .leftMap(_ => Error("could not update session"))
                     .fold(
                       logAndDisplayError("could not get duties selected "),

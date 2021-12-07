@@ -127,7 +127,7 @@ class ScheduleOfMrnDocumentController @Inject() (
                             case Some(upscanSuccess: UpscanSuccess) =>
                               EitherT(
                                 updateSession(sessionStore, request)(
-                                  _.copy(journeyStatus = addDocument(upscanUpload, upscanSuccess, fillingOut).some)
+                                  _.copyWith(journeyStatus = addDocument(upscanUpload, upscanSuccess, fillingOut).some)
                                 )
                               )
                             case _                                  =>
@@ -165,7 +165,7 @@ class ScheduleOfMrnDocumentController @Inject() (
         val newJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(scheduledDocumentAnswer = None))
 
         val result = for {
-          _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(newJourney))))
+          _ <- EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(newJourney))))
         } yield ()
 
         result.fold(

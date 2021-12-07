@@ -78,7 +78,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -97,7 +97,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -161,7 +161,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -181,7 +181,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(

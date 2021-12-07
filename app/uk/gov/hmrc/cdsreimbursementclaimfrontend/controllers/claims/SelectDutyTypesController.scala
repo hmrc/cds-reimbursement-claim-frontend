@@ -83,7 +83,7 @@ class SelectDutyTypesController @Inject() (
                 FillingOutClaim
                   .from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = Some(updatedAnswer)))
 
-              EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              EitherT(updateSession(sessionCache, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not get duty types selected"),

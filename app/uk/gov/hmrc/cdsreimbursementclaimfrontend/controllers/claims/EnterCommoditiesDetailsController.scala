@@ -75,7 +75,7 @@ class EnterCommoditiesDetailsController @Inject() (
               val newDraftClaim  = fillingOutClaim.draftClaim.copy(commoditiesDetailsAnswer = Some(commodityDetails))
               val updatedJourney = fillingOutClaim.copy(draftClaim = newDraftClaim)
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not get commodity details"),

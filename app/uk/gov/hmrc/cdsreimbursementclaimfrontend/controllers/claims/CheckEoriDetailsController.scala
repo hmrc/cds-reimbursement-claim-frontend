@@ -107,7 +107,7 @@ class CheckEoriDetailsController @Inject() (
                   val returnErrorPage: Unit => Result = _ => errorHandler.errorResult()
 
                   def saveSession(verifiedEmail: VerifiedEmail): SessionData => SessionData =
-                    _.copy(journeyStatus = Some(emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)))
+                    _.copyWith(journeyStatus = Some(emailLens.set(fillingOutClaim)(verifiedEmail.toEmail)))
 
                   val eitherErrorOrNextPage = for {
                     maybeVerifiedEmail <-

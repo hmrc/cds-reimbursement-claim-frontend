@@ -100,7 +100,7 @@ class CheckContactDetailsMrnControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey
     )
   }
@@ -119,7 +119,7 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -252,7 +252,7 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkIsRedirect(
@@ -273,7 +273,7 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkIsRedirect(
@@ -293,7 +293,7 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkPageIsDisplayed(
@@ -320,7 +320,7 @@ class CheckContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkPageIsDisplayed(
@@ -614,7 +614,7 @@ class CheckContactDetailsMrnControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
         mockAddressLookupInitiation(Right(lookupUrl))
       }
 
@@ -629,7 +629,7 @@ class CheckContactDetailsMrnControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
         mockAddressLookupInitiation(Left(Error("Request was not accepted")))
       }
 

@@ -72,7 +72,7 @@ class StartController @Inject() (
       val result = for {
         _ <- EitherT(
                updateSession(sessionStore, request)(
-                 _.copy(
+                 _.copyWith(
                    journeyStatus = Some(
                      FillingOutClaim(
                        justSubmittedClaim.ggCredId,
@@ -186,7 +186,7 @@ class StartController @Inject() (
     )
 
     updateSession(sessionStore, request)(
-      _.copy(
+      _.copyWith(
         journeyStatus = Some(NonGovernmentGatewayJourney)
       )
     ).map {
@@ -210,7 +210,7 @@ class StartController @Inject() (
     val result = for {
       _ <- EitherT(
              updateSession(sessionStore, request)(
-               _.copy(
+               _.copyWith(
                  journeyStatus = Some(
                    FillingOutClaim(
                      ggCredId,

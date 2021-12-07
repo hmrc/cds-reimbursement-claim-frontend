@@ -77,7 +77,7 @@ class EnterDeclarantEoriNumberControllerSpec
       SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -96,7 +96,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -121,7 +121,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -143,7 +143,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -174,7 +174,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(
@@ -205,7 +205,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -241,7 +241,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(

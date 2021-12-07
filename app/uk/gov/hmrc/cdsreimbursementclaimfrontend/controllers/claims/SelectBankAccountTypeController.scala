@@ -79,7 +79,7 @@ class SelectBankAccountTypeController @Inject() (
 
               val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountTypeAnswer = Some(formOk)))
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not capture bank account type answer"),

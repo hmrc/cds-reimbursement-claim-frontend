@@ -110,7 +110,7 @@ class SelectDutyTypesControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         mockStoreSession(Right(()))
       }
 
@@ -127,7 +127,7 @@ class SelectDutyTypesControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         mockStoreSession(Right(()))
       }
 
@@ -150,7 +150,7 @@ class SelectDutyTypesControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
       }
 
       checkIsRedirect(
@@ -170,7 +170,7 @@ class SelectDutyTypesControllerSpec
 
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+        mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
       }
 
       checkPageIsDisplayed(
@@ -196,7 +196,7 @@ class SelectDutyTypesControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )

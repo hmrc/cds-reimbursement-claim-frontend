@@ -161,7 +161,7 @@ class EnterAssociatedMrnController @Inject() (
                   .map(e => logAndDisplayError("Error updating claim answers: ").apply(Error(e)))
               )
 
-            _ <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedDraftClaim.some)))
+            _ <- EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = updatedDraftClaim.some)))
                    .leftMap(logAndDisplayError(s"Error storing ${index.ordinalNumeral} MRN: "))
 
           } yield ()

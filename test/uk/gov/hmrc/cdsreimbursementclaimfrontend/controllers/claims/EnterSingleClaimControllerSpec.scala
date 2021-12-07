@@ -82,7 +82,7 @@ class EnterSingleClaimControllerSpec
       )
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey
     )
   }
@@ -110,7 +110,7 @@ class EnterSingleClaimControllerSpec
       case Some(FillingOutClaim(g, s, (draftClaim: DraftClaim))) =>
         val newClaim      = draftClaim.copy(claimedReimbursementsAnswer = Some(answer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                     => fail()
     }
 
@@ -127,7 +127,7 @@ class EnterSingleClaimControllerSpec
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
       }
 
       checkIsRedirect(
@@ -224,7 +224,7 @@ class EnterSingleClaimControllerSpec
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
       }
 
       checkIsRedirect(
@@ -298,7 +298,7 @@ class EnterSingleClaimControllerSpec
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
       }
 
       checkIsRedirect(
@@ -384,7 +384,7 @@ class EnterSingleClaimControllerSpec
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
       }
 
       checkIsRedirect(
@@ -402,7 +402,7 @@ class EnterSingleClaimControllerSpec
       val session = createSessionWithPreviousAnswers(None)._1
       inSequence {
         mockAuthWithNoRetrievals()
-        mockGetSession(session.copy(journeyStatus = None))
+        mockGetSession(session.copyWith(journeyStatus = None))
       }
 
       checkIsRedirect(
@@ -500,7 +500,7 @@ class EnterSingleClaimControllerSpec
     }
 
     "Redirect to Check Your Answers page" in {
-      val session = SessionData.empty.copy(
+      val session = SessionData.empty.copyWith(
         journeyStatus = Some(
           FillingOutClaim(
             sample[GGCredId],

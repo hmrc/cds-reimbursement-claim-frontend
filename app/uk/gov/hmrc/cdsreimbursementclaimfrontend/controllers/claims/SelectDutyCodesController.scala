@@ -84,7 +84,7 @@ class SelectDutyCodesController @Inject() (
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) = {
           val claim = from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some))
-          updateSession(sessionCache, request)(_.copy(journeyStatus = claim.some))
+          updateSession(sessionCache, request)(_.copyWith(journeyStatus = claim.some))
         }
 
         selectDutyCodesForm

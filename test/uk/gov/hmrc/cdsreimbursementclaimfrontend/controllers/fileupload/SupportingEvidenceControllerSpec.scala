@@ -56,7 +56,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
     val signedInUserDetails = SignedInUserDetails(Some(email), eori, Email(""), ContactName(""))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -268,7 +268,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val updatedAnswer               = List(updatedSupportingEvidence).toNel
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+          val updatedSession: SessionData = session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -299,7 +299,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+          val updatedSession: SessionData = session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -336,7 +336,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
 
           val updatedSession: SessionData =
-            session.copy(journeyStatus = Some(updatedJourney))
+            session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -364,7 +364,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData =
-            session.copy(journeyStatus = Some(updatedJourney))
+            session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -390,7 +390,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = None)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(updatedJourney))
+          val updatedSession: SessionData = session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -440,7 +440,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           val newJourney = journey.copy(draftClaim = newDraftClaim)
 
-          val updatedSession: SessionData = session.copy(journeyStatus = Some(newJourney))
+          val updatedSession: SessionData = session.copyWith(journeyStatus = Some(newJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -565,7 +565,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
           val updatedDraftReturn          = draftClaim.copy(supportingEvidencesAnswer = updatedAnswer)
           val updatedJourney              = journey.copy(draftClaim = updatedDraftReturn)
           val updatedSession: SessionData =
-            session.copy(journeyStatus = Some(updatedJourney))
+            session.copyWith(journeyStatus = Some(updatedJourney))
 
           inSequence {
             mockAuthWithNoRetrievals()

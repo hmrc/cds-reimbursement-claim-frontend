@@ -49,7 +49,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
     val signedInUserDetails = SignedInUserDetails(Some(email), eori, Email(""), ContactName(""))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, claim)
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey,
       claim
     )
@@ -174,7 +174,7 @@ class ScheduleOfMrnDocumentControllerSpec extends FileUploadControllerSpec {
             val updatedJourney     = journey.copy(draftClaim = updatedDraftReturn)
 
             val updatedSession: SessionData =
-              session.copy(journeyStatus = Some(updatedJourney))
+              session.copyWith(journeyStatus = Some(updatedJourney))
 
             inSequence {
               mockAuthWithNoRetrievals()

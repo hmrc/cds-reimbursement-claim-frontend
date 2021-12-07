@@ -87,7 +87,7 @@ class EnterImporterEoriNumberControllerSpec
       SignedInUserDetails(Some(email), eori, Email("email@email.com"), ContactName("Fred Bread"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -106,7 +106,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -131,7 +131,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -153,7 +153,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -194,7 +194,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
           (mockClaimService
             .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
             .expects(*, *)
@@ -210,7 +210,7 @@ class EnterImporterEoriNumberControllerSpec
       "user chooses an un-matching importer EORI" in forAll(testCases) { journeyBindable =>
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
           (mockClaimService
             .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
             .expects(*, *)
@@ -244,7 +244,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -280,7 +280,7 @@ class EnterImporterEoriNumberControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(

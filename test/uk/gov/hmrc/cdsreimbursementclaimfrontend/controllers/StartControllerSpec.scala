@@ -67,13 +67,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+            sample[SessionData].copyWith(journeyStatus = None)
 
           inSequence {
             mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
             )(Right(()))
@@ -95,13 +95,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+            sample[SessionData].copyWith(journeyStatus = None)
 
           inSequence {
             mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
             )(Left(Error("Boom!")))
@@ -133,13 +133,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+            sample[SessionData].copyWith(journeyStatus = None)
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -178,13 +178,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+            sample[SessionData].copyWith(journeyStatus = None)
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -226,13 +226,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None)
+            sample[SessionData].copyWith(journeyStatus = None)
 
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -261,7 +261,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         "redirect the user to the submission error page" in {
 
           val submitClaimFailed = sample[SubmitClaimFailed]
-          val sessionData       = sample[SessionData].copy(journeyStatus = Some(submitClaimFailed))
+          val sessionData       = sample[SessionData].copyWith(journeyStatus = Some(submitClaimFailed))
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
@@ -283,7 +283,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         "redirect the user to the main CYA page" in {
 
           val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
+          val sessionData        = sample[SessionData].copyWith(journeyStatus = Some(justSubmittedClaim))
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
@@ -303,7 +303,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         "redirect the user to the main CYA page" in {
           val fillingOutClaim = sample[FillingOutClaim]
-          val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
+          val sessionData     = sample[SessionData].copyWith(journeyStatus = Some(fillingOutClaim))
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
@@ -320,7 +320,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         "redirect the user to the `we only support gg page`" in {
 
-          val sessionData = sample[SessionData].copy(journeyStatus = Some(NonGovernmentGatewayJourney))
+          val sessionData = sample[SessionData].copyWith(journeyStatus = Some(NonGovernmentGatewayJourney))
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
@@ -345,13 +345,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         "redirect the user to the first page of the journey" in {
 
           val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
+          val sessionData        = sample[SessionData].copyWith(journeyStatus = Some(justSubmittedClaim))
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(
                   FillingOutClaim(
                     justSubmittedClaim.ggCredId,
@@ -372,13 +372,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
 
         "return an error if session update fails" in {
           val justSubmittedClaim = sample[JustSubmittedClaim]
-          val sessionData        = sample[SessionData].copy(journeyStatus = Some(justSubmittedClaim))
+          val sessionData        = sample[SessionData].copyWith(journeyStatus = Some(justSubmittedClaim))
 
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
-              sessionData.copy(
+              sessionData.copyWith(
                 journeyStatus = Some(
                   FillingOutClaim(
                     justSubmittedClaim.ggCredId,
@@ -401,7 +401,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
         "redirect the user to the error page" in {
 
           val fillingOutClaim = sample[FillingOutClaim]
-          val sessionData     = sample[SessionData].copy(journeyStatus = Some(fillingOutClaim))
+          val sessionData     = sample[SessionData].copyWith(journeyStatus = Some(fillingOutClaim))
 
           inSequence {
             mockAuthWithNoRetrievals()
@@ -438,7 +438,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           inSequence {
             mockAuthWithNoRetrievals()
             mockGetSession(
-              SessionData.empty.copy(journeyStatus = Some(journey))
+              SessionData.empty.copyWith(journeyStatus = Some(journey))
             )
           }
 
@@ -469,7 +469,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           mockAuthWithNoRetrievals()
           mockGetSession(
             SessionData.empty
-              .copy(journeyStatus = Some(NonGovernmentGatewayJourney))
+              .copyWith(journeyStatus = Some(NonGovernmentGatewayJourney))
           )
         }
 
@@ -501,7 +501,7 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           mockAuthWithNoRetrievals()
           mockGetSession(
             SessionData.empty
-              .copy(
+              .copyWith(
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
           )

@@ -79,7 +79,7 @@ class SelectTypeOfClaimController @Inject() (
               val updatedJourney =
                 FillingOutClaim.from(fillingOutClaim)(_.copy(typeOfClaim = Some(typeOfClaimAnswer)))
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("Could not capture select number of claims"),

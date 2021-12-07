@@ -116,7 +116,7 @@ class CheckContactDetailsMrnController @Inject() (
                   _.copy(mrnContactDetailsAnswer = None, mrnContactAddressAnswer = None)
                 )
 
-                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedClaim))))
+                EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedClaim))))
                   .leftMap(err => Error(s"Could not remove contact details: ${err.message}"))
                   .fold(
                     e => logAndDisplayError("Submit Declarant Type error: ").apply(e),
@@ -161,7 +161,7 @@ class CheckContactDetailsMrnController @Inject() (
           for {
             newAddress <- addressLookupService.retrieveUserAddress(id)
             copyClaim   = FillingOutClaim.from(claim)(_.copy(mrnContactAddressAnswer = newAddress.some))
-            result     <- EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = copyClaim.some)))
+            result     <- EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = copyClaim.some)))
           } yield result
 
         maybeAddressLookupId

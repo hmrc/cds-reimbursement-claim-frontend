@@ -47,7 +47,7 @@ trait C285JourneySessionFixtures {
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = JourneyStatus.FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey
@@ -67,7 +67,7 @@ trait C285JourneySessionFixtures {
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = JourneyStatus.FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey

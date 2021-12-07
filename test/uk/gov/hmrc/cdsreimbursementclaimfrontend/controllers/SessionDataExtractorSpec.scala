@@ -75,7 +75,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
       val draftC285Claim       =
         sample[DraftClaim].copy(whetherNorthernIrelandAnswer = Some(Yes))
       val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-      val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+      val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
       val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
       val result = sessionTester.method(dataExtractor, request)
@@ -114,7 +114,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
             whetherNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result =
@@ -136,7 +136,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
             whetherNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result =
@@ -158,7 +158,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
             whetherNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result =
@@ -180,7 +180,7 @@ class SessionDataExtractorSpec extends AnyWordSpec with Matchers {
             whetherNorthernIrelandAnswer = expectedData
           )
         val foc                  = sample[FillingOutClaim].copy(draftClaim = draftC285Claim)
-        val sessionData          = sample[SessionData].copy(journeyStatus = Some(foc))
+        val sessionData          = sample[SessionData].copyWith(journeyStatus = Some(foc))
         val request              = RequestWithSessionData(Some(sessionData), authenticatedRequest)
 
         val result =

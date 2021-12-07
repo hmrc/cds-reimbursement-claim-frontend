@@ -21,8 +21,15 @@ import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Format, Json}
 
 final case class SessionData(
-  journeyStatus: Option[JourneyStatus]
-)
+  journey: Option[JourneyStatus]
+) {
+
+  def copyWith(journeyStatus: Option[JourneyStatus]): SessionData =
+    copy(journey = journeyStatus)
+
+  def journeyStatus: Option[JourneyStatus] = journey
+
+}
 
 object SessionData {
 

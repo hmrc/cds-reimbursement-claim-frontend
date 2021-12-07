@@ -95,7 +95,7 @@ class EnterContactDetailsMrnControllerSpec
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    (SessionData.empty.copy(journeyStatus = Some(journey)), journey)
+    (SessionData.empty.copyWith(journeyStatus = Some(journey)), journey)
   }
 
   private def updateSession(sessionData: SessionData, mrnContactDetailsAnswer: MrnContactDetails): SessionData =
@@ -104,7 +104,7 @@ class EnterContactDetailsMrnControllerSpec
         val newClaim      =
           draftClaim.copy(mrnContactDetailsAnswer = Some(mrnContactDetailsAnswer))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
 
@@ -119,7 +119,7 @@ class EnterContactDetailsMrnControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(

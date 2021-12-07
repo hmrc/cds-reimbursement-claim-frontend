@@ -70,7 +70,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -89,7 +89,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -113,7 +113,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -134,7 +134,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -156,7 +156,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -179,7 +179,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -202,7 +202,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -232,7 +232,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(
@@ -250,7 +250,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
         val claim = sample(genValidDraftClaim(TypeOfClaimAnswer.Individual))
         val idx   = BasisOfClaims.indexOf(claim.basisOfClaimAnswer.value)
 
-        val session = SessionData.empty.copy(
+        val session = SessionData.empty.copyWith(
           journeyStatus = FillingOutClaim(
             sample[GGCredId],
             sample[SignedInUserDetails],
@@ -289,7 +289,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -320,7 +320,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(

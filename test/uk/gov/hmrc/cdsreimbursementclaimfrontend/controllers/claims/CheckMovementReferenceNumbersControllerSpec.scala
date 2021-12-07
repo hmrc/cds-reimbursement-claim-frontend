@@ -93,7 +93,7 @@ class CheckMovementReferenceNumbersControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(
+      SessionData.empty.copyWith(
         journeyStatus = Some(journey)
       ),
       journey,
@@ -132,7 +132,7 @@ class CheckMovementReferenceNumbersControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -221,7 +221,7 @@ class CheckMovementReferenceNumbersControllerSpec
           )
 
           val expectedSessionWithDeletedMrn =
-            session.copy(journeyStatus = Some(fillingOutClaim.copy(draftClaim = updatedDraftClaim)))
+            session.copyWith(journeyStatus = Some(fillingOutClaim.copy(draftClaim = updatedDraftClaim)))
 
           inSequence {
             mockAuthWithNoRetrievals()

@@ -128,7 +128,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
           val session = SessionData(fillingOutClaim)
 
-          val justSubmittedJourney = session.copy(journeyStatus =
+          val justSubmittedJourney = session.copyWith(journeyStatus =
             Some(
               JustSubmittedClaim(
                 fillingOutClaim.ggCredId,
@@ -175,7 +175,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
           val session = SessionData(fillingOutClaim)
 
-          val submissionFailed = session.copy(journeyStatus =
+          val submissionFailed = session.copyWith(journeyStatus =
             Some(
               SubmitClaimFailed(
                 fillingOutClaim.ggCredId,
@@ -236,7 +236,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
           val submitClaimResponse = sample[SubmitClaimResponse]
 
-          val justSubmittedJourney = session.copy(journeyStatus =
+          val justSubmittedJourney = session.copyWith(journeyStatus =
             Some(
               JustSubmittedClaim(
                 fillingOutClaim.ggCredId,
@@ -295,7 +295,7 @@ class CheckYourAnswersAndSubmitControllerSpec
 
         val submitClaimResponse = sample[SubmitClaimResponse]
 
-        val justSubmittedJourney = session.copy(journeyStatus =
+        val justSubmittedJourney = session.copyWith(journeyStatus =
           Some(
             JustSubmittedClaim(
               fillingOutClaim.ggCredId,

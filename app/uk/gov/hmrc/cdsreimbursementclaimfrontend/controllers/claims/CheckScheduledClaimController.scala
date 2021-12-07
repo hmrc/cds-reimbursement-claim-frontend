@@ -94,7 +94,7 @@ class CheckScheduledClaimController @Inject() (
                     _.copy(claimedReimbursementsAnswer = ClaimedReimbursementsAnswer(reimbursements))
                   )
 
-                EitherT(updateSession(sessionCache, request)(_.copy(journeyStatus = updatedClaim.some)))
+                EitherT(updateSession(sessionCache, request)(_.copyWith(journeyStatus = updatedClaim.some)))
                   .leftMap(_ => Error("Could not update session"))
                   .fold(
                     logAndDisplayError("Could not update reimbursement claims: "),

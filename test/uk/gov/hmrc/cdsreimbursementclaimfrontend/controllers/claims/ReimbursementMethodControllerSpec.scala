@@ -68,7 +68,7 @@ class ReimbursementMethodControllerSpec
       "there is no journey status in the session" in {
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(SessionData.empty.copy(journeyStatus = None))
+          mockGetSession(SessionData.empty.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -233,7 +233,7 @@ class ReimbursementMethodControllerSpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, DraftClaim.blank)
 
-    SessionData.empty.copy(
+    SessionData.empty.copyWith(
       journeyStatus = Some(journey)
     )
   }
@@ -243,7 +243,7 @@ class ReimbursementMethodControllerSpec
     val ggCredId            = sample[GGCredId]
     val signedInUserDetails = sample[SignedInUserDetails]
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
-    SessionData.empty.copy(journeyStatus = Some(journey))
+    SessionData.empty.copyWith(journeyStatus = Some(journey))
   }
 
   private def isCurrentMonthAjustmentChecked(document: Document): Boolean = isChecked(document, "cma")
@@ -261,7 +261,7 @@ class ReimbursementMethodControllerSpec
         val newClaim      =
           draftClaim.copy(reimbursementMethodAnswer = Some(reimbusementMethod))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
 
@@ -271,7 +271,7 @@ class ReimbursementMethodControllerSpec
         val newClaim      =
           draftClaim.copy(supportingEvidencesAnswer = Some(sample[SupportingEvidencesAnswer]))
         val journeyStatus = FillingOutClaim(g, s, newClaim)
-        sessionData.copy(journeyStatus = Some(journeyStatus))
+        sessionData.copyWith(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
 

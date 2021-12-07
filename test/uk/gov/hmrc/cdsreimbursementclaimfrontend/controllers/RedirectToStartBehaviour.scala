@@ -50,7 +50,7 @@ trait RedirectToStartBehaviour {
           whenever(!isValidJourneyStatus(j)) {
             inSequence {
               mockAuthWithNoRetrievals()
-              mockGetSession(SessionData.empty.copy(journeyStatus = Some(j)))
+              mockGetSession(SessionData.empty.copyWith(journeyStatus = Some(j)))
             }
 
             checkIsRedirect(

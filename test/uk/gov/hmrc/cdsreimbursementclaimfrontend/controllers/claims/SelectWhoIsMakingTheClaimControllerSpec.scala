@@ -85,7 +85,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
 
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )
@@ -101,7 +101,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -126,7 +126,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -146,7 +146,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -176,7 +176,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(
@@ -198,7 +198,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -227,7 +227,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -261,7 +261,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            session.copy(journeyStatus =
+            session.copyWith(journeyStatus =
               Some(
                 FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
               )
@@ -299,7 +299,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            session.copy(journeyStatus =
+            session.copyWith(journeyStatus =
               Some(
                 FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
               )
@@ -337,7 +337,7 @@ class SelectWhoIsMakingTheClaimControllerSpec
         inSequence {
           mockAuthWithNoRetrievals()
           mockGetSession(
-            session.copy(journeyStatus =
+            session.copyWith(journeyStatus =
               Some(
                 FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(declarantType)))
               )

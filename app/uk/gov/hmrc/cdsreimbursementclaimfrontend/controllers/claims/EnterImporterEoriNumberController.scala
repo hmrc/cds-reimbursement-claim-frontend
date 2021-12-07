@@ -85,7 +85,7 @@ class EnterImporterEoriNumberController @Inject() (
               def updateJourney() = EitherT {
                 val updatedJourney =
                   FillingOutClaim.from(fillingOutClaim)(_.copy(importerEoriNumberAnswer = Some(importerEoriNumber)))
-                updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
+                updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney)))
               }
 
               def checkWhetherConsigneeEORIsMatch = for {

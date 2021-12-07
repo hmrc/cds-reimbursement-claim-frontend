@@ -61,7 +61,7 @@ abstract class CheckYourAnswersSummarySpec
     val signedInUserDetails = sample[SignedInUserDetails]
     val claim               = sample(genValidDraftClaim(maybeTypeOfClaim))
     val fillingOutClaim     = FillingOutClaim(ggCredId, signedInUserDetails, claim)
-    val session             = SessionData.empty.copy(journeyStatus = Some(fillingOutClaim))
+    val session             = SessionData.empty.copyWith(journeyStatus = Some(fillingOutClaim))
     (session, claim)
   }
 }

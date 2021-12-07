@@ -91,7 +91,7 @@ class SelectBasisForClaimController @Inject() (
             answer => {
               val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(basisOfClaimAnswer = answer.some))
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedJourney.some)))
+              EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = updatedJourney.some)))
                 .leftMap(_ => Error("could not update session"))
                 .fold(
                   logAndDisplayError("could not store reason for claim answer"),

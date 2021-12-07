@@ -200,7 +200,8 @@ class EnterMovementReferenceNumberController @Inject() (
   }
 
   def updateDraftClaim(fillingOutClaim: FillingOutClaim, newDraftClaim: DraftClaim): SessionDataTransform = {
-    val update: SessionDataTransform = _.copy(journeyStatus = Some(fillingOutClaim.copy(draftClaim = newDraftClaim)))
+    val update: SessionDataTransform =
+      _.copyWith(journeyStatus = Some(fillingOutClaim.copy(draftClaim = newDraftClaim)))
     update
   }
 }

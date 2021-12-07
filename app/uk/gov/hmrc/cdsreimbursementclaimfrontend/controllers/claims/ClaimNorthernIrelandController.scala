@@ -93,7 +93,7 @@ class ClaimNorthernIrelandController @Inject() (
                   )
                 )
 
-                EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                   .leftMap(_ => Error("could not update session"))
                   .fold(
                     logAndDisplayError("could not capture select number of claims"),

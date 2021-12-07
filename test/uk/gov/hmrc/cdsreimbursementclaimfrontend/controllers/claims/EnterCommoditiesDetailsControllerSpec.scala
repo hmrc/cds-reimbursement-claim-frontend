@@ -88,7 +88,7 @@ class EnterCommoditiesDetailsControllerSpec
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
 
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )
@@ -105,7 +105,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -133,7 +133,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -159,7 +159,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(
@@ -186,7 +186,7 @@ class EnterCommoditiesDetailsControllerSpec
 
           inSequence {
             mockAuthWithNoRetrievals()
-            mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+            mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
           }
 
           checkPageIsDisplayed(
@@ -218,7 +218,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(
@@ -246,7 +246,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkIsRedirect(
@@ -283,7 +283,7 @@ class EnterCommoditiesDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(updatedJourney)))
+          mockGetSession(session.copyWith(journeyStatus = Some(updatedJourney)))
         }
 
         checkPageIsDisplayed(

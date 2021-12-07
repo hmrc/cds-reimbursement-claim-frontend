@@ -73,7 +73,7 @@ class CheckMovementReferenceNumbersController @Inject() (
             )
           )
 
-        EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = updatedClaim.some)))
+        EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = updatedClaim.some)))
           .fold(
             logAndDisplayError(s"Error updating MRNs removing ${mrnIndex.ordinalNumeral} MRN: "),
             _ => redirectToShowMrnsPage()

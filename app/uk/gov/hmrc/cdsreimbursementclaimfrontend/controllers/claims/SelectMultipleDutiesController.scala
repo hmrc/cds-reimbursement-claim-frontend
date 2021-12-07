@@ -167,7 +167,7 @@ class SelectMultipleDutiesController @Inject() (
                       val updatedJourney: FillingOutClaim = journey.copy(draftClaim = newDraftClaim)
 
                       EitherT
-                        .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                        .liftF(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                         .leftMap((_: Unit) => Error("could not update session"))
                         .fold(
                           logAndDisplayError("could not get duties selected "),

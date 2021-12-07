@@ -97,7 +97,7 @@ class EnterScheduledClaimController @Inject() (
       withAnswers[SelectedDutyTaxCodesReimbursementAnswer] { (fillingOutClaim, maybeAnswer) =>
         def updateClaim(answer: SelectedDutyTaxCodesReimbursementAnswer) =
           updateSession(sessionCache, request)(
-            _.copy(journeyStatus =
+            _.copyWith(journeyStatus =
               from(fillingOutClaim)(_.copy(selectedDutyTaxCodesReimbursementAnswer = answer.some)).some
             )
           )

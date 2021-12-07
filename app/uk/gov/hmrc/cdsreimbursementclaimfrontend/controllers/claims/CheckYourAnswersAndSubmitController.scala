@@ -101,7 +101,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
                                               }
             _                              <- EitherT(
                                                 updateSession(sessionStore, request)(
-                                                  _.copy(journeyStatus = Some(newJourneyStatus))
+                                                  _.copyWith(journeyStatus = Some(newJourneyStatus))
                                                 )
                                               )
           } yield response

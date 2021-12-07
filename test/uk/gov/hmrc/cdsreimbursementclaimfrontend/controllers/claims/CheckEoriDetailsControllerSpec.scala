@@ -74,7 +74,7 @@ class CheckEoriDetailsControllerSpec
       SignedInUserDetails(Some(email), eori, Email("amina@email.com"), ContactName("Fred Bread"))
     val journey             = FillingOutClaim(ggCredId, signedInUserDetails, draftC285Claim)
     (
-      SessionData.empty.copy(journeyStatus = Some(journey)),
+      SessionData.empty.copyWith(journeyStatus = Some(journey)),
       journey,
       draftC285Claim
     )
@@ -101,7 +101,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = None))
+          mockGetSession(session.copyWith(journeyStatus = None))
         }
 
         checkIsRedirect(
@@ -119,7 +119,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         checkPageIsDisplayed(
@@ -180,7 +180,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
           mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(Right(()))
         }
@@ -195,7 +195,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
           mockGetEmail(Right(Some(VerifiedEmail(verifiedEmail, ""))))
           mockStoreSession(Right(()))
         }
@@ -209,7 +209,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "false"))
@@ -221,7 +221,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         val result = performAction(Seq())
@@ -241,7 +241,7 @@ class CheckEoriDetailsControllerSpec
 
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session.copy(journeyStatus = Some(fillingOutClaim)))
+          mockGetSession(session.copyWith(journeyStatus = Some(fillingOutClaim)))
         }
 
         val result = performAction(Seq.empty)

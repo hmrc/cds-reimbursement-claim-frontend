@@ -74,7 +74,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
             answer => {
               val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(answer)))
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              EitherT(updateSession(sessionStore, request)(_.copyWith(journeyStatus = Some(updatedJourney))))
                 .leftMap(_ => Error("Could not save Declarant Type"))
                 .fold(
                   logAndDisplayError("Submit Declarant Type error: "),
