@@ -116,13 +116,10 @@ class CheckEoriDetailsController @Inject() (
                     _                  <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
                                             .leftMap(logError.andThen(returnErrorPage))
                     result             <- EitherT.rightT[Future, Result](
-                                            if (featureSwitch.BulkClaim.isEnabled())
-                                              Redirect(routes.SelectTypeOfClaimController.show())
+                                            if (featureSwitch.CAndE1179.isEnabled())
+                                              Redirect(routes.ChooseClaimTypeController.show())
                                             else
-                                              Redirect(
-                                                routes.EnterMovementReferenceNumberController
-                                                  .enterJourneyMrn(JourneyBindable.Single)
-                                              )
+                                              Redirect(routes.SelectTypeOfClaimController.show())
                                           )
                   } yield result
 

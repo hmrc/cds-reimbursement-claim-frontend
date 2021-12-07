@@ -1020,6 +1020,13 @@ check-your-answers.reimbursement-method.h2=Reimbursement method
 check-your-answers.reimbursement-method.label=Method
 check-your-answers.reimbursement-method.cma=Current Month Adjustment (CMA)
 check-your-answers.reimbursement-method.bt=Bank account transfer
+check-your-answers.claimant-details.cds.contact.details=Details as registered with CDS
+check-your-answers.claimant-details.cds.contact.address=Address as registered with CDS
+check-your-answers.claimant-details.contact.additional=Use different contact details
+check-your-answers.claimant-details.additional.contact.details=Contact details
+check-your-answers.claimant-details.additional.contact.address=Contact address
+check-your-answers.claimant-details.change-hint.contact=Contact details
+check-your-answers.claimant-details.change-hint.address=Contact address
 
 #===================================================
 # SUBMISSION ERROR PAGE
@@ -1059,6 +1066,8 @@ choose-claim-type.title=Choose type of claim
 choose-claim-type.c285.title=Repayment of import duties and VAT overpayment (C285)
 choose-claim-type.ce1179.title=Repayment or remission of import duties and VAT on rejected imports (C&E1179)
 choose-claim-type.ce1179.hint=This includes goods that do not meet the contract conditions, are defective or damaged before customs clearance.
+choose-claim-type.error.required=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
+choose-claim-type.error.unknown=Select if you are claiming reimbursement of import duties that were overpaid or reimbursement of import duties on rejected imports.
 
 #===================================================
 #  COUNTRIES - START

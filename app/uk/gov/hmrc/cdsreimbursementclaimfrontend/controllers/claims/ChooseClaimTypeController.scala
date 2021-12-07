@@ -21,13 +21,14 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.typeOfClaimForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ChooseClaimTypeController @Inject() (
@@ -43,25 +44,46 @@ class ChooseClaimTypeController @Inject() (
 
   def show(): Action[AnyContent] =
     authenticatedActionWithSessionData { implicit request =>
-      Ok(chooseClaimTypePage(typeOfClaimForm))
+      Ok(chooseClaimTypePage(claimFormForm))
     }
+
+  def submit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+    claimFormForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (!formWithErrors.data.isEmpty)
+            logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.map(_._2).mkString}")
+          BadRequest(chooseClaimTypePage(formWithErrors))
+        },
+        {
+          case C285   => Redirect(claimRoutes.SelectTypeOfClaimController.show())
+          case CE1179 => Redirect("rejected-goods/choose-how-many-mrns")
+        }
+      )
+  }
 }
 
 object ChooseClaimTypeController {
-  sealed trait ClaimType
-  case object C285 extends ClaimType
-  case object CE1179 extends ClaimType
+  sealed trait ClaimForm
+  case object C285 extends ClaimForm
+  case object CE1179 extends ClaimForm
 
-  val dataKey: String = "select-claim-type"
+  val allowedValues: Seq[String] = Seq("C285", "CE1179")
 
-  val typeOfClaimForm: Form[ClaimType] =
+  val dataKey: String = "choose-claim-type"
+
+  val claimFormForm: Form[ClaimForm] =
     Form(
       mapping(
         dataKey -> text
-//          .verifying("invalid", a => TypeOfClaimAnswer.allClaimsTypes.map(_.value).contains(a))
-          .transform[ClaimType](
-            _ => C285,
-            bbb => bbb.toString
+          .verifying(value => allowedValues.contains(value))
+          .transform[ClaimForm](
+            {
+              case "CE1179" => CE1179
+              case "C285"   => C285
+            },
+            _.toString
           )
       )(identity)(Some(_))
     )

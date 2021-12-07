@@ -19,9 +19,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.ClaimType
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.C285
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.CE1179
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
@@ -34,7 +32,7 @@
         pageHeading: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.page_heading
 )
 
-@(form: Form[ClaimType])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[ClaimForm])(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"choose-claim-type"}
 @title = @{messages(s"$key.title")}
@@ -42,7 +40,7 @@
 @layout(pageTitle = Some(s"$title"), hasErrors = false) {
     @pageHeading(title)
 
- @formWithCSRF(claimRoutes.ChooseClaimTypeController.show(), 'novalidate -> "novalidate") {
+ @formWithCSRF(claimRoutes.ChooseClaimTypeController.submit(), 'novalidate -> "novalidate") {
 
   @radios(
    form = form,
