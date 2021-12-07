@@ -312,11 +312,20 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit basis of claim special circumstances details" in {
-      //TODO
+        val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+          .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+          .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+
+        journeyEither.isRight shouldBe true
+
     }
 
     "change basis of claim special circumstances details" in {
-      //TODO
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourneyEither = journey.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+
+        modifiedJourneyEither.isRight shouldBe journey.needsSpecialCircumstancesBasisOfClaim
+      }
     }
 
     "submit method of disposal" in {

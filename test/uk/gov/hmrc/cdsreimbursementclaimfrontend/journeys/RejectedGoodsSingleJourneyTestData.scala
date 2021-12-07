@@ -85,6 +85,8 @@ trait RejectedGoodsSingleJourneyTestData {
       accountNumber = AccountNumber("00000000")
     )
 
+  val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
+
   def tryBuildRejectedGoodsSingleJourney(
     userEoriNumber: Eori,
     mrn: MRN,
