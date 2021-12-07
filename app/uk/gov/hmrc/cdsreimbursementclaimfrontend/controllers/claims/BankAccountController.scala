@@ -116,7 +116,11 @@ class BankAccountController @Inject() (
 
                   (for {
                     _                  <- EitherT
-                                            .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+                                            .liftF(
+                                              updateSession(sessionStore, request)(
+                                                _.copy(journeyStatus = Some(updatedJourney))
+                                              )
+                                            )
                                             .leftMap((_: Unit) => Error("could not update session"))
                     reputationResponse <- {
                       val barsAccount =

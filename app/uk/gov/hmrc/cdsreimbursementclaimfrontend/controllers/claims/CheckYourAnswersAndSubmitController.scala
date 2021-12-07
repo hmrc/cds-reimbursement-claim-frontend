@@ -41,6 +41,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
 
 @Singleton
 class CheckYourAnswersAndSubmitController @Inject() (
@@ -72,37 +73,37 @@ class CheckYourAnswersAndSubmitController @Inject() (
       withCompleteDraftClaim { (fillingOutClaim, completeClaim) =>
         val result =
           for {
-            response        <- EitherT.liftF(
-                                 submitClaim(
-                                   completeClaim,
-                                   fillingOutClaim,
-                                   fillingOutClaim.signedInUserDetails,
-                                   request.authenticatedRequest.request.messages.lang
-                                 )
-                               )
-            newJourneyStatus = response match {
-                                 case _: SubmitClaimError =>
-                                   SubmitClaimFailed(
-                                     fillingOutClaim.ggCredId,
-                                     fillingOutClaim.signedInUserDetails,
-                                     journey
-                                   )
-                                 case SubmitClaimSuccess(
-                                       submitClaimResponse
-                                     ) =>
-                                   JustSubmittedClaim(
-                                     fillingOutClaim.ggCredId,
-                                     fillingOutClaim.signedInUserDetails,
-                                     completeClaim,
-                                     submitClaimResponse,
-                                     journey
-                                   )
-                               }
-            _               <- EitherT(
-                                 updateSession(sessionStore, request)(
-                                   _.copy(journeyStatus = Some(newJourneyStatus))
-                                 )
-                               )
+            response                       <- EitherT.liftF(
+                                                submitClaim(
+                                                  completeClaim,
+                                                  fillingOutClaim,
+                                                  fillingOutClaim.signedInUserDetails,
+                                                  request.authenticatedRequest.request.messages.lang
+                                                )
+                                              )
+            newJourneyStatus: JourneyStatus = response match {
+                                                case _: SubmitClaimError =>
+                                                  SubmitClaimFailed(
+                                                    fillingOutClaim.ggCredId,
+                                                    fillingOutClaim.signedInUserDetails,
+                                                    journey
+                                                  )
+                                                case SubmitClaimSuccess(
+                                                      submitClaimResponse
+                                                    ) =>
+                                                  JustSubmittedClaim(
+                                                    fillingOutClaim.ggCredId,
+                                                    fillingOutClaim.signedInUserDetails,
+                                                    completeClaim,
+                                                    submitClaimResponse,
+                                                    journey
+                                                  )
+                                              }
+            _                              <- EitherT(
+                                                updateSession(sessionStore, request)(
+                                                  _.copy(journeyStatus = Some(newJourneyStatus))
+                                                )
+                                              )
           } yield response
 
         result.fold(

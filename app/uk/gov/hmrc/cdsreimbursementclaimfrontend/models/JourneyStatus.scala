@@ -22,8 +22,9 @@ import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.Journey
 
-sealed trait JourneyStatus extends Product with Serializable
+sealed trait JourneyStatus extends Journey
 
 object JourneyStatus {
 

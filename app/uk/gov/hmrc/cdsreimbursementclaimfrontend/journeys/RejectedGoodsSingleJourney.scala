@@ -51,7 +51,8 @@ import java.time.LocalDate
   *  - [[RejectedGoodsSingleJourney.Outcome]] - final outcome of the journey to be sent to backend processing
   */
 final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
-    extends FluentSyntax[RejectedGoodsSingleJourney] {
+    extends Journey
+    with FluentSyntax[RejectedGoodsSingleJourney] {
 
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def isComplete: Boolean =
