@@ -67,14 +67,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None, userType = Some(UserType.NonGovernmentGatewayUser))
+            sample[SessionData].copy(journeyStatus = None)
 
           inSequence {
             mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
               sessionData.copy(
-                userType = authenticatedRequest.userType,
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
             )(Right(()))
@@ -96,14 +95,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None, userType = Some(UserType.NonGovernmentGatewayUser))
+            sample[SessionData].copy(journeyStatus = None)
 
           inSequence {
             mockAuthWithNonGGUserRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
               sessionData.copy(
-                userType = authenticatedRequest.userType,
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
             )(Left(Error("Boom!")))
@@ -135,14 +133,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None, userType = Some(UserType.Individual))
+            sample[SessionData].copy(journeyStatus = None)
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
               sessionData.copy(
-                userType = authenticatedRequest.userType,
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -181,14 +178,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None, userType = Some(UserType.Individual))
+            sample[SessionData].copy(journeyStatus = None)
 
           inSequence {
             mockAuthWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
               sessionData.copy(
-                userType = authenticatedRequest.userType,
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -230,14 +226,13 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           lazy val messagesRequest = new MessagesRequest(FakeRequest(), messagesApi)
 
           val sessionData =
-            sample[SessionData].copy(journeyStatus = None, userType = Some(UserType.Organisation))
+            sample[SessionData].copy(journeyStatus = None)
 
           inSequence {
             mockAuthWithOrgWithEoriEnrolmentRetrievals()
             mockGetSession(sessionData)
             mockStoreSession(
               sessionData.copy(
-                userType = authenticatedRequest.userType,
                 journeyStatus = Some(
                   FillingOutClaim(
                     GGCredId("gg-cred-id"),
@@ -507,7 +502,6 @@ class StartControllerSpec extends ControllerSpec with AuthSupport with SessionSu
           mockGetSession(
             SessionData.empty
               .copy(
-                userType = Some(UserType.Individual),
                 journeyStatus = Some(NonGovernmentGatewayJourney)
               )
           )

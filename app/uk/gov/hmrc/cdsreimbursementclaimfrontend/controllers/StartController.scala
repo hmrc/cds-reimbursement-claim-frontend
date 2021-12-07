@@ -73,7 +73,6 @@ class StartController @Inject() (
         _ <- EitherT(
                updateSession(sessionStore, request)(
                  _.copy(
-                   userType = request.sessionData.flatMap(_.userType),
                    journeyStatus = Some(
                      FillingOutClaim(
                        justSubmittedClaim.ggCredId,
@@ -188,7 +187,6 @@ class StartController @Inject() (
 
     updateSession(sessionStore, request)(
       _.copy(
-        userType = request.authenticatedRequest.userType,
         journeyStatus = Some(NonGovernmentGatewayJourney)
       )
     ).map {
@@ -213,7 +211,6 @@ class StartController @Inject() (
       _ <- EitherT(
              updateSession(sessionStore, request)(
                _.copy(
-                 userType = request.authenticatedRequest.userType,
                  journeyStatus = Some(
                    FillingOutClaim(
                      ggCredId,

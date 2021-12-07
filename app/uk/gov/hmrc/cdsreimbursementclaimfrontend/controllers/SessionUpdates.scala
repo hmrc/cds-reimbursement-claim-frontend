@@ -29,7 +29,7 @@ trait SessionUpdates {
 
   type SessionDataTransform = SessionData => SessionData
 
-  def updateSession[R](sessionCache: SessionCache, request: R)(
+  final def updateSession[R](sessionCache: SessionCache, request: R)(
     update: SessionData => SessionData
   )(implicit
     sessionProvider: SessionProvider[R],
@@ -41,7 +41,7 @@ trait SessionUpdates {
     if (session === updatedSession)
       Future.successful(Right(()))
     else
-      sessionCache.store(update(sessionProvider.toSession(request)))
+      sessionCache.store(updatedSession)
 
   }
 

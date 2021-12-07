@@ -22,7 +22,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 object SessionDataGen {
 
   import JourneyStatusGen._
-  import UserTypeGen._
 
   implicit lazy val arbitrarySessionData: Typeclass[SessionData] = gen[SessionData]
 }

@@ -25,7 +25,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction.NextPageBuilder
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, ReimbursementRoutes, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, JourneyStatus, SessionData, SignedInUserDetails, UserType}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, JourneyStatus, SessionData, SignedInUserDetails}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,8 +36,6 @@ final case class RequestWithSessionData[A](
     with PreferredMessagesProvider {
 
   override def messagesApi: MessagesApi = authenticatedRequest.request.messagesApi
-
-  val userType: Option[UserType] = sessionData.flatMap(_.userType)
 
   val signedInUserDetails: Option[SignedInUserDetails] = sessionData.flatMap(_.journeyStatus).collect {
     case JourneyStatus.FillingOutClaim(_, signedInUserDetails, _)          => signedInUserDetails
