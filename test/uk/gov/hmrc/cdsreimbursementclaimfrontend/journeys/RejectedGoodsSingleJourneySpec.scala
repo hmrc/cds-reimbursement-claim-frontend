@@ -404,11 +404,22 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit inspection date" in {
-      //TODO
+      forAll(DateGen.genDate) { inspectionDate =>
+        val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitInspectionDate(inspectionDate)
+
+        journey.answers.inspectionDate shouldBe Some(inspectionDate)
+
+      }
     }
 
     "change inspection date" in {
-      // TODO
+      forAll(completeJourneyGen, DateGen.genDate) { (journey, inspectionDate) =>
+        val modifiedJourney = journey.submitInspectionDate(inspectionDate)
+
+        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.toOutput.map(_.inspectionDate) shouldBe Right(inspectionDate)
+
+      }
     }
 
     "submit inspection address" in {
