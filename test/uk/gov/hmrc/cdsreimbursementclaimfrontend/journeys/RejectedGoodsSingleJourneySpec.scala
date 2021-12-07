@@ -361,7 +361,12 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "select valid tax codes for reimbursement when none yet selected" in {
-      // TODO test when all selected tax codes are in the ACC14
+      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
+      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+        .submitDisplayDeclaration(displayDeclaration)
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+
+      journeyEither.isRight shouldBe true
     }
 
     "replace valid tax codes for reimbursement" in {
