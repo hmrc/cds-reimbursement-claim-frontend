@@ -18,10 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import org.scalacheck.Arbitrary
 
 object SessionDataGen {
 
-  import JourneyStatusGen._
-
-  implicit lazy val arbitrarySessionData: Typeclass[SessionData] = gen[SessionData]
+  implicit lazy val arbitrarySessionData: Typeclass[SessionData] =
+    Arbitrary(for {
+      journeyStatus <- JourneyStatusGen.arbitraryJourneyStatus.arbitrary
+    } yield SessionData(journeyStatus))
 }

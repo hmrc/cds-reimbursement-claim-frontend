@@ -18,7 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.{IdKey, IdValue}
 
-final case class Error(message: String, throwable: Option[Throwable], identifiers: Map[IdKey, IdValue])
+final case class Error(message: String, throwable: Option[Throwable], identifiers: Map[IdKey, IdValue]) {
+
+  def toException: Exception = throwable match {
+    case Some(t) => new Exception(message, t)
+    case None    => new Exception(message)
+  }
+
+}
 
 object Error {
 
