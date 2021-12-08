@@ -86,7 +86,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
   "ChooseClaimTypeController" must {
 
-    featureSwitch.CAndE1179.enable()
+    featureSwitch.RejectedGoods.enable()
 
     def performAction(): Future[Result] = controller.show()(FakeRequest())
 
@@ -100,13 +100,13 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         performAction(),
         messageFromMessageKey(s"$formKey.title"),
         doc => {
-          val buttons      = radioButtons(doc)
-          val c285Button   = extractButton(buttons, "C285")
-          val ce1179Button = extractButton(buttons, "CE1179")
-          extractLabel(c285Button)   shouldBe messageFromMessageKey(s"$formKey.c285.title")
-          extractHint(c285Button)    shouldBe ""
-          extractLabel(ce1179Button) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
-          extractHint(ce1179Button)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
+          val buttons             = radioButtons(doc)
+          val c285Button          = extractButton(buttons, "C285")
+          val rejectedGoodsButton = extractButton(buttons, "RejectedGoods")
+          extractLabel(c285Button)          shouldBe messageFromMessageKey(s"$formKey.c285.title")
+          extractHint(c285Button)           shouldBe ""
+          extractLabel(rejectedGoodsButton) shouldBe messageFromMessageKey(s"$formKey.ce1179.title")
+          extractHint(rejectedGoodsButton)  shouldBe messageFromMessageKey(s"$formKey.ce1179.hint")
         }
       )
     }
@@ -132,7 +132,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
           mockGetSession(SessionData.empty)
         }
 
-        val result = performAction(Seq(dataKey -> CE1179.toString))
+        val result = performAction(Seq(dataKey -> RejectedGoods.toString))
         checkIsRedirect(result, "rejected-goods/choose-how-many-mrns")
       }
 

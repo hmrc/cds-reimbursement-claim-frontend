@@ -57,8 +57,8 @@ class ChooseClaimTypeController @Inject() (
           BadRequest(chooseClaimTypePage(formWithErrors))
         },
         {
-          case C285   => Redirect(claimRoutes.SelectTypeOfClaimController.show())
-          case CE1179 => Redirect("rejected-goods/choose-how-many-mrns")
+          case C285          => Redirect(claimRoutes.SelectTypeOfClaimController.show())
+          case RejectedGoods => Redirect("rejected-goods/choose-how-many-mrns")
         }
       )
   }
@@ -67,9 +67,9 @@ class ChooseClaimTypeController @Inject() (
 object ChooseClaimTypeController {
   sealed trait ClaimForm
   case object C285 extends ClaimForm
-  case object CE1179 extends ClaimForm
+  case object RejectedGoods extends ClaimForm
 
-  val allowedValues: Seq[String] = Seq("C285", "CE1179")
+  val allowedValues: Seq[String] = Seq("C285", "RejectedGoods")
 
   val dataKey: String = "choose-claim-type"
 
@@ -80,8 +80,8 @@ object ChooseClaimTypeController {
           .verifying(value => allowedValues.contains(value))
           .transform[ClaimForm](
             {
-              case "CE1179" => CE1179
-              case "C285"   => C285
+              case "RejectedGoods" => RejectedGoods
+              case "C285"          => C285
             },
             _.toString
           )

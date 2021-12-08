@@ -116,7 +116,7 @@ class CheckEoriDetailsController @Inject() (
                     _                  <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
                                             .leftMap(logError.andThen(returnErrorPage))
                     result             <- EitherT.rightT[Future, Result](
-                                            if (featureSwitch.CAndE1179.isEnabled())
+                                            if (featureSwitch.RejectedGoods.isEnabled())
                                               Redirect(routes.ChooseClaimTypeController.show())
                                             else
                                               Redirect(routes.SelectTypeOfClaimController.show())

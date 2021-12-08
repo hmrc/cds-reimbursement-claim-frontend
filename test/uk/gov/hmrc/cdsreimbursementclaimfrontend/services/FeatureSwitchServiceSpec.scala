@@ -40,7 +40,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
         featureSwitch.BulkClaim,
         featureSwitch.BulkMultiple,
         featureSwitch.NorthernIreland,
-        featureSwitch.CAndE1179
+        featureSwitch.RejectedGoods
       )
 
     "enable and disable All features" in forAll(featureList) { feature =>

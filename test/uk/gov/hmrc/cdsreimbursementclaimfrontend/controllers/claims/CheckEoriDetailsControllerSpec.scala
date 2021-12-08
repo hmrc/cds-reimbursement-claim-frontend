@@ -174,8 +174,8 @@ class CheckEoriDetailsControllerSpec
         checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
-      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.CAndE1179 is disabled" in {
-        featureSwitch.CAndE1179.disable()
+      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
+        featureSwitch.RejectedGoods.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -189,8 +189,8 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.SelectTypeOfClaimController.show())
       }
 
-      "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.CAndE1179 is enabled" in {
-        featureSwitch.CAndE1179.enable()
+      "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is enabled" in {
+        featureSwitch.RejectedGoods.enable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
