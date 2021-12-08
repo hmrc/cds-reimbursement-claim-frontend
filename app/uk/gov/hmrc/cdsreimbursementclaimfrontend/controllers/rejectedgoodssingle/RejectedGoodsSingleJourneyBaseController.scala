@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsingle
 
 import play.api.Configuration
 import play.api.mvc._
@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-abstract class RejectedGoodsSingleJourneyController(
+abstract class RejectedGoodsSingleJourneyBaseController(
   cc: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends FrontendController(cc)

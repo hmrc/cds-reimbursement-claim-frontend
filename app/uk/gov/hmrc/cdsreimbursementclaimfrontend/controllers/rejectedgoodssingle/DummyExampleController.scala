@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsingle
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
@@ -34,14 +34,14 @@ import scala.concurrent.Future
 
 /** Dummy controller to showcase different patterns of implementing actions. */
 @Singleton
-class DummyController @Inject() (
+class DummyExampleController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
   val config: Configuration
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyController(cc) {
+    extends RejectedGoodsSingleJourneyBaseController(cc) {
 
   // dummy API example
   def someApiCall(implicit hc: HeaderCarrier): Future[String] = ???
