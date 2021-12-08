@@ -1,6 +1,9 @@
 GET         /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.show()
 POST        /check-eori-details                                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckEoriDetailsController.submit()
 
+GET         /select-claim-type                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.show()
+POST        /select-claim-type                                      uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController.submit()
+
 GET         /choose-how-many-mrns                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.show()
 POST        /choose-how-many-mrns                                   uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectTypeOfClaimController.submit()
 

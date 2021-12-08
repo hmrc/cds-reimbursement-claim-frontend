@@ -174,8 +174,8 @@ class CheckEoriDetailsControllerSpec
         checkIsTechnicalErrorPage(performAction(Seq(checkEoriDetailsKey -> "true")))
       }
 
-      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.Bulk is enabled" in {
-        featureSwitch.BulkClaim.enable()
+      "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
+        featureSwitch.RejectedGoods.disable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -189,8 +189,8 @@ class CheckEoriDetailsControllerSpec
         checkIsRedirect(result, routes.SelectTypeOfClaimController.show())
       }
 
-      "Redirect to EnterMovementReferenceNumber if user says details are correct and FeatureSwitch.Bulk is disabled" in {
-        featureSwitch.BulkClaim.disable()
+      "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is enabled" in {
+        featureSwitch.RejectedGoods.enable()
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -201,7 +201,7 @@ class CheckEoriDetailsControllerSpec
         }
 
         val result = performAction(Seq(checkEoriDetailsKey -> "true"))
-        checkIsRedirect(result, routes.EnterMovementReferenceNumberController.enterJourneyMrn(JourneyBindable.Single))
+        checkIsRedirect(result, routes.ChooseClaimTypeController.show())
       }
 
       "Redirect to signout if the user chooses the Eori is incorrect, logout option" in {

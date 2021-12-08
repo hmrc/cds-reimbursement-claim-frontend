@@ -31,7 +31,8 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
   def of(name: String): Option[FeatureName] = Seq(
     BulkMultiple,
     BulkClaim,
-    NorthernIreland
+    NorthernIreland,
+    RejectedGoods
   ).find(_.name === name)
 
   sealed trait FeatureName extends Product with Serializable {
@@ -77,4 +78,5 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
   case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
   case object BulkMultiple extends { val name = "bulk-multiple" } with FeatureName
   case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
+  case object RejectedGoods extends { val name = "rejected-goods" } with FeatureName
 }

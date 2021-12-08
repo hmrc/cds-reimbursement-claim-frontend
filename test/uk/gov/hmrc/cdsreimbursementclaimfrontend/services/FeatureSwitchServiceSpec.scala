@@ -35,7 +35,13 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureSwitch = new FeatureSwitchService(configuration)
 
     val featureList =
-      Table("Features", featureSwitch.BulkClaim, featureSwitch.BulkMultiple, featureSwitch.NorthernIreland)
+      Table(
+        "Features",
+        featureSwitch.BulkClaim,
+        featureSwitch.BulkMultiple,
+        featureSwitch.NorthernIreland,
+        featureSwitch.RejectedGoods
+      )
 
     "enable and disable All features" in forAll(featureList) { feature =>
       feature.enable()
