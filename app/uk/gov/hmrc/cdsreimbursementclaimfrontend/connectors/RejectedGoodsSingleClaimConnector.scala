@@ -48,7 +48,7 @@ object RejectedGoodsSingleClaimConnector {
 
   final case class Request(claim: RejectedGoodsSingleJourney.Output)
   final case class Response(caseNumber: String)
-  final class Exception(msg: String) extends scala.RuntimeException(msg)
+  final case class Exception(msg: String) extends scala.RuntimeException(msg)
 
   implicit val requestFormat: Format[Request]   = Json.format[Request]
   implicit val responseFormat: Format[Response] = Json.format[Response]
@@ -87,7 +87,7 @@ class RejectedGoodsSingleClaimConnectorImpl @Inject() (
           .fold(error => Future.failed(new Exception(error)), Future.successful(_))
       else
         Future.failed(
-          new Exception(s"Request to POST $claimUrl failed because of $response")
+          new Exception(s"Request to POST $claimUrl failed because of $response ${response.body}")
         )
     )
 }

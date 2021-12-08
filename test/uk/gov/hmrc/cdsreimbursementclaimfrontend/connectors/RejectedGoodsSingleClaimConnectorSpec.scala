@@ -32,6 +32,8 @@ import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
+import scala.util.Try
+import scala.util.Failure
 
 class RejectedGoodsSingleClaimConnectorSpec
     extends AnyWordSpec
@@ -114,9 +116,11 @@ class RejectedGoodsSingleClaimConnectorSpec
 
     "throw exception when 4xx response status" in {
       mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(404, "case not found"))).once()
-      a[RejectedGoodsSingleClaimConnector.Exception] shouldBe thrownBy {
-        await(connector.submitClaim(sampleRequest))
-      }
+      Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
+        new RejectedGoodsSingleClaimConnector.Exception(
+          "Request to POST http://host3:123/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
+        )
+      )
     }
 
     "throw exception when 5xx response status in the third attempt" in {
