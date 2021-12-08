@@ -17,21 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 
 final case class SessionData(
-  journeyStatus: Option[JourneyStatus]
+  journeyStatus: Option[JourneyStatus] = None,
+  rejectedGoodsSingleJourney: Option[RejectedGoodsSingleJourney] = None
 )
 
 object SessionData {
 
   def apply(status: JourneyStatus): SessionData =
-    SessionData(status.some)
+    SessionData(journeyStatus = Some(status))
+
+  def apply(rejectedGoodsSingleJourney: RejectedGoodsSingleJourney): SessionData =
+    SessionData(rejectedGoodsSingleJourney = Some(rejectedGoodsSingleJourney))
 
   implicit val format: Format[SessionData] = Json.format
 
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
-  val empty: SessionData = SessionData(None)
+  val empty: SessionData = SessionData()
 }
