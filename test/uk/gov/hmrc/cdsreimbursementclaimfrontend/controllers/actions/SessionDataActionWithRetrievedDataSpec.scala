@@ -23,7 +23,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.UserType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, Name}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
@@ -60,14 +59,14 @@ class SessionDataActionWithRetrievedDataSpec extends ControllerSpec with Session
         messagesRequest
       )
 
-    val sessionData = sample[SessionData].copy(userType = Some(Individual))
+    val sessionData = sample[SessionData]
 
     def performAction(): Future[Result] =
       action.invokeBlock(
         authenticatedRequest,
         { r: RequestWithSessionDataAndRetrievedData[_] =>
           r.messagesApi shouldBe messagesRequest.messagesApi
-          r.sessionData shouldBe sessionData.copy(userType = Some(Individual))
+          r.sessionData shouldBe sessionData
           Future.successful(Ok)
         }
       )

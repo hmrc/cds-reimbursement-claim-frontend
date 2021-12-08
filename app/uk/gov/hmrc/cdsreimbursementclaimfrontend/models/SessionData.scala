@@ -21,18 +21,17 @@ import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Format, Json}
 
 final case class SessionData(
-  journeyStatus: Option[JourneyStatus],
-  userType: Option[UserType]
+  journeyStatus: Option[JourneyStatus]
 )
 
 object SessionData {
 
   def apply(status: JourneyStatus): SessionData =
-    SessionData(status.some, None)
+    SessionData(status.some)
 
   implicit val format: Format[SessionData] = Json.format
 
   implicit val eq: Eq[SessionData] = Eq.fromUniversalEquals[SessionData]
 
-  val empty: SessionData = SessionData(None, None)
+  val empty: SessionData = SessionData(None)
 }
