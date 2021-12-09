@@ -123,7 +123,7 @@ class CheckMovementReferenceNumbersControllerSpec
     def performActionWithData(data: Seq[(String, String)]): Future[Result] =
       controller.submitMrns()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    featureSwitch.BulkClaim.enable()
+    featureSwitch.enable(Feature.BulkClaim)
 
     "redirect to the start of the journey" when {
 

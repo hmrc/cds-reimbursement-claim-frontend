@@ -20,22 +20,23 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class FeatureSwitchController @Inject() (featureSwitch: FeatureSwitchService, mcc: MessagesControllerComponents)
     extends FrontendController(mcc) {
 
   def enable(featureName: String): Action[AnyContent] = Action {
-    featureSwitch
+    Feature
       .of(featureName)
-      .map(_.enable())
+      .map(featureSwitch.enable(_))
       .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Enabled feature $featureName"))
   }
 
   def disable(featureName: String): Action[AnyContent] = Action {
-    featureSwitch
+    Feature
       .of(featureName)
-      .map(_.disable())
+      .map(featureSwitch.disable(_))
       .fold(NotFound(s"No $featureName feature exists"))(_ => Ok(s"Disabled feature $featureName"))
   }
 }
