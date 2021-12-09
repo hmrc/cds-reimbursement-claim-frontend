@@ -29,7 +29,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class FeatureSwitchService @Inject() (configuration: Configuration) {
 
   def of(name: String): Option[FeatureName] = Seq(
-    BulkMultiple,
     NorthernIreland,
     RejectedGoods
   ).find(_.name === name)
@@ -74,7 +73,6 @@ class FeatureSwitchService @Inject() (configuration: Configuration) {
       }
   }
 
-  case object BulkMultiple extends { val name = "bulk-multiple" } with FeatureName
   case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
   case object RejectedGoods extends { val name = "rejected-goods" } with FeatureName
 }
