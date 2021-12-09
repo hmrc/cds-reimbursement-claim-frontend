@@ -68,22 +68,22 @@ class RejectedGoodsSingleJourneySpec
         RejectedGoodsSingleJourney.validator.apply(journey) shouldBe Validated.Valid(())
         journey.isComplete                                  shouldBe true
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
-        output.movementReferenceNumber             shouldBe journey.answers.movementReferenceNumber.get
-        output.declarantType                       shouldBe journey.getDeclarantType
-        output.basisOfClaim                        shouldBe journey.answers.basisOfClaim.get
-        output.methodOfDisposal                    shouldBe journey.answers.methodOfDisposal.get
-        output.detailsOfRejectedGoods              shouldBe journey.answers.detailsOfRejectedGoods.get
-        output.inspectionDate                      shouldBe journey.answers.inspectionDate.get
-        output.inspectionAddress                   shouldBe journey.answers.inspectionAddress.get
-        output.reimbursementMethod                 shouldBe journey.answers.reimbursementMethod
+        output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
+        output.declarantType            shouldBe journey.getDeclarantType
+        output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
+        output.methodOfDisposal         shouldBe journey.answers.methodOfDisposal.get
+        output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
+        output.inspectionDate           shouldBe journey.answers.inspectionDate.get
+        output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
+        output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
           .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
-        output.reimbursementClaims                 shouldBe journey.answers.reimbursementClaims.get.mapValues(_.get)
-        output.supportingEvidences                 shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
-        output.consigneeEoriNumber                 shouldBe journey.getConsigneeEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
-        output.declarantEoriNumber                 shouldBe journey.getDeclarantEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
-        output.contactDetails                      shouldBe exampleContactDetails
-        output.contactAddress                      shouldBe exampleContactAddress
-        output.bankAccountDetailsAndType.isDefined shouldBe (journey.answers.bankAccountDetails.isDefined && journey.answers.bankAccountType.isDefined)
+        output.totalReimbursementAmount shouldBe journey.getTotalReimbursementAmount
+        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
+        output.consigneeEoriNumber      shouldBe journey.getConsigneeEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
+        output.declarantEoriNumber      shouldBe journey.getDeclarantEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
+        output.contactDetails           shouldBe exampleContactDetails
+        output.contactAddress           shouldBe exampleContactAddress
+        output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
       }
     }
 
