@@ -37,7 +37,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureList =
       Table(
         "Features",
-        featureSwitch.BulkClaim,
         featureSwitch.BulkMultiple,
         featureSwitch.NorthernIreland,
         featureSwitch.RejectedGoods
@@ -52,7 +51,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.BulkClaim.enable()
+      featureSwitch.RejectedGoods.enable()
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents], instanceOf[ErrorHandler])
       val result         = testController.test()(FakeRequest())
@@ -62,7 +61,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Disable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.BulkClaim.disable()
+      featureSwitch.RejectedGoods.disable()
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents], instanceOf[ErrorHandler])
       val result         = testController.test()(FakeRequest())
@@ -75,7 +74,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val cc: MessagesControllerComponents,
     val errorHandler: ErrorHandler
   ) extends FrontendController(cc) {
-    def test(): Action[AnyContent] = fs.BulkClaim.hideIfNotEnabled async {
+    def test(): Action[AnyContent] = fs.RejectedGoods.hideIfNotEnabled async {
       Future.successful(Ok("ok"))
     }
   }

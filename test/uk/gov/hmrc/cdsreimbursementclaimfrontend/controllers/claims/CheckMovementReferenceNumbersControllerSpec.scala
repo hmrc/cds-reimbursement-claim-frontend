@@ -123,8 +123,6 @@ class CheckMovementReferenceNumbersControllerSpec
     def performActionWithData(data: Seq[(String, String)]): Future[Result] =
       controller.submitMrns()(FakeRequest().withFormUrlEncodedBody(data: _*))
 
-    featureSwitch.BulkClaim.enable()
-
     "redirect to the start of the journey" when {
 
       "there is no journey status in the session" in forAll { reference: MRN =>

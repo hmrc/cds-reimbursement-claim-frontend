@@ -104,8 +104,6 @@ class EnterMovementReferenceNumberControllerSpec
       typeOfClaim: TypeOfClaimAnswer,
       expectedTitle: String
     ) = {
-      featureSwitch.BulkClaim.enable()
-
       val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(typeOfClaim))
 
       inSequence {

@@ -133,9 +133,6 @@ class EnterAssociatedMrnControllerSpec
       )
 
   "EnterAssociatedMrnController" must {
-
-    featureSwitch.BulkClaim.enable()
-
     def performAction(mrnIndex: AssociatedMrnIndex): Future[Result] =
       controller.enterMrn(mrnIndex)(FakeRequest())
 
