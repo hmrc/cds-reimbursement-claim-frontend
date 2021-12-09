@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsingle
 
-import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
@@ -44,7 +43,6 @@ abstract class RejectedGoodsSingleJourneyBaseController(
   val authenticatedAction: AuthenticatedAction
   val sessionDataAction: SessionDataAction
   val sessionStore: SessionCache
-  val config: Configuration
 
   def simpleActionReadJourney(body: RejectedGoodsSingleJourney => Result): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>

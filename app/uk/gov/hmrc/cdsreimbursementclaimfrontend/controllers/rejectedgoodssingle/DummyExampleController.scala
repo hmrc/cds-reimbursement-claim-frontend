@@ -38,8 +38,7 @@ class DummyExampleController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  cc: MessagesControllerComponents,
-  val config: Configuration
+  cc: MessagesControllerComponents
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController(cc) {
 
