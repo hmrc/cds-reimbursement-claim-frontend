@@ -58,8 +58,7 @@ class SelectTypeOfClaimController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[TypeOfClaimAnswer] = _.typeOfClaim
 
-  def show(): Action[AnyContent] = (featureSwitch.BulkClaim.hideIfNotEnabled andThen
-    authenticatedActionWithSessionData).async { implicit request =>
+  def show(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     withAnswers[TypeOfClaimAnswer] { (_, answers) =>
       val emptyForm  = SelectTypeOfClaimController.typeOfClaimForm
       val filledForm = answers.fold(emptyForm)(emptyForm.fill)
@@ -67,35 +66,34 @@ class SelectTypeOfClaimController @Inject() (
     }
   }
 
-  def submit(): Action[AnyContent] =
-    (featureSwitch.BulkClaim.hideIfNotEnabled andThen authenticatedActionWithSessionData).async { implicit request =>
-      withAnswers[TypeOfClaimAnswer] { (fillingOutClaim, _) =>
-        SelectTypeOfClaimController.typeOfClaimForm
-          .bindFromRequest()
-          .fold(
-            formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
-            typeOfClaimAnswer => {
+  def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
+    withAnswers[TypeOfClaimAnswer] { (fillingOutClaim, _) =>
+      SelectTypeOfClaimController.typeOfClaimForm
+        .bindFromRequest()
+        .fold(
+          formWithErrors => BadRequest(selectNumberOfClaimsPage(formWithErrors)),
+          typeOfClaimAnswer => {
 
-              val updatedJourney =
-                FillingOutClaim.from(fillingOutClaim)(_.copy(typeOfClaim = Some(typeOfClaimAnswer)))
+            val updatedJourney =
+              FillingOutClaim.from(fillingOutClaim)(_.copy(typeOfClaim = Some(typeOfClaimAnswer)))
 
-              EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
-                .leftMap(_ => Error("could not update session"))
-                .fold(
-                  logAndDisplayError("Could not capture select number of claims"),
-                  _ => {
-                    val redirectUrl = typeOfClaimAnswer match {
-                      case TypeOfClaimAnswer.Individual => JourneyBindable.Single
-                      case TypeOfClaimAnswer.Multiple   => JourneyBindable.Multiple
-                      case TypeOfClaimAnswer.Scheduled  => JourneyBindable.Scheduled
-                    }
-                    Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+            EitherT(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
+              .leftMap(_ => Error("could not update session"))
+              .fold(
+                logAndDisplayError("Could not capture select number of claims"),
+                _ => {
+                  val redirectUrl = typeOfClaimAnswer match {
+                    case TypeOfClaimAnswer.Individual => JourneyBindable.Single
+                    case TypeOfClaimAnswer.Multiple   => JourneyBindable.Multiple
+                    case TypeOfClaimAnswer.Scheduled  => JourneyBindable.Scheduled
                   }
-                )
-            }
-          )
-      }
+                  Redirect(routes.EnterMovementReferenceNumberController.enterJourneyMrn(redirectUrl))
+                }
+              )
+          }
+        )
     }
+  }
 
 }
 

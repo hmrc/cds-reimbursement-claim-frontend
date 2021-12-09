@@ -112,15 +112,6 @@ class SelectTypeOfClaimControllerSpec
     document.select(".govuk-error-summary__list > li > a").text()
 
   "SelectTypeOfClaimController" must {
-
-    "redirect to the error page" when {
-      "the feature switch bulk claim is disabled" in {
-        featureSwitch.BulkClaim.disable()
-        val result = controller.show()(FakeRequest())
-        status(result) shouldBe NOT_FOUND
-      }
-    }
-
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {
         def performAction(): Future[Result] = controller.show()(FakeRequest())
