@@ -181,6 +181,8 @@ enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Tell us your lead Movement Reference Number (MRN)
 enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
+enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The MRN can be found in the import acceptance notification.
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE

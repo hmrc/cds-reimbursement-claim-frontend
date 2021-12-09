@@ -55,7 +55,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyBindab
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -86,7 +85,6 @@ class EnterMovementReferenceNumberControllerSpec
       .returning(EitherT.fromEither[Future](response))
 
   val controller: EnterMovementReferenceNumberController = instanceOf[EnterMovementReferenceNumberController]
-  val featureSwitch: FeatureSwitchService                = instanceOf[FeatureSwitchService]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
