@@ -67,7 +67,7 @@ class DefaultClaimService @Inject() (
     submitClaimRequest: SubmitClaimRequest,
     lang: Lang
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
-    claimConnector.submitClaim(submitClaimRequest, lang).subflatMap { httpResponse =>
+    claimConnector.submitClaim(submitClaimRequest).subflatMap { httpResponse =>
       if (httpResponse.status === OK)
         httpResponse
           .parseJSON[SubmitClaimResponse]()
