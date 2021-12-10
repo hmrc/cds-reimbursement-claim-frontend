@@ -560,10 +560,9 @@ tax-code.99C = 99C - Gas supplied by a gas utility or any gas supplied in a gase
 tax-code.99D = 99D - Electricity
 
 select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
-select-duty-types.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select one or more of the paid duty types.
 select-duty-types.error.required=Select one or more duty types you want to claim for.
 select-duty-types.error.invalid=Invalid duty type code
-select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
+select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
@@ -602,7 +601,7 @@ reimbursement-method.error.required=Select if you would like to be reimbursed vi
 #===================================================
 select-duties.title=Select the duties you want to claim for
 select-duties.duty.hint=This duty is not eligible for CMA reimbursement
-select-duties.help-text.1=These are the duties that have been paid in the import declaration. The duties shown below are based upon your basis for claim. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
+select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
 select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 select-duties.error.required=Choose at least one duty to claim against
 select-duties.duty.A00=Customs Duty
@@ -682,7 +681,7 @@ select-duties.duty.99C=Gas supplied by a gas utility or any gas supplied in a ga
 select-duties.duty.99D=Electricity
 
 multiple-select-duties.title=Select the duties you want to claim for under {0} MRN
-multiple-select-duties.help-text.1=These are the duties that have been paid under MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
+multiple-select-duties.help-text.1=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for.
 multiple-select-duties.help-text.2=If you believe you are entitled to an excise claim that is not listed below, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a>.
 
 #===================================================
