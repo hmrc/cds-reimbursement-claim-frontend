@@ -55,6 +55,7 @@ class RejectedGoodsSingleClaimConnectorSpec
         |        host     = host3
         |        port     = 123
         |        retryIntervals = [10ms,50ms] 
+        |        context-path = "/foo-claim"
         |      }
         |   }
         |}
@@ -72,7 +73,7 @@ class RejectedGoodsSingleClaimConnectorSpec
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedUrl = "http://host3:123/claims/rejected-goods-single"
+  val expectedUrl = "http://host3:123/foo-claim/claims/rejected-goods-single"
 
   val requestGen = for {
     journey <- RejectedGoodsSingleJourneyGenerators.completeJourneyGen
@@ -118,7 +119,7 @@ class RejectedGoodsSingleClaimConnectorSpec
       mockPost(expectedUrl, Seq.empty, sampleRequest)(Some(HttpResponse(404, "case not found"))).once()
       Try(await(connector.submitClaim(sampleRequest))) shouldBe Failure(
         new RejectedGoodsSingleClaimConnector.Exception(
-          "Request to POST http://host3:123/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
+          "Request to POST http://host3:123/foo-claim/claims/rejected-goods-single failed because of HttpResponse status=404 case not found"
         )
       )
     }
