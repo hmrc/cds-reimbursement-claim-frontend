@@ -105,8 +105,13 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     else
       DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
 
+  def getReimbursementClaims: Map[TaxCode, BigDecimal] =
+    answers.reimbursementClaims
+      .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+      .getOrElse(Map.empty)
+
   def getTotalReimbursementAmount: BigDecimal =
-    answers.reimbursementClaims.map(_.map(_._2.getOrElse(ZERO)).sum).getOrElse(ZERO)
+    getReimbursementClaims.toSeq.map(_._2).sum
 
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
@@ -233,11 +238,14 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
             Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
           case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-            val newReimbursementClaims = answers.reimbursementClaims match {
-              case None                      => Map(taxCode -> Some(reimbursementAmount))
-              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-            }
-            Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            if (getSelectedDuties.exists(_.contains(taxCode))) {
+              val newReimbursementClaims = answers.reimbursementClaims match {
+                case None                      => Map(taxCode -> Some(reimbursementAmount))
+                case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+              }
+              Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            } else
+              Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
 
           case _ =>
             Left("submitAmountForReimbursement.invalidReimbursementAmount")
