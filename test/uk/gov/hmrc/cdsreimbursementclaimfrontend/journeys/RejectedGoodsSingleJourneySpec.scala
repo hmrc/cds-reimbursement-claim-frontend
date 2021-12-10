@@ -313,17 +313,19 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit basis of claim special circumstances details" in {
-        val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
-          .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
-          .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+      val journeyEither = RejectedGoodsSingleJourney
+        .empty(exampleEori)
+        .submitBasisOfClaim(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+        .submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
 
-        journeyEither.isRight shouldBe true
+      journeyEither.isRight shouldBe true
 
     }
 
     "change basis of claim special circumstances details" in {
       forAll(completeJourneyGen) { journey =>
-        val modifiedJourneyEither = journey.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
+        val modifiedJourneyEither =
+          journey.submitBasisOfClaimSpecialCircumstancesDetails(exampleSpecialCircumstancesDetails)
 
         modifiedJourneyEither.isRight shouldBe journey.needsSpecialCircumstancesBasisOfClaim
       }
@@ -362,8 +364,11 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "select valid tax codes for reimbursement when none yet selected" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
 
@@ -371,22 +376,28 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "replace valid tax codes for reimbursement" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
 
-        journeyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
+      journeyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
 
-        val newJourney = journeyEither.map(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A90)))
+      val newJourney = journeyEither.map(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A90)))
 
-        newJourney.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
+      newJourney.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
 
     }
 
     "select invalid tax codes for reimbursement" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("1.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A80))
 
@@ -405,8 +416,8 @@ class RejectedGoodsSingleJourneySpec
     "change tax code for reimbursement with a new valid set" in {
       forAll(completeJourneyGen) { journey =>
         //need to know original set?
-       val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
-        val result = modifiedJourneyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14"))
+        val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+        val result                = modifiedJourneyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14"))
         result.isComplete shouldBe true
       }
     }
@@ -421,8 +432,11 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit valid amount for selected tax code" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .submitAmountForReimbursement(TaxCode.A00, BigDecimal("5.00"))
 
@@ -430,8 +444,11 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit valid amount for wrong tax code" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
+        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
+      )
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00"))
 
@@ -439,22 +456,24 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit invalid amount for selected tax code" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration        = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration               = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-      val journeyEitherTestZero = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00"))
+      val journeyEitherTestZero     = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00"))
       val journeyEitherTestNegative = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00"))
-      val journeyEitherTestGreater = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00"))
+      val journeyEitherTestGreater  = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00"))
 
-      journeyEitherTestZero shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+      journeyEitherTestZero     shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
       journeyEitherTestNegative shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
-      journeyEitherTestGreater shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+      journeyEitherTestGreater  shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
     }
 
     "submit invalid amount for wrong tax code" in {
 
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither      = RejectedGoodsSingleJourney
+        .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
         .submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00"))
 
@@ -465,8 +484,9 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         journey.getNdrcDetails
         // get ndrc details - select one and submit flatmap foreach
-        val modifiedJourneyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(15.00))
-        val needsTaxCodeAndClaimAmount = journey.answers.reimbursementClaims.contains(Seq(TaxCode.A80, BigDecimal(10.00)))
+        val modifiedJourneyEither      = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(15.00))
+        val needsTaxCodeAndClaimAmount =
+          journey.answers.reimbursementClaims.contains(Seq(TaxCode.A80, BigDecimal(10.00)))
 
         modifiedJourneyEither.isRight shouldBe needsTaxCodeAndClaimAmount
       }
@@ -475,6 +495,7 @@ class RejectedGoodsSingleJourneySpec
     "change to invalid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
         // need to select a tax code that exists
+        journey.getSelectedDuties
         val journeyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(0.00))
 
         journeyEither shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -503,7 +524,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, DateGen.genDate) { (journey, inspectionDate) =>
         val modifiedJourney = journey.submitInspectionDate(inspectionDate)
 
-        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.isComplete                     shouldBe true
         modifiedJourney.toOutput.map(_.inspectionDate) shouldBe Right(inspectionDate)
 
       }
@@ -522,7 +543,7 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, InspectionAddressGen.genInspectionAddress) { (journey, inspectionAddress) =>
         val modifiedJourney = journey.submitInspectionAddress(inspectionAddress)
 
-        modifiedJourney.isComplete shouldBe true
+        modifiedJourney.isComplete                        shouldBe true
         modifiedJourney.toOutput.map(_.inspectionAddress) shouldBe Right(inspectionAddress)
       }
     }

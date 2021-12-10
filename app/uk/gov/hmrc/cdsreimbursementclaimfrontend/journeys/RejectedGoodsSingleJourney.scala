@@ -82,7 +82,8 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
 
-  def needsSpecialCircumstancesBasisOfClaim: Boolean = answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+  def needsSpecialCircumstancesBasisOfClaim: Boolean =
+    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
 
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)

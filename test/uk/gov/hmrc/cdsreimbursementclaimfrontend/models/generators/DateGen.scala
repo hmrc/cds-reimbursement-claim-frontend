@@ -10,9 +10,9 @@ object DateGen {
   lazy val genDate = arbitraryDate.arbitrary
 
   def date: Gen[LocalDate] = {
-    val rangeStart = LocalDate.now.minusMonths(6).toEpochDay
+    val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay
     val currentYear = LocalDate.now.getYear
-    val rangeEnd = LocalDate.of(currentYear, 12, 31).toEpochDay
+    val rangeEnd    = LocalDate.of(currentYear, 12, 31).toEpochDay
     Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
   }
 
