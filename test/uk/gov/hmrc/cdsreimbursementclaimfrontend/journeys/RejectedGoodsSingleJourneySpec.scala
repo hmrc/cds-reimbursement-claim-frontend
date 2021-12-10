@@ -26,6 +26,7 @@ import cats.data.{ReaderT, Validated}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
@@ -370,7 +371,17 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "replace valid tax codes for reimbursement" in {
-      // TODO replace previous selection with new valid selection
+      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
+      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+        .submitDisplayDeclaration(displayDeclaration)
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+
+        journeyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
+
+        val newJourney = journeyEither.map(_.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A90)))
+
+        newJourney.getOrElse(fail("selectTaxCodeSetForReimbursement.missingDisplayDeclaration"))
+
     }
 
     "select invalid tax codes for reimbursement" in {
@@ -383,15 +394,30 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "change tax code for reimbursement with the same set" in {
-      // TODO
+      forAll(completeJourneyGen) { journey =>
+        val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(journey.getSelectedDuties.get)
+
+        val result = modifiedJourneyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14"))
+        result.isComplete shouldBe true
+      }
     }
 
-    "change tax code for reimbursement with the new valid set" in {
-      // TODO test if already provided amounts has been preserved
+    "change tax code for reimbursement with a new valid set" in {
+      forAll(completeJourneyGen) { journey =>
+        //need to know original set?
+       val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+        val result = modifiedJourneyEither.getOrElse(fail("selectTaxCodeSetForReimbursement.someTaxCodesNotInACC14"))
+        result.isComplete shouldBe true
+      }
     }
 
-    "change tax code for reimbursement with the new invalid set" in {
-      // TODO
+    "change tax code for reimbursement with a new invalid set" in {
+      forAll(completeJourneyGen) { journey =>
+        //need to know original set?
+        val modifiedJourneyEither = journey.selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00, TaxCode.A90))
+        modifiedJourneyEither.isRight shouldBe false
+
+      }
     }
 
     "submit valid amount for selected tax code" in {
@@ -409,43 +435,58 @@ class RejectedGoodsSingleJourneySpec
         .submitDisplayDeclaration(displayDeclaration)
         .submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00"))
 
-      journeyEither.isRight shouldBe false
+      journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
     }
 
     "submit invalid amount for selected tax code" in {
-      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false)))
-      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration = RejectedGoodsSingleJourney.empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-        .submitAmountForReimbursement(TaxCode.A00, BigDecimal("15.00"))
+      val journeyEitherTestZero = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00"))
+      val journeyEitherTestNegative = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00"))
+      val journeyEitherTestGreater = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00"))
 
-      journeyEither.isRight shouldBe false
+      journeyEitherTestZero shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+      journeyEitherTestNegative shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
+      journeyEitherTestGreater shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
     }
 
     "submit invalid amount for wrong tax code" in {
-      // TODO
+
+      val displayDeclaration =  buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val journeyEither = RejectedGoodsSingleJourney.empty(exampleEori)
+        .submitDisplayDeclaration(displayDeclaration)
+        .submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00"))
+
+      journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
     }
 
     "change to valid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        val journeyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(5.00))
+        journey.getNdrcDetails
+        // get ndrc details - select one and submit flatmap foreach
+        val modifiedJourneyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(15.00))
         val needsTaxCodeAndClaimAmount = journey.answers.reimbursementClaims.contains(Seq(TaxCode.A80, BigDecimal(10.00)))
-        journeyEither.isRight shouldBe needsTaxCodeAndClaimAmount
+
+        modifiedJourneyEither.isRight shouldBe needsTaxCodeAndClaimAmount
       }
     }
 
     "change to invalid amount for selected tax code" in {
       forAll(completeJourneyGen) { journey =>
-        val journeyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(15.00))
-        val needsTaxCodeAndClaimAmount = journey.answers.reimbursementClaims.contains(Seq(TaxCode.A80, BigDecimal(10.00)))
-        journeyEither.isRight shouldBe needsTaxCodeAndClaimAmount
+        // need to select a tax code that exists
+        val journeyEither = journey.submitAmountForReimbursement(TaxCode.A80, BigDecimal(0.00))
+
+        journeyEither shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
       }
     }
 
     "change to valid amount for wrong tax code" in {
       forAll(completeJourneyGen) { journey =>
+        // need to select a tax code that exists
         val journeyEither = journey.submitAmountForReimbursement(TaxCode.A00, BigDecimal(5.00))
-        val needsTaxCodeAndClaimAmount = journey.answers.reimbursementClaims.contains(Seq(TaxCode.A80, BigDecimal(10.00)))
-        journeyEither.isRight shouldBe !needsTaxCodeAndClaimAmount
+
+        journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
       }
     }
 
