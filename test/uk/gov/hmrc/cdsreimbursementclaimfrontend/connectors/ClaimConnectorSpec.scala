@@ -21,8 +21,6 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
-import play.api.i18n.Lang
-import play.api.test.Helpers.ACCEPT_LANGUAGE
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
@@ -45,6 +43,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
         |        protocol = http
         |        host     = host3
         |        port     = 123
+        |        context-path = "/foo-claim"
         |      }
         |   }
         |}
@@ -57,15 +56,14 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
   "Claim Connector" when {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    val defaultLanguage            = Lang.defaultLang
     val submitClaimRequest         = sample[SubmitClaimRequest]
 
-    val url = "http://host3:123/cds-reimbursement-claim/claim"
+    val url = "http://host3:123/foo-claim/claim"
 
     "handling requests to submit claim" must {
       behave like connectorBehaviour(
-        mockPost(url, Seq(ACCEPT_LANGUAGE -> defaultLanguage.language), submitClaimRequest)(_),
-        () => connector.submitClaim(submitClaimRequest, defaultLanguage)
+        mockPost(url, Seq.empty, submitClaimRequest)(_),
+        () => connector.submitClaim(submitClaimRequest)
       )
     }
 
