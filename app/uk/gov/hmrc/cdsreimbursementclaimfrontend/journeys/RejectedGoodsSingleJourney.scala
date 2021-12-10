@@ -53,6 +53,8 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
     extends FluentSyntax[RejectedGoodsSingleJourney] {
 
+  val ZERO: BigDecimal = BigDecimal("0")
+
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def isComplete: Boolean =
     RejectedGoodsSingleJourney.validator.apply(this).isValid
@@ -99,6 +101,9 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       DeclarantTypeAnswer.AssociatedWithImporterCompany
     else
       DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+
+  def getTotalReimbursementAmount: BigDecimal =
+    answers.reimbursementClaims.map(_.map(_._2.getOrElse(ZERO)).sum).getOrElse(ZERO)
 
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
@@ -369,11 +374,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 basisOfClaimSpecialCircumstances,
                 Some(methodOfDisposal),
                 Some(detailsOfRejectedGoods),
-                Some(reimbursementClaims),
+                _,
                 Some(inspectionDate),
                 Some(inspectionAddress),
                 bankAccountDetails,
-                bankAccountType,
+                _,
                 reimbursementMethod,
                 Some(supportingEvidences)
               ) =>
@@ -386,7 +391,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
                 inspectionDate = inspectionDate,
                 inspectionAddress = inspectionAddress,
-                reimbursementClaims = reimbursementClaims.mapValues(_.get),
+                totalReimbursementAmount = getTotalReimbursementAmount,
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
@@ -394,7 +399,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 declarantEoriNumber = declarantEoriNumber.getOrElse(userEoriNumber),
                 contactDetails = contactDetails,
                 contactAddress = contactAddress,
-                bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
+                bankAccountDetails = bankAccountDetails
               )
             )
           case _ =>
@@ -441,7 +446,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[TaxCode, BigDecimal],
+    totalReimbursementAmount: BigDecimal,
     supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
     basisOfClaimSpecialCircumstances: Option[String],
     reimbursementMethod: ReimbursementMethodAnswer,
@@ -449,7 +454,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     declarantEoriNumber: Eori,
     contactDetails: MrnContactDetails,
     contactAddress: ContactAddress,
-    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)]
+    bankAccountDetails: Option[BankAccountDetails]
   )
 
   import com.github.arturopala.validator.Validator._
@@ -469,6 +474,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       check(_.isCompleteSupportingEvidences, "incomplete supporting evidences"),
       checkIsDefined(_.answers.contactDetails, "missing contactDetails"),
       checkIsDefined(_.answers.contactAddress, "missing contactAddress"),
+      check(_.getTotalReimbursementAmount > 0, "total reimbursement amout must be greater than zero"),
       whenTrue(
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
