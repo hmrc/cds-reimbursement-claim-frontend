@@ -233,10 +233,7 @@ class SelectMultipleDutiesControllerSpec
         checkPageIsDisplayed(
           performActionGetSelectDuties(1),
           messageFromMessageKey("multiple-select-duties.title", "lead"),
-          doc => {
-            assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
-            assertMrnIsDisplayedInBold(doc, mrns(0))
-          }
+          doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
         )
       }
 
@@ -256,10 +253,7 @@ class SelectMultipleDutiesControllerSpec
         checkPageIsDisplayed(
           performActionGetSelectDuties(1),
           messageFromMessageKey("multiple-select-duties.title", "lead"),
-          doc => {
-            assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
-            assertMrnIsDisplayedInBold(doc, mrns(0))
-          }
+          doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
         )
       }
     }
@@ -279,10 +273,7 @@ class SelectMultipleDutiesControllerSpec
         checkPageIsDisplayed(
           performActionGetSelectDuties(2),
           messageFromMessageKey("multiple-select-duties.title", "second"),
-          doc => {
-            assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
-            assertMrnIsDisplayedInBold(doc, mrns(1))
-          }
+          doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
         )
       }
 
@@ -302,10 +293,7 @@ class SelectMultipleDutiesControllerSpec
         checkPageIsDisplayed(
           performActionGetSelectDuties(2),
           messageFromMessageKey("multiple-select-duties.title", "second"),
-          doc => {
-            assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
-            assertMrnIsDisplayedInBold(doc, mrns(1))
-          }
+          doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
         )
       }
     }
@@ -330,10 +318,7 @@ class SelectMultipleDutiesControllerSpec
           checkPageIsDisplayed(
             performActionGetSelectDuties(selectedMrnIndex),
             messageFromMessageKey("multiple-select-duties.title", OrdinalNumeral(selectedMrnIndex)),
-            doc => {
-              assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
-              assertMrnIsDisplayedInBold(doc, mrns(selectedMrnIndex - 1))
-            }
+            doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, Nil)
           )
         }
       }
@@ -354,10 +339,7 @@ class SelectMultipleDutiesControllerSpec
           checkPageIsDisplayed(
             performActionGetSelectDuties(selectedMrnIndex),
             messageFromMessageKey("multiple-select-duties.title", OrdinalNumeral(selectedMrnIndex)),
-            doc => {
-              assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
-              assertMrnIsDisplayedInBold(doc, mrns(selectedMrnIndex - 1))
-            }
+            doc => assertAllRelevantDutiesAreRepresented(doc, taxCodes, selectedTaxCodes)
           )
         }
       }
