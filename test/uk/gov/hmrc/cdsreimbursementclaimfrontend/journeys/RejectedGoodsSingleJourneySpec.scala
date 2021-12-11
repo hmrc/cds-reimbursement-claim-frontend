@@ -440,16 +440,14 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit valid amount for selected tax code" in {
-      val displayDeclaration = buildDisplayDeclaration(dutyDetails =
-        Seq((TaxCode.A00, BigDecimal("10.00"), false), (TaxCode.A90, BigDecimal("20.00"), false))
-      )
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-        .submitAmountForReimbursement(TaxCode.A00, BigDecimal("5.00"))
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("5.00")))
 
-      //journeyEither.getOrElse(fail(couldNotRetrieveJourney))
-      //result.answers.reimbursementClaims shouldBe (Seq(TaxCode.A00, BigDecimal("5.00")))
+      journeyEither.isRight shouldBe true
     }
 
     "submit valid amount for wrong tax code" in {
@@ -459,19 +457,24 @@ class RejectedGoodsSingleJourneySpec
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-        .submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00"))
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("5.00")))
 
       journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
     }
 
     "submit invalid amount for selected tax code" in {
-      val displayDeclaration        = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
-      val declaration               = RejectedGoodsSingleJourney
+      val displayDeclaration = buildDisplayDeclaration(dutyDetails = Seq((TaxCode.A00, BigDecimal("10.00"), false)))
+      val declaration        = RejectedGoodsSingleJourney
         .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-      val journeyEitherTestZero     = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00"))
-      val journeyEitherTestNegative = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00"))
-      val journeyEitherTestGreater  = declaration.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00"))
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+
+      val journeyEitherTestZero     = declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("0.00")))
+      val journeyEitherTestNegative =
+        declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("-10.00")))
+      val journeyEitherTestGreater  =
+        declaration.flatMap(_.submitAmountForReimbursement(TaxCode.A00, BigDecimal("20.00")))
 
       journeyEitherTestZero     shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
       journeyEitherTestNegative shouldBe Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -483,7 +486,8 @@ class RejectedGoodsSingleJourneySpec
       val journeyEither      = RejectedGoodsSingleJourney
         .empty(exampleEori)
         .submitDisplayDeclaration(displayDeclaration)
-        .submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00"))
+        .selectAndReplaceTaxCodeSetForReimbursement(Seq(TaxCode.A00))
+        .flatMap(_.submitAmountForReimbursement(TaxCode.A80, BigDecimal("0.00")))
 
       journeyEither shouldBe Left("submitAmountForReimbursement.taxCodeNotInACC14")
     }
