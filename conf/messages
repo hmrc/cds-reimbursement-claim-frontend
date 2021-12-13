@@ -729,9 +729,9 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim total for the MRN
+check-claim-summary.title=Check the claim total for the MRN
 check-claim-summary.scheduled.title=Check the reimbursement claim totals for all MRNs
-check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
+check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
 check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
