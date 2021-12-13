@@ -157,9 +157,9 @@ check-eori-details.error.invalid=Select yes if details are correct
 select-number-of-claims.title=Choose how many MRNs you want to submit in this claim
 select-number-of-claims.p1=A Movement Reference Number (MRN) is issued when an import is declared. The MRN is an 18-digit number that can be found in the import acceptance notification.
 select-number-of-claims.p2=Multiple MRNs must all be from the same importer and have the same reason for overpayment.
-select-number-of-claims.individual.title=One MRN
-select-number-of-claims.multiple.title=Multiple/bulk MRNs - Manual entry
-select-number-of-claims.scheduled.title=Multiple/bulk MRNs - Document upload
+select-number-of-claims.individual.title=Enter one MRN
+select-number-of-claims.multiple.title=Enter multiple MRNs
+select-number-of-claims.scheduled.title=Upload multiple MRNs
 select-number-of-claims.scheduled.hint=Upload a list of MRNs, their duties and paid amounts.
 select-number-of-claims.error.required=Choose how many MRNs you want to submit in this claim.
 select-number-of-claims.invalid=Choose how many MRNs you want to submit in this claim.
@@ -167,24 +167,24 @@ select-number-of-claims.invalid=Choose how many MRNs you want to submit in this 
 #===================================================
 #  ENTER MRN PAGE
 #===================================================
-enter-movement-reference-number.title=Tell us your Movement Reference Number (MRN)
+enter-movement-reference-number.title=Enter the MRN
 enter-movement-reference-number.help=Must be 18 characters, for example 19GB03I52858027001.
-enter-movement-reference-number.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-movement-reference-number.help-text=The MRN can be found in the import acceptance notification.
 enter-movement-reference-number.enter-mrn.label=Enter MRN
 enter-movement-reference-number.invalid.number=Enter a movement reference number
 enter-movement-reference-number.error.required=Enter a movement reference number
-enter-movement-reference-number.multiple.title=Tell us your lead Movement Reference Number (MRN)
-enter-movement-reference-number.multiple.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.multiple.title=Enter the lead MRN
+enter-movement-reference-number.multiple.help-text=The MRN can be found in the import acceptance notification.
 enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
-enter-movement-reference-number.scheduled.title=Tell us your lead Movement Reference Number (MRN)
-enter-movement-reference-number.scheduled.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.<br/><br/>The lead MRN is the one with the highest paid amount of duties.
+enter-movement-reference-number.scheduled.title=Enter the lead MRN
+enter-movement-reference-number.scheduled.help-text=The MRN can be found in the import acceptance notification.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
-enter-associated-mrn.title=Tell us your {0} Movement Reference Number (MRN)
-enter-associated-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
+enter-associated-mrn.title=Tell us the {0} MRN
+enter-associated-mrn.help-text=The MRN will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
 enter-associated-mrn.error.required=Enter a movement reference number
@@ -196,7 +196,7 @@ enter-associated-mrn.error.missing-declaration=This MRN does not exist
 #===================================================
 #  CHECK MOVEMENT REFERENCE NUMBERS
 #===================================================
-check-movement-reference-numbers.title=All your MRNs entered in this claim
+check-movement-reference-numbers.title=All the MRNs entered in this claim
 check-movement-reference-numbers.help-text=These are the MRNs that you have added so far. You can add more if you wish.
 check-movement-reference-numbers.add-another-mrn-question=Do you want to add another MRN?
 check-movement-reference-numbers.error.invalid=Select yes if you want to add another MRN
@@ -210,7 +210,7 @@ mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been e
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.mrn.title=Enter the duplicate MRN
 enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
@@ -380,11 +380,11 @@ claim-northern-ireland.title=Were your goods imported to or moved through Northe
 claim-northern-ireland.help-text=
 claim-northern-ireland.yes.title=Yes
 claim-northern-ireland.no.title=No
-claim-northern-ireland.error.required=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
-claim-northern-ireland.error.invalid=Select Yes if all your MRNs in this claim were imported to or moved through Northern Ireland.
+claim-northern-ireland.error.required=Select Yes if all the MRNs in this claim were imported to or moved through Northern Ireland.
+claim-northern-ireland.error.invalid=Select Yes if all the MRNs in this claim were imported to or moved through Northern Ireland.
 
-claim-northern-ireland.scheduled.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
-claim-northern-ireland.multiple.help-text=If you select Yes, then all your MRNs in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.scheduled.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
+claim-northern-ireland.multiple.help-text=If you select Yes, then all the MRNs in this claim must have been imported to or moved through Northern Ireland.
 #===================================================
 #  SELECT BASIS FOR CLAIM PAGE
 #===================================================
@@ -687,7 +687,8 @@ multiple-select-duties.help-text.2=If you believe you are entitled to an excise 
 #  ENTER SINGLE CLAIM PAGE
 #===================================================
 enter-claim.title=Claim details for {0} - {1}
-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
@@ -699,8 +700,9 @@ enter-claim.invalid.claim=Amount that should have been paid must be lower than t
 #===================================================
 #  ENTER SCHEDULE CLAIM PAGE
 #===================================================
-enter-scheduled-claim.title=Claim details for all MRNS under {0} {1}
-enter-scheduled-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-scheduled-claim.title=Claim details for all MRNs under {0} {1}
+enter-scheduled-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
 enter-scheduled-claim.actual-amount.hint=This is the {0} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
@@ -714,7 +716,8 @@ enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been p
 #  ENTER MULTIPLE CLAIM PAGE
 #===================================================
 multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
-multiple-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>. HMRC does not refund agents’ fees.
+multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
+multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
 multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
@@ -726,7 +729,7 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim total for your MRN
+check-claim-summary.title=Check the reimbursement claim total for the MRN
 check-claim-summary.scheduled.title=Check the reimbursement claim totals for all MRNs
 check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.

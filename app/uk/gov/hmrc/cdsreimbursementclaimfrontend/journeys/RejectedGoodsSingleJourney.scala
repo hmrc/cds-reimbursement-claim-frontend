@@ -82,6 +82,9 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
 
+  def needsSpecialCircumstancesBasisOfClaim: Boolean =
+    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
@@ -102,8 +105,13 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     else
       DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
 
+  def getReimbursementClaims: Map[TaxCode, BigDecimal] =
+    answers.reimbursementClaims
+      .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+      .getOrElse(Map.empty)
+
   def getTotalReimbursementAmount: BigDecimal =
-    answers.reimbursementClaims.map(_.map(_._2.getOrElse(ZERO)).sum).getOrElse(ZERO)
+    getReimbursementClaims.toSeq.map(_._2).sum
 
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
@@ -182,17 +190,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       case _ => Left("basisOfClaim.not_matching")
     }
 
-  /** Overwrites basisOfClaim with SpecialCircumstances enum value. */
-  def forceSubmitBasisOfClaimSpecialCircumstances(
-    basisOfClaimSpecialCircumstances: String
-  ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(
-        basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-        basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
-      )
-    )
-
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(methodOfDisposal = Some(methodOfDisposal))
@@ -202,25 +199,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     new RejectedGoodsSingleJourney(
       answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
     )
-
-  def selectTaxCodeForReimbursement(taxCode: TaxCode): Either[String, RejectedGoodsSingleJourney] =
-    answers.displayDeclaration match {
-      case None => Left("selectTaxCodeForReimbursement.missingDisplayDeclaration")
-
-      case Some(_) =>
-        if (getNdrcDetailsFor(taxCode).isDefined) {
-          val newReimbursementClaims = answers.reimbursementClaims match {
-            case None                      => Map(taxCode -> None)
-            case Some(reimbursementClaims) =>
-              reimbursementClaims.get(taxCode) match {
-                case None => reimbursementClaims + (taxCode -> None)
-                case _    => reimbursementClaims
-              }
-          }
-          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
-        } else
-          Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
-    }
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {
@@ -260,11 +238,14 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
             Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
           case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-            val newReimbursementClaims = answers.reimbursementClaims match {
-              case None                      => Map(taxCode -> Some(reimbursementAmount))
-              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-            }
-            Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            if (getSelectedDuties.exists(_.contains(taxCode))) {
+              val newReimbursementClaims = answers.reimbursementClaims match {
+                case None                      => Map(taxCode -> Some(reimbursementAmount))
+                case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+              }
+              Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            } else
+              Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
 
           case _ =>
             Left("submitAmountForReimbursement.invalidReimbursementAmount")

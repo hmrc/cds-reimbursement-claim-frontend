@@ -41,6 +41,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 trait RejectedGoodsSingleJourneyTestData {
 
+  val couldNotRetrieveJourney: String = "Journey construction in the test has failed but shouldn't"
+
   val exampleEori: Eori           = IdGen.genEori.sample.get
   val anotherExampleEori: Eori    = IdGen.genEori.sample.get
   val yetAnotherExampleEori: Eori = IdGen.genEori.sample.get
@@ -84,6 +86,8 @@ trait RejectedGoodsSingleJourneyTestData {
       sortCode = SortCode("00000000"),
       accountNumber = AccountNumber("00000000")
     )
+
+  val exampleSpecialCircumstancesDetails: String = "Goods failed health and safety inspection"
 
   def tryBuildRejectedGoodsSingleJourney(
     userEoriNumber: Eori,

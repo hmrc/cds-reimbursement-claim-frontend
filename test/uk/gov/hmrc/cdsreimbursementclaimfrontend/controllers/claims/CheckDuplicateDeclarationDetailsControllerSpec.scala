@@ -224,7 +224,7 @@ class CheckDuplicateDeclarationDetailsControllerSpec
 
         checkPageIsDisplayed(
           performAction(journey, Seq(checkDeclarationDetailsKey -> "false")),
-          "Tell us your duplicate Movement Reference Number (MRN)"
+          "Enter the duplicate MRN"
         )
       }
 
