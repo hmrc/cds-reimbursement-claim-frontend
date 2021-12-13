@@ -53,6 +53,8 @@ import java.time.LocalDate
 final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingleJourney.Answers)
     extends FluentSyntax[RejectedGoodsSingleJourney] {
 
+  val ZERO: BigDecimal = BigDecimal("0")
+
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def isComplete: Boolean =
     RejectedGoodsSingleJourney.validator.apply(this).isValid
@@ -80,6 +82,9 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     answers.reimbursementMethod.isEmpty ||
       answers.reimbursementMethod.contains(ReimbursementMethodAnswer.BankAccountTransfer)
 
+  def needsSpecialCircumstancesBasisOfClaim: Boolean =
+    answers.basisOfClaim.contains(BasisOfRejectedGoodsClaim.SpecialCircumstances)
+
   def getNdrcDetails: Option[List[NdrcDetails]] =
     answers.displayDeclaration.flatMap(_.getNdrcDetailsList)
 
@@ -99,6 +104,14 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       DeclarantTypeAnswer.AssociatedWithImporterCompany
     else
       DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
+
+  def getReimbursementClaims: Map[TaxCode, BigDecimal] =
+    answers.reimbursementClaims
+      .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
+      .getOrElse(Map.empty)
+
+  def getTotalReimbursementAmount: BigDecimal =
+    getReimbursementClaims.toSeq.map(_._2).sum
 
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
@@ -177,17 +190,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       case _ => Left("basisOfClaim.not_matching")
     }
 
-  /** Overwrites basisOfClaim with SpecialCircumstances enum value. */
-  def forceSubmitBasisOfClaimSpecialCircumstances(
-    basisOfClaimSpecialCircumstances: String
-  ): RejectedGoodsSingleJourney =
-    new RejectedGoodsSingleJourney(
-      answers.copy(
-        basisOfClaim = Some(BasisOfRejectedGoodsClaim.SpecialCircumstances),
-        basisOfClaimSpecialCircumstances = Some(basisOfClaimSpecialCircumstances)
-      )
-    )
-
   def submitMethodOfDisposal(methodOfDisposal: MethodOfDisposal): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(methodOfDisposal = Some(methodOfDisposal))
@@ -197,25 +199,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     new RejectedGoodsSingleJourney(
       answers.copy(detailsOfRejectedGoods = Some(detailsOfRejectedGoods))
     )
-
-  def selectTaxCodeForReimbursement(taxCode: TaxCode): Either[String, RejectedGoodsSingleJourney] =
-    answers.displayDeclaration match {
-      case None => Left("selectTaxCodeForReimbursement.missingDisplayDeclaration")
-
-      case Some(_) =>
-        if (getNdrcDetailsFor(taxCode).isDefined) {
-          val newReimbursementClaims = answers.reimbursementClaims match {
-            case None                      => Map(taxCode -> None)
-            case Some(reimbursementClaims) =>
-              reimbursementClaims.get(taxCode) match {
-                case None => reimbursementClaims + (taxCode -> None)
-                case _    => reimbursementClaims
-              }
-          }
-          Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
-        } else
-          Left("selectTaxCodeForReimbursement.taxCodeNotInACC14")
-    }
 
   def selectAndReplaceTaxCodeSetForReimbursement(taxCodes: Seq[TaxCode]): Either[String, RejectedGoodsSingleJourney] =
     answers.displayDeclaration match {
@@ -255,11 +238,14 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
             Left("submitAmountForReimbursement.taxCodeNotInACC14")
 
           case Some(ndrcDetails) if isValidReimbursementAmount(reimbursementAmount, ndrcDetails) =>
-            val newReimbursementClaims = answers.reimbursementClaims match {
-              case None                      => Map(taxCode -> Some(reimbursementAmount))
-              case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
-            }
-            Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            if (getSelectedDuties.exists(_.contains(taxCode))) {
+              val newReimbursementClaims = answers.reimbursementClaims match {
+                case None                      => Map(taxCode -> Some(reimbursementAmount))
+                case Some(reimbursementClaims) => reimbursementClaims + (taxCode -> Some(reimbursementAmount))
+              }
+              Right(new RejectedGoodsSingleJourney(answers.copy(reimbursementClaims = Some(newReimbursementClaims))))
+            } else
+              Left("submitAmountForReimbursement.taxCodeNotSelectedYet")
 
           case _ =>
             Left("submitAmountForReimbursement.invalidReimbursementAmount")
@@ -369,11 +355,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 basisOfClaimSpecialCircumstances,
                 Some(methodOfDisposal),
                 Some(detailsOfRejectedGoods),
-                Some(reimbursementClaims),
+                _,
                 Some(inspectionDate),
                 Some(inspectionAddress),
                 bankAccountDetails,
-                bankAccountType,
+                _,
                 reimbursementMethod,
                 Some(supportingEvidences)
               ) =>
@@ -386,7 +372,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
                 inspectionDate = inspectionDate,
                 inspectionAddress = inspectionAddress,
-                reimbursementClaims = reimbursementClaims.mapValues(_.get),
+                totalReimbursementAmount = getTotalReimbursementAmount,
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
@@ -394,7 +380,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 declarantEoriNumber = declarantEoriNumber.getOrElse(userEoriNumber),
                 contactDetails = contactDetails,
                 contactAddress = contactAddress,
-                bankAccountDetailsAndType = for (a <- bankAccountDetails; b <- bankAccountType) yield (a, b)
+                bankAccountDetails = bankAccountDetails
               )
             )
           case _ =>
@@ -441,7 +427,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
-    reimbursementClaims: Map[TaxCode, BigDecimal],
+    totalReimbursementAmount: BigDecimal,
     supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
     basisOfClaimSpecialCircumstances: Option[String],
     reimbursementMethod: ReimbursementMethodAnswer,
@@ -449,7 +435,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     declarantEoriNumber: Eori,
     contactDetails: MrnContactDetails,
     contactAddress: ContactAddress,
-    bankAccountDetailsAndType: Option[(BankAccountDetails, BankAccountType)]
+    bankAccountDetails: Option[BankAccountDetails]
   )
 
   import com.github.arturopala.validator.Validator._
@@ -469,6 +455,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       check(_.isCompleteSupportingEvidences, "incomplete supporting evidences"),
       checkIsDefined(_.answers.contactDetails, "missing contactDetails"),
       checkIsDefined(_.answers.contactAddress, "missing contactAddress"),
+      check(_.getTotalReimbursementAmount > 0, "total reimbursement amout must be greater than zero"),
       whenTrue(
         _.needsDeclarantAndConsigneeEoriSubmission,
         all(
