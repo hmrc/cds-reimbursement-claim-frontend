@@ -72,8 +72,6 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.help-text")), Some("govuk-body govuk-!-margin-bottom-6"))
-
     @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {

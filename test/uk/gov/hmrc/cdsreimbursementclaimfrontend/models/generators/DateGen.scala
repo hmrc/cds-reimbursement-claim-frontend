@@ -16,18 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.Gen
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import org.scalacheck.{Arbitrary, Gen}
+import java.time.LocalDate
 
-object ContactDetailsGen {
-  import EmailGen._
-  import PhoneNumberGen._
+object DateGen {
 
-  lazy val genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
-    Gen.option(arbitraryMrnContactDetails.arbitrary)
+  implicit lazy val arbitraryDate = Arbitrary(date)
 
-  lazy val genMrnContactDetails = arbitraryMrnContactDetails.arbitrary
+  lazy val genDate = arbitraryDate.arbitrary
 
-  implicit lazy val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
+  def date: Gen[LocalDate] = {
+    val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay
+    val currentYear = LocalDate.now.getYear
+    val rangeEnd    = LocalDate.of(currentYear, 12, 31).toEpochDay
+    Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
+  }
+
 }
