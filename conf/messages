@@ -688,7 +688,8 @@ multiple-select-duties.help-text.2=If you believe you are entitled to an excise 
 #  ENTER SINGLE CLAIM PAGE
 #===================================================
 enter-claim.title=Claim details for {0} - {1}
-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-claim.inset-text=HMRC does not refund agents’ fees.
 enter-claim.paid-amount-label=How much was paid: {0}
 enter-claim.actual-amount=How much should have been paid, in pounds?
 enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
@@ -700,8 +701,9 @@ enter-claim.invalid.claim=Amount that should have been paid must be lower than t
 #===================================================
 #  ENTER SCHEDULE CLAIM PAGE
 #===================================================
-enter-scheduled-claim.title=Claim details for all MRNS under {0} {1}
-enter-scheduled-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim. HMRC does not refund agents’ fees.
+enter-scheduled-claim.title=Claim details for all MRNs under {0} {1}
+enter-scheduled-claim.help-text=This is to calculate your repayment as part of your claim.
+enter-scheduled-claim.inset-text=HMRC does not refund agents’ fees.
 enter-scheduled-claim.paid-amount=How much was paid, in pounds?
 enter-scheduled-claim.actual-amount=How much should have been paid, in pounds?
 enter-scheduled-claim.actual-amount.hint=This is the {0} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
@@ -715,7 +717,8 @@ enter-scheduled-claim.actual-amount.invalid.claim=Amount that should have been p
 #  ENTER MULTIPLE CLAIM PAGE
 #===================================================
 multiple-enter-claim.title=Claim details for {0} - {1} under {2} MRN
-multiple-enter-claim.help-text=This is to calculate your reimbursement (repayment) as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>. HMRC does not refund agents’ fees.
+multiple-enter-claim.help-text=This is to calculate your repayment as part of your claim for MRN: <span id="MRN" class="govuk-!-font-weight-bold">{0}</span>.
+multiple-enter-claim.inset-text=HMRC does not refund agents’ fees.
 multiple-enter-claim.paid-amount-label=How much was paid: <span id="paid-amount">{0}</span>
 multiple-enter-claim.actual-amount=How much should have been paid, in pounds?
 multiple-enter-claim.actual-amount.hint=This is the {0} - {1} amount you should have paid. Amount that should have been paid must be lower than the amount paid.
