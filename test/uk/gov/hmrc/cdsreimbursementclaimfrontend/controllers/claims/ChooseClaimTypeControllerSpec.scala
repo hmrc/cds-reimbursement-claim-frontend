@@ -30,6 +30,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectedGoodsSingleRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
@@ -72,6 +73,7 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
     new ChooseClaimTypeController(
       authenticatedAction,
       sessionDataAction,
+      mockSessionCache,
       chooseClaimTypePage
     ) {
       override val logger: Logger = stubLogger
@@ -133,7 +135,10 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
         }
 
         val result = performAction(Seq(dataKey -> RejectedGoods.toString))
-        checkIsRedirect(result, "rejected-goods/choose-how-many-mrns")
+        checkIsRedirect(
+          result,
+          rejectedGoodsSingleRoutes.EnterMovementReferenceNumberController.show()
+        )
       }
 
       "Show error page when no data selected" in {

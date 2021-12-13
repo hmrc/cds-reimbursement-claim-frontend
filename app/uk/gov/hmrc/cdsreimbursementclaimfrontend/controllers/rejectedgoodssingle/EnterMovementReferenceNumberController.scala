@@ -16,14 +16,22 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
+import cats.data.EitherT
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.movementReferenceNumberForm
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class EnterMovementReferenceNumberController @Inject() (
@@ -31,19 +39,85 @@ class EnterMovementReferenceNumberController @Inject() (
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
   cc: MessagesControllerComponents,
+  claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController(cc) {
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => _ =>
-    Future.successful(
+  private val form   = movementReferenceNumberForm()
+  private val subKey = Some("rejected-goods.single")
+
+  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+    Future.successful {
+      val form = journey.answers.movementReferenceNumber
+        .fold(movementReferenceNumberForm())(movementReferenceNumberForm.fill)
       Ok(
         enterMovementReferenceNumberPage(
-          movementReferenceNumberForm(),
-          Some("rejected-goods.single"),
-          routes.EnterMovementReferenceNumberController.show()
+          form,
+          subKey,
+          routes.EnterMovementReferenceNumberController.submit()
         )
       )
-    )
+    }
   }
+
+  def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(
+            (
+              journey,
+              BadRequest(
+                enterMovementReferenceNumberPage(
+                  formWithErrors,
+                  subKey,
+                  routes.EnterMovementReferenceNumberController.submit()
+                )
+              )
+            )
+          ),
+        mrn =>
+          {
+            for {
+              maybeAcc14    <- getDeclaration(mrn)
+              updateJourney <- updateJourney(journey, mrn, maybeAcc14)
+            } yield updateJourney
+          }.fold(
+            errors => {
+              logger.error(s"Unable to record $mrn", errors.toException)
+              (journey, (Redirect(baseRoutes.IneligibleController.ineligible())))
+            },
+            updatedJourney => (updatedJourney, redirectLocation(updatedJourney))
+          )
+      )
+  }
+
+  private def redirectLocation(journey: RejectedGoodsSingleJourney): Result =
+    if (journey.needsDeclarantAndConsigneeEoriSubmission) {
+      Redirect("/rejected-goods/single/enter-importer-eori")
+    } else {
+      Redirect("rejected-goods/single/check-declaration-details")
+    }
+
+  private def updateJourney(
+    journey: RejectedGoodsSingleJourney,
+    mrn: MRN,
+    maybeAcc14: Option[DisplayDeclaration]
+  ): EitherT[Future, Error, RejectedGoodsSingleJourney] =
+    maybeAcc14 match {
+      case Some(acc14) =>
+        EitherT.rightT(
+          journey
+            .submitMovementReferenceNumber(mrn)
+            .submitDisplayDeclaration(acc14)
+        )
+      case _           =>
+        EitherT.leftT(Error("could not unbox display declaration"))
+    }
+
+  private def getDeclaration(mrn: MRN)(implicit hc: HeaderCarrier): EitherT[Future, Error, Option[DisplayDeclaration]] =
+    claimService
+      .getDisplayDeclaration(mrn)
 }

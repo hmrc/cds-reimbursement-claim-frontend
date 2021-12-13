@@ -92,9 +92,6 @@ class EnterMovementReferenceNumberControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 2)
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "Movement Reference Number Controller page titles" when {
 
     def runJourney(

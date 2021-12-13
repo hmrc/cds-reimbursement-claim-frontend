@@ -19,14 +19,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, text}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, RequestWithSessionData, SessionDataAction, WithAuthAndSessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.ChooseClaimTypeController._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.{routes => rejectGoodsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{SessionDataExtractor, SessionUpdates}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ChooseClaimTypeController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
+  val sessionStore: SessionCache,
   chooseClaimTypePage: pages.choose_claim_type
 )(implicit ec: ExecutionContext, viewConfig: ViewConfig, cc: MessagesControllerComponents, errorHandler: ErrorHandler)
     extends FrontendController(cc)
@@ -47,21 +52,36 @@ class ChooseClaimTypeController @Inject() (
       Ok(chooseClaimTypePage(claimFormForm))
     }
 
-  def submit(): Action[AnyContent] = authenticatedActionWithSessionData { implicit request =>
+  def submit(): Action[AnyContent] = authenticatedActionWithSessionData.async { implicit request =>
     claimFormForm
       .bindFromRequest()
       .fold(
         formWithErrors => {
           if (!formWithErrors.data.isEmpty)
             logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.map(_._2).mkString}")
-          BadRequest(chooseClaimTypePage(formWithErrors))
+          Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
         },
         {
-          case C285          => Redirect(claimRoutes.SelectTypeOfClaimController.show())
-          case RejectedGoods => Redirect("rejected-goods/choose-how-many-mrns")
+          case C285          => Future.successful(Redirect(claimRoutes.SelectTypeOfClaimController.show()))
+          case RejectedGoods => rejectedGoods(sessionStore, request)
         }
       )
   }
+
+  private def rejectedGoods(
+    sessionStore: SessionCache,
+    request: RequestWithSessionData[_]
+  )(implicit hc: HeaderCarrier): Future[Result] =
+    (request.sessionData, request.signedInUserDetails) match {
+      case (Some(sessionData), Some(user)) if sessionData.rejectedGoodsSingleJourney.isEmpty =>
+        updateSession(sessionStore, request)(
+          _.copy(rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(user.eori)))
+        ).map { _ =>
+          Redirect(rejectGoodsRoutes.EnterMovementReferenceNumberController.show())
+        }
+      case _                                                                                 =>
+        Future.successful(Redirect(rejectGoodsRoutes.EnterMovementReferenceNumberController.show()))
+    }
 }
 
 object ChooseClaimTypeController {

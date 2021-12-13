@@ -105,9 +105,6 @@ class SelectTypeOfClaimControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "SelectTypeOfClaimController" must {
     "redirect to the start of the journey" when {
       "there is no journey status in the session" in {

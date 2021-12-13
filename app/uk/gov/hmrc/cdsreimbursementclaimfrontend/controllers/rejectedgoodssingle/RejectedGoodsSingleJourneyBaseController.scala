@@ -66,7 +66,7 @@ abstract class RejectedGoodsSingleJourneyBaseController(
     }
 
   def simpleActionReadWriteJourney(
-    body: Request[_] => RejectedGoodsSingleJourney => (RejectedGoodsSingleJourney, Result)
+    body: RequestWithSessionData[_] => RejectedGoodsSingleJourney => (RejectedGoodsSingleJourney, Result)
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.sessionData
@@ -84,7 +84,7 @@ abstract class RejectedGoodsSingleJourneyBaseController(
     }
 
   def actionReadWriteJourney(
-    body: Request[_] => RejectedGoodsSingleJourney => Future[(RejectedGoodsSingleJourney, Result)]
+    body: RequestWithSessionData[_] => RejectedGoodsSingleJourney => Future[(RejectedGoodsSingleJourney, Result)]
   ): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       request.sessionData

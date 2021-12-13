@@ -101,9 +101,6 @@ class CheckMovementReferenceNumbersControllerSpec
     )
   }
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   def isYesChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey")
 
   def isNoChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey-2")

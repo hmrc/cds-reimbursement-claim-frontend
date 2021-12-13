@@ -114,9 +114,6 @@ class EnterAssociatedMrnControllerSpec
     )
   }
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
       .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
