@@ -16,12 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
+import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.Writes
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.HttpReads
+import uk.gov.hmrc.http.HttpResponse
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 trait HttpSupport { this: MockFactory with Matchers ⇒
 
@@ -32,7 +37,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
     url: String
   )(
     response: Option[A]
-  ) =
+  ): CallHandler[Future[A]] =
     (
       mockHttp
         .GET(_: String, _: Seq[(String, String)], _: Seq[(String, String)])(
@@ -69,7 +74,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
     headers: Seq[(String, String)]
   )(
     response: Option[A]
-  ): Any =
+  ): CallHandler[Future[A]] =
     (mockHttp
       .GET(_: String, _: Seq[(String, String)], _: Seq[(String, String)])(
         _: HttpReads[A],
@@ -100,7 +105,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
 
   def mockPost[A](url: String, headers: Seq[(String, String)], body: A)(
     result: Option[HttpResponse]
-  ): Any =
+  ): CallHandler[Future[HttpResponse]] =
     (mockHttp
       .POST(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],
@@ -119,7 +124,7 @@ trait HttpSupport { this: MockFactory with Matchers ⇒
     url: String,
     body: A,
     headers: Seq[(String, String)] = Seq.empty
-  )(result: Option[HttpResponse]): Any =
+  )(result: Option[HttpResponse]): CallHandler[Future[HttpResponse]] =
     (mockHttp
       .PUT(_: String, _: A, _: Seq[(String, String)])(
         _: Writes[A],

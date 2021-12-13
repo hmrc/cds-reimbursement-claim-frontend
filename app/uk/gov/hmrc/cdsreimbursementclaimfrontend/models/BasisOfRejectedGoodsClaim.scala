@@ -32,6 +32,9 @@ object BasisOfRejectedGoodsClaim {
   val all: Set[BasisOfRejectedGoodsClaim] =
     Set(DamagedBeforeClearance, Defective, NotInAccordanceWithContract, SpecialCircumstances)
 
+  val allButSpecialCircumstances: Set[BasisOfRejectedGoodsClaim] =
+    all - SpecialCircumstances
+
   implicit val equality: Eq[BasisOfRejectedGoodsClaim] =
     Eq.fromUniversalEquals[BasisOfRejectedGoodsClaim]
 

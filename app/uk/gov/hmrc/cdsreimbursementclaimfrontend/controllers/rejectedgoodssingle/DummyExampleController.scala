@@ -18,7 +18,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.Configuration
 import play.api.data._
 import play.api.mvc._
 import play.twirl.api.Html
