@@ -69,6 +69,9 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       completeJourneyNotCMAEligibleGen
     )
 
+  val completeJourneyGenWithoutSpecialCircumstances =
+    completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isEmpty)
+
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
     acc14DeclarantMatchesUserEori: Boolean = true,
