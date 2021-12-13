@@ -183,7 +183,7 @@ enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE
 #===================================================
-enter-associated-mrn.title=Tell us your {0} Movement Reference Number (MRN)
+enter-associated-mrn.title=Tell us the {0} MRN
 enter-associated-mrn.help-text=The Movement Reference Number (MRN) will be issued when an import is declared. <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">Find out more about this number (opens in new tab)</a>.
 enter-associated-mrn.enter-mrn.label=Enter {0} MRN
 enter-associated-mrn.help=Must be 18 characters, for example 19GB03I52858027001.
@@ -210,7 +210,7 @@ mrn-does-not-exist.help-text=You have tried to reach an MRN which has not been e
 #===================================================
 #  ENTER DUPLICATE MRN PAGE
 #===================================================
-enter-duplicate-movement-reference-number.mrn.title=Tell us your duplicate Movement Reference Number (MRN)
+enter-duplicate-movement-reference-number.mrn.title=Enter the duplicate MRN
 enter-duplicate-movement-reference-number.mrn.input-title=Enter duplicate MRN
 enter-duplicate-movement-reference-number.mrn.help-text=This will help us to process your claim more efficiently.
 enter-duplicate-movement-reference-number.mrn.help=Must be 18 characters, for example 19GB03I52858027017.
