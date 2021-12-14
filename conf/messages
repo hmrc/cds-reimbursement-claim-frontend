@@ -780,7 +780,7 @@ enter-lead-mrn-or-entry-number.heading=This page is just a placeholder for the E
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
-bank-details.p1=These are the details of where your reimbursements (repayments) will be made in the UK based on our records.
+bank-details.p1=These are the details of where your repayment will be made in the UK based on our records.
 bank-details.p2=If you are a representative and want to change these bank details, then you will need to provide:
 bank-details.bullet1=a letter of authority from the company you represent that proves you are their representative
 bank-details.bullet2=a letter from the company you represent to their bank to confirm what the bank details should be changed to
@@ -802,7 +802,7 @@ select-bank-account-type.error.required=Select if you are providing details for 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.p1=This is where you would like reimbursements (repayments) to be made in the UK.
+enter-bank-details.p1=This is where you would like repayments to be made in the UK.
 enter-bank-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-details.account-name.label=Name on the account
 enter-bank-details.account-name.error.required=Enter the name on the account
@@ -999,13 +999,13 @@ check-your-answers.reference-number.scheduled.h2=Lead Movement Reference Number 
 check-your-answers.declaration-details.h2=Declaration details
 check-your-answers.northern-ireland-claim.h2=Were your goods imported into Northern Ireland?
 check-your-answers.commodity-details.h2=Reason for claim
-check-your-answers.claim-calculation.h2=Total reimbursement claim
+check-your-answers.claim-calculation.h2=Claim total
 check-your-answers.claim-calculation.scheduled.h2=Total reimbursement claim for all MRNs
 check-your-answers.claim-calculation.uk-duty.label=UK Duty
 check-your-answers.claim-calculation.eu-duty.label=EU Duty
 check-your-answers.claim-calculation.excise-duty.label=Excise Duty
 check-your-answers.claim-calculation.duty.label=reimbursement claim for MRN {0}
-check-your-answers.claim-calculation.total=Total reimbursement
+check-your-answers.claim-calculation.total=Total
 check-your-answers.claim-calculation.multiple.total=Total
 
 check-your-answers.bank-details.h2=Bank details
@@ -1013,7 +1013,7 @@ check-your-answers.attached-documents.h2=Supporting documents
 check-your-answers.attached-documents.label=Uploaded
 check-your-answers.scheduled-document.h2=Scheduled document
 check-your-answers.scheduled-document.label=Scheduled document
-check-your-answers.claimant-details.h2=Details as registered with CDS
+check-your-answers.claimant-details.h2=Contact information for this claim
 check-your-answers.claimant-details-as-importer.h2=Claimant’s contact details
 check-your-answers.confirmation-statement.h2=Now send your application
 check-your-answers.confirmation-statement=By submitting this notification you are confirming that, to the best of your knowledge, the details you are providing are correct.
@@ -1040,7 +1040,7 @@ submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href
 # CONFIRMATION PAGE
 #===================================================
 confirmation-of-submission.title=Claim submitted
-confirmation-of-submission.reimbursement-amount=Reimbursement amount
+confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
