@@ -101,9 +101,6 @@ class CheckMovementReferenceNumbersControllerSpec
     )
   }
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   def isYesChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey")
 
   def isNoChecked(document: Document): Boolean = isChecked(document, s"$checkMovementReferenceNumbersKey-2")
@@ -122,8 +119,6 @@ class CheckMovementReferenceNumbersControllerSpec
 
     def performActionWithData(data: Seq[(String, String)]): Future[Result] =
       controller.submitMrns()(FakeRequest().withFormUrlEncodedBody(data: _*))
-
-    featureSwitch.enable(Feature.BulkClaim)
 
     "redirect to the start of the journey" when {
 

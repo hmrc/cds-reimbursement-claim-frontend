@@ -17,12 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.syntax.eq._
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.i18n.Messages
+import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
@@ -48,6 +45,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents
+
+  implicit def messages(implicit request: Request[_]): Messages =
+    jcc.controllerComponents.messagesApi.preferred(request)
 
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
@@ -106,7 +106,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       }
 
   /** Async GET action to show page based on the request and journey state. */
-  final def actionReadJourney(body: Request[_] => Journey => Future[Result]): Action[AnyContent] =
+  final def actionReadJourney(
+    body: Request[_] => Journey => Future[Result]
+  ): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
       .async { implicit request =>
@@ -142,7 +144,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Simple POST to submit form and update journey, can use current user data. */
   final def simpleActionReadWriteJourneyAndUser(
-    body: Request[_] => Journey => RetrievedUserType => (Journey, Result)
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result)
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -188,7 +190,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Async POST action to submit form and update journey, can use current user data. */
   final def actionReadWriteJourneyAndUser(
-    body: Request[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)

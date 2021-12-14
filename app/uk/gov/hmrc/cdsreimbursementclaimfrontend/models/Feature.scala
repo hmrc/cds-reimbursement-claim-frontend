@@ -24,15 +24,11 @@ sealed trait Feature {
 
 object Feature {
 
-  case object BulkClaim extends Feature { val name = "bulk-claim" }
-  case object BulkMultiple extends Feature { val name = "bulk-multiple" }
   case object NorthernIreland extends Feature { val name = "northern-ireland" }
   case object RejectedGoods extends Feature { val name = "rejected-goods" }
 
   def of(name: String): Option[Feature] =
     Seq[Feature](
-      BulkMultiple,
-      BulkClaim,
       NorthernIreland,
       RejectedGoods
     ).find(_.name === name)

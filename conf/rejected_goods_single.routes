@@ -1,0 +1,2 @@
+GET          /rejected-goods/single/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.show()
+POST         /rejected-goods/single/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.submit()

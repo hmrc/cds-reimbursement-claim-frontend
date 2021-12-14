@@ -20,7 +20,6 @@ import cats.Functor
 import cats.Id
 import cats.data.EitherT
 import cats.implicits._
-import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.EitherValues
 import org.scalatest.OptionValues
@@ -94,9 +93,6 @@ class EnterMovementReferenceNumberControllerSpec
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 2)
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "Movement Reference Number Controller page titles" when {
 
     def runJourney(
@@ -104,7 +100,6 @@ class EnterMovementReferenceNumberControllerSpec
       typeOfClaim: TypeOfClaimAnswer,
       expectedTitle: String
     ) = {
-      featureSwitch.enable(Feature.BulkClaim)
 
       val (session, _) = sessionWithMRNAndTypeOfClaimOnly(None, Some(typeOfClaim))
 

@@ -93,6 +93,9 @@ trait ControllerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   def overrideBindings: List[GuiceableModule] = List.empty[GuiceableModule]
 
+  def getErrorSummary(document: Document): String =
+    document.select(".govuk-error-summary__list > li > a").text()
+
   private lazy val additionalConfig = Configuration()
 
   def buildFakeApplication(): Application = {

@@ -179,6 +179,8 @@ enter-movement-reference-number.multiple.enter-mrn.label=Enter lead MRN
 enter-movement-reference-number.scheduled.title=Enter the lead MRN
 enter-movement-reference-number.scheduled.help-text=The MRN can be found in the import acceptance notification.
 enter-movement-reference-number.scheduled.enter-mrn.label=Enter lead MRN
+enter-movement-reference-number.rejected-goods.single.title=Enter the MRN
+enter-movement-reference-number.rejected-goods.single.help-text=The MRN can be found in the import acceptance notification.
 
 #===================================================
 #  ENTER ASSOCIATED MRN PAGE

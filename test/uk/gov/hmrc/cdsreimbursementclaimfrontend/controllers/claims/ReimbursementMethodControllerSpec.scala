@@ -274,7 +274,4 @@ class ReimbursementMethodControllerSpec
         sessionData.copy(journeyStatus = Some(journeyStatus))
       case _                                                   => fail()
     }
-
-  private def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
 }
