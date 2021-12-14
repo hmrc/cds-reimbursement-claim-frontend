@@ -52,7 +52,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
-  featureSwitch.NorthernIreland.disable()
+  featureSwitch.disable(Feature.NorthernIreland)
 
   implicit lazy val messagesApi: MessagesApi = controller.messagesApi
 
@@ -104,7 +104,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       "the user has not answered this question before and the NI feature switch is enabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        featureSwitch.NorthernIreland.enable()
+        featureSwitch.enable(Feature.NorthernIreland)
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -125,7 +125,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       "the user has not answered this question before and the NI feature switch is disabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        featureSwitch.NorthernIreland.disable()
+        featureSwitch.disable(Feature.NorthernIreland)
 
         val draftC285Claim                = sessionWithClaimState(None)._3
         val (session, fillingOutClaim, _) = sessionWithClaimState(None)
@@ -146,7 +146,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       "the user has answered this question before and the NI feature switch is enabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        featureSwitch.NorthernIreland.enable()
+        featureSwitch.enable(Feature.NorthernIreland)
         val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief.some
 
         val draftC285Claim                = sessionWithClaimState(basisOfClaimAnswer)._3
@@ -168,7 +168,7 @@ class SelectBasisForClaimControllerSpec extends ControllerSpec with AuthSupport 
       "the user has answered this question before and the NI feature switch is disabled" in {
         def performAction(): Future[Result] = controller.selectBasisForClaim(JourneyBindable.Single)(FakeRequest())
 
-        featureSwitch.NorthernIreland.disable()
+        featureSwitch.disable(Feature.NorthernIreland)
 
         val basisOfClaimAnswer = BasisOfClaimAnswer.EndUseRelief
 

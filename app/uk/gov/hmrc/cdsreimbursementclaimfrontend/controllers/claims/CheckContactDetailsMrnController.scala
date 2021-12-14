@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class CheckContactDetailsMrnController @Inject() (
@@ -220,7 +221,7 @@ class CheckContactDetailsMrnController @Inject() (
   )(implicit journey: JourneyBindable): Result =
     Redirect(
       router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-        if (featureSwitch.NorthernIreland.isEnabled())
+        if (featureSwitch.isEnabled(Feature.NorthernIreland))
           routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
         else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
       )

@@ -185,7 +185,7 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to SelectNumberOfClaims if user says details are correct and FeatureSwitch.RejectedGoods is disabled" in {
-        featureSwitch.RejectedGoods.disable()
+        featureSwitch.disable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
@@ -200,7 +200,7 @@ class CheckEoriDetailsControllerSpec
       }
 
       "Redirect to ChooseClaimTypeController if user says details are correct and FeatureSwitch.RejectedGoods is enabled" in {
-        featureSwitch.RejectedGoods.enable()
+        featureSwitch.enable(Feature.RejectedGoods)
         val (session, fillingOutClaim, _) = sessionWithClaimState()
 
         inSequence {
