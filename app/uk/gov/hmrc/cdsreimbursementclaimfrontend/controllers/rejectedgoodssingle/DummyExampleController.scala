@@ -56,7 +56,7 @@ class DummyExampleController @Inject() (
   val callApiAndShowDummyPage: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       journey.answers.detailsOfRejectedGoods match {
-        case Some(s) => someApiCall.map(_ => Ok(landingPage()))
+        case Some(_) => someApiCall.map(_ => Ok(landingPage()))
         case None    => someApiCall.map(_ => Ok(landingPage()))
       }
     }
