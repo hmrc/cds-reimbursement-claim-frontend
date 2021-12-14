@@ -20,7 +20,6 @@ import cats.Functor
 import cats.Id
 import cats.data.EitherT
 import cats.implicits._
-import org.jsoup.nodes.Document
 import org.scalacheck.Gen
 import org.scalatest.EitherValues
 import org.scalatest.OptionValues

@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.implicits.catsSyntaxEq
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc.Results.NotFound
 import play.api.mvc._
@@ -25,7 +25,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class FeatureSwitchService @Inject() (
