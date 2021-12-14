@@ -16,8 +16,8 @@
 
 @import play.api.data.Form
 @import play.api.i18n.Messages
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 
@@ -30,12 +30,9 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-
-@(form : Form[MrnContactDetails], router: ReimbursementRoutes, isChange: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form : Form[MrnContactDetails], subKey: Option[String], postAction: Call, isChange: Boolean)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"enter-contact-details"}
-
-@postAction = @{if (isChange) router.submitUrlForChangeMrnContactDetails()  else router.submitUrlForEnterMrnContactDetails()}
 
 @title = @{if (isChange) messages(s"$key.change.title") else messages(s"$key.add.title")}
 
@@ -84,9 +81,4 @@
         )
         @submitButton("button.continue", classes = Some("govuk-!-margin-top-7"))
         }
-
-
-
-
-
 }
