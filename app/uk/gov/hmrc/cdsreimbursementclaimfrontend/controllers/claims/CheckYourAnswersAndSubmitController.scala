@@ -30,8 +30,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAns
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionDataExtractor, SessionUpdates, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, DraftClaim, Error, RetrievedUserType, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{C285ClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{C285Claim, DraftClaim, Error, RetrievedUserType, SignedInUserDetails}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -126,7 +126,7 @@ class CheckYourAnswersAndSubmitController @Inject() (
     }
 
   private def submitClaim(
-    completeClaim: CompleteClaim,
+    claim: C285Claim,
     fillingOutClaim: FillingOutClaim,
     signedInUserDetails: SignedInUserDetails,
     language: Lang
@@ -135,9 +135,9 @@ class CheckYourAnswersAndSubmitController @Inject() (
   ): Future[SubmitClaimResult] =
     claimService
       .submitClaim(
-        SubmitClaimRequest(
+        C285ClaimRequest(
           fillingOutClaim.draftClaim.id,
-          completeClaim,
+          claim,
           signedInUserDetails
         ),
         language
@@ -177,14 +177,14 @@ class CheckYourAnswersAndSubmitController @Inject() (
     }
 
   private def withCompleteDraftClaim(
-    f: (FillingOutClaim, CompleteClaim) => Future[Result]
+    f: (FillingOutClaim, C285Claim) => Future[Result]
   )(implicit request: RequestWithSessionData[_]): Future[Result] =
     request.using({ case fillingOutClaim @ FillingOutClaim(_, signedInUserDetails, draftClaim: DraftClaim) =>
-      CompleteClaim
+      C285Claim
         .fromDraftClaim(draftClaim, signedInUserDetails.verifiedEmail)
         .fold[Future[Result]](
           error => logAndDisplayError("could not make a complete claim") apply error,
-          completeClaim => f(fillingOutClaim, completeClaim)
+          c285Claim => f(fillingOutClaim, c285Claim)
         )
     })
 }

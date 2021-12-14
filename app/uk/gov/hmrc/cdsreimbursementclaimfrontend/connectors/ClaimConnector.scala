@@ -21,7 +21,7 @@ import com.google.inject.{ImplementedBy, Inject}
 import play.api.http.HeaderNames.ACCEPT_LANGUAGE
 import play.api.i18n.Lang
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
@@ -33,7 +33,7 @@ import scala.util.control.NonFatal
 
 @ImplementedBy(classOf[DefaultClaimConnector])
 trait ClaimConnector {
-  def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
+  def submitClaim(submitClaimRequest: C285ClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 }
@@ -46,17 +46,17 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
 
   private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
 
-  override def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
+  override def submitClaim(c285ClaimRequest: C285ClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse] = {
 
-    val submitClaimUrl: String = s"$baseUrl/cds-reimbursement-claim/claim"
+    val submitClaimUrl: String = s"$baseUrl/cds-reimbursement-claim/claims/c285 "
 
     EitherT[Future, Error, HttpResponse](
       http
-        .POST[SubmitClaimRequest, HttpResponse](
+        .POST[C285ClaimRequest, HttpResponse](
           submitClaimUrl,
-          submitClaimRequest,
+          c285ClaimRequest,
           Seq(ACCEPT_LANGUAGE -> lang.language)
         )
         .map(Right(_))

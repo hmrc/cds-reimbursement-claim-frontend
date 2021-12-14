@@ -31,7 +31,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocument
 
 import java.util.UUID
 
-final case class CompleteClaim(
+final case class C285Claim(
   id: UUID,
   typeOfClaim: TypeOfClaimAnswer,
   movementReferenceNumber: MRN,
@@ -49,7 +49,7 @@ final case class CompleteClaim(
   importerEoriNumber: Option[ImporterEoriNumberAnswer],
   declarantEoriNumber: Option[DeclarantEoriNumberAnswer],
   claimedReimbursementsAnswer: ClaimedReimbursementsAnswer,
-  reimbursementMethodAnswer: Option[ReimbursementMethodAnswer],
+  reimbursementMethodAnswer: ReimbursementMethodAnswer,
   associatedMRNsAnswer: Option[AssociatedMRNsAnswer],
   associatedMRNsClaimsAnswer: Option[AssociatedMRNsClaimsAnswer]
 ) {
@@ -81,9 +81,9 @@ final case class CompleteClaim(
       .sum
 }
 
-object CompleteClaim {
+object C285Claim {
 
-  def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, CompleteClaim] =
+  def fromDraftClaim(draftClaim: DraftClaim, verifiedEmail: Email): Either[Error, C285Claim] =
     draftClaim match {
       case DraftClaim(
             id,
@@ -135,7 +135,7 @@ object CompleteClaim {
                 claim,
                 maybeSchedule
               ) =>
-            CompleteClaim(
+            C285Claim(
               id,
               maybeTypeOfClaim.getOrElse(Individual),
               mrn,
@@ -153,7 +153,7 @@ object CompleteClaim {
               maybeImporterEoriNumberAnswer,
               maybeDeclarantEoriNumberAnswer,
               claim,
-              maybeReimbursementMethodAnswer,
+              maybeReimbursementMethodAnswer.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
               maybeAssociatedMRNs,
               maybeAssociatedMRNsClaimsAnswer
             )
@@ -170,6 +170,6 @@ object CompleteClaim {
       case _ => Left(Error("unknown claim type"))
     }
 
-  implicit val eq: Eq[CompleteClaim]         = Eq.fromUniversalEquals[CompleteClaim]
-  implicit val format: Format[CompleteClaim] = Json.format[CompleteClaim]
+  implicit val eq: Eq[C285Claim]         = Eq.fromUniversalEquals[C285Claim]
+  implicit val format: Format[C285Claim] = Json.format[C285Claim]
 }

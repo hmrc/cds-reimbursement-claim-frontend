@@ -20,18 +20,18 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{BankDetails, DisplayDeclaration, DisplayResponseDetail}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.CompleteClaimGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.C285ClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 
-class CompleteClaimSpec extends AnyWordSpec with Matchers {
+class C285ClaimSpec extends AnyWordSpec with Matchers {
 
   "BankAccountView Extraction" should {
     "Use the manually entered bank account, and not the one retrieved by ACC14 on the MRN journey" in {
       val bankAccount       = sample[BankAccountDetails]
-      val completeC285Claim = sample[CompleteClaim]
+      val completeC285Claim = sample[C285Claim]
         .copy(
           movementReferenceNumber = sample[MRN],
           bankAccountDetailsAnswer = Some(bankAccount)
@@ -47,7 +47,7 @@ class CompleteClaimSpec extends AnyWordSpec with Matchers {
       val consigneeBankDetails  = sample[BankAccountDetails]
       val bankAccount           = sample[BankDetails].copy(consigneeBankDetails = Some(consigneeBankDetails))
       val displayResponseDetail = sample[DisplayResponseDetail].copy(maskedBankDetails = Some(bankAccount))
-      val completeC285Claim     = sample[CompleteClaim]
+      val completeC285Claim     = sample[C285Claim]
         .copy(
           movementReferenceNumber = sample[MRN],
           displayDeclaration = Some(DisplayDeclaration(displayResponseDetail)),

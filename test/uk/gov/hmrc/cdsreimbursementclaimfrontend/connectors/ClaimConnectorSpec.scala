@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.test.Helpers.ACCEPT_LANGUAGE
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -58,7 +58,7 @@ class ClaimConnectorSpec extends AnyWordSpec with Matchers with MockFactory with
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val defaultLanguage            = Lang.defaultLang
-    val submitClaimRequest         = sample[SubmitClaimRequest]
+    val submitClaimRequest         = sample[C285ClaimRequest]
 
     val url = "http://host3:123/cds-reimbursement-claim/claim"
 

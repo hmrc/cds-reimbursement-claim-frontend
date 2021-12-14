@@ -47,7 +47,7 @@ object JourneyStatus {
   final case class JustSubmittedClaim(
     ggCredId: GGCredId,
     signedInUserDetails: SignedInUserDetails,
-    completeClaim: CompleteClaim,
+    claim: C285Claim,
     submissionResponse: SubmitClaimResponse,
     journey: JourneyBindable
   ) extends JourneyStatus

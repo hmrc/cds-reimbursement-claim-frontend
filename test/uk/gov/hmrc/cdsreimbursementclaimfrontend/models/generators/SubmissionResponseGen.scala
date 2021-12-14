@@ -18,12 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import org.scalacheck.magnolia._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.SubmitClaimResult.SubmitClaimError
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{C285ClaimRequest, SubmitClaimResponse}
 
 object SubmissionResponseGen {
   import IdGen._
 
   implicit lazy val arbitrarySubmissionResponse: Typeclass[SubmitClaimResponse] = gen[SubmitClaimResponse]
-  implicit lazy val arbitrarySubmitClaimRequest: Typeclass[SubmitClaimRequest]  = gen[SubmitClaimRequest]
+  implicit lazy val arbitraryC285ClaimRequest: Typeclass[C285ClaimRequest]      = gen[C285ClaimRequest]
   implicit lazy val arbitrarySubmitClaimError: Typeclass[SubmitClaimError]      = gen[SubmitClaimError]
 }

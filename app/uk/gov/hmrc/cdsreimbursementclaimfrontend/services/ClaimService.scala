@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementCla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{C285ClaimRequest, SubmitClaimResponse}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {
 
-  def submitClaim(submitClaimRequest: SubmitClaimRequest, lang: Lang)(implicit
+  def submitClaim(submitClaimRequest: C285ClaimRequest, lang: Lang)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, SubmitClaimResponse]
 
@@ -64,7 +64,7 @@ class DefaultClaimService @Inject() (
     with Logging {
 
   def submitClaim(
-    submitClaimRequest: SubmitClaimRequest,
+    submitClaimRequest: C285ClaimRequest,
     lang: Lang
   )(implicit hc: HeaderCarrier): EitherT[Future, Error, SubmitClaimResponse] =
     claimConnector.submitClaim(submitClaimRequest, lang).subflatMap { httpResponse =>
