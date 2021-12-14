@@ -16,89 +16,34 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsingle
 
-import play.api.mvc._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionDataExtractor
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import play.api.mvc.Call
 
-abstract class RejectedGoodsSingleJourneyBaseController(
-  cc: MessagesControllerComponents
-)(implicit ec: ExecutionContext)
-    extends FrontendController(cc)
-    with WithAuthAndSessionDataAction
-    with SessionDataExtractor
-    with Logging
-    with SessionUpdates {
+abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionContext)
+    extends JourneyBaseController[RejectedGoodsSingleJourney] {
 
-  val authenticatedAction: AuthenticatedAction
-  val sessionDataAction: SessionDataAction
-  val sessionStore: SessionCache
+  final override val requiredFeature: Option[Feature] =
+    Some(Feature.RejectedGoods)
 
-  def simpleActionReadJourney(body: RejectedGoodsSingleJourney => Result): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      Future.successful(
-        request.sessionData
-          .flatMap(_.rejectedGoodsSingleJourney)
-          .map(body)
-          .getOrElse(Redirect(uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()))
-      )
-    }
+  final override val startOfTheJourney: Call =
+    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
-  def actionReadJourney(body: Request[_] => RejectedGoodsSingleJourney => Future[Result]): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      request.sessionData
-        .flatMap(_.rejectedGoodsSingleJourney)
-        .map(body(request))
-        .getOrElse(
-          Future.successful(
-            Redirect(uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start())
-          )
-        )
-    }
+  final override val checkYourAnswers: Call =
+    Call("GET", "/claim-for-reimbursement-of-import-duties/rejected-goods/single/check-your-answers") //FIXME
 
-  def simpleActionReadWriteJourney(
-    body: Request[_] => RejectedGoodsSingleJourney => (RejectedGoodsSingleJourney, Result)
-  ): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      request.sessionData
-        .flatMap(_.rejectedGoodsSingleJourney)
-        .map(body(request))
-        .map { case (modifiedJourney, result) =>
-          updateSession(sessionStore, request)(_.copy(rejectedGoodsSingleJourney = Some(modifiedJourney)))
-            .flatMap(_.fold(error => Future.failed(error.toException), _ => Future.successful(result)))
-        }
-        .getOrElse(
-          Future.successful(
-            Redirect(uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start())
-          )
-        )
-    }
+  final override def getJourney(sessionData: SessionData): Option[RejectedGoodsSingleJourney] =
+    sessionData.rejectedGoodsSingleJourney
 
-  def actionReadWriteJourney(
-    body: Request[_] => RejectedGoodsSingleJourney => Future[(RejectedGoodsSingleJourney, Result)]
-  ): Action[AnyContent] =
-    authenticatedActionWithSessionData.async { implicit request =>
-      request.sessionData
-        .flatMap(_.rejectedGoodsSingleJourney)
-        .map(body(request))
-        .map(_.flatMap { case (modifiedJourney, result) =>
-          updateSession(sessionStore, request)(_.copy(rejectedGoodsSingleJourney = Some(modifiedJourney)))
-            .flatMap(_.fold(error => Future.failed(error.toException), _ => Future.successful(result)))
-        })
-        .getOrElse(
-          Future.successful(
-            Redirect(uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start())
-          )
-        )
-    }
+  final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsSingleJourney): SessionData =
+    sessionData.copy(rejectedGoodsSingleJourney = Some(journey))
+
+  final override def isComplete(journey: RejectedGoodsSingleJourney): Boolean =
+    journey.isComplete
+
 }

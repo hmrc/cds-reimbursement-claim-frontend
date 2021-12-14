@@ -26,17 +26,23 @@ final case class DisplayDeclaration(
   displayResponseDetail: DisplayResponseDetail
 ) {
 
+  def getConsigneeDetails: Option[ConsigneeDetails] =
+    displayResponseDetail.consigneeDetails
+
+  def getDeclarantDetails: DeclarantDetails =
+    displayResponseDetail.declarantDetails
+
   def getConsigneeEori: Option[Eori] =
-    displayResponseDetail.consigneeDetails.map(_.consigneeEORI).map(Eori.apply)
+    getConsigneeDetails.map(_.consigneeEORI).map(Eori.apply)
 
   def getDeclarantEori: Eori =
-    Eori(displayResponseDetail.declarantDetails.declarantEORI)
+    Eori(getDeclarantDetails.declarantEORI)
 
   def getNdrcDetailsList: Option[List[NdrcDetails]] =
     displayResponseDetail.ndrcDetails
 
   def getNdrcDetailsFor(taxType: String): Option[NdrcDetails] =
-    displayResponseDetail.ndrcDetails.flatMap(_.find(_.taxType === taxType))
+    getNdrcDetailsList.flatMap(_.find(_.taxType === taxType))
 
 }
 

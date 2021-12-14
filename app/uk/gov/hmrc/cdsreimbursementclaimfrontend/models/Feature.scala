@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import org.scalacheck.Gen
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import cats.syntax.eq._
 
-object ContactDetailsGen {
-  import EmailGen._
-  import PhoneNumberGen._
+sealed trait Feature {
+  def name: String
+}
 
-  lazy val genMrnContactDetailsOpt: Gen[Option[MrnContactDetails]] =
-    Gen.option(arbitraryMrnContactDetails.arbitrary)
+object Feature {
 
-  lazy val genMrnContactDetails = arbitraryMrnContactDetails.arbitrary
+  case object BulkClaim extends Feature { val name = "bulk-claim" }
+  case object BulkMultiple extends Feature { val name = "bulk-multiple" }
+  case object NorthernIreland extends Feature { val name = "northern-ireland" }
+  case object RejectedGoods extends Feature { val name = "rejected-goods" }
 
-  implicit lazy val arbitraryMrnContactDetails: Typeclass[MrnContactDetails] = gen[MrnContactDetails]
+  def of(name: String): Option[Feature] =
+    Seq[Feature](
+      BulkMultiple,
+      BulkClaim,
+      NorthernIreland,
+      RejectedGoods
+    ).find(_.name === name)
+
 }

@@ -31,6 +31,8 @@ object ContactAddressGen {
   lazy val genContactAddressOpt: Gen[Option[ContactAddress]] =
     Gen.option(arbitraryContactAddress.arbitrary)
 
+  lazy val genContactAddress = arbitraryContactAddress.arbitrary
+
   lazy val genCountry: Gen[Country] =
     Gen.oneOf("GB", "LV", "SE", "DE", "NL", "IR", "NO", "DM").map(Country(_))
 

@@ -16,35 +16,54 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.{Functor, Id}
+import cats.Functor
+import cats.Id
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.http.Status.BAD_REQUEST
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AddressLookupSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AddressLookupSupport, AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.{alphaCharGen, sample}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.alphaCharGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.PhoneNumberGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{GGCredId, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, Error, MrnContactDetails, SessionData, SignedInUserDetails}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{AddressLookupService, FeatureSwitchService}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.AddressLookupService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 
 import java.net.URL
 import java.util.UUID
@@ -67,7 +86,7 @@ class CheckContactDetailsMrnControllerSpec
     )
 
   val featureSwitch = instanceOf[FeatureSwitchService]
-  featureSwitch.NorthernIreland.enable()
+  featureSwitch.enable(Feature.NorthernIreland)
 
   val controller: CheckContactDetailsMrnController = instanceOf[CheckContactDetailsMrnController]
 
@@ -262,7 +281,7 @@ class CheckContactDetailsMrnControllerSpec
       }
 
       "user chooses the No option" in forAll(journeys) { journey =>
-        featureSwitch.NorthernIreland.disable()
+        featureSwitch.disable(Feature.NorthernIreland)
         val acc14           = genAcc14WithAddresses
         val (session, foc)  = getSessionWithPreviousAnswer(
           Some(acc14),
@@ -345,7 +364,7 @@ class CheckContactDetailsMrnControllerSpec
         )
 
       "user chooses the Yes option" in forAll(journeys) { journey =>
-        featureSwitch.NorthernIreland.disable()
+        featureSwitch.disable(Feature.NorthernIreland)
         val acc14   = genAcc14WithAddresses
         val session = getSessionWithPreviousAnswer(
           Some(acc14),

@@ -17,19 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.Eq
-import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 
-sealed trait DocumentTypeRejectedGoods
+final case class ContactInformation(
+  contactPerson: Option[String],
+  addressLine1: Option[String],
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  street: Option[String],
+  city: Option[String],
+  countryCode: Option[String],
+  postalCode: Option[String],
+  telephoneNumber: Option[String],
+  faxNumber: Option[String],
+  emailAddress: Option[String]
+)
 
-object DocumentTypeRejectedGoods {
+object ContactInformation {
 
-  case object Foo extends DocumentTypeRejectedGoods
-
-  val all: Set[DocumentTypeRejectedGoods] =
-    Set(Foo)
-
-  implicit val equality: Eq[DocumentTypeRejectedGoods]   = Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
-  implicit val format: Format[DocumentTypeRejectedGoods] = EnumerationFormat(all)
-
+  implicit val eq: Eq[ContactInformation]         = Eq.fromUniversalEquals[ContactInformation]
+  implicit val format: Format[ContactInformation] = Json.format[ContactInformation]
 }

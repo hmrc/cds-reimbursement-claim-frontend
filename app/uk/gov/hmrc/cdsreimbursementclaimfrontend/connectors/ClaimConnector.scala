@@ -17,23 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 
 import cats.data.EitherT
-import com.google.inject.{ImplementedBy, Inject}
-import play.api.http.HeaderNames.ACCEPT_LANGUAGE
-import play.api.i18n.Lang
+import com.google.inject.ImplementedBy
+import com.google.inject.Inject
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Singleton
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 @ImplementedBy(classOf[DefaultClaimConnector])
 trait ClaimConnector {
-  def submitClaim(submitClaimRequest: C285ClaimRequest, lang: Lang)(implicit
+  def submitClaim(submitClaimRequest: C285ClaimRequest)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, Error, HttpResponse]
 }
@@ -44,25 +46,23 @@ class DefaultClaimConnector @Inject() (http: HttpClient, servicesConfig: Service
 ) extends ClaimConnector
     with Logging {
 
-  private val baseUrl: String = servicesConfig.baseUrl("cds-reimbursement-claim")
+  private val baseUrl: String        = servicesConfig.baseUrl("cds-reimbursement-claim")
+  private val contextPath: String    =
+    servicesConfig.getConfString("cds-reimbursement-claim.context-path", "cds-reimbursement-claim")
+  private val submitClaimUrl: String = s"$baseUrl$contextPath/claims/c285"
 
-  override def submitClaim(c285ClaimRequest: C285ClaimRequest, lang: Lang)(implicit
+  override def submitClaim(c285ClaimRequest: C285ClaimRequest)(implicit
     hc: HeaderCarrier
-  ): EitherT[Future, Error, HttpResponse] = {
-
-    val submitClaimUrl: String = s"$baseUrl/cds-reimbursement-claim/claims/c285 "
-
+  ): EitherT[Future, Error, HttpResponse] =
     EitherT[Future, Error, HttpResponse](
       http
         .POST[C285ClaimRequest, HttpResponse](
           submitClaimUrl,
-          c285ClaimRequest,
-          Seq(ACCEPT_LANGUAGE -> lang.language)
+          c285ClaimRequest
         )
         .map(Right(_))
         .recover { case NonFatal(e) =>
           Left(Error(e))
         }
     )
-  }
 }

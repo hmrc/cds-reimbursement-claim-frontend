@@ -16,19 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
-final case class DeclarantDetails(
-  declarantEORI: String,
-  legalName: String,
-  establishmentAddress: EstablishmentAddress,
-  contactDetails: Option[ContactDetails]
-) extends ConsigneeOrDeclarantDetails {
-
-  override def eori: Eori = Eori(declarantEORI)
-}
-
-object DeclarantDetails {
-  implicit val format: OFormat[DeclarantDetails] = Json.format[DeclarantDetails]
+trait ConsigneeOrDeclarantDetails {
+  def eori: Eori
+  def legalName: String
+  def establishmentAddress: EstablishmentAddress
+  def contactDetails: Option[ContactDetails]
 }

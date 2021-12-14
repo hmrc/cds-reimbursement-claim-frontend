@@ -18,13 +18,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
 import julienrf.json.derived
 import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 final case class ConsigneeDetails(
   consigneeEORI: String,
   legalName: String,
   establishmentAddress: EstablishmentAddress,
   contactDetails: Option[ContactDetails]
-)
+) extends ConsigneeOrDeclarantDetails {
+
+  override def eori: Eori = Eori(consigneeEORI)
+}
 
 object ConsigneeDetails {
   implicit val format: OFormat[ConsigneeDetails] = derived.oformat[ConsigneeDetails]()

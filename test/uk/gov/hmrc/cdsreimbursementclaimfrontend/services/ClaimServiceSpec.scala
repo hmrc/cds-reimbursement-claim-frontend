@@ -18,27 +18,37 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
 import cats.instances.future._
-import org.scalamock.handlers.{CallHandler2, CallHandler3}
+import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.i18n.Lang
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.{BusinessCompleteResponse, PersonalCompleteResponse, ReputationErrorResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{C285ClaimRequest, SubmitClaimResponse}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DeclarantDetails, DisplayDeclaration, DisplayResponseDetail, EstablishmentAddress}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.BusinessCompleteResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.PersonalCompleteResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response.ReputationErrorResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.C285ClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayResponseDetail
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountReputationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SubmitClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -110,12 +120,12 @@ class ClaimServiceSpec extends AnyWordSpec with Matchers with MockFactory {
       |""".stripMargin
   )
 
-  def mockSubmitClaim(submitClaimRequest: C285ClaimRequest)(
+  def mockSubmitClaim(c285Claim: C285ClaimRequest)(
     response: Either[Error, HttpResponse]
-  ): CallHandler3[C285ClaimRequest, Lang, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
+  ): CallHandler2[C285ClaimRequest, HeaderCarrier, EitherT[Future, Error, HttpResponse]] =
     (mockClaimConnector
-      .submitClaim(_: C285ClaimRequest, _: Lang)(_: HeaderCarrier))
-      .expects(submitClaimRequest, *, *)
+      .submitClaim(_: C285ClaimRequest)(_: HeaderCarrier))
+      .expects(c285Claim, *)
       .returning(EitherT.fromEither[Future](response))
 
   def mockGetDisplayDeclaration(mrn: MRN)(

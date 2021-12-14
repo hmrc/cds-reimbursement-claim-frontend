@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import org.scalacheck.{Arbitrary, Gen}
+import java.time.LocalDate
 
-final case class DeclarantDetails(
-  declarantEORI: String,
-  legalName: String,
-  establishmentAddress: EstablishmentAddress,
-  contactDetails: Option[ContactDetails]
-) extends ConsigneeOrDeclarantDetails {
+object DateGen {
 
-  override def eori: Eori = Eori(declarantEORI)
-}
+  implicit lazy val arbitraryDate = Arbitrary(date)
 
-object DeclarantDetails {
-  implicit val format: OFormat[DeclarantDetails] = Json.format[DeclarantDetails]
+  lazy val genDate = arbitraryDate.arbitrary
+
+  def date: Gen[LocalDate] = {
+    val rangeStart  = LocalDate.now.minusMonths(6).toEpochDay
+    val currentYear = LocalDate.now.getYear
+    val rangeEnd    = LocalDate.of(currentYear, 12, 31).toEpochDay
+    Gen.choose(rangeStart, rangeEnd).map(t => LocalDate.ofEpochDay(t))
+  }
+
 }

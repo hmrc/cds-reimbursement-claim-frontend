@@ -55,6 +55,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.check_eori_details
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
@@ -132,7 +133,7 @@ class CheckEoriDetailsController @Inject() (
                     _                  <- EitherT(updateSession(sessionStore, request)(saveSession(verifiedEmail)))
                                             .leftMap(logError.andThen(returnErrorPage))
                     result             <- EitherT.rightT[Future, Result](
-                                            if (featureSwitch.RejectedGoods.isEnabled())
+                                            if (featureSwitch.isEnabled(Feature.RejectedGoods))
                                               Redirect(routes.ChooseClaimTypeController.show())
                                             else
                                               Redirect(routes.SelectTypeOfClaimController.show())
