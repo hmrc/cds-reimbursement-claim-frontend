@@ -16,20 +16,23 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
+import cats.syntax.eq._
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Request
 import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -70,6 +73,12 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       if (isComplete(journey)) Redirect(checkYourAnswers)
       else result
     )
+
+  private def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]] =
+    if (modifiedSessionData === sessionData) Future.successful(Right(()))
+    else jcc.sessionCache.store(modifiedSessionData)
 
   /** Simple GET action to show page based on the journey state */
   final def simpleActionReadJourney(body: Journey => Result): Action[AnyContent] =
@@ -119,8 +128,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
             getJourney(sessionData)
               .map(body(request))
               .map { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(sessionData, modifiedJourney))
+                storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
@@ -142,8 +150,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         getJourney(request.sessionData)
           .map(journey => body(request)(journey)(request.authenticatedRequest.journeyUserType))
           .map { case (modifiedJourney, result) =>
-            jcc.sessionCache
-              .store(updateJourney(request.sessionData, modifiedJourney))
+            storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
               .flatMap(
                 _.fold(
                   error => Future.failed(error.toException),
@@ -166,8 +173,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
             getJourney(sessionData)
               .map(body(request))
               .map(_.flatMap { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(sessionData, modifiedJourney))
+                storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
@@ -191,8 +197,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
           .fold(goToTheStartOfJourney) { journey =>
             body(request)(journey)(request.authenticatedRequest.journeyUserType)
               .flatMap { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(request.sessionData, modifiedJourney))
+                storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
