@@ -70,7 +70,7 @@ class EnterContactDetailsMrnController @Inject() (
 
         val postAction =
           if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router.subKey, postAction, isChange))
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction, isChange))
       }
     }
 
@@ -90,7 +90,7 @@ class EnterContactDetailsMrnController @Inject() (
               val postAction =
                 if (isChange) router.submitUrlForChangeMrnContactDetails()
                 else router.submitUrlForEnterMrnContactDetails()
-              BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router.subKey, postAction, isChange))
+              BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction, isChange))
             },
             formOk => {
 
