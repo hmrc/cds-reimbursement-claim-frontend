@@ -42,11 +42,11 @@ class RejectedGoodsSingleJourneyFormatSpec
         Answers(userEoriNumber = exampleEori, movementReferenceNumber = Some(MRN("19GB03I52858027001")))
       )
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":12.99}}""",
+        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":"12.99"}}""",
         Answers(userEoriNumber = exampleEori, reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")))))
       )
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":12.99,"A40":null}}""",
+        s"""{"userEoriNumber":"$exampleEoriAsString","reimbursementClaims":{"A00":"12.99","A40":null}}""",
         Answers(
           userEoriNumber = exampleEori,
           reimbursementClaims = Some(Map(TaxCode.A00 -> Some(BigDecimal("12.99")), TaxCode.A40 -> None))
@@ -58,7 +58,7 @@ class RejectedGoodsSingleJourneyFormatSpec
       )
 
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":{"entry__0":{"k":$uploadDocumentJson,"v":{"Foo":{}}}}}""",
+        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":{"entry__0":{"k":$uploadDocumentJson,"v":"Foo"}}}""",
         Answers(
           userEoriNumber = exampleEori,
           supportingEvidences = Some(Map(uploadDocument -> Some(DocumentTypeRejectedGoods.Foo)))

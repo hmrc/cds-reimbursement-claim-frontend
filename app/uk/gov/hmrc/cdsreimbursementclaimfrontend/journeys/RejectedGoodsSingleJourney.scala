@@ -22,13 +22,14 @@ import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
@@ -41,6 +42,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 
 import java.time.LocalDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay private to protected integrity of the journey.
@@ -99,12 +101,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .map(_.keySet.map(getNdrcDetailsFor).collect { case Some(d) => d })
       .exists(_.forall(_.cmaEligible.isDefined))
 
-  def getDeclarantType: DeclarantTypeAnswer =
-    if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
-      DeclarantTypeAnswer.AssociatedWithImporterCompany
-    else
-      DeclarantTypeAnswer.AssociatedWithRepresentativeCompany
-
   def getReimbursementClaims: Map[TaxCode, BigDecimal] =
     answers.reimbursementClaims
       .map(_.collect { case (taxCode, Some(amount)) => (taxCode, amount) })
@@ -112,6 +108,20 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 
   def getTotalReimbursementAmount: BigDecimal =
     getReimbursementClaims.toSeq.map(_._2).sum
+
+  def getClaimantType: ClaimantType =
+    if (getConsigneeEoriFromACC14.contains(answers.userEoriNumber))
+      ClaimantType.Consignee
+    else if (getDeclarantEoriFromACC14.contains(answers.userEoriNumber))
+      ClaimantType.Declarant
+    else
+      ClaimantType.User
+
+  def getClaimantEori: Eori = getClaimantType match {
+    case ClaimantType.Consignee => getConsigneeEoriFromACC14.getOrElse(answers.userEoriNumber)
+    case ClaimantType.Declarant => getDeclarantEoriFromACC14.getOrElse(answers.userEoriNumber)
+    case ClaimantType.User      => answers.userEoriNumber
+  }
 
   /** Reset the journey with the new MRN
     * or keep existing journey if submitted the same MRN as before.
@@ -122,7 +132,10 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       case _                                  =>
         new RejectedGoodsSingleJourney(
           RejectedGoodsSingleJourney
-            .Answers(userEoriNumber = answers.userEoriNumber, movementReferenceNumber = Some(mrn))
+            .Answers(
+              userEoriNumber = answers.userEoriNumber,
+              movementReferenceNumber = Some(mrn)
+            )
         )
     }
 
@@ -344,11 +357,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       .flatMap(_ =>
         answers match {
           case RejectedGoodsSingleJourney.Answers(
-                userEoriNumber,
+                _,
                 Some(mrn),
                 _,
-                consigneeEoriNumber,
-                declarantEoriNumber,
+                _,
+                _,
                 Some(contactDetails),
                 Some(contactAddress),
                 Some(basisOfClaim),
@@ -366,7 +379,18 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
             Right(
               RejectedGoodsSingleJourney.Output(
                 movementReferenceNumber = mrn,
-                declarantType = getDeclarantType,
+                claimantType = getClaimantType,
+                claimantInformation = ClaimantInformation
+                  .from(
+                    getClaimantEori,
+                    getClaimantType match {
+                      case ClaimantType.Consignee => answers.displayDeclaration.flatMap(_.getConsigneeDetails)
+                      case ClaimantType.Declarant => answers.displayDeclaration.map(_.getDeclarantDetails)
+                      case ClaimantType.User      => answers.displayDeclaration.map(_.getDeclarantDetails)
+                    },
+                    contactDetails,
+                    contactAddress
+                  ),
                 basisOfClaim = basisOfClaim,
                 methodOfDisposal = methodOfDisposal,
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
@@ -376,10 +400,6 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 supportingEvidences = supportingEvidences.mapValues(_.get),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
-                consigneeEoriNumber = consigneeEoriNumber.getOrElse(userEoriNumber),
-                declarantEoriNumber = declarantEoriNumber.getOrElse(userEoriNumber),
-                contactDetails = contactDetails,
-                contactAddress = contactAddress,
                 bankAccountDetails = bankAccountDetails
               )
             )
@@ -421,20 +441,17 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
   // Final minimal output of the journey we want to pass to the backend.
   final case class Output(
     movementReferenceNumber: MRN,
-    declarantType: DeclarantTypeAnswer,
+    claimantType: ClaimantType,
+    claimantInformation: ClaimantInformation,
     basisOfClaim: BasisOfRejectedGoodsClaim,
+    basisOfClaimSpecialCircumstances: Option[String],
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
     totalReimbursementAmount: BigDecimal,
-    supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
-    basisOfClaimSpecialCircumstances: Option[String],
     reimbursementMethod: ReimbursementMethodAnswer,
-    consigneeEoriNumber: Eori,
-    declarantEoriNumber: Eori,
-    contactDetails: MrnContactDetails,
-    contactAddress: ContactAddress,
+    supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
     bankAccountDetails: Option[BankAccountDetails]
   )
 
@@ -555,6 +572,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     implicit lazy val mapFormat2: Format[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] =
       MapFormat.formatWithOptionalValue[UploadDocument, DocumentTypeRejectedGoods]
 
+    implicit val amountFormat: Format[BigDecimal] =
+      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
+
     implicit val equality: Eq[Answers]   = Eq.fromUniversalEquals[Answers]
     implicit val format: Format[Answers] = Json.format[Answers]
   }
@@ -566,6 +586,9 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
     implicit lazy val mapFormat2: Format[Map[UploadDocument, DocumentTypeRejectedGoods]] =
       MapFormat.format[UploadDocument, DocumentTypeRejectedGoods]
+
+    implicit val amountFormat: Format[BigDecimal] =
+      SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
 
     implicit val equality: Eq[Output]   = Eq.fromUniversalEquals[Output]
     implicit val format: Format[Output] = Json.format[Output]
