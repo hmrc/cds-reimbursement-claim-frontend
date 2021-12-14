@@ -778,7 +778,7 @@ enter-lead-mrn-or-entry-number.heading=This page is just a placeholder for the E
 #  CHECK BANK DETAILS PAGE
 #===================================================
 bank-details.title=Check these bank details are correct
-bank-details.p1=These are the details of where your reimbursements (repayments) will be made in the UK based on our records.
+bank-details.p1=These are the details of where your repayment will be made in the UK based on our records.
 bank-details.p2=If you are a representative and want to change these bank details, then you will need to provide:
 bank-details.bullet1=a letter of authority from the company you represent that proves you are their representative
 bank-details.bullet2=a letter from the company you represent to their bank to confirm what the bank details should be changed to
