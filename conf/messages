@@ -1038,7 +1038,7 @@ submit-claim-error.p2=You cannot make a claim. If you need help, you can <a href
 # CONFIRMATION PAGE
 #===================================================
 confirmation-of-submission.title=Claim submitted
-confirmation-of-submission.reimbursement-amount=Reimbursement amount
+confirmation-of-submission.reimbursement-amount=Amount requested
 confirmation-of-submission.claim-reference=Your claim reference number
 confirmation-of-submission.email-sent=We have sent you a confirmation email. If you have not received it, check your SPAM folder or contact HMRC.
 confirmation-of-submission.whatNext=What happens next?
