@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.implicits.catsSyntaxEq
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc.Results.NotFound
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
-import scala.concurrent.{ExecutionContext, Future}
 import java.util.concurrent.ConcurrentHashMap
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class FeatureSwitchService @Inject() (
@@ -34,17 +35,17 @@ class FeatureSwitchService @Inject() (
   cc: MessagesControllerComponents
 ) {
 
-  private val features: ConcurrentHashMap[String, Boolean] =
-    new ConcurrentHashMap[String, Boolean]()
+  private val features: ConcurrentHashMap[Feature, Boolean] =
+    new ConcurrentHashMap[Feature, Boolean]()
 
   def enable(feature: Feature): Boolean =
-    features.put(feature.name, true)
+    features.put(feature, true)
 
   def disable(feature: Feature): Boolean =
-    features.put(feature.name, false)
+    features.put(feature, false)
 
   def isEnabled(feature: Feature): Boolean =
-    Option(features.get(feature.name))
+    Option(features.get(feature))
       .orElse(sys.props.get(s"features.${feature.name}").map(_.toBoolean))
       .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
       .getOrElse(false)
@@ -53,7 +54,8 @@ class FeatureSwitchService @Inject() (
     new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
 
       def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-        Option(isEnabled(feature)).filter(_ === false) map (_ => NotFound(errorHandler.notFoundTemplate(input)))
+        if (isEnabled(feature)) None
+        else Some(NotFound(errorHandler.notFoundTemplate(input)))
       }
 
       override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser

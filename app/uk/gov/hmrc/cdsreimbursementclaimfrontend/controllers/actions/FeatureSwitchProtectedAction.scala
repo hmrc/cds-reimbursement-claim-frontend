@@ -31,9 +31,9 @@ class FeatureSwitchProtectedAction(feature: Feature, featureSwitch: FeatureSwitc
     with Logging { self =>
 
   override protected def refine[A](request: MessagesRequest[A]): Future[Either[Result, MessagesRequest[A]]] =
-    Future.successful(Option(featureSwitch.isEnabled(feature)) match {
-      case None    => Left(Results.NotFound(errorHandler.notFoundTemplate(request)))
-      case Some(_) => Right(request)
-    })
+    Future.successful(
+      if (featureSwitch.isEnabled(feature)) Right(request)
+      else Left(Results.NotFound(errorHandler.notFoundTemplate(request)))
+    )
 
 }
