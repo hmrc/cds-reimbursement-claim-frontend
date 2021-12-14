@@ -130,6 +130,7 @@ class EnterAssociatedMrnControllerSpec
       )
 
   "EnterAssociatedMrnController" must {
+
     def performAction(mrnIndex: AssociatedMrnIndex): Future[Result] =
       controller.enterMrn(mrnIndex)(FakeRequest())
 

@@ -72,7 +72,7 @@
 
     @pageHeading(title)
 
-    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance.inset", viewConfig.ukTradeTariffGuidance)), Some("govuk-inset-text"))
+    @paragraph(Html(messages(s"$key.uk-trade-tariff-guidance", viewConfig.ukTradeTariffGuidance)), Some("govuk-body"))
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 

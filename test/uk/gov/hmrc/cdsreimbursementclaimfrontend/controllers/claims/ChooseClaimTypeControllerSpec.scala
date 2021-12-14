@@ -88,8 +88,6 @@ class ChooseClaimTypeControllerSpec extends ControllerSpec with AuthSupport with
 
   "ChooseClaimTypeController" must {
 
-    featureSwitch.RejectedGoods.enable()
-
     def performAction(): Future[Result] = controller.show()(FakeRequest())
 
     "display the page" in {

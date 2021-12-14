@@ -21,10 +21,7 @@ import com.google.inject.Singleton
 import play.api.data._
 import play.api.mvc._
 import play.twirl.api.Html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -34,12 +31,9 @@ import scala.concurrent.Future
 /** Dummy controller to showcase different patterns of implementing actions. */
 @Singleton
 class DummyExampleController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
-  cc: MessagesControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController(cc) {
+  val jcc: JourneyControllerComponents
+)(implicit ec: ExecutionContext)
+    extends RejectedGoodsSingleJourneyBaseController {
 
   // dummy API example
   def someApiCall(implicit hc: HeaderCarrier): Future[String] = ???

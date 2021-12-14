@@ -21,7 +21,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyControllerComponents, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.movementReferenceNumberForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
@@ -38,11 +38,11 @@ class EnterMovementReferenceNumberController @Inject() (
   val authenticatedAction: AuthenticatedAction,
   val sessionDataAction: SessionDataAction,
   val sessionStore: SessionCache,
-  cc: MessagesControllerComponents,
+  val jcc: JourneyControllerComponents,
   claimService: ClaimService,
   enterMovementReferenceNumberPage: pages.enter_movement_reference_number
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController(cc) {
+    extends RejectedGoodsSingleJourneyBaseController {
 
   private val form   = movementReferenceNumberForm()
   private val subKey = Some("rejected-goods.single")

@@ -57,6 +57,9 @@ class SelectTypeOfClaimControllerSpec
 
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
+  override def beforeEach(): Unit =
+    featureSwitch.enable(Feature.RejectedGoods)
+
   lazy val errorHandler: ErrorHandler              = instanceOf[ErrorHandler]
   lazy val controller: SelectTypeOfClaimController = instanceOf[SelectTypeOfClaimController]
 

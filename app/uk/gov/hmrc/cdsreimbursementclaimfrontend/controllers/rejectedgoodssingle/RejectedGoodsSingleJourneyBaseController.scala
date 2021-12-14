@@ -16,23 +16,33 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBaseController
-
 import scala.concurrent.ExecutionContext
+import play.api.mvc.{Call, PreferredMessagesProvider}
 
-abstract class RejectedGoodsSingleJourneyBaseController(
-  cc: MessagesControllerComponents
-)(implicit ec: ExecutionContext)
-    extends JourneyBaseController[RejectedGoodsSingleJourney](cc) {
+abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionContext)
+    extends JourneyBaseController[RejectedGoodsSingleJourney] {
 
-  override def getJourney(sessionData: SessionData): Option[RejectedGoodsSingleJourney] =
+  final override val requiredFeature: Option[Feature] =
+    Some(Feature.RejectedGoods)
+
+  final override val startOfTheJourney: Call =
+    uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
+
+  final override val checkYourAnswers: Call =
+    Call("GET", "/claim-for-reimbursement-of-import-duties/rejected-goods/single/check-your-answers") //FIXME
+
+  final override def getJourney(sessionData: SessionData): Option[RejectedGoodsSingleJourney] =
     sessionData.rejectedGoodsSingleJourney
 
-  override def updateJourney(journey: RejectedGoodsSingleJourney)(sessionData: SessionData): SessionData =
+  final override def updateJourney(sessionData: SessionData, journey: RejectedGoodsSingleJourney): SessionData =
     sessionData.copy(rejectedGoodsSingleJourney = Some(journey))
+
+  final override def isComplete(journey: RejectedGoodsSingleJourney): Boolean =
+    journey.isComplete
 
 }

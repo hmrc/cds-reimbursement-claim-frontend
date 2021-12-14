@@ -18,13 +18,15 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 
 import cats.data.EitherT
 import cats.implicits._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.http.Status.BAD_REQUEST
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
@@ -36,9 +38,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, Contr
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.{completeJourneyWithMatchingUserEoriAndCMAEligibleGen, displayDeclarationGen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.{RejectedGoodsSingleJourney, RejectedGoodsSingleJourneyTestData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DeclarantDetails, DisplayDeclaration}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, Feature, SessionData}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.{ClaimService, FeatureSwitchService}
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -47,6 +49,7 @@ class EnterMovementReferenceNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
+    with BeforeAndAfterEach
     with ScalaCheckPropertyChecks
     with RejectedGoodsSingleJourneyTestData {
 
@@ -64,6 +67,11 @@ class EnterMovementReferenceNumberControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
+  private lazy val featureSwitch = instanceOf[FeatureSwitchService]
+
+  override def beforeEach(): Unit =
+    featureSwitch.enable(Feature.RejectedGoods)
+
   val session = SessionData.empty.copy(
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
@@ -79,6 +87,12 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
 
       "display the page on a new journey" in {
         inSequence {
@@ -127,6 +141,12 @@ class EnterMovementReferenceNumberControllerSpec
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "do not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
 
       "reject an invalid MRN" in {
         val invalidMRN = MRN("INVALID_MOVEMENT_REFERENCE_NUMBER")

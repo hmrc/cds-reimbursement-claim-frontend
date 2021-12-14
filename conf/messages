@@ -564,15 +564,14 @@ tax-code.99D = 99D - Electricity
 select-duty-types.title=Select the duty types you want to claim for all MRNs in the file you uploaded
 select-duty-types.error.required=Select one or more duty types you want to claim for.
 select-duty-types.error.invalid=Invalid duty type code
-select-duty-types.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
+select-duty-types.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-types.checkbox-legend.1=Customs, Additional, VAT & Anti-Subsidy
 select-duty-types.checkbox-legend.2=Excise Duties
 
 select-duty-codes.title=Select the {0} duties you want to claim for all MRNs in the file you uploaded
-select-duty-codes.help-text=These are the duties that have been paid in the import declaration. You may not see all the other extra taxes that you have paid for. You can select any of the paid duties.
 select-duty-codes.error.required=Select one or more duties to be reimbursed for.
 select-duty-codes.error.invalid=Invalid duty code
-select-duty-codes.uk-trade-tariff-guidance.inset=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a>
+select-duty-codes.uk-trade-tariff-guidance=You can find more information about duties in our <a href="{0}" class="govuk-link">UK Trade Tariff guidance (opens in new tab)</a> with information on where to find the duties paid.
 select-duty-codes.h1.uk-duty=UK
 select-duty-codes.h1.eu-duty=EU
 select-duty-codes.h1.beer=beer
@@ -590,12 +589,12 @@ select-duty-codes.h1.climate-change-levy=Climate Change Levy
 #===================================================
 #  SELECT REIMBURSEMENT METHOD PAGE
 #===================================================
-reimbursement-method.title=Select reimbursement method
+reimbursement-method.title=Select repayment method
 reimbursement-method.help-text=You can be reimbursed via either Current Month Adjustment (CMA) or bank account transfer.
 reimbursement-method.cma=Current Month Adjustment (CMA)
 reimbursement-method.cma.hint=Your deferment account will be adjusted.
 reimbursement-method.bank-transfer=Bank account transfer
-reimbursement-method.bank-transfer.hint=You will be reimbursed via your bank account.
+reimbursement-method.bank-transfer.hint=You will be repaid via your bank account.
 reimbursement-method.error.required=Select if you would like to be reimbursed via Current Month Adjustment (CMA) or via Bank Account Transfer.
 
 #===================================================
@@ -732,9 +731,9 @@ multiple-enter-claim.invalid.claim=Amount that should have been paid must be low
 #===================================================
 #  CHECK REIMBURSEMENT CLAIM TOTAL PAGE
 #===================================================
-check-claim-summary.title=Check the reimbursement claim total for the MRN
+check-claim-summary.title=Check the claim total for the MRN
 check-claim-summary.scheduled.title=Check the reimbursement claim totals for all MRNs
-check-claim-summary.help-text=Your reimbursement calculations are shown below based upon what you have paid and the information you provided on what you should have paid.
+check-claim-summary.help-text=Your repayment or remissions calculations are based upon what you have paid and the information you provided on what you should have paid.
 check-claim-summary.scheduled.help-text=These are the calculations based on the information you gave us.
 check-claim-summary.duty.label=MRN: {0}
 check-claim-summary.uk-duty.label=UK Duty
