@@ -94,7 +94,7 @@ class BankAccountController @Inject() (
       withAnswersAndRoutes[BankAccountDetails] { (_, answers, router) =>
         val bankDetailsForm =
           answers.toList.foldLeft(enterBankDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterBankAccountDetailsPage(bankDetailsForm, router))
+        Ok(enterBankAccountDetailsPage(bankDetailsForm, router.submitUrlForEnterBankAccountDetails()))
       }
     }
 
@@ -109,7 +109,10 @@ class BankAccountController @Inject() (
             enterBankDetailsForm
               .bindFromRequest()
               .fold(
-                requestFormWithErrors => BadRequest(enterBankAccountDetailsPage(requestFormWithErrors, router)),
+                requestFormWithErrors =>
+                  BadRequest(
+                    enterBankAccountDetailsPage(requestFormWithErrors, router.submitUrlForEnterBankAccountDetails())
+                  ),
                 bankAccountDetails => {
                   val updatedJourney =
                     FillingOutClaim.from(fillingOutClaim)(_.copy(bankAccountDetailsAnswer = Some(bankAccountDetails)))
@@ -146,24 +149,24 @@ class BankAccountController @Inject() (
                         val form     = enterBankDetailsForm
                           .fill(bankAccountDetails)
                           .withError("enter-bank-details", s"error.$errorKey")
-                        BadRequest(enterBankAccountDetailsPage(form, router))
+                        BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
                       } else if (reputationResponse.accountNumberWithSortCodeIsValid === ReputationResponse.No) {
                         val form = enterBankDetailsForm
                           .withError("enter-bank-details", "error.moc-check-no")
-                        BadRequest(enterBankAccountDetailsPage(form, router))
+                        BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
                       } else if (reputationResponse.accountNumberWithSortCodeIsValid =!= ReputationResponse.Yes) {
                         val form = enterBankDetailsForm
                           .withError("enter-bank-details", "error.moc-check-failed")
-                        BadRequest(enterBankAccountDetailsPage(form, router))
+                        BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
                       } else if (reputationResponse.accountExists === Some(ReputationResponse.Error)) {
                         val form = enterBankDetailsForm
                           .fill(bankAccountDetails)
                           .withError("enter-bank-details", s"error.account-exists-error")
-                        BadRequest(enterBankAccountDetailsPage(form, router))
+                        BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
                       } else if (reputationResponse.accountExists =!= Some(ReputationResponse.Yes)) {
                         val form = enterBankDetailsForm
                           .withError("enter-bank-details", s"error.account-does-not-exist")
-                        BadRequest(enterBankAccountDetailsPage(form, router))
+                        BadRequest(enterBankAccountDetailsPage(form, router.submitUrlForEnterBankAccountDetails()))
                       } else {
                         Redirect(claimRoutes.BankAccountController.checkBankAccountDetails(journeyBindable))
                       }
