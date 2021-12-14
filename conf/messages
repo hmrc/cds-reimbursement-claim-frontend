@@ -800,7 +800,7 @@ select-bank-account-type.error.required=Select if you are providing details for 
 #  ENTER BANK DETAILS PAGE
 #===================================================
 enter-bank-details.title=Enter bank account details
-enter-bank-details.p1=This is where you would like reimbursements (repayments) to be made in the UK.
+enter-bank-details.p1=This is where you would like repayments to be made in the UK.
 enter-bank-details.p2=To use these bank details again, <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="{0}">contact the CDS team (opens in new tab)</a> via the imports and exports general enquiries.  Updating your bank details will only affect this claim and not past and future claims.
 enter-bank-details.account-name.label=Name on the account
 enter-bank-details.account-name.error.required=Enter the name on the account
