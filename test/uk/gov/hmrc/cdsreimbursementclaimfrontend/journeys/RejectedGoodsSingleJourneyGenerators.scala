@@ -33,22 +33,55 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTestData {
 
   val completeJourneyWithMatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildCompleteJourneyGen()
+    Gen.oneOf(
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = true,
+        acc14ConsigneeMatchesUserEori = true,
+        acc14DeclarantMatchesUserEori = false
+      ),
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = true,
+        acc14ConsigneeMatchesUserEori = false,
+        acc14DeclarantMatchesUserEori = true
+      ),
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = true,
+        acc14ConsigneeMatchesUserEori = true,
+        acc14DeclarantMatchesUserEori = true
+      )
+    )
 
   val completeJourneyWithMatchingUserEoriAndNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
-    buildCompleteJourneyGen(allDutiesCmaEligible = false)
+    Gen.oneOf(
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = false,
+        acc14ConsigneeMatchesUserEori = true,
+        acc14DeclarantMatchesUserEori = false
+      ),
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = false,
+        acc14ConsigneeMatchesUserEori = false,
+        acc14DeclarantMatchesUserEori = true
+      ),
+      buildCompleteJourneyGen(
+        allDutiesCmaEligible = false,
+        acc14ConsigneeMatchesUserEori = true,
+        acc14DeclarantMatchesUserEori = true
+      )
+    )
 
   val completeJourneyWithNonNatchingUserEoriAndCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen(
+      allDutiesCmaEligible = true,
       acc14DeclarantMatchesUserEori = false,
       acc14ConsigneeMatchesUserEori = false
     )
 
   val completeJourneyWithNonNatchingUserEoriAndNotCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
     buildCompleteJourneyGen(
+      allDutiesCmaEligible = false,
       acc14DeclarantMatchesUserEori = false,
-      acc14ConsigneeMatchesUserEori = false,
-      allDutiesCmaEligible = false
+      acc14ConsigneeMatchesUserEori = false
     )
 
   val completeJourneyCMAEligibleGen: Gen[RejectedGoodsSingleJourney] =
@@ -71,6 +104,11 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
 
   val completeJourneyGenWithoutSpecialCircumstances =
     completeJourneyGen.suchThat(_.answers.basisOfClaimSpecialCircumstances.isEmpty)
+
+  implicit val bigDecimalChoose = new Gen.Choose[BigDecimal] {
+    override def choose(min: BigDecimal, max: BigDecimal): Gen[BigDecimal] =
+      Gen.choose(1, 10000).map(i => (min + (i * ((max - min) / 10000))).round(min.mc))
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def buildCompleteJourneyGen(
@@ -114,16 +152,16 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       consigneeEORI               <- if (acc14ConsigneeMatchesUserEori) Gen.const(userEoriNumber) else IdGen.genEori
       numberOfTaxCodes            <- Gen.choose(1, 5)
       taxCodes                    <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
-      paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1d, 10000d)).map(_.map(BigDecimal.apply(_)))
+      paidAmounts                 <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
       reimbursementAmount         <-
         Gen.sequence[Seq[BigDecimal], BigDecimal](
-          paidAmounts.map(a => Gen.choose(0.01d, a.toDouble).map(BigDecimal.apply))
+          paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
         )
       basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.all)
       methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.all)
       reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.all)
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
-      numberOfSupportingEvidences <- Gen.choose(1, 2)
+      numberOfSupportingEvidences <- Gen.choose(1, 3)
       documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(DocumentTypeRejectedGoods.all))
       bankAccountType             <- Gen.oneOf(BankAccountType.allAccountTypes)
     } yield {
@@ -147,6 +185,8 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
           paidDuties
         )
 
+      val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
+
       tryBuildRejectedGoodsSingleJourney(
         userEoriNumber,
         mrn,
@@ -160,10 +200,8 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         reimbursementClaims,
         supportingEvidences,
         if (allDutiesCmaEligible) Some(reimbursementMethod) else None,
-        declarantEoriNumber =
-          if (submitDeclarantDetails && !acc14DeclarantMatchesUserEori) Some(declarantEORI) else None,
-        consigneeEoriNumber =
-          if (submitConsigneeDetails && !acc14ConsigneeMatchesUserEori) Some(consigneeEORI) else None,
+        declarantEoriNumber = if (submitDeclarantDetails && !hasMatchingEori) Some(declarantEORI) else None,
+        consigneeEoriNumber = if (submitConsigneeDetails && !hasMatchingEori) Some(consigneeEORI) else None,
         contactDetails = if (submitContactDetails) Some(exampleContactDetails) else None,
         contactAddress = if (submitContactAddress) Some(exampleContactAddress) else None,
         bankAccountDetails =
@@ -205,7 +243,7 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       consigneeEORI    <- IdGen.genEori
       numberOfTaxCodes <- Gen.choose(1, 5)
       taxCodes         <- Gen.const(TaxCodes.all.take(numberOfTaxCodes))
-      paidAmounts      <- Gen.listOfN(numberOfTaxCodes, Gen.choose(1, 10000)).map(_.map(BigDecimal.apply(_)))
+      paidAmounts      <- Gen.listOfN(numberOfTaxCodes, Gen.choose[BigDecimal](BigDecimal("1.00"), BigDecimal("1000.00")))
     } yield {
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)] =
         taxCodes.zip(paidAmounts).map { case (t, a) => (t, a, cmaEligible) }
