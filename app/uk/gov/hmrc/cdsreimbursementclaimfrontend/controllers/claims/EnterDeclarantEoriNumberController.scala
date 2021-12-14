@@ -62,7 +62,7 @@ class EnterDeclarantEoriNumberController @Inject() (
       withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (_, answers, router) =>
         val emptyForm                                   = EnterDeclarantEoriNumberController.eoriNumberForm
         val filledForm: Form[DeclarantEoriNumberAnswer] = answers.fold(emptyForm)(emptyForm.fill)
-        Ok(enterDeclarantEoriNumberPage(filledForm, router.submitUrlForEnterDeclarantEoriNumber))
+        Ok(enterDeclarantEoriNumberPage(filledForm, router.submitUrlForEnterDeclarantEoriNumber()))
       }
     }
 
@@ -76,7 +76,7 @@ class EnterDeclarantEoriNumberController @Inject() (
               BadRequest(
                 enterDeclarantEoriNumberPage(
                   requestFormWithErrors,
-                  router.submitUrlForEnterDeclarantEoriNumber
+                  router.submitUrlForEnterDeclarantEoriNumber()
                 )
               ),
             declarantEoriNumber => {
