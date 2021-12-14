@@ -49,6 +49,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
 
+  private lazy val goToTheStartOfJourney: Future[Result] =
+    Future.successful(Redirect(startOfTheJourney))
+
   /** [Config] Defines where to redirect when journey is already complete, a.k.a CYA page. */
   val checkYourAnswers: Call
 
@@ -62,8 +65,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
   final override def controllerComponents: MessagesControllerComponents =
     jcc.controllerComponents
 
-  private def resultOrCheckYourAnswers(result: Result, journey: Journey): Result =
-    if (isComplete(journey)) Redirect(checkYourAnswers) else result
+  private def resultOrRedirectToCheckYourAnswersIfComplete(result: Result, journey: Journey): Future[Result] =
+    Future.successful(
+      if (isComplete(journey)) Redirect(checkYourAnswers)
+      else result
+    )
 
   /** Simple GET action to show page based on the journey state */
   final def simpleActionReadJourney(body: Journey => Result): Action[AnyContent] =
@@ -98,11 +104,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         request.sessionData
           .flatMap(getJourney)
           .map(body(request))
-          .getOrElse(
-            Future.successful(
-              Redirect(startOfTheJourney)
-            )
-          )
+          .getOrElse(goToTheStartOfJourney)
       }
 
   /** Simple POST action to submit form and update journey. */
@@ -122,19 +124,15 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => Future.successful(resultOrCheckYourAnswers(result, modifiedJourney))
+                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
                     )
                   )
               }
           )
-          .getOrElse(
-            Future.successful(
-              Redirect(startOfTheJourney)
-            )
-          )
+          .getOrElse(goToTheStartOfJourney)
       }
 
-  /** Simple POST to submit form and update journey, comes with current user data. */
+  /** Simple POST to submit form and update journey, can use current user data. */
   final def simpleActionReadWriteJourneyAndUser(
     body: Request[_] => Journey => RetrievedUserType => (Journey, Result)
   ): Action[AnyContent] =
@@ -149,15 +147,11 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
               .flatMap(
                 _.fold(
                   error => Future.failed(error.toException),
-                  _ => Future.successful(resultOrCheckYourAnswers(result, modifiedJourney))
+                  _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
                 )
               )
           }
-          .getOrElse(
-            Future.successful(
-              Redirect(startOfTheJourney)
-            )
-          )
+          .getOrElse(goToTheStartOfJourney)
       }
 
   /** Async POST action to submit form and update journey. */
@@ -177,16 +171,35 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
-                      _ => Future.successful(resultOrCheckYourAnswers(result, modifiedJourney))
+                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
                     )
                   )
               })
           )
-          .getOrElse(
-            Future.successful(
-              Redirect(startOfTheJourney)
-            )
-          )
+          .getOrElse(goToTheStartOfJourney)
 
+      }
+
+  /** Async POST action to submit form and update journey, can use current user data. */
+  final def actionReadWriteJourneyAndUser(
+    body: Request[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
+  ): Action[AnyContent] =
+    jcc
+      .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
+      .async { implicit request =>
+        getJourney(request.sessionData)
+          .fold(goToTheStartOfJourney) { journey =>
+            body(request)(journey)(request.authenticatedRequest.journeyUserType)
+              .flatMap { case (modifiedJourney, result) =>
+                jcc.sessionCache
+                  .store(updateJourney(request.sessionData, modifiedJourney))
+                  .flatMap(
+                    _.fold(
+                      error => Future.failed(error.toException),
+                      _ => resultOrRedirectToCheckYourAnswersIfComplete(result, modifiedJourney)
+                    )
+                  )
+              }
+          }
       }
 }
