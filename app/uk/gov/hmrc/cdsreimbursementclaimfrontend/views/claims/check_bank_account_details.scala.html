@@ -18,10 +18,10 @@
 @import play.api.mvc.Call
 @import play.twirl.api.Html
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @this(
     layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -32,7 +32,7 @@
     summary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.summary
 )
 
-@(bankAccount: BankAccountDetails, continuePageUrl: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
+@(bankAccount: BankAccountDetails, continuePageUrl: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String], journey: JourneyBindable)
 
 @key = @{"bank-details"}
 @title = @{messages(s"$key.title")}
@@ -52,7 +52,7 @@
         )
     )
 
-    @summary(bankAccount.summary(key, router))
+    @summary(bankAccount.summary(key, subKey))
 
     @buttonLink("button.continue", Some(continuePageUrl.url))
 }

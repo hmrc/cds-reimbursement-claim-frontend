@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 package object summary {
@@ -41,21 +41,21 @@ package object summary {
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 
-    def summary(key: String, router: ReimbursementRoutes)(implicit
+    def summary(key: String, subKey: Option[String])(implicit
       answerSummary: AnswerSummary[A],
+      journey: JourneyBindable,
       messages: Messages
     ): SummaryList =
-      answerSummary.render(key, answer)(router, messages)
-
-    def summaryWithSubKey(key: String, subKey: Option[String])(implicit
-      answerSummary: AnswerSummary[A],
-      messages: Messages
-    ): SummaryList =
-      answerSummary.renderWithSubKey(key, answer)(subKey, messages)
+      answerSummary.render(key, answer)(subKey, journey, messages)
 
     def summary(
       key: String
-    )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
+    )(implicit
+      answerSummary: AnswerSummary[A],
+      subKey: Option[String],
+      journey: JourneyBindable,
+      messages: Messages
+    ): SummaryList =
       answerSummary.render(key, answer)
   }
 

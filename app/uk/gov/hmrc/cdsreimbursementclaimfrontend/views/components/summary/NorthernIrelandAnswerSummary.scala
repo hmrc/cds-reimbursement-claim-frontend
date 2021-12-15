@@ -17,15 +17,19 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 import uk.gov.hmrc.govukfrontend.views.Aliases.{ActionItem, Key, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryList, SummaryListRow, Value}
 
 class NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
 
-  def render(key: String, answer: YesNo)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList =
+  def render(key: String, answer: YesNo)(implicit
+    subKey: Option[String],
+    journey: JourneyBindable,
+    messages: Messages
+  ): SummaryList =
     SummaryList(
       Seq(
         SummaryListRow(
@@ -35,8 +39,7 @@ class NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(router.journeyBindable).url}",
+                  href = s"${routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.label"))
                 )

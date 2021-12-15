@@ -20,6 +20,7 @@
 @import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
@@ -38,7 +39,7 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, subKey: Option[String], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String], journey: JourneyBindable)
 
 @key = @{"check-declaration-details"}
 @title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
@@ -55,7 +56,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(declaration.summaryWithSubKey(s"$checkYourAnswersKey.declaration-details", subKey))
+        @summary(declaration.summary(s"$checkYourAnswersKey.declaration-details", subKey))
 
         @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
 

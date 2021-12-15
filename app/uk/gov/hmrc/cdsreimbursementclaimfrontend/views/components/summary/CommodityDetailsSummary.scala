@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.CommodityDetailsAnswer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -26,7 +26,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
 
   def render(key: String, answer: CommodityDetailsAnswer)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
     val label = messages(s"$key.label")
@@ -40,8 +41,7 @@ class CommodityDetailsSummary extends AnswerSummary[CommodityDetailsAnswer] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(router.journeyBindable).url}",
+                  href = s"${routes.EnterCommoditiesDetailsController.enterCommoditiesDetails(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(label)
                 )

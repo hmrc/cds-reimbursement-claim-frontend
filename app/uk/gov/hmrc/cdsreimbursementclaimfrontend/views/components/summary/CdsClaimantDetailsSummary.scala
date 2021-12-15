@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import cats.implicits.toFunctorFilterOps
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -44,7 +44,8 @@ class CdsClaimantDetailsSummary
     key: String,
     answer: (NamePhoneEmail, EstablishmentAddress, Option[MrnContactDetails], Option[ContactAddress])
   )(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
     val (cdsContact, cdsAddress, mrnContact, mrnAddress) = answer
@@ -64,7 +65,7 @@ class CdsClaimantDetailsSummary
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.CheckContactDetailsMrnController.show(router.journeyBindable).url}",
+                  href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.change-hint.contact"))
                 )
@@ -93,7 +94,7 @@ class CdsClaimantDetailsSummary
             Actions(
               items = Seq(
                 ActionItem(
-                  href = s"${routes.CheckContactDetailsMrnController.show(router.journeyBindable).url}",
+                  href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.change-hint.address"))
                 )
@@ -125,7 +126,7 @@ class CdsClaimantDetailsSummary
           Actions(
             items = Seq(
               ActionItem(
-                href = s"${routes.CheckContactDetailsMrnController.show(router.journeyBindable).url}",
+                href = s"${routes.CheckContactDetailsMrnController.show(journey).url}",
                 content = Text(messages("cya.change")),
                 visuallyHiddenText = Some(messages(s"$key.change-hint.contact"))
               )
