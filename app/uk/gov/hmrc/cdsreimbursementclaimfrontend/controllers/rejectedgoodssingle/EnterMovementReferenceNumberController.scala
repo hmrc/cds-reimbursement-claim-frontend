@@ -51,7 +51,6 @@ class EnterMovementReferenceNumberController @Inject() (
 )(implicit viewConfig: ViewConfig, ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  private val form   = movementReferenceNumberForm()
   private val subKey = Some("rejected-goods.single")
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
@@ -69,7 +68,7 @@ class EnterMovementReferenceNumberController @Inject() (
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    form
+    movementReferenceNumberForm()
       .bindFromRequest()
       .fold(
         formWithErrors =>
@@ -94,7 +93,7 @@ class EnterMovementReferenceNumberController @Inject() (
           }.fold(
             errors => {
               logger.error(s"Unable to record $mrn", errors.toException)
-              (journey, (Redirect(baseRoutes.IneligibleController.ineligible())))
+              (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
             },
             updatedJourney => (updatedJourney, redirectLocation(updatedJourney))
           )
@@ -103,7 +102,7 @@ class EnterMovementReferenceNumberController @Inject() (
 
   private def redirectLocation(journey: RejectedGoodsSingleJourney): Result =
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
-      Redirect("/rejected-goods/single/enter-importer-eori")
+      Redirect(routes.EnterImporterEoriNumberController.show())
     } else {
       Redirect("rejected-goods/single/check-declaration-details")
     }
