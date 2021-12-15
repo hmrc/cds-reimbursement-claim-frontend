@@ -77,7 +77,15 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),
             {
-              case YesNo.No  => Ok(enterDuplicateMovementReferenceNumberPage(enterDuplicateMrnWithNoCheck, router))
+              case YesNo.No  =>
+                Ok(
+                  enterDuplicateMovementReferenceNumberPage(
+                    enterDuplicateMrnWithNoCheck,
+                    router.refNumberKey,
+                    routes.EnterDuplicateMovementReferenceNumberController
+                      .enterDuplicateMrnSubmit(router.journeyBindable)
+                  )
+                )
               case YesNo.Yes => Redirect(router.nextPageForCheckDuplicateDeclarationDetails())
             }
           )

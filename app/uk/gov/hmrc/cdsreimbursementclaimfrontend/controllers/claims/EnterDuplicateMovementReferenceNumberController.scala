@@ -64,7 +64,13 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MRN] { (_, previousAnswer, router) =>
         val form = previousAnswer.fold(enterDuplicateMrnWithNoCheck)(enterDuplicateMrnWithNoCheck.fill)
-        Ok(enterDuplicateMovementReferenceNumberPage(form, router))
+        Ok(
+          enterDuplicateMovementReferenceNumberPage(
+            form,
+            router.refNumberKey,
+            routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable)
+          )
+        )
       }
     }
 
@@ -80,7 +86,8 @@ class EnterDuplicateMovementReferenceNumberController @Inject() (
                 enterDuplicateMovementReferenceNumberPage(
                   requestFormWithErrors
                     .copy(errors = Seq(processFormErrors(router.refNumberKey, requestFormWithErrors.errors))),
-                  router
+                  router.refNumberKey,
+                  routes.EnterDuplicateMovementReferenceNumberController.enterDuplicateMrnSubmit(router.journeyBindable)
                 )
               ),
             mrn => {
