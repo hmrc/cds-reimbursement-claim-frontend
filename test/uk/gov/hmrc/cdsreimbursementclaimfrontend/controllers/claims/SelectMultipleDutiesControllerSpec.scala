@@ -73,13 +73,13 @@ class SelectMultipleDutiesControllerSpec
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  lazy val displayDeclaration = sample[DisplayDeclaration]
-  lazy val nonEmptyListOfMRN  = sample[List[MRN]](Gen.listOfN(20, genMRN))
-  lazy val ndrc               = sample[NdrcDetails]
+  lazy val displayDeclaration: DisplayDeclaration = sample[DisplayDeclaration]
+  lazy val nonEmptyListOfMRN: List[MRN]           = sample[List[MRN]](Gen.listOfN(20, genMRN))
+  lazy val ndrc: NdrcDetails                      = sample[NdrcDetails]
 
-  def randomListOfTaxCodes = Random.shuffle(TaxCodes.excise).toList
+  def randomListOfTaxCodes: List[TaxCode] = Random.shuffle(TaxCodes.excise).toList
 
-  val nonEmptyListOfTaxCodesGen                                  =
+  val nonEmptyListOfTaxCodesGen: Gen[List[TaxCode]]              =
     Gen.chooseNum(1, TaxCodes.excise.length).map(n => randomListOfTaxCodes.take(n))
 
   private def getSessionWithMRNs(
@@ -141,7 +141,7 @@ class SelectMultipleDutiesControllerSpec
   def hasCheckbox(document: Document, taxCode: TaxCode): Boolean =
     !document
       .select(s"""input[value="${taxCode.value}"] """)
-      .isEmpty()
+      .isEmpty
 
   def isChecked(document: Document, taxCode: TaxCode): Boolean =
     document
@@ -153,7 +153,7 @@ class SelectMultipleDutiesControllerSpec
 
   def performActionGetSelectDuties(i: Int): Future[Result] = controller.selectDuties(i)(FakeRequest())
 
-  def getHintText(document: Document, hintTextId: String) = {
+  def getHintText(document: Document, hintTextId: String): Option[String] = {
     val hintTextElement = document.select(s"div#$hintTextId")
 
     if (hintTextElement.hasText) Some(hintTextElement.text()) else None
@@ -221,8 +221,8 @@ class SelectMultipleDutiesControllerSpec
     "display the select duties page for the lead MRN" when {
       "the user has provided lead MRN and is selecting the duties for the first time" in {
 
-        val taxCodes           = randomListOfTaxCodes.take(5)
-        val (session, _, mrns) =
+        val taxCodes        = randomListOfTaxCodes.take(5)
+        val (session, _, _) =
           getSessionWithMRNs(selectedMrnIndex = 1, mrnCount = 3, taxCodes = taxCodes, selectedTaxCodes = Nil)
 
         inSequence {
@@ -242,7 +242,7 @@ class SelectMultipleDutiesControllerSpec
         val taxCodes         = randomListOfTaxCodes.take(5)
         val selectedTaxCodes = taxCodes.take(2)
 
-        val (session, _, mrns) =
+        val (session, _, _) =
           getSessionWithMRNs(selectedMrnIndex = 1, mrnCount = 3, taxCodes, selectedTaxCodes)
 
         inSequence {
@@ -261,8 +261,8 @@ class SelectMultipleDutiesControllerSpec
     "display the select duties page for the second MRN" when {
       "the user has provided second MRN and is selecting the duties for the first time" in {
 
-        val taxCodes           = randomListOfTaxCodes.take(2)
-        val (session, _, mrns) =
+        val taxCodes        = randomListOfTaxCodes.take(2)
+        val (session, _, _) =
           getSessionWithMRNs(selectedMrnIndex = 2, mrnCount = 3, taxCodes = taxCodes, selectedTaxCodes = Nil)
 
         inSequence {
@@ -282,7 +282,7 @@ class SelectMultipleDutiesControllerSpec
         val taxCodes         = randomListOfTaxCodes.take(7)
         val selectedTaxCodes = taxCodes.take(5)
 
-        val (session, _, mrns) =
+        val (session, _, _) =
           getSessionWithMRNs(selectedMrnIndex = 2, mrnCount = 3, taxCodes, selectedTaxCodes)
 
         inSequence {
@@ -301,8 +301,8 @@ class SelectMultipleDutiesControllerSpec
     "display the select duties page for further MRNs" when {
       "the user has provided a MRN and is selecting the duties for the first time" in {
         (3 to 13).foreach { selectedMrnIndex =>
-          val taxCodes           = randomListOfTaxCodes.take(8)
-          val (session, _, mrns) =
+          val taxCodes        = randomListOfTaxCodes.take(8)
+          val (session, _, _) =
             getSessionWithMRNs(
               selectedMrnIndex,
               mrnCount = selectedMrnIndex + 2,
@@ -328,7 +328,7 @@ class SelectMultipleDutiesControllerSpec
           val taxCodes         = randomListOfTaxCodes.take(4)
           val selectedTaxCodes = taxCodes.take(2)
 
-          val (session, _, mrns) =
+          val (session, _, _) =
             getSessionWithMRNs(selectedMrnIndex, selectedMrnIndex + 1, taxCodes, selectedTaxCodes)
 
           inSequence {

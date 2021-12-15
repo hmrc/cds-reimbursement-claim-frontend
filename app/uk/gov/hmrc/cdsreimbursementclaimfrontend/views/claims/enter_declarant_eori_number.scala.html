@@ -17,9 +17,9 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
 
 @this(
@@ -33,7 +33,7 @@
 )
 
 
-@(form: Form[DeclarantEoriNumberAnswer], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[DeclarantEoriNumberAnswer], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
     @key = @{"enter-declarant-eori-number"}
     @title = @{messages(s"$key.title")}
@@ -48,15 +48,15 @@
 
         @paragraph(Html(messages(s"$key.help")), Some("govuk-body govuk-!-margin-bottom-8"))
 
-        @formWithCSRF(router.submitUrlForEnterDeclarantEoriNumber(), 'novalidate -> "novalidate") {
+        @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
             @inputText(
                 form = form,
                 id = key,
                 name = key,
-                label = s"${key}.input-label",
+                label = s"$key.input-label",
                 isPageHeading = false,
-                hint = Some(s"${key}.help-text"),
+                hint = Some(s"$key.help-text"),
                 classes = Some("govuk-input--width-20")
             )
 
