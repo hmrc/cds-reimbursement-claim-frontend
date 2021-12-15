@@ -68,6 +68,7 @@ class BankAccountController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       request.using { case fillingOutClaim: FillingOutClaim =>
         implicit val router: ReimbursementRoutes = extractRoutes(fillingOutClaim.draftClaim, journey)
+        implicit val subKey: Option[String]      = router.subKey
         import router._
 
         fillingOutClaim.draftClaim.findNonEmptyBankAccountDetails

@@ -17,10 +17,11 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import play.api.data.Form
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.AnswerSummaryOps
@@ -38,11 +39,10 @@
         errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(declaration: DisplayDeclaration, form: Form[YesNo], isDuplicate: Boolean, postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String], journey: JourneyBindable)
 
 @key = @{"check-declaration-details"}
 @title = @{if(isDuplicate) messages(s"$key.duplicate.title") else messages(s"$key.title")}
-@postAction = @{if(isDuplicate) router.submitUrlForCheckDuplicateDeclarationDetails() else router.submitUrlForCheckDeclarationDetails() }
 
 @hasErrors = @{form.hasErrors || form.hasGlobalErrors}
 
@@ -56,7 +56,7 @@
 
     @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
-        @summary(declaration.summary(s"$checkYourAnswersKey.declaration-details", router))
+        @summary(declaration.summary(s"$checkYourAnswersKey.declaration-details", subKey))
 
         @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
 

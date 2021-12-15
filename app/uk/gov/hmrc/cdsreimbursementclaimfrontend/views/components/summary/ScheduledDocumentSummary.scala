@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ScheduledDocumentAnswer
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
@@ -27,7 +27,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class ScheduledDocumentSummary extends AnswerSummary[ScheduledDocumentAnswer] {
 
   def render(key: String, answer: ScheduledDocumentAnswer)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList =
     SummaryList(

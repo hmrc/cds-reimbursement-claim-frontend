@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsMakingTheClaimController.whoIsMakingTheClaimKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{DeclarantTypeAnswer, DeclarantTypeAnswers}
@@ -27,7 +27,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
 
   def render(key: String, answer: DeclarantTypeAnswer)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList =
     SummaryList(
@@ -41,8 +42,7 @@ class ClaimTypeSummary extends AnswerSummary[DeclarantTypeAnswer] {
             Actions(
               items = Seq(
                 ActionItem(
-                  href =
-                    s"${routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(router.journeyBindable).url}",
+                  href = s"${routes.SelectWhoIsMakingTheClaimController.selectDeclarantType(journey).url}",
                   content = Text(messages("cya.change")),
                   visuallyHiddenText = Some(messages(s"$key.l0"))
                 )

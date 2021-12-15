@@ -18,7 +18,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
@@ -29,7 +29,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList,
 class DisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
   def render(key: String, declaration: DisplayDeclaration)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = SummaryList(
     Seq(
@@ -38,7 +39,7 @@ class DisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
         value = Value()
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(lang(key, router.subKey, "mrn-label")))),
+        key = Key(Text(messages(lang(key, subKey, "mrn-label")))),
         value = Value(Text(declaration.displayResponseDetail.declarationId))
       ).some,
       SummaryListRow(

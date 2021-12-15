@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimRoutes}
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMRNsAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.CurrentMonthAdjustment
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
@@ -39,7 +40,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(claim: DraftClaim, verifiedEmal: Email)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, router: ReimbursementRoutes)
+@(claim: DraftClaim, verifiedEmail: Email)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig, subKey: Option[String], journey: JourneyBindable)
 
 @key = @{"check-your-answers"}
 @title = @{messages(s"$key.title")}
@@ -58,7 +59,7 @@
 
 @cdsClaimantDetailsSummary = @{
     claim.extractEstablishmentAddress.map { cdsAddress =>
-        (claim.extractDetailsRegisteredWithCDS(verifiedEmal), cdsAddress, claim.mrnContactDetailsAnswer,claim.mrnContactAddressAnswer).summary(s"$key.claimant-details")
+        (claim.extractDetailsRegisteredWithCDS(verifiedEmail), cdsAddress, claim.mrnContactDetailsAnswer,claim.mrnContactAddressAnswer).summary(s"$key.claimant-details")
     }
 }
 
@@ -66,7 +67,7 @@
 
     @pageHeading(title)
 
-    @pageHeading(messages(lang(s"$key.reference-number", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
+    @pageHeading(messages(lang(s"$key.reference-number", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-7", "h2")
     @summary(mrnSummary)
 
     @claim.scheduledDocumentAnswer.map { scheduledDocument =>
@@ -108,7 +109,7 @@
         @if(claim.typeOfClaim.isEmpty ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Individual) ||
             claim.typeOfClaim.contains(TypeOfClaimAnswer.Scheduled)) {
-            @pageHeading(messages(lang(s"$key.claim-calculation", router.subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
+            @pageHeading(messages(lang(s"$key.claim-calculation", subKey, "h2")), "govuk-heading-m govuk-!-margin-top-9", "h2")
             @summary(reimbursement.summary(s"$key.claim-calculation"))
         }
     }
@@ -138,7 +139,7 @@
     @pageHeading(messages(s"$key.confirmation-statement.h2"), "govuk-heading-m govuk-!-margin-top-9", "h2")
     @paragraph(Html(messages(s"$key.confirmation-statement")), Some("govuk-body"))
 
-    @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(router.journeyBindable), 'novalidate -> "novalidate") {
+    @formWithCSRF(claimRoutes.CheckYourAnswersAndSubmitController.checkAllAnswersSubmit(journey), 'novalidate -> "novalidate") {
         @submitButton("button.accept-and-send")
     }
 }
