@@ -57,6 +57,7 @@ final case class RequestWithSessionData[A](
 
   def routeToCheckAnswers(journeyBindable: JourneyBindable): NextPageBuilder =
     NextPageBuilder(ReimbursementRoutes(journeyBindable))
+
 }
 
 @Singleton

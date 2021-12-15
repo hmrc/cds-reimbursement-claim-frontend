@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import cats.syntax.eq._
 
-final case class DeclarantDetails(
-  declarantEORI: String,
-  legalName: String,
-  establishmentAddress: EstablishmentAddress,
-  contactDetails: Option[ContactDetails]
-) extends ConsigneeOrDeclarantDetails {
-
-  override def eori: Eori = Eori(declarantEORI)
+sealed trait Feature {
+  def name: String
 }
 
-object DeclarantDetails {
-  implicit val format: OFormat[DeclarantDetails] = Json.format[DeclarantDetails]
+object Feature {
+
+  case object NorthernIreland extends Feature { val name = "northern-ireland" }
+  case object RejectedGoods extends Feature { val name = "rejected-goods" }
+
+  def of(name: String): Option[Feature] =
+    Seq[Feature](
+      NorthernIreland,
+      RejectedGoods
+    ).find(_.name === name)
+
 }

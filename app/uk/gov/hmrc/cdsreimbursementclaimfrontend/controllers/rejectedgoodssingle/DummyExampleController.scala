@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodsingle
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.data._
 import play.api.mvc._
 import play.twirl.api.Html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 /** Dummy controller to showcase different patterns of implementing actions. */
 @Singleton
 class DummyExampleController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
-  cc: MessagesControllerComponents
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
-    extends RejectedGoodsSingleJourneyBaseController(cc) {
+  val jcc: JourneyControllerComponents,
+  landingPage: views.html.landing_page
+)(implicit ec: ExecutionContext, viewConfig: ViewConfig)
+    extends RejectedGoodsSingleJourneyBaseController {
 
   // dummy API example
   def someApiCall(implicit hc: HeaderCarrier): Future[String] = ???
@@ -60,8 +56,8 @@ class DummyExampleController @Inject() (
   val callApiAndShowDummyPage: Action[AnyContent] =
     actionReadJourney { implicit request => journey =>
       journey.answers.detailsOfRejectedGoods match {
-        case Some(s) => someApiCall.map(_ => Ok(dummyPage(dummyForm.fill(s))))
-        case None    => someApiCall.map(_ => Ok(dummyPage(dummyForm)))
+        case Some(_) => someApiCall.map(_ => Ok(landingPage()))
+        case None    => someApiCall.map(_ => Ok(landingPage()))
       }
     }
 

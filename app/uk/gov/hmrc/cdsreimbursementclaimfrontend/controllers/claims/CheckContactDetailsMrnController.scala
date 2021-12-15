@@ -22,7 +22,7 @@ import cats.syntax.all._
 import com.google.inject.{Inject, Singleton}
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{AddressLookupConfig, ErrorHandler, ViewConfig}
@@ -43,6 +43,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
 @Singleton
 class CheckContactDetailsMrnController @Inject() (
@@ -66,16 +67,32 @@ class CheckContactDetailsMrnController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable)
-          Ok(renderTemplate(whetherContinue, fillingOutClaim, router, mandatoryDataAvailable = true))
-        else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
+        if (fillingOutClaim.draftClaim.isMandatoryContactDataAvailable) {
+          Ok(
+            renderTemplate(
+              whetherContinue,
+              fillingOutClaim,
+              router.submitPageForClaimantDetails(true),
+              mandatoryDataAvailable = true,
+              journey
+            )
+          )
+        } else Redirect(routes.CheckContactDetailsMrnController.addDetailsShow(journey))
       }
     }
 
   def addDetailsShow(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        Ok(renderTemplate(whetherContinue, fillingOutClaim, router, mandatoryDataAvailable = false))
+        Ok(
+          renderTemplate(
+            whetherContinue,
+            fillingOutClaim,
+            router.submitPageForClaimantDetails(false),
+            mandatoryDataAvailable = false,
+            journey
+          )
+        )
       }
     }
 
@@ -88,7 +105,15 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
+              BadRequest(
+                renderTemplate(
+                  updatedForm,
+                  fillingOutClaim,
+                  router.submitPageForClaimantDetails(mandatoryDataAvailable),
+                  mandatoryDataAvailable,
+                  journey
+                )
+              )
             },
             {
               case Yes => Redirect(routes.EnterContactDetailsMrnController.enterMrnContactDetails(journey))
@@ -107,7 +132,15 @@ class CheckContactDetailsMrnController @Inject() (
           .fold(
             formWithErrors => {
               val updatedForm = updatedFormErrors(formWithErrors, mandatoryDataAvailable)
-              BadRequest(renderTemplate(updatedForm, fillingOutClaim, router, mandatoryDataAvailable))
+              BadRequest(
+                renderTemplate(
+                  updatedForm,
+                  fillingOutClaim,
+                  router.submitPageForClaimantDetails(mandatoryDataAvailable),
+                  mandatoryDataAvailable,
+                  journey
+                )
+              )
             },
             {
               case Yes => nextPageForClaimantDetails(fillingOutClaim, router, featureSwitch)
@@ -185,8 +218,9 @@ class CheckContactDetailsMrnController @Inject() (
   def renderTemplate(
     form: Form[YesNo],
     fillingOutClaim: FillingOutClaim,
-    router: ReimbursementRoutes,
-    mandatoryDataAvailable: Boolean
+    postAction: Call,
+    mandatoryDataAvailable: Boolean,
+    journey: JourneyBindable
   )(implicit
     request: RequestWithSessionData[_],
     messages: Messages,
@@ -199,7 +233,8 @@ class CheckContactDetailsMrnController @Inject() (
       fillingOutClaim.draftClaim.extractEstablishmentAddress,
       fillingOutClaim.draftClaim.mrnContactDetailsAnswer,
       fillingOutClaim.draftClaim.mrnContactAddressAnswer,
-      router
+      postAction,
+      journey
     )
 
   def updatedFormErrors[T](formWithErrors: Form[T], mandatoryDataAvailable: Boolean): Form[T] =
@@ -220,7 +255,7 @@ class CheckContactDetailsMrnController @Inject() (
   )(implicit journey: JourneyBindable): Result =
     Redirect(
       router.CheckAnswers.when(fillingOutClaim.draftClaim.isComplete)(alternatively =
-        if (featureSwitch.NorthernIreland.isEnabled())
+        if (featureSwitch.isEnabled(Feature.NorthernIreland))
           routes.ClaimNorthernIrelandController.selectWhetherNorthernIrelandClaim(journey)
         else routes.SelectBasisForClaimController.selectBasisForClaim(journey)
       )

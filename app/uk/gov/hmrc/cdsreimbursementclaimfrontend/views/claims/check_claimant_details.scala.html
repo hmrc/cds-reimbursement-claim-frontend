@@ -15,12 +15,13 @@
  *@
 
 @import play.api.i18n.Messages
+@import play.api.mvc.Call
 @import play.twirl.api.Html
 @import play.api.data.Form
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckContactDetailsMrnController
+@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -42,7 +43,7 @@
     formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
-@(form: Form[YesNo], mandatoryDataAvailable: Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress: Option[EstablishmentAddress], contactDetails: Option[MrnContactDetails], contactAddress: Option[ContactAddress], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[YesNo], mandatoryDataAvailable: Boolean, registeredContactDetails: NamePhoneEmail, establishmentAddress: Option[EstablishmentAddress], contactDetails: Option[MrnContactDetails], contactAddress: Option[ContactAddress], postAction: Call, journey: JourneyBindable)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{CheckContactDetailsMrnController.checkContactDetailsKey}
 @title = @{messages(s"$key.title")}
@@ -61,10 +62,10 @@
     @if(mandatoryDataAvailable) {
         @pageHeading(messages(s"$key.contact.title"), "govuk-heading-m", "h2")
         @paragraph(Html(messages(s"$key.contact.description")), Some("govuk-body govuk-!-margin-bottom-6"))
-        @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, router)))
+        @summary(SummaryList(claimantDetailsHelper.renderContactDetails(contactDetails, contactAddress, journey)))
     }
 
-    @formWithCSRF(router.submitPageForClaimantDetails(mandatoryDataAvailable), 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,

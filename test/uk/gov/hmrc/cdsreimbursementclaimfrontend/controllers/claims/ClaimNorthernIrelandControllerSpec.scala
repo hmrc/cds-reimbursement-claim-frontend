@@ -66,7 +66,7 @@ class ClaimNorthernIrelandControllerSpec
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit =
-    featureSwitch.NorthernIreland.enable()
+    featureSwitch.enable(Feature.NorthernIreland)
 
   lazy val errorHandler: ErrorHandler                 = instanceOf[ErrorHandler]
   lazy val controller: ClaimNorthernIrelandController = instanceOf[ClaimNorthernIrelandController]
@@ -113,14 +113,11 @@ class ClaimNorthernIrelandControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "ClaimNorthernIrelandController" must {
 
     "redirect to the error page" when {
       "the feature switch NorthernIreland is disabled" in forAll(journeys) { journey =>
-        featureSwitch.NorthernIreland.disable()
+        featureSwitch.disable(Feature.NorthernIreland)
         val result = controller.selectWhetherNorthernIrelandClaim(journey)(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }

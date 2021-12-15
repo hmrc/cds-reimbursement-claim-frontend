@@ -16,67 +16,50 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
-import cats.implicits.catsSyntaxEq
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc.Results.NotFound
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.concurrent.ConcurrentHashMap
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
-class FeatureSwitchService @Inject() (configuration: Configuration) {
+class FeatureSwitchService @Inject() (
+  val configuration: Configuration,
+  errorHandler: ErrorHandler,
+  cc: MessagesControllerComponents
+) {
 
-  def of(name: String): Option[FeatureName] = Seq(
-    BulkMultiple,
-    BulkClaim,
-    NorthernIreland,
-    RejectedGoods
-  ).find(_.name === name)
+  private val features: ConcurrentHashMap[Feature, Boolean] =
+    new ConcurrentHashMap[Feature, Boolean]()
 
-  sealed trait FeatureName extends Product with Serializable {
+  def enable(feature: Feature): Boolean =
+    features.put(feature, true)
 
-    val name: String
-    val confPropertyName: String   = s"features.$name"
-    val systemPropertyName: String = s"features.$name"
+  def disable(feature: Feature): Boolean =
+    features.put(feature, false)
 
-    def isEnabled(): Boolean =
-      sys.props.get(systemPropertyName).map(_.toBoolean).getOrElse {
-        configuration.getOptional[Boolean](confPropertyName).getOrElse(false)
+  def isEnabled(feature: Feature): Boolean =
+    Option(features.get(feature))
+      .orElse(sys.props.get(s"features.${feature.name}").map(_.toBoolean))
+      .orElse(configuration.getOptional[Boolean](s"features.${feature.name}"))
+      .getOrElse(false)
+
+  def hideIfNotEnabled(feature: Feature): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
+    new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
+
+      def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
+        if (isEnabled(feature)) None
+        else Some(NotFound(errorHandler.notFoundTemplate(input)))
       }
 
-    def enable(): Unit =
-      setProp(true)
+      override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
 
-    def disable(): Unit =
-      setProp(false)
-
-    def setFlag(cond: Boolean): Unit =
-      if (cond) enable() else disable()
-
-    def setProp(value: Boolean): Unit = {
-      val _ = sys.props += (systemPropertyName -> value.toString)
+      override protected def executionContext: ExecutionContext = cc.executionContext
     }
-
-    def hideIfNotEnabled(implicit
-      errorHandler: ErrorHandler,
-      cc: MessagesControllerComponents
-    ): ActionBuilder[Request, AnyContent] with ActionFilter[Request] =
-      new ActionBuilder[Request, AnyContent] with ActionFilter[Request] {
-
-        def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-          Option(isEnabled()).filter(_ === false) map (_ => NotFound(errorHandler.notFoundTemplate(input)))
-        }
-
-        override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
-
-        override protected def executionContext: ExecutionContext = cc.executionContext
-      }
-  }
-
-  case object BulkClaim extends { val name = "bulk-claim" } with FeatureName
-  case object BulkMultiple extends { val name = "bulk-multiple" } with FeatureName
-  case object NorthernIreland extends { val name = "northern-ireland" } with FeatureName
-  case object RejectedGoods extends { val name = "rejected-goods" } with FeatureName
 }

@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 
+import cats.data.Validated
+import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
-import RejectedGoodsSingleJourneyGenerators._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
-import cats.data.Validated
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+
+import RejectedGoodsSingleJourneyGenerators._
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class RejectedGoodsSingleJourneySpec
@@ -33,6 +35,9 @@ class RejectedGoodsSingleJourneySpec
     with ScalaCheckPropertyChecks
     with Matchers
     with RejectedGoodsSingleJourneyTestData {
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 100)
 
   "RejectedGoodsSingleJourney" should {
     "have an empty instance" in {
@@ -69,7 +74,7 @@ class RejectedGoodsSingleJourneySpec
         journey.isComplete                                  shouldBe true
         val output = journey.toOutput.getOrElse(fail("Journey output not defined."))
         output.movementReferenceNumber  shouldBe journey.answers.movementReferenceNumber.get
-        output.declarantType            shouldBe journey.getDeclarantType
+        output.claimantType             shouldBe journey.getClaimantType
         output.basisOfClaim             shouldBe journey.answers.basisOfClaim.get
         output.methodOfDisposal         shouldBe journey.answers.methodOfDisposal.get
         output.detailsOfRejectedGoods   shouldBe journey.answers.detailsOfRejectedGoods.get
@@ -79,11 +84,8 @@ class RejectedGoodsSingleJourneySpec
           .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
         output.totalReimbursementAmount shouldBe journey.getTotalReimbursementAmount
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
-        output.consigneeEoriNumber      shouldBe journey.getConsigneeEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
-        output.declarantEoriNumber      shouldBe journey.getDeclarantEoriFromACC14.getOrElse(journey.answers.userEoriNumber)
-        output.contactDetails           shouldBe exampleContactDetails
-        output.contactAddress           shouldBe exampleContactAddress
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
+        output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
       }
     }
 
@@ -155,6 +157,8 @@ class RejectedGoodsSingleJourneySpec
           .submitDisplayDeclaration(displayDeclaration)
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe true
+      journey.getClaimantType                          shouldBe ClaimantType.User
+      journey.getClaimantEori                          shouldBe exampleEori
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of declarant" in {
@@ -167,6 +171,8 @@ class RejectedGoodsSingleJourneySpec
           .submitDisplayDeclaration(displayDeclaration)
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Declarant
+      journey.getClaimantEori                          shouldBe exampleEori
     }
 
     "does not need declarant and consignee submission if user's eori is matching that of consignee" in {
@@ -179,6 +185,8 @@ class RejectedGoodsSingleJourneySpec
           .submitDisplayDeclaration(displayDeclaration)
 
       journey.needsDeclarantAndConsigneeEoriSubmission shouldBe false
+      journey.getClaimantType                          shouldBe ClaimantType.Consignee
+      journey.getClaimantEori                          shouldBe exampleEori
     }
 
     "fail building journey if user's eori is not matching those of ACC14 and separate EORIs were not provided by the user" in {
@@ -261,8 +269,8 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
         val modifiedJourney = journey.submitContactDetails(contactDetails)
 
-        modifiedJourney.isComplete                     shouldBe true
-        modifiedJourney.toOutput.map(_.contactDetails) shouldBe Right(contactDetails)
+        modifiedJourney.isComplete             shouldBe true
+        modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
       }
     }
 
@@ -278,8 +286,8 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen, ContactAddressGen.genContactAddress) { (journey, contactAddress) =>
         val modifiedJourney = journey.submitContactAddress(contactAddress)
 
-        modifiedJourney.isComplete                     shouldBe true
-        modifiedJourney.toOutput.map(_.contactAddress) shouldBe Right(contactAddress)
+        modifiedJourney.isComplete             shouldBe true
+        modifiedJourney.answers.contactAddress shouldBe Some(contactAddress)
       }
     }
 
@@ -510,7 +518,6 @@ class RejectedGoodsSingleJourneySpec
       forAll(completeJourneyGen) { journey =>
         val taxCodes: Seq[(TaxCode, BigDecimal)] = journey.getReimbursementClaims.toSeq
         for ((taxCode, amount) <- taxCodes) {
-          val ndrcDetails   = journey.getNdrcDetailsFor(taxCode)
           val newAmount     = BigDecimal("0.00")
           val journeyEither = journey.submitAmountForReimbursement(taxCode, newAmount)
 

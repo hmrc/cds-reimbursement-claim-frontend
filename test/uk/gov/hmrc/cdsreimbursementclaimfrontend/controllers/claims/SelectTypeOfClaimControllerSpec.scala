@@ -58,7 +58,7 @@ class SelectTypeOfClaimControllerSpec
   lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
   override def beforeEach(): Unit =
-    featureSwitch.BulkClaim.enable()
+    featureSwitch.enable(Feature.RejectedGoods)
 
   lazy val errorHandler: ErrorHandler              = instanceOf[ErrorHandler]
   lazy val controller: SelectTypeOfClaimController = instanceOf[SelectTypeOfClaimController]
@@ -107,9 +107,6 @@ class SelectTypeOfClaimControllerSpec
 
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
-
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
 
   "SelectTypeOfClaimController" must {
     "redirect to the start of the journey" when {

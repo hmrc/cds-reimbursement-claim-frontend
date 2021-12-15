@@ -105,7 +105,9 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     "CheckContactDetailsMrnController and changing details" in {
       forAll(allRoutes) { router =>
-        router.submitPageForClaimantDetails(isChange = true) shouldBe claimRoutes.CheckContactDetailsMrnController
+        router.submitPageForClaimantDetails(mandatoryDataAvailable =
+          true
+        ) shouldBe claimRoutes.CheckContactDetailsMrnController
           .submit(
             router.journeyBindable
           )
@@ -114,7 +116,9 @@ class RouterSpec extends AnyWordSpec with Matchers with TableDrivenPropertyCheck
 
     "CheckContactDetailsMrnController and adding details" in {
       forAll(allRoutes) { router =>
-        router.submitPageForClaimantDetails(isChange = false) shouldBe claimRoutes.CheckContactDetailsMrnController
+        router.submitPageForClaimantDetails(mandatoryDataAvailable =
+          false
+        ) shouldBe claimRoutes.CheckContactDetailsMrnController
           .addDetailsSubmit(
             router.journeyBindable
           )
