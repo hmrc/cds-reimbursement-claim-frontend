@@ -57,8 +57,8 @@ class ChooseClaimTypeController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          if (!formWithErrors.data.isEmpty)
-            logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.map(_._2).mkString}")
+          if (formWithErrors.data.nonEmpty)
+            logger.error(s"Invalid claim form type supplied - ${formWithErrors.data.values.mkString}")
           Future.successful(BadRequest(chooseClaimTypePage(formWithErrors)))
         },
         {
