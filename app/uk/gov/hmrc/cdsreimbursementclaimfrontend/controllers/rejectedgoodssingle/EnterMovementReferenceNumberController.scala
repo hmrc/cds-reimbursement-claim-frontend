@@ -55,11 +55,9 @@ class EnterMovementReferenceNumberController @Inject() (
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      val form = journey.answers.movementReferenceNumber
-        .fold(movementReferenceNumberForm())(movementReferenceNumberForm.fill)
       Ok(
         enterMovementReferenceNumberPage(
-          form,
+          movementReferenceNumberForm.withDefault(journey.answers.movementReferenceNumber),
           subKey,
           routes.EnterMovementReferenceNumberController.submit()
         )
@@ -68,7 +66,7 @@ class EnterMovementReferenceNumberController @Inject() (
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    movementReferenceNumberForm()
+    movementReferenceNumberForm
       .bindFromRequest()
       .fold(
         formWithErrors =>

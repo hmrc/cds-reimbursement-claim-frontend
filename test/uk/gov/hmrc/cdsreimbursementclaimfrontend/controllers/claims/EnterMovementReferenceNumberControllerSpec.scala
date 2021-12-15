@@ -408,23 +408,23 @@ class EnterMovementReferenceNumberControllerSpec
 
   "Form validation" must {
 
-    def form() =
-      EnterMovementReferenceNumberController.movementReferenceNumberForm()
+    val form =
+      EnterMovementReferenceNumberController.movementReferenceNumberForm
 
     "accept valid MRN" in forAll { mrn: MRN =>
       val errors =
-        form().bind(Map(enterMovementReferenceNumberKey -> mrn.value)).errors
+        form.bind(Map(enterMovementReferenceNumberKey -> mrn.value)).errors
       errors shouldBe Nil
     }
 
     "reject 19 characters" in {
       val errors =
-        form().bind(Map(enterMovementReferenceNumberKey -> "910ABCDEFGHIJKLMNO0")).errors
+        form.bind(Map(enterMovementReferenceNumberKey -> "910ABCDEFGHIJKLMNO0")).errors
       errors.headOption.value.messages shouldBe List("invalid.number")
     }
 
     "reject 17 characters" in {
-      val errors = form()
+      val errors = form
         .bind(Map(enterMovementReferenceNumberKey -> "123456789A1234567"))
         .errors
       errors.headOption.value.messages shouldBe List("invalid.number")

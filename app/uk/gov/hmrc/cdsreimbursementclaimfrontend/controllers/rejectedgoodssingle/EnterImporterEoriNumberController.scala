@@ -35,9 +35,12 @@ class EnterImporterEoriNumberController @Inject() (
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
-      val form = journey.answers.consigneeEoriNumber.fold(eoriNumberForm)(eoriNumberForm.fill)
-
-      Ok(enterImporterEoriNumber(form, routes.EnterImporterEoriNumberController.submit()))
+      Ok(
+        enterImporterEoriNumber(
+          eoriNumberForm.withDefault(journey.answers.consigneeEoriNumber),
+          routes.EnterImporterEoriNumberController.submit()
+        )
+      )
     }
   }
 

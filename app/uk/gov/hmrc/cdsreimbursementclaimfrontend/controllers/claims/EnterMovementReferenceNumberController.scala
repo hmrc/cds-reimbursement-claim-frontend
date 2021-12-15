@@ -63,7 +63,7 @@ class EnterMovementReferenceNumberController @Inject() (
   def enterJourneyMrn(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MRN] { (_, previousAnswer) =>
-        val emptyForm = movementReferenceNumberForm()
+        val emptyForm = movementReferenceNumberForm
         val form      = previousAnswer.fold(emptyForm)(emptyForm.fill)
         val router    = ReimbursementRoutes(journey)
         Ok(enterMovementReferenceNumberPage(form, router.subKey, router.submitUrlForEnterMovementReferenceNumber()))
@@ -74,8 +74,7 @@ class EnterMovementReferenceNumberController @Inject() (
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswers[MRN] { (fillingOutClaim, previousAnswer) =>
         val router = ReimbursementRoutes(journey)
-        EnterMovementReferenceNumberController
-          .movementReferenceNumberForm()
+        EnterMovementReferenceNumberController.movementReferenceNumberForm
           .bindFromRequest()
           .fold(
             formWithErrors =>
@@ -212,7 +211,7 @@ object EnterMovementReferenceNumberController {
 
   val enterMovementReferenceNumberKey: String = "enter-movement-reference-number"
 
-  def movementReferenceNumberForm(): Form[MRN] =
+  val movementReferenceNumberForm: Form[MRN] =
     Form(
       mapping(
         enterMovementReferenceNumberKey ->
