@@ -53,9 +53,16 @@ class CheckDeclarationDetailsController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] = authenticatedActionWithSessionData.async {
     implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+        val postAction: Call = router.submitUrlForCheckDeclarationDetails()
         maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
           Ok(
-            checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, router)
+            checkDeclarationDetailsPage(
+              declaration,
+              checkDeclarationDetailsAnswerForm,
+              isDuplicate = false,
+              router.subKey,
+              postAction
+            )
           )
         )
       }
@@ -64,6 +71,7 @@ class CheckDeclarationDetailsController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (fillingOutClaim, answer, router) =>
+        val postAction: Call = router.submitUrlForCheckDeclarationDetails()
         CheckDeclarationDetailsController.checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -71,7 +79,15 @@ class CheckDeclarationDetailsController @Inject() (
               answer
                 .map(declaration =>
                   Future.successful(
-                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate = false, router))
+                    BadRequest(
+                      checkDeclarationDetailsPage(
+                        declaration,
+                        formWithErrors,
+                        isDuplicate = false,
+                        router.subKey,
+                        postAction
+                      )
+                    )
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),

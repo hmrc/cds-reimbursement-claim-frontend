@@ -28,8 +28,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList,
 
 class DisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
-  def render(key: String, declaration: DisplayDeclaration)(implicit
-    router: ReimbursementRoutes,
+  def renderWithSubKey(key: String, declaration: DisplayDeclaration)(implicit
+    subKey: String,
     messages: Messages
   ): SummaryList = SummaryList(
     Seq(
@@ -38,7 +38,7 @@ class DisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
         value = Value()
       ).some,
       SummaryListRow(
-        key = Key(Text(messages(lang(key, router.subKey, "mrn-label")))),
+        key = Key(Text(messages(lang(key, Some(subKey), "mrn-label")))),
         value = Value(Text(declaration.displayResponseDetail.declarationId))
       ).some,
       SummaryListRow(

@@ -56,8 +56,17 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   def show(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, maybeDeclaration, router) =>
+        val postAction: Call = router.submitUrlForCheckDuplicateDeclarationDetails()
         maybeDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-          Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = true, router))
+          Ok(
+            checkDeclarationDetailsPage(
+              declaration,
+              checkDeclarationDetailsAnswerForm,
+              isDuplicate = true,
+              router.subKey,
+              postAction
+            )
+          )
         )
       }
     }
@@ -65,6 +74,7 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
   def submit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DisplayDeclaration] { (_, answer, router) =>
+        val postAction: Call = router.submitUrlForCheckDuplicateDeclarationDetails()
         checkDeclarationDetailsAnswerForm
           .bindFromRequest()
           .fold(
@@ -72,7 +82,15 @@ class CheckDuplicateDeclarationDetailsController @Inject() (
               answer
                 .map(declaration =>
                   Future.successful(
-                    BadRequest(checkDeclarationDetailsPage(declaration, formWithErrors, isDuplicate = true, router))
+                    BadRequest(
+                      checkDeclarationDetailsPage(
+                        declaration,
+                        formWithErrors,
+                        isDuplicate = true,
+                        router.subKey,
+                        postAction
+                      )
+                    )
                   )
                 )
                 .getOrElse(Future.successful(errorHandler.errorResult())),

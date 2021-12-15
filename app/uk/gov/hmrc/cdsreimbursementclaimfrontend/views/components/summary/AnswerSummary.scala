@@ -21,6 +21,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 trait AnswerSummary[A] {
-
   def render(key: String, answer: A)(implicit router: ReimbursementRoutes, messages: Messages): SummaryList
+  def renderWithSubKey(key: String, answer: A)(implicit subKey: Option[String], messages: Messages): SummaryList
 }

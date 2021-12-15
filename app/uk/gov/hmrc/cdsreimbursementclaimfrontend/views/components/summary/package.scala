@@ -47,6 +47,12 @@ package object summary {
     ): SummaryList =
       answerSummary.render(key, answer)(router, messages)
 
+    def summaryWithSubKey(key: String, subKey: Option[String])(implicit
+      answerSummary: AnswerSummary[A],
+      messages: Messages
+    ): SummaryList =
+      answerSummary.renderWithSubKey(key, answer)(subKey, messages)
+
     def summary(
       key: String
     )(implicit answerSummary: AnswerSummary[A], router: ReimbursementRoutes, messages: Messages): SummaryList =
