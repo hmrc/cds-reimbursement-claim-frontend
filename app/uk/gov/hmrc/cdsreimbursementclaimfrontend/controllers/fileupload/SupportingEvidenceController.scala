@@ -84,7 +84,7 @@ class SupportingEvidenceController @Inject() (
             )
             .fold(
               _ => errorHandler.errorResult(),
-              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router))
+              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router.subKey))
             )
       }
     }
