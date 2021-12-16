@@ -179,6 +179,20 @@ class EnterMovementReferenceNumberControllerSpec
         )
       }
 
+      "reject an empty MRN" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkPageIsDisplayed(
+          performAction(enterMovementReferenceNumberKey -> ""),
+          messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-movement-reference-number.invalid.number"),
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
       "submit an unknown MRN" in forAll { (mrn: MRN) =>
         inSequence {
           mockAuthWithNoRetrievals()
@@ -245,7 +259,7 @@ class EnterMovementReferenceNumberControllerSpec
 
             checkIsRedirect(
               performAction(enterMovementReferenceNumberKey -> mrn.value),
-              "/rejected-goods/single/enter-importer-eori"
+              routes.EnterImporterEoriNumberController.show()
             )
           }
       }

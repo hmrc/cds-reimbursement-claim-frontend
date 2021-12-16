@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import play.api.data.Form
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -40,8 +41,7 @@ import scala.concurrent.Future
   */
 abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with Logging
-    with SessionUpdates {
+    with Logging {
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents
@@ -209,4 +209,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
               }
           }
       }
+
+  implicit class FormOps[A](val form: Form[A]) {
+    def withDefault(optValue: Option[A]): Form[A] =
+      optValue.map(form.fill).getOrElse(form)
+  }
 }

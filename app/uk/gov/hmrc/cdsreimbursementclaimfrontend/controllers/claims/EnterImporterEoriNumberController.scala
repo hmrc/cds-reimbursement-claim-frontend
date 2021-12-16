@@ -16,31 +16,40 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import cats.instances.future.catsStdInstancesForFuture
-import play.api.data.Form
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
-import play.api.data.Forms.{mapping, text}
-import play.api.data._
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import cats.instances.future.catsStdInstancesForFuture
+import play.api.data.Form
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor.withAnswersAndRoutes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, SessionUpdates}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction, WithAuthAndSessionDataAction}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.AuthenticatedAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{answers, _}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ImporterEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Inject
+import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class EnterImporterEoriNumberController @Inject() (
@@ -61,8 +70,9 @@ class EnterImporterEoriNumberController @Inject() (
   def enterImporterEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[ImporterEoriNumberAnswer] { (_, answers, router) =>
-        val emptyForm                                  = EnterImporterEoriNumberController.eoriNumberForm
-        val filledForm: Form[ImporterEoriNumberAnswer] = answers.fold(emptyForm)(emptyForm.fill)
+        val emptyForm              = EnterImporterEoriNumberController.eoriNumberForm
+        val filledForm: Form[Eori] =
+          answers.fold(emptyForm)(importerEoriNumberAnswer => emptyForm.fill(importerEoriNumberAnswer.value))
         Ok(enterImporterEoriNumberPage(filledForm, router.submitUrlForEnterImporterEoriNumber()))
       }
     }
@@ -76,7 +86,7 @@ class EnterImporterEoriNumberController @Inject() (
             requestFormWithErrors =>
               BadRequest(
                 enterImporterEoriNumberPage(
-                  requestFormWithErrors.fill(answers.ImporterEoriNumberAnswer(Eori(""))),
+                  requestFormWithErrors.fill(Eori("")),
                   router.submitUrlForEnterImporterEoriNumber()
                 )
               ),
@@ -84,7 +94,9 @@ class EnterImporterEoriNumberController @Inject() (
 
               def updateJourney() = EitherT {
                 val updatedJourney =
-                  FillingOutClaim.from(fillingOutClaim)(_.copy(importerEoriNumberAnswer = Some(importerEoriNumber)))
+                  FillingOutClaim.from(fillingOutClaim)(
+                    _.copy(importerEoriNumberAnswer = Some(ImporterEoriNumberAnswer(importerEoriNumber)))
+                  )
                 updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney)))
               }
 
@@ -95,7 +107,7 @@ class EnterImporterEoriNumberController @Inject() (
                 declaration <- claimService.getDisplayDeclaration(mrn)
               } yield declaration
                 .flatMap(_.displayResponseDetail.consigneeDetails)
-                .exists(_.consigneeEORI === importerEoriNumber.value.value)
+                .exists(_.consigneeEORI === importerEoriNumber.value)
 
               val updateAndRedirect = for {
                 eorisMatch <- checkWhetherConsigneeEORIsMatch
@@ -118,15 +130,13 @@ class EnterImporterEoriNumberController @Inject() (
 
 object EnterImporterEoriNumberController {
 
-  val eoriNumberMapping: Mapping[Eori] =
-    text
-      .verifying("invalid.number", Eori(_).isValid)
-      .transform[Eori](Eori(_), _.value)
+  val eoriNumberFormKey: String = "enter-importer-eori-number"
 
-  val eoriNumberForm: Form[ImporterEoriNumberAnswer] = Form(
+  val eoriNumberForm: Form[Eori] = Form(
     mapping(
-      "enter-importer-eori-number" -> eoriNumberMapping
-    )(ImporterEoriNumberAnswer.apply)(ImporterEoriNumberAnswer.unapply)
+      eoriNumberFormKey -> nonEmptyText
+        .verifying("invalid.number", str => str.isEmpty || Eori(str).isValid)
+    )(Eori.apply)(Eori.unapply)
   )
 
 }
