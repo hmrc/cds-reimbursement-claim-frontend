@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address
@@ -31,6 +31,7 @@ class ProblemWithAddressController @Inject() (
     extends FrontendController(cc) {
 
   def problem(journey: JourneyBindable): Action[AnyContent] = Action { implicit request =>
-    Ok(problemWithAddressPage(journey))
+    val postAction: Call = routes.CheckContactDetailsMrnController.changeAddress(journey)
+    Ok(problemWithAddressPage(postAction))
   }
 }
