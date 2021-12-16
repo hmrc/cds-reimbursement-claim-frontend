@@ -58,7 +58,7 @@ class SelectWhoIsMakingTheClaimController @Inject() (
       withAnswersAndRoutes[DeclarantTypeAnswer] { (_, answers, router) =>
         val emptyForm  = chooseDeclarantTypeForm
         val filledForm = answers.fold(emptyForm)(emptyForm.fill)
-        Ok(selectWhoIsMakingTheClaimPage(filledForm, router))
+        Ok(selectWhoIsMakingTheClaimPage(filledForm, router.submitUrlForWhoIsMakingTheClaim()))
       }
     }
 
@@ -70,7 +70,8 @@ class SelectWhoIsMakingTheClaimController @Inject() (
         chooseDeclarantTypeForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, router)),
+            formWithErrors =>
+              BadRequest(selectWhoIsMakingTheClaimPage(formWithErrors, router.submitUrlForWhoIsMakingTheClaim())),
             answer => {
               val updatedJourney = FillingOutClaim.from(fillingOutClaim)(_.copy(declarantTypeAnswer = Some(answer)))
 
