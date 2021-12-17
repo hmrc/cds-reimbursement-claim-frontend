@@ -19,29 +19,30 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import cats.implicits._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.test.Helpers._
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.status
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.{RejectedGoodsSingleJourney, RejectedGoodsSingleJourneyTestData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{ConsigneeDetails, DisplayDeclaration}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.{DeclarantDetails, DisplayDeclaration}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Feature, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 import scala.concurrent.Future
 
-class EnterImporterEoriNumberControllerSpec
+class EnterDeclarantEoriNumberControllerSpec
     extends ControllerSpec
     with AuthSupport
     with SessionSupport
@@ -55,7 +56,7 @@ class EnterImporterEoriNumberControllerSpec
       bind[SessionCache].toInstance(mockSessionCache)
     )
 
-  val controller: EnterImporterEoriNumberController = instanceOf[EnterImporterEoriNumberController]
+  val controller: EnterDeclarantEoriNumberController = instanceOf[EnterDeclarantEoriNumberController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
   implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
@@ -69,8 +70,8 @@ class EnterImporterEoriNumberControllerSpec
     rejectedGoodsSingleJourney = Some(RejectedGoodsSingleJourney.empty(exampleEori))
   )
 
-  "Importer Eori Number Controller" when {
-    "Enter Importer Eori page" must {
+  "Declarant Eori Number Controller" when {
+    "Enter Declarant Eori page" must {
 
       def performAction(): Future[Result] =
         controller.show()(FakeRequest())
@@ -89,13 +90,13 @@ class EnterImporterEoriNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-importer-eori-number.title"),
+          messageFromMessageKey("enter-declarant-eori-number.title"),
           doc => {
             doc
-              .select("form div#enter-importer-eori-number-hint")
-              .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
-            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
-            doc.select("form").attr("action")                 shouldBe routes.EnterImporterEoriNumberController.submit().url
+              .select("form div#enter-declarant-eori-number-hint")
+              .text()                                          shouldBe messageFromMessageKey("enter-declarant-eori-number.help-text")
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe ""
+            doc.select("form").attr("action")                  shouldBe routes.EnterDeclarantEoriNumberController.submit().url
           }
         )
       }
@@ -108,7 +109,7 @@ class EnterImporterEoriNumberControllerSpec
         ).sample.getOrElse(
           fail("Unable to generate complete journey")
         )
-        val eori           = journey.answers.consigneeEoriNumber.getOrElse(fail("No consignee eori found"))
+        val eori           = journey.answers.declarantEoriNumber.getOrElse(fail("No consignee eori found"))
         val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
 
         inSequence {
@@ -118,18 +119,18 @@ class EnterImporterEoriNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(),
-          messageFromMessageKey("enter-importer-eori-number.title"),
+          messageFromMessageKey("enter-declarant-eori-number.title"),
           doc => {
             doc
-              .select("form div#enter-importer-eori-number-hint")
-              .text()                                         shouldBe messageFromMessageKey("enter-importer-eori-number.help-text")
-            doc.select("#enter-importer-eori-number").`val`() shouldBe eori.value
+              .select("form div#enter-declarant-eori-number-hint")
+              .text()                                          shouldBe messageFromMessageKey("enter-declarant-eori-number.help-text")
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe eori.value
           }
         )
       }
     }
 
-    "Submit Importer Eori  page" must {
+    "Submit Declarant Eori  page" must {
 
       def performAction(data: (String, String)*): Future[Result] =
         controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
@@ -148,8 +149,8 @@ class EnterImporterEoriNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(controller.eoriNumberFormKey -> ""),
-          messageFromMessageKey("enter-importer-eori-number.title"),
-          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-importer-eori-number.error.required"),
+          messageFromMessageKey("enter-declarant-eori-number.title"),
+          doc => getErrorSummary(doc) shouldBe messageFromMessageKey("enter-declarant-eori-number.error.required"),
           expectedStatus = BAD_REQUEST
         )
       }
@@ -164,10 +165,10 @@ class EnterImporterEoriNumberControllerSpec
 
         checkPageIsDisplayed(
           performAction(controller.eoriNumberFormKey -> invalidEori.value),
-          messageFromMessageKey("enter-importer-eori-number.title"),
+          messageFromMessageKey("enter-declarant-eori-number.title"),
           doc => {
-            getErrorSummary(doc)                              shouldBe messageFromMessageKey("enter-importer-eori-number.invalid.number")
-            doc.select("#enter-importer-eori-number").`val`() shouldBe ""
+            getErrorSummary(doc)                               shouldBe messageFromMessageKey("enter-declarant-eori-number.invalid.number")
+            doc.select("#enter-declarant-eori-number").`val`() shouldBe ""
           },
           expectedStatus = BAD_REQUEST
         )
@@ -176,14 +177,14 @@ class EnterImporterEoriNumberControllerSpec
       "submit a valid Eori which is the Consignee Eori" in forAll { (mrn: MRN, eori: Eori) =>
         val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
         val displayDeclaration            = sample[DisplayDeclaration]
-        val consigneeDetails              = sample[ConsigneeDetails].copy(consigneeEORI = eori.value)
+        val declarantDetails              = sample[DeclarantDetails].copy(declarantEORI = eori.value)
         val updatedDisplayResponseDetails =
-          displayDeclaration.displayResponseDetail.copy(consigneeDetails = Some(consigneeDetails))
+          displayDeclaration.displayResponseDetail.copy(declarantDetails = declarantDetails)
         val updatedDisplayDeclaration     = displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
         val journey                       =
           initialJourney.submitMovementReferenceNumber(mrn).submitDisplayDeclaration(updatedDisplayDeclaration)
         val requiredSession               = session.copy(rejectedGoodsSingleJourney = Some(journey))
-        val updatedJourney                = journey.submitConsigneeEoriNumber(eori).getOrElse(fail("Unable to update eori"))
+        val updatedJourney                = journey.submitDeclarantEoriNumber(eori).getOrElse(fail("Unable to update eori"))
         val updatedSession                = session.copy(rejectedGoodsSingleJourney = Some(updatedJourney))
 
         inSequence {
@@ -194,19 +195,19 @@ class EnterImporterEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(controller.eoriNumberFormKey -> eori.value),
-          routes.EnterDeclarantEoriNumberController.show()
+          "rejected-goods/single/check-declaration-details"
         )
       }
 
-      "submit a valid Eori which is not the consignee" in forAll {
-        (mrn: MRN, enteredConsigneeEori: Eori, wantedConsignee: Eori) =>
-          whenever(enteredConsigneeEori =!= wantedConsignee) {
+      "submit a valid Eori which is not the declarant" in forAll {
+        (mrn: MRN, enteredDeclarantEori: Eori, wantedDeclarant: Eori) =>
+          whenever(enteredDeclarantEori =!= wantedDeclarant) {
             val initialJourney                = session.rejectedGoodsSingleJourney.getOrElse(fail("No rejected goods journey"))
             val displayDeclaration            = sample[DisplayDeclaration]
-            val updatedConsigneDetails        =
-              displayDeclaration.getConsigneeDetails.map(_.copy(consigneeEORI = wantedConsignee.value))
+            val updatedDeclarantDetails       =
+              displayDeclaration.getDeclarantDetails.copy(declarantEORI = wantedDeclarant.value)
             val updatedDisplayResponseDetails =
-              displayDeclaration.displayResponseDetail.copy(consigneeDetails = updatedConsigneDetails)
+              displayDeclaration.displayResponseDetail.copy(declarantDetails = updatedDeclarantDetails)
             val updatedDisplayDeclaration     =
               displayDeclaration.copy(displayResponseDetail = updatedDisplayResponseDetails)
             val journey                       =
@@ -219,7 +220,7 @@ class EnterImporterEoriNumberControllerSpec
             }
 
             checkIsRedirect(
-              performAction(controller.eoriNumberFormKey -> enteredConsigneeEori.value),
+              performAction(controller.eoriNumberFormKey -> enteredDeclarantEori.value),
               baseRoutes.IneligibleController.ineligible()
             )
           }

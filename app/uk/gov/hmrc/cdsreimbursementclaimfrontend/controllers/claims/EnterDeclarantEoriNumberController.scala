@@ -38,8 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -55,13 +55,16 @@ class EnterDeclarantEoriNumberController @Inject() (
     with SessionUpdates
     with Logging {
 
+  val eoriNumberFormKey: String = "enter-declarant-eori-number"
+
   implicit val dataExtractor: DraftClaim => Option[DeclarantEoriNumberAnswer] = _.declarantEoriNumberAnswer
 
   def enterDeclarantEoriNumber(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (_, answers, router) =>
-        val emptyForm                                   = EnterDeclarantEoriNumberController.eoriNumberForm
-        val filledForm: Form[DeclarantEoriNumberAnswer] = answers.fold(emptyForm)(emptyForm.fill)
+        val emptyForm              = eoriNumberForm(eoriNumberFormKey)
+        val filledForm: Form[Eori] =
+          answers.fold(emptyForm)(declarantEoriNumberAnswer => emptyForm.fill(declarantEoriNumberAnswer.value))
         Ok(enterDeclarantEoriNumberPage(filledForm, router.submitUrlForEnterDeclarantEoriNumber()))
       }
     }
@@ -69,7 +72,7 @@ class EnterDeclarantEoriNumberController @Inject() (
   def enterDeclarantEoriNumberSubmit(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[DeclarantEoriNumberAnswer] { (fillingOutClaim, _, router) =>
-        EnterDeclarantEoriNumberController.eoriNumberForm
+        eoriNumberForm(eoriNumberFormKey)
           .bindFromRequest()
           .fold(
             requestFormWithErrors =>
@@ -82,7 +85,9 @@ class EnterDeclarantEoriNumberController @Inject() (
             declarantEoriNumber => {
 
               val updatedJourney =
-                FillingOutClaim.from(fillingOutClaim)(_.copy(declarantEoriNumberAnswer = Some(declarantEoriNumber)))
+                FillingOutClaim.from(fillingOutClaim)(
+                  _.copy(declarantEoriNumberAnswer = Some(DeclarantEoriNumberAnswer(declarantEoriNumber)))
+                )
 
               val result = EitherT
                 .liftF(updateSession(sessionStore, request)(_.copy(journeyStatus = Some(updatedJourney))))
@@ -91,7 +96,7 @@ class EnterDeclarantEoriNumberController @Inject() (
               result.fold(
                 logAndDisplayError("could not get declarant eori number"),
                 _ =>
-                  hasMatchOnEori(fillingOutClaim, declarantEoriNumber) match {
+                  hasMatchOnEori(fillingOutClaim, DeclarantEoriNumberAnswer(declarantEoriNumber)) match {
                     case Left(e)  =>
                       logger.warn("could not get data to determine third party flow", e)
                       Redirect(baseRoutes.IneligibleController.ineligible())
@@ -133,20 +138,5 @@ class EnterDeclarantEoriNumberController @Inject() (
       case _                                                                           => Left(Error("could not retrieve details to determine third party flow"))
     }
   }
-
-}
-
-object EnterDeclarantEoriNumberController {
-
-  val eoriNumberMapping: Mapping[Eori] =
-    text(maxLength = 18)
-      .verifying("invalid.number", str => Eori(str).isValid)
-      .transform[Eori](Eori(_), _.value)
-
-  val eoriNumberForm: Form[DeclarantEoriNumberAnswer] = Form(
-    mapping(
-      "enter-declarant-eori-number" -> eoriNumberMapping
-    )(DeclarantEoriNumberAnswer.apply)(DeclarantEoriNumberAnswer.unapply)
-  )
 
 }
