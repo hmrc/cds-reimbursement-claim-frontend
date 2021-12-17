@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.Eq
-import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait ClaimantType
 
 /** The type of a user filling out the claim. */
-object ClaimantType {
+object ClaimantType extends EnumerationFormat[ClaimantType] {
 
   /** Importer of the goods. */
   case object Consignee extends ClaimantType
@@ -34,8 +32,5 @@ object ClaimantType {
   /** New representative, not a consignee nor the original declarant. */
   case object User extends ClaimantType
 
-  val all: Set[ClaimantType] = Set(Consignee, Declarant, User)
-
-  implicit val equality: Eq[ClaimantType]   = Eq.fromUniversalEquals[ClaimantType]
-  implicit val format: Format[ClaimantType] = EnumerationFormat(all)
+  override val values: Set[ClaimantType] = Set(Consignee, Declarant, User)
 }

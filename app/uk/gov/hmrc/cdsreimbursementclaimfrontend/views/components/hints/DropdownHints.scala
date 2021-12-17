@@ -21,23 +21,24 @@ import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints.{bulletList, titleAndDescription}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.{bullets, title_and_description}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-final case class DropdownHints(items: Seq[Int]) extends Hints {
+final case class DropdownHints(keys: Seq[String]) extends Hints {
 
   def renderHintsWithLabels(parentKey: String)(implicit messages: Messages): Html =
     html(
       bulletList(
-        items.map(i =>
+        keys.map(key =>
           titleAndDescription(
-            messages(s"$parentKey.details.b$i"),
-            messages(s"$parentKey.details.l$i")
+            messages(s"$parentKey.details.bullet.$key"),
+            messages(s"$parentKey.details.hint.$key")
           )
         )
       )
     )
 
   def renderHints(parentKey: String)(implicit messages: Messages): Html = {
-    val listOfMessages: Seq[Html] = for (i <- items) yield Html(messages(s"$parentKey.details.l$i"))
+    val listOfMessages: Seq[Html] = for (i <- keys) yield Html(messages(s"$parentKey.details.hint.$i"))
     html(
       bulletList(
         listOfMessages
@@ -49,7 +50,10 @@ final case class DropdownHints(items: Seq[Int]) extends Hints {
 object DropdownHints {
 
   def range(elementIndex: Int, maxHints: Int): DropdownHints =
-    DropdownHints(elementIndex to maxHints)
+    DropdownHints((elementIndex to maxHints).map(_.toString()))
+
+  def enumeration[T : EnumerationFormat](items: Seq[T]): DropdownHints =
+    DropdownHints(items.map(implicitly[EnumerationFormat[T]].keyOf))
 
   val titleAndDescription: title_and_description = new title_and_description()
   val bulletList: bullets                        = new bullets()

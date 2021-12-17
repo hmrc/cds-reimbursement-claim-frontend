@@ -16,27 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
-import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait BasisOfRejectedGoodsClaim
 
-object BasisOfRejectedGoodsClaim {
+object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsClaim] {
 
   case object DamagedBeforeClearance extends BasisOfRejectedGoodsClaim
   case object Defective extends BasisOfRejectedGoodsClaim
   case object NotInAccordanceWithContract extends BasisOfRejectedGoodsClaim
   case object SpecialCircumstances extends BasisOfRejectedGoodsClaim
 
-  val all: Set[BasisOfRejectedGoodsClaim] =
+  override val values: Set[BasisOfRejectedGoodsClaim] =
     Set(DamagedBeforeClearance, Defective, NotInAccordanceWithContract, SpecialCircumstances)
 
   val allButSpecialCircumstances: Set[BasisOfRejectedGoodsClaim] =
-    all - SpecialCircumstances
-
-  implicit val equality: Eq[BasisOfRejectedGoodsClaim] =
-    Eq.fromUniversalEquals[BasisOfRejectedGoodsClaim]
-
-  implicit val format: Format[BasisOfRejectedGoodsClaim] = EnumerationFormat(all)
+    values - SpecialCircumstances
 }

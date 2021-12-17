@@ -16,20 +16,14 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
-import play.api.libs.json._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait DocumentTypeRejectedGoods
 
-object DocumentTypeRejectedGoods {
+object DocumentTypeRejectedGoods extends EnumerationFormat[DocumentTypeRejectedGoods] {
 
   case object Foo extends DocumentTypeRejectedGoods
 
-  val all: Set[DocumentTypeRejectedGoods] =
+  override val values: Set[DocumentTypeRejectedGoods] =
     Set(Foo)
-
-  implicit val equality: Eq[DocumentTypeRejectedGoods]   = Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
-  implicit val format: Format[DocumentTypeRejectedGoods] = EnumerationFormat(all)
-
 }

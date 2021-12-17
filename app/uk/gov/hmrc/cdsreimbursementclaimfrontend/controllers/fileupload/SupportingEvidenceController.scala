@@ -20,7 +20,7 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.data.Forms.{mapping, number}
+import play.api.data.Forms.{mapping, nonEmptyText}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, FileUploadConfig, ViewConfig}
@@ -31,7 +31,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, S
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SupportingEvidencesAnswer, YesNo}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType.{evidenceIndicesToTypes, evidenceTypesToIndices}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.{UpscanFailure, UpscanSuccess}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{upscan => _, _}
@@ -68,7 +67,7 @@ class SupportingEvidenceController @Inject() (
   implicit val supportingEvidenceExtractor: DraftClaim => Option[SupportingEvidencesAnswer] =
     _.supportingEvidencesAnswer
 
-  def evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.getListOfEvidenceTypes
+  val evidenceTypes: Seq[UploadDocumentType] = UploadDocumentType.c285EvidenceTypes
 
   def uploadSupportingEvidence(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
@@ -84,7 +83,7 @@ class SupportingEvidenceController @Inject() (
             )
             .fold(
               _ => errorHandler.errorResult(),
-              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints, router.subKey))
+              upscanUpload => Ok(uploadPage(upscanUpload, getSupportingEvidenceHints(evidenceTypes), router))
             )
       }
     }
@@ -181,7 +180,7 @@ class SupportingEvidenceController @Inject() (
         chooseDocumentTypePage(
           journey,
           chooseSupportEvidenceDocumentTypeForm(evidenceTypes),
-          getSupportingEvidenceHints,
+          getSupportingEvidenceHints(evidenceTypes),
           uploadReference,
           evidenceTypes
         )
@@ -202,7 +201,7 @@ class SupportingEvidenceController @Inject() (
                 chooseDocumentTypePage(
                   journey,
                   requestFormWithErrors,
-                  getSupportingEvidenceHints,
+                  getSupportingEvidenceHints(evidenceTypes),
                   uploadReference,
                   evidenceTypes
                 )
@@ -320,22 +319,22 @@ object SupportingEvidenceController {
   val checkYourAnswersDataKey: String   = "supporting-evidence.check-your-answers"
 
   def chooseSupportEvidenceDocumentTypeForm(
-    typesOfEvidences: Seq[UploadDocumentType]
+    documentTypeList: Seq[UploadDocumentType]
   ): Form[ChooseSupportingEvidenceDocumentType] =
     Form(
       mapping(
-        chooseDocumentTypeDataKey -> number
+        chooseDocumentTypeDataKey -> nonEmptyText
           .verifying(
-            "invalid supporting evidence document type",
-            documentTypeIndex => typesOfEvidences.exists(_.index === documentTypeIndex)
+            "supporting-evidence.error.invalid-document-type",
+            key => UploadDocumentType.parse(key).map(v => documentTypeList.contains(v)).getOrElse(false)
           )
-          .transform[UploadDocumentType](evidenceIndicesToTypes, evidenceTypesToIndices)
+          .transform[UploadDocumentType](UploadDocumentType.tryParse, UploadDocumentType.keyOf)
       )(ChooseSupportingEvidenceDocumentType.apply)(ChooseSupportingEvidenceDocumentType.unapply)
     )
 
   val whetherAddAnotherDocument: Form[YesNo] =
     YesOrNoQuestionForm(checkYourAnswersDataKey)
 
-  def getSupportingEvidenceHints: DropdownHints =
-    DropdownHints.range(0, UploadDocumentType.getListOfEvidenceTypes.length - 1)
+  def getSupportingEvidenceHints(documentTypeList: Seq[UploadDocumentType]): DropdownHints =
+    DropdownHints.enumeration(documentTypeList)
 }
