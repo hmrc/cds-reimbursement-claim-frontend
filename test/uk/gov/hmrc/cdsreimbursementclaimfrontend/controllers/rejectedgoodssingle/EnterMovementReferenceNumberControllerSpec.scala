@@ -123,6 +123,7 @@ class EnterMovementReferenceNumberControllerSpec
               .select("form p.govuk-body")
               .text()                                              shouldBe messageFromMessageKey("enter-movement-reference-number.rejected-goods.single.help-text")
             doc.select("#enter-movement-reference-number").`val`() shouldBe ""
+            doc.select("form").attr("action")                      shouldBe routes.EnterMovementReferenceNumberController.submit().url
           }
         )
       }

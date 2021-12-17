@@ -19,28 +19,29 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
 
 @Singleton
-class EnterImporterEoriNumberController @Inject() (
+class EnterDeclarantEoriNumberController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterImporterEoriNumber: pages.enter_importer_eori_number
+  enterDeclarantEoriNumber: pages.enter_declarant_eori_number
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val eoriNumberFormKey: String = "enter-importer-eori-number"
+  val eoriNumberFormKey: String = "enter-declarant-eori-number"
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
+      val form = eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.declarantEoriNumber)
       Ok(
-        enterImporterEoriNumber(
-          eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
-          routes.EnterImporterEoriNumberController.submit()
+        enterDeclarantEoriNumber(
+          form,
+          routes.EnterDeclarantEoriNumberController.submit()
         )
       )
     }
@@ -55,9 +56,9 @@ class EnterImporterEoriNumberController @Inject() (
             (
               journey,
               BadRequest(
-                enterImporterEoriNumber(
+                enterDeclarantEoriNumber(
                   formWithErrors.fill(Eori("")),
-                  routes.EnterImporterEoriNumberController.submit()
+                  routes.EnterDeclarantEoriNumberController.submit()
                 )
               )
             )
@@ -65,17 +66,13 @@ class EnterImporterEoriNumberController @Inject() (
         eori =>
           Future.successful(
             journey
-              .submitConsigneeEoriNumber(eori)
+              .submitDeclarantEoriNumber(eori)
               .fold(
                 errors => {
                   logger.error(s"Unable to record $eori - $errors")
                   (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
                 },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    Redirect(routes.EnterDeclarantEoriNumberController.show())
-                  )
+                updatedJourney => (updatedJourney, Redirect("rejected-goods/single/check-declaration-details"))
               )
           )
       )
