@@ -57,6 +57,16 @@ package object summary {
       messages: Messages
     ): SummaryList =
       answerSummary.render(key, answer)
+
+    def rejected_goods_summary(
+      key: String
+    )(implicit
+      answerSummary: RejectedGoodsAnswerSummary[A],
+      subKey: Option[String],
+      messages: Messages
+    ): SummaryList =
+      answerSummary.render(key, answer)
+
   }
 
   implicit class SummaryListOps(val summaryList: SummaryList) extends AnyVal {

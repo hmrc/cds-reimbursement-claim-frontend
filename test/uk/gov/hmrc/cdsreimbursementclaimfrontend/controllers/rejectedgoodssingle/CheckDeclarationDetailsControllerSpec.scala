@@ -44,12 +44,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckDeclarationDetailsControllerSpec
-extends ControllerSpec
-with AuthSupport
-with SessionSupport
-with BeforeAndAfterEach
-with ScalaCheckPropertyChecks
-with RejectedGoodsSingleJourneyTestData {
+    extends ControllerSpec
+    with AuthSupport
+    with SessionSupport
+    with BeforeAndAfterEach
+    with ScalaCheckPropertyChecks
+    with RejectedGoodsSingleJourneyTestData {
 
   val mockClaimService: ClaimService = mock[ClaimService]
 
@@ -63,7 +63,7 @@ with RejectedGoodsSingleJourneyTestData {
   val controller: CheckDeclarationDetailsController = instanceOf[CheckDeclarationDetailsController]
 
   implicit val messagesApi: MessagesApi = controller.messagesApi
-  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private lazy val featureSwitch = instanceOf[FeatureSwitchService]
 
@@ -89,6 +89,5 @@ with RejectedGoodsSingleJourneyTestData {
 
     }
   }
-
 
 }
