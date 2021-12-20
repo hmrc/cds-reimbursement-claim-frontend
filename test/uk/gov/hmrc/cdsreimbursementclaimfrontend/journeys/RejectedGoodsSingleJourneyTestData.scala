@@ -75,7 +75,11 @@ trait RejectedGoodsSingleJourneyTestData {
     )
 
   val exampleInspectionAddress: InspectionAddress =
-    InspectionAddress(addressLine1 = "1 Bar Road", postalCode = "BA1 1FO")
+    InspectionAddress(
+      addressLine1 = "1 Bar Road",
+      postalCode = "BA1 1FO",
+      addressType = InspectionAddressType.Other
+    )
 
   val exampleInspectionDate: LocalDate =
     LocalDate.parse("2000-01-01")
