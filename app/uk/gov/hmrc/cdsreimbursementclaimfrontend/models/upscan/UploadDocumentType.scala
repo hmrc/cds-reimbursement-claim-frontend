@@ -42,6 +42,7 @@ object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
     PackingList,
     ProofOfAuthority,
     SubstituteEntry,
+    ScheduleOfMRNs,
     Other
   )
 
