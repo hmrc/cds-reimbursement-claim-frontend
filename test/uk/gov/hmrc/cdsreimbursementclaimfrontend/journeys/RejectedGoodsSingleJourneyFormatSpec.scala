@@ -33,6 +33,9 @@ class RejectedGoodsSingleJourneyFormatSpec
     with ScalaCheckPropertyChecks
     with RejectedGoodsSingleJourneyTestData {
 
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(minSuccessful = 100)
+
   "RejectedGoodsSingleJourney.Answers" should {
     "serialize into a JSON format and back" in {
       validateJsonFormat(s"""{"userEoriNumber":"$exampleEoriAsString"}""", Answers(exampleEori))

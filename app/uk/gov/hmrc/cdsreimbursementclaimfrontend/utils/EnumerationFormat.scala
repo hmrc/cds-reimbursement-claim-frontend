@@ -19,8 +19,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 import cats.Eq
 import play.api.libs.json.Format
 
-@SuppressWarnings(Array("org.wartremover.warts.Throw"))
 /** Provides parse, verification, serialization and equality capabilities to the set of case objects of sealed trait T. */
+@SuppressWarnings(Array("org.wartremover.warts.Throw"))
 trait EnumerationFormat[T] {
 
   val values: Set[T]
