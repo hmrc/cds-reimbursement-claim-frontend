@@ -14,7 +14,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, upscan => _
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,6 +29,12 @@ class CheckDeclarationDetailsController @Inject()(
                                                    checkDeclarationDetailsPage: pages.check_declaration_details
                                                  )(implicit viewConfig: ViewConfig, ec: ExecutionContext) extends RejectedGoodsSingleJourneyBaseController {
 
+def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
+  val declaration: DisplayDeclaration = ???
+  val postAction: Call = ???
 
+  Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, postAction))
+
+}
 
 }
