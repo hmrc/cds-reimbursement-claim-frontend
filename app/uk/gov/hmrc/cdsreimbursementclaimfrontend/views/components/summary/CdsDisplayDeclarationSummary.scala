@@ -18,17 +18,19 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import cats.implicits.catsSyntaxOptionId
 import play.api.i18n.Messages
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
-import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow}
 
-class DisplayDeclarationSummary extends RejectedGoodsAnswerSummary[DisplayDeclaration] {
+class CdsDisplayDeclarationSummary extends AnswerSummary[DisplayDeclaration] {
 
   def render(key: String, declaration: DisplayDeclaration)(implicit
     subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = SummaryList(
     Seq(
@@ -84,5 +86,4 @@ class DisplayDeclarationSummary extends RejectedGoodsAnswerSummary[DisplayDeclar
       }
     ).flatMap(_.toList)
   )
-
 }
