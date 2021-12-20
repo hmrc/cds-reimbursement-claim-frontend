@@ -29,6 +29,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOut
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BigDecimalOps}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer.{BankAccountTransfer, CurrentMonthAdjustment}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaims, DeclarantTypeAnswers, ReimbursementMethodAnswer, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
 
@@ -92,9 +93,7 @@ class CheckYourSingleJourneyAnswersSpec extends CheckYourAnswersSummarySpec with
           ) ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
-                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-              )}"
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
             )
           }.toList ++ claim.displayDeclaration.toList
             .flatMap { declaration =>

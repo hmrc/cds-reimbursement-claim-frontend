@@ -100,7 +100,7 @@ trait RejectedGoodsSingleJourneyTestData {
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
-    supportingEvidences: Seq[(String, DocumentTypeRejectedGoods)],
+    supportingEvidences: Seq[(String, UploadDocumentType)],
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
     consigneeEoriNumber: Option[Eori] = None,
     declarantEoriNumber: Option[Eori] = None,
@@ -109,13 +109,13 @@ trait RejectedGoodsSingleJourneyTestData {
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None
   ): Either[String, RejectedGoodsSingleJourney] = {
-    val taxCodes: Seq[TaxCode]                                                              =
+    val taxCodes: Seq[TaxCode]                                                       =
       reimbursementClaims.map(_._1)
-    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)]                         =
+    val taxCodesWithReimbursementAmount: Seq[(TaxCode, BigDecimal)]                  =
       reimbursementClaims.map(e => (e._1, e._2))
-    val uploadedDocuments: Seq[UploadDocument]                                              =
+    val uploadedDocuments: Seq[UploadDocument]                                       =
       supportingEvidences.map(_._1).map(buildUploadDocument)
-    val upscanReferencesWithDocumentType: Seq[(UploadReference, DocumentTypeRejectedGoods)] =
+    val upscanReferencesWithDocumentType: Seq[(UploadReference, UploadDocumentType)] =
       uploadedDocuments.map(_.uploadReference).zip(supportingEvidences.map(_._2))
 
     def submitAmountForReimbursement(journey: RejectedGoodsSingleJourney)(
@@ -129,7 +129,7 @@ trait RejectedGoodsSingleJourneyTestData {
       journey.submitUploadedDocument(uploadDocument)
 
     def submitDocumentType(journey: RejectedGoodsSingleJourney)(
-      uploadReferenceWithDocumentType: (UploadReference, DocumentTypeRejectedGoods)
+      uploadReferenceWithDocumentType: (UploadReference, UploadDocumentType)
     ): Either[String, RejectedGoodsSingleJourney] =
       journey.submitDocumentType(uploadReferenceWithDocumentType._1, uploadReferenceWithDocumentType._2)
 

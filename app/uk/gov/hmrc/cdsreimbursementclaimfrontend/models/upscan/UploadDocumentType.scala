@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed abstract class UploadDocumentType(val index: Int) extends Product with Serializable
+sealed trait UploadDocumentType
 
-object UploadDocumentType {
-  case object AirWayBill extends UploadDocumentType(0)
-  case object BillOfLading extends UploadDocumentType(1)
-  case object CommercialInvoice extends UploadDocumentType(2)
-  case object CorrespondenceTrader extends UploadDocumentType(3)
-  case object ImportAndExportDeclaration extends UploadDocumentType(4)
-  case object PackingList extends UploadDocumentType(5)
-  case object ProofOfAuthority extends UploadDocumentType(6)
-  case object SubstituteEntry extends UploadDocumentType(7)
-  case object Other extends UploadDocumentType(8)
-  case object ScheduleOfMRNs extends UploadDocumentType(9)
+object UploadDocumentType extends EnumerationFormat[UploadDocumentType] {
 
-  private lazy val completeListOfEvidencesTypes = Seq(
+  case object AirWayBill extends UploadDocumentType
+  case object BillOfLading extends UploadDocumentType
+  case object CommercialInvoice extends UploadDocumentType
+  case object CorrespondenceTrader extends UploadDocumentType
+  case object ImportAndExportDeclaration extends UploadDocumentType
+  case object PackingList extends UploadDocumentType
+  case object ProofOfAuthority extends UploadDocumentType
+  case object SubstituteEntry extends UploadDocumentType
+  case object Other extends UploadDocumentType
+  case object ScheduleOfMRNs extends UploadDocumentType
+
+  override val values: Set[UploadDocumentType] = Set[UploadDocumentType](
     AirWayBill,
     BillOfLading,
     CommercialInvoice,
@@ -45,13 +45,15 @@ object UploadDocumentType {
     Other
   )
 
-  def getListOfEvidenceTypes: Seq[UploadDocumentType] = completeListOfEvidencesTypes
-
-  val evidenceIndicesToTypes: Map[Int, UploadDocumentType] =
-    completeListOfEvidencesTypes.map(doc => doc.index -> doc).toMap
-
-  val evidenceTypesToIndices: Map[UploadDocumentType, Int] =
-    completeListOfEvidencesTypes.map(doc => doc -> doc.index).toMap
-
-  implicit val format: OFormat[UploadDocumentType]         = derived.oformat[UploadDocumentType]()
+  val c285EvidenceTypes: Seq[UploadDocumentType] = Seq[UploadDocumentType](
+    AirWayBill,
+    BillOfLading,
+    CommercialInvoice,
+    CorrespondenceTrader,
+    ImportAndExportDeclaration,
+    PackingList,
+    ProofOfAuthority,
+    SubstituteEntry,
+    Other
+  )
 }
