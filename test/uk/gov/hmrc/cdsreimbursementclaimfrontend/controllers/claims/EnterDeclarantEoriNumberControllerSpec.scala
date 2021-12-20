@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.BAD_REQUEST
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, JourneyBindable, SessionSupport, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, Forms, JourneyBindable, SessionSupport, routes => baseRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
@@ -35,7 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId, MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantEoriNumberAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email}
-
 import scala.concurrent.Future
 
 class EnterDeclarantEoriNumberControllerSpec
@@ -261,43 +260,4 @@ class EnterDeclarantEoriNumberControllerSpec
 
     }
   }
-
-  "Entry Claim Amount Validation" must {
-    val form       = EnterDeclarantEoriNumberController.eoriNumberForm
-    val eoriNumber = "enter-declarant-eori-number"
-
-    val goodData = Map(
-      eoriNumber -> sample[Eori].value
-    )
-
-    "accept good declaration details" in {
-      val errors = form.bind(goodData).errors
-      errors shouldBe Nil
-    }
-
-    "Eori" should {
-      "Accept shortedt possible Eori" in {
-        val errors = form.bind(goodData.updated(eoriNumber, "GB" + numStringGen(12))).errors
-        errors shouldBe Nil
-      }
-      "Accept longest possible Eori" in {
-        val errors = form.bind(goodData.updated(eoriNumber, "GB" + numStringGen(15))).errors
-        errors shouldBe Nil
-      }
-      "Reject too short Eoris" in {
-        val errors = form.bind(goodData.updated(eoriNumber, "GB" + numStringGen(11))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
-      }
-      "Reject too long Eoris" in {
-        val errors = form.bind(goodData.updated(eoriNumber, "GB" + numStringGen(16))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("invalid.number")
-      }
-      "Reject way too long Eoris" in {
-        val errors = form.bind(goodData.updated(eoriNumber, "GB" + numStringGen(17))).errors
-        errors.headOption.getOrElse(fail()).messages shouldBe List("error.maxLength")
-      }
-    }
-
-  }
-
 }

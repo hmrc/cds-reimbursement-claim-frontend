@@ -58,7 +58,7 @@ class SelectBankAccountTypeController @Inject() (
       withAnswersAndRoutes[BankAccountType] { (_, answer, router) =>
         val emptyForm  = SelectBankAccountTypeController.bankAccountTypeForm
         val filledForm = answer.fold(emptyForm)(emptyForm.fill)
-        Ok(selectBankAccountTypePage(filledForm, router))
+        Ok(selectBankAccountTypePage(filledForm, router.submitUrlForSelectBankAccountType()))
       }
     }
 
@@ -72,7 +72,7 @@ class SelectBankAccountTypeController @Inject() (
               BadRequest(
                 selectBankAccountTypePage(
                   formWithErrors,
-                  router
+                  router.submitUrlForSelectBankAccountType()
                 )
               ),
             formOk => {

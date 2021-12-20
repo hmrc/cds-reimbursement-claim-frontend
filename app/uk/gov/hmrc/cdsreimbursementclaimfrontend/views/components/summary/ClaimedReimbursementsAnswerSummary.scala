@@ -19,7 +19,6 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import cats.implicits.catsSyntaxEq
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimedReimbursementsAnswer
@@ -29,12 +28,13 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class ClaimedReimbursementsAnswerSummary extends AnswerSummary[ClaimedReimbursementsAnswer] {
 
   def render(key: String, reimbursements: ClaimedReimbursementsAnswer)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
 
     val amendCall =
-      if (router.journeyBindable === JourneyBindable.Scheduled)
+      if (journey === JourneyBindable.Scheduled)
         claimsRoutes.CheckScheduledClaimController.showReimbursements()
       else claimsRoutes.EnterSingleClaimController.checkClaimSummary()
 

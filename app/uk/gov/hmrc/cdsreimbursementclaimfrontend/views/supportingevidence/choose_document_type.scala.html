@@ -50,14 +50,14 @@
 
     @radioItems = @{
         typesOfEvidences.map { evidenceType =>
-            val indexAsString = evidenceType.index.toString
+            val evidenceTypeKey = UploadDocumentType.keyOf(evidenceType)
             RadioItem(
-                id = Some(s"$key.document-type.d$indexAsString"),
-                value = Some(indexAsString),
-                content = Text(messages(s"$key.document-type.d$indexAsString")),
-                checked = form(s"$key").value.contains(indexAsString)
+                id = Some(s"$key.document-type.$evidenceTypeKey"),
+                value = Some(evidenceTypeKey),
+                content = Text(messages(s"$key.document-type.$evidenceTypeKey")),
+                checked = form(s"$key").value.contains(evidenceTypeKey)
             )
-        }
+        }   
     }
 
     @layout(pageTitle = Some(s"$title"), suppressBackLink = true, hasErrors = hasErrors) {

@@ -67,7 +67,10 @@ class EnterContactDetailsMrnController @Inject() (
             }
         val mrnContactDetailsForm =
           answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
-        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, router, isChange))
+
+        val postAction =
+          if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()
+        Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction, isChange))
       }
     }
 
@@ -83,7 +86,12 @@ class EnterContactDetailsMrnController @Inject() (
         EnterContactDetailsMrnController.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
-            formWithErrors => BadRequest(enterOrChangeContactDetailsPage(formWithErrors, router, isChange)),
+            formWithErrors => {
+              val postAction =
+                if (isChange) router.submitUrlForChangeMrnContactDetails()
+                else router.submitUrlForEnterMrnContactDetails()
+              BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction, isChange))
+            },
             formOk => {
 
               val updatedClaim =

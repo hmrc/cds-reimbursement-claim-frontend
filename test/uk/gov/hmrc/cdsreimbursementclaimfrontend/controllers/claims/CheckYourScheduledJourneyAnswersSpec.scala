@@ -27,6 +27,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.Supporti
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaims, DeclarantTypeAnswers, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {
 
@@ -92,9 +93,7 @@ class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec w
           }.toList ++ claim.supportingEvidencesAnswer.value.map { uploadDocument =>
             (
               messages(s"$checkYourAnswersKey.attached-documents.label"),
-              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType =>
-                messages(s"$supportingEvidenceKey.choose-document-type.document-type.d${documentType.index}")
-              )}"
+              s"${uploadDocument.fileName} ${uploadDocument.documentType.fold("")(documentType => messages(s"$supportingEvidenceKey.choose-document-type.document-type.${UploadDocumentType.keyOf(documentType)}"))}"
             )
           }.toList ++ claim.displayDeclaration.toList
             .flatMap { declaration =>

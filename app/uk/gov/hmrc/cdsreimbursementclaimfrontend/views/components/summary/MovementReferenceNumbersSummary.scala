@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMrn, LeadMrn}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
@@ -28,19 +28,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class MovementReferenceNumbersSummary extends AnswerSummary[List[MRN]] {
 
   def render(key: String, mrns: List[MRN])(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
 
     def toLeadMrnSummary: LeadMrn => SummaryListRow = leadMrn =>
       SummaryListRow(
-        key = Key(Text(messages(lang(key, router.subKey, "label")))),
+        key = Key(Text(messages(lang(key, subKey, "label")))),
         value = Value(Text(leadMrn.value)),
         actions = Some(
           Actions(items =
             Seq(
               ActionItem(
-                href = s"${routes.EnterMovementReferenceNumberController.enterJourneyMrn(router.journeyBindable).url}",
+                href = s"${routes.EnterMovementReferenceNumberController.enterJourneyMrn(journey).url}",
                 content = Text(messages("cya.change"))
               )
             )

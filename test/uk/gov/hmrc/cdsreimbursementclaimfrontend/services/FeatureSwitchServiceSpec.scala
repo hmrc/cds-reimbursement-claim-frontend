@@ -19,9 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 import org.scalatest.OptionValues
 import org.scalatest.prop.TableDrivenPropertyChecks
 import play.api.Configuration
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
@@ -41,8 +39,6 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
     val featureList =
       Table[Feature](
         "Features",
-        Feature.BulkClaim,
-        Feature.BulkMultiple,
         Feature.NorthernIreland,
         Feature.RejectedGoods
       )
@@ -56,7 +52,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Enable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.enable(Feature.BulkClaim)
+      featureSwitch.enable(Feature.RejectedGoods)
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -66,7 +62,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
 
     "Disable viewing of pages" in {
       val featureSwitch  = instanceOf[FeatureSwitchService]
-      featureSwitch.disable(Feature.BulkClaim)
+      featureSwitch.disable(Feature.RejectedGoods)
       val testController =
         new TestController(featureSwitch)(instanceOf[MessagesControllerComponents])
       val result         = testController.test()(FakeRequest())
@@ -78,7 +74,7 @@ class FeatureSwitchServiceSpec extends ControllerSpec with TableDrivenPropertyCh
   class TestController(fs: FeatureSwitchService)(implicit
     val cc: MessagesControllerComponents
   ) extends FrontendController(cc) {
-    def test(): Action[AnyContent] = fs.hideIfNotEnabled(Feature.BulkClaim) async {
+    def test(): Action[AnyContent] = fs.hideIfNotEnabled(Feature.RejectedGoods) async {
       Future.successful(Ok("ok"))
     }
   }

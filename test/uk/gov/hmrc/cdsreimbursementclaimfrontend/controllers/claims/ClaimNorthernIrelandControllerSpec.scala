@@ -113,9 +113,6 @@ class ClaimNorthernIrelandControllerSpec
   def getBackLink(document: Document): String =
     document.select("a.govuk-back-link").attr("href")
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "ClaimNorthernIrelandController" must {
 
     "redirect to the error page" when {

@@ -117,9 +117,6 @@ class SelectBankAccountTypeControllerSpec
       .map(_.getKey)
       .contains("checked")
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   "SelectBankAccountTypeController" must {
 
     "redirect to the start of the journey" when {

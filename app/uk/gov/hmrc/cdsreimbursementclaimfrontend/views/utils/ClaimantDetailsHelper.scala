@@ -19,12 +19,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils
 import cats.implicits._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{CheckContactDetailsMrnController, routes}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.EstablishmentAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.NamePhoneEmail
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow, Value}
@@ -48,11 +48,11 @@ class ClaimantDetailsHelper @Inject() () {
   def renderContactDetails(
     maybeContactDetails: Option[MrnContactDetails],
     maybeContactAddress: Option[ContactAddress],
-    router: ReimbursementRoutes
+    journey: JourneyBindable
   )(implicit messages: Messages): List[SummaryListRow] =
     List(
-      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, router)),
-      maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, router))
+      maybeContactDetails.map(contactDetails => renderContactDetails(contactDetails, journey)),
+      maybeContactAddress.map(contactAddress => renderContactAddress(contactAddress, journey))
     ).flattenOption
 
   def renderContactRegisteredWithCDS(namePhoneEmail: NamePhoneEmail)(implicit messages: Messages): SummaryListRow = {
@@ -84,7 +84,7 @@ class ClaimantDetailsHelper @Inject() () {
     )
   }
 
-  def renderContactDetails(contactDetails: MrnContactDetails, router: ReimbursementRoutes)(implicit
+  def renderContactDetails(contactDetails: MrnContactDetails, journey: JourneyBindable)(implicit
     messages: Messages
   ): SummaryListRow = {
     val data = List(
@@ -102,7 +102,7 @@ class ClaimantDetailsHelper @Inject() () {
           "govuk-link",
           List(
             ActionItem(
-              href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(router.journeyBindable).url}",
+              href = s"${routes.EnterContactDetailsMrnController.changeMrnContactDetails(journey).url}",
               content = Text(messages("claimant-details.change")),
               visuallyHiddenText = Some(messages(s"$key.contact.details"))
             )
@@ -113,7 +113,7 @@ class ClaimantDetailsHelper @Inject() () {
 
   }
 
-  def renderContactAddress(contactAddress: ContactAddress, router: ReimbursementRoutes)(implicit
+  def renderContactAddress(contactAddress: ContactAddress, journey: JourneyBindable)(implicit
     messages: Messages
   ): SummaryListRow = {
     val data = List(
@@ -134,7 +134,7 @@ class ClaimantDetailsHelper @Inject() () {
           "govuk-link",
           List(
             ActionItem(
-              href = s"${routes.CheckContactDetailsMrnController.changeAddress(router.journeyBindable).url}",
+              href = s"${routes.CheckContactDetailsMrnController.changeAddress(journey).url}",
               content = Text(messages("claimant-details.change")),
               visuallyHiddenText = Some(messages(s"$key.contact.address"))
             )

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, Reimbursement, TaxCode}
@@ -30,7 +30,8 @@ import scala.collection.SortedMap
 class TaxCodeReimbursementSummary extends AnswerSummary[(DutyType, SortedMap[TaxCode, Reimbursement])] {
 
   def render(key: String, answer: (DutyType, SortedMap[TaxCode, Reimbursement]))(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
     val duty                      = answer._1

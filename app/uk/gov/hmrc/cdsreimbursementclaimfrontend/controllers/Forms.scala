@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import cats.Eq
-import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
+import play.api.data.Form
+import play.api.data.Forms.{mapping, nonEmptyText}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
-sealed trait DocumentTypeRejectedGoods
-
-object DocumentTypeRejectedGoods {
-
-  case object Foo extends DocumentTypeRejectedGoods
-
-  val all: Set[DocumentTypeRejectedGoods] =
-    Set(Foo)
-
-  implicit val equality: Eq[DocumentTypeRejectedGoods]   = Eq.fromUniversalEquals[DocumentTypeRejectedGoods]
-  implicit val format: Format[DocumentTypeRejectedGoods] = EnumerationFormat(all)
-
+object Forms {
+  def eoriNumberForm(key: String): Form[Eori] = Form(
+    mapping(
+      key -> nonEmptyText(maxLength = 18)
+        .verifying("invalid.number", str => str.size > 18 || str.isEmpty || Eori(str).isValid)
+    )(Eori.apply)(Eori.unapply)
+  )
 }

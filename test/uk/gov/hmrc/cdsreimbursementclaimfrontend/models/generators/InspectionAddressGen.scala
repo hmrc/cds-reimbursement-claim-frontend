@@ -32,13 +32,13 @@ object InspectionAddressGen {
         street   <- genStringWithMaxSizeOfN(7)
         district <- Gen.option(genStringWithMaxSizeOfN(5))
         road     <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
-        town     <- genStringWithMaxSizeOfN(10)
+        city     <- genStringWithMaxSizeOfN(10)
         postcode <- genPostcode
       } yield InspectionAddress(
         addressLine1 = s"$num $street",
         addressLine2 = district,
         addressLine3 = road,
-        townOrCity = Some(town),
+        city = Some(city),
         postalCode = postcode
       )
     )

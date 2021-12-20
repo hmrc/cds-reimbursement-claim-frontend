@@ -17,9 +17,8 @@
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
 @import play.api.mvc.Request
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 
 @this(
         layout: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.Layout,
@@ -30,7 +29,7 @@
         bullets: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
 )
 
-@(journey: JourneyBindable)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
+@(postAction: Call)(implicit request : Request[_], messages:Messages, viewConfig: ViewConfig)
 
 @key = @{"problem-with-address"}
 @title = @{messages(s"$key.title")}
@@ -47,7 +46,7 @@
         )
     )
 
-    @formWithCSRF(routes.CheckContactDetailsMrnController.changeAddress(journey), 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
         @submitButton(s"$key.button.tryAgain")
     }
 }

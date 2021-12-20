@@ -16,20 +16,21 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Request
-import play.api.mvc.Result
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import cats.syntax.eq._
+import play.api.i18n.Messages
+import play.api.mvc._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionDataAndRetrievedData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import play.api.data.Form
 
 /** Base journey controller providing common action behaviours:
   *  - feature switch check
@@ -40,11 +41,13 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
   */
 abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with Logging
-    with SessionUpdates {
+    with Logging {
 
   /** [Inject] Component expected to be injected by the implementing controller. */
   val jcc: JourneyControllerComponents
+
+  implicit def messages(implicit request: Request[_]): Messages =
+    jcc.controllerComponents.messagesApi.preferred(request)
 
   /** [Config] Defines where to redirect when missing journey or missing session data after user has been authorized. */
   val startOfTheJourney: Call
@@ -70,6 +73,12 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       if (isComplete(journey)) Redirect(checkYourAnswers)
       else result
     )
+
+  private def storeSessionIfChanged(sessionData: SessionData, modifiedSessionData: SessionData)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[Error, Unit]] =
+    if (modifiedSessionData === sessionData) Future.successful(Right(()))
+    else jcc.sessionCache.store(modifiedSessionData)
 
   /** Simple GET action to show page based on the journey state */
   final def simpleActionReadJourney(body: Journey => Result): Action[AnyContent] =
@@ -97,7 +106,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       }
 
   /** Async GET action to show page based on the request and journey state. */
-  final def actionReadJourney(body: Request[_] => Journey => Future[Result]): Action[AnyContent] =
+  final def actionReadJourney(
+    body: Request[_] => Journey => Future[Result]
+  ): Action[AnyContent] =
     jcc
       .authenticatedActionWithSessionData(requiredFeature)
       .async { implicit request =>
@@ -119,8 +130,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
             getJourney(sessionData)
               .map(body(request))
               .map { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(sessionData, modifiedJourney))
+                storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
@@ -134,7 +144,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Simple POST to submit form and update journey, can use current user data. */
   final def simpleActionReadWriteJourneyAndUser(
-    body: Request[_] => Journey => RetrievedUserType => (Journey, Result)
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => (Journey, Result)
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -142,8 +152,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
         getJourney(request.sessionData)
           .map(journey => body(request)(journey)(request.authenticatedRequest.journeyUserType))
           .map { case (modifiedJourney, result) =>
-            jcc.sessionCache
-              .store(updateJourney(request.sessionData, modifiedJourney))
+            storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
               .flatMap(
                 _.fold(
                   error => Future.failed(error.toException),
@@ -166,8 +175,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
             getJourney(sessionData)
               .map(body(request))
               .map(_.flatMap { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(sessionData, modifiedJourney))
+                storeSessionIfChanged(sessionData, updateJourney(sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
@@ -182,7 +190,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
 
   /** Async POST action to submit form and update journey, can use current user data. */
   final def actionReadWriteJourneyAndUser(
-    body: Request[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
+    body: RequestWithSessionDataAndRetrievedData[_] => Journey => RetrievedUserType => Future[(Journey, Result)]
   ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
@@ -191,8 +199,7 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
           .fold(goToTheStartOfJourney) { journey =>
             body(request)(journey)(request.authenticatedRequest.journeyUserType)
               .flatMap { case (modifiedJourney, result) =>
-                jcc.sessionCache
-                  .store(updateJourney(request.sessionData, modifiedJourney))
+                storeSessionIfChanged(request.sessionData, updateJourney(request.sessionData, modifiedJourney))
                   .flatMap(
                     _.fold(
                       error => Future.failed(error.toException),
@@ -202,4 +209,9 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
               }
           }
       }
+
+  implicit class FormOps[A](val form: Form[A]) {
+    def withDefault(optValue: Option[A]): Form[A] =
+      optValue.map(form.fill).getOrElse(form)
+  }
 }

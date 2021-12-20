@@ -62,5 +62,4 @@ class FeatureSwitchService @Inject() (
 
       override protected def executionContext: ExecutionContext = cc.executionContext
     }
-
 }

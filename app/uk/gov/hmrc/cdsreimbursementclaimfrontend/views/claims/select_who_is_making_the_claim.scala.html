@@ -17,9 +17,9 @@
 @import play.api.data.Form
 @import play.api.i18n.Messages
 @import play.twirl.api.Html
+@import play.api.mvc.Call
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
-@import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswer
 @import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -36,7 +36,7 @@
     errorSummary: uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.error_summary
 )
 
-@(form: Form[DeclarantTypeAnswer], router: ReimbursementRoutes)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
+@(form: Form[DeclarantTypeAnswer], postAction: Call)(implicit request: RequestWithSessionData[_], messages: Messages, viewConfig: ViewConfig)
 
 @key = @{"select-who-is-making-the-claim"}
 @title = @{messages(s"$key.title")}
@@ -59,7 +59,7 @@
 
     @dropdownDetails(summary = s"$key.details.heading", content = detailsParagraphs)
 
-    @formWithCSRF(router.submitUrlForWhoIsMakingTheClaim(), 'novalidate -> "novalidate") {
+    @formWithCSRF(postAction, 'novalidate -> "novalidate") {
 
         @radios(
             form = form,

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckYourAnswersAndSubmitController.checkYourAnswersKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
@@ -27,14 +27,15 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 class BankAccountDetailsSummary extends AnswerSummary[BankAccountDetails] {
 
   def render(key: String, bankAccountDetails: BankAccountDetails)(implicit
-    router: ReimbursementRoutes,
+    subKey: Option[String],
+    journey: JourneyBindable,
     messages: Messages
   ): SummaryList = {
 
     def changeCall =
       if (key.contains(checkYourAnswersKey))
-        routes.BankAccountController.checkBankAccountDetails(router.journeyBindable)
-      else routes.SelectBankAccountTypeController.selectBankAccountType(router.journeyBindable)
+        routes.BankAccountController.checkBankAccountDetails(journey)
+      else routes.SelectBankAccountTypeController.selectBankAccountType(journey)
 
     SummaryList(
       Seq(

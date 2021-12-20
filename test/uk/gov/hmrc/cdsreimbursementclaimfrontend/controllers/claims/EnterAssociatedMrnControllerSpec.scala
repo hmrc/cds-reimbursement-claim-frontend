@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
+import cats.Functor
+import cats.Id
 import cats.data.EitherT
 import cats.data.NonEmptyList
-import cats.{Functor, Id}
 import cats.implicits._
-import org.jsoup.nodes.Document
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
@@ -43,21 +43,24 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterAssocia
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, Eori, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 
 class EnterAssociatedMrnControllerSpec
     extends ControllerSpec
@@ -114,9 +117,6 @@ class EnterAssociatedMrnControllerSpec
     )
   }
 
-  def getErrorSummary(document: Document): String =
-    document.select(".govuk-error-summary__list > li > a").text()
-
   def mockGetDisplayDeclaration(response: Either[Error, Option[DisplayDeclaration]]) =
     (mockClaimsService
       .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
@@ -133,8 +133,6 @@ class EnterAssociatedMrnControllerSpec
       )
 
   "EnterAssociatedMrnController" must {
-
-    featureSwitch.enable(Feature.BulkClaim)
 
     def performAction(mrnIndex: AssociatedMrnIndex): Future[Result] =
       controller.enterMrn(mrnIndex)(FakeRequest())

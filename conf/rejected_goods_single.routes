@@ -1,0 +1,8 @@
+GET          /rejected-goods/single/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.show()
+POST         /rejected-goods/single/enter-movement-reference-number               uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterMovementReferenceNumberController.submit()
+
+GET          /rejected-goods/single/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterImporterEoriNumberController.show()
+POST         /rejected-goods/single/enter-importer-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterImporterEoriNumberController.submit()
+
+GET          /rejected-goods/single/enter-declarant-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterDeclarantEoriNumberController.show()
+POST         /rejected-goods/single/enter-declarant-eori                           uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterDeclarantEoriNumberController.submit()

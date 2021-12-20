@@ -20,7 +20,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.support.JsonFormatTest
@@ -58,15 +57,15 @@ class RejectedGoodsSingleJourneyFormatSpec
       )
 
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":{"entry__0":{"k":$uploadDocumentJson,"v":"Foo"}}}""",
+        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[$uploadDocumentJson]}""",
         Answers(
           userEoriNumber = exampleEori,
-          supportingEvidences = Some(Map(uploadDocument -> Some(DocumentTypeRejectedGoods.Foo)))
+          supportingEvidences = Some(Seq(uploadDocument))
         )
       )
       validateJsonFormat(
-        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":{}}""",
-        Answers(userEoriNumber = exampleEori, supportingEvidences = Some(Map()))
+        s"""{"userEoriNumber":"$exampleEoriAsString","supportingEvidences":[]}""",
+        Answers(userEoriNumber = exampleEori, supportingEvidences = Some(Seq.empty))
       )
     }
   }
