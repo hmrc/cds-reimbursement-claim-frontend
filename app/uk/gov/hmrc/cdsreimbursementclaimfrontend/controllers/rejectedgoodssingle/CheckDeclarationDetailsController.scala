@@ -77,8 +77,7 @@ class CheckDeclarationDetailsController @Inject() (
               //TODO: change Yes route to rejected-goods/single/claimant-details
               case Yes => routes.CheckDeclarationDetailsController.show()
               case No  => routes.EnterMovementReferenceNumberController.submit()
-            }
-            )
+            })
           )
       )
   }
