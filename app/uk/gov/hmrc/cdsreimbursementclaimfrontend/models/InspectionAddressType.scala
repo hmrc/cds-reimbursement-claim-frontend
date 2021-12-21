@@ -16,24 +16,17 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-final case class InspectionAddress(
-  addressLine1: String,
-  addressLine2: Option[String] = None,
-  addressLine3: Option[String] = None,
-  city: Option[String] = None,
-  postalCode: String,
-  addressType: InspectionAddressType
-)
+sealed trait InspectionAddressType
 
-object InspectionAddress {
+object InspectionAddressType extends EnumerationFormat[InspectionAddressType] {
 
-  implicit val equality: Eq[InspectionAddress] =
-    Eq.fromUniversalEquals[InspectionAddress]
+  case object Importer extends InspectionAddressType
+  case object Declarant extends InspectionAddressType
+  case object Other extends InspectionAddressType
 
-  implicit val format: OFormat[InspectionAddress] =
-    derived.oformat[InspectionAddress]()
+  override val values: Set[InspectionAddressType] =
+    Set(Importer, Declarant, Other)
+
 }
