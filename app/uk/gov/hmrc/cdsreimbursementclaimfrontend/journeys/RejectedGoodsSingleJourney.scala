@@ -406,7 +406,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
                 inspectionDate = inspectionDate,
                 inspectionAddress = inspectionAddress,
-                totalReimbursementAmount = getTotalReimbursementAmount,
+                reimbursementClaims = getReimbursementClaims,
                 supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
@@ -459,7 +459,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
-    totalReimbursementAmount: BigDecimal,
+    reimbursementClaims: Map[TaxCode, BigDecimal],
     reimbursementMethod: ReimbursementMethodAnswer,
     bankAccountDetails: Option[BankAccountDetails],
     supportingEvidences: Seq[EvidenceDocument]
