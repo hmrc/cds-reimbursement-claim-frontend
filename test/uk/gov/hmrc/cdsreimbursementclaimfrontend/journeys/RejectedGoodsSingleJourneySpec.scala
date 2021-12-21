@@ -82,7 +82,7 @@ class RejectedGoodsSingleJourneySpec
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
         output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
           .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
-        output.totalReimbursementAmount shouldBe journey.getTotalReimbursementAmount
+        output.reimbursementClaims      shouldBe journey.getReimbursementClaims
         output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
