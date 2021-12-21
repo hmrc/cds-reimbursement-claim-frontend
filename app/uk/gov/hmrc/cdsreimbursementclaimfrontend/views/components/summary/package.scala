@@ -39,6 +39,8 @@ package object summary {
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
 
+  implicit val declarationDetailsSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
+
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 
     def summary(key: String, subKey: Option[String])(implicit

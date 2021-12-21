@@ -19,16 +19,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingl
 import com.google.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.{AuthenticatedAction, SessionDataAction}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, JourneyControllerComponents, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, upscan => _}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyControllerComponents, routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
@@ -37,16 +35,52 @@ class CheckDeclarationDetailsController @Inject() (
   val sessionStore: SessionCache,
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
-)(implicit viewConfig: ViewConfig, ec: ExecutionContext)
+)(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
     extends RejectedGoodsSingleJourneyBaseController {
 
   implicit val subKey: Option[String] = None
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val postAction: Call = ???
-    journey.answers.displayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
-      Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, postAction))
+    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
+    Future.successful(
+      journey.answers.displayDeclaration.fold(Redirect(baseRoutes.IneligibleController.ineligible()))(declaration =>
+        Ok(checkDeclarationDetailsPage(declaration, checkDeclarationDetailsAnswerForm, isDuplicate = false, postAction))
+      )
     )
+  }
+
+  def submit(): Action[AnyContent] = simpleActionReadWriteJourney { implicit request => journey =>
+    val postAction: Call = routes.CheckDeclarationDetailsController.submit()
+    checkDeclarationDetailsAnswerForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          (
+            journey,
+            journey.answers.displayDeclaration
+              .map(declaration =>
+                BadRequest(
+                  checkDeclarationDetailsPage(
+                    declaration,
+                    formWithErrors,
+                    isDuplicate = false,
+                    postAction
+                  )
+                )
+              )
+              .getOrElse(errorHandler.errorResult())
+          ),
+        answer =>
+          (
+            journey,
+            Redirect(answer match {
+              //TODO: change Yes route to rejected-goods/single/claimant-details
+              case Yes => routes.CheckDeclarationDetailsController.show()
+              case No  => routes.EnterMovementReferenceNumberController.submit()
+            }
+            )
+          )
+      )
   }
 
 }
