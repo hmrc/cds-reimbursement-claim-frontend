@@ -15,8 +15,6 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
-import cats.data.EitherT
-import cats.implicits._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.BAD_REQUEST
@@ -35,30 +33,21 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterMovementReferenceNumberController.enterMovementReferenceNumberKey
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckDeclarationDetailsController.checkDeclarationDetailsKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourney
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.completeJourneyWithMatchingUserEoriAndCMAEligibleGen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyGenerators.buildCompleteJourneyGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys.RejectedGoodsSingleJourneyTestData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Feature
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.ConsigneeDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DeclarantDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayDeclarationGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DisplayResponseDetailGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.ClaimService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+@SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
 class CheckDeclarationDetailsControllerSpec
     extends ControllerSpec
     with AuthSupport
@@ -89,12 +78,6 @@ class CheckDeclarationDetailsControllerSpec
 
   val messagesKey: String = "check-declaration-details"
 
-  private def mockGetDisplayDeclaration(expectedMrn: MRN, response: Either[Error, Option[DisplayDeclaration]]) =
-    (mockClaimService
-      .getDisplayDeclaration(_: MRN)(_: HeaderCarrier))
-      .expects(expectedMrn, *)
-      .returning(EitherT.fromEither[Future](response))
-
   "Check Declaration Details Controller" when {
     "Check Declaration Details page" must {
 
@@ -105,10 +88,18 @@ class CheckDeclarationDetailsControllerSpec
         status(performAction()) shouldBe NOT_FOUND
       }
 
-      "display the page on a new journey" in {
+      "display the page" in {
+        val journey = buildCompleteJourneyGen(
+          acc14DeclarantMatchesUserEori = false,
+          acc14ConsigneeMatchesUserEori = false,
+          hasConsigneeDetailsInACC14 = true
+        ).sample.getOrElse(fail("Journey building has failed."))
+
+        val sessionToAmend = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
         inSequence {
           mockAuthWithNoRetrievals()
-          mockGetSession(session)
+          mockGetSession(sessionToAmend)
         }
 
         checkPageIsDisplayed(
@@ -116,11 +107,69 @@ class CheckDeclarationDetailsControllerSpec
           messageFromMessageKey(s"$messagesKey.title"),
           doc => {
             doc
-              .select(s"form div#$messagesKey-hint")
-              .text()                            shouldBe messageFromMessageKey(s"$messagesKey.help-text")
-            doc.select(s"#$messagesKey").`val`() shouldBe ""
+              .select("main p")
+              .text()                                    shouldBe messageFromMessageKey(s"$messagesKey.help-text")
+            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
           }
         )
+      }
+    }
+
+    "Submit Check Declaration Details page" must {
+
+      def performAction(data: (String, String)*): Future[Result] =
+        controller.submit()(FakeRequest().withFormUrlEncodedBody(data: _*))
+
+      "not find the page if rejected goods feature is disabled" in {
+        featureSwitch.disable(Feature.RejectedGoods)
+
+        status(performAction()) shouldBe NOT_FOUND
+      }
+
+      "reject an empty Yes/No answer" in {
+        val displayDeclaration = sample[DisplayDeclaration]
+        val journey            = session.rejectedGoodsSingleJourney.get.submitDisplayDeclaration(displayDeclaration)
+        val sessionToAmend     = session.copy(rejectedGoodsSingleJourney = Some(journey))
+
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(sessionToAmend)
+        }
+
+        checkPageIsDisplayed(
+          performAction(checkDeclarationDetailsKey -> ""),
+          messageFromMessageKey(s"$messagesKey.title"),
+          doc => {
+            getErrorSummary(doc)                         shouldBe messageFromMessageKey(s"$messagesKey.error.required")
+            doc.select(s"#$messagesKey").attr("checked") shouldBe ""
+          },
+          expectedStatus = BAD_REQUEST
+        )
+      }
+
+      "submit when user selects Yes" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(checkDeclarationDetailsKey -> "true"),
+          "/claim-for-reimbursement-of-import-duties/rejected-goods/single/claimant-details"
+        )
+      }
+
+      "submit when user selects No" in {
+        inSequence {
+          mockAuthWithNoRetrievals()
+          mockGetSession(session)
+        }
+
+        checkIsRedirect(
+          performAction(checkDeclarationDetailsKey -> "false"),
+          routes.EnterMovementReferenceNumberController.submit()
+        )
+
       }
 
     }

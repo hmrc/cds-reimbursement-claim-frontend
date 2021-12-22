@@ -75,7 +75,8 @@ class CheckDeclarationDetailsController @Inject() (
             journey,
             Redirect(answer match {
               //TODO: change Yes route to rejected-goods/single/claimant-details
-              case Yes => routes.CheckDeclarationDetailsController.show()
+              case Yes =>
+                Call("GET", "/claim-for-reimbursement-of-import-duties/rejected-goods/single/claimant-details")
               case No  => routes.EnterMovementReferenceNumberController.submit()
             })
           )

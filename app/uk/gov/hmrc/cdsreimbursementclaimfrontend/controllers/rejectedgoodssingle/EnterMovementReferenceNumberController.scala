@@ -102,7 +102,7 @@ class EnterMovementReferenceNumberController @Inject() (
     if (journey.needsDeclarantAndConsigneeEoriSubmission) {
       Redirect(routes.EnterImporterEoriNumberController.show())
     } else {
-      Redirect("rejected-goods/single/check-declaration-details")
+      Redirect(routes.CheckDeclarationDetailsController.show())
     }
 
   private def updateJourney(
