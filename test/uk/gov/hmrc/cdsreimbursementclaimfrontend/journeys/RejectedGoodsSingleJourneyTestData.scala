@@ -162,7 +162,9 @@ trait RejectedGoodsSingleJourneyTestData {
     id: String = "foo",
     declarantEORI: Eori = exampleEori,
     consigneeEORI: Option[Eori] = None,
-    dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty
+    dutyDetails: Seq[(TaxCode, BigDecimal, Boolean)] = Seq.empty,
+    consigneeContact: Option[ContactDetails] = None,
+    declarantContact: Option[ContactDetails] = None
   ): DisplayDeclaration = {
     val ndrcDetails: List[NdrcDetails] =
       dutyDetails.map { case (taxCode, paidAmount, cmaEligible) =>
@@ -174,6 +176,22 @@ trait RejectedGoodsSingleJourneyTestData {
           cmaEligible = if (cmaEligible) Some("1") else None
         )
       }.toList
+
+    val consigneeDetails: Option[ConsigneeDetails] =
+      if (consigneeEORI.contains(declarantEORI))
+        None
+      else
+        consigneeEORI.map(eori =>
+          ConsigneeDetails(
+            consigneeEORI = eori.value,
+            legalName = s"consignee-legal-name-$id",
+            establishmentAddress = EstablishmentAddress(
+              addressLine1 = s"consignee-address-line-1-$id",
+              countryCode = s"consignee-country-code-$id"
+            ),
+            contactDetails = consigneeContact
+          )
+        )
 
     DisplayDeclaration {
       DisplayResponseDetail(
@@ -191,19 +209,9 @@ trait RejectedGoodsSingleJourneyTestData {
             addressLine1 = s"declarant-address-line-1-$id",
             countryCode = s"declarant-country-code-$id"
           ),
-          contactDetails = None
+          contactDetails = declarantContact
         ),
-        consigneeDetails = consigneeEORI.map(eori =>
-          ConsigneeDetails(
-            consigneeEORI = eori.value,
-            legalName = s"consignee-legal-name-$id",
-            establishmentAddress = EstablishmentAddress(
-              addressLine1 = s"consignee-address-line-1-$id",
-              countryCode = s"consignee-country-code-$id"
-            ),
-            contactDetails = None
-          )
-        ),
+        consigneeDetails = consigneeDetails,
         accountDetails = None,
         bankDetails = None,
         maskedBankDetails = None,

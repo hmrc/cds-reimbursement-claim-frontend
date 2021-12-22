@@ -26,7 +26,7 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
-
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.RetrievedUserTypeGen.individualGen
 import RejectedGoodsSingleJourneyGenerators._
 
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -252,6 +252,181 @@ class RejectedGoodsSingleJourneySpec
           .submitDeclarantEoriNumber(yetAnotherExampleEori)
 
       journeyEither shouldBe Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
+    }
+
+    "get contact details" should {
+      "return the specified details if they have been entered" in {
+        forAll(completeJourneyGen, individualGen) { (journey, signedInUser) =>
+          whenever(journey.answers.contactDetails.isDefined) {
+            val result = journey.getContactDetails(signedInUser)
+            result shouldBe journey.answers.contactDetails
+          }
+        }
+      }
+
+      "return the consignee details if no specific details entered and the signed in user is the consignee and consignee details are present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false,
+            submitContactDetails = false
+          ),
+          individualGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getConsigneeDetails.flatMap(_.contactDetails))
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.getContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse("")
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
+
+      "return the signed in user details if no specific details entered and the signed in user is the consignee and consignee details are not present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false,
+            submitConsigneeDetails = false,
+            submitContactDetails = false
+          ),
+          individualGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined &&
+              journey.answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)).isEmpty
+          ) {
+            val calculatedContact = journey.getContactDetails(signedInUser).get
+            calculatedContact.fullName           shouldBe signedInUser.name
+              .map(_.toFullName)
+              .getOrElse(fail("No signed in user name present"))
+            calculatedContact.emailAddress.value shouldBe signedInUser.email
+              .map(_.value)
+              .getOrElse(fail("No signed in user email present"))
+            calculatedContact.phoneNumber        shouldBe None
+          }
+        }
+      }
+
+      "return the declarant details if no specific details entered and the signed in user is the declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = true,
+            submitConsigneeDetails = true,
+            submitContactDetails = false
+          ),
+          individualGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.getContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse("")
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
+
+      "return the declarant details if no specific details entered and the signed in user is neither the consignee or declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = false,
+            submitConsigneeDetails = true,
+            submitContactDetails = false
+          ),
+          individualGen
+        ) { (journey, signedInUser) =>
+          whenever(
+            journey.answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails).isDefined
+          ) {
+            val expectedContact   = journey.answers.displayDeclaration
+              .flatMap(_.getDeclarantDetails.contactDetails)
+              .getOrElse(fail("Failed to get contact details"))
+            val calculatedContact = journey.getContactDetails(signedInUser).get
+            calculatedContact.fullName                 shouldBe expectedContact.contactName.getOrElse("")
+            calculatedContact.emailAddress.value       shouldBe expectedContact.emailAddress.getOrElse("")
+            calculatedContact.phoneNumber.map(_.value) shouldBe expectedContact.telephone
+          }
+        }
+      }
+    }
+
+    "get contact address" should {
+      "return the specified details if they have been entered" in {
+        forAll(completeJourneyGen) { journey =>
+          whenever(journey.answers.contactAddress.isDefined) {
+            journey.getAddressDetails shouldBe journey.answers.contactAddress
+          }
+        }
+      }
+
+      "return the consignee address if no specific address entered and the signed in user is the consignee and consignee address is present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = true,
+            acc14DeclarantMatchesUserEori = false
+          )
+        ) { journey =>
+          val expectedAddress = journey.answers.displayDeclaration.flatMap(
+            _.getConsigneeDetails.map(_.establishmentAddress.toContactAddress)
+          )
+          journey.getAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is the consignee and consignee address is not present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = true,
+            submitConsigneeDetails = false
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.getAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is the declarant" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = true
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.getAddressDetails shouldBe expectedAddress
+        }
+      }
+
+      "return the declarant address if no specific address entered and the signed in user is neither the declarant or the consignee and declarant address is present" in {
+        forAll(
+          buildCompleteJourneyGen(
+            submitContactAddress = false,
+            acc14ConsigneeMatchesUserEori = false,
+            acc14DeclarantMatchesUserEori = false
+          )
+        ) { journey =>
+          val expectedAddress =
+            journey.answers.displayDeclaration.map(_.getDeclarantDetails.establishmentAddress.toContactAddress)
+          journey.getAddressDetails shouldBe expectedAddress
+        }
+      }
     }
 
     "submit contact details" in {

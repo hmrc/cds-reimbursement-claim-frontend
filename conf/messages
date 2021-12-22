@@ -328,7 +328,9 @@ claimant-details.add-different.hint=Adding different contact details will not am
 #===================================================
 check-claimant-details.title=This is how we will contact you about this claim
 check-claimant-details.contact.details=Contact details
+check-claimant-details.change-hint.contact=Contact details
 check-claimant-details.contact.address=Contact address
+check-claimant-details.change-hint.address=Contact address
 
 #===================================================
 #  CLAIMANT TIMEOUT PAGE

@@ -16,10 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import org.scalacheck.Gen
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.EmailGen._
 
-object SignedInUserDetailsGen {
+object RetrievedUserTypeGen {
 
-  implicit lazy val arbitrarySignedInUserDetails: Typeclass[SignedInUserDetails] = gen[SignedInUserDetails]
+  lazy val individualGen: Gen[Individual] = for {
+    ggCredId <- genGGCredId
+    email    <- genEmail
+    eori     <- genEori
+    name     <- genName
+  } yield RetrievedUserType.Individual(ggCredId, Some(email), eori, Some(name))
 }

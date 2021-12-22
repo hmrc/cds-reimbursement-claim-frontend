@@ -20,8 +20,6 @@ import cats.instances.future.catsStdInstancesForFuture
 import play.api.data.Form
 import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
-import play.api.data.Forms.{mapping, text}
-import play.api.data._
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}

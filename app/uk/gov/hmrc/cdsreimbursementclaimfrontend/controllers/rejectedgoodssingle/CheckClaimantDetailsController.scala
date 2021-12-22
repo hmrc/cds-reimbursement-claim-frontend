@@ -20,9 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, NamePhoneEmail, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,22 +32,15 @@ class CheckClaimantDetailsController @Inject() (
 
   implicit val subKey: Option[String] = None
 
-  def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
-    val cd            = journey.answers.contactDetails.getOrElse(
-      MrnContactDetails(
-        "Alex Smith",
-        Email("alex.smith@acmecorporation.com"),
-        Some(PhoneNumber("+440234567890"))
-      )
-    )
-    val ca            = journey.answers.contactAddress.getOrElse(
-      ContactAddress("73 Guild Street", None, None, "London", "SE23 6FH", Country.uk)
-    )
-    val changeCd      = Call("GET", "change_contact")
-    val changeAddress = Call("GET", "change_address")
+  def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => retrievedUserType =>
+    val changeCd      = Call("GET", "change_contact-details")
+    val changeAddress = Call("GET", "lookup_address")
     val postAction    = Call("GET", "choose-basis-for-claim")
     Future.successful(
-      Ok(claimantDetailsPage(cd, ca, changeCd, changeAddress, postAction))
+      (journey.getContactDetails(retrievedUserType), journey.getAddressDetails) match {
+        case (Some(cd), Some(ca)) => Ok(claimantDetailsPage(cd, ca, changeCd, changeAddress, postAction))
+        case _                    => Redirect(routes.EnterMovementReferenceNumberController.show())
+      }
     )
   }
 }

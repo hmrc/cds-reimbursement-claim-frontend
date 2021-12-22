@@ -20,8 +20,6 @@ import cats.data.EitherT
 import cats.implicits.catsSyntaxEq
 import cats.instances.future.catsStdInstancesForFuture
 import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents

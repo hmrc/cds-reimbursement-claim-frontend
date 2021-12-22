@@ -115,13 +115,19 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
     acc14DeclarantMatchesUserEori: Boolean = true,
     acc14ConsigneeMatchesUserEori: Boolean = true,
     allDutiesCmaEligible: Boolean = true,
-    hasConsigneeDetailsInACC14: Boolean = true
+    hasConsigneeDetailsInACC14: Boolean = true,
+    submitConsigneeDetails: Boolean = true,
+    submitContactDetails: Boolean = true,
+    submitContactAddress: Boolean = true
   ): Gen[RejectedGoodsSingleJourney] =
     buildJourneyGen(
       acc14DeclarantMatchesUserEori,
       acc14ConsigneeMatchesUserEori,
       allDutiesCmaEligible,
-      hasConsigneeDetailsInACC14
+      hasConsigneeDetailsInACC14,
+      submitConsigneeDetails = submitConsigneeDetails,
+      submitContactDetails = submitContactDetails,
+      submitContactAddress = submitContactAddress
     ).map(
       _.fold(
         error =>
@@ -164,6 +170,8 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
       numberOfSupportingEvidences <- Gen.choose(1, 3)
       documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(DocumentTypeRejectedGoods.all))
       bankAccountType             <- Gen.oneOf(BankAccountType.allAccountTypes)
+      consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
+      declarantContact            <- Gen.option(Acc14Gen.genContactDetails)
     } yield {
 
       val paidDuties: Seq[(TaxCode, BigDecimal, Boolean)]          =
@@ -182,7 +190,9 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
           id.toString(),
           declarantEORI,
           if (hasConsigneeDetailsInACC14) Some(consigneeEORI) else None,
-          paidDuties
+          paidDuties,
+          if (submitConsigneeDetails) consigneeContact else None,
+          declarantContact
         )
 
       val hasMatchingEori = acc14DeclarantMatchesUserEori || acc14ConsigneeMatchesUserEori
