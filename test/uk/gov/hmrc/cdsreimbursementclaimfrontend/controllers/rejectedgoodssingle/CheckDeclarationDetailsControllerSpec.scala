@@ -155,7 +155,7 @@ class CheckDeclarationDetailsControllerSpec
 
         checkIsRedirect(
           performAction(checkDeclarationDetailsKey -> "true"),
-          "/claim-for-reimbursement-of-import-duties/rejected-goods/single/claimant-details"
+          routes.CheckClaimantDetailsController.show()
         )
       }
 

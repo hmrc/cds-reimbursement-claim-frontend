@@ -30,9 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckDeclarationDetailsController @Inject() (
-  val authenticatedAction: AuthenticatedAction,
-  val sessionDataAction: SessionDataAction,
-  val sessionStore: SessionCache,
   val jcc: JourneyControllerComponents,
   checkDeclarationDetailsPage: pages.check_declaration_details
 )(implicit viewConfig: ViewConfig, errorHandler: ErrorHandler, ec: ExecutionContext)
@@ -74,9 +71,7 @@ class CheckDeclarationDetailsController @Inject() (
           (
             journey,
             Redirect(answer match {
-              //TODO: change Yes route to rejected-goods/single/claimant-details
-              case Yes =>
-                Call("GET", "/claim-for-reimbursement-of-import-duties/rejected-goods/single/claimant-details")
+              case Yes => routes.CheckClaimantDetailsController.show()
               case No  => routes.EnterMovementReferenceNumberController.submit()
             })
           )
