@@ -58,15 +58,12 @@
 
         @summary(declaration.summary(s"$checkYourAnswersKey.declaration-details", subKey))
 
-        @pageHeading(messages(s"$key.is-information-correct"), "govuk-heading-s govuk-!-margin-top-8", "h2")
-
         @radios(
             form = form,
             name = key,
-            legend = title,
+            legend = messages(s"$key.is-information-correct"),
             legendAsHeading = false,
             hintKey = None,
-            classes = "govuk-visually-hidden",
             inline = true,
             items = Seq(
                 RadioItem(
