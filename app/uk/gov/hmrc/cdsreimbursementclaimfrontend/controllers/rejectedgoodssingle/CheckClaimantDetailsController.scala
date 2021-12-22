@@ -46,5 +46,5 @@ class CheckClaimantDetailsController @Inject() (
 }
 
 object CheckClaimantDetailsController {
-  val checkContactDetailsKey = "check-claimant-details"
+  val checkContactDetailsKey: String = "check-claimant-details"
 }
