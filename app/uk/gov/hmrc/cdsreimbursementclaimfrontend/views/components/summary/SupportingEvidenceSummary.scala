@@ -44,9 +44,8 @@ class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer]
                   Paragraph(
                     uploadDocument.fileName,
                     uploadDocument.documentType
-                      .map(_.index)
-                      .map { index =>
-                        messages(s"$supportingEvidenceKey.choose-document-type.document-type.d$index")
+                      .map { documentType =>
+                        messages(s"$supportingEvidenceKey.choose-document-type.document-type.$documentType")
                       }
                       .getOrElse("")
                   ).toString

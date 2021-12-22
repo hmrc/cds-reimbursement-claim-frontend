@@ -16,22 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
-sealed trait ReimbursementMethodAnswer extends Product with Serializable
+sealed trait ReimbursementMethodAnswer
 
-object ReimbursementMethodAnswer {
-  final case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
-  final case object BankAccountTransfer extends ReimbursementMethodAnswer
+object ReimbursementMethodAnswer extends EnumerationFormat[ReimbursementMethodAnswer] {
 
-  val all: Set[ReimbursementMethodAnswer] =
+  case object CurrentMonthAdjustment extends ReimbursementMethodAnswer
+  case object BankAccountTransfer extends ReimbursementMethodAnswer
+
+  override val values: Set[ReimbursementMethodAnswer] =
     Set(CurrentMonthAdjustment, BankAccountTransfer)
-
-  implicit val equality: Eq[ReimbursementMethodAnswer] =
-    Eq.fromUniversalEquals[ReimbursementMethodAnswer]
-
-  implicit val format: OFormat[ReimbursementMethodAnswer] =
-    derived.oformat[ReimbursementMethodAnswer]()
 }

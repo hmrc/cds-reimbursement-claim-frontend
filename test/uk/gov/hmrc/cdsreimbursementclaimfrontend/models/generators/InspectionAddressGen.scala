@@ -20,27 +20,29 @@ import org.scalacheck.magnolia.Typeclass
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen.genPostcode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 
 object InspectionAddressGen {
 
-  lazy val genInspectionAddress = arbitraryInspectionAddress.arbitrary
+  lazy val genInspectionAddress = for {
+    num         <- Gen.choose(1, 100)
+    street      <- genStringWithMaxSizeOfN(7)
+    district    <- Gen.option(genStringWithMaxSizeOfN(5))
+    road        <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5))
+                   else Gen.const(None)
+    city        <- genStringWithMaxSizeOfN(10)
+    postcode    <- genPostcode
+    addressType <- Gen.oneOf(InspectionAddressType.values)
+  } yield InspectionAddress(
+    addressLine1 = s"$num $street",
+    addressLine2 = district,
+    addressLine3 = road,
+    city = Some(city),
+    postalCode = postcode,
+    addressType = addressType
+  )
 
   implicit lazy val arbitraryInspectionAddress: Typeclass[InspectionAddress] =
-    Arbitrary(
-      for {
-        num      <- Gen.choose(1, 100)
-        street   <- genStringWithMaxSizeOfN(7)
-        district <- Gen.option(genStringWithMaxSizeOfN(5))
-        road     <- if (district.isDefined) Gen.option(genStringWithMaxSizeOfN(5)) else Gen.const(None)
-        town     <- genStringWithMaxSizeOfN(10)
-        postcode <- genPostcode
-      } yield InspectionAddress(
-        addressLine1 = s"$num $street",
-        addressLine2 = district,
-        addressLine3 = road,
-        townOrCity = Some(town),
-        postalCode = postcode
-      )
-    )
+    Arbitrary(genInspectionAddress)
 
 }

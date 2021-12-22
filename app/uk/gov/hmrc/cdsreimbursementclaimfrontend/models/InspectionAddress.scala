@@ -24,8 +24,9 @@ final case class InspectionAddress(
   addressLine1: String,
   addressLine2: Option[String] = None,
   addressLine3: Option[String] = None,
-  townOrCity: Option[String] = None,
-  postalCode: String
+  city: Option[String] = None,
+  postalCode: String,
+  addressType: InspectionAddressType
 )
 
 object InspectionAddress {

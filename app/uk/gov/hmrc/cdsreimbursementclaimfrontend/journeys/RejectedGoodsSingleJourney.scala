@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, DocumentTypeRejectedGoods, InspectionAddress, MethodOfDisposal, MrnContactDetails, RetrievedUserType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, EvidenceDocument, InspectionAddress, MethodOfDisposal, MrnContactDetails, RetrievedUserType, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
@@ -36,6 +36,7 @@ import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 /** An encapsulated C&E1179 single MRN journey logic.
   * The constructor of this class MUST stay private to protected integrity of the journey.
@@ -109,7 +110,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 
   /** Check is all the upoaded documents has document type selected. */
   def isCompleteSupportingEvidences: Boolean =
-    answers.supportingEvidences.exists(_.forall(_._2.isDefined))
+    answers.supportingEvidences.exists(_.forall(_.documentType.isDefined))
 
   def getConsigneeEoriFromACC14: Option[Eori] =
     answers.displayDeclaration.flatMap(_.getConsigneeEori)
@@ -351,31 +352,40 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
 
   def submitUploadedDocument(uploadedDocument: UploadDocument): RejectedGoodsSingleJourney =
     answers.supportingEvidences match {
-      case Some(supportingEvidences) if supportingEvidences.contains(uploadedDocument) =>
-        this
+      case Some(supportingEvidences)
+          if supportingEvidences.exists(_.uploadReference === uploadedDocument.uploadReference) =>
+        new RejectedGoodsSingleJourney(
+          answers.copy(supportingEvidences = Some(supportingEvidences.map {
+            case d if d.uploadReference == uploadedDocument.uploadReference => uploadedDocument
+            case d                                                          => d
+          }))
+        )
 
       case Some(supportingEvidences) =>
         new RejectedGoodsSingleJourney(
-          answers.copy(supportingEvidences = Some(supportingEvidences + (uploadedDocument -> None)))
+          answers.copy(supportingEvidences = Some(supportingEvidences :+ uploadedDocument))
         )
 
       case None =>
-        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Map(uploadedDocument -> None))))
+        new RejectedGoodsSingleJourney(answers.copy(supportingEvidences = Some(Seq(uploadedDocument))))
     }
 
   def submitDocumentType(
     uploadReference: UploadReference,
-    documentType: DocumentTypeRejectedGoods
+    documentType: UploadDocumentType
   ): Either[String, RejectedGoodsSingleJourney] =
     answers.supportingEvidences match {
       case None                      => Left("submitDocumentType.missingSupportingEvidences")
       case Some(supportingEvidences) =>
-        supportingEvidences.find(_._1.uploadReference === uploadReference) match {
-          case None                      => Left("submitDocumentType.upscanReferenceNotFound")
-          case Some((uploadDocument, _)) =>
+        supportingEvidences.find(_.uploadReference === uploadReference) match {
+          case None    => Left("submitDocumentType.upscanReferenceNotFound")
+          case Some(_) =>
             Right(
               new RejectedGoodsSingleJourney(
-                answers.copy(supportingEvidences = Some(supportingEvidences + (uploadDocument -> Some(documentType))))
+                answers.copy(supportingEvidences = Some(supportingEvidences.map {
+                  case d if d.uploadReference == uploadReference => d.copy(documentType = Some(documentType))
+                  case d                                         => d
+                }))
               )
             )
         }
@@ -438,8 +448,8 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
                 inspectionDate = inspectionDate,
                 inspectionAddress = inspectionAddress,
-                totalReimbursementAmount = getTotalReimbursementAmount,
-                supportingEvidences = supportingEvidences.mapValues(_.get),
+                reimbursementClaims = getReimbursementClaims,
+                supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
                 reimbursementMethod = reimbursementMethod.getOrElse(ReimbursementMethodAnswer.BankAccountTransfer),
                 bankAccountDetails = bankAccountDetails
@@ -477,7 +487,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
     reimbursementMethod: Option[ReimbursementMethodAnswer] = None,
-    supportingEvidences: Option[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] = None
+    supportingEvidences: Option[Seq[UploadDocument]] = None
   )
 
   // Final minimal output of the journey we want to pass to the backend.
@@ -491,10 +501,10 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
     inspectionAddress: InspectionAddress,
-    totalReimbursementAmount: BigDecimal,
+    reimbursementClaims: Map[TaxCode, BigDecimal],
     reimbursementMethod: ReimbursementMethodAnswer,
-    supportingEvidences: Map[UploadDocument, DocumentTypeRejectedGoods],
-    bankAccountDetails: Option[BankAccountDetails]
+    bankAccountDetails: Option[BankAccountDetails],
+    supportingEvidences: Seq[EvidenceDocument]
   )
 
   import com.github.arturopala.validator.Validator._
@@ -611,9 +621,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     implicit lazy val mapFormat1: Format[Map[TaxCode, Option[BigDecimal]]] =
       MapFormat.formatWithOptionalValue[TaxCode, BigDecimal]
 
-    implicit lazy val mapFormat2: Format[Map[UploadDocument, Option[DocumentTypeRejectedGoods]]] =
-      MapFormat.formatWithOptionalValue[UploadDocument, DocumentTypeRejectedGoods]
-
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())
 
@@ -625,9 +632,6 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
 
     implicit lazy val mapFormat1: Format[Map[TaxCode, BigDecimal]] =
       MapFormat.format[TaxCode, BigDecimal]
-
-    implicit lazy val mapFormat2: Format[Map[UploadDocument, DocumentTypeRejectedGoods]] =
-      MapFormat.format[UploadDocument, DocumentTypeRejectedGoods]
 
     implicit val amountFormat: Format[BigDecimal] =
       SimpleStringFormat[BigDecimal](BigDecimal(_), _.toString())

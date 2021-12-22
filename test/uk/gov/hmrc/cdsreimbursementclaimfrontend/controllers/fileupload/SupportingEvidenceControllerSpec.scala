@@ -248,7 +248,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsTechnicalErrorPage(
             performAction(journey, uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
             )
           )
         }
@@ -278,7 +278,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsTechnicalErrorPage(
             performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
             )
           )
         }
@@ -309,7 +309,7 @@ class SupportingEvidenceControllerSpec extends FileUploadControllerSpec {
 
           checkIsRedirect(
             performAction(journeyBindable, supportingEvidence.uploadReference)(
-              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> s"${documentType.index}")
+              Seq(SupportingEvidenceController.chooseDocumentTypeDataKey -> UploadDocumentType.keyOf(documentType))
             ),
             routes.SupportingEvidenceController.checkYourAnswers(journeyBindable)
           )

@@ -16,26 +16,45 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
+import cats.Eq
 import play.api.libs.json.Format
-import scala.reflect.ClassTag
 
-/** Utility class to generate Json formatter for enumeration. */
-object EnumerationFormat {
+/** Provides parse, verification, serialization and equality capabilities to the set of case objects of sealed trait T. */
+@SuppressWarnings(Array("org.wartremover.warts.Throw"))
+trait EnumerationFormat[T] {
 
-  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  def apply[T : ClassTag](values: Set[T]): Format[T] = {
-    val map = values.map(v => (v.toString(), v)).toMap
-    SimpleStringFormat(
-      key =>
-        map
-          .get(key)
-          .getOrElse(
-            throw new IllegalArgumentException(
-              s"The [$key] is NOT a value of the enum class ${implicitly[ClassTag[T]].runtimeClass.getName()}."
-            )
-          ),
-      (value: T) => value.toString
-    )
-  }
+  val values: Set[T]
 
+  private final lazy val valueMap: Map[String, T] =
+    values.map(v => (v.toString(), v)).toMap
+
+  final def parse(key: String): Option[T] =
+    valueMap.get(key)
+
+  final def keyOf(value: T): String =
+    value.toString
+
+  final def tryParse(key: String): T =
+    valueMap
+      .get(key)
+      .getOrElse(throw new IllegalArgumentException(s"The [$key] is NOT a value of the expected enum class."))
+
+  final def hasKey(key: String): Boolean =
+    valueMap.contains(key)
+
+  implicit final val equality: Eq[T] = Eq.fromUniversalEquals[T]
+
+  implicit final val format: Format[T] = SimpleStringFormat(
+    key =>
+      valueMap
+        .get(key)
+        .getOrElse(
+          throw new IllegalArgumentException(
+            s"The [$key] is NOT a value of the expected enum class."
+          )
+        ),
+    (value: T) => keyOf(value)
+  )
+
+  implicit final val enumeration: EnumerationFormat[T] = this
 }

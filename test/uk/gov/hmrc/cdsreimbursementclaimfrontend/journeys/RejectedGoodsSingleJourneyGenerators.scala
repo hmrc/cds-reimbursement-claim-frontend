@@ -20,13 +20,13 @@ import cats.syntax.eq._
 import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DocumentTypeRejectedGoods
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 /** A collection of generators supporting the tests of RejectedGoodsSingleJourney. */
 @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
@@ -163,12 +163,12 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         Gen.sequence[Seq[BigDecimal], BigDecimal](
           paidAmounts.map(a => Gen.choose(BigDecimal.exact("0.01"), a))
         )
-      basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.all)
-      methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.all)
-      reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.all)
+      basisOfClaim                <- Gen.oneOf(BasisOfRejectedGoodsClaim.values)
+      methodOfDisposal            <- Gen.oneOf(MethodOfDisposal.values)
+      reimbursementMethod         <- Gen.oneOf(ReimbursementMethodAnswer.values)
       numberOfSelectedTaxCodes    <- Gen.choose(1, numberOfTaxCodes)
       numberOfSupportingEvidences <- Gen.choose(1, 3)
-      documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(DocumentTypeRejectedGoods.all))
+      documentTypes               <- Gen.listOfN(numberOfSupportingEvidences, Gen.oneOf(UploadDocumentType.values))
       bankAccountType             <- Gen.oneOf(BankAccountType.allAccountTypes)
       consigneeContact            <- Gen.option(Acc14Gen.genContactDetails)
       declarantContact            <- Gen.option(Acc14Gen.genContactDetails)

@@ -408,44 +408,44 @@ select-basis-for-claim.select-label=Choose which basis for claim
 select-basis-for-claim.help-text=This will help us to understand why you are making the claim so we can review and validate it.
 select-basis-for-claim.details.heading=Examples of basis of claim
 
-select-basis-for-claim.details.b0=Duplicate MRN:
-select-basis-for-claim.details.l0=A claim if a duplicate MRN has been made and a trader overpaid duties
+select-basis-for-claim.details.bullet.0=Duplicate MRN:
+select-basis-for-claim.details.hint.0=A claim if a duplicate MRN has been made and a trader overpaid duties
 
-select-basis-for-claim.details.b1=Duty suspension:
-select-basis-for-claim.details.l1=Goods liable to import charges but not collected until they leave the point of deferring payment of customs duties
+select-basis-for-claim.details.bullet.1=Duty suspension:
+select-basis-for-claim.details.hint.1=Goods liable to import charges but not collected until they leave the point of deferring payment of customs duties
 
-select-basis-for-claim.details.b2=End use relief:
-select-basis-for-claim.details.l2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
+select-basis-for-claim.details.bullet.2=End use relief:
+select-basis-for-claim.details.hint.2=Gives a favourable rate of duty and/or levy on some goods imported from non-EU countries
 
-select-basis-for-claim.details.b3=Incorrect commodity code:
-select-basis-for-claim.details.l3=A claim made if a trader originally entered an incorrect commodity code and overpaid duties
+select-basis-for-claim.details.bullet.3=Incorrect commodity code:
+select-basis-for-claim.details.hint.3=A claim made if a trader originally entered an incorrect commodity code and overpaid duties
 
-select-basis-for-claim.details.b4=Incorrect customs procedure code:
-select-basis-for-claim.details.l4=A claim made if a trader entered an incorrect CPC and overpaid duties
+select-basis-for-claim.details.bullet.4=Incorrect customs procedure code:
+select-basis-for-claim.details.hint.4=A claim made if a trader entered an incorrect CPC and overpaid duties
 
-select-basis-for-claim.details.b5=Incorrect value:
-select-basis-for-claim.details.l5=A claim made if a trader originally entered an incorrect total customs value and overpaid duties
+select-basis-for-claim.details.bullet.5=Incorrect value:
+select-basis-for-claim.details.hint.5=A claim made if a trader originally entered an incorrect total customs value and overpaid duties
 
-select-basis-for-claim.details.b6=Inward processing relief from Customs Duty:
-select-basis-for-claim.details.l6=IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU
+select-basis-for-claim.details.bullet.6=Inward processing relief from Customs Duty:
+select-basis-for-claim.details.hint.6=IPR and import VAT are on goods imported from outside the EU, and then exported outside the EU
 
-select-basis-for-claim.details.b7=Outward processing relief:
-select-basis-for-claim.details.l7=Allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
+select-basis-for-claim.details.bullet.7=Outward processing relief:
+select-basis-for-claim.details.hint.7=Allows EU traders to temporarily export goods from the EU to process or repair in a third (non-EU) country and then claim duty relief
 
-select-basis-for-claim.details.b8=Preference:
-select-basis-for-claim.details.l8=Post-clearance scrutiny and verification of documents to support customers’ claim to preferential duty rates
+select-basis-for-claim.details.bullet.8=Preference:
+select-basis-for-claim.details.hint.8=Post-clearance scrutiny and verification of documents to support customers’ claim to preferential duty rates
 
-select-basis-for-claim.details.b9=Proof of return/refund given:
-select-basis-for-claim.details.l9=A claim made by a trader if they have provided a proof of return/refund and overpaid duties
+select-basis-for-claim.details.bullet.9=Proof of return/refund given:
+select-basis-for-claim.details.hint.9=A claim made by a trader if they have provided a proof of return/refund and overpaid duties
 
-select-basis-for-claim.details.b10=Incorrect excise value - Northern Ireland claims only:
-select-basis-for-claim.details.l10=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
+select-basis-for-claim.details.bullet.10=Incorrect excise value - Northern Ireland claims only:
+select-basis-for-claim.details.hint.10=Claims for post-clearance cash repayment of excise differential because the trader made a genuine error when manually calculating excise. <strong>Note: under this basis for claim, if you imported into Northern Ireland, you can only claim under excise tax codes and not under customs tax codes or import VAT.</strong>
 
-select-basis-for-claim.details.b11=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only:
-select-basis-for-claim.details.l11=The trader has declared goods as ’at risk’ in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance
+select-basis-for-claim.details.bullet.11=Incorrect Additional Information code (excluding NIAID) - Northern Ireland claims only:
+select-basis-for-claim.details.hint.11=The trader has declared goods as ’at risk’ in error, pays the tariff themselves (i.e. does not use subsidy) and wants to correct this error post-clearance
 
-select-basis-for-claim.details.b12=Miscellaneous:
-select-basis-for-claim.details.l12=For any other reason not detailed in this list
+select-basis-for-claim.details.bullet.12=Miscellaneous:
+select-basis-for-claim.details.hint.12=For any other reason not detailed in this list
 
 select-basis-for-claim.reason.d0=Duplicate Movement Reference Number (MRN)
 select-basis-for-claim.reason.d1=Duty suspension
@@ -876,36 +876,37 @@ supporting-evidence.choose-document-type.title=Select the description of the fil
 supporting-evidence.choose-document-type.error.number=Choose a file type to support your claim
 supporting-evidence.choose-document-type.error.required=Choose a file type to support your claim
 supporting-evidence.choose-document-type.help-text=Choose a definition of the file from this list. This will help us to process your claim more efficiently.
-supporting-evidence.choose-document-type.document-type.d0=Air waybill
-supporting-evidence.upload.details.b0=Air waybill:
-supporting-evidence.upload.details.l0=Transport document that accompanies the commodities (goods) and provides information about them
-supporting-evidence.choose-document-type.document-type.d1=Bill of lading
-supporting-evidence.upload.details.b1=Bill of lading:
-supporting-evidence.upload.details.l1=Transport document that accompanies the commodities (goods) and provides information about them
-supporting-evidence.choose-document-type.document-type.d2=Commercial invoice
-supporting-evidence.upload.details.b2=Commercial invoice:
-supporting-evidence.upload.details.l2=Proof of sale and describes the commodities being sold; their price, description and quantity
-supporting-evidence.choose-document-type.document-type.d3=Correspondence between trader and agent
-supporting-evidence.upload.details.b3=Correspondence between trader and agent:
-supporting-evidence.upload.details.l3=An email chain or letters between you and the trader
-supporting-evidence.choose-document-type.document-type.d4=Import and export declaration
-supporting-evidence.upload.details.b4=Import and export declaration:
-supporting-evidence.upload.details.l4=Proof of the import or export being declared
-supporting-evidence.choose-document-type.document-type.d5=Packing list
-supporting-evidence.upload.details.b5=Packing list:
-supporting-evidence.upload.details.l5=A document that lists product type in each package
-supporting-evidence.choose-document-type.document-type.d6=Proof of authority
-supporting-evidence.upload.details.b6=Proof of authority:
-supporting-evidence.upload.details.l6=In case you change your bank account details
-supporting-evidence.choose-document-type.document-type.d7=Substitute entry
-supporting-evidence.upload.details.b7=Substitute entry:
-supporting-evidence.upload.details.l7=A copy of the original customs declaration amended to show the correct details
-supporting-evidence.choose-document-type.document-type.d8=Other documents
-supporting-evidence.upload.details.b8=Other documents:
-supporting-evidence.upload.details.l8=If you have alternative supporting documents
-supporting-evidence.choose-document-type.document-type.d9=Scheduled document
-supporting-evidence.upload.details.b9=Scheduled document
-supporting-evidence.upload.details.l9=Scheduled document
+supporting-evidence.choose-document-type.document-type.AirWayBill=Air waybill
+supporting-evidence.upload.details.bullet.AirWayBill=Air waybill:
+supporting-evidence.upload.details.hint.AirWayBill=Transport document that accompanies the commodities (goods) and provides information about them
+supporting-evidence.choose-document-type.document-type.BillOfLading=Bill of lading
+supporting-evidence.upload.details.bullet.BillOfLading=Bill of lading:
+supporting-evidence.upload.details.hint.BillOfLading=Transport document that accompanies the commodities (goods) and provides information about them
+supporting-evidence.choose-document-type.document-type.CommercialInvoice=Commercial invoice
+supporting-evidence.upload.details.bullet.CommercialInvoice=Commercial invoice:
+supporting-evidence.upload.details.hint.CommercialInvoice=Proof of sale and describes the commodities being sold; their price, description and quantity
+supporting-evidence.choose-document-type.document-type.CorrespondenceTrader=Correspondence between trader and agent
+supporting-evidence.upload.details.bullet.CorrespondenceTrader=Correspondence between trader and agent:
+supporting-evidence.upload.details.hint.CorrespondenceTrader=An email chain or letters between you and the trader
+supporting-evidence.choose-document-type.document-type.ImportAndExportDeclaration=Import and export declaration
+supporting-evidence.upload.details.bullet.ImportAndExportDeclaration=Import and export declaration:
+supporting-evidence.upload.details.hint.ImportAndExportDeclaration=Proof of the import or export being declared
+supporting-evidence.choose-document-type.document-type.PackingList=Packing list
+supporting-evidence.upload.details.bullet.PackingList=Packing list:
+supporting-evidence.upload.details.hint.PackingList=A document that lists product type in each package
+supporting-evidence.choose-document-type.document-type.ProofOfAuthority=Proof of authority
+supporting-evidence.upload.details.bullet.ProofOfAuthority=Proof of authority:
+supporting-evidence.upload.details.hint.ProofOfAuthority=In case you change your bank account details
+supporting-evidence.choose-document-type.document-type.SubstituteEntry=Substitute entry
+supporting-evidence.upload.details.bullet.SubstituteEntry=Substitute entry:
+supporting-evidence.upload.details.hint.SubstituteEntry=A copy of the original customs declaration amended to show the correct details
+supporting-evidence.choose-document-type.document-type.Other=Other documents
+supporting-evidence.upload.details.bullet.Other=Other documents:
+supporting-evidence.upload.details.hint.Other=If you have alternative supporting documents
+supporting-evidence.choose-document-type.document-type.ScheduleOfMRNs=Scheduled document
+supporting-evidence.upload.details.bullet.ScheduleOfMRNs=Scheduled document
+supporting-evidence.upload.details.hint.ScheduleOfMRNs=Scheduled document
+supporting-evidence.error.invalid-document-type=Invalid supporting evidence document type
 
 #===================================================
 #  SCHEDULED DOCUMENT PAGES

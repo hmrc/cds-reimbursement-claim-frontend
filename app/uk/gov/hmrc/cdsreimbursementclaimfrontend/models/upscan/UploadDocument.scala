@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
+import cats.Eq
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
 
@@ -31,5 +32,7 @@ final case class UploadDocument(
 )
 
 object UploadDocument {
+
+  implicit val equality: Eq[UploadDocument]    = Eq.fromUniversalEquals
   implicit val format: OFormat[UploadDocument] = Json.format
 }

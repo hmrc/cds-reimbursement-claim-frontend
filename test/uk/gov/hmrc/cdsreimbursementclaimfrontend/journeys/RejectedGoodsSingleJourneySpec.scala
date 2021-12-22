@@ -82,8 +82,8 @@ class RejectedGoodsSingleJourneySpec
         output.inspectionAddress        shouldBe journey.answers.inspectionAddress.get
         output.reimbursementMethod      shouldBe journey.answers.reimbursementMethod
           .getOrElse(ReimbursementMethodAnswer.BankAccountTransfer)
-        output.totalReimbursementAmount shouldBe journey.getTotalReimbursementAmount
-        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.mapValues(_.get)
+        output.reimbursementClaims      shouldBe journey.getReimbursementClaims
+        output.supportingEvidences      shouldBe journey.answers.supportingEvidences.get.map(EvidenceDocument.from)
         output.bankAccountDetails       shouldBe journey.answers.bankAccountDetails
         output.claimantInformation.eori shouldBe journey.answers.userEoriNumber
       }
@@ -467,7 +467,7 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit basis of claim" in {
-      forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.all)) { basisOfClaim =>
+      forAll(Gen.oneOf(BasisOfRejectedGoodsClaim.values)) { basisOfClaim =>
         val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitBasisOfClaim(basisOfClaim)
         journey.answers.basisOfClaim shouldBe Some(basisOfClaim)
       }
@@ -514,14 +514,14 @@ class RejectedGoodsSingleJourneySpec
     }
 
     "submit method of disposal" in {
-      forAll(Gen.oneOf(MethodOfDisposal.all)) { methodOfDisposal =>
+      forAll(Gen.oneOf(MethodOfDisposal.values)) { methodOfDisposal =>
         val journey = RejectedGoodsSingleJourney.empty(exampleEori).submitMethodOfDisposal(methodOfDisposal)
         journey.answers.methodOfDisposal shouldBe Some(methodOfDisposal)
       }
     }
 
     "change method of disposal" in {
-      forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.all)) { (journey, methodOfDisposal) =>
+      forAll(completeJourneyGen, Gen.oneOf(MethodOfDisposal.values)) { (journey, methodOfDisposal) =>
         val modifiedJourney = journey.submitMethodOfDisposal(methodOfDisposal)
 
         modifiedJourney.isComplete                       shouldBe true

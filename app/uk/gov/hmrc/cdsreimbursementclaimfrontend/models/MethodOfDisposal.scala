@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.Eq
-import julienrf.json.derived
-import play.api.libs.json._
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 sealed trait MethodOfDisposal
 
-object MethodOfDisposal {
+object MethodOfDisposal extends EnumerationFormat[MethodOfDisposal] {
 
   case object Export extends MethodOfDisposal
   case object PostalExport extends MethodOfDisposal
@@ -31,12 +29,6 @@ object MethodOfDisposal {
   case object ExportInBaggage extends MethodOfDisposal
   case object Destruction extends MethodOfDisposal
 
-  val all: Set[MethodOfDisposal] =
+  override val values: Set[MethodOfDisposal] =
     Set(Export, PostalExport, DonationToCharity, PlacedInCustomsWarehouse, ExportInBaggage, Destruction)
-
-  implicit val equality: Eq[MethodOfDisposal] =
-    Eq.fromUniversalEquals[MethodOfDisposal]
-
-  implicit val format: OFormat[MethodOfDisposal] =
-    derived.oformat[MethodOfDisposal]()
 }
