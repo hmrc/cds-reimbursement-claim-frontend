@@ -94,15 +94,15 @@ abstract class JourneyBaseController[Journey](implicit ec: ExecutionContext)
       }
 
   /** Simple GET action to show page based on the user data and journey state. */
-  final def simpleActionReadJourneyAndUser(body: Journey => RetrievedUserType => Result): Action[AnyContent] =
+  final def simpleActionReadJourneyAndUser(
+    body: Request[_] => Journey => RetrievedUserType => Future[Result]
+  ): Action[AnyContent] =
     jcc
       .authenticatedActionWithRetrievedDataAndSessionData(requiredFeature)
       .async { implicit request =>
-        Future.successful(
-          getJourney(request.sessionData)
-            .map(journey => body(journey)(request.authenticatedRequest.journeyUserType))
-            .getOrElse(Redirect(startOfTheJourney))
-        )
+        getJourney(request.sessionData)
+          .map(journey => body(request)(journey)(request.authenticatedRequest.journeyUserType))
+          .getOrElse(goToTheStartOfJourney)
       }
 
   /** Async GET action to show page based on the request and journey state. */

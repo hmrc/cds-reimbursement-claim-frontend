@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
+package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 
-import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
-object SignedInUserDetailsGen {
-
-  implicit lazy val arbitrarySignedInUserDetails: Typeclass[SignedInUserDetails] = gen[SignedInUserDetails]
+trait RejectedGoodsAnswerSummary[A] {
+  def render(key: String, answer: A)(implicit
+    subKey: Option[String],
+    messages: Messages
+  ): SummaryList
 }

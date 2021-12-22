@@ -19,15 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, EvidenceDocument, InspectionAddress, MethodOfDisposal, MrnContactDetails, RetrievedUserType, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
@@ -40,8 +32,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentImplicits
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
-
 import java.time.LocalDate
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
@@ -57,6 +50,55 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
     extends FluentSyntax[RejectedGoodsSingleJourney] {
 
   val ZERO: BigDecimal = BigDecimal("0")
+
+  def getContactDetails(retrievedUser: RetrievedUserType): Option[MrnContactDetails] = (
+    answers.contactDetails,
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails.flatMap(_.contactDetails)),
+    answers.displayDeclaration.flatMap(_.getDeclarantDetails.contactDetails),
+    retrievedUser
+  ) match {
+    case (details @ Some(_), _, _, _)                                                                           =>
+      details
+    case (_, Some(consigneeContactDetails), _, _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+      Some(
+        MrnContactDetails(
+          consigneeContactDetails.contactName.getOrElse(""),
+          Email(consigneeContactDetails.emailAddress.getOrElse("")),
+          consigneeContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+    case (_, None, _, individual: Individual) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber)     =>
+      Some(
+        MrnContactDetails(
+          individual.name.map(_.toFullName).getOrElse(""),
+          individual.email.getOrElse(Email("")),
+          None
+        )
+      )
+    case (_, _, Some(declarantContactDetails), _)                                                               =>
+      Some(
+        MrnContactDetails(
+          declarantContactDetails.contactName.getOrElse(""),
+          Email(declarantContactDetails.emailAddress.getOrElse("")),
+          declarantContactDetails.telephone.map(PhoneNumber(_))
+        )
+      )
+    case _                                                                                                      => None
+  }
+
+  def getAddressDetails: Option[ContactAddress] = (
+    answers.contactAddress,
+    answers.displayDeclaration.flatMap(_.getConsigneeDetails),
+    answers.displayDeclaration.map(_.getDeclarantDetails)
+  ) match {
+    case (contactAddress @ Some(_), _, _)                                                                =>
+      contactAddress
+    case (None, Some(consigneeDetails), _) if getConsigneeEoriFromACC14.contains(answers.userEoriNumber) =>
+      Some(consigneeDetails.establishmentAddress.toContactAddress)
+    case (None, _, Some(declarantDetails))                                                               =>
+      Some(declarantDetails.establishmentAddress.toContactAddress)
+    case _                                                                                               => None
+  }
 
   /** Check if the journey is ready to finalize, i.e. to get the output. */
   def isComplete: Boolean =
