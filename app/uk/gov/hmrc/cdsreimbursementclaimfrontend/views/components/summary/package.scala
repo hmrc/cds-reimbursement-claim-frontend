@@ -39,6 +39,8 @@ package object summary {
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
 
+  implicit val claimantDetailsSummary: ClaimantDetailsSummary = new ClaimantDetailsSummary
+
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 
     def summary(key: String, subKey: Option[String])(implicit
@@ -54,6 +56,15 @@ package object summary {
       answerSummary: AnswerSummary[A],
       subKey: Option[String],
       journey: JourneyBindable,
+      messages: Messages
+    ): SummaryList =
+      answerSummary.render(key, answer)
+
+    def rejected_goods_summary(
+      key: String
+    )(implicit
+      answerSummary: RejectedGoodsAnswerSummary[A],
+      subKey: Option[String],
       messages: Messages
     ): SummaryList =
       answerSummary.render(key, answer)
