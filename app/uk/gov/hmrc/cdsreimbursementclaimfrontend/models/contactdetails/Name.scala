@@ -18,7 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class Name(name: Option[String], lastName: Option[String])
+final case class Name(name: Option[String], lastName: Option[String]) {
+  def toFullName: String =
+    (name.toList ++ lastName.toList).mkString(" ")
+}
 
 object Name {
 

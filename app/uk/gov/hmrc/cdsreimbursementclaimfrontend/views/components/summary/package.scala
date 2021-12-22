@@ -39,6 +39,7 @@ package object summary {
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
 
+  implicit val claimantDetailsSummary: ClaimantDetailsSummary       = new ClaimantDetailsSummary
   implicit val declarationDetailsSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
@@ -68,7 +69,6 @@ package object summary {
       messages: Messages
     ): SummaryList =
       answerSummary.render(key, answer)
-
   }
 
   implicit class SummaryListOps(val summaryList: SummaryList) extends AnyVal {
