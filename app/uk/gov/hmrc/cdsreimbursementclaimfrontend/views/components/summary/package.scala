@@ -29,7 +29,7 @@ package object summary {
   implicit val mrnSummary: MovementReferenceNumberSummary                         = new MovementReferenceNumberSummary
   implicit val mrnsSummary: MovementReferenceNumbersSummary                       = new MovementReferenceNumbersSummary
   implicit val commodityDetailsSummary: CommodityDetailsSummary                   = new CommodityDetailsSummary
-  implicit val displayDeclarationSummary: DisplayDeclarationSummary               = new DisplayDeclarationSummary
+  implicit val cdsDisplayDeclarationSummary: CdsDisplayDeclarationSummary         = new CdsDisplayDeclarationSummary
   implicit val northernIrelandAnswerSummary: NorthernIrelandAnswerSummary         = new NorthernIrelandAnswerSummary
   implicit val reimbursementMethodAnswerSummary: ReimbursementMethodAnswerSummary = new ReimbursementMethodAnswerSummary
   implicit val reimbursementsSummary: DutyAndTaxCodeReimbursementSummary          = new DutyAndTaxCodeReimbursementSummary
@@ -39,7 +39,8 @@ package object summary {
   implicit val supportingEvidenceSummary: SupportingEvidenceSummary               = new SupportingEvidenceSummary
   implicit val scheduledDocumentSummary: ScheduledDocumentSummary                 = new ScheduledDocumentSummary
 
-  implicit val claimantDetailsSummary: ClaimantDetailsSummary = new ClaimantDetailsSummary
+  implicit val claimantDetailsSummary: ClaimantDetailsSummary       = new ClaimantDetailsSummary
+  implicit val declarationDetailsSummary: DisplayDeclarationSummary = new DisplayDeclarationSummary
 
   implicit class AnswerSummaryOps[A](val answer: A) extends AnyVal {
 
