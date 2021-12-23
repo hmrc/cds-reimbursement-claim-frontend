@@ -19,13 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 import cats.data.OptionT
 import cats.instances.either._
 import cats.syntax.either._
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.Json
+import play.api.libs.json.Reads
+import play.api.libs.json.Writes
 import uk.gov.hmrc.cache.model.Id
 import uk.gov.hmrc.cache.repository.CacheRepository
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.play.http.logging.Mdc.preservingMdc
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 trait Cache {
 

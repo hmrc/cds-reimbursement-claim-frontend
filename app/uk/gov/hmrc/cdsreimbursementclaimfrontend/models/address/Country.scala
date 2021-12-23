@@ -18,10 +18,12 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address
 
 import cats.Eq
 import cats.syntax.eq._
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country.CountryCode
 
-import scala.io.{Codec, Source}
+import scala.io.Codec
+import scala.io.Source
 
 final case class Country(
   code: CountryCode

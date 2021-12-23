@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 object Forms {

@@ -16,11 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
-import play.api.libs.json.{JsDefined, JsError, JsLookupResult, Reads}
+import play.api.libs.json.JsDefined
+import play.api.libs.json.JsError
+import play.api.libs.json.JsLookupResult
+import play.api.libs.json.Reads
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.JsErrorOps._
 import uk.gov.hmrc.http.HttpResponse
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 object HttpResponseOps {
 

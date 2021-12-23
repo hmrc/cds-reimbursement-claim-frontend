@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.{IdKey, IdValue}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdKey
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error.IdValue
 
 final case class Error(message: String, throwable: Option[Throwable], identifiers: Map[IdKey, IdValue]) {
 

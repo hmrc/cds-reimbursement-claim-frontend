@@ -20,7 +20,8 @@ import configs.ConfigReader
 import configs.syntax._
 import play.api.Configuration
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class FileUploadConfig @Inject() (config: Configuration) {

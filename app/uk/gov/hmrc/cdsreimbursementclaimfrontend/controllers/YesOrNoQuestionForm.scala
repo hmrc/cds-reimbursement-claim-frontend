@@ -18,8 +18,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.implicits.catsSyntaxEq
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
+import play.api.data.Forms.boolean
+import play.api.data.Forms.mapping
+import play.api.data.Forms.optional
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
 
 object YesOrNoQuestionForm {

@@ -18,13 +18,18 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
 import play.api.Configuration
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{ActionRefiner, MessagesRequest, Result}
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, NoActiveSession}
+import play.api.mvc.ActionRefiner
+import play.api.mvc.MessagesRequest
+import play.api.mvc.Result
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.AuthorisedFunctions
+import uk.gov.hmrc.auth.core.NoActiveSession
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 trait AuthenticatedActionBase[P[_]] extends ActionRefiner[MessagesRequest, P] with Logging { self =>
 

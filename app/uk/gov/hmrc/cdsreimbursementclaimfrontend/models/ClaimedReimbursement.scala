@@ -17,8 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.data.NonEmptyList
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement.{PaymentMethod, PaymentReference}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement.PaymentMethod
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement.PaymentReference
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.NdrcDetails
 
 import java.util.UUID

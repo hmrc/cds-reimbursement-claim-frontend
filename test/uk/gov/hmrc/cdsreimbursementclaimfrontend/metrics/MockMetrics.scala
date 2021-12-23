@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics
 
-import com.codahale.metrics.{Counter, Timer}
+import com.codahale.metrics.Counter
+import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.{Metrics => PlayMetrics}
 import org.scalamock.scalatest.MockFactory
 
