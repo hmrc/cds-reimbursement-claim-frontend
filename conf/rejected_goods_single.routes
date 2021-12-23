@@ -7,4 +7,8 @@ POST         /rejected-goods/single/enter-importer-eori                         
 GET          /rejected-goods/single/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterDeclarantEoriNumberController.show()
 POST         /rejected-goods/single/enter-declarant-eori                          uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterDeclarantEoriNumberController.submit()
 
+GET          /rejected-goods/single/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.show()
+POST         /rejected-goods/single/check-declaration-details                     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckDeclarationDetailsController.submit()
+
 GET          /rejected-goods/single/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.show()
+

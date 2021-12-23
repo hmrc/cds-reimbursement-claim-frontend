@@ -229,7 +229,7 @@ class EnterMovementReferenceNumberControllerSpec
 
         checkIsRedirect(
           performAction(enterMovementReferenceNumberKey -> mrn.value),
-          "rejected-goods/single/check-declaration-details"
+          routes.CheckDeclarationDetailsController.show()
         )
       }
 
