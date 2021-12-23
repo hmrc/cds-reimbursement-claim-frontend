@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.i18n.MessagesApi
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
@@ -24,10 +25,16 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionDataAction.NextPageBuilder
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{JourneyBindable, ReimbursementRoutes, routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, JourneyStatus, SessionData, SignedInUserDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 final case class RequestWithSessionData[A](
   sessionData: Option[SessionData],

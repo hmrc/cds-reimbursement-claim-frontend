@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{CompleteClaim, SignedInUserDetails}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.CompleteClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
 
 import java.util.UUID
 

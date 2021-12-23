@@ -20,8 +20,10 @@ import cats.implicits.catsSyntaxEq
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims.all
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DraftClaim, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 
 import scala.collection.immutable.HashSet
 

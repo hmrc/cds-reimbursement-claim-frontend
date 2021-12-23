@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import cats.{Eq, Id}
+import cats.Eq
+import cats.Id
 import cats.implicits.catsSyntaxOption
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
 sealed trait DeclarantTypeAnswer
 

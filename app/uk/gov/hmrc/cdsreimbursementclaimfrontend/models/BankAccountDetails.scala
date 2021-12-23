@@ -16,11 +16,15 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
-import cats.data.Validated.{Valid, invalidNel}
+import cats.data.Validated.Valid
+import cats.data.Validated.invalidNel
 import cats.syntax.all._
 import cats.Eq
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{IncorrectAnswerError, MissingAnswerError, Validator}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.IncorrectAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
 final case class BankAccountDetails(
   accountName: AccountName,

@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupOptions._
 
 final case class AddressLookupOptions(

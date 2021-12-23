@@ -16,16 +16,20 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.cache
 
-import com.google.inject.{ImplementedBy, Inject, Singleton}
+import com.google.inject.ImplementedBy
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import configs.syntax._
 import play.api.Configuration
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{Error, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultSessionCache])
 trait SessionCache {

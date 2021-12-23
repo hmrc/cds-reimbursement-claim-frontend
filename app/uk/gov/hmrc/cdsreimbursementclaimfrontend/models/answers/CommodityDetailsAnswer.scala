@@ -18,8 +18,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import cats.Id
 import cats.implicits.catsSyntaxOption
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
 final case class CommodityDetailsAnswer(value: String) extends AnyVal
 

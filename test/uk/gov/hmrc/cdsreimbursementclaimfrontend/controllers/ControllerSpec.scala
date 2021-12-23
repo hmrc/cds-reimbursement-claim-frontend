@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import akka.stream.Materializer
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.typesafe.config.ConfigFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -29,11 +30,14 @@ import play.api._
 import play.api.http.HttpConfiguration
 import play.api.i18n._
 import play.api.inject.bind
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.mvc.{Call, Result}
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Call
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.{Metrics, MockMetrics}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.Metrics
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics.MockMetrics
 
 import java.net.URLEncoder
 import scala.concurrent.Future

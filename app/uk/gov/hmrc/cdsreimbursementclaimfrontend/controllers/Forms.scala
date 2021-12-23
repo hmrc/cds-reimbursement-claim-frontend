@@ -17,7 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 object Forms {
@@ -26,5 +28,12 @@ object Forms {
       key -> nonEmptyText(maxLength = 18)
         .verifying("invalid.number", str => str.size > 18 || str.isEmpty || Eori(str).isValid)
     )(Eori.apply)(Eori.unapply)
+  )
+
+  val basisOfRejectedGoodsClaimForm: Form[BasisOfRejectedGoodsClaim] = Form(
+    mapping(
+      "select-basis-for-claim.rejected-goods" -> nonEmptyText
+        .verifying("error.required", basis => basis.isEmpty || BasisOfRejectedGoodsClaim.has(basis))
+    )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
   )
 }

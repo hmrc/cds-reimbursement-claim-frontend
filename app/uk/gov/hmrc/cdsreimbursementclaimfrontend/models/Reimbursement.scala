@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models
 
 import cats.implicits.catsSyntaxEq
 import cats.kernel.Semigroup
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 final case class Reimbursement(paidAmount: BigDecimal, shouldOfPaid: BigDecimal) {
 

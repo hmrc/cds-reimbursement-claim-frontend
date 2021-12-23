@@ -17,7 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend
 
 import cats.implicits.catsSyntaxEq
-import play.api.{Configuration, Environment, Mode}
+import play.api.Configuration
+import play.api.Environment
+import play.api.Mode
 
 package object config {
 

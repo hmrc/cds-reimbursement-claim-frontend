@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
