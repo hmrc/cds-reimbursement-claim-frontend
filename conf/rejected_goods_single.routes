@@ -12,3 +12,5 @@ POST         /rejected-goods/single/check-declaration-details                   
 
 GET          /rejected-goods/single/claimant-details                              uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.CheckClaimantDetailsController.show()
 
+GET          /rejected-goods/single/change-contact-details                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.show()
+POST         /rejected-goods/single/change-contact-details                        uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.submit()
