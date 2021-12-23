@@ -466,6 +466,17 @@ select-basis-for-claim.reason.d14=Miscellaneous
 select-basis-for-claim.scheduled.help-text=Your basis must apply to all MRNs in the claim.<br /><br />This will help us to understand why you are making the claim so we can review and validate it.
 
 #===================================================
+#  SELECT BASIS OF REJECTED GOODS PAGE
+#===================================================
+select-basis-for-claim.rejected-goods.title=Choose the basis for claim
+select-basis-for-claim.rejected-goods.help-text=This will help us to understand why you are making the claim so we can review and validate it.
+select-basis-for-claim.rejected-goods.reason.DamagedBeforeClearance=Damaged before clearance
+select-basis-for-claim.rejected-goods.reason.Defective=Defective
+select-basis-for-claim.rejected-goods.reason.NotInAccordanceWithContract=Not in accordance with contract
+select-basis-for-claim.rejected-goods.reason.SpecialCircumstances=Special circumstances
+select-basis-for-claim.rejected-goods.error.required=Select the basis for claim.
+
+#===================================================
 #  ENTER COMMODITIES PAGE
 #===================================================
 enter-commodities-details.title=Tell us the reason for this claim

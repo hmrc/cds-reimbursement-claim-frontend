@@ -204,7 +204,7 @@ class EnterDeclarantEoriNumberControllerSpec
 
         checkIsRedirect(
           performAction(controller.eoriNumberFormKey -> eori.value),
-          "rejected-goods/single/check-declaration-details"
+          routes.CheckDeclarationDetailsController.show()
         )
       }
 
