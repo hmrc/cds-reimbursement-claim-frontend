@@ -35,7 +35,7 @@ class BasisForClaimController @Inject() (
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val formKey = "select-basis-for-claim.rejected-goods"
+  val formKey: String = "select-basis-for-claim.rejected-goods"
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
