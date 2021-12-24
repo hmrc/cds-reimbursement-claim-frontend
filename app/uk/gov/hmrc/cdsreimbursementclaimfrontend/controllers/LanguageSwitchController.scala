@@ -17,7 +17,9 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import com.google.inject.Inject
-import play.api.i18n.{I18nSupport, Lang, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Lang
+import play.api.i18n.MessagesApi
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

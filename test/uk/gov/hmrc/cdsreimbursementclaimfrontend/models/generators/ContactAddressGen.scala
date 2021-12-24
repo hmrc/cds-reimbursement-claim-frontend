@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.magnolia.{Typeclass, gen}
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.magnolia.Typeclass
+import org.scalacheck.magnolia.gen
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 
 object ContactAddressGen {
 

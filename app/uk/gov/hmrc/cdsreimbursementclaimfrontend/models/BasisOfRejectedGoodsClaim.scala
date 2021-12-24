@@ -32,4 +32,16 @@ object BasisOfRejectedGoodsClaim extends EnumerationFormat[BasisOfRejectedGoodsC
 
   val allButSpecialCircumstances: Set[BasisOfRejectedGoodsClaim] =
     values - SpecialCircumstances
+
+  private[models] val basisOfRejectedGoodsStringMap: Map[String, BasisOfRejectedGoodsClaim] =
+    values.map(a => a.toString -> a).toMap
+
+  def has(basisOfRejectedGoods: String): Boolean                                            =
+    basisOfRejectedGoodsStringMap.contains(basisOfRejectedGoods)
+
+  def find(basisOfRejectedGoods: String): Option[BasisOfRejectedGoodsClaim] =
+    basisOfRejectedGoodsStringMap.get(basisOfRejectedGoods)
+
+  def findUnsafe(basisOfRejectedGoods: String): BasisOfRejectedGoodsClaim =
+    basisOfRejectedGoodsStringMap(basisOfRejectedGoods)
 }

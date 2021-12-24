@@ -19,7 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 import cats.Eq
 import julienrf.json.derived
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address._
 
 final case class EstablishmentAddress(
   addressLine1: String,
@@ -27,7 +27,17 @@ final case class EstablishmentAddress(
   addressLine3: Option[String] = None,
   postalCode: Option[String] = None,
   countryCode: String
-)
+) {
+  def toContactAddress: ContactAddress =
+    ContactAddress(
+      addressLine1,
+      addressLine2,
+      addressLine3,
+      "",
+      postalCode.getOrElse(""),
+      Country(countryCode)
+    )
+}
 
 object EstablishmentAddress {
 

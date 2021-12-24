@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import play.api.mvc.PathBindable
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{DutyType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
 
 import scala.util.Try

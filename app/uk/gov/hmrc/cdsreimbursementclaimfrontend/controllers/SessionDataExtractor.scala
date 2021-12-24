@@ -15,7 +15,8 @@
  */
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
-import play.api.mvc.{Result, Results}
+import play.api.mvc.Result
+import play.api.mvc.Results
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ReimbursementRoutes.ReimbursementRoutes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.RequestWithSessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}

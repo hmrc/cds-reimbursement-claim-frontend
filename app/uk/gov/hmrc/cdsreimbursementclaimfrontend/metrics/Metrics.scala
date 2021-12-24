@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.metrics
 
-import com.codahale.metrics.{Counter, Timer}
-import com.google.inject.{Inject, Singleton}
+import com.codahale.metrics.Counter
+import com.codahale.metrics.Timer
+import com.google.inject.Inject
+import com.google.inject.Singleton
 
 @Singleton
 class Metrics @Inject() (metrics: com.kenshoo.play.metrics.Metrics) {

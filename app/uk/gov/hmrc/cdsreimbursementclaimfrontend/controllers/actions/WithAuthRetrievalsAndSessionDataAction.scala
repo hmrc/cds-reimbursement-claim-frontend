@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import play.api.mvc.{ActionBuilder, AnyContent}
+import play.api.mvc.ActionBuilder
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 trait WithAuthRetrievalsAndSessionDataAction { this: FrontendController =>

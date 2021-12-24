@@ -18,9 +18,14 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
 import cats.data.NonEmptyList
 import org.scalacheck.magnolia._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, Eori, GGCredId, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
 
 object IdGen {
@@ -50,6 +55,13 @@ object IdGen {
     word    <- Gen.listOfN(13, Gen.numChar)
     d2      <- Gen.listOfN(1, Gen.numChar)
   } yield MRN((d1 ++ letter2 ++ word ++ d2).mkString)
+
+  lazy val genName: Gen[Name] = for {
+    name     <- genStringWithMaxSizeOfN(20)
+    lastName <- genStringWithMaxSizeOfN(20)
+  } yield Name(Some(name), Some(lastName))
+
+  lazy val genGGCredId: Gen[GGCredId] = gen[GGCredId].arbitrary
 
   implicit lazy val arbitraryMrn: Typeclass[MRN] = Arbitrary(genMRN)
 

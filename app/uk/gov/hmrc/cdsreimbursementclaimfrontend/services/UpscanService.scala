@@ -21,21 +21,27 @@ import cats.instances.future._
 import cats.instances.int._
 import cats.syntax.either._
 import cats.syntax.eq._
-import com.google.inject.{ImplementedBy, Singleton}
+import com.google.inject.ImplementedBy
+import com.google.inject.Singleton
 import play.api.http.Status.OK
 import play.api.mvc.Call
 import play.mvc.Http.Status
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanUpload, UpscanUploadMeta}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUploadMeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 
-import java.time.{Clock, LocalDateTime}
+import java.time.Clock
+import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[UpscanServiceImpl])
 trait UpscanService {

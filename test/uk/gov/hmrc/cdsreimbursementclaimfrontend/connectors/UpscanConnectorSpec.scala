@@ -19,13 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.{Configuration, Environment}
+import play.api.Configuration
+import play.api.Environment
 import play.api.mvc.Call
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{FileUploadConfig, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.FileUploadConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UpscanInitiateRequest, UpscanUpload}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanInitiateRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

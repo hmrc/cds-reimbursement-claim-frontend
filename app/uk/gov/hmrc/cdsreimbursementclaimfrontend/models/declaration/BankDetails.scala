@@ -16,9 +16,16 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration
 
-import play.api.libs.functional.syntax.{toFunctionalBuilderOps, unlift}
-import play.api.libs.json.{Format, JsPath, Reads, Writes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, AccountNumber, BankAccountDetails, SortCode}
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.json.Format
+import play.api.libs.json.JsPath
+import play.api.libs.json.Reads
+import play.api.libs.json.Writes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SortCode
 
 final case class BankDetails(
   consigneeBankDetails: Option[BankAccountDetails],
