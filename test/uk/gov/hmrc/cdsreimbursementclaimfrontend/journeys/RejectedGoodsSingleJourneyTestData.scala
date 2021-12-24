@@ -74,11 +74,16 @@ trait RejectedGoodsSingleJourneyTestData {
       country = Country.uk
     )
 
+  val exampleInspectionAddressType: InspectionAddressType =
+    InspectionAddressType.Other
+
   val exampleInspectionAddress: InspectionAddress =
     InspectionAddress(
       addressLine1 = "1 Bar Road",
+      addressLine2 = "Lewisham",
+      city = "London",
       postalCode = "BA1 1FO",
-      addressType = InspectionAddressType.Other
+      countryCode = Country.uk.code
     )
 
   val exampleInspectionDate: LocalDate =
@@ -101,6 +106,7 @@ trait RejectedGoodsSingleJourneyTestData {
     detailsOfRejectedGoods: String,
     specialCircumstancesDetails: String,
     inspectionDate: LocalDate,
+    inspectionAddressType: InspectionAddressType,
     inspectionAddress: InspectionAddress,
     methodOfDisposal: MethodOfDisposal,
     reimbursementClaims: Seq[(TaxCode, BigDecimal, Boolean)],
@@ -154,6 +160,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .flatMap(_.selectAndReplaceTaxCodeSetForReimbursement(taxCodes))
       .flatMapEach(taxCodesWithReimbursementAmount, submitAmountForReimbursement)
       .map(_.submitInspectionDate(inspectionDate))
+      .map(_.submitInspectionAddressType(inspectionAddressType))
       .map(_.submitInspectionAddress(inspectionAddress))
       .flatMapWhenDefined(reimbursementMethod)(_.submitReimbursementMethod _)
       .flatMapWhenDefined(bankAccountDetails)(_.submitBankAccountDetails _)

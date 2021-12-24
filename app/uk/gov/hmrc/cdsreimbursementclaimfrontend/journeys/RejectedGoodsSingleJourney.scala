@@ -19,15 +19,7 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, EvidenceDocument, InspectionAddress, InspectionAddressType, MethodOfDisposal, MrnContactDetails, TaxCode}
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
@@ -273,6 +265,11 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       answers.copy(inspectionDate = Some(inspectionDate))
     )
 
+  def submitInspectionAddressType(inspectionAddressType: InspectionAddressType): RejectedGoodsSingleJourney =
+    new RejectedGoodsSingleJourney(
+      answers.copy(inspectionAddressType = Some(inspectionAddressType))
+    )
+
   def submitInspectionAddress(inspectionAddress: InspectionAddress): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
       answers.copy(inspectionAddress = Some(inspectionAddress))
@@ -380,6 +377,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 Some(detailsOfRejectedGoods),
                 _,
                 Some(inspectionDate),
+                Some(inspectionAddressType),
                 Some(inspectionAddress),
                 bankAccountDetails,
                 _,
@@ -406,6 +404,7 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
                 detailsOfRejectedGoods = detailsOfRejectedGoods,
                 inspectionDate = inspectionDate,
                 inspectionAddress = inspectionAddress,
+                inspectionAddressType = inspectionAddressType,
                 reimbursementClaims = getReimbursementClaims,
                 supportingEvidences = supportingEvidences.map(EvidenceDocument.from),
                 basisOfClaimSpecialCircumstances = basisOfClaimSpecialCircumstances,
@@ -441,6 +440,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     detailsOfRejectedGoods: Option[String] = None,
     reimbursementClaims: Option[Map[TaxCode, Option[BigDecimal]]] = None,
     inspectionDate: Option[LocalDate] = None,
+    inspectionAddressType: Option[InspectionAddressType] = None,
     inspectionAddress: Option[InspectionAddress] = None,
     bankAccountDetails: Option[BankAccountDetails] = None,
     bankAccountType: Option[BankAccountType] = None,
@@ -458,6 +458,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
     methodOfDisposal: MethodOfDisposal,
     detailsOfRejectedGoods: String,
     inspectionDate: LocalDate,
+    inspectionAddressType: InspectionAddressType,
     inspectionAddress: InspectionAddress,
     reimbursementClaims: Map[TaxCode, BigDecimal],
     reimbursementMethod: ReimbursementMethodAnswer,
@@ -475,7 +476,7 @@ object RejectedGoodsSingleJourney extends FluentImplicits[RejectedGoodsSingleJou
       checkIsDefined(_.answers.basisOfClaim, "missing basisOfClaim"),
       checkIsDefined(_.answers.detailsOfRejectedGoods, "missing detailsOfRejectedGoods"),
       checkIsDefined(_.answers.inspectionDate, "missing inspectionDate"),
-      checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
+      checkIsDefined(_.answers.inspectionAddressType, "missing inspectionAddressType"),
       checkIsDefined(_.answers.inspectionAddress, "missing inspectionAddress"),
       checkIsDefined(_.answers.methodOfDisposal, "missing inspectionAddress"),
       check(_.isCompleteReimbursementClaims, "incomplete reimbursement claims"),
