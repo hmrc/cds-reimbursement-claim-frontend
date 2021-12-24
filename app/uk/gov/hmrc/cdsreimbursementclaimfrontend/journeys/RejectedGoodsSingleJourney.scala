@@ -19,7 +19,17 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, EvidenceDocument, InspectionAddress, InspectionAddressType, MethodOfDisposal, MrnContactDetails, RetrievedUserType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
