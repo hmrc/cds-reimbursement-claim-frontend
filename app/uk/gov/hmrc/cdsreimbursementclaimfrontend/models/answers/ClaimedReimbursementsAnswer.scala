@@ -19,8 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 import cats.Id
 import cats.data.NonEmptyList
 import cats.implicits.catsSyntaxOption
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, Reimbursement, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 object ClaimedReimbursementsAnswer {
 

@@ -21,8 +21,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.{No, Yes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaimAnswer, BasisOfClaims}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.No
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo.Yes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample

@@ -27,7 +27,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import java.net.URL
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 trait AddressLookupSupport { this: MockFactory =>
 

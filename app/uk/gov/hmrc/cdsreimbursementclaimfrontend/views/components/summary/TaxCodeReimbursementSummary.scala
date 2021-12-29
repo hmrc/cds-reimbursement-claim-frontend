@@ -20,10 +20,17 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.SelectedTaxCodesReimbursementOps
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DutyType, Reimbursement, TaxCode}
-import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, Value}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.govukfrontend.views.Aliases.Key
+import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, SummaryList, SummaryListRow}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 import scala.collection.SortedMap
 

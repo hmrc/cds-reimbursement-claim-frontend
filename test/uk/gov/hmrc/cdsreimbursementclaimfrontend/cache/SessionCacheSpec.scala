@@ -23,14 +23,17 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.Configuration
-import play.api.libs.json.{JsNumber, JsObject}
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 import play.api.test.Helpers._
 import uk.gov.hmrc.cache.model.Id
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.{TestEnvironment, config}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.TestEnvironment
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCacheSpec.config
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SessionDataGen._
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.mongo.DatabaseUpdate
 
 import java.util.UUID

@@ -17,23 +17,34 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, toBifunctorOps}
-import com.google.inject.{ImplementedBy, Inject, Singleton}
+import cats.implicits.catsSyntaxEq
+import cats.implicits.toBifunctorOps
+import com.google.inject.ImplementedBy
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.http.Status._
 import play.api.i18n.Lang
-import play.api.libs.json.{JsValue, Json, Reads, Writes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.{CDSReimbursementClaimConnector, ClaimConnector}
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.json.Reads
+import play.api.libs.json.Writes
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.CDSReimbursementClaimConnector
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.ClaimConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.{BarsBusinessAssessRequest, BarsPersonalAssessRequest}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsBusinessAssessRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.request.BarsPersonalAssessRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.{SubmitClaimRequest, SubmitClaimResponse}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.claim.SubmitClaimResponse
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HttpResponseOps._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultClaimService])
 trait ClaimService {

@@ -26,7 +26,9 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.SelectWhoIsM
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.SupportingEvidenceController.supportingEvidenceKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{BasisOfClaims, DeclarantTypeAnswers, TypeOfClaimAnswer}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.BasisOfClaims
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.DeclarantTypeAnswers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 
 class CheckYourScheduledJourneyAnswersSpec extends CheckYourAnswersSummarySpec with CheckCDSDetails {

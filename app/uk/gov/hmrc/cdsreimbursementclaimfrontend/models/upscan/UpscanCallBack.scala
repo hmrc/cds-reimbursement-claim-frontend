@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan
 
 import julienrf.json.derived
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 import java.time.Instant
 

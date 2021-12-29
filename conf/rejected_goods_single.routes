@@ -14,3 +14,6 @@ GET          /rejected-goods/single/claimant-details                            
 
 GET          /rejected-goods/single/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.show()
 POST         /rejected-goods/single/claimant-details/change-contact-details       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.EnterContactDetailsController.submit()
+
+GET          /rejected-goods/single/choose-basis-for-claim                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.show()
+POST         /rejected-goods/single/choose-basis-for-claim                       uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle.BasisForClaimController.submit()

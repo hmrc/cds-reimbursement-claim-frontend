@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
+import cats.implicits.catsSyntaxEq
+import cats.implicits.catsSyntaxOptionId
 import org.scalacheck.magnolia._
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.arbitraryBankAccountDetailsGen
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BasisOfClaimAnswerGen.arbitraryBasisOfClaimAnswer
@@ -33,8 +35,11 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ClaimedReimbursementsAnswerGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.YesNoGen.arbitraryYesNo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ReimbursementMethodAnswerGen.arbitraryReimbursementMethodAnswer
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.{arbitrarySupportingEvidenceAnswer, genScheduledDocument}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountType, DraftClaim, answers}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.arbitrarySupportingEvidenceAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen.genScheduledDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
 import java.util.UUID
 

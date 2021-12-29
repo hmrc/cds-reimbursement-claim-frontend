@@ -23,7 +23,10 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDecla
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
 class DisplayDeclarationSummary extends RejectedGoodsAnswerSummary[DisplayDeclaration] {
 

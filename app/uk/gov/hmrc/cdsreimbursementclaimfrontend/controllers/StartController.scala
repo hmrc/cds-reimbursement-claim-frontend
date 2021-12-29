@@ -18,23 +18,30 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 
 import cats.data.EitherT
 import cats.instances.future._
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.{ErrorHandler, ViewConfig}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.NonGovernmentGatewayRetrievedUser
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{ContactName, Email, Name}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{Eori, GGCredId}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.ContactName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Name
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.{controllers, views}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class StartController @Inject() (

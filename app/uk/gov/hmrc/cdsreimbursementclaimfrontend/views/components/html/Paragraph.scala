@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html
 
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.Html
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.paragraph_block
 
 object Paragraph {

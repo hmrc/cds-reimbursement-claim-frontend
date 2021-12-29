@@ -25,8 +25,12 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.http.Status.ACCEPTED
-import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
-import play.api.test.Helpers.{LOCATION, _}
+import play.api.libs.json.JsError
+import play.api.libs.json.JsPath
+import play.api.libs.json.Json
+import play.api.libs.json.JsonValidationError
+import play.api.test.Helpers.LOCATION
+import play.api.test.Helpers._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
@@ -34,7 +38,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLo
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.ContactAddressGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.arbitraryUrl
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 import java.net.URL
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global

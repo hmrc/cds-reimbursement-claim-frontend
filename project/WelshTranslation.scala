@@ -1,5 +1,6 @@
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
@@ -15,32 +16,32 @@ final case class Translation(key: String, text: String)
 
 object WelshTranslation {
 
-  def fileEn = Source.fromFile("conf/messages").getLines().toList
-  def fileCy = Source.fromFile("conf/messages.cy").getLines().toList
+  def fileEn     = Source.fromFile("conf/messages").getLines().toList
+  def fileCy     = Source.fromFile("conf/messages.cy").getLines().toList
   def messagesEn = linesToMap(fileEn)
   def messagesCy = linesToMap(fileCy)
 
-  val csvSeparatorCharacter = ';'  //Using semicolon, because the text can contain commas, and then you have to use quotes ... just complicates things
+  val csvSeparatorCharacter =
+    ';' //Using semicolon, because the text can contain commas, and then you have to use quotes ... just complicates things
 
-  /**
-   * Generates 2 new files:
-   *  - a new messages.cy file (from the english version + git history)
-   *  - a csv file to send to the translation team with all the missing translations
-   */
+  /** Generates 2 new files:
+    *  - a new messages.cy file (from the english version + git history)
+    *  - a csv file to send to the translation team with all the missing translations
+    */
   def importAndExport(): Unit = {
     val newlinesToTranslate = ListBuffer[String]()
-    val newWelshLines = fileEn
+    val newWelshLines       = fileEn
       .map { line =>
         parseMessagesFileLine(line) match {
           case Some(translation: Translation) =>
             messagesCy.get(translation.key) match {
               case Some(welshText) =>
                 translation.key + "=" + welshText
-              case None =>
+              case None            =>
                 newlinesToTranslate += s"${translation.key}$csvSeparatorCharacter${translation.text}"
                 translation.key + "="
             }
-          case None =>
+          case None                           =>
             line
         }
       }
@@ -48,9 +49,11 @@ object WelshTranslation {
     val newWelshLanguageFile = newWelshLines.mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
 
     val changedTranslations = gitDiffLanguageFileChanges()
-      .map { change => s"${change.translation.key}$csvSeparatorCharacter${change.translation.text}"}
+      .map(change => s"${change.translation.key}$csvSeparatorCharacter${change.translation.text}")
 
-    val translationTeamFile = (newlinesToTranslate.toList ::: changedTranslations).mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
+    val translationTeamFile = (newlinesToTranslate.toList ::: changedTranslations)
+      .mkString(System.lineSeparator())
+      .getBytes(StandardCharsets.UTF_8)
 
     Files.write(Paths.get("conf/messages.cy"), newWelshLanguageFile)
     Files.write(Paths.get("conf/CdsReimbursementNewOrChanged.csv"), translationTeamFile)
@@ -59,22 +62,18 @@ object WelshTranslation {
   }
 
   def gitDiffLanguageFileChanges(): List[LineChange] = {
-    val gitLog = "git --no-pager log -30".!!
-    val commits = """commit (\w+)""".r //Commit log lines: commit 043c494a3058d69e055be485bd30e485eb04cc9d
+    val gitLog   = "git --no-pager log -30".!!
+    val commits  = """commit (\w+)""".r //Commit log lines: commit 043c494a3058d69e055be485bd30e485eb04cc9d
     val comitIds = commits.findAllMatchIn(gitLog).map(_.group(1)).toList
 
     val changedLineRegex = "^[-+](?![-+])(.+)".r //exclude lines like these: --- a/conf/messages OR +++ b/conf/messages
 
-    comitIds
-      .zipWithIndex
+    comitIds.zipWithIndex
       .zip(comitIds.tail)
       .map { case ((newCommit, date), oldCommit) =>
         val gitDiff = s"git diff $oldCommit $newCommit -U0 conf/messages"
         println(gitDiff)
-        gitDiff
-          .!!
-          .split(System.lineSeparator())
-          .toList
+        gitDiff.!!.split(System.lineSeparator()).toList
           .map(changedLineRegex.findFirstIn(_)) //Keep only git changed lines
           .flatten(Option.option2Iterable)
           .map(parseGitMessagesFileLine(_, date))
@@ -87,27 +86,26 @@ object WelshTranslation {
       .map(_._2.sortWith((a, b) => a.date < b.date).head)
   }
 
-  def parseGitMessagesFileLine(line: String, date: Int): Option[LineChange] = {
+  def parseGitMessagesFileLine(line: String, date: Int): Option[LineChange] =
     parseMessagesFileLine(line.tail) match {
       case Some(translation: Translation) =>
         (line(0) == '+') match {
-          case true =>
+          case true  =>
             Some(LineChange(date, Addition, translation))
           case false =>
             Some(LineChange(date, Removal, translation))
         }
-      case None =>
+      case None                           =>
         None
     }
-  }
 
   def parseMessagesFileLine(line: String): Option[Translation] = {
-    val separator = line.indexOf('=')
+    val separator        = line.indexOf('=')
     val sectionSeparator = line.indexOf("#==")
     (separator >= 0 && sectionSeparator < 0) match {
-      case true =>
+      case true  =>
         val languageKey = line.substring(0, separator)
-        val text = line.substring(separator + 1)
+        val text        = line.substring(separator + 1)
         Some(Translation(languageKey, text))
       case false =>
         None
@@ -174,7 +172,7 @@ object WelshTranslation {
         messagesEn.get(welshKV._1) match {
           case Some(english) =>
             if (english == welshKV._2 || english == "___" + welshKV._2) true else false
-          case None => false
+          case None          => false
         }
       }
       .filterNot(kv => excludedKeys.filter(a => kv._1.startsWith(a)).nonEmpty)

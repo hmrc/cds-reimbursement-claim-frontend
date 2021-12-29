@@ -18,7 +18,8 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids
 
 import cats.data.Validated
 import cats.implicits.catsSyntaxOption
-import cats.{Eq, Id}
+import cats.Eq
+import cats.Id
 import play.api.libs.json.Format
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN.validityRegex

@@ -19,7 +19,16 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.journeys
 import cats.Eq
 import cats.syntax.eq._
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BankAccountDetails, BankAccountType, BasisOfRejectedGoodsClaim, ClaimantInformation, EvidenceDocument, InspectionAddress, MethodOfDisposal, MrnContactDetails, RetrievedUserType, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimantInformation
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.EvidenceDocument
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MethodOfDisposal
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ClaimantType
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.ReimbursementMethodAnswer
@@ -34,7 +43,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.FluentSyntax
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.MapFormat
 import java.time.LocalDate
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.RetrievedUserType.Individual
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.{Email, PhoneNumber}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.SimpleStringFormat
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadDocumentType
 

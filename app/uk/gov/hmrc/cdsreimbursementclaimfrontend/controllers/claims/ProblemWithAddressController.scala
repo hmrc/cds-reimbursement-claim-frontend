@@ -16,8 +16,12 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.claims.problem_with_address

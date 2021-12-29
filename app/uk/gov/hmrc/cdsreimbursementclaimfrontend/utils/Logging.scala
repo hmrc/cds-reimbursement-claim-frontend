@@ -17,7 +17,8 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.utils
 
 import play.api.Logger
-import play.api.mvc.{Request, Result}
+import play.api.mvc.Request
+import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging._

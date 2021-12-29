@@ -16,13 +16,18 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import org.scalacheck.magnolia._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{AccountName, BankAccountDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.AccountName
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BankAccountDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.{genContactDetails, genEstablishmentAddress, genNdrcDetails}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genEstablishmentAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Acc14Gen.genNdrcDetails
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.AccountDetailsGen.genAccountDetails
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.{genAccountNumber, genSortCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.genAccountNumber
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.BankAccountGen.genSortCode
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen.genEori
 
 object DisplayResponseDetailGen {

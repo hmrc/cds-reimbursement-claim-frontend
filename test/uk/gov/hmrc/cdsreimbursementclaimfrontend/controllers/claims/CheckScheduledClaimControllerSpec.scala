@@ -17,7 +17,10 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims
 
 import cats.implicits.catsSyntaxOptionId
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.Lang
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.i18n.MessagesImpl
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.FakeRequest
@@ -26,18 +29,31 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.CheckScheduledClaimController.checkClaimSummaryKey
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.{routes => claimsRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.{EuDuty, UkDuty, Wine}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.EuDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.UkDuty
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DutyType.Wine
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.{A30, A70, B00}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{SelectedDutyTaxCodesReimbursementAnswer, TypeOfClaimAnswer}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.{dutyTypesOrdering, taxCodesOrdering}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A30
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.A70
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode.B00
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.TypeOfClaimAnswer
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.dutyTypesOrdering
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SelectedDutyTaxCodesReimbursementAnswer.taxCodesOrdering
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.DraftClaimGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.SignedInUserDetailsGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.GGCredId
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{BigDecimalOps, DraftClaim, Reimbursement, SessionData, SignedInUserDetails, TaxCode}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BigDecimalOps
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.DraftClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Reimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SignedInUserDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
 
 import scala.collection.immutable.SortedMap
 

@@ -21,36 +21,39 @@ import javax.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.basisOfRejectedGoodsClaimForm
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms.eoriNumberForm
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{claims => pages}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 @Singleton
-class EnterImporterEoriNumberController @Inject() (
+class BasisForClaimController @Inject() (
   val jcc: JourneyControllerComponents,
-  enterImporterEoriNumber: pages.enter_importer_eori_number
+  basisForClaimPage: pages.select_basis_for_claim
 )(implicit val ec: ExecutionContext, viewConfig: ViewConfig)
     extends RejectedGoodsSingleJourneyBaseController {
 
-  val eoriNumberFormKey: String = "enter-importer-eori-number"
+  val formKey: String = "select-basis-for-claim.rejected-goods"
 
   def show(): Action[AnyContent] = actionReadJourney { implicit request => journey =>
     Future.successful {
+      val form = journey.answers.basisOfClaim.toList.foldLeft(basisOfRejectedGoodsClaimForm)((form, basisOfClaim) =>
+        form.fill(basisOfClaim)
+      )
       Ok(
-        enterImporterEoriNumber(
-          eoriNumberForm(eoriNumberFormKey).withDefault(journey.answers.consigneeEoriNumber),
-          routes.EnterImporterEoriNumberController.submit()
+        basisForClaimPage(
+          form,
+          BasisOfRejectedGoodsClaim.values,
+          routes.BasisForClaimController.submit()
         )
       )
     }
   }
 
   def submit(): Action[AnyContent] = actionReadWriteJourney { implicit request => journey =>
-    eoriNumberForm(eoriNumberFormKey)
+    basisOfRejectedGoodsClaimForm
       .bindFromRequest()
       .fold(
         formWithErrors =>
@@ -58,28 +61,17 @@ class EnterImporterEoriNumberController @Inject() (
             (
               journey,
               BadRequest(
-                enterImporterEoriNumber(
-                  formWithErrors.fill(Eori("")),
-                  routes.EnterImporterEoriNumberController.submit()
+                basisForClaimPage(
+                  formWithErrors,
+                  BasisOfRejectedGoodsClaim.values,
+                  routes.BasisForClaimController.submit()
                 )
               )
             )
           ),
-        eori =>
+        basisOfClaim =>
           Future.successful(
-            journey
-              .submitConsigneeEoriNumber(eori)
-              .fold(
-                errors => {
-                  logger.error(s"Unable to record $eori - $errors")
-                  (journey, Redirect(baseRoutes.IneligibleController.ineligible()))
-                },
-                updatedJourney =>
-                  (
-                    updatedJourney,
-                    Redirect(routes.EnterDeclarantEoriNumberController.show())
-                  )
-              )
+            (journey.submitBasisOfClaim(basisOfClaim), Redirect("disposal-method"))
           )
       )
   }

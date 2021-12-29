@@ -19,8 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.HtmlUtil.html
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints.{bulletList, titleAndDescription}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.{bullets, title_and_description}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints.bulletList
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.hints.DropdownHints.titleAndDescription
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.bullets
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.components.title_and_description
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.EnumerationFormat
 
 final case class DropdownHints(keys: Seq[String]) extends Hints {

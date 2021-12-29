@@ -21,10 +21,13 @@ import org.scalacheck.Gen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{ClaimedReimbursement, TaxCode, TaxCodes}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ClaimedReimbursement
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCode
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.TaxCodes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.TaxCodeGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyTypeSummary._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.{genReimbursements, totalOf}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.genReimbursements
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary.DutyClaimSummarySpec.totalOf
 
 class DutyClaimSummarySpec extends AnyWordSpec with ScalaCheckPropertyChecks with Matchers {
 

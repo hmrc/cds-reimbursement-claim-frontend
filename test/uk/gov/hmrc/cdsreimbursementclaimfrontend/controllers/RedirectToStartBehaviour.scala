@@ -20,7 +20,8 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.mvc.Result
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.JourneyStatusGen._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.{JourneyStatus, SessionData}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.SessionData
 
 import scala.concurrent.Future
 

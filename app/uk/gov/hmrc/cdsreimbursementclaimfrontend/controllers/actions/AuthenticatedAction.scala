@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import play.api.Configuration
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.AuthorisedFunctions
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 final case class AuthenticatedRequest[A](request: MessagesRequest[A]) extends WrappedRequest[A](request)
 

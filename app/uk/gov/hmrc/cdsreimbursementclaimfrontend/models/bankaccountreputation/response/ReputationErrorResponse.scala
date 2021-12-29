@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.bankaccountreputation.response
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 final case class ReputationErrorResponse(code: String, desc: String) {
   def toCommonResponse(): CommonBarsResponse = CommonBarsResponse(ReputationResponse.No, None, Some(this))

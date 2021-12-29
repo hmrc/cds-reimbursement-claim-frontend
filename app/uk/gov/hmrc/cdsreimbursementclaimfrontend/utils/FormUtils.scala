@@ -20,9 +20,14 @@ import cats.Eq
 import cats.instances.int._
 import cats.syntax.either._
 import cats.syntax.eq._
-import play.api.data.format.{Formats, Formatter}
-import play.api.data.validation.{Constraint, Invalid, Valid}
-import play.api.data.{FormError, Forms, Mapping}
+import play.api.data.format.Formats
+import play.api.data.format.Formatter
+import play.api.data.validation.Constraint
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
+import play.api.data.FormError
+import play.api.data.Forms
+import play.api.data.Mapping
 
 import scala.math.BigDecimal.RoundingMode
 import scala.util.Try

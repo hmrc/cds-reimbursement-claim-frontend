@@ -20,8 +20,13 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.YesNo
-import uk.gov.hmrc.govukfrontend.views.Aliases.{ActionItem, Key, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryList, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.Aliases.ActionItem
+import uk.gov.hmrc.govukfrontend.views.Aliases.Key
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Value
 
 class NorthernIrelandAnswerSummary extends AnswerSummary[YesNo] {
 

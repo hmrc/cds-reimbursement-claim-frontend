@@ -17,23 +17,32 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.services
 
 import cats.data.EitherT
-import cats.implicits.{catsStdInstancesForFuture, catsSyntaxEq, catsSyntaxOptionId, toBifunctorOps}
-import com.google.inject.{ImplementedBy, Inject}
+import cats.implicits.catsStdInstancesForFuture
+import cats.implicits.catsSyntaxEq
+import cats.implicits.catsSyntaxOptionId
+import cats.implicits.toBifunctorOps
+import com.google.inject.ImplementedBy
+import com.google.inject.Inject
 import play.api.http.HeaderNames.LOCATION
-import play.api.http.Status.{ACCEPTED, OK}
+import play.api.http.Status.ACCEPTED
+import play.api.http.Status.OK
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{JsPath, JsonValidationError, Reads}
+import play.api.libs.json.JsPath
+import play.api.libs.json.JsonValidationError
+import play.api.libs.json.Reads
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.connectors.AddressLookupConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.lookup.AddressLookupRequest
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.DefaultAddressLookupService.addressLookupResponseReads
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 import java.net.URL
 import java.util.UUID
 import play.api.libs.json.Reads.minLength
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[DefaultAddressLookupService])
 trait AddressLookupService {

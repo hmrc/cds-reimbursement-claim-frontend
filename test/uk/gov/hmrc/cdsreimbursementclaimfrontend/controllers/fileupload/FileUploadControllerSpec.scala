@@ -17,19 +17,25 @@
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload
 
 import cats.data.EitherT
-import org.scalamock.handlers.{CallHandler2, CallHandler4}
+import org.scalamock.handlers.CallHandler2
+import org.scalamock.handlers.CallHandler4
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{AuthSupport, ControllerSpec, SessionSupport}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.Error
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.Generators.sample
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.IdGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.generators.UpscanGen._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanCallBack.UpscanSuccess
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.{UploadReference, UploadRequest, UpscanUpload, UpscanUploadMeta}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadReference
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UploadRequest
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUpload
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.upscan.UpscanUploadMeta
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.UpscanService
 import uk.gov.hmrc.http.HeaderCarrier
 

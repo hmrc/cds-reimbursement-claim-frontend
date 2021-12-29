@@ -19,8 +19,10 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.summary
 import play.api.i18n.Messages
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.routes
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.{AssociatedMrn, LeadMrn}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.{AssociatedMrnIndex, MRN}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.AssociatedMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.LeadMrn
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.AssociatedMrnIndex
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.MRN
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.utils.LanguageHelper.lang
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._

@@ -21,7 +21,8 @@ import cats.implicits.catsSyntaxOption
 import cats.kernel.Eq
 import julienrf.json.derived
 import play.api.libs.json._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.{MissingAnswerError, Validator}
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.MissingAnswerError
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.validation.Validator
 
 sealed abstract class BasisOfClaimAnswer extends Product with Serializable
 

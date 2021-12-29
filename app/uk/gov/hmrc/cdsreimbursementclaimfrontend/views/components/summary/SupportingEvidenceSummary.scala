@@ -23,7 +23,8 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.fileupload.routes
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers.SupportingEvidencesAnswer
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.components.html.Paragraph
 import uk.gov.hmrc.govukfrontend.views.Aliases.Actions
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
 class SupportingEvidenceSummary extends AnswerSummary[SupportingEvidencesAnswer] {

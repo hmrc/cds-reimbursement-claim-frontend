@@ -32,8 +32,10 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.models.answers
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.{ContactAddress, Country}
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.ContactAddress
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.address.Country
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.declaration.DisplayDeclaration
 
