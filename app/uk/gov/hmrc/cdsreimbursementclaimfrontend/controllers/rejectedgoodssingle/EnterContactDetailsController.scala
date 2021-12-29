@@ -16,16 +16,19 @@
 
 package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.rejectedgoodssingle
 
-import com.google.inject.{Inject, Singleton}
-import play.api.mvc.{Action, AnyContent}
+import com.google.inject.Inject
+import com.google.inject.Singleton
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.claims.EnterContactDetailsMrnController
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.views.html.{rejectedgoodssingle => pages}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class EnterContactDetailsController @Inject() (
@@ -39,15 +42,20 @@ class EnterContactDetailsController @Inject() (
 
   private val postAction = routes.EnterContactDetailsController.submit()
 
-  def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => _ => _ =>
+  def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => userType =>
+    val mrnContactDetailsForm = journey
+      .getContactDetails(userType)
+      .map(Forms.mrnContactDetailsForm.fill)
+      .getOrElse(Forms.mrnContactDetailsForm)
+
     Future.successful(
-      Ok(enterOrChangeContactDetailsPage(EnterContactDetailsMrnController.mrnContactDetailsForm, postAction))
+      Ok(enterOrChangeContactDetailsPage(mrnContactDetailsForm, postAction))
     )
   }
 
   def submit(): Action[AnyContent] =
     actionReadWriteJourney { implicit request => journey =>
-      EnterContactDetailsMrnController.mrnContactDetailsForm
+      Forms.mrnContactDetailsForm
         .bindFromRequest()
         .fold(
           formWithErrors =>

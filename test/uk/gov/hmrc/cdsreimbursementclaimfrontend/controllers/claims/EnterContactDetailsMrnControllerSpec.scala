@@ -31,6 +31,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.AuthSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.ControllerSpec
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionSupport
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.{routes => baseRoutes}
@@ -269,7 +270,7 @@ class EnterContactDetailsMrnControllerSpec
   }
 
   "Form Validation" must {
-    val form         = EnterContactDetailsMrnController.mrnContactDetailsForm
+    val form         = Forms.mrnContactDetailsForm
     val fullName     = "enter-contact-details.contact-name"
     val emailAddress = "enter-contact-details.contact-email"
     val phone        = "enter-contact-details.contact-phone-number"
