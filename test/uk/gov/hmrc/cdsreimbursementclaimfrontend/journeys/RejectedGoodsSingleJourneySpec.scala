@@ -434,7 +434,7 @@ class RejectedGoodsSingleJourneySpec
         val journey =
           RejectedGoodsSingleJourney
             .empty(exampleEori)
-            .submitContactDetails(contactDetails)
+            .submitContactDetails(Some(contactDetails))
 
         journey.answers.contactDetails shouldBe Some(contactDetails)
       }
@@ -442,7 +442,7 @@ class RejectedGoodsSingleJourneySpec
 
     "change contact details" in {
       forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
-        val modifiedJourney = journey.submitContactDetails(contactDetails)
+        val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
 
         modifiedJourney.isComplete             shouldBe true
         modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)

@@ -218,9 +218,9 @@ final class RejectedGoodsSingleJourney private (val answers: RejectedGoodsSingle
       else Left("submitDeclarantEoriNumber.shouldMatchDeclarantEoriFromACC14")
     else Left("submitDeclarantEoriNumber.unexpected")
 
-  def submitContactDetails(contactDetails: MrnContactDetails): RejectedGoodsSingleJourney =
+  def submitContactDetails(contactDetails: Option[MrnContactDetails]): RejectedGoodsSingleJourney =
     new RejectedGoodsSingleJourney(
-      answers.copy(contactDetails = Some(contactDetails))
+      answers.copy(contactDetails = contactDetails)
     )
 
   def submitContactAddress(contactAddress: ContactAddress): RejectedGoodsSingleJourney =

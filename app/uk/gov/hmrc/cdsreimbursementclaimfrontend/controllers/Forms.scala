@@ -19,7 +19,11 @@ package uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.optional
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.BasisOfRejectedGoodsClaim
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.MrnContactDetails
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.ids.Eori
 
 object Forms {
@@ -35,5 +39,13 @@ object Forms {
       "select-basis-for-claim.rejected-goods" -> nonEmptyText
         .verifying("error.required", basis => basis.isEmpty || BasisOfRejectedGoodsClaim.has(basis))
     )(BasisOfRejectedGoodsClaim.findUnsafe)(borgc => Option(borgc.toString))
+  )
+
+  val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
+    mapping(
+      "enter-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
+      "enter-contact-details.contact-email"        -> Email.mappingMaxLength,
+      "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
+    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
   )
 }

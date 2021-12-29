@@ -20,16 +20,13 @@ import cats.data.EitherT
 import cats.syntax.all._
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import play.api.data.Form
-import play.api.data.Forms.mapping
-import play.api.data.Forms.nonEmptyText
-import play.api.data.Forms.optional
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.cache.SessionCache
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ErrorHandler
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
+import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyBindable
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.SessionUpdates
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyExtractor._
@@ -38,8 +35,6 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.SessionData
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.actions.WithAuthAndSessionDataAction
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.JourneyStatus.FillingOutClaim
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.models._
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.Email
-import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.contactdetails.PhoneNumber
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.services.FeatureSwitchService
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.util.toFuture
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.utils.Logging
@@ -76,7 +71,7 @@ class EnterContactDetailsMrnController @Inject() (
               contactDetails
             }
         val mrnContactDetailsForm =
-          answers.foldLeft(EnterContactDetailsMrnController.mrnContactDetailsForm)((form, answer) => form.fill(answer))
+          answers.foldLeft(Forms.mrnContactDetailsForm)((form, answer) => form.fill(answer))
 
         val postAction =
           if (isChange) router.submitUrlForChangeMrnContactDetails() else router.submitUrlForEnterMrnContactDetails()
@@ -93,7 +88,7 @@ class EnterContactDetailsMrnController @Inject() (
   def submit(isChange: Boolean)(implicit journey: JourneyBindable): Action[AnyContent] =
     authenticatedActionWithSessionData.async { implicit request =>
       withAnswersAndRoutes[MrnContactDetails] { (fillingOutClaim, _, router) =>
-        EnterContactDetailsMrnController.mrnContactDetailsForm
+        Forms.mrnContactDetailsForm
           .bindFromRequest()
           .fold(
             formWithErrors => {
@@ -119,16 +114,4 @@ class EnterContactDetailsMrnController @Inject() (
           )
       }
     }
-}
-
-object EnterContactDetailsMrnController {
-
-  val mrnContactDetailsForm: Form[MrnContactDetails] = Form(
-    mapping(
-      "enter-contact-details.contact-name"         -> nonEmptyText(maxLength = 512),
-      "enter-contact-details.contact-email"        -> Email.mappingMaxLength,
-      "enter-contact-details.contact-phone-number" -> optional(PhoneNumber.mapping)
-    )(MrnContactDetails.apply)(MrnContactDetails.unapply)
-  )
-
 }
