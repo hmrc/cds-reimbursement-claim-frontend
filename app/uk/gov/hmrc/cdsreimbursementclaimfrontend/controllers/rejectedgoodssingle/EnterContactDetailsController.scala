@@ -37,14 +37,11 @@ class EnterContactDetailsController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
+  private val postAction = routes.EnterContactDetailsController.submit()
+
   def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => _ => _ =>
     Future.successful(
-      Ok(
-        enterOrChangeContactDetailsPage(
-          EnterContactDetailsMrnController.mrnContactDetailsForm,
-          routes.EnterContactDetailsController.submit()
-        )
-      )
+      Ok(enterOrChangeContactDetailsPage(EnterContactDetailsMrnController.mrnContactDetailsForm, postAction))
     )
   }
 
@@ -53,14 +50,10 @@ class EnterContactDetailsController @Inject() (
       EnterContactDetailsMrnController.mrnContactDetailsForm
         .bindFromRequest()
         .fold(
-          formWithErrors => {
-            val postAction = routes.EnterContactDetailsController.submit()
-            Future.successful(
-              (journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))
-            )
-          },
+          formWithErrors =>
+            Future.successful((journey, BadRequest(enterOrChangeContactDetailsPage(formWithErrors, postAction)))),
           contactDetails => {
-            val updatedJourney = journey.submitContactDetails(contactDetails)
+            val updatedJourney = journey.submitContactDetails(Some(contactDetails))
             Future.successful((updatedJourney, Redirect(routes.CheckClaimantDetailsController.show())))
           }
         )

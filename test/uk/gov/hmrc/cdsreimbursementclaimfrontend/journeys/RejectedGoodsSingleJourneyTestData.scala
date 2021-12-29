@@ -143,7 +143,7 @@ trait RejectedGoodsSingleJourneyTestData {
       .submitDisplayDeclaration(displayDeclaration)
       .tryWhenDefined(consigneeEoriNumber)(_.submitConsigneeEoriNumber _)
       .flatMapWhenDefined(declarantEoriNumber)(_.submitDeclarantEoriNumber _)
-      .mapWhenDefined(contactDetails)(_.submitContactDetails _)
+      .map(_.submitContactDetails(contactDetails))
       .mapWhenDefined(contactAddress)(_.submitContactAddress _)
       .map(_.submitBasisOfClaim(basisOfClaim))
       .flatMapWhen(basisOfClaim == BasisOfRejectedGoodsClaim.SpecialCircumstances)(
