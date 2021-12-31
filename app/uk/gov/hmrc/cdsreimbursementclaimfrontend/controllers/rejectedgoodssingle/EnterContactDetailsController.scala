@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.config.ViewConfig
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.Forms
 import uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.JourneyControllerComponents
@@ -40,7 +41,7 @@ class EnterContactDetailsController @Inject() (
 
   implicit val dataExtractor: DraftClaim => Option[MrnContactDetails] = _.mrnContactDetailsAnswer
 
-  private val postAction = routes.EnterContactDetailsController.submit()
+  private def postAction: Call = routes.EnterContactDetailsController.submit()
 
   def show(): Action[AnyContent] = simpleActionReadJourneyAndUser { implicit request => journey => userType =>
     val mrnContactDetailsForm = journey
