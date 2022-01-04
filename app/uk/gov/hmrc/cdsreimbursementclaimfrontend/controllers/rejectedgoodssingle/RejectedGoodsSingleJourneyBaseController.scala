@@ -34,8 +34,7 @@ abstract class RejectedGoodsSingleJourneyBaseController(implicit ec: ExecutionCo
   final override val startOfTheJourney: Call =
     uk.gov.hmrc.cdsreimbursementclaimfrontend.controllers.routes.StartController.start()
 
-  final override val checkYourAnswers: Call =
-    Call("GET", "/claim-for-reimbursement-of-import-duties/rejected-goods/single/check-your-answers") //FIXME
+  final override val checkYourAnswers: Call = routes.CheckClaimantDetailsController.show()
 
   final override def getJourney(sessionData: SessionData): Option[RejectedGoodsSingleJourney] =
     sessionData.rejectedGoodsSingleJourney

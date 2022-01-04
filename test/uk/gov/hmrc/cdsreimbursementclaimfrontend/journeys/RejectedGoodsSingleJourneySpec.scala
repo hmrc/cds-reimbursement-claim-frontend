@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -434,7 +434,7 @@ class RejectedGoodsSingleJourneySpec
         val journey =
           RejectedGoodsSingleJourney
             .empty(exampleEori)
-            .submitContactDetails(contactDetails)
+            .submitContactDetails(Some(contactDetails))
 
         journey.answers.contactDetails shouldBe Some(contactDetails)
       }
@@ -442,7 +442,7 @@ class RejectedGoodsSingleJourneySpec
 
     "change contact details" in {
       forAll(completeJourneyGen, ContactDetailsGen.genMrnContactDetails) { (journey, contactDetails) =>
-        val modifiedJourney = journey.submitContactDetails(contactDetails)
+        val modifiedJourney = journey.submitContactDetails(Some(contactDetails))
 
         modifiedJourney.isComplete             shouldBe true
         modifiedJourney.answers.contactDetails shouldBe Some(contactDetails)
