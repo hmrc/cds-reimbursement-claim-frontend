@@ -134,6 +134,7 @@ object SelectDutiesController {
     val wasIncorrectExciseCodeSelected: Boolean =
       fillingOutClaim.draftClaim.basisOfClaimAnswer.exists(_ === IncorrectExciseValue)
 
+
     val ndrcDetails =
       fillingOutClaim.draftClaim.displayDeclaration.flatMap(_.displayResponseDetail.ndrcDetails)
 
