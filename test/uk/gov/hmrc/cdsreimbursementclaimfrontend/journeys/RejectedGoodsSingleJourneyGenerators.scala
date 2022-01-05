@@ -205,7 +205,6 @@ object RejectedGoodsSingleJourneyGenerators extends RejectedGoodsSingleJourneyTe
         "details of rejected goods",
         "special circumstances details",
         exampleInspectionDate,
-        exampleInspectionAddressType,
         exampleInspectionAddress,
         methodOfDisposal,
         reimbursementClaims,

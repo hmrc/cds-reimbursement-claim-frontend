@@ -25,7 +25,8 @@ final case class InspectionAddress(
   addressLine2: String,
   city: String,
   countryCode: String,
-  postalCode: String
+  postalCode: String,
+  addressType: InspectionAddressType
 )
 
 object InspectionAddress {

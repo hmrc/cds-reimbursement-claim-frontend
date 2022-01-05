@@ -27,24 +27,23 @@ import uk.gov.hmrc.cdsreimbursementclaimfrontend.models.InspectionAddressType
 object InspectionAddressGen {
 
   lazy val genInspectionAddress = for {
-    num      <- Gen.choose(1, 100)
-    street   <- genStringWithMaxSizeOfN(7)
-    district <- genStringWithMaxSizeOfN(5)
-    city     <- genStringWithMaxSizeOfN(10)
-    postcode <- genPostcode
-    country  <- genCountry
+    num         <- Gen.choose(1, 100)
+    street      <- genStringWithMaxSizeOfN(7)
+    district    <- genStringWithMaxSizeOfN(5)
+    city        <- genStringWithMaxSizeOfN(10)
+    postcode    <- genPostcode
+    country     <- genCountry
+    addressType <- Gen.oneOf(InspectionAddressType.values)
   } yield InspectionAddress(
     addressLine1 = s"$num $street",
     addressLine2 = district,
     city = city,
     countryCode = country.code,
-    postalCode = postcode
+    postalCode = postcode,
+    addressType = addressType
   )
 
   implicit lazy val arbitraryInspectionAddress: Typeclass[InspectionAddress] =
     Arbitrary(genInspectionAddress)
-
-  implicit lazy val arbitraryAddressType: Typeclass[InspectionAddressType] =
-    Arbitrary(Gen.oneOf(InspectionAddressType.values))
 
 }
